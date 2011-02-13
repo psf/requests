@@ -82,7 +82,7 @@ class Request(object):
 		"""
 		self._checks()
 		
-		if self.method.lower() == 'get':
+		if self.method.lower() in ('get', 'head'):
 			if (not self.sent) or anyway:
 				try:
 					# url encode GET params if it's a dict
@@ -94,6 +94,10 @@ class Request(object):
 
 					req = urllib2.Request("%s?%s" % (self.url, params))
 
+					if self.method.lower() == 'head':
+						req.get_method = lambda : 'HEAD'
+
+
 					if self.headers:
 						req.headers = self.headers
 
@@ -102,25 +106,15 @@ class Request(object):
 
 					self.response.status_code = resp.code
 					self.response.headers = resp.info().dict
-					self.response.content = resp.read()
+					if self.method.lower() == 'get':
+						self.response.content = resp.read()
 
 					success = True
-
 
 				except RequestException:
 					raise RequestException
 				
-			
-		elif self.method.lower() == 'head':
-			if (not self.sent) or anyway:
-				try:
-					pass
-					
-					success = True
 
-				except Exception:
-					raise RequestException
-		
 		elif self.method.lower() == 'put':
 			if (not self.sent) or anyway:
 				try:
@@ -230,14 +224,15 @@ def get(url, params={}, headers={}, auth=None):
 	return r.response
 
 
-def head(url, data={}, headers={}, auth=None):
+def head(url, params={}, headers={}, auth=None):
 	"""Sends a HEAD request. Returns :class:`Response` object.
 	"""
 	r = Request()
 	
 	r.method = 'HEAD'
+	r.url = url
 	# return response object
-	r.data = data
+	r.params = params
 	r.headers = headers
 	r.auth = _detect_auth(url, auth)
 	
