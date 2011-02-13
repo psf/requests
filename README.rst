@@ -56,6 +56,7 @@ Let's do this. ::
 
 	>>> dict(r)
 	{
+		'url': 'http://someurl.com/',
 		'headers': {
 			'key': 'value',
 		}, 
