@@ -53,6 +53,7 @@ Let's do this. ::
 		}, 
 		'method': 'GET',
 		'response': {
+			'content': <sensored-content>,
 			'status_code': 200,
 			'headers': {
 				'x-runtime': '210ms',
