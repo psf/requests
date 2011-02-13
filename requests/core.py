@@ -36,8 +36,11 @@ class Request(object):
 	def __init__(self):
 		self.headers = dict()
 		self.method = None
+		self.params = {}
+		self.data = None
 		self.response = Response()
 		self.auth = None
+		self.sent = False
 		
 	
 	def __setattr__(self, name, value):
@@ -48,11 +51,42 @@ class Request(object):
 		object.__setattr__(self, name, value)
 		
 		
-	def send(self):
-		"""Sends the request. """
+	def send(self, anyway=False):
+		"""Sends the request. 
+		
+		   :param anyway: If True, request will be sent, even if it has already been sent.
+		"""
+		
+		if self.method.lower() == 'get':
+			if (not self.sent) or anyway:
+				r = urllib.urlopen('http://kennethreitz.com')
+				self.response.headers = r.headers.dict
+				self.response.status_code = r.code
+				self.response.content =  r.read()
+			
+				success = True
+			
+		elif self.method.lower() == 'head':
+			if (not self.sent) or anyway:
+				pass
+		
+		elif self.method.lower() == 'put':
+			if (not self.sent) or anyway:
+				pass
+			
+		elif self.method.lower() == 'post':
+			if (not self.sent) or anyway:
+				pass
+
+		elif self.method.lower() == 'delete':
+			if (not self.sent) or anyway:
+				pass
+			
 		#set self.response
 
-		# return True / False
+		if success:
+			self.sent = True
+		return success
 		
 
 class Response(object):
