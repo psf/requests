@@ -13,8 +13,8 @@
 import httplib
 import urllib
 import urllib2
+import urlparse
 
-import requests.handler
 
 __title__ = 'requests'
 __version__ = '0.0.1'
@@ -24,7 +24,7 @@ __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
 
 
-AUTHOAUTHS = []
+AUTOAUTHS = []
 
 
 class Request(object):
@@ -36,17 +36,22 @@ class Request(object):
 	def __init__(self):
 		self.headers = dict()
 		self.method = None
-		self.response = None
+		self.response = Response()
 		self.auth = None
+		
 	
-	def __setattr__(self, key, val):
-		if key == 'method':
-			if not val.lower() in _METHODS:
+	def __setattr__(self, name, value):
+		if (name == 'method') and (value):
+			if not value.lower() in self._METHODS:
 				raise InvalidMethod()
+		
+		object.__setattr__(self, name, value)
+		
 		
 	def send(self):
 		"""Sends the request. """
 		#set self.response
+
 		# return True / False
 		
 
@@ -78,43 +83,78 @@ def get(url, params={}, headers={}, auth=None):
 	"""
 	r = Request()
 	
+	r.method = 'GET'
 	r.url = url
 	r.headers = headers
 	r.auth = _detect_auth(url, auth)
-	r.method = 'GET'
+	
 	r.send()
 	
 	return r.response
-	
-	# return response object
 
 
 def head(url, params={}, headers={}, auth=None):
 	"""Sends a HEAD request. Returns :class:`Response` object.
 	"""
-	pass
+	r = Request()
+	
+	r.method = 'HEAD'
 	# return response object
+	
+	r.headers = headers
+	r.auth = _detect_auth(url, auth)
+	
+	r.send()
+	
+	return r.response
 
 
 def post(url, params={}, headers={}, auth=None):
 	"""Sends a POST request. Returns :class:`Response` object.
 	"""
-	pass
+	r = Request()
+	
+	r.method = 'POST'
 	# return response object
+	
+	r.headers = headers
+	r.auth = _detect_auth(url, auth)
+	
+	r.send()
+	
+	return r.response
 	
 	
 def put(url, data='', headers={}, auth=None):
 	"""Sends a PUT request. Returns :class:`Response` object.
 	"""
-	pass
+	r = Request()
+	
+	r.method = 'PUT'
 	# return response object
+	
+	r.headers = headers
+	r.auth = _detect_auth(url, auth)
+	
+	r.send()
+	
+	return r.response
 
 	
 def delete(url, params={}, headers={}, auth=None):
 	"""Sends a DELETE request. Returns :class:`Response` object.
 	"""
-	pass
+	r = Request()
+	
+	r.method = 'DELETE'
 	# return response object
+	
+	r.headers = headers
+	r.auth = _detect_auth(url, auth)
+	
+	r.send()
+	
+	return r.response
 
 
 def add_autoauth(url, authobject):
