@@ -21,8 +21,7 @@ Existing Python modules for dealing HTTP requests are insane. I have to look up 
 
 But this one's different. This one's going to be awesome. And simple.
 
-Really simple.
-
+Really simple. It'll even follow redirects.
 
 Usage
 -----
