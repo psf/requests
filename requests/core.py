@@ -50,10 +50,30 @@ class Request(object):
 				raise InvalidMethod()
 		
 		object.__setattr__(self, name, value)
-		
+	
 	
 	def _checks(self):
 		pass
+
+	
+	def _get_opener(self):
+		""" Creates appropriate opener object for urllib2.
+		"""
+		
+		if self.auth:
+
+			# create a password manager
+			authr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+
+			authr.add_password(None, self.url, self.auth.username, self.auth.password)
+			handler = urllib2.HTTPBasicAuthHandler(authr)
+			opener = urllib2.build_opener(handler)
+
+			# use the opener to fetch a URL
+			return opener.open
+		else:
+			return urllib2.urlopen
+
 	
 	def send(self, anyway=False):
 		"""Sends the request. 
@@ -65,32 +85,20 @@ class Request(object):
 		if self.method.lower() == 'get':
 			if (not self.sent) or anyway:
 				try:
-					req = urllib2.Request(self.url)
+					# url encode GET params if it's a dict
+					if isinstance(self.params, dict):
+						params = urllib.urlencode(self.params)
+					else:
+
+						params = self.params
+
+					req = urllib2.Request("%s?%s" % (self.url, params))
 
 					if self.headers:
-						r.headers = self.headers
+						req.headers = self.headers
 
-					# url encode form data if it's a dict
-					if isinstance(self.data, dict):
-						req.params = urllib.urlencode(self.params)
-					else:
-						req.params = self.paams
-
-					if self.auth:
-
-						# create a password manager
-						password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
-
-						# Add the username and password.
-						# If we knew the realm, we could use it instead of ``None``.
-						password_mgr.add_password(None, self.url, self.auth.username, self.auth.password)
-						handler = urllib2.HTTPBasicAuthHandler(password_mgr)
-						opener = urllib2.build_opener(handler)
-
-						# use the opener to fetch a URL
-						resp = opener.open(req)
-					else:
-						resp =  urllib2.urlopen(req)
+					opener = self._get_opener()
+					resp = opener(req)
 
 					self.response.status_code = resp.code
 					self.response.headers = resp.info().dict
@@ -99,7 +107,7 @@ class Request(object):
 					success = True
 
 
-				except Exception:
+				except RequestException:
 					raise RequestException
 				
 			
@@ -213,6 +221,7 @@ def get(url, params={}, headers={}, auth=None):
 	
 	r.method = 'GET'
 	r.url = url
+	r.params = params
 	r.headers = headers
 	r.auth = _detect_auth(url, auth)
 	
