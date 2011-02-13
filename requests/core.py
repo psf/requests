@@ -65,7 +65,39 @@ class Request(object):
 		if self.method.lower() == 'get':
 			if (not self.sent) or anyway:
 				try:
-					pass
+					req = urllib2.Request(self.url)
+
+					if self.headers:
+						r.headers = self.headers
+
+					# url encode form data if it's a dict
+					if isinstance(self.data, dict):
+						req.params = urllib.urlencode(self.params)
+					else:
+						req.params = self.paams
+
+					if self.auth:
+
+						# create a password manager
+						password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+
+						# Add the username and password.
+						# If we knew the realm, we could use it instead of ``None``.
+						password_mgr.add_password(None, self.url, self.auth.username, self.auth.password)
+						handler = urllib2.HTTPBasicAuthHandler(password_mgr)
+						opener = urllib2.build_opener(handler)
+
+						# use the opener to fetch a URL
+						resp = opener.open(req)
+					else:
+						resp =  urllib2.urlopen(req)
+
+					self.response.status_code = resp.code
+					self.response.headers = resp.info().dict
+					self.response.content = resp.read()
+
+					success = True
+
 
 				except Exception:
 					raise RequestException
