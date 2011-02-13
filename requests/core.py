@@ -27,6 +27,19 @@ __copyright__ = 'Copyright 2011 Kenneth Reitz'
 AUTOAUTHS = []
 
 
+class _Request(urllib2.Request):
+    def __init__(self, url, data=None, headers={},
+                 origin_req_host=None, unverifiable=False, method=None):
+       urllib2.Request.__init__(self, url, data, headers, origin_req_host, unverifiable)
+       self.method = method
+
+    def get_method(self):
+        if self.method:
+            return self.method
+
+        return urllib2.Request.get_method(self)
+
+
 class Request(object):
 	"""The :class:`Request` object. It's awesome.
 	"""
@@ -92,11 +105,10 @@ class Request(object):
 
 						params = self.params
 
-					req = urllib2.Request("%s?%s" % (self.url, params))
-
-					if self.method.lower() == 'head':
-						req.get_method = lambda : 'HEAD'
-
+					if self.method.lower() == 'get':
+						req = _Request(("%s?%s" % (self.url, params)), method='GET')
+					else:
+						req = _Request(("%s?%s" % (self.url, params)), method='HEAD')
 
 					if self.headers:
 						req.headers = self.headers
@@ -118,11 +130,28 @@ class Request(object):
 		elif self.method.lower() == 'put':
 			if (not self.sent) or anyway:
 				try:
-					pass
+
+					req = _Request(self.url, method='PUT')
+					req.data = self.data
 					
+#					if self.method.lower() == 'head':
+#						req.get_method = lambda : 'PUT'
+
+					if self.headers:
+						req.headers = self.headers
+
+					opener = self._get_opener()
+					resp = opener(req)
+
+					self.response.status_code = resp.code
+					self.response.headers = resp.info().dict
+					if self.method.lower() == 'get':
+						self.response.content = resp.read()
+
 					success = True
 
-				except Exception:
+
+				except RequestException:
 					raise RequestException
 			
 		elif self.method.lower() == 'post':
@@ -262,9 +291,10 @@ def put(url, data='', headers={}, auth=None):
 	"""Sends a PUT request. Returns :class:`Response` object.
 	"""
 	r = Request()
-	
+
+	r.url = url
 	r.method = 'PUT'
-	# return response object
+	r.data = data
 	
 	r.headers = headers
 	r.auth = _detect_auth(url, auth)
