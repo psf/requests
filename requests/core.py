@@ -9,8 +9,11 @@
     :copyright: (c) 2011 by Kenneth Reitz.
     :license: ISC, see LICENSE for more details.
 """
+
+import httplib
 import urllib
 import urllib2
+
 
 
 __title__ = 'convore'
@@ -41,9 +44,10 @@ class Request(object):
 				raise InvalidMethod()
 		
 	def send(self):
-		pass
-		set self.response()
+		"""Sends the request. """
+		#set self.response
 		# return True / False
+		pass
 		
 	
 class Response(object):
@@ -70,18 +74,23 @@ class AuthObject(object):
 
 def get(url, params={}, headers={}, auth=None):
 	pass
+	# return response object
 
 def head(url, params={}, headers={}, auth=None):
 	pass
+	# return response object
 
 def post(url, params={}, headers={}, auth=None):
 	pass
+	# return response object
 	
 def put(url, data='', headers={}, auth=None):
 	pass
+	# return response object
 	
 def delete(url, params={}, headers={}, auth=None):
 	pass
+	# return response object
 
 
 def add_autoauth(url, authobject):
@@ -89,6 +98,18 @@ def add_autoauth(url, authobject):
 	
 	AUTHOAUTHS.append((url, authobject))
 	
+
+
+
+class RequestException(Exception):
+	"""There was an ambiguous exception that occured while handling your request."""
+
+class AuthenticationError(RequestException):
+	"""The authentication credentials provided were invalid."""
 	
-class InvalidMethod(Exception):
-	"""An innappropriate method was attempted."""
+class URLRequired(RequestException):
+	"""A valid URL is required to make a request."""
+	
+class InvalidMethod(RequestException):
+	"""An inappropriate method was attempted."""
+	
