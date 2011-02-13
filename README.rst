@@ -23,22 +23,30 @@ But this one's different. This one's going to be awesome. And simple.
 
 Really simple.
 
+
 Usage
 -----
 
 Let's do this. ::
 
-
 	>>> import requests
+	
 	>>> request.get(url, params={}, headers={} auth=None)
+	<response object>
+	
 	>>> request.put(url, params={}, headers={}, auth=None)
+	<response object>
+	
 	>>> request.post(url, params={}, headers={}, auth=None)
+	<response object>
+	
 	>>> request.delete(url, params={}, headers={}, auth=None)
+	<response object>
 	
 	
 	>>> r = request.Request()
 	
-	>>> r.url = 'httep://someurl.com/'
+	>>> r.url = 'http://someurl.com/'
 	>>> r.add_header(('key', 'value'))
 	
 	>>> r.method = 'GET'
@@ -66,7 +74,7 @@ Let's do this. ::
 Access stuff. ::
 
 	>>> r = request.get('https://github.com')
-	>>> r.status_code()
+	>>> r.response.status_code()
 
 HTTP Authentication. ::
 
