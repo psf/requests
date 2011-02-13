@@ -17,15 +17,64 @@ Requests: The Simple (e.g. usable) HTTP Module
 Overview
 --------
 
-This is going to be awesome. 
+Existing Python modules for dealing HTTP requests are insane. I have to look up *everything* that I want to do. Most of my worst Python experiences (yes, even worse than Logging) are a result of the various built-in HTTP libraries. 
+
+But this one's different. This one's going to be awesome. And simple.
+
+Really simple.
 
 Usage
 -----
 
-Hmm.. ::
+Let's do this. ::
 
-	# something
+
+	>>> import requests
+	>>> request.get(url, params={}, headers={} auth=None)
+	>>> request.put(url, params={}, headers={}, auth=None)
+	>>> request.post(url, params={}, headers={}, auth=None)
+	>>> request.delete(url, params={}, headers={}, auth=None)
 	
+	
+	>>> r = request.Request()
+	
+	>>> r.url = 'http://github.com'
+	>>> r.add_header(('key', 'value'))
+	
+	>>> r.method = 'GET'
+	
+	>>> r.send()
+	True
+
+	>>> dict(r)
+	{
+		'headers': {
+			'key': 'value',
+		}, 
+		'response': {
+			'status_code': 200,
+			'headers': {
+				'x-runtime': '210ms',
+				'server': 'Apache 2.1',
+				'Content-Type': 'text/html; charset=utf-8'
+			}
+		}
+	}
+	
+Access stuff. ::
+
+	>>> r = request.get('https://github.com')
+	>>> r.status_code()
+
+HTTP Authentication. ::
+
+	>>> whoiam = AuthObject('xxx-username', 'xxx-pass')
+	>>> request.get(url, params{}, auth=whoiam)
+
+"Opener" System. ::
+
+	# all containing given url will automatically auth with given AuthObject
+	>>> requests.add_autoauth(url, auth)
 	
 
 
