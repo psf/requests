@@ -38,7 +38,7 @@ Let's do this. ::
 	
 	>>> r = request.Request()
 	
-	>>> r.url = 'http://github.com'
+	>>> r.url = 'httep://someurl.com/'
 	>>> r.add_header(('key', 'value'))
 	
 	>>> r.method = 'GET'
@@ -51,6 +51,7 @@ Let's do this. ::
 		'headers': {
 			'key': 'value',
 		}, 
+		'method': 'GET',
 		'response': {
 			'status_code': 200,
 			'headers': {
