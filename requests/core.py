@@ -44,7 +44,7 @@ class Request(object):
 	"""The :class:`Request` object. It's awesome.
 	"""
 	
-	_METHODS = ('get', 'head', 'put', 'post', 'delete')
+	_METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE')
 	
 	def __init__(self):
 		self.url = None
@@ -59,7 +59,7 @@ class Request(object):
 	
 	def __setattr__(self, name, value):
 		if (name == 'method') and (value):
-			if not value.lower() in self._METHODS:
+			if not value in self._METHODS:
 				raise InvalidMethod()
 		
 		object.__setattr__(self, name, value)
@@ -95,7 +95,7 @@ class Request(object):
 		"""
 		self._checks()
 		
-		if self.method.lower() in ('get', 'head', 'delete'):
+		if self.method in ('GET', 'HEAD', 'DELETE'):
 			if (not self.sent) or anyway:
 				try:
 					# url encode GET params if it's a dict
@@ -105,12 +105,7 @@ class Request(object):
 
 						params = self.params
 
-					if self.method.lower() == 'get':
-						req = _Request(("%s?%s" % (self.url, params)), method='GET')
-					elif self.method.lower() == 'head':
-						req = _Request(("%s?%s" % (self.url, params)), method='HEAD')
-					elif self.method.lower() == 'delete':
-						req = _Request(("%s?%s" % (self.url, params)), method='DELETE')
+					req = _Request(("%s?%s" % (self.url, params)), method=self.method)
 
 					if self.headers:
 						req.headers = self.headers
@@ -129,7 +124,7 @@ class Request(object):
 					raise RequestException
 				
 
-		elif self.method.lower() == 'put':
+		elif self.method == 'PUT':
 			if (not self.sent) or anyway:
 
 				try:
@@ -159,7 +154,7 @@ class Request(object):
 
 
 			
-		elif self.method.lower() == 'post':
+		elif self.method == 'POST':
 			if (not self.sent) or anyway:
 				try:
 
@@ -186,19 +181,6 @@ class Request(object):
 
 				except Exception:
 					raise RequestException
-
-		elif self.method.lower() == 'delete':
-			if (not self.sent) or anyway:
-				try:
-					pass
-					
-					success = True
-
-				except Exception:
-					raise RequestException
-			
-		else:
-			raise InvalidMethod
 
 		
 		self.sent = True if success else False
