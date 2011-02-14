@@ -54,7 +54,7 @@ Uh oh, we're not authorized! Let's add authentication. ::
     >>> conv_auth = requests.AuthObject('requeststest', 'requeststest')
     >>> r = requests.get('https://convore.com/api/account/verify.json', conv_auth=auth)
     
-    >>> print r.status_code
+    >>> r.status_code
     200 
     
     >>> r.headers['content-type']
@@ -92,6 +92,7 @@ All request functions return a Response object (see below).
     >>> request.delete(url, params={}, headers={}, auth=None)
     <request object>
     
+
 **Responses:**
     
     Request.status_code:
@@ -102,6 +103,15 @@ All request functions return a Response object (see below).
 
     Request.content:
         (Bytes) Received Content
+
+
+**HTTP Authentication Registry:**
+
+You can add 
+
+
+    >>> requests.
+
 
 
 Installation
