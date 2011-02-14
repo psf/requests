@@ -95,7 +95,7 @@ class Request(object):
 		"""
 		self._checks()
 		
-		if self.method.lower() in ('get', 'head'):
+		if self.method.lower() in ('get', 'head', 'delete'):
 			if (not self.sent) or anyway:
 				try:
 					# url encode GET params if it's a dict
@@ -107,8 +107,10 @@ class Request(object):
 
 					if self.method.lower() == 'get':
 						req = _Request(("%s?%s" % (self.url, params)), method='GET')
-					else:
+					elif self.method.lower() == 'head':
 						req = _Request(("%s?%s" % (self.url, params)), method='HEAD')
+					elif self.method.lower() == 'delete':
+						req = _Request(("%s?%s" % (self.url, params)), method='DELETE')
 
 					if self.headers:
 						req.headers = self.headers
@@ -123,45 +125,46 @@ class Request(object):
 
 					success = True
 
-				except RequestException:
+				except Exception:
 					raise RequestException
 				
 
 		elif self.method.lower() == 'put':
 			if (not self.sent) or anyway:
+
 				try:
+					try:
 
-					req = _Request(self.url, method='PUT')
-					req.data = self.data
-					
-#					if self.method.lower() == 'head':
-#						req.get_method = lambda : 'PUT'
+						req = _Request(self.url, method='PUT')
 
-					if self.headers:
-						req.headers = self.headers
+						if self.headers:
+							req.headers = self.headers
 
-					opener = self._get_opener()
-					resp = opener(req)
+						req.data = self.data
 
-					self.response.status_code = resp.code
-					self.response.headers = resp.info().dict
-					if self.method.lower() == 'get':
+						opener = self._get_opener()
+						resp =  opener(req)
+
+						self.response.status_code = resp.code
+						self.response.headers = resp.info().dict
 						self.response.content = resp.read()
 
-					success = True
+						success = True
+					except Exception:
+						raise RequestException
 
+				except urllib2.HTTPError:
+					self.resonse.status_code = 405
 
-				except RequestException:
-					raise RequestException
 			
 		elif self.method.lower() == 'post':
 			if (not self.sent) or anyway:
 				try:
 
-					req = urllib2.Request(self.url)
+					req = _Request(self.url, method='POST')
 
 					if self.headers:
-						r.headers = self.headers
+						req.headers = self.headers
 
 					# url encode form data if it's a dict
 					if isinstance(self.data, dict):
@@ -170,21 +173,8 @@ class Request(object):
 						req.data = self.data
 
 
-					if self.auth:
-
-						# create a password manager
-						password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
-
-						# Add the username and password.
-						# If we knew the realm, we could use it instead of ``None``.
-						password_mgr.add_password(None, self.url, self.auth.username, self.auth.password)
-						handler = urllib2.HTTPBasicAuthHandler(password_mgr)
-						opener = urllib2.build_opener(handler)
-
-						# use the opener to fetch a URL
-						resp = opener.open(req)
-					else:
-						resp =  urllib2.urlopen(req)
+					opener = self._get_opener()
+					resp =  opener(req)
 
 					self.response.status_code = resp.code
 					self.response.headers = resp.info().dict
