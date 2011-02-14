@@ -88,13 +88,13 @@ API
 **Responses:**
     
     Request.status_code:
-    Received HTTP Status Code Response
+        Received HTTP Status Code Response
 
     Request.headers:
-    Received HTTP Response Headers
+        Received HTTP Response Headers
 
     Request.content:
-    Received Content
+        Received Content
 
 
 Installation
