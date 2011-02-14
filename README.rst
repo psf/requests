@@ -70,19 +70,19 @@ API
     
 **Requests:**
     
-    GET Requests
+  GET Requests
     >>> request.get(url, params={}, headers={} auth=None)
     
-    HEAD Requests
+  HEAD Requests
     >>> request.head(url, params={}, headers={} auth=None)
 
-    PUT Requests
+  PUT Requests
     >>> request.put(url, data='', headers={}, auth=None)
 
-    PST Requests
+  PST Requests
     >>> request.post(url, data={}, headers={}, auth=None)
     
-    DELETE Requests
+  DELETE Requests
     >>> request.delete(url, params={}, headers={}, auth=None)
     
     
