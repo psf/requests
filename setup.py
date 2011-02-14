@@ -7,14 +7,15 @@ import sys
 from distutils.core import setup
 
 
-def publish():
-	"""Publish to PyPi"""
-	os.system("python setup.py sdist upload")
-
+	
 if sys.argv[-1] == "publish":
-	publish()
+	os.system("python setup.py sdist upload")
 	sys.exit()
 
+if sys.argv[-1] == "test":
+	os.system("python test_requests.py")
+	sys.exit()
+	
 required = []
 
 # if python > 2.6, require simplejson
@@ -22,7 +23,7 @@ required = []
 setup(
 	name='requests',
 	version='0.2.1',
-	description='Python HTTP Library that\'s actually usable.',
+	description='Awesome Python HTTP Library that\'s actually usable.',
 	long_description=open('README.rst').read() + '\n\n' +
 	                 open('HISTORY.rst').read(),
 	author='Kenneth Reitz',
