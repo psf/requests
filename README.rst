@@ -23,10 +23,20 @@ But this one's different. This one's going to be awesome. And simple.
 
 Really simple. It'll even follow redirects.
 
+Features
+--------
+
+- Extremely simple GET, HEAD, POST, PUT, DELETE Requests
+	+ Simple HTTP Header Request Attachment
+	+ Simple Data/Params Request Attachment
+- Simple Basic HTTP Authentication
+	+ Simple URL + HTTP Auth Registry
+
+
 Usage
 -----
 
-Let's do this. ::
+It couldn't be simpler. ::
 
 	>>> import requests
 	
