@@ -13,6 +13,9 @@
 import urllib
 import urllib2
 
+from .packages.poster.encode import multipart_encode
+from .packages.poster.streaminghttp import register_openers
+
 
 __title__ = 'requests'
 __version__ = '0.2.0'
@@ -51,6 +54,7 @@ class Request(object):
 	def __init__(self):
 		self.url = None
 		self.headers = dict()
+		self.multipart_files = None
 		self.method = None
 		self.params = {}
 		self.data = {}
@@ -60,11 +64,7 @@ class Request(object):
 		
 		
 	def __repr__(self):
-		try:
-			repr = '<Request [%s]>' % (self.method)
-		except:
-			repr = '<Request object>'
-		return repr
+		return '<Request [%s]>' % (self.method)
 	
 	
 	def __setattr__(self, name, value):
@@ -141,19 +141,29 @@ class Request(object):
 						self.response.content = resp.read()
 
 					success = True
-				except urllib2.HTTPError, why:
+				except urllib2.HTTPError as why:
 					self.response.status_code = why.code
 
 
 		elif self.method == 'PUT':
 			if (not self.sent) or anyway:
 
-				req = _Request(self.url, method='PUT')
+				if self.multipart_files:
+					register_openers()
+					datagen, headers = multipart_encode(self.multipart_files)
+					req = _Request(self.url, data=datagen, headers=headers, method='PUT')
 
-				if self.headers:
-					req.headers = self.headers
+					if self.headers:
+						req.headers.update(self.headers)
 
-				req.data = self.data
+				else:
+
+					req = _Request(self.url, method='PUT')
+
+					if self.headers:
+						req.headers = self.headers
+
+					req.data = self.data
 
 				try:
 					opener = self._get_opener()
@@ -165,23 +175,30 @@ class Request(object):
 
 					success = True
 
-				except urllib2.HTTPError, why:
+				except urllib2.HTTPError as why:
 					self.response.status_code = why.code
 
 
 		elif self.method == 'POST':
 			if (not self.sent) or anyway:
 
-				req = _Request(self.url, method='POST')
+				if self.multipart_files:
+					register_openers()
+					datagen, headers = multipart_encode(self.multipart_files)
+					req = _Request(self.url, data=datagen, headers=headers, method='POST')
 
-				if self.headers:
+					if self.headers:
+						req.headers.update(self.headers)
+				
+				else:
+					req = _Request(self.url, method='POST')
 					req.headers = self.headers
 
-				# url encode form data if it's a dict
-				if isinstance(self.data, dict):
-					req.data = urllib.urlencode(self.data)
-				else:
-					req.data = self.data
+					# url encode form data if it's a dict
+					if isinstance(self.data, dict):
+						req.data = urllib.urlencode(self.data)
+					else:
+						req.data = self.data
 
 				try:
 
@@ -194,7 +211,7 @@ class Request(object):
 
 					success = True
 
-				except urllib2.HTTPError, why:
+				except urllib2.HTTPError as why:
 					self.response.status_code = why.code
 
 		
@@ -215,11 +232,8 @@ class Response(object):
 		self.headers = dict()
 		
 	def __repr__(self):
-		try:
-			repr = '<Response [%s]>' % (self.status_code)
-		except:
-			repr = '<Response object>'
-		return repr
+		return '<Response [%s]>' % (self.status_code)
+
 
 	
 class AuthObject(object):
@@ -283,20 +297,24 @@ def head(url, params={}, headers={}, auth=None):
 	return r.response
 
 
-def post(url, data={}, headers={}, auth=None):
+def post(url, data={}, headers={}, multipart_files=None, auth=None):
 	"""Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary of POST Data to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+    :param multipart_files: (optional) Dictoinary of 'filename': file-like-objects for multipart encoding upload.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
 	r = Request()
-
+	
 	r.url = url
 	r.method = 'POST'
 	r.data = data
+	
+	if multipart_files:
+		r.multipart_files = multipart_files
 	
 	r.headers = headers
 	r.auth = _detect_auth(url, auth)
@@ -306,12 +324,13 @@ def post(url, data={}, headers={}, auth=None):
 	return r.response
 	
 	
-def put(url, data='', headers={}, auth=None):
+def put(url, data='', headers={}, multipart_files={}, auth=None):
 	"""Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Bytes of PUT Data to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+    :param multipart_files: (optional) Dictoinary of 'filename': file-like-objects for multipart encoding upload.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
