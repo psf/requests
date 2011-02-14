@@ -103,23 +103,27 @@ class Request(object):
 
 		_handlers = []
 
-		if self.auth:
-			
-			authr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+		if self.auth or self.cookiejar:
 
-			authr.add_password(None, self.url, self.auth.username, self.auth.password)
-			auth_handler = urllib2.HTTPBasicAuthHandler(authr)
+			if self.auth:
 
-			_handlers.append(auth_handler)
+				authr = urllib2.HTTPPasswordMgrWithDefaultRealm()
 
-		if self.cookiejar:
-			
-			cookie_handler = urllib2.HTTPCookieProcessor(cookiejar)
-			_handlers.append(cookie_handler)
+				authr.add_password(None, self.url, self.auth.username, self.auth.password)
+				auth_handler = urllib2.HTTPBasicAuthHandler(authr)
 
-		
-		opener = urllib2.build_opener(*_handlers)
-		return opener.open
+				_handlers.append(auth_handler)
+
+			if self.cookiejar:
+
+				cookie_handler = urllib2.HTTPCookieProcessor(cookiejar)
+				_handlers.append(cookie_handler)
+
+			opener = urllib2.build_opener(*_handlers)
+			return opener.open
+
+		else:
+			return urllib2.urlopen
 
 
 	def _build_response(self, resp):
