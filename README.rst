@@ -54,14 +54,14 @@ Uh oh, we're not authorized! Let's add authentication. ::
     >>> conv_auth = requests.AuthObject('requeststest', 'requeststest')
     >>> r = requests.get('https://convore.com/api/account/verify.json', conv_auth=auth)
     
-    >>> r.status_code
+    >>> print r.status_code
     200 
     
     >>> r.headers['content-type']
-    application/json
+    'application/json'
     
     >>> r.content
-    {"username": "requeststest", "url": "/users/requeststest/", "id": "9408", "img": "censored-long-url"}
+    '{"username": "requeststest", "url": "/users/requeststest/", "id": "9408", "img": "censored-long-url"}'
 
 
 
