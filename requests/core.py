@@ -141,7 +141,7 @@ class Request(object):
 						self.response.content = resp.read()
 
 					success = True
-				except urllib2.HTTPError, why:
+				except urllib2.HTTPError as why:
 					self.response.status_code = why.code
 
 
@@ -165,7 +165,7 @@ class Request(object):
 
 					success = True
 
-				except urllib2.HTTPError, why:
+				except urllib2.HTTPError as why:
 					self.response.status_code = why.code
 
 
@@ -203,7 +203,7 @@ class Request(object):
 
 					success = True
 
-				except(urllib2.HTTPError, why):
+				except urllib2.HTTPError as why:
 					self.response.status_code = why.code
 
 		
@@ -225,7 +225,7 @@ class Response(object):
 		
 	def __repr__(self):
 		return '<Response [%s]>' % (self.status_code)
-		
+
 
 	
 class AuthObject(object):
