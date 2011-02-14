@@ -288,7 +288,8 @@ def get(url, params={}, headers={}, cookies=None, auth=None):
 
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary of GET Parameters to send with the :class:`Request`.
-    :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+    :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
+    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
@@ -312,6 +313,7 @@ def head(url, params={}, headers={}, cookies=None, auth=None):
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary of GET Parameters to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
@@ -337,6 +339,7 @@ def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
     :param data: (optional) Dictionary of POST Data to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
+    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
@@ -365,6 +368,7 @@ def put(url, data='', headers={}, files={}, cookies=None, auth=None):
     :param data: (optional) Bytes of PUT Data to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
+    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
@@ -389,6 +393,7 @@ def delete(url, params={}, headers={}, cookies=None, auth=None):
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary of GET Parameters to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
