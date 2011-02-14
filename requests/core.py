@@ -26,20 +26,29 @@ AUTOAUTHS = []
 
 
 class _Request(urllib2.Request):
-    def __init__(self, url, data=None, headers={},
-                 origin_req_host=None, unverifiable=False, method=None):
-       urllib2.Request.__init__(self, url, data, headers, origin_req_host, unverifiable)
-       self.method = method
+	"""Hidden wrapper around the urllib2.Request object. Allows for manual
+	setting of HTTP methods.
+	"""
+	
+	def __init__(self, url,
+					data=None, headers={}, origin_req_host=None,
+					unverifiable=False, method=None):
+		urllib2.Request.__init__( self, url, data, headers, origin_req_host,
+								  unverifiable)
+	   	self.method = method
 
-    def get_method(self):
-        if self.method:
-            return self.method
+	def get_method(self):
+		if self.method:
+			return self.method
 
-        return urllib2.Request.get_method(self)
+		return urllib2.Request.get_method(self)
 
 
 class Request(object):
-	"""The :class:`Request` object. It's awesome.
+	"""The :class:`Request` object. It carries out all functionality of
+	Requests. Recommended interface is with the Requests functions.
+
+	
 	"""
 	
 	_METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE')
@@ -90,9 +99,14 @@ class Request(object):
 
 	
 	def send(self, anyway=False):
-		"""Sends the request. 
+		"""Sends the request. Returns True of successfull, false if not.
+		    If there was an HTTPError during transmission,
+		    self.response.status_code will contain the HTTPError code.
+
+		    Once a request is successfully sent, `sent` will equal True.
 		
-		   :param anyway: If True, request will be sent, even if it has already been sent.
+		    :param anyway: If True, request will be sent, even if it has
+		    already been sent.
 		"""
 		self._checks()
 
@@ -188,7 +202,9 @@ class Request(object):
 		
 
 class Response(object):
-	"""The :class:`Request` object. It's awesome.
+	"""The :class:`Request` object. All :class:`Request` objects contain a
+	:class:`Request.response <response>` attribute, which is an instance of
+	this class.
 	"""
 
 	def __init__(self):
@@ -198,11 +214,14 @@ class Response(object):
 
 	
 class AuthObject(object):
-	"""The :class:`AuthObject` is a simple HTTP Authentication token.
+	"""The :class:`AuthObject` is a simple HTTP Authentication token. When
+	given to a Requests function, it enables Basic HTTP Authentication for that
+	Request. You can also enable Authorization for domain realms with AutoAuth.
+	See AutoAuth for more details.s
 	
 	:param username: Username to authenticate with.
     :param password: Password for given username.
-	 """
+	"""
 	
 	def __init__(self, username, password):
 		self.username = username
@@ -212,7 +231,13 @@ class AuthObject(object):
 
 def get(url, params={}, headers={}, auth=None):
 	"""Sends a GET request. Returns :class:`Response` object.
+
+	:param url: URL for the new :class:`Request` object.
+	:param params: (optional) Dictionary of GET Parameters to send with the :class:`Request`.
+	:param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+	:param auth: (optional) AuthObject to enable Basic HTTP Auth.
 	"""
+	
 	r = Request()
 	
 	r.method = 'GET'
@@ -228,7 +253,13 @@ def get(url, params={}, headers={}, auth=None):
 
 def head(url, params={}, headers={}, auth=None):
 	"""Sends a HEAD request. Returns :class:`Response` object.
+
+	:param url: URL for the new :class:`Request` object.
+	:param params: (optional) Dictionary of GET Parameters to send with the :class:`Request`.
+	:param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+	:param auth: (optional) AuthObject to enable Basic HTTP Auth.
 	"""
+	
 	r = Request()
 	
 	r.method = 'HEAD'
@@ -245,7 +276,13 @@ def head(url, params={}, headers={}, auth=None):
 
 def post(url, data={}, headers={}, auth=None):
 	"""Sends a POST request. Returns :class:`Response` object.
+
+	:param url: URL for the new :class:`Request` object.
+	:param data: (optional) Dictionary of POST Data to send with the :class:`Request`.
+	:param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+	:param auth: (optional) AuthObject to enable Basic HTTP Auth.
 	"""
+	
 	r = Request()
 
 	r.url = url
@@ -262,7 +299,13 @@ def post(url, data={}, headers={}, auth=None):
 	
 def put(url, data='', headers={}, auth=None):
 	"""Sends a PUT request. Returns :class:`Response` object.
+
+	:param url: URL for the new :class:`Request` object.
+	:param data: (optional) Bytes of PUT Data to send with the :class:`Request`.
+	:param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+	:param auth: (optional) AuthObject to enable Basic HTTP Auth.
 	"""
+	
 	r = Request()
 
 	r.url = url
@@ -279,7 +322,13 @@ def put(url, data='', headers={}, auth=None):
 	
 def delete(url, params={}, headers={}, auth=None):
 	"""Sends a DELETE request. Returns :class:`Response` object.
+
+	:param url: URL for the new :class:`Request` object.
+	:param params: (optional) Dictionary of GET Parameters to send with the :class:`Request`.
+	:param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+	:param auth: (optional) AuthObject to enable Basic HTTP Auth.
 	"""
+	
 	r = Request()
 
 	r.url = url
