@@ -93,7 +93,7 @@ class Request(object):
 	
 	
 	def _checks(self):
-		"""Deterministic checks for consistiency."""
+		"""Deterministic checks for consistency."""
 
 		if not self.url:
 			raise URLRequired
@@ -135,6 +135,7 @@ class Request(object):
 		self.response.content = resp.read()
 		self.response.url = resp.url
 
+	
 	def send(self, anyway=False):
 		"""Sends the request. Returns True of successful, false if not.
         If there was an HTTPError during transmission,
