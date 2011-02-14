@@ -308,7 +308,7 @@ def _detect_auth(url, auth):
 
 	
 def _get_autoauth(url):
-	for (authauth_url, auth) in AUTOAUTHS:
+	for (autoauth_url, auth) in AUTOAUTHS:
 		if autoauth_url in url: 
 			return auth
 			
