@@ -88,13 +88,13 @@ API
 **Responses:**
     
     Request.status_code:
-        Received HTTP Status Code Response
+         (Integer) Received HTTP Status Code Response
 
     Request.headers:
-        Received HTTP Response Headers
+        (Dictionary) Received HTTP Response Headers
 
     Request.content:
-        Received Content
+        (Bytes) Received Content
 
 
 Installation
