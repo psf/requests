@@ -47,7 +47,6 @@ class _Request(urllib2.Request):
 class Request(object):
 	"""The :class:`Request` object. It carries out all functionality of
 	Requests. Recommended interface is with the Requests functions.
-
 	
 	"""
 	
