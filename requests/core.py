@@ -10,15 +10,13 @@
     :license: ISC, see LICENSE for more details.
 """
 
-import httplib
 import urllib
 import urllib2
-import urlparse
 
 
 __title__ = 'requests'
-__version__ = '0.0.1'
-__build__ = 0x000001
+__version__ = '0.2.0'
+__build__ = 0x000200
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
