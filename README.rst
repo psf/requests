@@ -17,7 +17,7 @@ Requests: The Simple (e.g. usable) HTTP Module
 Overview
 --------
 
-Existing Python modules for dealing HTTP requests are insane. I have to look up *everything* that I want to do. Most of my worst Python experiences (yes, even worse than Logging) are a result of the various built-in HTTP libraries. 
+Most existing Python modules for dealing HTTP requests are insane. I have to look up *everything* that I want to do. Most of my worst Python experiences are a result of the various built-in HTTP libraries (yes, even worse than Logging). 
 
 But this one's different. This one's going to be awesome. And simple.
 
