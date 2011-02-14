@@ -68,33 +68,33 @@ Uh oh, we're not authorized! Let's add authentication. ::
 API
 ---
     
-    **Requests:**
+**Requests:**
     
-      >>> request.get(url, params={}, headers={} auth=None)
-      <response object>
+    >>> request.get(url, params={}, headers={} auth=None)
+    <response object>
+
+    >>> request.head(url, params={}, headers={} auth=None)
+    <response object>
+
+    >>> request.put(url, data='', headers={}, auth=None)
+    <response object>
+
+    >>> request.post(url, data={}, headers={}, auth=None)
+    <response object>
+
+    >>> request.delete(url, params={}, headers={}, auth=None)
+    <response object>
     
-      >>> request.head(url, params={}, headers={} auth=None)
-      <response object>
-      
-      >>> request.put(url, data='', headers={}, auth=None)
-      <response object>
-      
-      >>> request.post(url, data={}, headers={}, auth=None)
-      <response object>
-      
-      >>> request.delete(url, params={}, headers={}, auth=None)
-      <response object>
+**Responses:**
     
-    **Responses:**
-    
-      Request.status_code:
-        Received HTTP Status Code Response
-    
-      Request.headers:
-        Received HTTP Response Headers
-    
-      Request.content:
-        Received Content
+    Request.status_code:
+    Received HTTP Status Code Response
+
+    Request.headers:
+    Received HTTP Response Headers
+
+    Request.content:
+    Received Content
 
 
 Installation
