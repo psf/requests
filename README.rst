@@ -69,6 +69,8 @@ API
 ---
     
 **Requests:**
+
+All request functions return a Response object (see below).
     
   GET Requests
     >>> request.get(url, params={}, headers={} auth=None)
