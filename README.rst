@@ -56,27 +56,28 @@ API
 **Requests:**
 
 All request functions return a Response object (see below).
+
+If a {filename: fileobject} dictionary is passed in (files=...), a multipart_encode upload will be performed.
+If CookieJar object is is passed in (cookies=...), the cookies will be sent with the request.
     
   GET Requests
-    >>> request.get(url, params={}, headers={} auth=None)
+    >>> request.get(url, params={}, headers={}, cookies=None, auth=None)
     <request object>
     
   HEAD Requests
-    >>> request.head(url, params={}, headers={} auth=None)
+    >>> request.head(url, params={}, headers={}, cookies=None, auth=None)
     <request object>
     
   PUT Requests
-    >>> request.put(url, data='', headers={}, files={}, auth=None)
+    >>> request.put(url, data='', headers={}, files={}, cookies=None, auth=None)
     <request object>
-    # If files dictionary ( {filename: fileobject, ...} ) is given, a multi-part upload is performed.
     
   POST Requests
-    >>> request.post(url, data={}, headers={}, files={}, auth=None)
+    >>> request.post(url, data={}, headers={}, files={}, cookies=None, auth=None)
     <request object>
-    # If files dictionary ( {filename: fileobject, ...} ) is given, a multi-part upload is performed.
     
   DELETE Requests
-    >>> request.delete(url, params={}, headers={}, auth=None)
+    >>> request.delete(url, params={}, headers={}, cookies=None, auth=None)
     <request object>
     
 

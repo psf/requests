@@ -1,6 +1,14 @@
 History
 -------
 
+0.2.2 (2011-02-14)
+++++++++++++++++++
+* Still handles request in the event of an HTTPError. (Issue #2)
+* Eventlet and Gevent Monkeypatch support.
+* Cookie Support (Issue #1)
+
+
+
 0.2.1 (2011-02-14)
 ++++++++++++++++++
 
