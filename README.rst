@@ -107,10 +107,9 @@ All request functions return a Response object (see below).
 
 **HTTP Authentication Registry:**
 
-You can add 
+    You can register AuthObjects to automatically enable HTTP Authentication on requests that contain a registered base URL string.
 
-
-    >>> requests.
+    >>> requests.add_autoauth(url, authobject)
 
 
 
