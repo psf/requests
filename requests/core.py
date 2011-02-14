@@ -342,7 +342,6 @@ def delete(url, params={}, headers={}, auth=None):
 
 	r.url = url
 	r.method = 'DELETE'
-	# return response object
 	
 	r.headers = headers
 	r.auth = _detect_auth(url, auth)
