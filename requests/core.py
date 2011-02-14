@@ -148,12 +148,22 @@ class Request(object):
 		elif self.method == 'PUT':
 			if (not self.sent) or anyway:
 
-				req = _Request(self.url, method='PUT')
+				if self.multipart_files:
+					register_openers()
+					datagen, headers = multipart_encode(self.multipart_files)
+					req = _Request(self.url, data=datagen, headers=headers, method='PUT')
 
-				if self.headers:
-					req.headers = self.headers
+					if self.headers:
+						req.headers.update(self.headers)
 
-				req.data = self.data
+				else:
+
+					req = _Request(self.url, method='PUT')
+
+					if self.headers:
+						req.headers = self.headers
+
+					req.data = self.data
 
 				try:
 					opener = self._get_opener()
@@ -184,13 +194,11 @@ class Request(object):
 					req = _Request(self.url, method='POST')
 					req.headers = self.headers
 
+					# url encode form data if it's a dict
 					if isinstance(self.data, dict):
 						req.data = urllib.urlencode(self.data)
 					else:
 						req.data = self.data
-					
-				# url encode form data if it's a dict
-
 
 				try:
 
