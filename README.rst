@@ -122,10 +122,8 @@ If you'd like to contribute, simply fork `the repository`_, commit your changes 
 Roadmap
 -------
 
-- Documentation
-- Write it!
-- Test it!
-- Fo shizzle
+- Sphinx Documentation
+- Exhaustive Unittests
 
 .. _`the repository`: http://github.com/kennethreitz/requests
 .. _AUTHORS: http://github.com/kennethreitz/requests/blob/master/AUTHORS
