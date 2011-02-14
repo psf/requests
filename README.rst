@@ -71,19 +71,15 @@ API
 **Requests:**
     
     >>> request.get(url, params={}, headers={} auth=None)
-    <response object>
 
     >>> request.head(url, params={}, headers={} auth=None)
-    <response object>
-
+    
     >>> request.put(url, data='', headers={}, auth=None)
-    <response object>
-
+    
     >>> request.post(url, data={}, headers={}, auth=None)
-    <response object>
-
+    
     >>> request.delete(url, params={}, headers={}, auth=None)
-    <response object>
+    
     
 **Responses:**
     
