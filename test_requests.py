@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 import unittest
+from cStringIO import StringIO
 
 import requests
 
@@ -41,6 +43,18 @@ class RequestsTestSuite(unittest.TestCase):
 		r = requests.get(url, auth=auth)
 
 		self.assertEqual(r.status_code, 200)
+
+	def test_POSTBIN_GET_POST_FILES(self):
+
+		bin = requests.post('http://www.postbin.org/')
+		self.assertEqual(bin.status_code, 200)
+
+		post = requests.post(bin.url, data={'some': 'data'})
+		self.assertEqual(post.status_code, 201)
+
+		post2 = requests.post(bin.url, files={'some': StringIO('data')})
+		self.assertEqual(post2.status_code, 201)
+
 
 
 if __name__ == '__main__':

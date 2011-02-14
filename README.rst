@@ -13,6 +13,7 @@ Features
 - Extremely simple GET, HEAD, POST, PUT, DELETE Requests
     + Simple HTTP Header Request Attachment
     + Simple Data/Params Request Attachment
+    + Simple Multipart File Uploads
 - Simple Basic HTTP Authentication
     + Simple URL + HTTP Auth Registry
 
@@ -65,12 +66,14 @@ All request functions return a Response object (see below).
     <request object>
     
   PUT Requests
-    >>> request.put(url, data='', headers={}, auth=None)
+    >>> request.put(url, data='', headers={}, files={}, auth=None)
     <request object>
+    # If files dictionary ( {filename: fileobject, ...} ) is given, a multi-part upload is performed.
     
   POST Requests
-    >>> request.post(url, data={}, headers={}, auth=None)
+    >>> request.post(url, data={}, headers={}, files={}, auth=None)
     <request object>
+    # If files dictionary ( {filename: fileobject, ...} ) is given, a multi-part upload is performed.
     
   DELETE Requests
     >>> request.delete(url, params={}, headers={}, auth=None)
@@ -87,6 +90,9 @@ All request functions return a Response object (see below).
 
     Request.content:
         (Bytes) Received Content
+
+    Request.url
+        (String) URL of response. Useful for detecting redirects. 
 
 
 **HTTP Authentication Registry:**
