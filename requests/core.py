@@ -62,6 +62,12 @@ class Request(object):
 		self.auth = None
 		self.sent = False
 		
+	def __repr__(self):
+		try:
+			repr = '<Request [%s]>' % (self.method)
+		except:
+			repr = '<Request object>'
+		return repr
 	
 	def __setattr__(self, name, value):
 		if (name == 'method') and (value):
@@ -210,6 +216,13 @@ class Response(object):
 		self.content = None
 		self.status_code = None
 		self.headers = dict()
+		
+	def __repr__(self):
+		try:
+			repr = '<Response [%s]>' % (self.status_code)
+		except:
+			repr = '<Response object>'
+		return repr
 
 	
 class AuthObject(object):
