@@ -13,13 +13,28 @@
 import urllib
 import urllib2
 
+
+try:
+	import eventlet
+	eventlet.monkey_patch()
+except ImportError:
+	pass
+
+if not 'eventlet' in locals():
+	try:
+		from gevent import monkey
+		monkey.patch_all()
+	except ImportError:
+		pass
+
+
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers
 
 
 __title__ = 'requests'
-__version__ = '0.2.1'
-__build__ = 0x000201
+__version__ = '0.2.2'
+__build__ = 0x000202
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
@@ -59,7 +74,9 @@ class Request(object):
 		self.params = {}
 		self.data = {}
 		self.response = Response()
+		
 		self.auth = None
+		self.cookiejar = None
 		self.sent = False
 		
 		
@@ -76,7 +93,7 @@ class Request(object):
 	
 	
 	def _checks(self):
-		"""Deterministic checks for consistiency."""
+		"""Deterministic checks for consistency."""
 
 		if not self.url:
 			raise URLRequired
@@ -84,24 +101,43 @@ class Request(object):
 		
 	def _get_opener(self):
 		"""Creates appropriate opener object for urllib2."""
-		
-		if self.auth:
 
-			# create a password manager
-			authr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+		_handlers = []
 
-			authr.add_password(None, self.url, self.auth.username, self.auth.password)
-			handler = urllib2.HTTPBasicAuthHandler(authr)
-			opener = urllib2.build_opener(handler)
+		if self.auth or self.cookiejar:
 
-			# use the opener to fetch a URL
+			if self.auth:
+
+				authr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+
+				authr.add_password(None, self.url, self.auth.username, self.auth.password)
+				auth_handler = urllib2.HTTPBasicAuthHandler(authr)
+
+				_handlers.append(auth_handler)
+
+			if self.cookiejar:
+
+				cookie_handler = urllib2.HTTPCookieProcessor(cookiejar)
+				_handlers.append(cookie_handler)
+
+			opener = urllib2.build_opener(*_handlers)
 			return opener.open
+
 		else:
 			return urllib2.urlopen
 
+
+	def _build_response(self, resp):
+		"""Build internal Response object from given response."""
+		
+		self.response.status_code = resp.code
+		self.response.headers = resp.info().dict
+		self.response.content = resp.read()
+		self.response.url = resp.url
+
 	
 	def send(self, anyway=False):
-		"""Sends the request. Returns True of successfull, false if not.
+		"""Sends the request. Returns True of successful, false if not.
         If there was an HTTPError during transmission,
         self.response.status_code will contain the HTTPError code.
 
@@ -135,15 +171,12 @@ class Request(object):
 
 				try:
 					resp = opener(req)
-					self.response.status_code = resp.code
-					self.response.headers = resp.info().dict
-					if self.method == 'GET':
-						self.response.content = resp.read()
-					self.response.url = resp.url
-
+					self._build_response(resp)
 					success = True
+
 				except urllib2.HTTPError as why:
-					self.response.status_code = why.code
+					self._build_response(why)
+					success = False
 
 
 		elif self.method == 'PUT':
@@ -170,15 +203,12 @@ class Request(object):
 					opener = self._get_opener()
 					resp =  opener(req)
 
-					self.response.status_code = resp.code
-					self.response.headers = resp.info().dict
-					self.response.content = resp.read()
-					self.response.url = resp.url
-
+					self._build_response(resp)
 					success = True
 
 				except urllib2.HTTPError as why:
-					self.response.status_code = why.code
+					self._build_response(why)
+					success = False
 
 
 		elif self.method == 'POST':
@@ -207,15 +237,12 @@ class Request(object):
 					opener = self._get_opener()
 					resp =  opener(req)
 
-					self.response.status_code = resp.code
-					self.response.headers = resp.info().dict
-					self.response.content = resp.read()
-					self.response.url = resp.url
-
+					self._build_response(resp)
 					success = True
 
 				except urllib2.HTTPError as why:
-					self.response.status_code = why.code
+					self._build_response(why)
+					success = False
 
 		
 		self.sent = True if success else False
@@ -256,12 +283,13 @@ class AuthObject(object):
 
 
 
-def get(url, params={}, headers={}, auth=None):
+def get(url, params={}, headers={}, cookies=None, auth=None):
 	"""Sends a GET request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary of GET Parameters to send with the :class:`Request`.
-    :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+    :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
+    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
@@ -271,6 +299,7 @@ def get(url, params={}, headers={}, auth=None):
 	r.url = url
 	r.params = params
 	r.headers = headers
+	r.cookiejar = cookies
 	r.auth = _detect_auth(url, auth)
 	
 	r.send()
@@ -278,12 +307,13 @@ def get(url, params={}, headers={}, auth=None):
 	return r.response
 
 
-def head(url, params={}, headers={}, auth=None):
+def head(url, params={}, headers={}, cookies=None, auth=None):
 	"""Sends a HEAD request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary of GET Parameters to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
@@ -294,6 +324,7 @@ def head(url, params={}, headers={}, auth=None):
 	# return response object
 	r.params = params
 	r.headers = headers
+	r.cookiejar = cookies
 	r.auth = _detect_auth(url, auth)
 	
 	r.send()
@@ -301,13 +332,14 @@ def head(url, params={}, headers={}, auth=None):
 	return r.response
 
 
-def post(url, data={}, headers={}, files=None, auth=None):
+def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
 	"""Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary of POST Data to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
+    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
@@ -321,6 +353,7 @@ def post(url, data={}, headers={}, files=None, auth=None):
 		r.files = files
 	
 	r.headers = headers
+	r.cookiejar = cookies
 	r.auth = _detect_auth(url, auth)
 	
 	r.send()
@@ -328,13 +361,14 @@ def post(url, data={}, headers={}, files=None, auth=None):
 	return r.response
 	
 	
-def put(url, data='', headers={}, files={}, auth=None):
+def put(url, data='', headers={}, files={}, cookies=None, auth=None):
 	"""Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Bytes of PUT Data to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
+    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
@@ -345,6 +379,7 @@ def put(url, data='', headers={}, files={}, auth=None):
 	r.data = data
 	r.files = files
 	r.headers = headers
+	r.cookiejar = cookies
 	r.auth = _detect_auth(url, auth)
 	
 	r.send()
@@ -352,12 +387,13 @@ def put(url, data='', headers={}, files={}, auth=None):
 	return r.response
 
 	
-def delete(url, params={}, headers={}, auth=None):
+def delete(url, params={}, headers={}, cookies=None, auth=None):
 	"""Sends a DELETE request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary of GET Parameters to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
@@ -367,6 +403,7 @@ def delete(url, params={}, headers={}, auth=None):
 	r.method = 'DELETE'
 	
 	r.headers = headers
+	r.cookiejar = cookies
 	r.auth = _detect_auth(url, auth)
 	
 	r.send()
