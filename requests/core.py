@@ -33,8 +33,8 @@ from .packages.poster.streaminghttp import register_openers
 
 
 __title__ = 'requests'
-__version__ = '0.2.1'
-__build__ = 0x000201
+__version__ = '0.2.2'
+__build__ = 0x000202
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'

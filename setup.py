@@ -22,7 +22,7 @@ required = []
 
 setup(
 	name='requests',
-	version='0.2.1',
+	version='0.2.2',
 	description='Awesome Python HTTP Library that\'s actually usable.',
 	long_description=open('README.rst').read() + '\n\n' +
 	                 open('HISTORY.rst').read(),
