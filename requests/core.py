@@ -104,8 +104,7 @@ class Request(object):
 		_handlers = []
 
 		if self.auth:
-
-			# create a password manager
+			
 			authr = urllib2.HTTPPasswordMgrWithDefaultRealm()
 
 			authr.add_password(None, self.url, self.auth.username, self.auth.password)
@@ -113,18 +112,14 @@ class Request(object):
 
 			_handlers.append(auth_handler)
 
-			# use the opener to fetch a URL
-#			return opener.open
 		if self.cookiejar:
 			
 			cookie_handler = urllib2.HTTPCookieProcessor(cookiejar)
 			_handlers.append(cookie_handler)
 
+		
 		opener = urllib2.build_opener(*_handlers)
-
 		return opener.open
-#		else:
-#			return urllib2.urlopen
 
 
 	def _build_response(self, resp):
