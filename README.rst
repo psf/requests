@@ -39,62 +39,49 @@ Usage
 It couldn't be simpler. ::
 
 	>>> import requests
+	>>> r = requests.get('http://google.com')
+
+
+HTTPS? Basic Authentication? ::
+	
+	>>> r = requests.get('https://convore.com/api/account/verify.json')
+	>>> r.status_code
+	401
+
+	
+Uh oh, we're not authorized! Let's add authentication. ::
+	
+	>>> conv_auth = requests.AuthObject('requeststest', 'requeststest')
+	>>> r = requests.get('https://convore.com/api/account/verify.json', conv_auth=auth)
+	
+	>>> r.status_code
+	200 
+	
+	>>> r.headers['content-type']
+	application/json
+	
+	>>> r.content
+	{"username": "requeststest", "url": "/users/requeststest/", "id": "9408", "img": "censored-long-url"}
+
+
+
+API
+---
 	
 	>>> request.get(url, params={}, headers={} auth=None)
 	<response object>
 	
-	>>> request.put(url, params={}, headers={}, auth=None)
+	>>> request.head(url, params={}, headers={} auth=None)
 	<response object>
 	
-	>>> request.post(url, params={}, headers={}, auth=None)
+	>>> request.put(url, data='', headers={}, auth=None)
+	<response object>
+	
+	>>> request.post(url, data={}, headers={}, auth=None)
 	<response object>
 	
 	>>> request.delete(url, params={}, headers={}, auth=None)
 	<response object>
-	
-	
-	>>> r = request.Request()
-	
-	>>> r.url = 'http://someurl.com/'
-	>>> r.add_header(('key', 'value'))
-	
-	>>> r.method = 'GET'
-	
-	>>> r.send()
-	True
-
-	>>> dict(r)
-	{
-		'url': 'http://someurl.com/',
-		'headers': {
-			'key': 'value',
-		}, 
-		'method': 'GET',
-		'response': {
-			'content': <sensored-content>,
-			'status_code': 200,
-			'headers': {
-				'x-runtime': '210ms',
-				'server': 'Apache 2.1',
-				'Content-Type': 'text/html; charset=utf-8'
-			}
-		}
-	}
-	
-Access stuff. ::
-
-	>>> r = request.get('https://github.com')
-	>>> r.response.status_code()
-
-HTTP Authentication. ::
-
-	>>> whoiam = AuthObject('xxx-username', 'xxx-pass')
-	>>> request.get(url, params{}, auth=whoiam)
-
-"Opener" System. ::
-
-	# all containing given url will automatically auth with given AuthObject
-	>>> requests.add_autoauth(url, auth)
 	
 
 
@@ -111,14 +98,18 @@ Or, if you absolutely must: ::
 
 But, you really shouldn't do that.
    
+
+
 Contribute
 ----------
 
 If you'd like to contribute, simply fork `the repository`_, commit your changes to the **develop** branch (or branch off of it), and send a pull request. Make sure you add yourself to AUTHORS_.
 
 
+
 Roadmap
 -------
+
 - Documentation
 - Write it!
 - Test it!
