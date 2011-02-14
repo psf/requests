@@ -3,13 +3,13 @@ Requests: The Simple (e.g. usable) HTTP Module
 
 ::
 
-	:::::::::  ::::::::::  ::::::::   :::    ::: ::::::::::  ::::::::  :::::::::::  ::::::::  
-	:+:    :+: :+:        :+:    :+:  :+:    :+: :+:        :+:    :+:     :+:     :+:    :+: 
-	+:+    +:+ +:+        +:+    +:+  +:+    +:+ +:+        +:+            +:+     +:+        
-	+#++:++#:  +#++:++#   +#+    +:+  +#+    +:+ +#++:++#   +#++:++#++     +#+     +#++:++#++ 
-	+#+    +#+ +#+        +#+  # +#+  +#+    +#+ +#+               +#+     +#+            +#+ 
-	#+#    #+# #+#        #+#   +#+   #+#    #+# #+#        #+#    #+#     #+#     #+#    #+# 
-	###    ### ##########  ###### ###  ########  ##########  ########      ###      ########  
+    :::::::::  ::::::::::  ::::::::   :::    ::: ::::::::::  ::::::::  :::::::::::  ::::::::  
+    :+:    :+: :+:        :+:    :+:  :+:    :+: :+:        :+:    :+:     :+:     :+:    :+: 
+    +:+    +:+ +:+        +:+    +:+  +:+    +:+ +:+        +:+            +:+     +:+        
+    +#++:++#:  +#++:++#   +#+    +:+  +#+    +:+ +#++:++#   +#++:++#++     +#+     +#++:++#++ 
+    +#+    +#+ +#+        +#+  # +#+  +#+    +#+ +#+               +#+     +#+            +#+ 
+    #+#    #+# #+#        #+#   +#+   #+#    #+# #+#        #+#    #+#     #+#     #+#    #+# 
+    ###    ### ##########  ###### ###  ########  ##########  ########      ###      ########  
 
                                                               
 
@@ -27,10 +27,10 @@ Features
 --------
 
 - Extremely simple GET, HEAD, POST, PUT, DELETE Requests
-	+ Simple HTTP Header Request Attachment
-	+ Simple Data/Params Request Attachment
+    + Simple HTTP Header Request Attachment
+    + Simple Data/Params Request Attachment
 - Simple Basic HTTP Authentication
-	+ Simple URL + HTTP Auth Registry
+    + Simple URL + HTTP Auth Registry
 
 
 Usage
@@ -38,63 +38,75 @@ Usage
 
 It couldn't be simpler. ::
 
-	>>> import requests
-	>>> r = requests.get('http://google.com')
+    >>> import requests
+    >>> r = requests.get('http://google.com')
 
 
 HTTPS? Basic Authentication? ::
-	
-	>>> r = requests.get('https://convore.com/api/account/verify.json')
-	>>> r.status_code
-	401
+    
+    >>> r = requests.get('https://convore.com/api/account/verify.json')
+    >>> r.status_code
+    401
 
-	
+    
 Uh oh, we're not authorized! Let's add authentication. ::
-	
-	>>> conv_auth = requests.AuthObject('requeststest', 'requeststest')
-	>>> r = requests.get('https://convore.com/api/account/verify.json', conv_auth=auth)
-	
-	>>> r.status_code
-	200 
-	
-	>>> r.headers['content-type']
-	application/json
-	
-	>>> r.content
-	{"username": "requeststest", "url": "/users/requeststest/", "id": "9408", "img": "censored-long-url"}
+    
+    >>> conv_auth = requests.AuthObject('requeststest', 'requeststest')
+    >>> r = requests.get('https://convore.com/api/account/verify.json', conv_auth=auth)
+    
+    >>> r.status_code
+    200 
+    
+    >>> r.headers['content-type']
+    application/json
+    
+    >>> r.content
+    {"username": "requeststest", "url": "/users/requeststest/", "id": "9408", "img": "censored-long-url"}
 
 
 
 API
 ---
-	
-	>>> request.get(url, params={}, headers={} auth=None)
-	<response object>
-	
-	>>> request.head(url, params={}, headers={} auth=None)
-	<response object>
-	
-	>>> request.put(url, data='', headers={}, auth=None)
-	<response object>
-	
-	>>> request.post(url, data={}, headers={}, auth=None)
-	<response object>
-	
-	>>> request.delete(url, params={}, headers={}, auth=None)
-	<response object>
-	
+    
+    **Requests:**
+    
+    >>> request.get(url, params={}, headers={} auth=None)
+    <response object>
+    
+    >>> request.head(url, params={}, headers={} auth=None)
+    <response object>
+    
+    >>> request.put(url, data='', headers={}, auth=None)
+    <response object>
+    
+    >>> request.post(url, data={}, headers={}, auth=None)
+    <response object>
+    
+    >>> request.delete(url, params={}, headers={}, auth=None)
+    <response object>
+    
+    **Responses:**
+    
+      Request.status_code:
+        Received HTTP Status Code Response
+    
+      Request.headers:
+        Received HTTP Response Headers
+    
+      Request.content:
+        Received Content
 
 
 Installation
 ------------
 
-To install tablib, simply: ::
+To install requests, simply: ::
 
-	$ pip install requests
-	
+    $ pip install requests
+    
 Or, if you absolutely must: ::
 
-	$ easy_install requests
+    $ easy_install requests
 
 But, you really shouldn't do that.
    
