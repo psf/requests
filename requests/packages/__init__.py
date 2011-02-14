@@ -1,1 +1,1 @@
-import poster
+from . import poster

@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 
-import packages
+from . import packages
 from .core import *
