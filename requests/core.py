@@ -283,12 +283,13 @@ def head(url, params={}, headers={}, auth=None):
 	return r.response
 
 
-def post(url, data={}, headers={}, auth=None):
+def post(url, data={}, headers={}, multipart_files={}, auth=None):
 	"""Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary of POST Data to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+    :param multipart_files: (optional) Dictoinary of 'filename': file-like-objects for multipart encoding upload.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
@@ -306,12 +307,13 @@ def post(url, data={}, headers={}, auth=None):
 	return r.response
 	
 	
-def put(url, data='', headers={}, auth=None):
+def put(url, data='', headers={}, multipart_files={}, auth=None):
 	"""Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Bytes of PUT Data to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
+    :param multipart_files: (optional) Dictoinary of 'filename': file-like-objects for multipart encoding upload.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
