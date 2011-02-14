@@ -26,7 +26,7 @@ AUTOAUTHS = []
 
 
 class _Request(urllib2.Request):
-    """Hidden wrapper around the urllib2.Request object. Allows for manual
+	"""Hidden wrapper around the urllib2.Request object. Allows for manual
     setting of HTTP methods.
     """
 	
@@ -42,7 +42,7 @@ class _Request(urllib2.Request):
 
 
 class Request(object):
-    """The :class:`Request` object. It carries out all functionality of
+	"""The :class:`Request` object. It carries out all functionality of
     Requests. Recommended interface is with the Requests functions.
     """
 	
@@ -76,14 +76,14 @@ class Request(object):
 	
 	
 	def _checks(self):
-	    """Deterministic checks for consistiency."""
+		"""Deterministic checks for consistiency."""
 
 		if not self.url:
 			raise URLRequired
 
 		
 	def _get_opener(self):
-	    """Creates appropriate opener object for urllib2."""
+		"""Creates appropriate opener object for urllib2."""
 		
 		if self.auth:
 
@@ -101,7 +101,7 @@ class Request(object):
 
 	
 	def send(self, anyway=False):
-	    """Sends the request. Returns True of successfull, false if not.
+		"""Sends the request. Returns True of successfull, false if not.
         If there was an HTTPError during transmission,
         self.response.status_code will contain the HTTPError code.
 
@@ -204,7 +204,7 @@ class Request(object):
 		
 
 class Response(object):
-    """The :class:`Request` object. All :class:`Request` objects contain a
+	"""The :class:`Request` object. All :class:`Request` objects contain a
     :class:`Request.response <response>` attribute, which is an instance of
     this class.
     """
@@ -223,7 +223,7 @@ class Response(object):
 
 	
 class AuthObject(object):
-    """The :class:`AuthObject` is a simple HTTP Authentication token. When
+	"""The :class:`AuthObject` is a simple HTTP Authentication token. When
     given to a Requests function, it enables Basic HTTP Authentication for that
     Request. You can also enable Authorization for domain realms with AutoAuth.
     See AutoAuth for more details.
@@ -239,7 +239,7 @@ class AuthObject(object):
 
 
 def get(url, params={}, headers={}, auth=None):
-    """Sends a GET request. Returns :class:`Response` object.
+	"""Sends a GET request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary of GET Parameters to send with the :class:`Request`.
@@ -261,7 +261,7 @@ def get(url, params={}, headers={}, auth=None):
 
 
 def head(url, params={}, headers={}, auth=None):
-    """Sends a HEAD request. Returns :class:`Response` object.
+	"""Sends a HEAD request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary of GET Parameters to send with the :class:`Request`.
@@ -284,7 +284,7 @@ def head(url, params={}, headers={}, auth=None):
 
 
 def post(url, data={}, headers={}, auth=None):
-    """Sends a POST request. Returns :class:`Response` object.
+	"""Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary of POST Data to send with the :class:`Request`.
@@ -307,7 +307,7 @@ def post(url, data={}, headers={}, auth=None):
 	
 	
 def put(url, data='', headers={}, auth=None):
-    """Sends a PUT request. Returns :class:`Response` object.
+	"""Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Bytes of PUT Data to send with the :class:`Request`.
@@ -330,7 +330,7 @@ def put(url, data='', headers={}, auth=None):
 
 	
 def delete(url, params={}, headers={}, auth=None):
-    """Sends a DELETE request. Returns :class:`Response` object.
+	"""Sends a DELETE request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary of GET Parameters to send with the :class:`Request`.
@@ -353,7 +353,7 @@ def delete(url, params={}, headers={}, auth=None):
 
 
 def add_autoauth(url, authobject):
-    """Registers given AuthObject to given URL domain. for auto-activation.
+	"""Registers given AuthObject to given URL domain. for auto-activation.
     Once a URL is registered with an AuthObject, the configured HTTP
     Authentication will be used for all requests with URLS containing the given
     URL string.
@@ -374,7 +374,7 @@ def add_autoauth(url, authobject):
 
 
 def _detect_auth(url, auth):
-    """Returns registered AuthObject for given url if available, defaulting to
+	"""Returns registered AuthObject for given url if available, defaulting to
     given AuthObject.
     """
 
@@ -382,7 +382,7 @@ def _detect_auth(url, auth):
 
 	
 def _get_autoauth(url):
-    """Returns registered AuthObject for given url if available."""
+	"""Returns registered AuthObject for given url if available."""
 	
 	for (autoauth_url, auth) in AUTOAUTHS:
 		if autoauth_url in url: 
@@ -391,13 +391,13 @@ def _get_autoauth(url):
 	return None
 
 class RequestException(Exception):
-    """There was an ambiguous exception that occured while handling your request."""
+	"""There was an ambiguous exception that occured while handling your request."""
 
 class AuthenticationError(RequestException):
-    """The authentication credentials provided were invalid."""
+	"""The authentication credentials provided were invalid."""
 	
 class URLRequired(RequestException):
-    """A valid URL is required to make a request."""
+	"""A valid URL is required to make a request."""
 	
 class InvalidMethod(RequestException):
-    """An inappropriate method was attempted."""
+	"""An inappropriate method was attempted."""
