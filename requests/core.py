@@ -11,10 +11,20 @@
 """
 
 import urllib
+import urllib2
+
 try:
-	from eventlet.green import urllib2
+	from gevent import monkey 
+	monkey.patch_all()
 except ImportError:
-	import urllib2
+	pass
+	
+try:
+	import eventlet
+	eventlet.monkey_patch()
+except ImportError:
+	pass
+
 
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers
