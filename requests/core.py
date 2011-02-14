@@ -344,17 +344,36 @@ def delete(url, params={}, headers={}, auth=None):
 
 
 def add_autoauth(url, authobject):
+	"""Registers given AuthObject to given URL domain. for auto-activation.
+	Once a URL is registered with an AuthObject, the configured HTTP
+	Authentication will be used for all requests with URLS containing the given
+	URL string.
+
+	Example: ::
+	    >>> c_auth = requests.AuthObject('kennethreitz', 'xxxxxxx')
+	    >>> requests.add_autoauth('https://convore.com/api/', c_auth)
+	    >>> r = requests.get('https://convore.com/api/account/verify.json')
+	    # Automatically HTTP Authenticated! Wh00t!
+
+	:param url: Base URL for given AuthObject to auto-activate for.
+	:param authobject: AuthObject to auto-activate.
+	"""
 	global AUTOAUTHS
 	
 	AUTOAUTHS.append((url, authobject))
 
 
 def _detect_auth(url, auth):
+	"""Returns registered AuthObject for given url if available, defaulting to
+	given AuthObject."""
 
 	return _get_autoauth(url) if not auth else auth
 
 	
 def _get_autoauth(url):
+	"""Returns registered AuthObject for given url if available.
+	"""
+	
 	for (autoauth_url, auth) in AUTOAUTHS:
 		if autoauth_url in url: 
 			return auth
