@@ -282,7 +282,7 @@ class AuthObject(object):
 
 
 
-def get(url, params={}, headers={}, auth=None):
+def get(url, params={}, headers={}, cookies=None, auth=None):
 	"""Sends a GET request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -297,6 +297,7 @@ def get(url, params={}, headers={}, auth=None):
 	r.url = url
 	r.params = params
 	r.headers = headers
+	r.cookiejar = cookies
 	r.auth = _detect_auth(url, auth)
 	
 	r.send()
@@ -304,7 +305,7 @@ def get(url, params={}, headers={}, auth=None):
 	return r.response
 
 
-def head(url, params={}, headers={}, auth=None):
+def head(url, params={}, headers={}, cookies=None, auth=None):
 	"""Sends a HEAD request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -320,6 +321,7 @@ def head(url, params={}, headers={}, auth=None):
 	# return response object
 	r.params = params
 	r.headers = headers
+	r.cookiejar = cookies
 	r.auth = _detect_auth(url, auth)
 	
 	r.send()
@@ -327,7 +329,7 @@ def head(url, params={}, headers={}, auth=None):
 	return r.response
 
 
-def post(url, data={}, headers={}, files=None, auth=None):
+def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
 	"""Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -347,6 +349,7 @@ def post(url, data={}, headers={}, files=None, auth=None):
 		r.files = files
 	
 	r.headers = headers
+	r.cookiejar = cookies
 	r.auth = _detect_auth(url, auth)
 	
 	r.send()
@@ -354,7 +357,7 @@ def post(url, data={}, headers={}, files=None, auth=None):
 	return r.response
 	
 	
-def put(url, data='', headers={}, files={}, auth=None):
+def put(url, data='', headers={}, files={}, cookies=None, auth=None):
 	"""Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -371,6 +374,7 @@ def put(url, data='', headers={}, files={}, auth=None):
 	r.data = data
 	r.files = files
 	r.headers = headers
+	r.cookiejar = cookies
 	r.auth = _detect_auth(url, auth)
 	
 	r.send()
@@ -378,7 +382,7 @@ def put(url, data='', headers={}, files={}, auth=None):
 	return r.response
 
 	
-def delete(url, params={}, headers={}, auth=None):
+def delete(url, params={}, headers={}, cookies=None, auth=None):
 	"""Sends a DELETE request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -393,6 +397,7 @@ def delete(url, params={}, headers={}, auth=None):
 	r.method = 'DELETE'
 	
 	r.headers = headers
+	r.cookiejar = cookies
 	r.auth = _detect_auth(url, auth)
 	
 	r.send()
