@@ -21,7 +21,7 @@ required = []
 
 setup(
 	name='requests',
-	version='0.2.0',
+	version='0.2.1',
 	description='Python HTTP Library that\'s actually usable.',
 	long_description=open('README.rst').read() + '\n\n' +
 	                 open('HISTORY.rst').read(),
@@ -30,6 +30,8 @@ setup(
 	url='https://github.com/kennethreitz/requests',
 	packages= [
 		'requests',
+		'requests.packages',
+		'requests.packages.poster'
 	],
 	install_requires=required,
 	license='ISC',
