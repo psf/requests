@@ -390,6 +390,7 @@ def _get_autoauth(url):
 			
 	return None
 
+
 class RequestException(Exception):
 	"""There was an ambiguous exception that occured while handling your request."""
 
