@@ -64,11 +64,7 @@ class Request(object):
 		
 		
 	def __repr__(self):
-		try:
-			repr = '<Request [%s]>' % (self.method)
-		except:
-			repr = '<Request object>'
-		return repr
+		return '<Request [%s]>' % (self.method)
 	
 	
 	def __setattr__(self, name, value):
@@ -207,7 +203,7 @@ class Request(object):
 
 					success = True
 
-				except urllib2.HTTPError, why:
+				except(urllib2.HTTPError, why):
 					self.response.status_code = why.code
 
 		
@@ -228,11 +224,8 @@ class Response(object):
 		self.headers = dict()
 		
 	def __repr__(self):
-		try:
-			repr = '<Response [%s]>' % (self.status_code)
-		except:
-			repr = '<Response object>'
-		return repr
+		return '<Response [%s]>' % (self.status_code)
+		
 
 	
 class AuthObject(object):
