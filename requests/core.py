@@ -11,7 +11,10 @@
 """
 
 import urllib
-import urllib2
+try:
+	from eventlet.green import urllib2
+except ImportError:
+	import urllib2
 
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers
