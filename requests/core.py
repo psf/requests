@@ -66,9 +66,12 @@ class Request(object):
 	
 	
 	def _checks(self):
-		pass
+		"""Deterministic checks for consistiency."""
 
-	
+		if not self.url:
+			raise URLRequired
+
+		
 	def _get_opener(self):
 		""" Creates appropriate opener object for urllib2.
 		"""
@@ -94,81 +97,79 @@ class Request(object):
 		   :param anyway: If True, request will be sent, even if it has already been sent.
 		"""
 		self._checks()
+
+		success = False
 		
 		if self.method in ('GET', 'HEAD', 'DELETE'):
 			if (not self.sent) or anyway:
+
+				# url encode GET params if it's a dict
+				if isinstance(self.params, dict):
+					params = urllib.urlencode(self.params)
+				else:
+
+					params = self.params
+
+				req = _Request(("%s?%s" % (self.url, params)), method=self.method)
+
+				if self.headers:
+					req.headers = self.headers
+
+				opener = self._get_opener()
+
 				try:
-					# url encode GET params if it's a dict
-					if isinstance(self.params, dict):
-						params = urllib.urlencode(self.params)
-					else:
-
-						params = self.params
-
-					req = _Request(("%s?%s" % (self.url, params)), method=self.method)
-
-					if self.headers:
-						req.headers = self.headers
-
-					opener = self._get_opener()
 					resp = opener(req)
-
 					self.response.status_code = resp.code
 					self.response.headers = resp.info().dict
 					if self.method.lower() == 'get':
 						self.response.content = resp.read()
 
 					success = True
+				except urllib2.HTTPError, why:
+					self.response.status_code = why.code
 
-				except RequestException:
-					raise RequestException
-				
 
 		elif self.method == 'PUT':
 			if (not self.sent) or anyway:
 
+				req = _Request(self.url, method='PUT')
+
+				if self.headers:
+					req.headers = self.headers
+
+				req.data = self.data
+
 				try:
-					try:
+					opener = self._get_opener()
+					resp =  opener(req)
 
-						req = _Request(self.url, method='PUT')
+					self.response.status_code = resp.code
+					self.response.headers = resp.info().dict
+					self.response.content = resp.read()
 
-						if self.headers:
-							req.headers = self.headers
+					success = True
 
-						req.data = self.data
-
-						opener = self._get_opener()
-						resp =  opener(req)
-
-						self.response.status_code = resp.code
-						self.response.headers = resp.info().dict
-						self.response.content = resp.read()
-
-						success = True
-					except urllib2.HTTPError:
-						self.resonse.status_code = 405
-
-				except Exception:
-					# TODO: Fix this shit
-					raise RequestException
+				except urllib2.HTTPError, why:
+					self.response.status_code = why.code
 
 
-			
+
+
 		elif self.method == 'POST':
 			if (not self.sent) or anyway:
+
+				req = _Request(self.url, method='POST')
+
+				if self.headers:
+					req.headers = self.headers
+
+				# url encode form data if it's a dict
+				if isinstance(self.data, dict):
+					req.data = urllib.urlencode(self.data)
+				else:
+					req.data = self.data
+
 				try:
-
-					req = _Request(self.url, method='POST')
-
-					if self.headers:
-						req.headers = self.headers
-
-					# url encode form data if it's a dict
-					if isinstance(self.data, dict):
-						req.data = urllib.urlencode(self.data)
-					else:
-						req.data = self.data
-
 
 					opener = self._get_opener()
 					resp =  opener(req)
@@ -176,11 +177,11 @@ class Request(object):
 					self.response.status_code = resp.code
 					self.response.headers = resp.info().dict
 					self.response.content = resp.read()
-					
+
 					success = True
 
-				except Exception:
-					raise RequestException
+				except urllib2.HTTPError, why:
+					self.response.status_code = why.code
 
 		
 		self.sent = True if success else False
@@ -191,12 +192,12 @@ class Request(object):
 class Response(object):
 	"""The :class:`Request` object. It's awesome.
 	"""
-	
+
 	def __init__(self):
 		self.content = None
 		self.status_code = None
 		self.headers = dict()
-		
+
 	
 class AuthObject(object):
 	"""The :class:`AuthObject` is a simple HTTP Authentication token.
