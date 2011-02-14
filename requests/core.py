@@ -125,7 +125,7 @@ class Request(object):
 
 					success = True
 
-				except Exception:
+				except RequestException:
 					raise RequestException
 				
 
@@ -150,11 +150,13 @@ class Request(object):
 						self.response.content = resp.read()
 
 						success = True
-					except Exception:
-						raise RequestException
+					except urllib2.HTTPError:
+						self.resonse.status_code = 405
 
-				except urllib2.HTTPError:
-					self.resonse.status_code = 405
+				except Exception:
+					# TODO: Fix this shit
+					raise RequestException
+
 
 			
 		elif self.method.lower() == 'post':
@@ -298,7 +300,8 @@ def delete(url, params={}, headers={}, auth=None):
 	"""Sends a DELETE request. Returns :class:`Response` object.
 	"""
 	r = Request()
-	
+
+	r.url = url
 	r.method = 'DELETE'
 	# return response object
 	
