@@ -13,8 +13,8 @@
 import urllib
 import urllib2
 
-from poster.encode import multipart_encode
-from poster.streaminghttp import register_openers
+from .packages.poster.encode import multipart_encode
+from .packages.poster.streaminghttp import register_openers
 
 
 __title__ = 'requests'
@@ -54,6 +54,7 @@ class Request(object):
 	def __init__(self):
 		self.url = None
 		self.headers = dict()
+		self.multipart_files = None
 		self.method = None
 		self.params = {}
 		self.data = {}
@@ -175,16 +176,25 @@ class Request(object):
 		elif self.method == 'POST':
 			if (not self.sent) or anyway:
 
-				req = _Request(self.url, method='POST')
+				if self.multipart_files:
+					register_openers()
+					datagen, headers = multipart_encode(self.multipart_files)
+					req = _Request(self.url, data=datagen, headers=headers, method='POST')
 
-				if self.headers:
+					if self.headers:
+						req.headers.update(self.headers)
+				
+				else:
+					req = _Request(self.url, method='POST')
 					req.headers = self.headers
 
+					if isinstance(self.data, dict):
+						req.data = urllib.urlencode(self.data)
+					else:
+						req.data = self.data
+					
 				# url encode form data if it's a dict
-				if isinstance(self.data, dict):
-					req.data = urllib.urlencode(self.data)
-				else:
-					req.data = self.data
+
 
 				try:
 
@@ -286,7 +296,7 @@ def head(url, params={}, headers={}, auth=None):
 	return r.response
 
 
-def post(url, data={}, headers={}, multipart_files={}, auth=None):
+def post(url, data={}, headers={}, multipart_files=None, auth=None):
 	"""Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -297,10 +307,13 @@ def post(url, data={}, headers={}, multipart_files={}, auth=None):
     """
 	
 	r = Request()
-
+	
 	r.url = url
 	r.method = 'POST'
 	r.data = data
+	
+	if multipart_files:
+		r.multipart_files = multipart_files
 	
 	r.headers = headers
 	r.auth = _detect_auth(url, auth)
