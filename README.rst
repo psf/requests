@@ -128,6 +128,7 @@ If you'd like to contribute, simply fork `the repository`_, commit your changes 
 Roadmap
 -------
 
+- Cookie Support
 - Sphinx Documentation
 - Exhaustive Unittests
 
