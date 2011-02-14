@@ -74,19 +74,23 @@ All request functions return a Response object (see below).
     
   GET Requests
     >>> request.get(url, params={}, headers={} auth=None)
+    <request object>
     
   HEAD Requests
     >>> request.head(url, params={}, headers={} auth=None)
-
+    <request object>
+    
   PUT Requests
     >>> request.put(url, data='', headers={}, auth=None)
-
+    <request object>
+    
   POST Requests
     >>> request.post(url, data={}, headers={}, auth=None)
+    <request object>
     
   DELETE Requests
     >>> request.delete(url, params={}, headers={}, auth=None)
-    
+    <request object>
     
 **Responses:**
     
