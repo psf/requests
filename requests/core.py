@@ -213,7 +213,7 @@ class Request(object):
 					success = True
 
 				except urllib2.HTTPError as why:
-					sself._build_response(why)
+					self._build_response(why)
 					success = False
 
 		
