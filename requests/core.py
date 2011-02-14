@@ -73,7 +73,9 @@ class Request(object):
 		self.params = {}
 		self.data = {}
 		self.response = Response()
+		
 		self.auth = None
+		self.cookiejar = None
 		self.sent = False
 		
 		
@@ -98,20 +100,31 @@ class Request(object):
 		
 	def _get_opener(self):
 		"""Creates appropriate opener object for urllib2."""
-		
+
+		_handlers = []
+
 		if self.auth:
 
 			# create a password manager
 			authr = urllib2.HTTPPasswordMgrWithDefaultRealm()
 
 			authr.add_password(None, self.url, self.auth.username, self.auth.password)
-			handler = urllib2.HTTPBasicAuthHandler(authr)
-			opener = urllib2.build_opener(handler)
+			auth_handler = urllib2.HTTPBasicAuthHandler(authr)
+
+			_handlers.append(auth_handler)
 
 			# use the opener to fetch a URL
-			return opener.open
-		else:
-			return urllib2.urlopen
+#			return opener.open
+		if self.cookiejar:
+			
+			cookie_handler = urllib2.HTTPCookieProcessor(cookiejar)
+			_handlers.append(cookie_handler)
+
+		opener = urllib2.build_opener(*_handlers)
+
+		return opener.open
+#		else:
+#			return urllib2.urlopen
 
 
 	def _build_response(self, resp):
