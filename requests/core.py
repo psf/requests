@@ -12,20 +12,20 @@
 
 import urllib
 import urllib2
-
-try:
-	import eventlet
-	eventlet.monkey_patch()
-except ImportError:
-	pass
-
-if not 'eventlet' in locals():
-	try:
-		from gevent import monkey 
-		monkey.patch_all()
-	except ImportError:
-		pass
-	
+#
+#try:
+#	import eventlet
+##	eventlet.monkey_patch()
+#except ImportError:
+#	pass
+#
+#if not 'eventlet' in locals():
+#	try:
+#		from gevent import monkey
+#		monkey.patch_all()
+#	except ImportError:
+#		pass
+#
 
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers
