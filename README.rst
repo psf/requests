@@ -81,7 +81,7 @@ All request functions return a Response object (see below).
   PUT Requests
     >>> request.put(url, data='', headers={}, auth=None)
 
-  PST Requests
+  POST Requests
     >>> request.post(url, data={}, headers={}, auth=None)
     
   DELETE Requests
