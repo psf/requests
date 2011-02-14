@@ -14,6 +14,8 @@ Features
     + Simple HTTP Header Request Attachment
     + Simple Data/Params Request Attachment
     + Simple Multipart File Uploads
+    + CookieJar Support
+    
 - Simple Basic HTTP Authentication
     + Simple URL + HTTP Auth Registry
 
@@ -129,7 +131,6 @@ If you'd like to contribute, simply fork `the repository`_, commit your changes 
 Roadmap
 -------
 
-- Cookie Support
 - Sphinx Documentation
 - Exhaustive Unittests
 
