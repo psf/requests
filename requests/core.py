@@ -54,7 +54,7 @@ class Request(object):
 	def __init__(self):
 		self.url = None
 		self.headers = dict()
-		self.multipart_files = None
+		self.files = None
 		self.method = None
 		self.params = {}
 		self.data = {}
@@ -149,9 +149,9 @@ class Request(object):
 		elif self.method == 'PUT':
 			if (not self.sent) or anyway:
 
-				if self.multipart_files:
+				if self.files:
 					register_openers()
-					datagen, headers = multipart_encode(self.multipart_files)
+					datagen, headers = multipart_encode(self.files)
 					req = _Request(self.url, data=datagen, headers=headers, method='PUT')
 
 					if self.headers:
@@ -184,9 +184,9 @@ class Request(object):
 		elif self.method == 'POST':
 			if (not self.sent) or anyway:
 
-				if self.multipart_files:
+				if self.files:
 					register_openers()
-					datagen, headers = multipart_encode(self.multipart_files)
+					datagen, headers = multipart_encode(self.files)
 					req = _Request(self.url, data=datagen, headers=headers, method='POST')
 
 					if self.headers:
@@ -301,13 +301,13 @@ def head(url, params={}, headers={}, auth=None):
 	return r.response
 
 
-def post(url, data={}, headers={}, multipart_files=None, auth=None):
+def post(url, data={}, headers={}, files=None, auth=None):
 	"""Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary of POST Data to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
-    :param multipart_files: (optional) Dictoinary of 'filename': file-like-objects for multipart encoding upload.
+    :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
@@ -317,8 +317,8 @@ def post(url, data={}, headers={}, multipart_files=None, auth=None):
 	r.method = 'POST'
 	r.data = data
 	
-	if multipart_files:
-		r.multipart_files = multipart_files
+	if files:
+		r.files = files
 	
 	r.headers = headers
 	r.auth = _detect_auth(url, auth)
@@ -328,13 +328,13 @@ def post(url, data={}, headers={}, multipart_files=None, auth=None):
 	return r.response
 	
 	
-def put(url, data='', headers={}, multipart_files={}, auth=None):
+def put(url, data='', headers={}, files={}, auth=None):
 	"""Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Bytes of PUT Data to send with the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
-    :param multipart_files: (optional) Dictoinary of 'filename': file-like-objects for multipart encoding upload.
+    :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
@@ -343,7 +343,7 @@ def put(url, data='', headers={}, multipart_files={}, auth=None):
 	r.url = url
 	r.method = 'PUT'
 	r.data = data
-	
+	r.files = files
 	r.headers = headers
 	r.auth = _detect_auth(url, auth)
 	
