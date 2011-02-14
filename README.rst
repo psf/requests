@@ -88,6 +88,9 @@ All request functions return a Response object (see below).
     Request.content:
         (Bytes) Received Content
 
+    Request.url
+        (String) URL of response. Useful for detecting redirects. 
+
 
 **HTTP Authentication Registry:**
 

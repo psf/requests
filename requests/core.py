@@ -137,8 +137,9 @@ class Request(object):
 					resp = opener(req)
 					self.response.status_code = resp.code
 					self.response.headers = resp.info().dict
-					if self.method.lower() == 'get':
+					if self.method == 'GET':
 						self.response.content = resp.read()
+					self.response.url = resp.url
 
 					success = True
 				except urllib2.HTTPError as why:
@@ -172,6 +173,7 @@ class Request(object):
 					self.response.status_code = resp.code
 					self.response.headers = resp.info().dict
 					self.response.content = resp.read()
+					self.response.url = resp.url
 
 					success = True
 
@@ -208,6 +210,7 @@ class Request(object):
 					self.response.status_code = resp.code
 					self.response.headers = resp.info().dict
 					self.response.content = resp.read()
+					self.response.url = resp.url
 
 					success = True
 
@@ -230,6 +233,7 @@ class Response(object):
 		self.content = None
 		self.status_code = None
 		self.headers = dict()
+		self.url = None
 		
 	def __repr__(self):
 		return '<Response [%s]>' % (self.status_code)
