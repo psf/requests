@@ -99,9 +99,17 @@ class Request(object):
 		else:
 			return urllib2.urlopen
 
-	
+
+	def _build_response(self, resp):
+		"""Build internal Response object from given response."""
+		
+		self.response.status_code = resp.code
+		self.response.headers = resp.info().dict
+		self.response.content = resp.read()
+		self.response.url = resp.url
+
 	def send(self, anyway=False):
-		"""Sends the request. Returns True of successfull, false if not.
+		"""Sends the request. Returns True of successful, false if not.
         If there was an HTTPError during transmission,
         self.response.status_code will contain the HTTPError code.
 
@@ -135,15 +143,12 @@ class Request(object):
 
 				try:
 					resp = opener(req)
-					self.response.status_code = resp.code
-					self.response.headers = resp.info().dict
-					if self.method == 'GET':
-						self.response.content = resp.read()
-					self.response.url = resp.url
-
+					self._build_response(resp)
 					success = True
+
 				except urllib2.HTTPError as why:
-					self.response.status_code = why.code
+					self._build_response(why)
+					success = False
 
 
 		elif self.method == 'PUT':
@@ -170,15 +175,12 @@ class Request(object):
 					opener = self._get_opener()
 					resp =  opener(req)
 
-					self.response.status_code = resp.code
-					self.response.headers = resp.info().dict
-					self.response.content = resp.read()
-					self.response.url = resp.url
-
+					self._build_response(resp)
 					success = True
 
 				except urllib2.HTTPError as why:
-					self.response.status_code = why.code
+					self._build_response(why)
+					success = False
 
 
 		elif self.method == 'POST':
@@ -207,15 +209,12 @@ class Request(object):
 					opener = self._get_opener()
 					resp =  opener(req)
 
-					self.response.status_code = resp.code
-					self.response.headers = resp.info().dict
-					self.response.content = resp.read()
-					self.response.url = resp.url
-
+					self._build_response(resp)
 					success = True
 
 				except urllib2.HTTPError as why:
-					self.response.status_code = why.code
+					sself._build_response(why)
+					success = False
 
 		
 		self.sent = True if success else False
