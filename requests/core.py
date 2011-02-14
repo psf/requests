@@ -13,6 +13,9 @@
 import urllib
 import urllib2
 
+from poster.encode import multipart_encode
+from poster.streaminghttp import register_openers
+
 
 __title__ = 'requests'
 __version__ = '0.2.0'
