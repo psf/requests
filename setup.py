@@ -21,7 +21,7 @@ required = []
 
 setup(
 	name='requests',
-	version='0.0.1',
+	version='0.2.0',
 	description='Python HTTP Library that\'s actually usable.',
 	long_description=open('README.rst').read() + '\n\n' +
 	                 open('HISTORY.rst').read(),
