@@ -259,7 +259,7 @@ class Response(object):
 		self.headers = dict()
 		self.url = None
 		self.ok = False
-		self.error = False
+		self.error = None
 		
 	def __repr__(self):
 		return '<Response [%s]>' % (self.status_code)
