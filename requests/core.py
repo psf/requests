@@ -159,7 +159,6 @@ class Request(object):
 				if isinstance(self.params, dict):
 					params = urllib.urlencode(self.params)
 				else:
-
 					params = self.params
 
 				req = _Request(("%s?%s" % (self.url, params)), method=self.method)
@@ -172,11 +171,11 @@ class Request(object):
 				try:
 					resp = opener(req)
 					self._build_response(resp)
-					success = True
+					self.response.ok = True
 
 				except urllib2.HTTPError as why:
 					self._build_response(why)
-					success = False
+					self.response.error = why
 
 
 		elif self.method == 'PUT':
@@ -204,11 +203,11 @@ class Request(object):
 					resp =  opener(req)
 
 					self._build_response(resp)
-					success = True
+					self.response.ok = True
 
 				except urllib2.HTTPError as why:
 					self._build_response(why)
-					success = False
+					self.response.error = why
 
 
 		elif self.method == 'POST':
@@ -233,21 +232,19 @@ class Request(object):
 						req.data = self.data
 
 				try:
-
 					opener = self._get_opener()
 					resp =  opener(req)
 
 					self._build_response(resp)
-					success = True
+					self.response.ok = True
 
 				except urllib2.HTTPError as why:
 					self._build_response(why)
-					success = False
-
+					self.response.error = why
 		
-		self.sent = True if success else False
+		self.sent = self.response.ok
 		
-		return success
+		return self.sent
 		
 
 class Response(object):
@@ -261,9 +258,20 @@ class Response(object):
 		self.status_code = None
 		self.headers = dict()
 		self.url = None
+		self.ok = False
+		self.error = False
 		
 	def __repr__(self):
 		return '<Response [%s]>' % (self.status_code)
+		
+	def __nonzero__(self):
+		"""Returns true if status_code is 'OK'."""
+		return not self.error
+		
+	def raise_for_response(self):
+		"""Raises stored HTTPError if one exists."""
+		if self.error:
+			raise self.error
 
 
 	
