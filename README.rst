@@ -96,6 +96,15 @@ If CookieJar object is is passed in (cookies=...), the cookies will be sent with
 
     Request.url
         (String) URL of response. Useful for detecting redirects. 
+        
+    Request.ok
+        True if no errors occurred during the request, and the status_code is kosher.
+    
+    Request.error
+        (HTTPError) If an HTTPError occurred (e.g. status of 404), Otherwise this is None.
+    
+    Request.raise_for_status()
+        Raises HTTPError if a request is not kosher.
 
 
 **HTTP Authentication Registry:**
