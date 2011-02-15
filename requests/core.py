@@ -13,6 +13,7 @@
 import urllib
 import urllib2
 
+from urllib2 import HTTPError
 
 try:
 	import eventlet
