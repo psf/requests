@@ -85,25 +85,25 @@ If CookieJar object is is passed in (cookies=...), the cookies will be sent with
 
 **Responses:**
     
-    Request.status_code:
+    Response.status_code:
          (Integer) Received HTTP Status Code Response
 
-    Request.headers:
+    Response.headers:
         (Dictionary) Received HTTP Response Headers
 
-    Request.content:
+    Response.content:
         (Bytes) Received Content
 
-    Request.url
+    Response.url
         (String) URL of response. Useful for detecting redirects. 
         
-    Request.ok
-        True if no errors occurred during the request, and the status_code is kosher.
+    Response.ok
+        (Bool) True if no errors occurred during the request, and the status_code is kosher.
     
-    Request.error
+    Response.error
         (HTTPError) If an HTTPError occurred (e.g. status of 404), Otherwise this is None.
     
-    Request.raise_for_status()
+    Response.raise_for_status()
         Raises HTTPError if a request is not kosher.
 
 
