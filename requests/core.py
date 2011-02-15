@@ -268,7 +268,7 @@ class Response(object):
 		"""Returns true if status_code is 'OK'."""
 		return not self.error
 		
-	def raise_for_response(self):
+	def raise_for_status(self):
 		"""Raises stored HTTPError if one exists."""
 		if self.error:
 			raise self.error
