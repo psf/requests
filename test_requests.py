@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
 import unittest
 from cStringIO import StringIO
 
@@ -55,7 +54,24 @@ class RequestsTestSuite(unittest.TestCase):
 		post2 = requests.post(bin.url, files={'some': StringIO('data')})
 		self.assertEqual(post2.status_code, 201)
 
+	def test_nonzero_evaluation(self):
+		r = requests.get('http://google.com/some-404-url')
+		self.assertEqual(bool(r), False)
+	
+		r = requests.get('http://google.com/')
+		self.assertEqual(bool(r), True)
 
+	def test_request_ok_set(self):
+		r = requests.get('http://google.com/some-404-url')
+		self.assertEqual(r.ok, False)
+
+	def test_status_raising(self):
+		r = requests.get('http://google.com/some-404-url')
+		self.assertRaises(requests.HTTPError, r.raise_for_status)
+
+		r = requests.get('http://google.com/')
+		self.assertFalse(r.error)
+		r.raise_for_status()
 
 if __name__ == '__main__':
 	unittest.main()
