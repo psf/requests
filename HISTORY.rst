@@ -1,6 +1,16 @@
 History
 -------
 
+0.2.3 (2011-02-15)
+++++++++++++++++++
+
+* New HTTPHandling Methods
+  - Reponse.__nonzero__ (false if bad HTTP Status)
+  - Response.ok (True if expected HTTP Status)
+  - Response.error (Logged HTTPError if bad HTTP Status)
+  - Reponse.raise_for_status() (Raises stored HTTPError)
+
+
 0.2.2 (2011-02-14)
 ++++++++++++++++++
 
