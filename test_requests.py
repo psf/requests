@@ -20,21 +20,26 @@ class RequestsTestSuite(unittest.TestCase):
 	def test_invalid_url(self):
 		self.assertRaises(ValueError, requests.get, 'hiwpefhipowhefopw')
 
+
 	def test_HTTP_200_OK_GET(self):
 		r = requests.get('http://google.com')
 		self.assertEqual(r.status_code, 200)
+
 
 	def test_HTTPS_200_OK_GET(self):
 		r = requests.get('https://google.com')
 		self.assertEqual(r.status_code, 200)
 
+
 	def test_HTTP_200_OK_HEAD(self):
 		r = requests.head('http://google.com')
 		self.assertEqual(r.status_code, 200)
 
+
 	def test_HTTPS_200_OK_HEAD(self):
 		r = requests.head('https://google.com')
 		self.assertEqual(r.status_code, 200)
+
 
 	def test_AUTH_HTTPS_200_OK_GET(self):
 		auth = requests.AuthObject('requeststest', 'requeststest')
@@ -42,6 +47,7 @@ class RequestsTestSuite(unittest.TestCase):
 		r = requests.get(url, auth=auth)
 
 		self.assertEqual(r.status_code, 200)
+
 
 	def test_POSTBIN_GET_POST_FILES(self):
 
@@ -54,6 +60,7 @@ class RequestsTestSuite(unittest.TestCase):
 		post2 = requests.post(bin.url, files={'some': StringIO('data')})
 		self.assertEqual(post2.status_code, 201)
 
+
 	def test_nonzero_evaluation(self):
 		r = requests.get('http://google.com/some-404-url')
 		self.assertEqual(bool(r), False)
@@ -61,9 +68,11 @@ class RequestsTestSuite(unittest.TestCase):
 		r = requests.get('http://google.com/')
 		self.assertEqual(bool(r), True)
 
+
 	def test_request_ok_set(self):
 		r = requests.get('http://google.com/some-404-url')
 		self.assertEqual(r.ok, False)
+
 
 	def test_status_raising(self):
 		r = requests.get('http://google.com/some-404-url')
@@ -72,6 +81,7 @@ class RequestsTestSuite(unittest.TestCase):
 		r = requests.get('http://google.com/')
 		self.assertFalse(r.error)
 		r.raise_for_status()
+
 
 if __name__ == '__main__':
 	unittest.main()
