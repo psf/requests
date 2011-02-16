@@ -9,9 +9,10 @@
     :copyright: (c) 2011 by Kenneth Reitz.
     :license: ISC, see LICENSE for more details.
 """
-
+from __future__ import absolute_import
 import urllib
 import urllib2
+
 
 from urllib2 import HTTPError
 
