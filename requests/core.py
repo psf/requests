@@ -9,10 +9,10 @@
     :copyright: (c) 2011 by Kenneth Reitz.
     :license: ISC, see LICENSE for more details.
 """
+
 from __future__ import absolute_import
 import urllib
 import urllib2
-
 
 from urllib2 import HTTPError
 
@@ -29,7 +29,6 @@ if not 'eventlet' in locals():
 	except ImportError:
 		pass
 
-
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers
 
@@ -43,6 +42,7 @@ __copyright__ = 'Copyright 2011 Kenneth Reitz'
 
 
 AUTOAUTHS = []
+
 
 
 class _Request(urllib2.Request):
@@ -68,17 +68,17 @@ class Request(object):
 	
 	_METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE')
 	
-	def __init__(self):
-		self.url = None
-		self.headers = dict()
-		self.files = None
-		self.method = None
-		self.params = {}
-		self.data = {}
+	def __init__(self, url=None, headers=dict(), files=None, method=None, params=dict(), data=dict(), auth=None, cookiejar=None):
+		self.url = url
+		self.headers = headers
+		self.files = files
+		self.method = method
+		self.params = params
+		self.data = data
 		self.response = Response()
 		
-		self.auth = None
-		self.cookiejar = None
+		self.auth = auth
+		self.cookiejar = cookiejar
 		self.sent = False
 		
 		
@@ -303,15 +303,7 @@ def get(url, params={}, headers={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
-	r = Request()
-	
-	r.method = 'GET'
-	r.url = url
-	r.params = params
-	r.headers = headers
-	r.cookiejar = cookies
-	r.auth = _detect_auth(url, auth)
-	
+	r = Request(method='GET', url=url, params=params, headers=headers, cookiejar=cookies, auth=_detect_auth(url, auth))
 	r.send()
 	
 	return r.response
@@ -326,17 +318,7 @@ def head(url, params={}, headers={}, cookies=None, auth=None):
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
-	
-	r = Request()
-	
-	r.method = 'HEAD'
-	r.url = url
-	# return response object
-	r.params = params
-	r.headers = headers
-	r.cookiejar = cookies
-	r.auth = _detect_auth(url, auth)
-	
+	r = Request(method='HEAD', url=url, params=params, headers=headers, cookiejar=cookies, auth=_detect_auth(url, auth))
 	r.send()
 	
 	return r.response
@@ -353,19 +335,7 @@ def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
-	r = Request()
-	
-	r.url = url
-	r.method = 'POST'
-	r.data = data
-	
-	if files:
-		r.files = files
-	
-	r.headers = headers
-	r.cookiejar = cookies
-	r.auth = _detect_auth(url, auth)
-	
+	r = Request(method='POST', url=url, data=data, headers=headers, files=files, cookiejar=cookies, auth=_detect_auth(url, auth))
 	r.send()
 	
 	return r.response
@@ -381,17 +351,8 @@ def put(url, data='', headers={}, files={}, cookies=None, auth=None):
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
-	
-	r = Request()
 
-	r.url = url
-	r.method = 'PUT'
-	r.data = data
-	r.files = files
-	r.headers = headers
-	r.cookiejar = cookies
-	r.auth = _detect_auth(url, auth)
-	
+	r = Request(method='PUT', url=url, data=data, headers=headers, files=files, cookiejar=cookies, auth=_detect_auth(url, auth))	
 	r.send()
 	
 	return r.response
@@ -407,15 +368,7 @@ def delete(url, params={}, headers={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
-	r = Request()
-
-	r.url = url
-	r.method = 'DELETE'
-	
-	r.headers = headers
-	r.cookiejar = cookies
-	r.auth = _detect_auth(url, auth)
-	
+	r = Request(method='DELETE', url=url, params=params, headers=headers, cookiejar=cookies, auth=_detect_auth(url, auth))
 	r.send()
 	
 	return r.response
