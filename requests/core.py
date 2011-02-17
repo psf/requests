@@ -50,8 +50,9 @@ class _Request(urllib2.Request):
     setting of HTTP methods.
     """
 	
-	def __init__(self, url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None):
-		urllib2.Request.__init__( self, url, data, headers, origin_req_host, unverifiable)
+	def __init__(self, url, data=None, headers={}, origin_req_host=None,
+				 unverifiable=False, method=None):
+		urllib2.Request.__init__(self, url, data, headers, origin_req_host, unverifiable)
 		self.method = method
 
 	def get_method(self):
@@ -68,7 +69,8 @@ class Request(object):
 	
 	_METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE')
 	
-	def __init__(self, url=None, headers=dict(), files=None, method=None, params=dict(), data=dict(), auth=None, cookiejar=None):
+	def __init__(self, url=None, headers=dict(), files=None, method=None,
+				 params=dict(), data=dict(), auth=None, cookiejar=None):
 		self.url = url
 		self.headers = headers
 		self.files = files
@@ -303,7 +305,8 @@ def get(url, params={}, headers={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
-	r = Request(method='GET', url=url, params=params, headers=headers, cookiejar=cookies, auth=_detect_auth(url, auth))
+	r = Request(method='GET', url=url, params=params, headers=headers,
+				cookiejar=cookies, auth=_detect_auth(url, auth))
 	r.send()
 	
 	return r.response
@@ -318,7 +321,8 @@ def head(url, params={}, headers={}, cookies=None, auth=None):
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
-	r = Request(method='HEAD', url=url, params=params, headers=headers, cookiejar=cookies, auth=_detect_auth(url, auth))
+	r = Request(method='HEAD', url=url, params=params, headers=headers,
+				cookiejar=cookies, auth=_detect_auth(url, auth))
 	r.send()
 	
 	return r.response
@@ -335,7 +339,8 @@ def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
-	r = Request(method='POST', url=url, data=data, headers=headers, files=files, cookiejar=cookies, auth=_detect_auth(url, auth))
+	r = Request(method='POST', url=url, data=data, headers=headers,
+				files=files, cookiejar=cookies, auth=_detect_auth(url, auth))
 	r.send()
 	
 	return r.response
@@ -352,7 +357,8 @@ def put(url, data='', headers={}, files={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-	r = Request(method='PUT', url=url, data=data, headers=headers, files=files, cookiejar=cookies, auth=_detect_auth(url, auth))	
+	r = Request(method='PUT', url=url, data=data, headers=headers, files=files,
+				cookiejar=cookies, auth=_detect_auth(url, auth))
 	r.send()
 	
 	return r.response
@@ -368,7 +374,8 @@ def delete(url, params={}, headers={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 	
-	r = Request(method='DELETE', url=url, params=params, headers=headers, cookiejar=cookies, auth=_detect_auth(url, auth))
+	r = Request(method='DELETE', url=url, params=params, headers=headers,
+				cookiejar=cookies, auth=_detect_auth(url, auth))
 	r.send()
 	
 	return r.response
@@ -414,7 +421,8 @@ def _get_autoauth(url):
 
 
 class RequestException(Exception):
-	"""There was an ambiguous exception that occured while handling your request."""
+	"""There was an ambiguous exception that occured while handling your
+    request."""
 
 class AuthenticationError(RequestException):
 	"""The authentication credentials provided were invalid."""
