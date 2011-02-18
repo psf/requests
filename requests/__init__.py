@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import packages
-from core import *
+from __future__ import absolute_import
+
+from . import packages
+from .core import *
 
 
 
