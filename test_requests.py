@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
 import unittest
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+if sys.version_info >= (3,0):
+    from io import StringIO
+else:
+    try:
+        from cStringIO import StringIO
+    except ImportError:
+        from StringIO import StringIO
 
 import requests
 
