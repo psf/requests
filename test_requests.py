@@ -2,7 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from cStringIO import StringIO
+
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 import requests
 
