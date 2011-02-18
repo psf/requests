@@ -1,2 +1,5 @@
 .idea
 MANIFEST
+coverage.xml
+nosetests.xml
+pylint.txt

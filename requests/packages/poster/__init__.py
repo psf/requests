@@ -26,6 +26,8 @@ New releases of poster will always have a version number that compares greater
 than an older version of poster.
 New in version 0.6."""
 
+from __future__ import absolute_import
+
 from . import streaminghttp
 from . import encode
 
