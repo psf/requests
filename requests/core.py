@@ -177,7 +177,7 @@ class Request(object):
                     self._build_response(resp)
                     self.response.ok = True
 
-                except urllib2.HTTPError as why:
+                except urllib2.HTTPError, why:
                     self._build_response(why)
                     self.response.error = why
 
@@ -209,7 +209,7 @@ class Request(object):
                     self._build_response(resp)
                     self.response.ok = True
 
-                except urllib2.HTTPError as why:
+                except urllib2.HTTPError, why:
                     self._build_response(why)
                     self.response.error = why
 
@@ -242,7 +242,7 @@ class Request(object):
                     self._build_response(resp)
                     self.response.ok = True
 
-                except urllib2.HTTPError as why:
+                except urllib2.HTTPError, why:
                     self._build_response(why)
                     self.response.error = why
         
