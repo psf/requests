@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from cStringIO import StringIO
 
 import requests
 
@@ -49,6 +48,16 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
 
 
+        requests.add_autoauth(url, auth)
+
+        r = requests.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        # reset auto authentication
+        requests.AUTOAUTHS = []
+
+
+
     def test_POSTBIN_GET_POST_FILES(self):
 
         bin = requests.post('http://www.postbin.org/')
@@ -57,7 +66,7 @@ class RequestsTestSuite(unittest.TestCase):
         post = requests.post(bin.url, data={'some': 'data'})
         self.assertEqual(post.status_code, 201)
 
-        post2 = requests.post(bin.url, files={'some': StringIO('data')})
+        post2 = requests.post(bin.url, files={'some': open('test_requests.py')})
         self.assertEqual(post2.status_code, 201)
 
 

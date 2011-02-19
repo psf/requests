@@ -1,6 +1,14 @@
 History
 -------
 
+0.2.4 (2011-02-15)
+++++++++++++++++++
+
+* Python 2.5 Support
+* PyPy-c v1.4 Support
+* Auto-Authentication tests
+* Improved Request object constructor
+
 0.2.3 (2011-02-15)
 ++++++++++++++++++
 

@@ -3,6 +3,7 @@
 
 import os
 import sys
+import requests
 
 from distutils.core import setup
 
@@ -22,7 +23,7 @@ required = []
 
 setup(
     name='requests',
-    version='0.2.3',
+    version=requests.__version__,
     description='Awesome Python HTTP Library that\'s actually usable.',
     long_description=open('README.rst').read() + '\n\n' +
                      open('HISTORY.rst').read(),
@@ -37,12 +38,12 @@ setup(
     install_requires=required,
     license='ISC',
     classifiers=(
-        # 'Development Status :: 5 - Production/Stable',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'License :: OSI Approved :: ISC License (ISCL)',
         'Programming Language :: Python',
-        # 'Programming Language :: Python :: 2.5',
+        'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         # 'Programming Language :: Python :: 3.0',

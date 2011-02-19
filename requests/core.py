@@ -34,8 +34,8 @@ from .packages.poster.streaminghttp import register_openers
 
 
 __title__ = 'requests'
-__version__ = '0.2.3'
-__build__ = 0x000203
+__version__ = '0.2.4'
+__build__ = 0x000204
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
@@ -177,7 +177,7 @@ class Request(object):
                     self._build_response(resp)
                     self.response.ok = True
 
-                except urllib2.HTTPError as why:
+                except urllib2.HTTPError, why:
                     self._build_response(why)
                     self.response.error = why
 
@@ -209,7 +209,7 @@ class Request(object):
                     self._build_response(resp)
                     self.response.ok = True
 
-                except urllib2.HTTPError as why:
+                except urllib2.HTTPError, why:
                     self._build_response(why)
                     self.response.error = why
 
@@ -242,7 +242,7 @@ class Request(object):
                     self._build_response(resp)
                     self.response.ok = True
 
-                except urllib2.HTTPError as why:
+                except urllib2.HTTPError, why:
                     self._build_response(why)
                     self.response.error = why
         
