@@ -21,8 +21,8 @@ from .packages.poster.streaminghttp import register_openers
 __all__ = ['Request', 'Response', 'request', 'get', 'head', 'post', 'put', 'delete', 'add_autoauth', 'AUTOAUTHS',
            'RequestException', 'AuthenticationError', 'URLRequired', 'InvalidMethod', 'HTTPError']
 __title__ = 'requests'
-__version__ = '0.2.4'
-__build__ = 0x000204
+__version__ = '0.2.5'
+__build__ = 0x000205
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
