@@ -140,8 +140,10 @@ If you'd like to contribute, simply fork `the repository`_, commit your changes 
 Roadmap
 -------
 
-- Sphinx Documentation
-- Exhaustive Unittests
+- Sphinx Documentation (http://code.kennethreitz.com/requests/)
+- Exhaustive unit tests
+- Get rid of Poster (gets really nasty in py3.x)
+- Python 3.x Support
 
 .. _`the repository`: http://github.com/kennethreitz/requests
 .. _AUTHORS: http://github.com/kennethreitz/requests/blob/master/AUTHORS
