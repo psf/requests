@@ -394,7 +394,7 @@ def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
     return request('POST', url, data=data, headers=headers, files=files, cookiejar=cookies, auth=auth)
 
 
-def put(url, data=b'', headers={}, files={}, cookies=None, auth=None):
+def put(url, data='', headers={}, files={}, cookies=None, auth=None):
     """Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
