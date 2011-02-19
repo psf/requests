@@ -40,4 +40,4 @@ __version__ = '0.0.1'
 __build__ = 0x000001
 __author__ = 'Dj Gilcrease'
 __license__ = 'ISC'
-__copyright__ = 'Copyright 2011 Dj Gilcrease'
+__copyright__ = 'Copyright 2011 Kenneth Reitz'
