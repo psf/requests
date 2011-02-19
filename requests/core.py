@@ -327,7 +327,10 @@ class AuthObject(object):
         self.password = password
         self.realm = realm
 
-        self.handler = self._handlers.get(handler.lower(), urllib2.HTTPBasicAuthHandler)
+        if isinstance(handler, basestring):
+            self.handler = self._handlers.get(handler.lower(), urllib2.HTTPBasicAuthHandler)
+        else:
+            self.handler = handler
 
 
 def request(method, url, **kwargs):
