@@ -33,7 +33,7 @@ if not 'eventlet' in locals():
 
 from .core import *
 
-__all__ = ['Request', 'Response', 'request', 'get', 'head', 'post', 'put', 'delete', 'add_autoauth', 'AUTOAUTHS',
+__all__ = ['Request', 'Response', 'request', 'get', 'head', 'post', 'put', 'delete', 'auth_manager', 'AuthObject',
            'RequestException', 'AuthenticationError', 'URLRequired', 'InvalidMethod', 'HTTPError']
 __title__ = 'requests'
 __version__ = '0.0.1'

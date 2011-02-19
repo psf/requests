@@ -42,13 +42,11 @@ class RequestsTestSuite(unittest.TestCase):
 
         self.assertEqual(r.status_code, 200)
 
-        requests.add_autoauth(url, auth)
-
         r = requests.get(url)
         self.assertEqual(r.status_code, 200)
 
         # reset auto authentication
-        requests.AUTOAUTHS = []
+        requests.auth_manager.empty()
 
     def test_POSTBIN_GET_POST_FILES(self):
         bin = requests.get('http://www.postbin.org/')

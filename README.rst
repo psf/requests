@@ -38,7 +38,7 @@ HTTPS? Basic Authentication? ::
 
 Uh oh, we're not authorized! Let's add authentication. ::
 
-    >>> conv_auth = ('requeststest', 'requeststest')
+    >>> conv_auth = requests.AuthObject('requeststest', 'requeststest')
     >>> r = requests.get('https://convore.com/api/account/verify.json', auth=conv_auth)
 
     >>> r.status_code
@@ -80,33 +80,6 @@ If CookieJar object is is passed in (cookies=...), the cookies will be sent with
 
   DELETE Requests
     >>> request.delete(url, params={}, headers={}, cookies=None, auth=None)
-    <request object>
-
-**AsyncRequests:**
-
-All request functions return a Response object (see below).
-
-If a {filename: fileobject} dictionary is passed in (files=...), a multipart_encode upload will be performed.
-If CookieJar object is is passed in (cookies=...), the cookies will be sent with the request.
-
-  GET Requests
-    >>> request.async.get(url, params={}, headers={}, cookies=None, auth=None)
-    <request object>
-
-  HEAD Requests
-    >>> request.async.head(url, params={}, headers={}, cookies=None, auth=None)
-    <request object>
-
-  PUT Requests
-    >>> request.async.put(url, data='', headers={}, files={}, cookies=None, auth=None)
-    <request object>
-
-  POST Requests
-    >>> request.async.post(url, data={}, headers={}, files={}, cookies=None, auth=None)
-    <request object>
-
-  DELETE Requests
-    >>> request.async.delete(url, params={}, headers={}, cookies=None, auth=None)
     <request object>
 
 
