@@ -134,10 +134,10 @@ class Request(object):
     def _build_response(self, resp):
         """Build internal Response object from given response."""
         
-        self.response.status_code = resp.code
-        self.response.headers = resp.info().dict
+        self.response.status_code = getattr(resp, 'code', None)
+        self.response.headers = getattr(resp.info(), 'dict', None)
+        self.response.url = getattr(resp, 'url', None)
         self.response.content = resp.read()
-        self.response.url = resp.url
 
     
     def send(self, anyway=False):
