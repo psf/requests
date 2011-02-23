@@ -30,7 +30,7 @@ if not 'eventlet' in locals():
         pass
 
 from .packages.poster.encode import multipart_encode
-from .packages.poster.streaminghttp import register_openers
+from .packages.poster.streaminghttp import register_openers, get_handlers
 
 
 __title__ = 'requests'
@@ -124,6 +124,7 @@ class Request(object):
                 cookie_handler = urllib2.HTTPCookieProcessor(cookiejar)
                 _handlers.append(cookie_handler)
 
+            _handlers += get_handlers()
             opener = urllib2.build_opener(*_handlers)
             return opener.open
 
