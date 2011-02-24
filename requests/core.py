@@ -124,7 +124,7 @@ class Request(object):
                 cookie_handler = urllib2.HTTPCookieProcessor(cookiejar)
                 _handlers.append(cookie_handler)
 
-            _handlers += get_handlers()
+            _handlers.extend(get_handlers())
             opener = urllib2.build_opener(*_handlers)
             return opener.open
 
