@@ -80,6 +80,7 @@ class Request(object):
         self.cookiejar = cookiejar
         self.sent = False
 
+
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
 
@@ -205,6 +206,8 @@ class Response(object):
 
 
 class AuthManager(object):
+    """Authentication Manager."""
+    
     def __new__(cls):
         singleton = cls.__dict__.get('__singleton__')
         if singleton is not None:
@@ -217,16 +220,24 @@ class AuthManager(object):
     def __init__(self):
         self.passwd = {}
         self._auth = {}
+        
+    def __repr__(self):
+        return '<AuthManager [%s]>' % (self.method)
 
     def add_auth(self, uri, auth):
+        """Registers AuthObject to AuthManager."""
+        
         uri = self.reduce_uri(uri, False)
         self._auth[uri] = auth
 
     def add_password(self, realm, uri, user, passwd):
+        """Adds password to AuthManager."""
         # uri could be a single URI or a sequence
         if isinstance(uri, basestring):
             uri = [uri]
+            
         reduced_uri = tuple([self.reduce_uri(u, False) for u in uri])
+        
         if reduced_uri not in self.passwd:
             self.passwd[reduced_uri] = {}
         self.passwd[reduced_uri] = (user, passwd)
