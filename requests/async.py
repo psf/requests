@@ -10,10 +10,12 @@
     :license: ISC, see LICENSE for more details.
 """
 
+
 from __future__ import absolute_import
 import urllib
 import urllib2
 from urllib2 import HTTPError
+
 
 try:
     import eventlet
@@ -28,16 +30,16 @@ if not 'eventlet' in locals():
     except ImportError:
         pass
 
+
 if not 'eventlet' in locals():
     raise ImportError('No Async adaptations of urllib2 found!')
 
+
 from .core import *
 
-__all__ = ['Request', 'Response', 'request', 'get', 'head', 'post', 'put', 'delete', 'auth_manager', 'AuthObject',
-           'RequestException', 'AuthenticationError', 'URLRequired', 'InvalidMethod', 'HTTPError']
-__title__ = 'requests'
-__version__ = '0.0.1'
-__build__ = 0x000001
-__author__ = 'Dj Gilcrease'
-__license__ = 'ISC'
-__copyright__ = 'Copyright 2011 Kenneth Reitz'
+
+__all__ = [
+    'Request', 'Response', 'request', 'get', 'head', 'post', 'put', 'delete', 
+    'auth_manager', 'AuthObject','RequestException', 'AuthenticationError', 
+    'URLRequired', 'InvalidMethod', 'HTTPError'
+]

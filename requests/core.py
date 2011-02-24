@@ -18,14 +18,20 @@ from urllib2 import HTTPError
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers
 
-__all__ = ['Request', 'Response', 'request', 'get', 'head', 'post', 'put', 'delete', 'auth_manager', 'AuthObject',
-           'RequestException', 'AuthenticationError', 'URLRequired', 'InvalidMethod', 'HTTPError']
+
 __title__ = 'requests'
 __version__ = '0.2.5'
 __build__ = 0x000205
-__author__ = 'Kenneth Reitz, Dj Gilcrease'
+__author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
+
+__all__ = [
+    'Request', 'Response', 'request', 'get', 'head', 'post', 'put', 'delete', 
+    'auth_manager', 'AuthObject','RequestException', 'AuthenticationError', 
+    'URLRequired', 'InvalidMethod', 'HTTPError'
+]
+
 
 class _Request(urllib2.Request):
     """Hidden wrapper around the urllib2.Request object. Allows for manual
@@ -199,6 +205,8 @@ class Response(object):
         if self.error:
             raise self.error
 
+
+
 class AuthManager(object):
     def __new__(cls):
         singleton = cls.__dict__.get('__singleton__')
@@ -354,6 +362,7 @@ def request(method, url, **kwargs):
 
     return r.response
 
+
 def get(url, params={}, headers={}, cookies=None, auth=None):
     """Sends a GET request. Returns :class:`Response` object.
 
@@ -419,6 +428,8 @@ def delete(url, params={}, headers={}, cookies=None, auth=None):
     """
 
     return request('DELETE', url, params=params, headers=headers, cookiejar=cookies, auth=auth)
+
+
 
 class RequestException(Exception):
     """There was an ambiguous exception that occured while handling your
