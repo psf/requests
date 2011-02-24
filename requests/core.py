@@ -16,7 +16,7 @@ import urllib2
 from urllib2 import HTTPError
 
 from .packages.poster.encode import multipart_encode
-from .packages.poster.streaminghttp import register_openers
+from .packages.poster.streaminghttp import register_openers, get_handlers
 
 
 __title__ = 'requests'
@@ -109,10 +109,7 @@ class Request(object):
 
             _handlers.append(self.auth.handler)
 
-        if self.cookiejar:
-            cookie_handler = urllib2.HTTPCookieProcessor(cookiejar)
-            _handlers.append(cookie_handler)
-        if _handlers:
+            _handlers.extend(get_handlers())
             opener = urllib2.build_opener(*_handlers)
             return opener.open
         else:
@@ -121,11 +118,11 @@ class Request(object):
 
     def _build_response(self, resp):
         """Build internal Response object from given response."""
-
-        self.response.status_code = resp.code
-        self.response.headers = resp.info().dict or resp.headers
+        
+        self.response.status_code = getattr(resp, 'code', None)
+        self.response.headers = getattr(resp.info(), 'dict', None)
+        self.response.url = getattr(resp, 'url', None)
         self.response.content = resp.read()
-        self.response.url = resp.url
 
 
     def send(self, anyway=False):
