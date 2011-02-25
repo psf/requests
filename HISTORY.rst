@@ -5,6 +5,7 @@ History
 
 * Automatic Authentication API Change
 * Smarter URL Parameters
+* Allow Files and POST Data at the same time. 
 * New Authentication Manager System
     - Supports all build
     - Allows for custom Authentication Handlers
