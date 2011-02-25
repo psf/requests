@@ -85,13 +85,13 @@ If CookieJar object is is passed in (cookies=...), the cookies will be sent with
 
 **Responses:**
 
-    Response.status_code:
+    Response.status_code
          (Integer) Received HTTP Status Code Response
 
-    Response.headers:
+    Response.headers
         (Dictionary) Received HTTP Response Headers
 
-    Response.content:
+    Response.content
         (Bytes) Received Content
 
     Response.url
@@ -114,7 +114,7 @@ If CookieJar object is is passed in (cookies=...), the cookies will be sent with
 
     You can register AuthObjects to automatically enable HTTP Authentication on requests that contain a registered base URL string.
 
-    >>> requests.add_autoauth(url, authobject)
+    >>> requests.auth_manager.add_auth(url, authobject)
 
 
 
