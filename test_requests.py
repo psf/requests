@@ -34,6 +34,7 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get('http://www.google.com/search', params={'q': 'test'}, headers=heads)
         self.assertEqual(r.status_code, 200)
 
+
     def test_HTTP_200_OK_GET_WITH_MIXED_PARAMS(self):
 
         heads = {'User-agent': 'Mozilla/5.0'}
@@ -75,9 +76,9 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEqual(post2.status_code, 201)
 
     def test_POSTBIN_GET_POST_FILES_WITH_PARAMS(self):
-        # TODO: postbin w/ params
+
         bin = requests.post('http://www.postbin.org/')
-        print bin.url
+        
         self.assertEqual(bin.status_code, 200)
 
         post2 = requests.post(bin.url, files={'some': open('test_requests.py')}, data={'some': 'data'})
