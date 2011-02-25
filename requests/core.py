@@ -16,6 +16,7 @@ import urllib
 import urllib2
 
 from urllib2 import HTTPError
+from urlparse import urlparse
 
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
@@ -42,8 +43,7 @@ class _Request(urllib2.Request):
     setting of HTTP methods.
     """
 
-    def __init__(self, url, data=None, headers={}, origin_req_host=None,
-                 unverifiable=False, method=None):
+    def __init__(self, url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None):
         urllib2.Request.__init__(self, url, data, headers, origin_req_host, unverifiable)
         self.method = method
 
@@ -63,13 +63,14 @@ class Request(object):
 
     def __init__(self, url=None, headers=dict(), files=None, method=None,
                  data=dict(), auth=None, cookiejar=None):
+        
         self.url = url
         self.headers = headers
         self.files = files
         self.method = method
 
         # url encode data if it's a dict
-        if isinstance(data, dict):
+        if hasattr(data, 'items'):
             self.data = urllib.urlencode(data)
         else:
             self.data = data
@@ -133,6 +134,19 @@ class Request(object):
         self.response.content = resp.read()
 
 
+    @staticmethod
+    def _build_url(url, data):
+        """Build URLs."""
+        
+        if urlparse(url).query:
+            return '%s&%s' % (url, data)
+        else:
+            if data:
+                return '%s?%s' % (url, data)
+            else:
+                return url
+
+
     def send(self, anyway=False):
         """Sends the request. Returns True of successful, false if not.
         If there was an HTTPError during transmission,
@@ -147,7 +161,7 @@ class Request(object):
         success = False
 
         if self.method in ('GET', 'HEAD', 'DELETE'):
-            req = _Request(("%s?%s" % (self.url, self.data)), method=self.method)
+            req = _Request(self._build_url(self.url, self.data), method=self.method)
         else:
             if self.files:
                 register_openers()
@@ -385,11 +399,11 @@ def request(method, url, **kwargs):
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
-    data = kwargs.pop('data', {}) or kwargs.pop('params', {})
+    data = kwargs.get('data', None) or kwargs.get('params', None)
 
-    r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', {}),
-                cookiejar=kwargs.pop('cookies', None), files=kwargs.pop('files', None),
-                auth=kwargs.pop('auth', auth_manager.get_auth(url)))
+    r = Request(method=method, url=url, data=data, headers=kwargs.get('headers', {}),
+                cookiejar=kwargs.get('cookies', None), files=kwargs.get('files', None),
+                auth=kwargs.get('auth', auth_manager.get_auth(url)))
     r.send()
 
     return r.response
@@ -404,7 +418,7 @@ def get(url, params={}, headers={}, cookies=None, auth=None):
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
-
+    
     return request('GET', url, params=params, headers=headers, cookiejar=cookies, auth=auth)
 
 
