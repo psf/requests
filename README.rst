@@ -16,7 +16,7 @@ Features
     + Simple Multipart File Uploads
     + CookieJar Support
 
-- Simple Basic HTTP Authentication
+- Simple Authentication
     + Simple URL + HTTP Auth Registry
 
 
@@ -38,7 +38,7 @@ HTTPS? Basic Authentication? ::
 
 Uh oh, we're not authorized! Let's add authentication. ::
 
-    >>> conv_auth = requests.AuthObject('requeststest', 'requeststest')
+    >>> conv_auth = ('requeststest', 'requeststest')
     >>> r = requests.get('https://convore.com/api/account/verify.json', auth=conv_auth)
 
     >>> r.status_code
@@ -99,6 +99,9 @@ If CookieJar object is is passed in (cookies=...), the cookies will be sent with
 
     Response.ok
         (Bool) True if no errors occurred during the request, and the status_code is kosher.
+
+    Response.cached
+        (Bool) True if Response.content is stored within the object.
 
     Response.error
         (HTTPError) If an HTTPError occurred (e.g. status of 404), Otherwise this is None.
