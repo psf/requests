@@ -11,12 +11,15 @@
 """
 
 from __future__ import absolute_import
+
 import urllib
 import urllib2
+
 from urllib2 import HTTPError
 
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
+
 
 
 __title__ = 'requests'
@@ -31,6 +34,7 @@ __all__ = [
     'auth_manager', 'AuthObject','RequestException', 'AuthenticationError', 
     'URLRequired', 'InvalidMethod', 'HTTPError'
 ]
+
 
 
 class _Request(urllib2.Request):
@@ -84,6 +88,7 @@ class Request(object):
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
 
+
     def __setattr__(self, name, value):
         if (name == 'method') and (value):
             if not value in self._METHODS:
@@ -91,11 +96,13 @@ class Request(object):
 
         object.__setattr__(self, name, value)
 
+
     def _checks(self):
         """Deterministic checks for consistency."""
 
         if not self.url:
             raise URLRequired
+
 
     def _get_opener(self):
         """Creates appropriate opener object for urllib2."""
@@ -176,6 +183,7 @@ class Request(object):
         return self.sent
 
 
+    
 class Response(object):
     """The :class:`Request` object. All :class:`Request` objects contain a
     :class:`Request.response <response>` attribute, which is an instance of
@@ -191,12 +199,15 @@ class Response(object):
         self.error = None
         self.cached = False
 
+
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
+
 
     def __nonzero__(self):
         """Returns true if status_code is 'OK'."""
         return not self.error
+
 
     def raise_for_status(self):
         """Raises stored HTTPError if one exists."""
@@ -217,12 +228,15 @@ class AuthManager(object):
 
         return singleton
 
+
     def __init__(self):
         self.passwd = {}
         self._auth = {}
-        
+
+
     def __repr__(self):
         return '<AuthManager [%s]>' % (self.method)
+
 
     def add_auth(self, uri, auth):
         """Registers AuthObject to AuthManager."""
@@ -242,6 +256,7 @@ class AuthManager(object):
             self.passwd[reduced_uri] = {}
         self.passwd[reduced_uri] = (user, passwd)
 
+
     def find_user_password(self, realm, authuri):
         for uris, authinfo in self.passwd.iteritems():
             reduced_authuri = self.reduce_uri(authuri, False)
@@ -251,9 +266,11 @@ class AuthManager(object):
 
         return (None, None)
 
+
     def get_auth(self, uri):
         uri = self.reduce_uri(uri, False)
         return self._auth.get(uri, None)
+
 
     def reduce_uri(self, uri, default_port=True):
         """Accept authority or URI and extract only the authority and path."""
@@ -278,6 +295,7 @@ class AuthManager(object):
                 authority = "%s:%d" % (host, dport)
         return authority, path
 
+    
     def is_suburi(self, base, test):
         """Check if test is below base in a URI tree
 
@@ -292,8 +310,10 @@ class AuthManager(object):
             return True
         return False
 
+
     def empty(self):
         self.passwd = {}
+
 
     def remove(self, uri, realm=None):
         # uri could be a single URI or a sequence
@@ -303,6 +323,7 @@ class AuthManager(object):
         for default_port in True, False:
             reduced_uri = tuple([self.reduce_uri(u, default_port) for u in uri])
             del self.passwd[reduced_uri][realm]
+
 
     def __contains__(self, uri):
         # uri could be a single URI or a sequence
@@ -317,6 +338,7 @@ class AuthManager(object):
         return False
 
 auth_manager = AuthManager()
+
 
 
 class AuthObject(object):
@@ -347,6 +369,8 @@ class AuthObject(object):
             self.handler = self._handlers.get(handler.lower(), urllib2.HTTPBasicAuthHandler)
         else:
             self.handler = handler
+
+
 
 
 def request(method, url, **kwargs):
