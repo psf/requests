@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-    requests.core
-    ~~~~~~~~~~~~~
+    requests.async
+    ~~~~~~~~~~~~~~
 
-    This module implements the main Requests system.
+    This module implements the main Requests system, after monkey-patching
+    the urllib2 module with eventlet or gevent..
 
     :copyright: (c) 2011 by Kenneth Reitz.
     :license: ISC, see LICENSE for more details.
