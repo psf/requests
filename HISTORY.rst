@@ -1,15 +1,17 @@
 History
 -------
+
+
 0.3.0 (2011-02-25)
 ++++++++++++++++++
 
 * Automatic Authentication API Change
-* Smarter URL Parameters
-* Allow Files and POST Data at the same time. 
+* Smarter Query URL Parameterization
+* Allow file uploads and POST data together
 * New Authentication Manager System
-    - Supports all build
-    - Allows for custom Authentication Handlers
-
+    - Simpler Basic HTTP System
+    - Supports all build-in urllib2 Auths
+    - Allows for custom Auth Handlers
 
 
 0.2.4 (2011-02-19)
