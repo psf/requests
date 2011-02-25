@@ -165,13 +165,14 @@ class Request(object):
         else:
             if self.files:
                 register_openers()
+#                self.files
                 datagen, headers = multipart_encode(self.files)
                 req = _Request(self.url, data=datagen, headers=headers, method=self.method)
             else:
                 req = _Request(self.url, method=self.method)
 
-            if self.data:
-                req.data = self.data
+                if self.data:
+                    req.data = self.data
 
         if self.headers:
             req.headers = self.headers
@@ -399,11 +400,11 @@ def request(method, url, **kwargs):
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
-    data = kwargs.get('data', None) or kwargs.get('params', None)
+    data = kwargs.pop('data', dict()) or kwargs.pop('params', dict())
 
-    r = Request(method=method, url=url, data=data, headers=kwargs.get('headers', {}),
-                cookiejar=kwargs.get('cookies', None), files=kwargs.get('files', None),
-                auth=kwargs.get('auth', auth_manager.get_auth(url)))
+    r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', {}),
+                cookiejar=kwargs.pop('cookies', None), files=kwargs.pop('files', None),
+                auth=kwargs.pop('auth', auth_manager.get_auth(url)))
     r.send()
 
     return r.response
