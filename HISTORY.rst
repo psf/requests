@@ -1,5 +1,15 @@
 History
 -------
+0.3.0 (2011-02-25)
+++++++++++++++++++
+
+* Automatic Authentication API Change
+* Smarter URL Parameters
+* New Authentication Manager System
+    - Supports all build
+    - Allows for custom Authentication Handlers
+
+
 
 0.2.4 (2011-02-19)
 ++++++++++++++++++
