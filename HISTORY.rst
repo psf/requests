@@ -1,6 +1,18 @@
 History
 -------
 
+0.3.0 (2011-02-25)
+++++++++++++++++++
+
+* Automatic Authentication API Change
+* Smarter Query URL Parameterization
+* Allow file uploads and POST data together
+* New Authentication Manager System
+    - Simpler Basic HTTP System
+    - Supports all build-in urllib2 Auths
+    - Allows for custom Auth Handlers
+
+
 0.2.4 (2011-02-19)
 ++++++++++++++++++
 
