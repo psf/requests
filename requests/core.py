@@ -68,12 +68,13 @@ class Request(object):
         self.headers = headers
         self.files = files
         self.method = method
+        self.data = data
 
         # url encode data if it's a dict
         if hasattr(data, 'items'):
-            self.data = urllib.urlencode(data)
+            self._enc_data = urllib.urlencode(data)
         else:
-            self.data = data
+            self._enc_data = data
 
         self.response = Response()
 
@@ -161,18 +162,20 @@ class Request(object):
         success = False
 
         if self.method in ('GET', 'HEAD', 'DELETE'):
-            req = _Request(self._build_url(self.url, self.data), method=self.method)
+            req = _Request(self._build_url(self.url, self._enc_data), method=self.method)
         else:
+
             if self.files:
                 register_openers()
-#                self.files
-                datagen, headers = multipart_encode(self.files)
-                req = _Request(self.url, data=datagen, headers=headers, method=self.method)
-            else:
-                req = _Request(self.url, method=self.method)
 
                 if self.data:
-                    req.data = self.data
+                    self.files.update(self.data)
+                    
+                datagen, headers = multipart_encode(self.files)
+                req = _Request(self.url, data=datagen, headers=headers, method=self.method)
+                
+            else:
+                req = _Request(self.url, data=self._enc_data, method=self.method)
 
         if self.headers:
             req.headers = self.headers
