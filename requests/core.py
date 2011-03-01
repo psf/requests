@@ -111,6 +111,9 @@ class Request(object):
 
         _handlers = []
 
+        if self.cookiejar != None:
+            _handlers.append(urllib2.HTTPCookieProcessor(self.cookiejar))
+
         if self.auth:
             if not isinstance(self.auth.handler, (urllib2.AbstractBasicAuthHandler, urllib2.AbstractDigestAuthHandler)):
                 auth_manager.add_password(self.auth.realm, self.url, self.auth.username, self.auth.password)
@@ -119,6 +122,7 @@ class Request(object):
 
             _handlers.append(self.auth.handler)
 
+        if _handlers:
             _handlers.extend(get_handlers())
             opener = urllib2.build_opener(*_handlers)
             return opener.open
@@ -183,7 +187,10 @@ class Request(object):
         if not self.sent or anyway:
             try:
                 opener = self._get_opener()
-                resp =  opener(req)
+                resp = opener(req)
+
+                if self.cookiejar != None:
+                    self.cookiejar.extract_cookies(resp, req)
             except urllib2.HTTPError, why:
                 self._build_response(why)
                 self.response.error = why
@@ -194,7 +201,6 @@ class Request(object):
             self.response.cached = False
         else:
             self.response.cached = True
-
 
         self.sent = self.response.ok
 
@@ -406,7 +412,7 @@ def request(method, url, **kwargs):
     data = kwargs.pop('data', dict()) or kwargs.pop('params', dict())
 
     r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', {}),
-                cookiejar=kwargs.pop('cookies', None), files=kwargs.pop('files', None),
+                cookiejar=kwargs.pop('cookiejar', None), files=kwargs.pop('files', None),
                 auth=kwargs.pop('auth', auth_manager.get_auth(url)))
     r.send()
 

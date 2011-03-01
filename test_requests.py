@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import cookielib
 
 import requests
 
@@ -103,6 +104,15 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertFalse(r.error)
         r.raise_for_status()
         
+    def test_cookie_jar(self):
+        """
+        .. todo:: This really doesn't test to make sure the cookie is working
+        """
+        jar = cookielib.CookieJar()
+        self.assertFalse(jar)
+
+        requests.get('http://google.com', cookies=jar)
+        self.assertTrue(jar)
 
 
 
