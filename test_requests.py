@@ -84,6 +84,17 @@ class RequestsTestSuite(unittest.TestCase):
         post2 = requests.post(bin.url, files={'some': open('test_requests.py')}, data={'some': 'data'})
         self.assertEqual(post2.status_code, 201)
 
+
+    def test_POSTBIN_GET_POST_FILES_WITH_HEADERS(self):
+
+        bin = requests.post('http://www.postbin.org/')
+        self.assertEqual(bin.status_code, 200)
+
+        post2 = requests.post(bin.url, files={'some': open('test_requests.py')},
+        headers={'User-Agent': 'requests-tests'})
+
+        self.assertEqual(post2.status_code, 201)
+  
     def test_nonzero_evaluation(self):
         r = requests.get('http://google.com/some-404-url')
         self.assertEqual(bool(r), False)
