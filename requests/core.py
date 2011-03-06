@@ -178,7 +178,7 @@ class Request(object):
                 req = _Request(self.url, data=self._enc_data, method=self.method)
 
         if self.headers:
-            req.headers = self.headers
+            req.headers.update(self.headers)
 
         if not self.sent or anyway:
             try:
