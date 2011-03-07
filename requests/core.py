@@ -111,7 +111,7 @@ class Request(object):
 
         _handlers = []
 
-        if self.cookiejar != None:
+        if self.cookiejar:
             _handlers.append(urllib2.HTTPCookieProcessor(self.cookiejar))
 
         if self.auth:
@@ -189,8 +189,9 @@ class Request(object):
                 opener = self._get_opener()
                 resp = opener(req)
 
-                if self.cookiejar != None:
+                if self.cookiejar:
                     self.cookiejar.extract_cookies(resp, req)
+                    
             except urllib2.HTTPError, why:
                 self._build_response(why)
                 self.response.error = why
@@ -412,7 +413,7 @@ def request(method, url, **kwargs):
     data = kwargs.pop('data', dict()) or kwargs.pop('params', dict())
 
     r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', {}),
-                cookiejar=kwargs.pop('cookiejar', None), files=kwargs.pop('files', None),
+                cookiejar=kwargs.pop('cookies', None), files=kwargs.pop('files', None),
                 auth=kwargs.pop('auth', auth_manager.get_auth(url)))
     r.send()
 
@@ -429,7 +430,7 @@ def get(url, params={}, headers={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
     
-    return request('GET', url, params=params, headers=headers, cookiejar=cookies, auth=auth)
+    return request('GET', url, params=params, headers=headers, cookies=cookies, auth=auth)
 
 
 def head(url, params={}, headers={}, cookies=None, auth=None):
@@ -442,7 +443,7 @@ def head(url, params={}, headers={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-    return request('HEAD', url, params=params, headers=headers, cookiejar=cookies, auth=auth)
+    return request('HEAD', url, params=params, headers=headers, cookies=cookies, auth=auth)
 
 
 def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
@@ -456,7 +457,7 @@ def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-    return request('POST', url, data=data, headers=headers, files=files, cookiejar=cookies, auth=auth)
+    return request('POST', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth)
 
 
 def put(url, data='', headers={}, files={}, cookies=None, auth=None):
@@ -470,7 +471,7 @@ def put(url, data='', headers={}, files={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-    return request('PUT', url, data=data, headers=headers, files=files, cookiejar=cookies, auth=auth)
+    return request('PUT', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth)
 
 
 def delete(url, params={}, headers={}, cookies=None, auth=None):
@@ -483,7 +484,7 @@ def delete(url, params={}, headers={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-    return request('DELETE', url, params=params, headers=headers, cookiejar=cookies, auth=auth)
+    return request('DELETE', url, params=params, headers=headers, cookies=cookies, auth=auth)
 
 
 
