@@ -111,7 +111,7 @@ class Request(object):
 
         _handlers = []
 
-        if self.cookiejar:
+        if self.cookiejar is not None:
             _handlers.append(urllib2.HTTPCookieProcessor(self.cookiejar))
 
         if self.auth:
@@ -189,7 +189,7 @@ class Request(object):
                 opener = self._get_opener()
                 resp = opener(req)
 
-                if self.cookiejar:
+                if self.cookiejar is not None:
                     self.cookiejar.extract_cookies(resp, req)
                     
             except urllib2.HTTPError, why:
