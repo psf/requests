@@ -122,13 +122,22 @@ class Request(object):
 
             _handlers.append(self.auth.handler)
 
-        if _handlers:
-            _handlers.extend(get_handlers())
-            opener = urllib2.build_opener(*_handlers)
-            return opener.open
-        else:
+        if not _handlers:
             return urllib2.urlopen
 
+        _handlers.extend(get_handlers())
+        opener = urllib2.build_opener(*_handlers)
+
+        if self.headers:
+            # Allow default headers in the opener to be overloaded
+            normal_keys = [k.capitalize() for k in self.headers]
+            for key, val in opener.addheaders[:]:
+                if key not in normal_keys:
+                    continue
+                # Remove it, we have a value to take its place
+                opener.addheaders.remove((key, val))
+
+        return opener.open
 
     def _build_response(self, resp):
         """Build internal Response object from given response."""
