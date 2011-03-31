@@ -160,7 +160,6 @@ class Request(object):
             else:
                 return url
 
-
     def send(self, anyway=False):
         """Sends the request. Returns True of successful, false if not.
         If there was an HTTPError during transmission,
@@ -217,6 +216,8 @@ class Request(object):
         return self.sent
 
 
+    def read(self):
+        return self.content
     
 class Response(object):
     """The :class:`Request` object. All :class:`Request` objects contain a
