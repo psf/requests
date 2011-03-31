@@ -217,7 +217,7 @@ class Request(object):
 
 
     def read(self):
-        return self.content
+        return self.response.read()
     
 class Response(object):
     """The :class:`Request` object. All :class:`Request` objects contain a
@@ -249,6 +249,8 @@ class Response(object):
         if self.error:
             raise self.error
 
+    def read(self):
+        return self.content
 
 
 class AuthManager(object):
