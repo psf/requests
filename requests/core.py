@@ -24,8 +24,8 @@ from .packages.poster.streaminghttp import register_openers, get_handlers
 
 
 __title__ = 'requests'
-__version__ = '0.3.0'
-__build__ = 0x000300
+__version__ = '0.3.1'
+__build__ = 0x000301
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
@@ -111,6 +111,9 @@ class Request(object):
 
         _handlers = []
 
+        if self.cookiejar is not None:
+            _handlers.append(urllib2.HTTPCookieProcessor(self.cookiejar))
+
         if self.auth:
             if not isinstance(self.auth.handler, (urllib2.AbstractBasicAuthHandler, urllib2.AbstractDigestAuthHandler)):
                 auth_manager.add_password(self.auth.realm, self.url, self.auth.username, self.auth.password)
@@ -119,12 +122,22 @@ class Request(object):
 
             _handlers.append(self.auth.handler)
 
-            _handlers.extend(get_handlers())
-            opener = urllib2.build_opener(*_handlers)
-            return opener.open
-        else:
+        if not _handlers:
             return urllib2.urlopen
 
+        _handlers.extend(get_handlers())
+        opener = urllib2.build_opener(*_handlers)
+
+        if self.headers:
+            # Allow default headers in the opener to be overloaded
+            normal_keys = [k.capitalize() for k in self.headers]
+            for key, val in opener.addheaders[:]:
+                if key not in normal_keys:
+                    continue
+                # Remove it, we have a value to take its place
+                opener.addheaders.remove((key, val))
+
+        return opener.open
 
     def _build_response(self, resp):
         """Build internal Response object from given response."""
@@ -146,7 +159,6 @@ class Request(object):
                 return '%s?%s' % (url, data)
             else:
                 return url
-
 
     def send(self, anyway=False):
         """Sends the request. Returns True of successful, false if not.
@@ -178,12 +190,16 @@ class Request(object):
                 req = _Request(self.url, data=self._enc_data, method=self.method)
 
         if self.headers:
-            req.headers = self.headers
+            req.headers.update(self.headers)
 
         if not self.sent or anyway:
             try:
                 opener = self._get_opener()
-                resp =  opener(req)
+                resp = opener(req)
+
+                if self.cookiejar is not None:
+                    self.cookiejar.extract_cookies(resp, req)
+                    
             except urllib2.HTTPError, why:
                 self._build_response(why)
                 self.response.error = why
@@ -195,12 +211,13 @@ class Request(object):
         else:
             self.response.cached = True
 
-
         self.sent = self.response.ok
 
         return self.sent
 
 
+    def read(self):
+        return self.response.read()
     
 class Response(object):
     """The :class:`Request` object. All :class:`Request` objects contain a
@@ -232,6 +249,8 @@ class Response(object):
         if self.error:
             raise self.error
 
+    def read(self):
+        return self.content
 
 
 class AuthManager(object):
@@ -423,7 +442,7 @@ def get(url, params={}, headers={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
     
-    return request('GET', url, params=params, headers=headers, cookiejar=cookies, auth=auth)
+    return request('GET', url, params=params, headers=headers, cookies=cookies, auth=auth)
 
 
 def head(url, params={}, headers={}, cookies=None, auth=None):
@@ -436,7 +455,7 @@ def head(url, params={}, headers={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-    return request('HEAD', url, params=params, headers=headers, cookiejar=cookies, auth=auth)
+    return request('HEAD', url, params=params, headers=headers, cookies=cookies, auth=auth)
 
 
 def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
@@ -450,7 +469,7 @@ def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-    return request('POST', url, data=data, headers=headers, files=files, cookiejar=cookies, auth=auth)
+    return request('POST', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth)
 
 
 def put(url, data='', headers={}, files={}, cookies=None, auth=None):
@@ -464,7 +483,7 @@ def put(url, data='', headers={}, files={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-    return request('PUT', url, data=data, headers=headers, files=files, cookiejar=cookies, auth=auth)
+    return request('PUT', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth)
 
 
 def delete(url, params={}, headers={}, cookies=None, auth=None):
@@ -477,7 +496,7 @@ def delete(url, params={}, headers={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-    return request('DELETE', url, params=params, headers=headers, cookiejar=cookies, auth=auth)
+    return request('DELETE', url, params=params, headers=headers, cookies=cookies, auth=auth)
 
 
 
