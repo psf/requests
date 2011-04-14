@@ -14,6 +14,7 @@ from __future__ import absolute_import
 
 import urllib
 import urllib2
+import zlib
 
 from urllib2 import HTTPError
 from urlparse import urlparse
@@ -144,9 +145,15 @@ class Request(object):
 
         self.response.status_code = getattr(resp, 'code', None)
         self.response.headers = getattr(resp.info(), 'dict', None)
-        self.response.url = getattr(resp, 'url', None)
         self.response.content = resp.read()
 
+        if self.response.headers.get('content-encoding', None) == 'gzip':
+            try:
+                self.response.content = zlib.decompress(self.response.content, 16+zlib.MAX_WBITS)
+            except zlib.error:
+                pass
+
+        self.response.url = getattr(resp, 'url', None)
 
     @staticmethod
     def _build_url(url, data):
