@@ -8,7 +8,7 @@ import requests
 from distutils.core import setup
 
 
-    
+
 if sys.argv[-1] == "publish":
     os.system("python setup.py sdist upload")
     sys.exit()
@@ -16,10 +16,11 @@ if sys.argv[-1] == "publish":
 if sys.argv[-1] == "test":
     os.system("python test_requests.py")
     sys.exit()
-    
+
 required = []
 
-# if python > 2.6, require simplejson
+if sys.version_info[:2] < (2,6):
+    required.append('simplejson')
 
 setup(
     name='requests',

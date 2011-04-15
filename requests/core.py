@@ -14,6 +14,7 @@ from __future__ import absolute_import
 
 import urllib
 import urllib2
+import zlib
 
 from urllib2 import HTTPError
 from urlparse import urlparse
@@ -24,15 +25,15 @@ from .packages.poster.streaminghttp import register_openers, get_handlers
 
 
 __title__ = 'requests'
-__version__ = '0.3.1'
-__build__ = 0x000301
+__version__ = '0.3.2'
+__build__ = 0x000302
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
 
 __all__ = [
-    'Request', 'Response', 'request', 'get', 'head', 'post', 'put', 'delete', 
-    'auth_manager', 'AuthObject','RequestException', 'AuthenticationError', 
+    'Request', 'Response', 'request', 'get', 'head', 'post', 'put', 'delete',
+    'auth_manager', 'AuthObject','RequestException', 'AuthenticationError',
     'URLRequired', 'InvalidMethod', 'HTTPError'
 ]
 
@@ -63,7 +64,7 @@ class Request(object):
 
     def __init__(self, url=None, headers=dict(), files=None, method=None,
                  data=dict(), auth=None, cookiejar=None):
-        
+
         self.url = url
         self.headers = headers
         self.files = files
@@ -141,17 +142,23 @@ class Request(object):
 
     def _build_response(self, resp):
         """Build internal Response object from given response."""
-        
+
         self.response.status_code = getattr(resp, 'code', None)
         self.response.headers = getattr(resp.info(), 'dict', None)
-        self.response.url = getattr(resp, 'url', None)
         self.response.content = resp.read()
 
+        if self.response.headers.get('content-encoding', None) == 'gzip':
+            try:
+                self.response.content = zlib.decompress(self.response.content, 16+zlib.MAX_WBITS)
+            except zlib.error:
+                pass
+
+        self.response.url = getattr(resp, 'url', None)
 
     @staticmethod
     def _build_url(url, data):
         """Build URLs."""
-        
+
         if urlparse(url).query:
             return '%s&%s' % (url, data)
         else:
@@ -182,10 +189,10 @@ class Request(object):
 
                 if self.data:
                     self.files.update(self.data)
-                    
+
                 datagen, headers = multipart_encode(self.files)
                 req = _Request(self.url, data=datagen, headers=headers, method=self.method)
-                
+
             else:
                 req = _Request(self.url, data=self._enc_data, method=self.method)
 
@@ -199,7 +206,7 @@ class Request(object):
 
                 if self.cookiejar is not None:
                     self.cookiejar.extract_cookies(resp, req)
-                    
+
             except urllib2.HTTPError, why:
                 self._build_response(why)
                 self.response.error = why
@@ -216,9 +223,9 @@ class Request(object):
         return self.sent
 
 
-    def read(self):
+    def read(self, *args):
         return self.response.read()
-    
+
 class Response(object):
     """The :class:`Request` object. All :class:`Request` objects contain a
     :class:`Request.response <response>` attribute, which is an instance of
@@ -249,13 +256,13 @@ class Response(object):
         if self.error:
             raise self.error
 
-    def read(self):
+    def read(self, *args):
         return self.content
 
 
 class AuthManager(object):
     """Authentication Manager."""
-    
+
     def __new__(cls):
         singleton = cls.__dict__.get('__singleton__')
         if singleton is not None:
@@ -277,8 +284,16 @@ class AuthManager(object):
 
     def add_auth(self, uri, auth):
         """Registers AuthObject to AuthManager."""
-        
+
         uri = self.reduce_uri(uri, False)
+
+        # try to make it an AuthObject
+        if not isinstance(auth, AuthObject):
+            try:
+                auth = AuthObject(*auth)
+            except TypeError:
+                pass
+
         self._auth[uri] = auth
 
     def add_password(self, realm, uri, user, passwd):
@@ -286,9 +301,9 @@ class AuthManager(object):
         # uri could be a single URI or a sequence
         if isinstance(uri, basestring):
             uri = [uri]
-            
+
         reduced_uri = tuple([self.reduce_uri(u, False) for u in uri])
-        
+
         if reduced_uri not in self.passwd:
             self.passwd[reduced_uri] = {}
         self.passwd[reduced_uri] = (user, passwd)
@@ -305,8 +320,14 @@ class AuthManager(object):
 
 
     def get_auth(self, uri):
-        uri = self.reduce_uri(uri, False)
-        return self._auth.get(uri, None)
+        (in_domain, in_path) = self.reduce_uri(uri, False)
+
+        for domain, path, authority in (
+            (i[0][0], i[0][1], i[1]) for i in self._auth.iteritems()
+        ):
+            if in_domain == domain:
+                if path in in_path:
+                    return authority
 
 
     def reduce_uri(self, uri, default_port=True):
@@ -330,9 +351,10 @@ class AuthManager(object):
                      }.get(scheme)
             if dport is not None:
                 authority = "%s:%d" % (host, dport)
+
         return authority, path
 
-    
+
     def is_suburi(self, base, test):
         """Check if test is below base in a URI tree
 
@@ -441,7 +463,7 @@ def get(url, params={}, headers={}, cookies=None, auth=None):
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
-    
+
     return request('GET', url, params=params, headers=headers, cookies=cookies, auth=auth)
 
 
