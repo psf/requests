@@ -71,7 +71,6 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_POSTBIN_GET_POST_FILES(self):
         bin = requests.post('http://www.postbin.org/')
-        print bin.url
         self.assertEqual(bin.status_code, 200)
 
         post = requests.post(bin.url, data={'some': 'data'})
@@ -131,6 +130,14 @@ class RequestsTestSuite(unittest.TestCase):
 
         r = requests.get('http://api.stackoverflow.com/1.1/users/495995/top-answer-tags')
         r.content.decode('ascii')
+
+    def test_autoauth(self):
+
+        conv_auth = ('requeststest', 'requeststest')
+        requests.auth_manager.add_auth('convore.com', conv_auth)
+
+        r = requests.get('https://convore.com/api/account/verify.json')
+        self.assertEquals(r.status_code, 200)
 
 if __name__ == '__main__':
     unittest.main()
