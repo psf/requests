@@ -1,11 +1,18 @@
 History
 -------
 
+0.3.2 (2011-04-15)
+++++++++++++++++++
+
+* Automatic Decompression of GZip Encoded Content
+* AutoAuth Support for Tupled HTTP Auth
+
+
 0.3.1 (2011-04-01)
 ++++++++++++++++++
 
 * Cookie Changes
-* Response.read() 
+* Response.read()
 * Poster fix
 
 
