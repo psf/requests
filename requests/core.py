@@ -286,6 +286,14 @@ class AuthManager(object):
         """Registers AuthObject to AuthManager."""
 
         uri = self.reduce_uri(uri, False)
+
+        # try to make it an AuthObject
+        if not isinstance(auth, AuthObject):
+            try:
+                auth = AuthObject(*auth)
+            except TypeError:
+                pass
+
         self._auth[uri] = auth
 
     def add_password(self, realm, uri, user, passwd):
@@ -312,8 +320,14 @@ class AuthManager(object):
 
 
     def get_auth(self, uri):
-        uri = self.reduce_uri(uri, False)
-        return self._auth.get(uri, None)
+        (in_domain, in_path) = self.reduce_uri(uri, False)
+
+        for domain, path, authority in (
+            (i[0][0], i[0][1], i[1]) for i in self._auth.iteritems()
+        ):
+            if in_domain == domain:
+                if path in in_path:
+                    return authority
 
 
     def reduce_uri(self, uri, default_port=True):
@@ -337,6 +351,7 @@ class AuthManager(object):
                      }.get(scheme)
             if dport is not None:
                 authority = "%s:%d" % (host, dport)
+
         return authority, path
 
 
