@@ -25,8 +25,8 @@ from .packages.poster.streaminghttp import register_openers, get_handlers
 
 
 __title__ = 'requests'
-__version__ = '0.3.1'
-__build__ = 0x000301
+__version__ = '0.3.2'
+__build__ = 0x000302
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
