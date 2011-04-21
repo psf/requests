@@ -64,23 +64,23 @@ If CookieJar object is is passed in (cookies=...), the cookies will be sent with
 
   GET Requests
     >>> request.get(url, params={}, headers={}, cookies=None, auth=None)
-    <request object>
+    <Response [200]>
 
   HEAD Requests
     >>> request.head(url, params={}, headers={}, cookies=None, auth=None)
-    <request object>
+    <Response [200]>
 
   PUT Requests
     >>> request.put(url, data='', headers={}, files={}, cookies=None, auth=None)
-    <request object>
+    <Response [200]>
 
   POST Requests
     >>> request.post(url, data={}, headers={}, files={}, cookies=None, auth=None)
-    <request object>
+    <Response [200]>
 
   DELETE Requests
     >>> request.delete(url, params={}, headers={}, cookies=None, auth=None)
-    <request object>
+    <Response [200]>
 
 
 **Responses:**
