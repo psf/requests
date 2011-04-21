@@ -14,6 +14,7 @@ from __future__ import absolute_import
 
 import urllib
 import urllib2
+import socket
 import zlib
 
 from urllib2 import HTTPError
@@ -63,13 +64,15 @@ class Request(object):
     _METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE')
 
     def __init__(self, url=None, headers=dict(), files=None, method=None,
-                 data=dict(), auth=None, cookiejar=None):
+                 data=dict(), auth=None, cookiejar=None, timeout=None):
 
         self.url = url
         self.headers = headers
         self.files = files
         self.method = method
         self.data = data
+        
+        socket.setdefaulttimeout(timeout)
 
         # url encode data if it's a dict
         if hasattr(data, 'items'):
@@ -448,13 +451,14 @@ def request(method, url, **kwargs):
 
     r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', {}),
                 cookiejar=kwargs.pop('cookies', None), files=kwargs.pop('files', None),
-                auth=kwargs.pop('auth', auth_manager.get_auth(url)))
+                auth=kwargs.pop('auth', auth_manager.get_auth(url)),
+                timeout=kwargs.pop('timeout', None))
     r.send()
 
     return r.response
 
 
-def get(url, params={}, headers={}, cookies=None, auth=None):
+def get(url, params={}, headers={}, cookies=None, auth=None, timeout=None):
     """Sends a GET request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -464,10 +468,10 @@ def get(url, params={}, headers={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-    return request('GET', url, params=params, headers=headers, cookies=cookies, auth=auth)
+    return request('GET', url, params=params, headers=headers, cookies=cookies, auth=auth, timeout=timeout)
 
 
-def head(url, params={}, headers={}, cookies=None, auth=None):
+def head(url, params={}, headers={}, cookies=None, auth=None, timeout=None):
     """Sends a HEAD request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -477,10 +481,10 @@ def head(url, params={}, headers={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-    return request('HEAD', url, params=params, headers=headers, cookies=cookies, auth=auth)
+    return request('HEAD', url, params=params, headers=headers, cookies=cookies, auth=auth, timeout=timeout)
 
 
-def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
+def post(url, data={}, headers={}, files=None, cookies=None, auth=None, timeout=None):
     """Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -491,10 +495,10 @@ def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-    return request('POST', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth)
+    return request('POST', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth, timeout=timeout)
 
 
-def put(url, data='', headers={}, files={}, cookies=None, auth=None):
+def put(url, data='', headers={}, files={}, cookies=None, auth=None, timeout=None):
     """Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -505,10 +509,10 @@ def put(url, data='', headers={}, files={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-    return request('PUT', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth)
+    return request('PUT', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth, timeout=timeout)
 
 
-def delete(url, params={}, headers={}, cookies=None, auth=None):
+def delete(url, params={}, headers={}, cookies=None, auth=None, timeout=None):
     """Sends a DELETE request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -518,7 +522,7 @@ def delete(url, params={}, headers={}, cookies=None, auth=None):
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     """
 
-    return request('DELETE', url, params=params, headers=headers, cookies=cookies, auth=auth)
+    return request('DELETE', url, params=params, headers=headers, cookies=cookies, auth=auth, timeout=timeout)
 
 
 
