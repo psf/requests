@@ -12,6 +12,7 @@
 
 from __future__ import absolute_import
 
+import requests
 import urllib
 import urllib2
 import socket
@@ -22,7 +23,6 @@ from urlparse import urlparse
 
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
-
 
 
 __title__ = 'requests'
@@ -37,7 +37,6 @@ __all__ = [
     'auth_manager', 'AuthObject','RequestException', 'AuthenticationError',
     'URLRequired', 'InvalidMethod', 'HTTPError'
 ]
-
 
 
 class _Request(urllib2.Request):
@@ -446,19 +445,20 @@ def request(method, url, **kwargs):
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
     """
     data = kwargs.pop('data', dict()) or kwargs.pop('params', dict())
-
+    
     r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', {}),
                 cookiejar=kwargs.pop('cookies', None), files=kwargs.pop('files', None),
                 auth=kwargs.pop('auth', auth_manager.get_auth(url)),
-                timeout=kwargs.pop('timeout', None))
+                timeout=kwargs.pop('timeout', requests.timeout))
     r.send()
 
     return r.response
 
 
-def get(url, params={}, headers={}, cookies=None, auth=None, timeout=None):
+def get(url, params={}, headers={}, cookies=None, auth=None, **kwargs):
     """Sends a GET request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -466,12 +466,13 @@ def get(url, params={}, headers={}, cookies=None, auth=None, timeout=None):
     :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
     """
 
-    return request('GET', url, params=params, headers=headers, cookies=cookies, auth=auth, timeout=timeout)
+    return request('GET', url, params=params, headers=headers, cookies=cookies, auth=auth, **kwargs)
 
 
-def head(url, params={}, headers={}, cookies=None, auth=None, timeout=None):
+def head(url, params={}, headers={}, cookies=None, auth=None, **kwargs):
     """Sends a HEAD request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -479,12 +480,13 @@ def head(url, params={}, headers={}, cookies=None, auth=None, timeout=None):
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
     """
 
-    return request('HEAD', url, params=params, headers=headers, cookies=cookies, auth=auth, timeout=timeout)
+    return request('HEAD', url, params=params, headers=headers, cookies=cookies, auth=auth, **kwargs)
 
 
-def post(url, data={}, headers={}, files=None, cookies=None, auth=None, timeout=None):
+def post(url, data={}, headers={}, files=None, cookies=None, auth=None, **kwargs):
     """Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -493,12 +495,13 @@ def post(url, data={}, headers={}, files=None, cookies=None, auth=None, timeout=
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
     """
 
-    return request('POST', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth, timeout=timeout)
+    return request('POST', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth, **kwargs)
 
 
-def put(url, data='', headers={}, files={}, cookies=None, auth=None, timeout=None):
+def put(url, data='', headers={}, files={}, cookies=None, auth=None, **kwargs):
     """Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -507,12 +510,13 @@ def put(url, data='', headers={}, files={}, cookies=None, auth=None, timeout=Non
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
     """
 
-    return request('PUT', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth, timeout=timeout)
+    return request('PUT', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth, **kwargs)
 
 
-def delete(url, params={}, headers={}, cookies=None, auth=None, timeout=None):
+def delete(url, params={}, headers={}, cookies=None, auth=None, **kwargs):
     """Sends a DELETE request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -520,9 +524,10 @@ def delete(url, params={}, headers={}, cookies=None, auth=None, timeout=None):
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
     """
 
-    return request('DELETE', url, params=params, headers=headers, cookies=cookies, auth=auth, timeout=timeout)
+    return request('DELETE', url, params=params, headers=headers, cookies=cookies, auth=auth, **kwargs)
 
 
 
