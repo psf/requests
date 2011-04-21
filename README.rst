@@ -63,23 +63,23 @@ If a {filename: fileobject} dictionary is passed in (files=...), a multipart_enc
 If CookieJar object is is passed in (cookies=...), the cookies will be sent with the request.
 
   GET Requests
-    >>> request.get(url, params={}, headers={}, cookies=None, auth=None)
+    >>> requests.get(url, params={}, headers={}, cookies=None, auth=None)
     <Response [200]>
 
   HEAD Requests
-    >>> request.head(url, params={}, headers={}, cookies=None, auth=None)
+    >>> requests.head(url, params={}, headers={}, cookies=None, auth=None)
     <Response [200]>
 
   PUT Requests
-    >>> request.put(url, data='', headers={}, files={}, cookies=None, auth=None)
+    >>> requests.put(url, data='', headers={}, files={}, cookies=None, auth=None)
     <Response [200]>
 
   POST Requests
-    >>> request.post(url, data={}, headers={}, files={}, cookies=None, auth=None)
+    >>> requests.post(url, data={}, headers={}, files={}, cookies=None, auth=None)
     <Response [200]>
 
   DELETE Requests
-    >>> request.delete(url, params={}, headers={}, cookies=None, auth=None)
+    >>> requests.delete(url, params={}, headers={}, cookies=None, auth=None)
     <Response [200]>
 
 
