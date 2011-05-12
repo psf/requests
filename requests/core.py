@@ -71,14 +71,17 @@ class Request(object):
         self.files = files
         self.method = method
         self.data = data
-        
+
         socket.setdefaulttimeout(timeout)
+
+        for (k, v) in self.data.iteritems():
+            self.data[k] = v.encode('utf-8')
 
         # url encode data if it's a dict
         if hasattr(data, 'items'):
-            self._enc_data = urllib.urlencode(data)
+            self._enc_data = urllib.urlencode(self.data)
         else:
-            self._enc_data = data
+            self._enc_data = self.data
 
         self.response = Response()
 
@@ -158,8 +161,9 @@ class Request(object):
 
         self.response.url = getattr(resp, 'url', None)
 
+
     @staticmethod
-    def _build_url(url, data):
+    def _build_url(url, data=None):
         """Build URLs."""
 
         if urlparse(url).query:
@@ -169,6 +173,7 @@ class Request(object):
                 return '%s?%s' % (url, data)
             else:
                 return url
+
 
     def send(self, anyway=False):
         """Sends the request. Returns True of successful, false if not.
@@ -203,6 +208,9 @@ class Request(object):
             req.headers.update(self.headers)
 
         if not self.sent or anyway:
+
+
+
             try:
                 opener = self._get_opener()
                 resp = opener(req)
@@ -228,6 +236,8 @@ class Request(object):
 
     def read(self, *args):
         return self.response.read()
+
+
 
 class Response(object):
     """The :class:`Request` object. All :class:`Request` objects contain a
@@ -261,6 +271,7 @@ class Response(object):
 
     def read(self, *args):
         return self.content
+
 
 
 class AuthManager(object):
@@ -298,6 +309,7 @@ class AuthManager(object):
                 pass
 
         self._auth[uri] = auth
+
 
     def add_password(self, realm, uri, user, passwd):
         """Adds password to AuthManager."""
