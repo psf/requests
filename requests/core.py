@@ -69,18 +69,17 @@ class Request(object):
         self.headers = headers
         self.files = files
         self.method = method
-
         self.data = {}
-        for (k, v) in data.items():
-            self.data.update({
-                k.encode('utf-8') if isinstance(k, unicode) else k:
-                v.encode('utf-8') if isinstance(v, unicode) else v
-            })
 
         socket.setdefaulttimeout(timeout)
 
-        # url encode data if it's a dict
         if hasattr(data, 'items'):
+            for (k, v) in data.items():
+                self.data.update({
+                    k.encode('utf-8') if isinstance(k, unicode) else k:
+                    v.encode('utf-8') if isinstance(v, unicode) else v
+                })
+            # url encode data if it's a dict
             self._enc_data = urllib.urlencode(self.data)
         else:
             self._enc_data = self.data
