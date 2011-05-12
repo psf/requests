@@ -139,5 +139,11 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get('https://convore.com/api/account/verify.json')
         self.assertEquals(r.status_code, 200)
 
+    def test_unicode_get(self):
+        requests.get('http://google.com', params={'foo': u'føø'})
+        requests.get('http://google.com', params={'foo': u'foo'})
+        requests.get('http://google.com/ø', params={'foo': u'foo'})
+
+
 if __name__ == '__main__':
     unittest.main()

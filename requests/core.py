@@ -12,8 +12,10 @@
 
 from __future__ import absolute_import
 
+import requests
 import urllib
 import urllib2
+import socket
 import zlib
 
 from urllib2 import HTTPError
@@ -23,10 +25,9 @@ from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
 
 
-
 __title__ = 'requests'
-__version__ = '0.3.2'
-__build__ = 0x000302
+__version__ = '0.3.3'
+__build__ = 0x000303
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
@@ -36,7 +37,6 @@ __all__ = [
     'auth_manager', 'AuthObject','RequestException', 'AuthenticationError',
     'URLRequired', 'InvalidMethod', 'HTTPError'
 ]
-
 
 
 class _Request(urllib2.Request):
@@ -63,7 +63,7 @@ class Request(object):
     _METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE')
 
     def __init__(self, url=None, headers=dict(), files=None, method=None,
-                 data=dict(), auth=None, cookiejar=None):
+                 data=dict(), auth=None, cookiejar=None, timeout=None):
 
         self.url = url
         self.headers = headers
@@ -71,11 +71,16 @@ class Request(object):
         self.method = method
         self.data = data
 
+        socket.setdefaulttimeout(timeout)
+
+        for (k, v) in self.data.iteritems():
+            self.data[k] = v.encode('utf-8')
+
         # url encode data if it's a dict
         if hasattr(data, 'items'):
-            self._enc_data = urllib.urlencode(data)
+            self._enc_data = urllib.urlencode(self.data)
         else:
-            self._enc_data = data
+            self._enc_data = self.data
 
         self.response = Response()
 
@@ -155,8 +160,9 @@ class Request(object):
 
         self.response.url = getattr(resp, 'url', None)
 
+
     @staticmethod
-    def _build_url(url, data):
+    def _build_url(url, data=None):
         """Build URLs."""
 
         if urlparse(url).query:
@@ -166,6 +172,7 @@ class Request(object):
                 return '%s?%s' % (url, data)
             else:
                 return url
+
 
     def send(self, anyway=False):
         """Sends the request. Returns True of successful, false if not.
@@ -200,6 +207,9 @@ class Request(object):
             req.headers.update(self.headers)
 
         if not self.sent or anyway:
+
+
+
             try:
                 opener = self._get_opener()
                 resp = opener(req)
@@ -225,6 +235,8 @@ class Request(object):
 
     def read(self, *args):
         return self.response.read()
+
+
 
 class Response(object):
     """The :class:`Request` object. All :class:`Request` objects contain a
@@ -258,6 +270,7 @@ class Response(object):
 
     def read(self, *args):
         return self.content
+
 
 
 class AuthManager(object):
@@ -295,6 +308,7 @@ class AuthManager(object):
                 pass
 
         self._auth[uri] = auth
+
 
     def add_password(self, realm, uri, user, passwd):
         """Adds password to AuthManager."""
@@ -443,18 +457,20 @@ def request(method, url, **kwargs):
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
     """
     data = kwargs.pop('data', dict()) or kwargs.pop('params', dict())
 
     r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', {}),
                 cookiejar=kwargs.pop('cookies', None), files=kwargs.pop('files', None),
-                auth=kwargs.pop('auth', auth_manager.get_auth(url)))
+                auth=kwargs.pop('auth', auth_manager.get_auth(url)),
+                timeout=kwargs.pop('timeout', requests.timeout))
     r.send()
 
     return r.response
 
 
-def get(url, params={}, headers={}, cookies=None, auth=None):
+def get(url, params={}, headers={}, cookies=None, auth=None, **kwargs):
     """Sends a GET request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -462,12 +478,13 @@ def get(url, params={}, headers={}, cookies=None, auth=None):
     :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
     """
 
-    return request('GET', url, params=params, headers=headers, cookies=cookies, auth=auth)
+    return request('GET', url, params=params, headers=headers, cookies=cookies, auth=auth, **kwargs)
 
 
-def head(url, params={}, headers={}, cookies=None, auth=None):
+def head(url, params={}, headers={}, cookies=None, auth=None, **kwargs):
     """Sends a HEAD request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -475,12 +492,13 @@ def head(url, params={}, headers={}, cookies=None, auth=None):
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
     """
 
-    return request('HEAD', url, params=params, headers=headers, cookies=cookies, auth=auth)
+    return request('HEAD', url, params=params, headers=headers, cookies=cookies, auth=auth, **kwargs)
 
 
-def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
+def post(url, data={}, headers={}, files=None, cookies=None, auth=None, **kwargs):
     """Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -489,12 +507,13 @@ def post(url, data={}, headers={}, files=None, cookies=None, auth=None):
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
     """
 
-    return request('POST', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth)
+    return request('POST', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth, **kwargs)
 
 
-def put(url, data='', headers={}, files={}, cookies=None, auth=None):
+def put(url, data='', headers={}, files={}, cookies=None, auth=None, **kwargs):
     """Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -503,12 +522,13 @@ def put(url, data='', headers={}, files={}, cookies=None, auth=None):
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
     """
 
-    return request('PUT', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth)
+    return request('PUT', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth, **kwargs)
 
 
-def delete(url, params={}, headers={}, cookies=None, auth=None):
+def delete(url, params={}, headers={}, cookies=None, auth=None, **kwargs):
     """Sends a DELETE request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -516,9 +536,10 @@ def delete(url, params={}, headers={}, cookies=None, auth=None):
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
     :param cookies: (optional) CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
     """
 
-    return request('DELETE', url, params=params, headers=headers, cookies=cookies, auth=auth)
+    return request('DELETE', url, params=params, headers=headers, cookies=cookies, auth=auth, **kwargs)
 
 
 

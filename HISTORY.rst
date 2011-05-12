@@ -1,6 +1,14 @@
 History
 -------
 
+0.3.3 (2011-05-12)
+++++++++++++++++++
+
+* Request timeouts
+* Unicode url-encoded data
+* Settings context manager and module
+
+
 0.3.2 (2011-04-15)
 ++++++++++++++++++
 
