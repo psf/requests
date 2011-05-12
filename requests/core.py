@@ -69,12 +69,12 @@ class Request(object):
         self.headers = headers
         self.files = files
         self.method = method
-        
+
         self.data = {}
         for (k, v) in data.items():
             self.data.update({
-                k.encode('utf-8') if k.__class__ is unicode else k: \
-                v.encode('utf-8') if v.__class__ is unicode else v
+                k.encode('utf-8') if isinstance(k, unicode) else k:
+                v.encode('utf-8') if isinstance(v, unicode) else v
             })
 
         socket.setdefaulttimeout(timeout)
