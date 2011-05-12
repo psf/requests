@@ -141,6 +141,8 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_unicode_get(self):
         requests.get('http://google.com', params={'foo': u'føø'})
+        requests.get('http://google.com', params={u'føø': u'føø'})
+        requests.get('http://google.com', params={'føø': 'føø'})
         requests.get('http://google.com', params={'foo': u'foo'})
         requests.get('http://google.com/ø', params={'foo': u'foo'})
 
