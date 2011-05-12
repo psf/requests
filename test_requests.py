@@ -79,6 +79,9 @@ class RequestsTestSuite(unittest.TestCase):
         post2 = requests.post(bin.url, files={'some': open('test_requests.py')})
         self.assertEqual(post2.status_code, 201)
 
+        post3 = requests.post(bin.url, data='[{"some": "json"}]')
+        self.assertEqual(post.status_code, 201)
+
     def test_POSTBIN_GET_POST_FILES_WITH_PARAMS(self):
         bin = requests.post('http://www.postbin.org/')
 
