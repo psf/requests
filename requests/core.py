@@ -26,8 +26,8 @@ from .packages.poster.streaminghttp import register_openers, get_handlers
 
 
 __title__ = 'requests'
-__version__ = '0.3.2'
-__build__ = 0x000302
+__version__ = '0.3.3'
+__build__ = 0x000303
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
@@ -460,7 +460,7 @@ def request(method, url, **kwargs):
     :param timeout: (optional) Float describing the timeout of the request.
     """
     data = kwargs.pop('data', dict()) or kwargs.pop('params', dict())
-    
+
     r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', {}),
                 cookiejar=kwargs.pop('cookies', None), files=kwargs.pop('files', None),
                 auth=kwargs.pop('auth', auth_manager.get_auth(url)),
