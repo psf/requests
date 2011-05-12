@@ -5,6 +5,7 @@ History
 ++++++++++++++++++
 
 * Request timeouts
+* Unicode url-encoded data
 
 
 0.3.2 (2011-04-15)
