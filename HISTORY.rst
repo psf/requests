@@ -4,7 +4,10 @@ History
 0.3.4
 +++++
 
+* Urllib2 HTTPAuthentication Recursion fix (Basic/Digest)
+* Internal Refactor
 * Bytes data upload Bugfix
+
 
 
 0.3.3 (2011-05-12)
