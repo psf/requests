@@ -149,6 +149,13 @@ class RequestsTestSuite(unittest.TestCase):
         requests.get('http://google.com', params={'foo': u'foo'})
         requests.get('http://google.com/ø', params={'foo': u'foo'})
 
+    def test_httpauth_recursion(self):
+        conv_auth = ('requeststest', 'bad_password')
+
+        r = requests.get('https://convore.com/api/account/verify.json', auth=conv_auth)
+        self.assertEquals(r.status_code, 401)
+        print r.__dict__
+
 
 if __name__ == '__main__':
     unittest.main()
