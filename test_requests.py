@@ -79,6 +79,9 @@ class RequestsTestSuite(unittest.TestCase):
         post2 = requests.post(bin.url, files={'some': open('test_requests.py')})
         self.assertEqual(post2.status_code, 201)
 
+        post3 = requests.post(bin.url, data='[{"some": "json"}]')
+        self.assertEqual(post.status_code, 201)
+
     def test_POSTBIN_GET_POST_FILES_WITH_PARAMS(self):
         bin = requests.post('http://www.postbin.org/')
 
@@ -120,6 +123,7 @@ class RequestsTestSuite(unittest.TestCase):
         """
         .. todo:: This really doesn't test to make sure the cookie is working
         """
+
         jar = cookielib.CookieJar()
         self.assertFalse(jar)
 
@@ -141,8 +145,16 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_unicode_get(self):
         requests.get('http://google.com', params={'foo': u'føø'})
+        requests.get('http://google.com', params={u'føø': u'føø'})
+        requests.get('http://google.com', params={'føø': 'føø'})
         requests.get('http://google.com', params={'foo': u'foo'})
         requests.get('http://google.com/ø', params={'foo': u'foo'})
+
+    def test_httpauth_recursion(self):
+        conv_auth = ('requeststest', 'bad_password')
+
+        r = requests.get('https://convore.com/api/account/verify.json', auth=conv_auth)
+        self.assertEquals(r.status_code, 401)
 
 
 if __name__ == '__main__':
