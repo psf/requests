@@ -15,7 +15,7 @@ import zlib
 from urllib2 import HTTPError
 from urlparse import urlparse
 
-from .monkeys import _Request, _HTTPBasicAuthHandler, _HTTPDigestAuthHandler
+from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPDigestAuthHandler
 
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
@@ -405,8 +405,8 @@ class AuthObject(object):
     """
 
     _handlers = {
-        'basic': _HTTPBasicAuthHandler,
-        'digest': _HTTPDigestAuthHandler,
+        'basic': HTTPBasicAuthHandler,
+        'digest': HTTPDigestAuthHandler,
         'proxy_basic': urllib2.ProxyBasicAuthHandler,
         'proxy_digest': urllib2.ProxyDigestAuthHandler
     }

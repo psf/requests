@@ -4,18 +4,14 @@
 requests.monkeys
 ~~~~~~~~~~~~~~~~
 
-Monkey patches to urllib2 and the like.
+Urllib2 Monkey patches.
 
 """
 
-# import requests
-# import urllib
 import urllib2
-# import socket
-# import zlib
 
 
-class _Request(urllib2.Request):
+class Request(urllib2.Request):
     """Hidden wrapper around the urllib2.Request object. Allows for manual
     setting of HTTP methods.
     """
@@ -31,7 +27,7 @@ class _Request(urllib2.Request):
         return urllib2.Request.get_method(self)
 
 
-class _HTTPBasicAuthHandler(urllib2.HTTPBasicAuthHandler):
+class HTTPBasicAuthHandler(urllib2.HTTPBasicAuthHandler):
     # from mercurial
 
     def __init__(self, *args, **kwargs):
@@ -54,7 +50,7 @@ class _HTTPBasicAuthHandler(urllib2.HTTPBasicAuthHandler):
 
 
 
-class _HTTPDigestAuthHandler(urllib2.HTTPDigestAuthHandler):
+class HTTPDigestAuthHandler(urllib2.HTTPDigestAuthHandler):
 
     def __init__(self, *args, **kwargs):
         urllib2.HTTPDigestAuthHandler.__init__(self, *args, **kwargs)
