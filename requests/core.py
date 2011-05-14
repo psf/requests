@@ -65,24 +65,28 @@ class Request(object):
     def __init__(self, url=None, headers=dict(), files=None, method=None,
                  data=dict(), auth=None, cookiejar=None, timeout=None):
 
+        socket.setdefaulttimeout(timeout)
+
         self.url = url
         self.headers = headers
         self.files = files
         self.method = method
         self.data = {}
 
-        socket.setdefaulttimeout(timeout)
-
+        # self.data = {}
         if hasattr(data, 'items'):
             for (k, v) in data.items():
                 self.data.update({
                     k.encode('utf-8') if isinstance(k, unicode) else k:
                     v.encode('utf-8') if isinstance(v, unicode) else v
                 })
-            # url encode data if it's a dict
+
+        # url encode data if it's a dict
+        if hasattr(data, 'items'):
             self._enc_data = urllib.urlencode(self.data)
         else:
-            self._enc_data = self.data
+            self._enc_data = data
+
 
         self.response = Response()
 
@@ -209,8 +213,6 @@ class Request(object):
             req.headers.update(self.headers)
 
         if not self.sent or anyway:
-
-
 
             try:
                 opener = self._get_opener()
