@@ -12,8 +12,8 @@ This module implements the main Requests system.
 """
 
 __title__ = 'requests'
-__version__ = '0.3.3'
-__build__ = 0x000303
+__version__ = '0.3.4'
+__build__ = 0x000304
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
