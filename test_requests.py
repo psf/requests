@@ -123,6 +123,7 @@ class RequestsTestSuite(unittest.TestCase):
         """
         .. todo:: This really doesn't test to make sure the cookie is working
         """
+
         jar = cookielib.CookieJar()
         self.assertFalse(jar)
 
@@ -154,7 +155,6 @@ class RequestsTestSuite(unittest.TestCase):
 
         r = requests.get('https://convore.com/api/account/verify.json', auth=conv_auth)
         self.assertEquals(r.status_code, 401)
-        print r.__dict__
 
 
 if __name__ == '__main__':
