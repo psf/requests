@@ -1,8 +1,8 @@
 History
 -------
 
-0.3.4
-+++++
+0.3.4 (2011-05-14)
+++++++++++++++++++
 
 * Urllib2 HTTPAuthentication Recursion fix (Basic/Digest)
 * Internal Refactor
