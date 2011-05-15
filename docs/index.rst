@@ -35,7 +35,7 @@ How Simple?
     >>> r.headers['content-encoding']
     json
 
-See `the same code, without Requests <http://gist.github.com/some-gist>`
+See `the same code, without Requests <http://gist.github.com/some-gist>`_.
 
 
 Testimonals
