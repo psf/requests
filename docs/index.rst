@@ -16,6 +16,8 @@ HTTP capabilities required, but the api is thoroughly **broken**. It reqires an
 *enormous* amount of work (even method overrides) to perform the simplest of
 tasks.
 
+Things shouldn’t be this way. Not in Python.
+
 Enter Requests. Requests allow you to send **GET**, **HEAD**, **PUT**,
 **POST**, and **DELETE** HTTP requests. You can add headers, form data,
 multipart files, and parameters with simple Python dictionaries, and access the
@@ -25,8 +27,6 @@ all the hard work and crazy hacks for you.
 
 It's Simple
 -----------
-
-How Simple?
 
 ::
 
@@ -40,6 +40,8 @@ See `the same code, without Requests <http://gist.github.com/some-gist>`_.
 
 Testimonals
 ~~~~~~~~~~~
+
+`Twitter, Inc <http://twitter.com>`_ and `The Library of Congress <http://www.loc.gov/>`_ use Requests internally.
 
 **Daniel Greenfeld**
     Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to @kennethreitz's request library. Today has been AWESOME.
