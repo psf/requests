@@ -14,9 +14,9 @@ from UserDict import DictMixin
 class CaseInsensitiveDict(DictMixin):
     """docstring for CaseInsensitiveDict"""
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         # super(CaseInsensitiveDict, self).__init__()
-        self.data = dict()
+        self.data = dict(*args, **kwargs)
 
     def __repr__(self):
         return self.data.__repr__()
