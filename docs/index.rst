@@ -3,16 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Requests: Python HTTP (That Doesn't Suck)!
-==========================================
+Requests: HTTP for Humans
+=========================
 
 Release |version|.
 
-Requests is an :ref:`ISC Licensed <isc>` HTTP library, written in Python.
+Requests is an :ref:`ISC Licensed <isc>` HTTP library, written in Python, for human beings.
 
-Most existing Python modules for sending HTTP requests are extremely verbose and cumbersome. Python's builtin :py:class:`urllib2` module provides all the HTTP functionality I need, but it's api is **broken**. It reqires an enormous amount of work (even method ovrrides) to do the simplet of things. So, I decided to wrap it and make it super simple.
+Most existing Python modules for sending HTTP requests are extremely verbose and cumbersome. Python's builtin :py:class:`urllib2` module provides all the HTTP functionality I need, but it's api is thoroughly **broken**. It reqires an enormous amount of work (even method overrides) to do the simplest of things.
 
-Requests allow you to send GET, HEAD, PUT, POST, DELETE requests. You can add headers, form data, miltipart files, and parameters with simple Python dictionaries.
+Requests allow you to send GET, HEAD, PUT, POST, DELETE requests. You can add headers, form data, miltipart files, and parameters with simple Python dictionaries. It's powered by :py:class:`urllib2`, but it does all the hard work and crazy hacks for you.
 
 
 It's Simple
@@ -26,8 +26,10 @@ requests
 
 ::
 
-    import requests
-    requests.get('https://convore.com/api', auth=('username', 'password'))
+    >>> import requests
+    >>> r = requests.get('https://convore.com/api', auth=('username', 'password'))
+    >>> r.headers['content-encoding']
+    json
 
 
 urllib2
