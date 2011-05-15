@@ -232,7 +232,8 @@ class Request(object):
 
             except urllib2.HTTPError, why:
                 self._build_response(why)
-                self.response.error = why
+                if not self.redirect:
+                    self.response.error = why
             else:
                 self._build_response(resp)
                 self.response.ok = True
