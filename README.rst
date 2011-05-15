@@ -93,10 +93,13 @@ If CookieJar object is is passed in (cookies=...), the cookies will be sent with
          (Integer) Received HTTP Status Code Response
 
     Response.headers
-        (Dictionary) Received HTTP Response Headers
+        ((CaseInsensitive) Dictionary) Received HTTP Response Headers.
 
     Response.content
-        (Bytes) Received Content
+        (Bytes) Received Content.
+
+    Response.history
+        (List of Responses) Redirection History.
 
     Response.url
         (String) URL of response. Useful for detecting redirects.
