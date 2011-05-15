@@ -15,7 +15,7 @@ import zlib
 from urllib2 import HTTPError
 from urlparse import urlparse
 
-from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPDigestAuthHandler
+from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
@@ -30,7 +30,7 @@ class Request(object):
     _METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE')
 
     def __init__(self, url=None, headers=dict(), files=None, method=None,
-                 data=dict(), auth=None, cookiejar=None, timeout=None):
+                 data=dict(), auth=None, cookiejar=None, timeout=None, redirect=True):
 
         socket.setdefaulttimeout(timeout)
 
@@ -38,7 +38,8 @@ class Request(object):
         self.headers = headers
         self.files = files
         self.method = method
-        self.data = {}
+        self.data = dict()
+        self.redirect = redirect
 
         # self.data = {}
         if hasattr(data, 'items'):
@@ -101,10 +102,18 @@ class Request(object):
 
             _handlers.append(self.auth.handler)
 
+
+        _handlers.append(HTTPRedirectHandler)
+        # print _handlers
+        # print '^^'
+        # print '!'
+
         if not _handlers:
             return urllib2.urlopen
 
-        _handlers.extend(get_handlers())
+        if self.data or self.files:
+            _handlers.extend(get_handlers())
+
         opener = urllib2.build_opener(*_handlers)
 
         if self.headers:
@@ -121,21 +130,50 @@ class Request(object):
     def _build_response(self, resp):
         """Build internal Response object from given response."""
 
-        self.response.status_code = getattr(resp, 'code', None)
+        def build(resp):
 
-        try:
-            self.response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
-            self.response.content = resp.read()
-        except AttributeError:
-            pass
+            response = Response()
+            response.status_code = getattr(resp, 'code', None)
 
-        if self.response.headers['content-encoding'] == 'gzip':
             try:
-                self.response.content = zlib.decompress(self.response.content, 16+zlib.MAX_WBITS)
-            except zlib.error:
+                response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
+                response.content = resp.read()
+            except AttributeError:
                 pass
 
-        self.response.url = getattr(resp, 'url', None)
+            if response.headers['content-encoding'] == 'gzip':
+                try:
+                    response.content = zlib.decompress(response.content, 16+zlib.MAX_WBITS)
+                except zlib.error:
+                    pass
+
+            response.url = getattr(resp, 'url', None)
+
+            return response
+
+
+        history = []
+
+        r = build(resp)
+
+        if self.redirect:
+
+            while 'location' in r.headers:
+
+                history.append(r)
+
+                url = r.headers['location']
+
+                request = Request(
+                    url, self.headers, self.files, self.method,
+                    self.data, self.auth, self.cookiejar, redirect=False
+                )
+                request.send()
+                r = request.response
+
+            r.history = history
+
+        self.response = r
 
 
     @staticmethod
@@ -227,6 +265,7 @@ class Response(object):
         self.ok = False
         self.error = None
         self.cached = False
+        self.history = []
 
 
     def __repr__(self):
