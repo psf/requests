@@ -10,9 +10,9 @@ Release |version|.
 
 Requests is an :ref:`ISC Licensed <isc>` HTTP library, written in Python, for human beings.
 
-Most existing Python modules for sending HTTP requests are extremely verbose and cumbersome. Python's builtin :py:class:`urllib2` module provides all the HTTP functionality I need, but it's api is thoroughly **broken**. It reqires an enormous amount of work (even method overrides) to do the simplest of things.
+Most existing Python modules for sending HTTP requests are extremely verbose and cumbersome. Python's builtin :py:class:`urllib2` module provides all the HTTP capabilities required, but the api is thoroughly **broken**. It reqires an *enormous* amount of work (even method overrides) to perform the simplest of tasks.
 
-Requests allow you to send GET, HEAD, PUT, POST, DELETE requests. You can add headers, form data, miltipart files, and parameters with simple Python dictionaries. It's powered by :py:class:`urllib2`, but it does all the hard work and crazy hacks for you.
+Enter Requests. Requests allow you to send **GET**, **HEAD**, **PUT**, **POST**, and **DELETE** HTTP requests. You can add headers, form data, miltipart files, and parameters with simple Python dictionaries, and access the response data in the same way. It's powered by :py:class:`urllib2`, but it does all the hard work and crazy hacks for you.
 
 
 It's Simple
