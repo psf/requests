@@ -39,7 +39,7 @@ See `the same code, without Requests <http://gist.github.com/some-gist>`_.
 
 
 Testimonals
-~~~~~~~~~~~
+-----------
 
 `Twitter, Inc <http://twitter.com>`_ and `The Library of Congress <http://www.loc.gov/>`_ use Requests internally.
 
@@ -57,7 +57,7 @@ Testimonals
 
 
 User Guide
-~~~~~~~~~~
+----------
 
 This part of the documentation, which is mostly prose, begins with some background information about Requests, then focuses on step-by-step instructions for getting the most out of Requests.
 
@@ -68,7 +68,7 @@ This part of the documentation, which is mostly prose, begins with some backgrou
 
 
 API Documentation
-~~~~~~~~~~~~~~~~~
+-----------------
 
 If you are looking for information on a specific function, class or method,
 this part of the documentation is for you.
@@ -79,8 +79,8 @@ this part of the documentation is for you.
    api
 
 
-Developer Documentation
-~~~~~~~~~~~~~~~~~~~~~~~
+Developer Guide
+---------------
 
 If you want to contribute to the project, this part of the documentation is for
 you.
@@ -89,12 +89,3 @@ you.
    :maxdepth: 2
 
    api
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
