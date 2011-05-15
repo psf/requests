@@ -27,21 +27,18 @@ class CaseInsensitiveDict(DictMixin):
     def __setstate__(self, d):
         self.data = d
 
-    @property
     def _lower_keys(self):
         return map(str.lower, self.data.keys())
 
 
     def __contains__(self, key):
-        return key.lower() in self._lower_keys
+        return key.lower() in self._lower_keys()
 
 
     def __getitem__(self, key):
 
         if key.lower() in self:
-            return self.items()[self._lower_keys.index(key.lower())][1]
-
-        raise KeyError
+            return self.items()[self._lower_keys().index(key.lower())][1]
 
 
     def __setitem__(self, key, value):
