@@ -39,10 +39,3 @@ if not 'eventlet' in locals():
 
 
 from .core import *
-
-
-__all__ = [
-    'Request', 'Response', 'request', 'get', 'head', 'post', 'put', 'delete', 
-    'auth_manager', 'AuthObject','RequestException', 'AuthenticationError', 
-    'URLRequired', 'InvalidMethod', 'HTTPError'
-]

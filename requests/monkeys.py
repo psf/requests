@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#-*- coding: utf-8 -*-
 
 """
 requests.monkeys
@@ -27,8 +27,16 @@ class Request(urllib2.Request):
         return urllib2.Request.get_method(self)
 
 
+class HTTPRedirectHandler(urllib2.HTTPRedirectHandler):
+
+    def http_error_301(self, req, fp, code, msg, headers):
+        pass
+
+    http_error_302 = http_error_303 = http_error_307 = http_error_301
+
+
+
 class HTTPBasicAuthHandler(urllib2.HTTPBasicAuthHandler):
-    # from mercurial
 
     def __init__(self, *args, **kwargs):
         urllib2.HTTPBasicAuthHandler.__init__(self, *args, **kwargs)
@@ -45,8 +53,10 @@ class HTTPBasicAuthHandler(urllib2.HTTPBasicAuthHandler):
         if req is not self.retried_req:
             self.retried_req = req
             self.retried = 0
+
         return urllib2.HTTPBasicAuthHandler.http_error_auth_reqed(
-                        self, auth_header, host, req, headers)
+            self, auth_header, host, req, headers
+        )
 
 
 
