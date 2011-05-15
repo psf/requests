@@ -47,7 +47,13 @@ Testimonals
     Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to @kennethreitz's request library. Today has been AWESOME.
 
 **Kenny Meyers**
-     Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful, simple, Pythonic.
+    Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful, simple, Pythonic.
+
+**Rich Leland**
+   Requests is awesome. That is all.
+
+**Steve Pike**
+  I can never remember how to do it the regular way. ``import requests; requests.get()`` is just so easy!
 
 
 User Guide
