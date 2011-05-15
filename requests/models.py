@@ -16,7 +16,7 @@ from urllib2 import HTTPError
 from urlparse import urlparse
 
 from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPDigestAuthHandler
-
+from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
 
@@ -120,19 +120,16 @@ class Request(object):
 
     def _build_response(self, resp):
         """Build internal Response object from given response."""
-        if isinstance(resp, HTTPError):
-            # print resp.__dict__
-            pass
 
         self.response.status_code = getattr(resp, 'code', None)
 
         try:
-            self.response.headers = getattr(resp.info(), 'dict', None)
+            self.response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
             self.response.content = resp.read()
-        except AttributeError, why:
+        except AttributeError:
             pass
 
-        if self.response.headers.get('content-encoding', None) == 'gzip':
+        if self.response.headers['content-encoding'] == 'gzip':
             try:
                 self.response.content = zlib.decompress(self.response.content, 16+zlib.MAX_WBITS)
             except zlib.error:
@@ -225,7 +222,7 @@ class Response(object):
     def __init__(self):
         self.content = None
         self.status_code = None
-        self.headers = dict()
+        self.headers = CaseInsensitiveDict()
         self.url = None
         self.ok = False
         self.error = None
