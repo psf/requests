@@ -1,6 +1,14 @@
 History
 -------
 
+0.4.0 (2011-05-15)
+++++++++++++++++++
+
+* Response.history: list of redirected responses
+* Case-Insensitive Header Dictionaries!
+* Unicode URLs
+
+
 0.3.4 (2011-05-14)
 ++++++++++++++++++
 
