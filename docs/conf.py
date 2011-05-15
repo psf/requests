@@ -16,7 +16,9 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('..'))
+import requests
+from requests import __version__
 
 # -- General configuration -----------------------------------------------------
 
@@ -48,7 +50,7 @@ copyright = u'2011, Kenneth Reitz'
 # built documents.
 #
 # The short X.Y version.
-version = '0.3.3'
+version = __version__
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -81,7 +83,7 @@ exclude_patterns = ['_build']
 #show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'flask_theme_support.FlaskyStyle'
 
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
@@ -230,3 +232,7 @@ texinfo_documents = [
 
 # Documents to append as an appendix to all manuals.
 texinfo_appendices = []
+
+sys.path.append(os.path.abspath('_themes'))
+html_theme_path = ['_themes']
+html_theme = 'kr'
