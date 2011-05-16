@@ -1,3 +1,5 @@
+.. install:
+
 Installation
 ============
 

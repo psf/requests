@@ -6,7 +6,7 @@
 Requests: HTTP for Humans
 =========================
 
-Release v\ |version|. (`Installation <install>`_)
+Release v\ |version|. (:ref:`Installation <install>`)
 
 Requests is an :ref:`ISC Licensed <isc>` HTTP library, written in Python, for human beings.
 

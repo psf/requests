@@ -52,4 +52,4 @@ At this time, the following Python platforms are officially supported:
 * PyPy-c 1.5
 
 
-Support for other Python 3.x is planned.
+Support for Python 3.x is planned.
