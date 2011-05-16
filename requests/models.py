@@ -23,7 +23,7 @@ from .packages.poster.streaminghttp import register_openers, get_handlers
 
 
 class Request(object):
-    """The :class:`Request` object. It carries out all functionality of
+    """The :class:`Request <models.Request>` object. It carries out all functionality of
     Requests. Recommended interface is with the Requests functions.
     """
 
@@ -34,11 +34,18 @@ class Request(object):
 
         socket.setdefaulttimeout(timeout)
 
+        #: Request URL.
         self.url = url
+        #: Dictonary of HTTP Headers to attach to the :class:`Request <models.Request>`.
         self.headers = headers
+        #: Dictionary of files to multipart upload (``{filename: content}``).
         self.files = files
+        #: HTTP Method to use. Available: GET, HEAD, PUT, POST, DELETE.
         self.method = method
+        #: Form or Byte data to attach to the :class:`Request <models.Request>`.
         self.data = dict()
+        #: True if :class:`Request <models.Request>` is part of a redirect chain (disables history
+        #: and HTTPError storage).
         self.redirect = redirect
 
         # self.data = {}
@@ -55,15 +62,19 @@ class Request(object):
         else:
             self._enc_data = data
 
-
+        #: :class:`Response <models.Response>` instance, containing
+        #: content and metadata of HTTP Response, once :attr:`sent <send>`.
         self.response = Response()
 
         if isinstance(auth, (list, tuple)):
             auth = AuthObject(*auth)
         if not auth:
             auth = auth_manager.get_auth(self.url)
+        #: :class:`AuthObject` to attach to :class:`Request <models.Request>`.
         self.auth = auth
+        #: CookieJar to attach to :class:`Request <models.Request>`.
         self.cookiejar = cookiejar
+        #: True if Request has been sent.
         self.sent = False
 
 
@@ -104,9 +115,6 @@ class Request(object):
 
 
         _handlers.append(HTTPRedirectHandler)
-        # print _handlers
-        # print '^^'
-        # print '!'
 
         if not _handlers:
             return urllib2.urlopen
@@ -128,7 +136,7 @@ class Request(object):
         return opener.open
 
     def _build_response(self, resp):
-        """Build internal Response object from given response."""
+        """Build internal :class:`Response <models.Response>` object from given response."""
 
         def build(resp):
 
@@ -253,19 +261,34 @@ class Request(object):
 
 
 class Response(object):
-    """The :class:`Request` object. All :class:`Request` objects contain a
-    :class:`Request.response <response>` attribute, which is an instance of
-    this class.
+    """The core :class:`Response <models.Response>` object. All
+    :class:`Request <models.Request>` objects contain a
+    :class:`response <models.Response>` attribute, which is an instance
+    of this class.
     """
 
     def __init__(self):
+        #: Raw content of the response, in bytes.
+        #: If ``content-encoding`` of response was set to ``gzip``, the
+        #: response data will be automatically deflated.
         self.content = None
+        #: Integer Code of responded HTTP Status.
         self.status_code = None
+        #: Case-insensitive Dictionary of Response Headers.
+        #: For example, ``headers['content-encoding']`` will return the
+        #: value of a ``'Content-Encoding'`` response header.
         self.headers = CaseInsensitiveDict()
+        #: Final URL location of Response.
         self.url = None
+        #: True if no :attr:`error` occured.
         self.ok = False
+        #: Resulting :class:`HTTPError` of request, if one occured.
         self.error = None
+        #: True, if the response :attr:`content` is cached locally.
         self.cached = False
+        #: A list of :class:`Response <models.Response>` objects from
+        #: the history of the Request. Any redirect responses will end
+        #: up here.
         self.history = []
 
 
@@ -274,22 +297,24 @@ class Response(object):
 
 
     def __nonzero__(self):
-        """Returns true if status_code is 'OK'."""
+        """Returns true if :attr:`status_code` is 'OK'."""
         return not self.error
 
 
     def raise_for_status(self):
-        """Raises stored HTTPError if one exists."""
+        """Raises stored :class:`HTTPError`, if one occured."""
         if self.error:
             raise self.error
 
     def read(self, *args):
+        """Returns :attr:`content`. Used for file-like object compatiblity."""
+
         return self.content
 
 
 
 class AuthManager(object):
-    """Authentication Manager."""
+    """Requests Authentication Manager."""
 
     def __new__(cls):
         singleton = cls.__dict__.get('__singleton__')
@@ -457,6 +482,12 @@ class AuthObject(object):
             self.handler = self._handlers.get(handler.lower(), urllib2.HTTPBasicAuthHandler)
         else:
             self.handler = handler
+
+
+# ----------
+# Exceptions
+# ----------
+
 
 class RequestException(Exception):
     """There was an ambiguous exception that occured while handling your

@@ -12,7 +12,10 @@ from UserDict import DictMixin
 
 
 class CaseInsensitiveDict(DictMixin):
-    """docstring for CaseInsensitiveDict"""
+    """Case-insensitive Dictionary for :class:`Response <models.Response>` Headers.
+
+    For example, ``headers['content-encoding']`` will return the
+    value of a ``'Content-Encoding'`` response header."""
 
     def __init__(self, *args, **kwargs):
         # super(CaseInsensitiveDict, self).__init__()
