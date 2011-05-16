@@ -61,7 +61,7 @@ This part of the documentation, which is mostly prose, begins with some backgrou
 
    user/intro
    user/install
-   user/quickstart
+..   user/quickstart
    user/advanced
 
 
