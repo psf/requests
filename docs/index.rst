@@ -59,7 +59,10 @@ This part of the documentation, which is mostly prose, begins with some backgrou
 .. toctree::
    :maxdepth: 2
 
-   guide
+   user/intro
+   user/install
+   user/quickstart
+   user/advanced
 
 
 API Documentation
@@ -83,4 +86,4 @@ you.
 .. toctree::
    :maxdepth: 2
 
-   api
+   dev/internals
