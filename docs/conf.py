@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Requests'
-copyright = u'2011. A Kenneth Reitz Project'
+copyright = u'2011. A <a href="http://kennethreitz.com">Kenneth Reitz</a> Project'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -114,6 +114,7 @@ html_theme = 'default'
 # of the sidebar.
 #html_logo = None
 
+
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
@@ -133,7 +134,12 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# Custom sidebar templates, maps document names to template names.
+html_sidebars = {
+    'index':    ['sidebarintro.html', 'sourcelink.html', 'searchbox.html'],
+    '**':       ['sidebarlogo.html', 'localtoc.html', 'relations.html',
+                 'sourcelink.html', 'searchbox.html']
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
