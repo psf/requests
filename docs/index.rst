@@ -6,12 +6,12 @@
 Requests: HTTP for Humans
 =========================
 
-Release |version|.
+Release v\ |version|. (`Installation <install>`_)
 
 Requests is an :ref:`ISC Licensed <isc>` HTTP library, written in Python, for human beings.
 
 Most existing Python modules for sending HTTP requests are extremely verbose
-and cumbersome. Python's builtin :py:class:`urllib2` module provides most of
+and cumbersome. Python's builtin :py:class:`urllib2 <library.urllib2>` module provides most of
 the HTTP capabilities you should need, but the api is thoroughly **broken**.
 It reqires an *enormous* amount of work (even method overrides) to perform the simplest of tasks.
 
