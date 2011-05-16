@@ -17,17 +17,15 @@ It reqires an *enormous* amount of work (even method overrides) to perform the s
 
 Things shouldn’t be this way. Not in Python.
 
-It's Simple
------------
-
 ::
 
-    >>> import requests
-    >>> r = requests.get('https://convore.com/api', auth=('username', 'password'))
-    >>> r.headers['content-encoding']
-    json
+    >>> r = requests.get('https://api.github.com', auth=('user', 'pass'))
+    >>> r.status_code
+    200
+    >>> r.headers['content-type']
+    'application/json'
 
-See `the same code, without Requests <http://gist.github.com/some-gist>`_.
+See `the same code, without Requests <https://gist.github.com/973705>`_.
 
 Requests allow you to send **GET**, **HEAD**, **PUT**,
 **POST**, and **DELETE** HTTP requests. You can add headers, form data,
