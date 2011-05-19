@@ -164,6 +164,9 @@ class RequestsTestSuite(unittest.TestCase):
             
         with requests.settings(timeout=10):
             requests.get('http://google.com')
+            
+    def test_nonurlencoded_post_data(self):
+        requests.post('http://google.com', data='foo')
         
 
 
