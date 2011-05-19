@@ -155,6 +155,16 @@ class RequestsTestSuite(unittest.TestCase):
 
         r = requests.get('https://convore.com/api/account/verify.json', auth=conv_auth)
         self.assertEquals(r.status_code, 401)
+        
+    def test_settings(self):
+        import urllib2
+        
+        with requests.settings(timeout=0):
+            self.assertRaises(urllib2.URLError, requests.get, 'http://google.com')
+            
+        with requests.settings(timeout=10):
+            requests.get('http://google.com')
+        
 
 
 if __name__ == '__main__':
