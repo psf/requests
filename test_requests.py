@@ -155,6 +155,19 @@ class RequestsTestSuite(unittest.TestCase):
 
         r = requests.get('https://convore.com/api/account/verify.json', auth=conv_auth)
         self.assertEquals(r.status_code, 401)
+        
+    def test_settings(self):
+        import urllib2
+        
+        with requests.settings(timeout=0):
+            self.assertRaises(urllib2.URLError, requests.get, 'http://google.com')
+            
+        with requests.settings(timeout=10):
+            requests.get('http://google.com')
+            
+    def test_nonurlencoded_post_data(self):
+        requests.post('http://google.com', data='foo')
+        
 
 
 if __name__ == '__main__':

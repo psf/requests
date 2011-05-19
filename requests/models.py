@@ -47,20 +47,16 @@ class Request(object):
         #: True if :class:`Request <models.Request>` is part of a redirect chain (disables history
         #: and HTTPError storage).
         self.redirect = redirect
-
-        # self.data = {}
+        
         if hasattr(data, 'items'):
             for (k, v) in data.items():
                 self.data.update({
                     k.encode('utf-8') if isinstance(k, unicode) else k:
                     v.encode('utf-8') if isinstance(v, unicode) else v
                 })
-
-        # url encode data if it's a dict
-        if hasattr(data, 'items'):
             self._enc_data = urllib.urlencode(self.data)
         else:
-            self._enc_data = data
+            self._enc_data = self.data = data
 
         #: :class:`Response <models.Response>` instance, containing
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
