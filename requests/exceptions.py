@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-requests.models
+requests.exceptions
 ~~~~~~~~~~~~~~~
 
 """
