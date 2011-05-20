@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import inspect
-
 import packages
 from core import *
 
