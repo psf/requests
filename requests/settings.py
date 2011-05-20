@@ -8,6 +8,9 @@ This module provides the Requests settings feature set.
 
 """
 
+# Time (in seconds) to allow the request to connect to
+# the remote host before timing it out.
+timeout = None
 
 class Settings(object):
 
@@ -33,7 +36,3 @@ class Settings(object):
     def _restore_settings(self):
         for setting, value in self.cache.items():
             globals()[setting] = value
-
-
-settings = Settings
-timeout = None
