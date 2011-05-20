@@ -20,7 +20,7 @@ __all__ = ('request', 'get', 'head', 'post', 'put', 'delete')
 
 
 def request(method, url, **kwargs):
-    """Sends a Constructs and sends a :class:`Request <models.Request>`. Returns :class:`Response <models.Response>` object.
+    """Constructs and sends a :class:`Request <models.Request>`. Returns :class:`Response <models.Response>` object.
 
     :param method: method for the new :class:`Request` object.
     :param url: URL for the new :class:`Request` object.

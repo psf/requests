@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-requests.system
+requests.models
 ~~~~~~~~~~~~~~~
 
 """
@@ -19,6 +19,7 @@ from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPDigestAuthHa
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
+from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod
 
 
 
@@ -238,6 +239,8 @@ class Request(object):
                 self._build_response(why)
                 if not self.redirect:
                     self.response.error = why
+            except urllib2.URLError, error:
+                raise Timeout if isinstance(error.reason, socket.timeout) else error
             else:
                 self._build_response(resp)
                 self.response.ok = True
@@ -478,22 +481,3 @@ class AuthObject(object):
             self.handler = self._handlers.get(handler.lower(), urllib2.HTTPBasicAuthHandler)
         else:
             self.handler = handler
-
-
-# ----------
-# Exceptions
-# ----------
-
-
-class RequestException(Exception):
-    """There was an ambiguous exception that occured while handling your
-    request."""
-
-class AuthenticationError(RequestException):
-    """The authentication credentials provided were invalid."""
-
-class URLRequired(RequestException):
-    """A valid URL is required to make a request."""
-
-class InvalidMethod(RequestException):
-    """An inappropriate method was attempted."""
