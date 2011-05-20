@@ -238,6 +238,8 @@ class Request(object):
                 self._build_response(why)
                 if not self.redirect:
                     self.response.error = why
+            except urllib2.URLError, error:
+                raise Timeout if isinstance(error.reason, socket.timeout) else error
             else:
                 self._build_response(resp)
                 self.response.ok = True
@@ -491,6 +493,9 @@ class RequestException(Exception):
 
 class AuthenticationError(RequestException):
     """The authentication credentials provided were invalid."""
+    
+class Timeout(RequestException):
+    """The request timed out."""
 
 class URLRequired(RequestException):
     """A valid URL is required to make a request."""
