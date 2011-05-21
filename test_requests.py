@@ -71,34 +71,40 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_POSTBIN_GET_POST_FILES(self):
         bin = requests.post('http://www.postbin.org/')
-        self.assertEqual(bin.status_code, 200)
+        self.assertEqual(bin.status_code, 302)
 
-        post = requests.post(bin.url, data={'some': 'data'})
+        post_url = bin.headers['location']
+        post = requests.post(post_url, data={'some': 'data'})
         self.assertEqual(post.status_code, 201)
 
-        post2 = requests.post(bin.url, files={'some': open('test_requests.py')})
+        post2 = requests.post(post_url, files={'some': open('test_requests.py')})
         self.assertEqual(post2.status_code, 201)
 
-        post3 = requests.post(bin.url, data='[{"some": "json"}]')
+        post3 = requests.post(post_url, data='[{"some": "json"}]')
         self.assertEqual(post.status_code, 201)
+
 
     def test_POSTBIN_GET_POST_FILES_WITH_PARAMS(self):
         bin = requests.post('http://www.postbin.org/')
+        self.assertEqual(bin.status_code, 302)
 
-        self.assertEqual(bin.status_code, 200)
+        post_url = bin.headers['location']
 
-        post2 = requests.post(bin.url, files={'some': open('test_requests.py')}, data={'some': 'data'})
+        post2 = requests.post(post_url, files={'some': open('test_requests.py')}, data={'some': 'data'})
         self.assertEqual(post2.status_code, 201)
 
 
     def test_POSTBIN_GET_POST_FILES_WITH_HEADERS(self):
         bin = requests.post('http://www.postbin.org/')
-        self.assertEqual(bin.status_code, 200)
+        self.assertEqual(bin.status_code, 302)
 
-        post2 = requests.post(bin.url, files={'some': open('test_requests.py')},
-        headers={'User-Agent': 'requests-tests'})
+        post_url = bin.headers['location']
+
+        post2 = requests.post(post_url, files={'some': open('test_requests.py')},
+        headers = {'User-Agent': 'requests-tests'})
 
         self.assertEqual(post2.status_code, 201)
+
 
     def test_nonzero_evaluation(self):
         r = requests.get('http://google.com/some-404-url')
@@ -155,17 +161,17 @@ class RequestsTestSuite(unittest.TestCase):
 
         r = requests.get('https://convore.com/api/account/verify.json', auth=conv_auth)
         self.assertEquals(r.status_code, 401)
-        
+
     def test_settings(self):
         with requests.settings(timeout=0.0001):
             self.assertRaises(requests.Timeout, requests.get, 'http://google.com')
-            
+
         with requests.settings(timeout=10):
             requests.get('http://google.com')
-            
+
     def test_nonurlencoded_post_data(self):
         requests.post('http://google.com', data='foo')
-        
+
 
 
 if __name__ == '__main__':

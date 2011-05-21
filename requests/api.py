@@ -31,13 +31,16 @@ def request(method, url, **kwargs):
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
+    :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     """
     data = kwargs.pop('data', dict()) or kwargs.pop('params', dict())
 
     r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', {}),
                 cookiejar=kwargs.pop('cookies', None), files=kwargs.pop('files', None),
                 auth=kwargs.pop('auth', auth_manager.get_auth(url)),
-                timeout=kwargs.pop('timeout', requests.timeout))
+                timeout=kwargs.pop('timeout', requests.timeout),
+                allow_redirects=kwargs.pop('allow_redirects', requests.timeout)
+                )
     r.send()
 
     return r.response

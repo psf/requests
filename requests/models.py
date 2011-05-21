@@ -31,7 +31,8 @@ class Request(object):
     _METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE')
 
     def __init__(self, url=None, headers=dict(), files=None, method=None,
-                 data=dict(), auth=None, cookiejar=None, timeout=None, redirect=True):
+                 data=dict(), auth=None, cookiejar=None, timeout=None,
+                 redirect=True, allow_redirects=False):
 
         socket.setdefaulttimeout(timeout)
 
@@ -48,7 +49,9 @@ class Request(object):
         #: True if :class:`Request <models.Request>` is part of a redirect chain (disables history
         #: and HTTPError storage).
         self.redirect = redirect
-        
+        #: Set to True if full redirects are allowed (e.g. re-POST-ing of data at new ``Location``)
+        self.allow_redirects = allow_redirects
+
         if hasattr(data, 'items'):
             for (k, v) in data.items():
                 self.data.update({
@@ -163,14 +166,25 @@ class Request(object):
 
         if self.redirect:
 
-            while 'location' in r.headers:
+            while (
+                ('location' in r.headers) and
+                ((self.method in ('GET', 'HEAD')) or
+                (r.status_code is 303) or
+                (self.allow_redirects))
+            ):
 
                 history.append(r)
 
                 url = r.headers['location']
 
+                # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
+                if r.status_code is 303:
+                    method = 'GET'
+                else:
+                    method = self.method
+
                 request = Request(
-                    url, self.headers, self.files, self.method,
+                    url, self.headers, self.files, method,
                     self.data, self.auth, self.cookiejar, redirect=False
                 )
                 request.send()
