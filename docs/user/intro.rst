@@ -13,7 +13,7 @@ Requests was developed with a few :pep:`20` idioms in mind.
 #. Complex is better than complicated.
 #. Readability counts.
 
-All contributions to Tablib should keep these important rules in mind.
+All contributions to Requests should keep these important rules in mind.
 
 
 ISC License
