@@ -22,4 +22,4 @@ __copyright__ = 'Copyright 2011 Kenneth Reitz'
 from models import HTTPError, auth_manager
 from api import *
 from exceptions import *
-from settings import *
+from settings import Settings as settings
