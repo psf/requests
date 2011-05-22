@@ -18,9 +18,8 @@ from .models import Request, Response, AuthManager, AuthObject, auth_manager
 
 __all__ = ('request', 'get', 'head', 'post', 'put', 'delete')
 
-
-
-def request(method, url, **kwargs):
+def request(method, url, params=None, data=None, headers=None, cookies=None, files=None, auth=None,
+            timeout=config.settings.timeout, allow_redirects=False):
     """Constructs and sends a :class:`Request <models.Request>`. Returns :class:`Response <models.Response>` object.
 
     :param method: method for the new :class:`Request` object.
@@ -34,20 +33,25 @@ def request(method, url, **kwargs):
     :param timeout: (optional) Float describing the timeout of the request.
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     """
-    data = kwargs.pop('data', dict()) or kwargs.pop('params', dict())
 
-    r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', dict()),
-        cookiejar=kwargs.get('cookies', None),
-        files=kwargs.get('files', None),
-        auth=kwargs.get('auth', auth_manager.get_auth(url)),
-        timeout=kwargs.get('timeout', config.settings.timeout),
-        allow_redirects=kwargs.get('allow_redirects', None)
+    if params and data:
+        raise StandardError('You may provide either params or data to a request, but not both.')
+
+    r = Request(
+        method = method,
+        url = url,
+        data = params or data,
+        headers = headers,
+        cookiejar = cookies,
+        files = files,
+        auth = auth or auth_manager.get_auth(url),
+        timeout = timeout,
+        allow_redirects = allow_redirects
     )
 
     r.send()
 
     return r.response
-
 
 def get(url, params={}, headers={}, cookies=None, auth=None, **kwargs):
     """Sends a GET request. Returns :class:`Response` object.
