@@ -12,7 +12,7 @@ This module impliments the Requests API.
 """
 
 import requests
-import settings
+import config
 from .models import Request, Response, AuthManager, AuthObject, auth_manager
 
 
@@ -40,7 +40,7 @@ def request(method, url, **kwargs):
         cookiejar=kwargs.pop('cookies', None),
         files=kwargs.pop('files', None),
         auth=kwargs.pop('auth', auth_manager.get_auth(url)),
-        timeout=kwargs.pop('timeout', settings.timeout),
+        timeout=kwargs.pop('timeout', config.settings.timeout),
         allow_redirects=kwargs.pop('allow_redirects', None)
     )
 
