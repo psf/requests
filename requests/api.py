@@ -36,12 +36,12 @@ def request(method, url, **kwargs):
     """
     data = kwargs.pop('data', dict()) or kwargs.pop('params', dict())
 
-    r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', {}),
-        cookiejar=kwargs.pop('cookies', None),
-        files=kwargs.pop('files', None),
-        auth=kwargs.pop('auth', auth_manager.get_auth(url)),
-        timeout=kwargs.pop('timeout', config.settings.timeout),
-        allow_redirects=kwargs.pop('allow_redirects', None)
+    r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', dict()),
+        cookiejar=kwargs.get('cookies', None),
+        files=kwargs.get('files', None),
+        auth=kwargs.get('auth', auth_manager.get_auth(url)),
+        timeout=kwargs.get('timeout', config.settings.timeout),
+        allow_redirects=kwargs.get('allow_redirects', None)
     )
 
     r.send()

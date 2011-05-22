@@ -26,6 +26,7 @@ class Settings(object):
 
         # cache previous settings for __exit__
         r.__cache = self.__dict__.copy()
+        map(self.__cache.setdefault, self.__attrs__)
 
         # set new settings
         self.__dict__.update(*args, **kwargs)
@@ -40,6 +41,7 @@ class Settings(object):
     def __exit__(self, *args):
 
         # restore cached copy
+        print '>>> {0}'.format(self.__cache)
         self.__dict__.update(self.__cache.copy())
         del self.__cache
 
