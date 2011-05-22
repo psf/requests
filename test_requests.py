@@ -44,11 +44,21 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_user_agent_transfers(self):
         """Issue XX"""
-        heads = {'User-agent':
-                 'Mozilla/5.0 (github.com/kennethreitz/requests)'}
+        heads = {
+            'User-agent':
+                'Mozilla/5.0 (github.com/kennethreitz/requests)'
+        }
 
         r = requests.get('http://whatsmyua.com', headers=heads);
         self.assertTrue(heads['User-agent'] in r.content)
+
+        heads = {
+            'user-agent':
+                'Mozilla/5.0 (github.com/kennethreitz/requests)'
+        }
+
+        r = requests.get('http://whatsmyua.com', headers=heads);
+        self.assertTrue(heads['user-agent'] in r.content)
 
     def test_HTTP_200_OK_HEAD(self):
         r = requests.head('http://google.com')
