@@ -41,7 +41,6 @@ class Settings(object):
     def __exit__(self, *args):
 
         # restore cached copy
-        print '>>> {0}'.format(self.__cache)
         self.__dict__.update(self.__cache.copy())
         del self.__cache
 
