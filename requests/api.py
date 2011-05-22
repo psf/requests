@@ -37,10 +37,13 @@ def request(method, url, **kwargs):
     data = kwargs.pop('data', dict()) or kwargs.pop('params', dict())
 
     r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', {}),
-                cookiejar=kwargs.pop('cookies', None), files=kwargs.pop('files', None),
-                auth=kwargs.pop('auth', auth_manager.get_auth(url)),
-                timeout=kwargs.pop('timeout', settings.timeout))
-    
+        cookiejar=kwargs.pop('cookies', None),
+        files=kwargs.pop('files', None),
+        auth=kwargs.pop('auth', auth_manager.get_auth(url)),
+        timeout=kwargs.pop('timeout', settings.timeout),
+        allow_redirects=kwargs.pop('allow_redirects', None)
+    )
+
     r.send()
 
     return r.response
