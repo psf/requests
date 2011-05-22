@@ -19,7 +19,7 @@ from .models import Request, Response, AuthManager, AuthObject, auth_manager
 __all__ = ('request', 'get', 'head', 'post', 'put', 'delete')
 
 def request(method, url, params=None, data=None, headers=None, cookies=None, files=None, auth=None,
-            timeout=config.settings.timeout, allow_redirects=False):
+            timeout=None, allow_redirects=False):
     """Constructs and sends a :class:`Request <models.Request>`. Returns :class:`Response <models.Response>` object.
 
     :param method: method for the new :class:`Request` object.
@@ -45,7 +45,7 @@ def request(method, url, params=None, data=None, headers=None, cookies=None, fil
         cookiejar = cookies,
         files = files,
         auth = auth or auth_manager.get_auth(url),
-        timeout = timeout,
+        timeout = timeout or config.settings.timeout,
         allow_redirects = allow_redirects
     )
 
