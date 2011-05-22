@@ -16,7 +16,9 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('..'))
+import requests
+from requests import __version__
 
 # -- General configuration -----------------------------------------------------
 
@@ -41,14 +43,14 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Requests'
-copyright = u'2011, Kenneth Reitz'
+copyright = u'2011. A <a href="http://kennethreitz.com/pages/open-projects.html">Kenneth Reitz</a> Project'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = '0.3.3'
+version = __version__
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -81,7 +83,7 @@ exclude_patterns = ['_build']
 #show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'flask_theme_support.FlaskyStyle'
 
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
@@ -112,6 +114,7 @@ html_theme = 'default'
 # of the sidebar.
 #html_logo = None
 
+
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
@@ -131,7 +134,12 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# Custom sidebar templates, maps document names to template names.
+html_sidebars = {
+    'index':    ['sidebarintro.html', 'sourcelink.html', 'searchbox.html'],
+    '**':       ['sidebarlogo.html', 'localtoc.html', 'relations.html',
+                 'sourcelink.html', 'searchbox.html']
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
@@ -147,10 +155,10 @@ html_static_path = ['_static']
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-#html_show_sphinx = True
+html_show_sphinx = False
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
 #html_show_copyright = True
@@ -230,3 +238,7 @@ texinfo_documents = [
 
 # Documents to append as an appendix to all manuals.
 texinfo_appendices = []
+
+sys.path.append(os.path.abspath('_themes'))
+html_theme_path = ['_themes']
+html_theme = 'kr'

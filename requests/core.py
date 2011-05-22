@@ -12,13 +12,14 @@ This module implements the main Requests system.
 """
 
 __title__ = 'requests'
-__version__ = '0.4.0'
-__build__ = 0x000400
+__version__ = '0.4.1'
+__build__ = 0x000401
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
 
 
-
 from models import HTTPError, auth_manager
 from api import *
+from exceptions import *
+from config import settings

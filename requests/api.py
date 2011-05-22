@@ -12,6 +12,7 @@ This module impliments the Requests API.
 """
 
 import requests
+import config
 from .models import Request, Response, AuthManager, AuthObject, auth_manager
 
 
@@ -20,7 +21,7 @@ __all__ = ('request', 'get', 'head', 'post', 'put', 'delete')
 
 
 def request(method, url, **kwargs):
-    """Sends a `method` request. Returns :class:`Response` object.
+    """Constructs and sends a :class:`Request <models.Request>`. Returns :class:`Response <models.Response>` object.
 
     :param method: method for the new :class:`Request` object.
     :param url: URL for the new :class:`Request` object.
@@ -31,13 +32,18 @@ def request(method, url, **kwargs):
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
+    :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     """
     data = kwargs.pop('data', dict()) or kwargs.pop('params', dict())
 
-    r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', {}),
-                cookiejar=kwargs.pop('cookies', None), files=kwargs.pop('files', None),
-                auth=kwargs.pop('auth', auth_manager.get_auth(url)),
-                timeout=kwargs.pop('timeout', requests.timeout))
+    r = Request(method=method, url=url, data=data, headers=kwargs.pop('headers', dict()),
+        cookiejar=kwargs.get('cookies', None),
+        files=kwargs.get('files', None),
+        auth=kwargs.get('auth', auth_manager.get_auth(url)),
+        timeout=kwargs.get('timeout', config.settings.timeout),
+        allow_redirects=kwargs.get('allow_redirects', None)
+    )
+
     r.send()
 
     return r.response

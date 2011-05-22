@@ -1,6 +1,14 @@
 History
 -------
 
+0.4.1 (2011-05-22)
+++++++++++++++++++
+
+* Improved Redirection Handling
+* New 'allow_redirects' param for following non-GET/HEAD Redirects
+* Settings module refactoring
+
+
 0.4.0 (2011-05-15)
 ++++++++++++++++++
 

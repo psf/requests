@@ -30,7 +30,7 @@ setup(
                      open('HISTORY.rst').read(),
     author='Kenneth Reitz',
     author_email='me@kennethreitz.com',
-    url='https://github.com/kennethreitz/requests',
+    url='http://python-requests.org',
     packages= [
         'requests',
         'requests.packages',
