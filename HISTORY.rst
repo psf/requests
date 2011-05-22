@@ -1,8 +1,8 @@
 History
 -------
 
-0.4.1
-+++++
+0.4.1 (2011-05-22)
+++++++++++++++++++
 
 * Improved Redirection Handling
 * New 'allow_redirects' param for following non-GET/HEAD Redirects
