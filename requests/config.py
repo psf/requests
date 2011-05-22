@@ -8,20 +8,41 @@ This module provides the Requests settings feature set.
 
 """
 
-# Time (in seconds) to allow the request to connect to
-# the remote host before timing it out.
-
-# timeout = None
-
-
 class Settings(object):
     _singleton = {}
+
+    # attributes with defaults
     __attrs__ = ('timeout',)
 
     def __init__(self, **kwargs):
         super(Settings, self).__init__()
 
         self.__dict__ = self._singleton
+
+
+    def __call__(self, *args, **kwargs):
+        # new instance of class to call
+        r = self.__class__()
+
+        # cache previous settings for __exit__
+        r.__cache = self.__dict__.copy()
+
+        # set new settings
+        self.__dict__.update(*args, **kwargs)
+
+        return r
+
+
+    def __enter__(self):
+        pass
+
+
+    def __exit__(self, *args):
+
+        # restore cached copy
+        self.__dict__.update(self.__cache.copy())
+        del self.__cache
+
 
     def __getattribute__(self, key):
         if key in object.__getattribute__(self, '__attrs__'):
@@ -30,23 +51,5 @@ class Settings(object):
             except AttributeError:
                 return None
         return object.__getattribute__(self, key)
-
-
-    def __enter__(self):
-        pass
-
-    def __exit__(self, *args):
-
-        self.__dict__.update(self.__cache.copy())
-        del self.__cache
-
-
-    def __call__(self, *args, **kwargs):
-        r = self.__class__()
-        r.__cache = self.__dict__.copy()
-        self.__dict__.update(*args, **kwargs)
-
-        return r
-
 
 settings = Settings()
