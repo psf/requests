@@ -36,7 +36,7 @@ all the hard work and crazy hacks for you.
 Testimonals
 -----------
 
-`Twitter, Inc <http://twitter.com>`_ and `The Library of Congress <http://www.loc.gov/>`_ use Requests internally.
+`Twitter, Inc <http://twitter.com>`_ uses Requests internally.
 
 **Daniel Greenfeld**
     Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to @kennethreitz's request library. Today has been AWESOME.
