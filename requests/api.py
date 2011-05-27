@@ -81,7 +81,7 @@ def head(url, params=None, headers=None, cookies=None, auth=None, timeout=None):
     return request('HEAD', url, params=params, headers=headers, cookies=cookies, auth=auth, timeout=timeout)
 
 
-def post(url, data=None, headers=None, files=None, cookies=None, auth=None, timeout=None, allow_redirects=False):
+def post(url, data='', headers=None, files=None, cookies=None, auth=None, timeout=None, allow_redirects=False):
     """Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -98,7 +98,7 @@ def post(url, data=None, headers=None, files=None, cookies=None, auth=None, time
                    timeout=timeout, allow_redirects=allow_redirects)
 
 
-def put(url, data=None, headers=None, files=None, cookies=None, auth=None, timeout=None, allow_redirects=False):
+def put(url, data='', headers=None, files=None, cookies=None, auth=None, timeout=None, allow_redirects=False):
     """Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
