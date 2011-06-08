@@ -195,7 +195,7 @@ class RequestsTestSuite(unittest.TestCase):
 
 
     def test_settings(self):
-        with requests.settings(timeout=0.0001):
+        with requests.settings(timeout=0.0000001):
             self.assertRaises(requests.Timeout, requests.get, 'http://google.com')
 
         with requests.settings(timeout=10):
