@@ -1,5 +1,5 @@
-Requests: The Simple (i.e. usable) HTTP Module
-==============================================
+Requests: HTTP for Humans
+=========================
 
 Most existing Python modules for dealing HTTP requests are insane. I have to look up *everything* that I want to do. Most of my worst Python experiences are a result of the various built-in HTTP libraries (yes, even worse than Logging).
 
