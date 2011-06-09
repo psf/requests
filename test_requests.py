@@ -152,15 +152,17 @@ class RequestsTestSuite(unittest.TestCase):
 
 
     def test_cookie_jar(self):
-        """
-        .. todo:: This really doesn't test to make sure the cookie is working
-        """
-
         jar = cookielib.CookieJar()
         self.assertFalse(jar)
-
-        requests.get('http://google.com', cookies=jar)
+        data = {'cn': 'requests_cookie', 'cv': 'awesome'}
+        r = requests.post('http://www.html-kit.com/tools/cookietester/', data=data, cookies=jar, allow_redirects=True)
         self.assertTrue(jar)
+        cookie_found = False
+        for cookie in jar:
+            if cookie.name == 'requests_cookie':
+                self.assertEquals(cookie.value, 'awesome')
+                cookie_found = True
+        self.assertTrue(cookie_found)
 
 
     def test_decompress_gzip(self):
