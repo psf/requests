@@ -26,37 +26,40 @@ class RequestsTestSuite(unittest.TestCase):
 
 
     def test_HTTP_200_OK_GET(self):
-        r = requests.get('http://google.com')
+        r = requests.get('http://httpbin.org/')
         self.assertEqual(r.status_code, 200)
 
 
     def test_HTTPS_200_OK_GET(self):
-        r = requests.get('https://google.com')
+        r = requests.get('https://github.com/')
         self.assertEqual(r.status_code, 200)
 
 
     def test_HTTP_200_OK_GET_WITH_PARAMS(self):
         heads = {'User-agent': 'Mozilla/5.0'}
 
-        r = requests.get('http://www.google.com/search', params={'q': 'test'}, headers=heads)
+        r = requests.get('http://httpbin.org/user-agent', headers=heads)
+
+        assert heads['User-agent'] in r.content
         self.assertEqual(r.status_code, 200)
 
 
     def test_HTTP_200_OK_GET_WITH_MIXED_PARAMS(self):
         heads = {'User-agent': 'Mozilla/5.0'}
 
-        r = requests.get('http://google.com/search?test=true', params={'q': 'test'}, headers=heads)
+        r = requests.get('http://httpbin.org/get?test=true', params={'q': 'test'}, headers=heads)
         self.assertEqual(r.status_code, 200)
 
 
     def test_user_agent_transfers(self):
         """Issue XX"""
+
         heads = {
             'User-agent':
                 'Mozilla/5.0 (github.com/kennethreitz/requests)'
         }
 
-        r = requests.get('http://whatsmyua.com', headers=heads);
+        r = requests.get('http://httpbin.org/user-agent', headers=heads);
         self.assertTrue(heads['User-agent'] in r.content)
 
         heads = {
@@ -64,17 +67,17 @@ class RequestsTestSuite(unittest.TestCase):
                 'Mozilla/5.0 (github.com/kennethreitz/requests)'
         }
 
-        r = requests.get('http://whatsmyua.com', headers=heads);
+        r = requests.get('http://httpbin.org/user-agent', headers=heads);
         self.assertTrue(heads['user-agent'] in r.content)
 
 
     def test_HTTP_200_OK_HEAD(self):
-        r = requests.head('http://google.com')
+        r = requests.head('http://httpbin.org')
         self.assertEqual(r.status_code, 200)
 
 
     def test_HTTPS_200_OK_HEAD(self):
-        r = requests.head('https://google.com')
+        r = requests.head('https://github.com')
         self.assertEqual(r.status_code, 200)
 
 
