@@ -3,7 +3,9 @@
 
 from __future__ import with_statement
 
+import json
 import unittest
+
 import cookielib
 
 import requests
@@ -95,6 +97,47 @@ class RequestsTestSuite(unittest.TestCase):
         requests.auth_manager.empty()
 
 
+    def test_capitalized_headers(self):
+        """If you post with 'Content-type' it works, but if you set the header
+        to 'content-type' it'll fail.
+
+        This works with the current code.
+        """
+        headers = {"Content-type":"application/json"}
+
+        bin = requests.post('http://www.postbin.org/')
+        self.assertEqual(bin.status_code, 302)
+
+        post_url = bin.headers['location']
+        data = json.dumps({'hello':'world'})
+        response = requests.post(post_url, data=data,
+                                 headers=headers)
+        self.assertEqual(response.status_code, 201)
+
+        response = requests.get(post_url)
+        self.assertTrue("application/json" in response.content)
+
+    def test_lowercase_headers(self):
+        """Lowercase header strings need to be capitalized to
+        match what urllib expects.
+
+        This requires a change to ensure that headers are capitalized.
+        """
+        headers = {"content-type":"application/json"}
+
+        bin = requests.post('http://www.postbin.org/')
+        self.assertEqual(bin.status_code, 302)
+
+        post_url = bin.headers['location']
+        data = json.dumps({'hello':'world'})
+        response = requests.post(post_url, data=data,
+                                 headers=headers)
+        self.assertEqual(response.status_code, 201)
+
+        response = requests.get(post_url)
+        self.assertTrue("application/json" in response.content)
+
+
     def test_POSTBIN_GET_POST_FILES(self):
         bin = requests.post('http://www.postbin.org/')
         self.assertEqual(bin.status_code, 302)
@@ -107,7 +150,7 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEqual(post2.status_code, 201)
 
         post3 = requests.post(post_url, data='[{"some": "json"}]')
-        self.assertEqual(post.status_code, 201)
+        self.assertEqual(post3.status_code, 201)
 
 
     def test_POSTBIN_GET_POST_FILES_WITH_PARAMS(self):
@@ -158,7 +201,7 @@ class RequestsTestSuite(unittest.TestCase):
         jar = cookielib.CookieJar()
         self.assertFalse(jar)
         data = {'cn': 'requests_cookie', 'cv': 'awesome'}
-        r = requests.post('http://www.html-kit.com/tools/cookietester/', data=data, cookies=jar, allow_redirects=True)
+        requests.post('http://www.html-kit.com/tools/cookietester/', data=data, cookies=jar, allow_redirects=True)
         self.assertTrue(jar)
         cookie_found = False
         for cookie in jar:

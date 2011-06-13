@@ -39,7 +39,10 @@ class Request(object):
         #: Request URL.
         self.url = url
         #: Dictonary of HTTP Headers to attach to the :class:`Request <models.Request>`.
-        self.headers = headers
+        headers = headers if headers else {}
+        self.headers = {}
+        for key, value in headers.iteritems():
+            self.add_header(key, value)
         #: Dictionary of files to multipart upload (``{filename: content}``).
         self.files = files
         #: HTTP Method to use. Available: GET, HEAD, PUT, POST, DELETE.
@@ -76,6 +79,10 @@ class Request(object):
         self.cookiejar = cookiejar
         #: True if Request has been sent.
         self.sent = False
+
+
+    def add_header(self, key, val): 
+        self.headers[key.capitalize()] = val 
 
 
     def __repr__(self):
