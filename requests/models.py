@@ -52,16 +52,7 @@ class Request(object):
         #: Set to True if full redirects are allowed (e.g. re-POST-ing of data at new ``Location``)
         self.allow_redirects = allow_redirects
 
-        if hasattr(data, 'items'):
-            for (k, v) in data.items():
-                self.data.update({
-                    k.encode('utf-8') if isinstance(k, unicode) else k:
-                    v.encode('utf-8') if isinstance(v, unicode) else v
-                })
-            self._enc_data = urllib.urlencode(self.data)
-        else:
-            self._enc_data = self.data = data
-
+        self.data, self._enc_data = self._encode_params(data)
         #: :class:`Response <models.Response>` instance, containing
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
         self.response = Response()
@@ -202,6 +193,28 @@ class Request(object):
             r.history = history
 
         self.response = r
+
+
+    @staticmethod
+    def _encode_params(data):
+        """Encode parameters in a piece of data.
+
+        If the data supplied is a dictionary, encodes each parameter in it, and
+        returns the dictionary of encoded parameters, and a urlencoded version
+        of that.
+
+        Otherwise, assumes the data is already encoded appropriately, and
+        returns it twice.
+
+        """
+        if hasattr(data, 'items'):
+            result = {}
+            for (k, v) in data.items():
+                result[k.encode('utf-8') if isinstance(k, unicode) else k] \
+                     = v.encode('utf-8') if isinstance(v, unicode) else v
+            return result, urllib.urlencode(result)
+        else:
+            return data, data
 
 
     @staticmethod
