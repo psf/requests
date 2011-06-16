@@ -170,15 +170,11 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_cookie_jar(self):
 
-        # TODO: port to httpbin
-
         jar = cookielib.CookieJar()
         self.assertFalse(jar)
 
-        data = {'cn': 'requests_cookie', 'cv': 'awesome'}
-
-        r = requests.post('http://www.html-kit.com/tools/cookietester/', data=data, cookies=jar, allow_redirects=True)
-
+        url = httpbin('cookies', 'set', 'requests_cookie', 'awesome')
+        r = requests.get(url, cookies=jar)
         self.assertTrue(jar)
 
         cookie_found = False
@@ -187,6 +183,9 @@ class RequestsTestSuite(unittest.TestCase):
                 self.assertEquals(cookie.value, 'awesome')
                 cookie_found = True
         self.assertTrue(cookie_found)
+
+        r = requests.get(httpbin('cookies'), cookies=jar)
+        self.assertTrue('awesome' in r.content)
 
 
     def test_decompress_gzip(self):
