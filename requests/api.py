@@ -34,13 +34,11 @@ def request(method, url, params=None, data=None, headers=None, cookies=None, fil
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     """
 
-    if params and data:
-        raise StandardError('You may provide either params or data to a request, but not both.')
-
     r = Request(
         method = method,
         url = url,
-        data = params or data,
+        data = data,
+        params = params,
         headers = headers,
         cookiejar = cookies,
         files = files,
@@ -81,7 +79,8 @@ def head(url, params=None, headers=None, cookies=None, auth=None, timeout=None):
     return request('HEAD', url, params=params, headers=headers, cookies=cookies, auth=auth, timeout=timeout)
 
 
-def post(url, data='', headers=None, files=None, cookies=None, auth=None, timeout=None, allow_redirects=False):
+def post(url, data='', headers=None, files=None, cookies=None, auth=None,
+         timeout=None, allow_redirects=False, params=None):
     """Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -92,13 +91,16 @@ def post(url, data='', headers=None, files=None, cookies=None, auth=None, timeou
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
     :param allow_redirects: (optional) Boolean. Set to True if redirect following is allowed.
+    :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
     """
 
-    return request('POST', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth,
-                   timeout=timeout, allow_redirects=allow_redirects)
+    return request('POST', url, params=params, data=data, headers=headers,
+                   files=files, cookies=cookies, auth=auth, timeout=timeout,
+                   allow_redirects=allow_redirects)
 
 
-def put(url, data='', headers=None, files=None, cookies=None, auth=None, timeout=None, allow_redirects=False):
+def put(url, data='', headers=None, files=None, cookies=None, auth=None,
+        timeout=None, allow_redirects=False, params=None):
     """Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -109,10 +111,12 @@ def put(url, data='', headers=None, files=None, cookies=None, auth=None, timeout
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
     :param allow_redirects: (optional) Boolean. Set to True if redirect following is allowed.
+    :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
     """
 
-    return request('PUT', url, data=data, headers=headers, files=files, cookies=cookies, auth=auth,
-                   timeout=timeout, allow_redirects=allow_redirects)
+    return request('PUT', url, params=params, data=data, headers=headers,
+                   files=files, cookies=cookies, auth=auth, timeout=timeout,
+                   allow_redirects=allow_redirects)
 
 
 def delete(url, params=None, headers=None, cookies=None, auth=None, timeout=None, allow_redirects=False):

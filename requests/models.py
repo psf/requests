@@ -31,8 +31,8 @@ class Request(object):
     _METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE')
 
     def __init__(self, url=None, headers=dict(), files=None, method=None,
-                 data=dict(), auth=None, cookiejar=None, timeout=None,
-                 redirect=False, allow_redirects=False):
+                 data=dict(), params=dict(), auth=None, cookiejar=None,
+                 timeout=None, redirect=False, allow_redirects=False):
 
         socket.setdefaulttimeout(timeout)
 
@@ -44,8 +44,12 @@ class Request(object):
         self.files = files
         #: HTTP Method to use. Available: GET, HEAD, PUT, POST, DELETE.
         self.method = method
-        #: Form or Byte data to attach to the :class:`Request <models.Request>`.
-        self.data = dict()
+        #: Dictionary or byte of request body data to attach to the
+        #: :class:`Request <models.Request>`.
+        self.data = None
+        #: Dictionary or byte of querystring data to attach to the
+        #: :class:`Request <models.Request>`.
+        self.params = None
         #: True if :class:`Request <models.Request>` is part of a redirect chain (disables history
         #: and HTTPError storage).
         self.redirect = redirect
@@ -53,6 +57,8 @@ class Request(object):
         self.allow_redirects = allow_redirects
 
         self.data, self._enc_data = self._encode_params(data)
+        self.params, self._enc_params = self._encode_params(params)
+
         #: :class:`Response <models.Response>` instance, containing
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
         self.response = Response()
@@ -185,7 +191,8 @@ class Request(object):
 
                 request = Request(
                     url, self.headers, self.files, method,
-                    self.data, self.auth, self.cookiejar, redirect=False
+                    self.data, self.params, self.auth, self.cookiejar,
+                    redirect=False
                 )
                 request.send()
                 r = request.response
@@ -217,17 +224,16 @@ class Request(object):
             return data, data
 
 
-    @staticmethod
-    def _build_url(url, data=None):
-        """Build URLs."""
+    def _build_url(self):
+        """Build the actual URL to use"""
 
-        if urlparse(url).query:
-            return '%s&%s' % (url, data)
-        else:
-            if data:
-                return '%s?%s' % (url, data)
+        if self._enc_params:
+            if urlparse(self.url).query:
+                return '%s&%s' % (self.url, self._enc_params)
             else:
-                return url
+                return '%s?%s' % (self.url, self._enc_params)
+        else:
+            return self.url
 
 
     def send(self, anyway=False):
@@ -243,8 +249,9 @@ class Request(object):
         self._checks()
         success = False
 
+        url = self._build_url()
         if self.method in ('GET', 'HEAD', 'DELETE'):
-            req = _Request(self._build_url(self.url, self._enc_data), method=self.method)
+            req = _Request(url, method=self.method)
         else:
 
             if self.files:
@@ -254,10 +261,10 @@ class Request(object):
                     self.files.update(self.data)
 
                 datagen, headers = multipart_encode(self.files)
-                req = _Request(self.url, data=datagen, headers=headers, method=self.method)
+                req = _Request(url, data=datagen, headers=headers, method=self.method)
 
             else:
-                req = _Request(self.url, data=self._enc_data, method=self.method)
+                req = _Request(url, data=self._enc_data, method=self.method)
 
         if self.headers:
             req.headers.update(self.headers)

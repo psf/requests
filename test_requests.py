@@ -5,6 +5,10 @@ from __future__ import with_statement
 
 import unittest
 import cookielib
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 import requests
 
@@ -229,8 +233,68 @@ class RequestsTestSuite(unittest.TestCase):
             requests.get(httpbin(''))
 
 
+    def test_urlencoded_post_data(self):
+        r = requests.post(httpbin('post'), data=dict(test='fooaowpeuf'))
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(r.headers['content-type'], 'application/json')
+        self.assertEquals(r.url, httpbin('post'))
+        rbody = json.loads(r.content)
+        self.assertEquals(rbody.get('form'), dict(test='fooaowpeuf'))
+        self.assertEquals(rbody.get('data'), '')
+
+
     def test_nonurlencoded_post_data(self):
         r = requests.post(httpbin('post'), data='fooaowpeuf')
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(r.headers['content-type'], 'application/json')
+        self.assertEquals(r.url, httpbin('post'))
+        rbody = json.loads(r.content)
+        # Body wasn't valid url encoded data, so the server returns None as
+        # "form" and the raw body as "data".
+        self.assertEquals(rbody.get('form'), None)
+        self.assertEquals(rbody.get('data'), 'fooaowpeuf')
+
+
+    def test_urlencoded_post_querystring(self):
+        r = requests.post(httpbin('post'), params=dict(test='fooaowpeuf'))
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(r.headers['content-type'], 'application/json')
+        self.assertEquals(r.url, httpbin('post?test=fooaowpeuf'))
+        rbody = json.loads(r.content)
+        self.assertEquals(rbody.get('form'), {}) # No form supplied
+        self.assertEquals(rbody.get('data'), '')
+
+
+    def test_nonurlencoded_post_querystring(self):
+        r = requests.post(httpbin('post'), params='fooaowpeuf')
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(r.headers['content-type'], 'application/json')
+        self.assertEquals(r.url, httpbin('post?fooaowpeuf'))
+        rbody = json.loads(r.content)
+        self.assertEquals(rbody.get('form'), {}) # No form supplied
+        self.assertEquals(rbody.get('data'), '')
+
+
+    def test_urlencoded_post_query_and_data(self):
+        r = requests.post(httpbin('post'), params=dict(test='fooaowpeuf'),
+                          data=dict(test2="foobar"))
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(r.headers['content-type'], 'application/json')
+        self.assertEquals(r.url, httpbin('post?test=fooaowpeuf'))
+        rbody = json.loads(r.content)
+        self.assertEquals(rbody.get('form'), dict(test2='foobar'))
+        self.assertEquals(rbody.get('data'), '')
+
+
+    def test_nonurlencoded_post_query_and_data(self):
+        r = requests.post(httpbin('post'), params='fooaowpeuf',
+                          data="foobar")
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(r.headers['content-type'], 'application/json')
+        self.assertEquals(r.url, httpbin('post?fooaowpeuf'))
+        rbody = json.loads(r.content)
+        self.assertEquals(rbody.get('form'), None)
+        self.assertEquals(rbody.get('data'), 'foobar')
 
 
 
