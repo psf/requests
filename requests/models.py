@@ -262,6 +262,9 @@ class Request(object):
                 self._build_response(why)
                 if not self.redirect:
                     self.response.error = why
+
+            # TODO: Support urllib connection refused errors
+
             except urllib2.URLError, error:
                 raise Timeout if isinstance(error.reason, socket.timeout) else error
             else:
