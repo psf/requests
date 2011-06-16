@@ -24,7 +24,7 @@ def httpbin(*suffix):
 def httpsbin(*suffix):
     """Returns url for HTTPSBIN resource."""
 
-    return HTTPBIN_URL + '/'.join(suffix)
+    return HTTPSBIN_URL + '/'.join(suffix)
 
 
 
