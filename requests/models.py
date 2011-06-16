@@ -32,7 +32,7 @@ class Request(object):
 
     def __init__(self, url=None, headers=dict(), files=None, method=None,
                  data=dict(), auth=None, cookiejar=None, timeout=None,
-                 redirect=True, allow_redirects=False):
+                 redirect=False, allow_redirects=False):
 
         socket.setdefaulttimeout(timeout)
 
@@ -135,6 +135,7 @@ class Request(object):
 
         return opener.open
 
+
     def _build_response(self, resp):
         """Build internal :class:`Response <models.Response>` object from given response."""
 
@@ -154,6 +155,8 @@ class Request(object):
                     response.content = zlib.decompress(response.content, 16+zlib.MAX_WBITS)
                 except zlib.error:
                     pass
+
+            # TODO: Support deflate
 
             response.url = getattr(resp, 'url', None)
 
@@ -259,6 +262,9 @@ class Request(object):
                 self._build_response(why)
                 if not self.redirect:
                     self.response.error = why
+
+            # TODO: Support urllib connection refused errors
+
             except urllib2.URLError, error:
                 raise Timeout if isinstance(error.reason, socket.timeout) else error
             else:
