@@ -32,7 +32,8 @@ class Request(object):
 
     def __init__(self, url=None, headers=dict(), files=None, method=None,
                  data=dict(), params=dict(), auth=None, cookiejar=None,
-                 timeout=None, redirect=False, allow_redirects=False):
+                 timeout=None, redirect=False, allow_redirects=False,
+                 proxies=None):
 
         socket.setdefaulttimeout(timeout)
 
@@ -55,6 +56,8 @@ class Request(object):
         self.redirect = redirect
         #: Set to True if full redirects are allowed (e.g. re-POST-ing of data at new ``Location``)
         self.allow_redirects = allow_redirects
+        # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})
+        self.proxies = proxies
 
         self.data, self._enc_data = self._encode_params(data)
         self.params, self._enc_params = self._encode_params(params)
@@ -110,6 +113,8 @@ class Request(object):
 
             _handlers.append(self.auth.handler)
 
+        if self.proxies:
+            _handlers.append(urllib2.ProxyHandler(self.proxies))
 
         _handlers.append(HTTPRedirectHandler)
 
