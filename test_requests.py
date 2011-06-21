@@ -15,6 +15,8 @@ import requests
 HTTPBIN_URL = 'http://httpbin.org/'
 HTTPSBIN_URL = 'https://httpbin.ep.io/'
 
+# HTTPBIN_URL = 'http://staging.httpbin.org/'
+# HTTPSBIN_URL = 'https://httpbin-staging.ep.io/'
 
 
 def httpbin(*suffix):
@@ -103,6 +105,26 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
 
 
+    def test_HTTP_200_OK_PUT(self):
+        r = requests.put(httpbin('put'))
+        self.assertEqual(r.status_code, 200)
+
+
+    def test_HTTPS_200_OK_PUT(self):
+        r = requests.put(httpsbin('put'))
+        self.assertEqual(r.status_code, 200)
+
+
+    def test_HTTP_200_OK_PATCH(self):
+        r = requests.patch(httpbin('patch'))
+        self.assertEqual(r.status_code, 200)
+
+
+    def test_HTTPS_200_OK_PATCH(self):
+        r = requests.patch(httpsbin('patch'))
+        self.assertEqual(r.status_code, 200)
+
+
     def test_AUTH_HTTPS_200_OK_GET(self):
         auth = ('user', 'pass')
         url = httpsbin('basic-auth', 'user', 'pass')
@@ -129,20 +151,6 @@ class RequestsTestSuite(unittest.TestCase):
 
         post3 = requests.post(url, data='[{"some": "json"}]')
         self.assertEqual(post3.status_code, 200)
-
-
-    def test_POSTBIN_GET_PATCH_FILES(self):
-        url = httpbin('patch')
-        patch = requests.patch(url).raise_for_status()
-
-        patch = requests.post(url, data={'some': 'data'})
-        self.assertEqual(patch.status_code, 200)
-
-        patch2 = requests.post(url, files={'some': open('test_requests.py')})
-        self.assertEqual(patch2.status_code, 200)
-
-        patch3 = requests.post(url, data='[{"some": "json"}]')
-        self.assertEqual(patch3.status_code, 200)
 
 
     def test_POSTBIN_GET_POST_FILES_WITH_PARAMS(self):
