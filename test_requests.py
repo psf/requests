@@ -128,7 +128,21 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEqual(post2.status_code, 200)
 
         post3 = requests.post(url, data='[{"some": "json"}]')
-        self.assertEqual(post.status_code, 200)
+        self.assertEqual(post3.status_code, 200)
+
+
+    def test_POSTBIN_GET_PATCH_FILES(self):
+        url = httpbin('patch')
+        patch = requests.patch(url).raise_for_status()
+
+        patch = requests.post(url, data={'some': 'data'})
+        self.assertEqual(patch.status_code, 200)
+
+        patch2 = requests.post(url, files={'some': open('test_requests.py')})
+        self.assertEqual(patch2.status_code, 200)
+
+        patch3 = requests.post(url, data='[{"some": "json"}]')
+        self.assertEqual(patch3.status_code, 200)
 
 
     def test_POSTBIN_GET_POST_FILES_WITH_PARAMS(self):

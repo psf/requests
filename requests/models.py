@@ -28,12 +28,12 @@ class Request(object):
     Requests. Recommended interface is with the Requests functions.
     """
 
-    _METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE')
+    _METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH')
 
-    def __init__(self, url=None, headers=dict(), files=None, method=None,
-                 data=dict(), params=dict(), auth=None, cookiejar=None,
-                 timeout=None, redirect=False, allow_redirects=False,
-                 proxies=None):
+    def __init__(self,
+        url=None, headers=dict(), files=None, method=None, data=dict(),
+        params=dict(), auth=None, cookiejar=None, timeout=None, redirect=False,
+        allow_redirects=False, proxies=None):
 
         socket.setdefaulttimeout(timeout)
 
