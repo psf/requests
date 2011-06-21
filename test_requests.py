@@ -5,10 +5,8 @@ from __future__ import with_statement
 
 import unittest
 import cookielib
-try:
-    import simplejson as json
-except ImportError:
-    import json
+
+import omnijson as json
 
 import requests
 
