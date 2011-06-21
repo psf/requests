@@ -1,6 +1,13 @@
 History
 -------
 
+0.4.2 (?)
++++++++++
+
+* Support for Proxies
+* HTTPBin Test Suite
+
+
 0.4.1 (2011-05-22)
 ++++++++++++++++++
 
