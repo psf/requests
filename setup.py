@@ -5,7 +5,10 @@ import os
 import sys
 import requests
 
-from distutils.core import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 
 
