@@ -10,6 +10,8 @@ History
 * Redirect Fixes
 * settings.verbose stream writing
 * Querystrings for all methods
+* URLErrors (Connection Refused, Timeout, Invalid URLs) are treated as explicity raised
+  ``r.requests.get('hwe://blah'); r.raise_for_status()``
 
 
 0.4.1 (2011-05-22)
