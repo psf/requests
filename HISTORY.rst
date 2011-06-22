@@ -4,8 +4,12 @@ History
 0.4.2 (?)
 +++++++++
 
+* PATCH Support
 * Support for Proxies
 * HTTPBin Test Suite
+* Redirect Fixes
+* settings.verbose stream writing
+* Querystrings for all methods
 
 
 0.4.1 (2011-05-22)
