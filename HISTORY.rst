@@ -1,8 +1,8 @@
 History
 -------
 
-0.4.2 (?)
-+++++++++
+0.5.0 (2011-06-21)
+++++++++++++++++++
 
 * PATCH Support
 * Support for Proxies
