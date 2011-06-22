@@ -296,15 +296,15 @@ class Request(object):
                 if self.cookiejar is not None:
                     self.cookiejar.extract_cookies(resp, req)
 
-            except urllib2.HTTPError, why:
+            except (urllib2.HTTPError, urllib2.URLError), why:
+                if hasattr(why, 'reason'):
+                    if isinstance(why.reason, socket.timeout):
+                        why = Timeout(why)
+
                 self._build_response(why)
                 if not self.redirect:
                     self.response.error = why
 
-            # TODO: Support urllib connection refused errors
-
-            except urllib2.URLError, error:
-                raise Timeout if isinstance(error.reason, socket.timeout) else error
             else:
                 self._build_response(resp)
                 self.response.ok = True

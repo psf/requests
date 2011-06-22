@@ -246,8 +246,13 @@ class RequestsTestSuite(unittest.TestCase):
 
 
     def test_settings(self):
+
+        def test():
+            r = requests.get(httpbin(''))
+            r.raise_for_status()
+
         with requests.settings(timeout=0.0000001):
-            self.assertRaises(requests.Timeout, requests.get, httpbin(''))
+            self.assertRaises(requests.Timeout, test)
 
         with requests.settings(timeout=100):
             requests.get(httpbin(''))
