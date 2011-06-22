@@ -6,7 +6,6 @@ requests.models
 
 """
 
-import requests
 import urllib
 import urllib2
 import socket
@@ -14,13 +13,17 @@ import zlib
 
 from urllib2 import HTTPError
 from urlparse import urlparse
+from datetime import datetime
 
+from .config import settings
 from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
 from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod
 
+
+REDIRECT_STATI = (301, 302, 303, 307)
 
 
 class Request(object):
@@ -169,6 +172,9 @@ class Request(object):
 
         r = build(resp)
 
+        if r.status_code in REDIRECT_STATI:
+            self.redirect = True
+
         if self.redirect:
 
             while (
@@ -182,7 +188,7 @@ class Request(object):
 
                 url = r.headers['location']
 
-                # Facilitate for non-RFC2616-compliant 'location' headers
+                # Facilitate non-RFC2616-compliant 'location' headers
                 # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
                 if not urlparse(url).netloc:
                     parent_url_components = urlparse(self.url)
@@ -197,7 +203,7 @@ class Request(object):
                 request = Request(
                     url, self.headers, self.files, method,
                     self.data, self.params, self.auth, self.cookiejar,
-                    redirect=False
+                    redirect=True
                 )
                 request.send()
                 r = request.response
@@ -254,6 +260,13 @@ class Request(object):
         self._checks()
         success = False
 
+        # Logging
+        if settings.verbose:
+            settings.verbose.write('%s   %s   %s\n' % (
+                datetime.now().isoformat(), self.method, self.url
+            ))
+
+
         url = self._build_url()
         if self.method in ('GET', 'HEAD', 'DELETE'):
             req = _Request(url, method=self.method)
@@ -301,6 +314,7 @@ class Request(object):
             self.response.cached = True
 
         self.sent = self.response.ok
+
 
         return self.sent
 
