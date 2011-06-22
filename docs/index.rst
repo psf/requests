@@ -27,8 +27,8 @@ Things shouldn’t be this way. Not in Python.
 
 See `the same code, without Requests <https://gist.github.com/973705>`_.
 
-Requests allow you to send **GET**, **HEAD**, **PUT**,
-**POST**, and **DELETE** HTTP requests. You can add headers, form data,
+Requests allow you to send  **HEAD**, **GET**, **POST**, **PUT**,
+**PATCH**, and **DELETE** HTTP requests. You can add headers, form data,
 multipart files, and parameters with simple Python dictionaries, and access the
 response data in the same way. It's powered by :py:class:`urllib2`, but it does
 all the hard work and crazy hacks for you.
