@@ -26,7 +26,6 @@ class Request(urllib2.Request):
 
         return urllib2.Request.get_method(self)
 
-
 class HTTPRedirectHandler(urllib2.HTTPRedirectHandler):
 
     def http_error_301(self, req, fp, code, msg, headers):

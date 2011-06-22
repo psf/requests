@@ -1,5 +1,5 @@
-Requests: The Simple (e.g. usable) HTTP Module
-==============================================
+Requests: HTTP for Humans
+=========================
 
 Most existing Python modules for dealing HTTP requests are insane. I have to look up *everything* that I want to do. Most of my worst Python experiences are a result of the various built-in HTTP libraries (yes, even worse than Logging).
 
@@ -10,12 +10,13 @@ Really simple.
 Features
 --------
 
-- Extremely simple GET, HEAD, POST, PUT, DELETE Requests
+- Extremely simple HEAD, GET, POST, PUT, PATCH, DELETE Requests
     + Simple HTTP Header Request Attachment
     + Simple Data/Params Request Attachment
     + Simple Multipart File Uploads
     + CookieJar Support
     + Redirection History
+    + Proxy Support
     + Redirection Recursion Urllib Fix
     + Auto Decompression of GZipped Content
     + Unicode URL Support
@@ -35,15 +36,14 @@ It couldn't be simpler. ::
 
 HTTPS? Basic Authentication? ::
 
-    >>> r = requests.get('https://convore.com/api/account/verify.json')
+    >>> r = requests.get('https://httpbin.ep.ip/basic-auth/user/pass')
     >>> r.status_code
     401
 
 
 Uh oh, we're not authorized! Let's add authentication. ::
 
-    >>> conv_auth = ('requeststest', 'requeststest')
-    >>> r = requests.get('https://convore.com/api/account/verify.json', auth=conv_auth)
+    >>> r = requests.get(https://httpbin.ep.ip/basic-auth/user/pass', auth=('user', 'pass'))
 
     >>> r.status_code
     200
@@ -52,7 +52,7 @@ Uh oh, we're not authorized! Let's add authentication. ::
     'application/json'
 
     >>> r.content
-    '{"username": "requeststest", "url": "/users/requeststest/", "id": "9408", "img": "censored-long-url"}'
+    '{"authenticated": true, "user": "user"}'
 
 
 
@@ -66,24 +66,28 @@ All request functions return a Response object (see below).
 If a {filename: fileobject} dictionary is passed in (files=...), a multipart_encode upload will be performed.
 If CookieJar object is is passed in (cookies=...), the cookies will be sent with the request.
 
-  GET Requests
-    >>> requests.get(url, params={}, headers={}, cookies=None, auth=None)
-    <Response [200]>
-
   HEAD Requests
-    >>> requests.head(url, params={}, headers={}, cookies=None, auth=None)
+    >>> requests.head(url, params={}, headers={}, cookies=None, auth=None, timeout=None, proxies={})
     <Response [200]>
 
-  PUT Requests
-    >>> requests.put(url, data='', headers={}, files={}, cookies=None, auth=None)
+  GET Requests
+    >>> requests.get(url, params={}, headers={}, cookies=None, auth=None, timeout=None, proxies={})
     <Response [200]>
 
   POST Requests
-    >>> requests.post(url, data={}, headers={}, files={}, cookies=None, auth=None)
+    >>> requests.post(url, data={}, headers={}, files={}, cookies=None, auth=None, timeout=None, allow_redirects=False, params{}, proxies={})
+    <Response [200]>
+
+  PUT Requests
+    >>> requests.put(url, data={}, headers={}, files={}, cookies=None, auth=None, timeout=None, allow_redirects=False, params{}, proxies={})
+    <Response [200]>
+
+  PATCH Requests
+    >>> requests.post(url, data={}, headers={}, files={}, cookies=None, auth=None, timeout=None, allow_redirects=False, params{}, proxies={})
     <Response [200]>
 
   DELETE Requests
-    >>> requests.delete(url, params={}, headers={}, cookies=None, auth=None)
+    >>> requests.delete(url, params={}, headers={}, cookies=None, auth=None, timeout=None, allow_redirects=False, params{}, proxies={})
     <Response [200]>
 
 

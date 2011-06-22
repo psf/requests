@@ -6,7 +6,6 @@ requests.models
 
 """
 
-import requests
 import urllib
 import urllib2
 import socket
@@ -14,7 +13,9 @@ import zlib
 
 from urllib2 import HTTPError
 from urlparse import urlparse
+from datetime import datetime
 
+from .config import settings
 from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
@@ -22,17 +23,20 @@ from .packages.poster.streaminghttp import register_openers, get_handlers
 from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod
 
 
+REDIRECT_STATI = (301, 302, 303, 307)
+
 
 class Request(object):
     """The :class:`Request <models.Request>` object. It carries out all functionality of
     Requests. Recommended interface is with the Requests functions.
     """
 
-    _METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE')
+    _METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH')
 
-    def __init__(self, url=None, headers=dict(), files=None, method=None,
-                 data=dict(), auth=None, cookiejar=None, timeout=None,
-                 redirect=True, allow_redirects=False):
+    def __init__(self,
+        url=None, headers=dict(), files=None, method=None, data=dict(),
+        params=dict(), auth=None, cookiejar=None, timeout=None, redirect=False,
+        allow_redirects=False, proxies=None):
 
         socket.setdefaulttimeout(timeout)
 
@@ -44,23 +48,22 @@ class Request(object):
         self.files = files
         #: HTTP Method to use. Available: GET, HEAD, PUT, POST, DELETE.
         self.method = method
-        #: Form or Byte data to attach to the :class:`Request <models.Request>`.
-        self.data = dict()
+        #: Dictionary or byte of request body data to attach to the
+        #: :class:`Request <models.Request>`.
+        self.data = None
+        #: Dictionary or byte of querystring data to attach to the
+        #: :class:`Request <models.Request>`.
+        self.params = None
         #: True if :class:`Request <models.Request>` is part of a redirect chain (disables history
         #: and HTTPError storage).
         self.redirect = redirect
         #: Set to True if full redirects are allowed (e.g. re-POST-ing of data at new ``Location``)
         self.allow_redirects = allow_redirects
+        # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})
+        self.proxies = proxies
 
-        if hasattr(data, 'items'):
-            for (k, v) in data.items():
-                self.data.update({
-                    k.encode('utf-8') if isinstance(k, unicode) else k:
-                    v.encode('utf-8') if isinstance(v, unicode) else v
-                })
-            self._enc_data = urllib.urlencode(self.data)
-        else:
-            self._enc_data = self.data = data
+        self.data, self._enc_data = self._encode_params(data)
+        self.params, self._enc_params = self._encode_params(params)
 
         #: :class:`Response <models.Response>` instance, containing
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
@@ -113,6 +116,8 @@ class Request(object):
 
             _handlers.append(self.auth.handler)
 
+        if self.proxies:
+            _handlers.append(urllib2.ProxyHandler(self.proxies))
 
         _handlers.append(HTTPRedirectHandler)
 
@@ -135,6 +140,7 @@ class Request(object):
 
         return opener.open
 
+
     def _build_response(self, resp):
         """Build internal :class:`Response <models.Response>` object from given response."""
 
@@ -155,6 +161,8 @@ class Request(object):
                 except zlib.error:
                     pass
 
+            # TODO: Support deflate
+
             response.url = getattr(resp, 'url', None)
 
             return response
@@ -163,6 +171,9 @@ class Request(object):
         history = []
 
         r = build(resp)
+
+        if r.status_code in REDIRECT_STATI:
+            self.redirect = True
 
         if self.redirect:
 
@@ -177,7 +188,7 @@ class Request(object):
 
                 url = r.headers['location']
 
-                # Facilitate for non-RFC2616-compliant 'location' headers
+                # Facilitate non-RFC2616-compliant 'location' headers
                 # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
                 if not urlparse(url).netloc:
                     parent_url_components = urlparse(self.url)
@@ -191,7 +202,8 @@ class Request(object):
 
                 request = Request(
                     url, self.headers, self.files, method,
-                    self.data, self.auth, self.cookiejar, redirect=False
+                    self.data, self.params, self.auth, self.cookiejar,
+                    redirect=True
                 )
                 request.send()
                 r = request.response
@@ -202,16 +214,37 @@ class Request(object):
 
 
     @staticmethod
-    def _build_url(url, data=None):
-        """Build URLs."""
+    def _encode_params(data):
+        """Encode parameters in a piece of data.
 
-        if urlparse(url).query:
-            return '%s&%s' % (url, data)
+        If the data supplied is a dictionary, encodes each parameter in it, and
+        returns the dictionary of encoded parameters, and a urlencoded version
+        of that.
+
+        Otherwise, assumes the data is already encoded appropriately, and
+        returns it twice.
+
+        """
+        if hasattr(data, 'items'):
+            result = {}
+            for (k, v) in data.items():
+                result[k.encode('utf-8') if isinstance(k, unicode) else k] \
+                     = v.encode('utf-8') if isinstance(v, unicode) else v
+            return result, urllib.urlencode(result)
         else:
-            if data:
-                return '%s?%s' % (url, data)
+            return data, data
+
+
+    def _build_url(self):
+        """Build the actual URL to use"""
+
+        if self._enc_params:
+            if urlparse(self.url).query:
+                return '%s&%s' % (self.url, self._enc_params)
             else:
-                return url
+                return '%s?%s' % (self.url, self._enc_params)
+        else:
+            return self.url
 
 
     def send(self, anyway=False):
@@ -227,8 +260,16 @@ class Request(object):
         self._checks()
         success = False
 
+        # Logging
+        if settings.verbose:
+            settings.verbose.write('%s   %s   %s\n' % (
+                datetime.now().isoformat(), self.method, self.url
+            ))
+
+
+        url = self._build_url()
         if self.method in ('GET', 'HEAD', 'DELETE'):
-            req = _Request(self._build_url(self.url, self._enc_data), method=self.method)
+            req = _Request(url, method=self.method)
         else:
 
             if self.files:
@@ -238,10 +279,10 @@ class Request(object):
                     self.files.update(self.data)
 
                 datagen, headers = multipart_encode(self.files)
-                req = _Request(self.url, data=datagen, headers=headers, method=self.method)
+                req = _Request(url, data=datagen, headers=headers, method=self.method)
 
             else:
-                req = _Request(self.url, data=self._enc_data, method=self.method)
+                req = _Request(url, data=self._enc_data, method=self.method)
 
         if self.headers:
             req.headers.update(self.headers)
@@ -255,12 +296,15 @@ class Request(object):
                 if self.cookiejar is not None:
                     self.cookiejar.extract_cookies(resp, req)
 
-            except urllib2.HTTPError, why:
+            except (urllib2.HTTPError, urllib2.URLError), why:
+                if hasattr(why, 'reason'):
+                    if isinstance(why.reason, socket.timeout):
+                        why = Timeout(why)
+
                 self._build_response(why)
                 if not self.redirect:
                     self.response.error = why
-            except urllib2.URLError, error:
-                raise Timeout if isinstance(error.reason, socket.timeout) else error
+
             else:
                 self._build_response(resp)
                 self.response.ok = True
@@ -270,6 +314,7 @@ class Request(object):
             self.response.cached = True
 
         self.sent = self.response.ok
+
 
         return self.sent
 
