@@ -16,11 +16,13 @@ Main Interface
 All of Request's functionality can be accessed by these 5 methods. They
 all return a :class:`Response <models.Response>` object.
 
+.. autofunction:: head
 .. autofunction:: get
 .. autofunction:: post
 .. autofunction:: put
+.. autofunction:: patch
 .. autofunction:: delete
-.. autofunction:: head
+
 
 -----------
 
