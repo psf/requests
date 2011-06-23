@@ -465,5 +465,5 @@ a:hover tt {
 /* misc. */
 
 .revsys-inline {
-    display: none;
+    display: none!important;
 }
