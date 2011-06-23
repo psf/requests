@@ -87,3 +87,4 @@ you.
    :maxdepth: 2
 
    dev/internals
+   dev/todo
