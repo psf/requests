@@ -461,3 +461,9 @@ a:hover tt {
     background-color: #ccc;
     -webkit-border-radius: 3px;
 }
+
+/* misc. */
+
+.revsys-inline {
+    display: none;
+}
