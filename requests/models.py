@@ -238,6 +238,7 @@ class Request(object):
     def _build_url(self):
         """Build the actual URL to use"""
 
+        # Support for unicode domain names.
         parsed_url = list(urlparse(self.url))
         parsed_url[1] = parsed_url[1].encode('idna')
         self.url = urlunparse(parsed_url)
