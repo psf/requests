@@ -12,7 +12,7 @@ import socket
 import zlib
 
 from urllib2 import HTTPError
-from urlparse import urlparse
+from urlparse import urlparse, urlunparse
 from datetime import datetime
 
 from .config import settings
@@ -237,6 +237,10 @@ class Request(object):
 
     def _build_url(self):
         """Build the actual URL to use"""
+
+        parsed_url = list(urlparse(self.url))
+        parsed_url[1] = parsed_url[1].encode('idna')
+        self.url = urlunparse(parsed_url)
 
         if self._enc_params:
             if urlparse(self.url).query:
