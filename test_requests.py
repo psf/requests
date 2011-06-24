@@ -321,6 +321,9 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEquals(rbody.get('form'), None)
         self.assertEquals(rbody.get('data'), 'foobar')
 
+    def test_idna(self):
+        r = requests.get(u'http://➡.ws/httpbin')
+        self.assertEqual(r.url, HTTPBIN_URL)
 
 
 if __name__ == '__main__':
