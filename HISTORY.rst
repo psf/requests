@@ -1,6 +1,12 @@
 History
 -------
 
+0.5.1 (?)
++++++++++
+
+* International Domain Name Support!
+
+
 0.5.0 (2011-06-21)
 ++++++++++++++++++
 
