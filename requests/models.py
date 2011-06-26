@@ -230,7 +230,7 @@ class Request(object):
             for (k, v) in data.items():
                 result[k.encode('utf-8') if isinstance(k, unicode) else k] \
                      = v.encode('utf-8') if isinstance(v, unicode) else v
-            return result, urllib.urlencode(result)
+            return result, urllib.urlencode(result, doseq=True)
         else:
             return data, data
 
