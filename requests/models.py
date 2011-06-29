@@ -151,17 +151,10 @@ class Request(object):
 
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
-                response.content = resp.read()
+                response.read = resp.read
+                response.close = resp.close
             except AttributeError:
                 pass
-
-            if response.headers['content-encoding'] == 'gzip':
-                try:
-                    response.content = zlib.decompress(response.content, 16+zlib.MAX_WBITS)
-                except zlib.error:
-                    pass
-
-            # TODO: Support deflate
 
             response.url = getattr(resp, 'url', None)
 
@@ -324,10 +317,6 @@ class Request(object):
         return self.sent
 
 
-    def read(self, *args):
-        return self.response.read()
-
-
 
 class Response(object):
     """The core :class:`Response <models.Response>` object. All
@@ -340,7 +329,7 @@ class Response(object):
         #: Raw content of the response, in bytes.
         #: If ``content-encoding`` of response was set to ``gzip``, the
         #: response data will be automatically deflated.
-        self.content = None
+        self._content = None
         #: Integer Code of responded HTTP Status.
         self.status_code = None
         #: Case-insensitive Dictionary of Response Headers.
@@ -370,16 +359,24 @@ class Response(object):
         return not self.error
 
 
+    def __getattr__(self, name):
+        """Read and returns the full stream when accessing to :attr: `content`"""
+        if name == 'content':
+            if self._content is not None:
+                return self._content
+            self._content = self.read()
+            if self.headers.get('content-encoding', '') == 'gzip':
+                try:
+                    self._content = zlib.decompress(self._content, 16+zlib.MAX_WBITS)
+                except zlib.error:
+                    pass
+            return self._content
+
+
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occured."""
         if self.error:
             raise self.error
-
-    def read(self, *args):
-        """Returns :attr:`content`. Used for file-like object compatiblity."""
-
-        return self.content
-
 
 
 class AuthManager(object):
