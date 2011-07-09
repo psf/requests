@@ -13,7 +13,7 @@ important right here and provide links to the canonical documentation.
 Main Interface
 --------------
 
-All of Request's functionality can be accessed by these 5 methods. They
+All of Request's functionality can be accessed by these 6 methods. They
 all return a :class:`Response <models.Response>` object.
 
 .. autofunction:: head
