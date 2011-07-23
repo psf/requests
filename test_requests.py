@@ -6,7 +6,10 @@ from __future__ import with_statement
 import unittest
 import cookielib
 
-import omnijson as json
+try:
+    import omnijson as json
+except ImportError:
+    import simplejson as json
 
 import requests
 
