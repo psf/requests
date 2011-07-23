@@ -29,7 +29,7 @@ class CaseInsensitiveDict(dict):
         self._clear_lower_keys()
 
     def __delitem__(self, key):
-        dict.__delitem__(self, key, value)
+        dict.__delitem__(self, key)
         self._lower_keys.clear()
 
     def __contains__(self, key):
