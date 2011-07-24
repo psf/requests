@@ -42,6 +42,7 @@ class HTTPBasicAuthHandler(urllib2.HTTPBasicAuthHandler):
     def __init__(self, *args, **kwargs):
         urllib2.HTTPBasicAuthHandler.__init__(self, *args, **kwargs)
         self.retried_req = None
+        self.retried = 0
 
 
     def reset_retry_count(self):
