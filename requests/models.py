@@ -80,9 +80,21 @@ class Request(object):
         #: True if Request has been sent.
         self.sent = False
 
-        headers = settings.base_headers
-        if self.headers:
-            headers.update(self.headers)
+
+        # Header manipulation and defaults.
+
+        if settings.accept_gzip:
+            settings.base_headers.update({'Accept-Encoding': 'gzip'})
+
+        if headers:
+            headers = CaseInsensitiveDict(self.headers)
+        else:
+            headers = CaseInsensitiveDict()
+
+        for (k, v) in settings.base_headers.items():
+            if k not in headers:
+                headers[k] = v
+
         self.headers = headers
 
 
