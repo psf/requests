@@ -10,6 +10,7 @@ History
 * Add Forced Basic Authentication
 * Forced Basic is default authentication type
 * ``python-requests.org`` default User-Agent header
+* CaseInsensitiveDict lower-case caching
 
 
 0.5.0 (2011-06-21)
