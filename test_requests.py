@@ -353,5 +353,14 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEquals(rbody.get('data'), '')
 
 
+    def test_redirect_history(self):
+        r = requests.get(httpbin('redirect', '3'))
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(len(r.history), 3)
+
+        r = requests.get(httpsbin('redirect', '3'))
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(len(r.history), 3)
+
 if __name__ == '__main__':
     unittest.main()
