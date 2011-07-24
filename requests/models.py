@@ -170,10 +170,7 @@ class Request(object):
 
         r = build(resp)
 
-        if r.status_code in REDIRECT_STATI:
-            self.redirect = True
-
-        if self.redirect:
+        if r.status_code in REDIRECT_STATI and not self.redirect:
 
             while (
                 ('location' in r.headers) and
