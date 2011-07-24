@@ -545,6 +545,6 @@ class AuthObject(object):
         self.realm = realm
 
         if isinstance(handler, basestring):
-            self.handler = self._handlers.get(handler.lower(), urllib2.HTTPBasicAuthHandler)
+            self.handler = self._handlers.get(handler.lower(), HTTPBasicAuthHandler)
         else:
             self.handler = handler
