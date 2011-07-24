@@ -16,7 +16,7 @@ from urlparse import urlparse, urlunparse
 from datetime import datetime
 
 from .config import settings
-from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
+from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
@@ -79,6 +79,11 @@ class Request(object):
         self.cookiejar = cookiejar
         #: True if Request has been sent.
         self.sent = False
+
+        headers = settings.base_headers
+        if self.headers:
+            headers.update(self.headers)
+        self.headers = headers
 
 
     def __repr__(self):
@@ -534,17 +539,18 @@ class AuthObject(object):
 
     _handlers = {
         'basic': HTTPBasicAuthHandler,
+        'forced_basic': HTTPForcedBasicAuthHandler,
         'digest': HTTPDigestAuthHandler,
         'proxy_basic': urllib2.ProxyBasicAuthHandler,
         'proxy_digest': urllib2.ProxyDigestAuthHandler
     }
 
-    def __init__(self, username, password, handler='basic', realm=None):
+    def __init__(self, username, password, handler='forced_basic', realm=None):
         self.username = username
         self.password = password
         self.realm = realm
 
         if isinstance(handler, basestring):
-            self.handler = self._handlers.get(handler.lower(), HTTPBasicAuthHandler)
+            self.handler = self._handlers.get(handler.lower(), HTTPForcedBasicAuthHandler)
         else:
             self.handler = handler
