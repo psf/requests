@@ -9,7 +9,7 @@ import cookielib
 try:
     import omnijson as json
 except ImportError:
-    import simplejson as json
+    import json
 
 import requests
 
@@ -326,7 +326,7 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_idna(self):
         r = requests.get(u'http://➡.ws/httpbin')
-        self.assertEqual(r.url, HTTPBIN_URL)
+        assert 'tinyarrows.com' in r.url
 
 
 if __name__ == '__main__':
