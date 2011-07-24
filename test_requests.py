@@ -326,7 +326,7 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_idna(self):
         r = requests.get(u'http://➡.ws/httpbin')
-        assert 'tinyarrows.com' in r.url
+        assert 'httpbin' in r.url
 
     def test_urlencoded_get_query_multivalued_param(self):
         r = requests.get(httpbin('get'), params=dict(test=['foo','baz']))
