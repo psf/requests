@@ -216,18 +216,19 @@ class Request(object):
         """Encode parameters in a piece of data.
 
         If the data supplied is a dictionary, encodes each parameter in it, and
-        returns the dictionary of encoded parameters, and a urlencoded version
-        of that.
+        returns a list of tuples containing the encoded parameters, and a urlencoded
+        version of that.
 
         Otherwise, assumes the data is already encoded appropriately, and
         returns it twice.
 
         """
         if hasattr(data, 'items'):
-            result = {}
-            for (k, v) in data.items():
-                result[k.encode('utf-8') if isinstance(k, unicode) else k] \
-                     = v.encode('utf-8') if isinstance(v, unicode) else v
+            result = []
+            for k, vs in data.items():
+                for v in isinstance(vs, list) and vs or [vs]:
+                    result.append((k.encode('utf-8') if isinstance(k, unicode) else k,
+                                   v.encode('utf-8') if isinstance(v, unicode) else v))
             return result, urllib.urlencode(result, doseq=True)
         else:
             return data, data
