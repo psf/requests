@@ -28,7 +28,7 @@ if sys.version_info[:2] < (2,6):
 setup(
     name='requests',
     version=requests.__version__,
-    description='Awesome Python HTTP Library that\'s actually usable.',
+    description='Python HTTP for Humans.',
     long_description=open('README.rst').read() + '\n\n' +
                      open('HISTORY.rst').read(),
     author='Kenneth Reitz',

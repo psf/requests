@@ -12,11 +12,11 @@ import socket
 import zlib
 
 from urllib2 import HTTPError
-from urlparse import urlparse
+from urlparse import urlparse, urlunparse
 from datetime import datetime
 
 from .config import settings
-from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
+from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
@@ -79,6 +79,23 @@ class Request(object):
         self.cookiejar = cookiejar
         #: True if Request has been sent.
         self.sent = False
+
+
+        # Header manipulation and defaults.
+
+        if settings.accept_gzip:
+            settings.base_headers.update({'Accept-Encoding': 'gzip'})
+
+        if headers:
+            headers = CaseInsensitiveDict(self.headers)
+        else:
+            headers = CaseInsensitiveDict()
+
+        for (k, v) in settings.base_headers.items():
+            if k not in headers:
+                headers[k] = v
+
+        self.headers = headers
 
 
     def __repr__(self):
@@ -151,17 +168,10 @@ class Request(object):
 
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
-                response.content = resp.read()
+                response.read = resp.read
+                response.close = resp.close
             except AttributeError:
                 pass
-
-            if response.headers['content-encoding'] == 'gzip':
-                try:
-                    response.content = zlib.decompress(response.content, 16+zlib.MAX_WBITS)
-                except zlib.error:
-                    pass
-
-            # TODO: Support deflate
 
             response.url = getattr(resp, 'url', None)
 
@@ -172,10 +182,7 @@ class Request(object):
 
         r = build(resp)
 
-        if r.status_code in REDIRECT_STATI:
-            self.redirect = True
-
-        if self.redirect:
+        if r.status_code in REDIRECT_STATI and not self.redirect:
 
             while (
                 ('location' in r.headers) and
@@ -218,25 +225,31 @@ class Request(object):
         """Encode parameters in a piece of data.
 
         If the data supplied is a dictionary, encodes each parameter in it, and
-        returns the dictionary of encoded parameters, and a urlencoded version
-        of that.
+        returns a list of tuples containing the encoded parameters, and a urlencoded
+        version of that.
 
         Otherwise, assumes the data is already encoded appropriately, and
         returns it twice.
 
         """
         if hasattr(data, 'items'):
-            result = {}
-            for (k, v) in data.items():
-                result[k.encode('utf-8') if isinstance(k, unicode) else k] \
-                     = v.encode('utf-8') if isinstance(v, unicode) else v
-            return result, urllib.urlencode(result)
+            result = []
+            for k, vs in data.items():
+                for v in isinstance(vs, list) and vs or [vs]:
+                    result.append((k.encode('utf-8') if isinstance(k, unicode) else k,
+                                   v.encode('utf-8') if isinstance(v, unicode) else v))
+            return result, urllib.urlencode(result, doseq=True)
         else:
             return data, data
 
 
     def _build_url(self):
         """Build the actual URL to use"""
+
+        # Support for unicode domain names.
+        parsed_url = list(urlparse(self.url))
+        parsed_url[1] = parsed_url[1].encode('idna')
+        self.url = urlunparse(parsed_url)
 
         if self._enc_params:
             if urlparse(self.url).query:
@@ -319,10 +332,6 @@ class Request(object):
         return self.sent
 
 
-    def read(self, *args):
-        return self.response.read()
-
-
 
 class Response(object):
     """The core :class:`Response <models.Response>` object. All
@@ -335,7 +344,7 @@ class Response(object):
         #: Raw content of the response, in bytes.
         #: If ``content-encoding`` of response was set to ``gzip``, the
         #: response data will be automatically deflated.
-        self.content = None
+        self._content = None
         #: Integer Code of responded HTTP Status.
         self.status_code = None
         #: Case-insensitive Dictionary of Response Headers.
@@ -365,16 +374,24 @@ class Response(object):
         return not self.error
 
 
+    def __getattr__(self, name):
+        """Read and returns the full stream when accessing to :attr: `content`"""
+        if name == 'content':
+            if self._content is not None:
+                return self._content
+            self._content = self.read()
+            if self.headers.get('content-encoding', '') == 'gzip':
+                try:
+                    self._content = zlib.decompress(self._content, 16+zlib.MAX_WBITS)
+                except zlib.error:
+                    pass
+            return self._content
+
+
     def raise_for_status(self):
-        """Raises stored :class:`HTTPError`, if one occured."""
+        """Raises stored :class:`HTTPError` or :class:`URLError`, if one occured."""
         if self.error:
             raise self.error
-
-    def read(self, *args):
-        """Returns :attr:`content`. Used for file-like object compatiblity."""
-
-        return self.content
-
 
 
 class AuthManager(object):
@@ -532,17 +549,18 @@ class AuthObject(object):
 
     _handlers = {
         'basic': HTTPBasicAuthHandler,
+        'forced_basic': HTTPForcedBasicAuthHandler,
         'digest': HTTPDigestAuthHandler,
         'proxy_basic': urllib2.ProxyBasicAuthHandler,
         'proxy_digest': urllib2.ProxyDigestAuthHandler
     }
 
-    def __init__(self, username, password, handler='basic', realm=None):
+    def __init__(self, username, password, handler='forced_basic', realm=None):
         self.username = username
         self.password = password
         self.realm = realm
 
         if isinstance(handler, basestring):
-            self.handler = self._handlers.get(handler.lower(), urllib2.HTTPBasicAuthHandler)
+            self.handler = self._handlers.get(handler.lower(), HTTPForcedBasicAuthHandler)
         else:
             self.handler = handler

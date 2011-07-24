@@ -6,3 +6,4 @@ pylint.txt
 *.pyc
 docs/_build
 toy.py
+.gitignore

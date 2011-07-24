@@ -6,7 +6,10 @@ from __future__ import with_statement
 import unittest
 import cookielib
 
-import omnijson as json
+try:
+    import omnijson as json
+except ImportError:
+    import json
 
 import requests
 
@@ -321,7 +324,43 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEquals(rbody.get('form'), None)
         self.assertEquals(rbody.get('data'), 'foobar')
 
+    def test_idna(self):
+        r = requests.get(u'http://➡.ws/httpbin')
+        assert 'httpbin' in r.url
 
+    def test_urlencoded_get_query_multivalued_param(self):
+        r = requests.get(httpbin('get'), params=dict(test=['foo','baz']))
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(r.url, httpbin('get?test=foo&test=baz'))
+
+    def test_urlencoded_post_querystring_multivalued(self):
+        r = requests.post(httpbin('post'), params=dict(test=['foo','baz']))
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(r.headers['content-type'], 'application/json')
+        self.assertEquals(r.url, httpbin('post?test=foo&test=baz'))
+        rbody = json.loads(r.content)
+        self.assertEquals(rbody.get('form'), {}) # No form supplied
+        self.assertEquals(rbody.get('data'), '')
+
+    def test_urlencoded_post_query_multivalued_and_data(self):
+        r = requests.post(httpbin('post'), params=dict(test=['foo','baz']),
+                          data=dict(test2="foobar",test3=['foo','baz']))
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(r.headers['content-type'], 'application/json')
+        self.assertEquals(r.url, httpbin('post?test=foo&test=baz'))
+        rbody = json.loads(r.content)
+        self.assertEquals(rbody.get('form'), dict(test2='foobar',test3='foo'))
+        self.assertEquals(rbody.get('data'), '')
+
+
+    def test_redirect_history(self):
+        r = requests.get(httpbin('redirect', '3'))
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(len(r.history), 3)
+
+        r = requests.get(httpsbin('redirect', '3'))
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(len(r.history), 3)
 
 if __name__ == '__main__':
     unittest.main()

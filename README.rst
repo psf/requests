@@ -36,14 +36,14 @@ It couldn't be simpler. ::
 
 HTTPS? Basic Authentication? ::
 
-    >>> r = requests.get('https://httpbin.ep.ip/basic-auth/user/pass')
+    >>> r = requests.get('https://httpbin.ep.io/basic-auth/user/pass')
     >>> r.status_code
     401
 
 
 Uh oh, we're not authorized! Let's add authentication. ::
 
-    >>> r = requests.get(https://httpbin.ep.ip/basic-auth/user/pass', auth=('user', 'pass'))
+    >>> r = requests.get(https://httpbin.ep.io/basic-auth/user/pass', auth=('user', 'pass'))
 
     >>> r.status_code
     200
