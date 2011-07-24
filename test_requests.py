@@ -328,6 +328,30 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get(u'http://➡.ws/httpbin')
         assert 'tinyarrows.com' in r.url
 
+    def test_urlencoded_get_query_multivalued_param(self):
+        r = requests.get(httpbin('get'), params=dict(test=['foo','baz']))
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(r.url, httpbin('get?test=foo&test=baz'))
+
+    def test_urlencoded_post_querystring_multivalued(self):
+        r = requests.post(httpbin('post'), params=dict(test=['foo','baz']))
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(r.headers['content-type'], 'application/json')
+        self.assertEquals(r.url, httpbin('post?test=foo&test=baz'))
+        rbody = json.loads(r.content)
+        self.assertEquals(rbody.get('form'), {}) # No form supplied
+        self.assertEquals(rbody.get('data'), '')
+
+    def test_urlencoded_post_query_multivalued_and_data(self):
+        r = requests.post(httpbin('post'), params=dict(test=['foo','baz']),
+                          data=dict(test2="foobar",test3=['foo','baz']))
+        self.assertEquals(r.status_code, 200)
+        self.assertEquals(r.headers['content-type'], 'application/json')
+        self.assertEquals(r.url, httpbin('post?test=foo&test=baz'))
+        rbody = json.loads(r.content)
+        self.assertEquals(rbody.get('form'), dict(test2='foobar',test3='foo'))
+        self.assertEquals(rbody.get('data'), '')
+
 
 if __name__ == '__main__':
     unittest.main()
