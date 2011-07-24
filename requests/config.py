@@ -54,3 +54,4 @@ class Settings(object):
         return object.__getattribute__(self, key)
 
 settings = Settings()
+settings.base_headers = {'User-Agent': 'python-requests.org'}
