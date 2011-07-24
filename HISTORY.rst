@@ -11,6 +11,7 @@ History
 * Forced Basic is default authentication type
 * ``python-requests.org`` default User-Agent header
 * CaseInsensitiveDict lower-case caching
+* Response.history bugfix
 
 
 0.5.0 (2011-06-21)
