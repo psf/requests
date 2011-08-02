@@ -12,7 +12,7 @@ import socket
 import zlib
 
 from urllib2 import HTTPError
-from urlparse import urlparse, urlunparse
+from urlparse import urlparse, urlunparse, urljoin
 from datetime import datetime
 
 from .config import settings
@@ -197,9 +197,7 @@ class Request(object):
 
                 # Facilitate non-RFC2616-compliant 'location' headers
                 # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
-                if not urlparse(url).netloc:
-                    parent_url_components = urlparse(self.url)
-                    url = '%s://%s/%s' % (parent_url_components.scheme, parent_url_components.netloc, url)
+                url = urljoin(self.url, url)
 
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
                 if r.status_code is 303:
