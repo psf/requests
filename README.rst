@@ -43,7 +43,7 @@ HTTPS? Basic Authentication? ::
 
 Uh oh, we're not authorized! Let's add authentication. ::
 
-    >>> r = requests.get(https://httpbin.ep.io/basic-auth/user/pass', auth=('user', 'pass'))
+    >>> r = requests.get('https://httpbin.ep.io/basic-auth/user/pass', auth=('user', 'pass'))
 
     >>> r.status_code
     200
