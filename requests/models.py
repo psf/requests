@@ -185,7 +185,7 @@ class Request(object):
                 # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
                 if not urlparse(url).netloc:
                     parent_url_components = urlparse(self.url)
-                    url = '%s://%s/%s' % (parent_url_components.scheme, parent_url_components.netloc, url)
+                    url = '%s://%s/%s' % (parent_url_components.scheme, parent_url_components.netloc, urllib.quote(urllib.unquote(url)))
 
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
                 if r.status_code is 303:
@@ -231,9 +231,10 @@ class Request(object):
     def _build_url(self):
         """Build the actual URL to use"""
 
-        # Support for unicode domain names.
+        # Support for unicode domain names and paths.
         parsed_url = list(urlparse(self.url))
         parsed_url[1] = parsed_url[1].encode('idna')
+        parsed_url[2] = urllib.quote(urllib.unquote(parsed_url[2]))
         self.url = urlunparse(parsed_url)
 
         if self._enc_params:
