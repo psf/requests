@@ -16,7 +16,7 @@ from urlparse import urlparse, urlunparse
 from datetime import datetime
 
 from .config import settings
-from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
+from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
@@ -79,6 +79,23 @@ class Request(object):
         self.cookiejar = cookiejar
         #: True if Request has been sent.
         self.sent = False
+
+
+        # Header manipulation and defaults.
+
+        if settings.accept_gzip:
+            settings.base_headers.update({'Accept-Encoding': 'gzip'})
+
+        if headers:
+            headers = CaseInsensitiveDict(self.headers)
+        else:
+            headers = CaseInsensitiveDict()
+
+        for (k, v) in settings.base_headers.items():
+            if k not in headers:
+                headers[k] = v
+
+        self.headers = headers
 
 
     def __repr__(self):
@@ -165,10 +182,7 @@ class Request(object):
 
         r = build(resp)
 
-        if r.status_code in REDIRECT_STATI:
-            self.redirect = True
-
-        if self.redirect:
+        if r.status_code in REDIRECT_STATI and not self.redirect:
 
             while (
                 ('location' in r.headers) and
@@ -211,18 +225,19 @@ class Request(object):
         """Encode parameters in a piece of data.
 
         If the data supplied is a dictionary, encodes each parameter in it, and
-        returns the dictionary of encoded parameters, and a urlencoded version
-        of that.
+        returns a list of tuples containing the encoded parameters, and a urlencoded
+        version of that.
 
         Otherwise, assumes the data is already encoded appropriately, and
         returns it twice.
 
         """
         if hasattr(data, 'items'):
-            result = {}
-            for (k, v) in data.items():
-                result[k.encode('utf-8') if isinstance(k, unicode) else k] \
-                     = v.encode('utf-8') if isinstance(v, unicode) else v
+            result = []
+            for k, vs in data.items():
+                for v in isinstance(vs, list) and vs or [vs]:
+                    result.append((k.encode('utf-8') if isinstance(k, unicode) else k,
+                                   v.encode('utf-8') if isinstance(v, unicode) else v))
             return result, urllib.urlencode(result, doseq=True)
         else:
             return data, data
@@ -535,17 +550,18 @@ class AuthObject(object):
 
     _handlers = {
         'basic': HTTPBasicAuthHandler,
+        'forced_basic': HTTPForcedBasicAuthHandler,
         'digest': HTTPDigestAuthHandler,
         'proxy_basic': urllib2.ProxyBasicAuthHandler,
         'proxy_digest': urllib2.ProxyDigestAuthHandler
     }
 
-    def __init__(self, username, password, handler='basic', realm=None):
+    def __init__(self, username, password, handler='forced_basic', realm=None):
         self.username = username
         self.password = password
         self.realm = realm
 
         if isinstance(handler, basestring):
-            self.handler = self._handlers.get(handler.lower(), urllib2.HTTPBasicAuthHandler)
+            self.handler = self._handlers.get(handler.lower(), HTTPForcedBasicAuthHandler)
         else:
             self.handler = handler

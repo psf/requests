@@ -1,10 +1,17 @@
 History
 -------
 
-0.5.1 (?)
-+++++++++
+0.5.1 (2011-07-23)
+++++++++++++++++++
 
 * International Domain Name Support!
+* Access headers without fetching entire body (``read()``)
+* Use lists as dicts for parameters
+* Add Forced Basic Authentication
+* Forced Basic is default authentication type
+* ``python-requests.org`` default User-Agent header
+* CaseInsensitiveDict lower-case caching
+* Response.history bugfix
 
 
 0.5.0 (2011-06-21)
