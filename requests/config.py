@@ -56,3 +56,4 @@ class Settings(object):
 settings = Settings()
 settings.base_headers = {'User-Agent': 'python-requests.org'}
 settings.accept_gzip = True
+settings.proxies = None
