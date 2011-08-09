@@ -192,6 +192,8 @@ class Request(object):
                 (self.allow_redirects))
             ):
 
+                r.close()
+
                 if not len(history) < 30:
                     raise TooManyRedirects()
 
