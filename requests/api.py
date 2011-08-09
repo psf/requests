@@ -47,7 +47,7 @@ def request(method, url,
         auth = auth or auth_manager.get_auth(url),
         timeout = timeout or config.settings.timeout,
         allow_redirects = allow_redirects,
-        proxies = proxies
+        proxies = proxies or config.settings.proxies
     )
 
     r.send()
