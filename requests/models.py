@@ -169,7 +169,8 @@ class Request(object):
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
                 response.read = resp.read
-                response.close = resp.close
+                response._resp = resp
+                response._close = resp.close
             except AttributeError:
                 pass
 
@@ -396,6 +397,11 @@ class Response(object):
         if self.error:
             raise self.error
 
+
+    def close(self):
+        if self._resp.fp is not None and hasattr(self._resp.fp, '_sock'):
+            self._resp.fp._sock.recv = None
+        self._close()
 
 class AuthManager(object):
     """Requests Authentication Manager."""
