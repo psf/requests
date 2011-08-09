@@ -247,10 +247,12 @@ class Request(object):
         """Build the actual URL to use"""
 
         # Support for unicode domain names and paths.
-        parsed_url = list(urlparse(self.url))
-        parsed_url[1] = parsed_url[1].encode('idna')
-        parsed_url[2] = urllib.quote(urllib.unquote(parsed_url[2]))
-        self.url = urlunparse(parsed_url)
+        scheme, netloc, path, params, query, fragment = urlparse(self.url)
+        netloc = netloc.encode('idna')
+        if isinstance(path, unicode):
+            path = path.encode('utf-8')
+        path = urllib.quote(urllib.unquote(path))
+        self.url = str(urlunparse([ scheme, netloc, path, params, query, fragment ]))
 
         if self._enc_params:
             if urlparse(self.url).query:
