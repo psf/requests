@@ -20,7 +20,7 @@ from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicA
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
-from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod
+from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod, TooManyRedirects
 
 
 REDIRECT_STATI = (301, 302, 303, 307)
@@ -191,6 +191,9 @@ class Request(object):
                 (r.status_code is 303) or
                 (self.allow_redirects))
             ):
+
+                if not len(history) < 30:
+                    raise TooManyRedirects()
 
                 history.append(r)
 
