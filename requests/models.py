@@ -192,6 +192,8 @@ class Request(object):
                 (self.allow_redirects))
             ):
 
+                r.close()
+
                 history.append(r)
 
                 url = r.headers['location']
