@@ -34,6 +34,9 @@ def httpsbin(*suffix):
     return HTTPSBIN_URL + '/'.join(suffix)
 
 
+SERVICES = (httpbin, httpsbin)
+
+
 
 class RequestsTestSuite(unittest.TestCase):
     """Requests test cases."""
@@ -129,61 +132,81 @@ class RequestsTestSuite(unittest.TestCase):
 
 
     def test_AUTH_HTTPS_200_OK_GET(self):
-        auth = ('user', 'pass')
-        url = httpsbin('basic-auth', 'user', 'pass')
-        r = requests.get(url, auth=auth)
 
-        self.assertEqual(r.status_code, 200)
+        for service in SERVICES:
 
-        r = requests.get(url)
-        self.assertEqual(r.status_code, 200)
+            auth = ('user', 'pass')
+            url = service('basic-auth', 'user', 'pass')
+            r = requests.get(url, auth=auth)
 
-        # reset auto authentication
-        requests.auth_manager.empty()
+            self.assertEqual(r.status_code, 200)
+
+            r = requests.get(url)
+            self.assertEqual(r.status_code, 200)
+
+            # reset auto authentication
+            requests.auth_manager.empty()
 
 
     def test_POSTBIN_GET_POST_FILES(self):
-        url = httpbin('post')
-        post = requests.post(url).raise_for_status()
 
-        post = requests.post(url, data={'some': 'data'})
-        self.assertEqual(post.status_code, 200)
+        for service in SERVICES:
 
-        post2 = requests.post(url, files={'some': open('test_requests.py')})
-        self.assertEqual(post2.status_code, 200)
+            url = service('post')
+            post = requests.post(url).raise_for_status()
 
-        post3 = requests.post(url, data='[{"some": "json"}]')
-        self.assertEqual(post3.status_code, 200)
+            post = requests.post(url, data={'some': 'data'})
+            self.assertEqual(post.status_code, 200)
+
+            post2 = requests.post(url, files={'some': open('test_requests.py')})
+            self.assertEqual(post2.status_code, 200)
+
+            post3 = requests.post(url, data='[{"some": "json"}]')
+            self.assertEqual(post3.status_code, 200)
 
 
     def test_POSTBIN_GET_POST_FILES_WITH_PARAMS(self):
 
-        url = httpbin('post')
-        post = requests.post(url, files={'some': open('test_requests.py')}, data={'some': 'data'})
-        self.assertEqual(post.status_code, 200)
+        for service in SERVICES:
+
+            url = service('post')
+            post = requests.post(url,
+                files={'some': open('test_requests.py')},
+                data={'some': 'data'})
+
+            self.assertEqual(post.status_code, 200)
 
 
     def test_POSTBIN_GET_POST_FILES_WITH_HEADERS(self):
 
-        url = httpbin('post')
+        for service in SERVICES:
 
-        post2 = requests.post(url, files={'some': open('test_requests.py')},
-            headers = {'User-Agent': 'requests-tests'})
+            url = service('post')
 
-        self.assertEqual(post2.status_code, 200)
+            post2 = requests.post(url,
+                files={'some': open('test_requests.py')},
+                headers = {'User-Agent': 'requests-tests'})
+
+            self.assertEqual(post2.status_code, 200)
 
 
     def test_nonzero_evaluation(self):
-        r = requests.get(httpbin('status', '500'))
-        self.assertEqual(bool(r), False)
 
-        r = requests.get(httpbin('/'))
-        self.assertEqual(bool(r), True)
+        for service in SERVICES:
+
+            r = requests.get(service('status', '500'))
+            self.assertEqual(bool(r), False)
+
+            r = requests.get(service('/'))
+            self.assertEqual(bool(r), True)
 
 
     def test_request_ok_set(self):
-        r = requests.get(httpbin('status', '404'))
-        self.assertEqual(r.ok, False)
+
+        for service in SERVICES:
+
+            r = requests.get(service('status', '404'))
+            self.assertEqual(r.ok, False)
 
 
     def test_status_raising(self):
@@ -230,22 +253,32 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEquals(r.status_code, 200)
 
 
+        requests.auth_manager.add_auth('httpbin.ep.io', http_auth)
+
+        r = requests.get(httpsbin('basic-auth', 'user', 'pass'))
+        self.assertEquals(r.status_code, 200)
+
+
     def test_unicode_get(self):
 
-        url = httpbin('/')
+        for service in SERVICES:
 
-        requests.get(url, params={'foo': u'føø'})
-        requests.get(url, params={u'føø': u'føø'})
-        requests.get(url, params={'føø': 'føø'})
-        requests.get(url, params={'foo': u'foo'})
-        requests.get(httpbin('ø'), params={'foo': u'foo'})
+            url = service('/')
+
+            requests.get(url, params={'foo': u'føø'})
+            requests.get(url, params={u'føø': u'føø'})
+            requests.get(url, params={'føø': 'føø'})
+            requests.get(url, params={'foo': u'foo'})
+            requests.get(service('ø'), params={'foo': u'foo'})
 
 
     def test_httpauth_recursion(self):
+
         http_auth = ('user', 'BADpass')
 
-        r = requests.get(httpbin('basic-auth', 'user', 'pass'), auth=http_auth)
-        self.assertEquals(r.status_code, 401)
+        for service in SERVICES:
+            r = requests.get(service('basic-auth', 'user', 'pass'), auth=http_auth)
+            self.assertEquals(r.status_code, 401)
 
 
     def test_settings(self):
@@ -262,67 +295,101 @@ class RequestsTestSuite(unittest.TestCase):
 
 
     def test_urlencoded_post_data(self):
-        r = requests.post(httpbin('post'), data=dict(test='fooaowpeuf'))
-        self.assertEquals(r.status_code, 200)
-        self.assertEquals(r.headers['content-type'], 'application/json')
-        self.assertEquals(r.url, httpbin('post'))
-        rbody = json.loads(r.content)
-        self.assertEquals(rbody.get('form'), dict(test='fooaowpeuf'))
-        self.assertEquals(rbody.get('data'), '')
+
+        for service in SERVICES:
+
+            r = requests.post(service('post'), data=dict(test='fooaowpeuf'))
+
+            self.assertEquals(r.status_code, 200)
+            self.assertEquals(r.headers['content-type'], 'application/json')
+            self.assertEquals(r.url, service('post'))
+
+            rbody = json.loads(r.content)
+
+            self.assertEquals(rbody.get('form'), dict(test='fooaowpeuf'))
+            self.assertEquals(rbody.get('data'), '')
 
 
     def test_nonurlencoded_post_data(self):
-        r = requests.post(httpbin('post'), data='fooaowpeuf')
-        self.assertEquals(r.status_code, 200)
-        self.assertEquals(r.headers['content-type'], 'application/json')
-        self.assertEquals(r.url, httpbin('post'))
-        rbody = json.loads(r.content)
-        # Body wasn't valid url encoded data, so the server returns None as
-        # "form" and the raw body as "data".
-        self.assertEquals(rbody.get('form'), None)
-        self.assertEquals(rbody.get('data'), 'fooaowpeuf')
+
+        for service in SERVICES:
+
+            r = requests.post(service('post'), data='fooaowpeuf')
+
+            self.assertEquals(r.status_code, 200)
+            self.assertEquals(r.headers['content-type'], 'application/json')
+            self.assertEquals(r.url, service('post'))
+
+            rbody = json.loads(r.content)
+            # Body wasn't valid url encoded data, so the server returns None as
+            # "form" and the raw body as "data".
+            self.assertEquals(rbody.get('form'), None)
+            self.assertEquals(rbody.get('data'), 'fooaowpeuf')
 
 
     def test_urlencoded_post_querystring(self):
-        r = requests.post(httpbin('post'), params=dict(test='fooaowpeuf'))
-        self.assertEquals(r.status_code, 200)
-        self.assertEquals(r.headers['content-type'], 'application/json')
-        self.assertEquals(r.url, httpbin('post?test=fooaowpeuf'))
-        rbody = json.loads(r.content)
-        self.assertEquals(rbody.get('form'), {}) # No form supplied
-        self.assertEquals(rbody.get('data'), '')
+
+        for service in SERVICES:
+
+            r = requests.post(service('post'), params=dict(test='fooaowpeuf'))
+
+            self.assertEquals(r.status_code, 200)
+            self.assertEquals(r.headers['content-type'], 'application/json')
+            self.assertEquals(r.url, service('post?test=fooaowpeuf'))
+
+            rbody = json.loads(r.content)
+            self.assertEquals(rbody.get('form'), {}) # No form supplied
+            self.assertEquals(rbody.get('data'), '')
 
 
     def test_nonurlencoded_post_querystring(self):
-        r = requests.post(httpbin('post'), params='fooaowpeuf')
-        self.assertEquals(r.status_code, 200)
-        self.assertEquals(r.headers['content-type'], 'application/json')
-        self.assertEquals(r.url, httpbin('post?fooaowpeuf'))
-        rbody = json.loads(r.content)
-        self.assertEquals(rbody.get('form'), {}) # No form supplied
-        self.assertEquals(rbody.get('data'), '')
+
+        for service in SERVICES:
+
+            r = requests.post(service('post'), params='fooaowpeuf')
+
+            self.assertEquals(r.status_code, 200)
+            self.assertEquals(r.headers['content-type'], 'application/json')
+            self.assertEquals(r.url, service('post?fooaowpeuf'))
+
+            rbody = json.loads(r.content)
+            self.assertEquals(rbody.get('form'), {}) # No form supplied
+            self.assertEquals(rbody.get('data'), '')
 
 
     def test_urlencoded_post_query_and_data(self):
-        r = requests.post(httpbin('post'), params=dict(test='fooaowpeuf'),
-                          data=dict(test2="foobar"))
-        self.assertEquals(r.status_code, 200)
-        self.assertEquals(r.headers['content-type'], 'application/json')
-        self.assertEquals(r.url, httpbin('post?test=fooaowpeuf'))
-        rbody = json.loads(r.content)
-        self.assertEquals(rbody.get('form'), dict(test2='foobar'))
-        self.assertEquals(rbody.get('data'), '')
+
+        for service in SERVICES:
+
+            r = requests.post(
+                service('post'),
+                params=dict(test='fooaowpeuf'),
+                data=dict(test2="foobar"))
+
+            self.assertEquals(r.status_code, 200)
+            self.assertEquals(r.headers['content-type'], 'application/json')
+            self.assertEquals(r.url, service('post?test=fooaowpeuf'))
+
+            rbody = json.loads(r.content)
+            self.assertEquals(rbody.get('form'), dict(test2='foobar'))
+            self.assertEquals(rbody.get('data'), '')
 
 
     def test_nonurlencoded_post_query_and_data(self):
-        r = requests.post(httpbin('post'), params='fooaowpeuf',
-                          data="foobar")
-        self.assertEquals(r.status_code, 200)
-        self.assertEquals(r.headers['content-type'], 'application/json')
-        self.assertEquals(r.url, httpbin('post?fooaowpeuf'))
-        rbody = json.loads(r.content)
-        self.assertEquals(rbody.get('form'), None)
-        self.assertEquals(rbody.get('data'), 'foobar')
+
+        for service in SERVICES:
+
+            r = requests.post(service('post'),
+                params='fooaowpeuf', data="foobar")
+
+            self.assertEquals(r.status_code, 200)
+            self.assertEquals(r.headers['content-type'], 'application/json')
+            self.assertEquals(r.url, service('post?fooaowpeuf'))
+
+            rbody = json.loads(r.content)
+
+            self.assertEquals(rbody.get('form'), None)
+            self.assertEquals(rbody.get('data'), 'foobar')
 
 
     def test_idna(self):
@@ -331,40 +398,54 @@ class RequestsTestSuite(unittest.TestCase):
 
 
     def test_urlencoded_get_query_multivalued_param(self):
-        r = requests.get(httpbin('get'), params=dict(test=['foo','baz']))
-        self.assertEquals(r.status_code, 200)
-        self.assertEquals(r.url, httpbin('get?test=foo&test=baz'))
+
+        for service in SERVICES:
+
+            r = requests.get(service('get'), params=dict(test=['foo','baz']))
+            self.assertEquals(r.status_code, 200)
+            self.assertEquals(r.url, service('get?test=foo&test=baz'))
 
 
     def test_urlencoded_post_querystring_multivalued(self):
-        r = requests.post(httpbin('post'), params=dict(test=['foo','baz']))
-        self.assertEquals(r.status_code, 200)
-        self.assertEquals(r.headers['content-type'], 'application/json')
-        self.assertEquals(r.url, httpbin('post?test=foo&test=baz'))
-        rbody = json.loads(r.content)
-        self.assertEquals(rbody.get('form'), {}) # No form supplied
-        self.assertEquals(rbody.get('data'), '')
+
+        for service in SERVICES:
+
+            r = requests.post(service('post'), params=dict(test=['foo','baz']))
+            self.assertEquals(r.status_code, 200)
+            self.assertEquals(r.headers['content-type'], 'application/json')
+            self.assertEquals(r.url, service('post?test=foo&test=baz'))
+
+            rbody = json.loads(r.content)
+            self.assertEquals(rbody.get('form'), {}) # No form supplied
+            self.assertEquals(rbody.get('data'), '')
 
 
     def test_urlencoded_post_query_multivalued_and_data(self):
-        r = requests.post(httpbin('post'), params=dict(test=['foo','baz']),
-                          data=dict(test2="foobar",test3=['foo','baz']))
-        self.assertEquals(r.status_code, 200)
-        self.assertEquals(r.headers['content-type'], 'application/json')
-        self.assertEquals(r.url, httpbin('post?test=foo&test=baz'))
-        rbody = json.loads(r.content)
-        self.assertEquals(rbody.get('form'), dict(test2='foobar',test3='foo'))
-        self.assertEquals(rbody.get('data'), '')
+
+        for service in SERVICES:
+
+            r = requests.post(
+                service('post'),
+                params=dict(test=['foo','baz']),
+                data=dict(test2="foobar",test3=['foo','baz']))
+
+            self.assertEquals(r.status_code, 200)
+            self.assertEquals(r.headers['content-type'], 'application/json')
+            self.assertEquals(r.url, service('post?test=foo&test=baz'))
+            rbody = json.loads(r.content)
+            self.assertEquals(rbody.get('form'), dict(test2='foobar',test3='foo'))
+            self.assertEquals(rbody.get('data'), '')
 
 
     def test_redirect_history(self):
-        r = requests.get(httpbin('redirect', '3'))
-        self.assertEquals(r.status_code, 200)
-        self.assertEquals(len(r.history), 3)
 
-        r = requests.get(httpsbin('redirect', '3'))
-        self.assertEquals(r.status_code, 200)
-        self.assertEquals(len(r.history), 3)
+        for service in SERVICES:
+
+            r = requests.get(service('redirect', '3'))
+            self.assertEquals(r.status_code, 200)
+            self.assertEquals(len(r.history), 3)
+
+
 
 if __name__ == '__main__':
     unittest.main()
