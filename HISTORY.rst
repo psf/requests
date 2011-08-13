@@ -1,6 +1,14 @@
 History
 -------
 
+0.5.2 (2011-09-??)
+++++++++++++++++++
+
+* status code reference dict?
+* Relative redirect support
+* Improved https testing
+* Bugfixes
+
 0.5.1 (2011-07-23)
 ++++++++++++++++++
 
