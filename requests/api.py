@@ -55,9 +55,7 @@ def request(method, url,
     return r.response
 
 
-def get(url,
-    params=None, headers=None, cookies=None, auth=None, timeout=None,
-    proxies=None):
+def get(url, **kwargs):
 
     """Sends a GET request. Returns :class:`Response` object.
 
@@ -70,14 +68,10 @@ def get(url,
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     """
 
-    return request('GET', url,
-        params=params, headers=headers, cookies=cookies, auth=auth,
-        timeout=timeout, proxies=proxies)
+    return request('GET', url, **kwargs)
 
 
-def head(url,
-    params=None, headers=None, cookies=None, auth=None, timeout=None,
-    proxies=None):
+def head(url, **kwargs):
 
     """Sends a HEAD request. Returns :class:`Response` object.
 
@@ -90,14 +84,10 @@ def head(url,
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     """
 
-    return request('HEAD', url,
-        params=params, headers=headers, cookies=cookies, auth=auth,
-        timeout=timeout, proxies=proxies)
+    return request('HEAD', url, **kwargs)
 
 
-def post(url,
-    data='', headers=None, files=None, cookies=None, auth=None, timeout=None,
-    allow_redirects=False, params=None, proxies=None):
+def post(url, data='', **kwargs):
 
     """Sends a POST request. Returns :class:`Response` object.
 
@@ -113,14 +103,10 @@ def post(url,
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     """
 
-    return request('POST', url,
-        params=params, data=data, headers=headers, files=files,
-        cookies=cookies, auth=auth, timeout=timeout,
-        allow_redirects=allow_redirects, proxies=proxies)
+    return request('POST', url, data=data, **kwargs)
 
 
-def put(url, data='', headers=None, files=None, cookies=None, auth=None,
-        timeout=None, allow_redirects=False, params=None, proxies=None):
+def put(url, data='', **kwargs):
     """Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -135,14 +121,10 @@ def put(url, data='', headers=None, files=None, cookies=None, auth=None,
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     """
 
-    return request('PUT', url,
-        params=params, data=data, headers=headers, files=files,
-        cookies=cookies, auth=auth, timeout=timeout,
-        allow_redirects=allow_redirects, proxies=proxies)
+    return request('PUT', url, data=data, **kwargs)
 
 
-def patch(url, data='', headers=None, files=None, cookies=None, auth=None,
-        timeout=None, allow_redirects=False, params=None, proxies=None):
+def patch(url, data='', **kwargs):
     """Sends a PATCH request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -157,15 +139,10 @@ def patch(url, data='', headers=None, files=None, cookies=None, auth=None,
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     """
 
-    return request('PATCH', url,
-        params=params, data=data, headers=headers, files=files,
-        cookies=cookies, auth=auth, timeout=timeout,
-        allow_redirects=allow_redirects, proxies=proxies)
+    return request('PATCH', url, **kwargs)
 
 
-def delete(url,
-    params=None, headers=None, cookies=None, auth=None, timeout=None,
-    allow_redirects=False, proxies=None):
+def delete(url, **kwargs):
 
     """Sends a DELETE request. Returns :class:`Response` object.
 
@@ -179,6 +156,4 @@ def delete(url,
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     """
 
-    return request('DELETE', url,
-        params=params, headers=headers, cookies=cookies, auth=auth,
-        timeout=timeout, allow_redirects=allow_redirects, proxies=proxies)
+    return request('DELETE', url, **kwargs)
