@@ -322,12 +322,9 @@ class Request(object):
                 self._build_response(resp)
                 self.response.ok = True
 
-            self.response.cached = False
         else:
-            self.response.cached = True
 
         self.sent = self.response.ok
-
 
         return self.sent
 
@@ -357,8 +354,6 @@ class Response(object):
         self.ok = False
         #: Resulting :class:`HTTPError` of request, if one occured.
         self.error = None
-        #: True, if the response :attr:`content` is cached locally.
-        self.cached = False
         #: A list of :class:`Response <models.Response>` objects from
         #: the history of the Request. Any redirect responses will end
         #: up here.
