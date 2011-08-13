@@ -219,6 +219,7 @@ class Request(object):
             r.history = history
 
         self.response = r
+        self.response.request = self
 
 
     @staticmethod
@@ -322,7 +323,6 @@ class Request(object):
                 self._build_response(resp)
                 self.response.ok = True
 
-        else:
 
         self.sent = self.response.ok
 
@@ -358,6 +358,8 @@ class Response(object):
         #: the history of the Request. Any redirect responses will end
         #: up here.
         self.history = []
+
+        self.request = None
 
 
     def __repr__(self):
