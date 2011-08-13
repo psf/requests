@@ -324,14 +324,17 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEquals(rbody.get('form'), None)
         self.assertEquals(rbody.get('data'), 'foobar')
 
+
     def test_idna(self):
         r = requests.get(u'http://➡.ws/httpbin')
         assert 'httpbin' in r.url
+
 
     def test_urlencoded_get_query_multivalued_param(self):
         r = requests.get(httpbin('get'), params=dict(test=['foo','baz']))
         self.assertEquals(r.status_code, 200)
         self.assertEquals(r.url, httpbin('get?test=foo&test=baz'))
+
 
     def test_urlencoded_post_querystring_multivalued(self):
         r = requests.post(httpbin('post'), params=dict(test=['foo','baz']))
@@ -341,6 +344,7 @@ class RequestsTestSuite(unittest.TestCase):
         rbody = json.loads(r.content)
         self.assertEquals(rbody.get('form'), {}) # No form supplied
         self.assertEquals(rbody.get('data'), '')
+
 
     def test_urlencoded_post_query_multivalued_and_data(self):
         r = requests.post(httpbin('post'), params=dict(test=['foo','baz']),
