@@ -13,6 +13,7 @@ This module impliments the Requests API.
 
 import config
 from .models import Request, Response, AuthManager, AuthObject, auth_manager
+from .status_codes import codes
 
 
 __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
