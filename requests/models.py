@@ -158,7 +158,7 @@ class Request(object):
         return opener.open
 
 
-    def _build_response(self, resp):
+    def _build_response(self, resp, is_error=False):
         """Build internal :class:`Response <models.Response>` object from given response."""
 
         def build(resp):
@@ -172,6 +172,9 @@ class Request(object):
                 response.close = resp.close
             except AttributeError:
                 pass
+
+            if is_error:
+                response.error = resp
 
             response.url = getattr(resp, 'url', None)
 
@@ -312,9 +315,8 @@ class Request(object):
                     if isinstance(why.reason, socket.timeout):
                         why = Timeout(why)
 
-                self._build_response(why)
-                if not self.redirect:
-                    self.response.error = why
+                self._build_response(why, is_error=True)
+
 
             else:
                 self._build_response(resp)
