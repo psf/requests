@@ -5,6 +5,9 @@ History
 ++++++++++++++++++
 
 * status code reference dict?
+* Removed Response.cached
+* Added Response.request
+* all args are kwargs
 * Relative redirect support
 * HTTPError handling improvements
 * Improved https testing
