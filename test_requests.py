@@ -446,6 +446,14 @@ class RequestsTestSuite(unittest.TestCase):
             self.assertEquals(len(r.history), 3)
 
 
+    def test_relative_redirect_history(self):
+
+        for service in SERVICES:
+
+            r = requests.get(service('relative-redirect', '3'))
+            self.assertEquals(r.status_code, 200)
+            self.assertEquals(len(r.history), 3)
+
 
 if __name__ == '__main__':
     unittest.main()
