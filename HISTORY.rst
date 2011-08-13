@@ -6,6 +6,7 @@ History
 
 * status code reference dict?
 * Relative redirect support
+* HTTPError handling improvements
 * Improved https testing
 * Bugfixes
 
