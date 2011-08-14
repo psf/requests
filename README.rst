@@ -83,7 +83,7 @@ If CookieJar object is is passed in (cookies=...), the cookies will be sent with
     <Response [200]>
 
   PATCH Requests
-    >>> requests.post(url, data={}, headers={}, files={}, cookies=None, auth=None, timeout=None, allow_redirects=False, params{}, proxies={})
+    >>> requests.patch(url, data={}, headers={}, files={}, cookies=None, auth=None, timeout=None, allow_redirects=False, params{}, proxies={})
     <Response [200]>
 
   DELETE Requests
