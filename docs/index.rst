@@ -21,9 +21,11 @@ Things shouldn’t be this way. Not in Python.
 
     >>> r = requests.get('https://api.github.com', auth=('user', 'pass'))
     >>> r.status_code
-    200
+    204
     >>> r.headers['content-type']
     'application/json'
+    >>> r.content
+    ...
 
 See `the same code, without Requests <https://gist.github.com/973705>`_.
 
