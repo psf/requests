@@ -3,6 +3,8 @@
 from .structures import LookupDict
 
 _codes = {
+
+    # Informational.
     100: ('continue',),
     101: ('switching_protocols',),
     102: ('processing',),
@@ -17,6 +19,8 @@ _codes = {
     206: ('partial_content', 'partial'),
     207: ('multi_status', 'multiple_status', 'multi_stati', 'multiple_stati'),
     208: ('im_used',),
+
+    # Redirection.
     300: ('multiple_choices',),
     301: ('moved_pemanently', 'moved'),
     302: ('found',),
@@ -26,6 +30,8 @@ _codes = {
     306: ('switch_proxy',),
     307: ('temporary_redirect', 'temporary_moved', 'temporary'),
     308: ('resume_incomplete', 'resume'),
+
+    # Client Error.
     400: ('bad_request', 'bad'),
     401: ('unauthorized',),
     402: ('payment_required', 'payment'),
@@ -54,6 +60,8 @@ _codes = {
     449: ('retry_with', 'retry'),
     450: ('blocked_by_windows_parental_controls', 'parental_controls'),
     499: ('client_closed_request',),
+
+    # Server Error.
     500: ('iternal_server_error', 'server_error'),
     501: ('not_implemented',),
     502: ('bad_gateway',),
