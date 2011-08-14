@@ -24,7 +24,7 @@ But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/index
 Cheeseshop Mirror
 -----------------
 
-If the Cheeseshop is down, you can also install Requests from Kenneth Reitz's personal `Cheeseshop mirror <pip.kreitz.co/>`_::
+If the Cheeseshop is down, you can also install Requests from Kenneth Reitz's personal `Cheeseshop mirror <http://pip.kreitz.co/>`_::
 
     $ pip install -i http://pip.kreitz.co/simple requests
 
