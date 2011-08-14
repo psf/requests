@@ -15,7 +15,7 @@ Installing requests is simple with `pip <http://www.pip-installer.org/>`_::
 
 or, with `easy_install <http://pypi.python.org/pypi/setuptools>`_::
 
-    $ easy_install install requests
+    $ easy_install requests
 
 But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/index.html#pip-compared-to-easy-install>`_.
 
