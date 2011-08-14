@@ -32,7 +32,7 @@ If the Cheeseshop is down, you can also install Requests from Kenneth Reitz's pe
 Get the Code
 ------------
 
-Requsts is actively developed on GitHub, where the code is
+Requests is actively developed on GitHub, where the code is
 `always available <https://github.com/kennethreitz/requests>`_.
 
 You can either clone the public repository::
