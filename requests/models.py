@@ -341,7 +341,6 @@ class Response(object):
         #: Raw content of the response, in bytes.
         #: If ``content-encoding`` of response was set to ``gzip``, the
         #: response data will be automatically deflated.
-        self.content = None
         self._content = None
         #: Integer Code of responded HTTP Status.
         self.status_code = None
