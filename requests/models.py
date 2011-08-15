@@ -38,7 +38,8 @@ class Request(object):
         params=dict(), auth=None, cookiejar=None, timeout=None, redirect=False,
         allow_redirects=False, proxies=None):
 
-        socket.setdefaulttimeout(timeout)
+        #socket.setdefaulttimeout(timeout)
+        self.timeout = timeout
 
         #: Request URL.
         self.url = url
@@ -306,7 +307,17 @@ class Request(object):
 
             try:
                 opener = self._get_opener()
-                resp = opener(req)
+                try:
+                    resp = opener(req, timeout=self.timeout)
+                except TypeError, err:
+                    # timeout argument is new since Python v2.6
+                    if not "timeout" in str(err):
+                        raise
+                    # set global socket timeout
+                    old_timeout = socket.getdefaulttimeout()
+                    socket.setdefaulttimeout(self.timeout)
+                    resp = opener(req)
+                    socket.setdefaulttimeout(old_timeout)
 
                 if self.cookiejar is not None:
                     self.cookiejar.extract_cookies(resp, req)
