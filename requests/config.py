@@ -57,3 +57,4 @@ settings = Settings()
 settings.base_headers = {'User-Agent': 'python-requests.org'}
 settings.accept_gzip = True
 settings.proxies = None
+settings.timeout_fallback = True # Use socket.setdefaulttimeout() as fallback?
