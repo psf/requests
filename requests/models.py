@@ -328,6 +328,37 @@ class Request(object):
 
         return self.sent
 
+    @property
+    def curl(self):
+        """Creates a curl command from the request"""
+
+        #TODO - Auth. User names and accounts
+        #TODO - Query string...
+        #TODO - Files...How do I do files???
+
+        #: --location - if there is a redirect, redo request on the new place
+        curl_cmd = 'curl --location '
+
+        if self.method.upper() == 'HEAD':
+            #: --head - fetch headers only
+            method_opt = '--head '
+        else:
+            #: --request - specify request method
+            method_opt = '--request %s ' % self.method.upper()
+
+        data = ''
+        if self.method in ('PUT', 'POST', 'PATCH'):
+            #: --data - send specified data in post request.
+            #: '-data name=John -data skill=Doe' generates the
+            #: post chunk 'name=daniel&skill=lousy'
+
+            #if data is file:
+            if isinstance(self.data, (list, tuple)):
+                data = data.join(['--data ' + key + '=' + value + ' ' for key, value in self.data])
+
+        curl_cmd = curl_cmd + method_opt + data + self.url
+
+        return curl_cmd
 
 
 class Response(object):
