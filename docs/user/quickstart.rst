@@ -5,7 +5,7 @@ Quickstart
 
 .. module:: requests
 
-Eager to get started? This page gives a good introduction in how to get started with Requests. This assumes you already have Tablib installed. If you do not, head over to the :ref:`Installation <install>` section.
+Eager to get started? This page gives a good introduction in how to get started with Requests. This assumes you already have Requests installed. If you do not, head over to the :ref:`Installation <install>` section.
 
 First, make sure that:
 
