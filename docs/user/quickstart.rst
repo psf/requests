@@ -25,8 +25,7 @@ Let's get GitHub's public timeline ::
 
     r = requests.get('https://github.com/timeline.json')
 
-Now, we have a :class:`Response` object. We can get all the information
-we need from this.
+Now, we have a :class:`Response` object called ``r``. We can get all the information we need from this.
 
 
 Response Content
@@ -36,7 +35,6 @@ We can read the content of the server's response::
 
     >>> r.content
     '[{"repository":{"open_issues":0,"url":"https://github.com/...
-
 
 
 Response Status Codes
@@ -52,3 +50,23 @@ reference::
 
     >>> r.status_code == requests.codes.ok
     True
+
+If we made a bad request, we can raise it with
+:class:`Response.raise_for_status()`::
+
+    >>> _r = requests.get('http://httpbin.org/status/404')
+    >>> _r.status_code
+    404
+
+    >>> _r.raise_for_status()
+    Traceback (most recent call last):
+      File "requests/models.py", line 394, in raise_for_status
+        raise self.error
+    urllib2.HTTPError: HTTP Error 404: NOT FOUND
+
+But, sice our ``status_code`` was ``200``, when we call it::
+
+    >>> r.raise_for_status()
+    None
+
+All is well.
