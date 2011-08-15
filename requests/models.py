@@ -300,7 +300,8 @@ class Request(object):
                 req = _Request(url, data=self._enc_data, method=self.method)
 
         if self.headers:
-            req.headers.update(self.headers)
+            for k,v in self.headers.iteritems():
+                req.add_header(k, v)
 
         if not self.sent or anyway:
 
