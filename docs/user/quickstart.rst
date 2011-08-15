@@ -70,3 +70,38 @@ But, sice our ``status_code`` was ``200``, when we call it::
     None
 
 All is well.
+
+
+Response Headers
+----------------
+
+We can view the server's response headers with a simple Python dictionary
+interface::
+
+    >>> r.headers
+    {
+        'status': '200 OK',
+        'content-encoding': 'gzip',
+        'transfer-encoding': 'chunked',
+        'connection': 'close',
+        'server': 'nginx/1.0.4',
+        'x-runtime': '148ms',
+        'etag': '"e1ca502697e5c9317743dc078f67693f"',
+        'content-type': 'application/json; charset=utf-8'
+    }
+
+The dictionary is special, though: it's made just for HTTP headers. According to `RFC 2616 <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html>`_, HTTP
+Headers are case-insensitive.
+
+So, we can access the headers using any capitalization we want::
+
+    >>> r.headers['Content-Type']
+    'application/json; charset=utf-8'
+
+    >>> r.headers.get('content-type')
+    'application/json; charset=utf-8'
+
+If a header doesn't exist in the Response, its value defaults to ``None``::
+
+    >>> r.headers['X-Random']
+    None
