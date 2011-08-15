@@ -9,8 +9,8 @@ Eager to get started? This page gives a good introduction in how to get started 
 
 First, make sure that:
 
-* Tablib is :ref:`installed <install>`
-* Tablib is :ref:`up-to-date <updates>`
+* Requests is :ref:`installed <install>`
+* Requests is :ref:`up-to-date <updates>`
 
 
 Lets gets started with some simple use cases and examples.
