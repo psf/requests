@@ -1,84 +1,54 @@
-Feature Overview
-================
-
-Requests is designed to solve a 90% use case — making simple requests. While most
-HTTP libraries are extremely extensible, they often attempt to support the entire HTTP Spec.
-This often leads to extremely messy and cumbersome APIs, as is the case with urllib2. Requests abandons support for edge-cases, and focuses on the essentials.
-
-
-.. _features:
-
-Requests Can:
--------------
-
-- Make **GET**, **POST**, **PUT**, **DELETE**, and **HEAD** requests.
-- Handle HTTP and HTTPS Requests
-- Add Request headers (with a simple dictionary)
-- URLEncode your Form Data (with a simple dictionary)
-- Add Multi-part File Uploads (with a simple dictionary)
-- Handle CookieJars (with a single parameter)
-- Add HTTP Authentication (with a single parameter)
-- Handle redirects (with history)
-- Automatically decompress GZip'd responses
-- Support Unicode URLs
-- Gracefully timeout
-- Interface with Eventlet & Gevent
-
-
-Requests Can't:
----------------
-
-- Handle Caching
-- Handle Keep-Alives
-
+.. _quickstart:
 
 Quickstart
 ==========
 
+.. module:: requests
 
-GET Request
------------
+Eager to get started? This page gives a good introduction in how to get started with Requests. This assumes you already have Tablib installed. If you do not, head over to the :ref:`Installation <install>` section.
 
+First, make sure that:
 
-Adding Parameters
------------------
-
-
-
-Adding Headers
---------------
+* Tablib is :ref:`installed <install>`
+* Tablib is :ref:`up-to-date <updates>`
 
 
-
-HTTP Basic Auth
----------------
+Lets gets started with some simple use cases and examples.
 
 
-Tracking Redirects
+Make a GET Request
 ------------------
 
+Making a standard request with Requests is very simple.
+
+Let's get GitHub's public timeline ::
+
+    r = requests.get('https://github.com/timeline.json')
+
+Now, we have a :class:`Response` object. We can get all the information
+we need from this.
+
+
+Response Content
+----------------
+
+We can read the content of the server's response::
+
+    >>> r.content
+    '[{"repository":{"open_issues":0,"url":"https://github.com/...
 
 
 
-HTTP POST (Form Data)
+Response Status Codes
 ---------------------
 
+We can check the response status code::
 
-HTTP POST (Binary Data)
------------------------
+    >>> r.status_code
+    200
 
+Requests also comes with a built-in status code lookup object for easy
+reference::
 
-HTTP POST (Multipart Files)
----------------------------
-
-
-HTTP PUT
---------
-
-
-HTTP DELETE
------------
-
-
-HTTP HEAD
----------
+    >>> r.status_code == requests.codes.ok
+    True

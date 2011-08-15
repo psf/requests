@@ -69,10 +69,22 @@ instructions for getting the most out of Requests.
 
    user/intro
    user/install
-   user/faq
-..   user/quickstart
+   user/quickstart
    user/advanced
 
+
+Community Guide
+-----------------
+
+This part of the documentation, which is mostly prose, details the
+Requests ecosystem and community.
+
+.. toctree::
+   :maxdepth: 2
+
+   community/faq
+   community/support
+   community/updates
 
 API Documentation
 -----------------
@@ -97,3 +109,4 @@ you.
 
    dev/internals
    dev/todo
+   dev/authors
