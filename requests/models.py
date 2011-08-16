@@ -146,15 +146,6 @@ class Request(object):
 
         opener = urllib2.build_opener(*_handlers)
 
-        if self.headers:
-            # Allow default headers in the opener to be overloaded
-            normal_keys = [k.capitalize() for k in self.headers]
-            for key, val in opener.addheaders[:]:
-                if key not in normal_keys:
-                    continue
-                # Remove it, we have a value to take its place
-                opener.addheaders.remove((key, val))
-
         return opener.open
 
 
