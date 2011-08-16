@@ -22,7 +22,7 @@ _codes = {
 
     # Redirection.
     300: ('multiple_choices',),
-    301: ('moved_pemanently', 'moved'),
+    301: ('moved_permanently', 'moved'),
     302: ('found',),
     302: ('see_other', 'other'),
     304: ('not_modified',),
@@ -62,7 +62,7 @@ _codes = {
     499: ('client_closed_request',),
 
     # Server Error.
-    500: ('iternal_server_error', 'server_error'),
+    500: ('internal_server_error', 'server_error'),
     501: ('not_implemented',),
     502: ('bad_gateway',),
     503: ('service_unavailable', 'unavailable'),
