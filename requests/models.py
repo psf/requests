@@ -333,11 +333,15 @@ class Request(object):
         """Creates a curl command from the request"""
 
         #TODO - Auth. User names and accounts
-        #TODO - Query string...
         #TODO - Files...How do I do files???
 
         #: --location - if there is a redirect, redo request on the new place
         curl_cmd = 'curl --location '
+
+        #: --header - Extra header to use when getting a web page
+        header = ''
+        if self.headers:
+            header = header.join(['--header "' + key + ':' + value + '" ' for key, value in self.headers.iteritems()])
 
         if self.method.upper() == 'HEAD':
             #: --head - fetch headers only
@@ -355,8 +359,11 @@ class Request(object):
             #if data is file:
             if isinstance(self.data, (list, tuple)):
                 data = data.join(['--data ' + key + '=' + value + ' ' for key, value in self.data])
+            else:
+                data = '--data ' + self._enc_data + ' '
 
-        curl_cmd = curl_cmd + method_opt + data + self.url
+        #: Params handled in _build_url
+        curl_cmd = curl_cmd + method_opt + data + header + '"' + self._build_url() + '"'
 
         return curl_cmd
 
