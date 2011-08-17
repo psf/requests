@@ -89,6 +89,37 @@ Let's print some request method arguments at runtime::
     http://httpbin
     <Response [200]>
 
+Let's hijack some arguments this time::
+
+    def hack_headers(args):
+        if not args[headers]:
+            args['headers'] = dict()
+
+        args['headers'].update({'X-Testing': 'True'})
+
+
+        return args
+
+    hooks = dict(args=hack_headers)
+    headers = dict(yo=dawg)
+
+    >>> requests.get('http://httpbin/headers', hooks=hooks, headers=headers)
+    {
+        "headers": {
+            "Content-Length": "",
+            "Accept-Encoding": "gzip",
+            "Yo": "dawg",
+            "X-Forwarded-For": "::ffff:24.127.96.129",
+            "Connection": "close",
+            "User-Agent": "python-requests.org",
+            "Host": "httpbin.org",
+            "X-Testing": "True",
+            "X-Forwarded-Protocol": "",
+            "Content-Type": ""
+        }
+    }
+
+
 
 Verbose Logging
 ---------------
