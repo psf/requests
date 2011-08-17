@@ -36,6 +36,14 @@ def cookiejar_from_dict(cookie_dict):
     # create cookiejar
     cj = cookielib.CookieJar()
 
+    cj = add_dict_to_cookiejar(cj, cookie_dict)
+
+    return cj
+
+
+def add_dict_to_cookiejar(cj, cookie_dict):
+    """Returns a CookieJar from a key/value dictionary."""
+
     for k, v in cookie_dict.items():
 
         cookie = cookielib.Cookie(
