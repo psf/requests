@@ -1,84 +1,134 @@
-Feature Overview
-================
-
-Requests is designed to solve a 90% use case — making simple requests. While most
-HTTP libraries are extremely extensible, they often attempt to support the entire HTTP Spec.
-This often leads to extremely messy and cumbersome APIs, as is the case with urllib2. Requests abandons support for edge-cases, and focuses on the essentials.
-
-
-.. _features:
-
-Requests Can:
--------------
-
-- Make **GET**, **POST**, **PUT**, **DELETE**, and **HEAD** requests.
-- Handle HTTP and HTTPS Requests
-- Add Request headers (with a simple dictionary)
-- URLEncode your Form Data (with a simple dictionary)
-- Add Multi-part File Uploads (with a simple dictionary)
-- Handle CookieJars (with a single parameter)
-- Add HTTP Authentication (with a single parameter)
-- Handle redirects (with history)
-- Automatically decompress GZip'd responses
-- Support Unicode URLs
-- Gracefully timeout
-- Interface with Eventlet & Gevent
-
-
-Requests Can't:
----------------
-
-- Handle Caching
-- Handle Keep-Alives
-
+.. _quickstart:
 
 Quickstart
 ==========
 
+.. module:: requests.models
 
-GET Request
------------
+Eager to get started? This page gives a good introduction in how to get started with Requests. This assumes you already have Requests installed. If you do not, head over to the :ref:`Installation <install>` section.
 
+First, make sure that:
 
-Adding Parameters
------------------
-
-
-
-Adding Headers
---------------
+* Requests is :ref:`installed <install>`
+* Requests is :ref:`up-to-date <updates>`
 
 
-
-HTTP Basic Auth
----------------
+Lets gets started with some simple use cases and examples.
 
 
-Tracking Redirects
+Make a GET Request
 ------------------
 
+Making a standard request with Requests is very simple.
+
+Let's get GitHub's public timeline ::
+
+    r = requests.get('https://github.com/timeline.json')
+
+Now, we have a :class:`Response` object called ``r``. We can get all the information we need from this.
 
 
+Response Content
+----------------
 
-HTTP POST (Form Data)
+We can read the content of the server's response::
+
+    >>> r.content
+    '[{"repository":{"open_issues":0,"url":"https://github.com/...
+
+
+Response Status Codes
 ---------------------
 
+We can check the response status code::
 
-HTTP POST (Binary Data)
------------------------
+    >>> r.status_code
+    200
+
+Requests also comes with a built-in status code lookup object for easy
+reference::
+
+    >>> r.status_code == requests.codes.ok
+    True
+
+If we made a bad request, we can raise it with
+:class:`Response.raise_for_status()`::
+
+    >>> _r = requests.get('http://httpbin.org/status/404')
+    >>> _r.status_code
+    404
+
+    >>> _r.raise_for_status()
+    Traceback (most recent call last):
+      File "requests/models.py", line 394, in raise_for_status
+        raise self.error
+    urllib2.HTTPError: HTTP Error 404: NOT FOUND
+
+But, since our ``status_code`` was ``200``, when we call it::
+
+    >>> r.raise_for_status()
+    None
+
+All is well.
 
 
-HTTP POST (Multipart Files)
----------------------------
+Response Headers
+----------------
+
+We can view the server's response headers with a simple Python dictionary
+interface::
+
+    >>> r.headers
+    {
+        'status': '200 OK',
+        'content-encoding': 'gzip',
+        'transfer-encoding': 'chunked',
+        'connection': 'close',
+        'server': 'nginx/1.0.4',
+        'x-runtime': '148ms',
+        'etag': '"e1ca502697e5c9317743dc078f67693f"',
+        'content-type': 'application/json; charset=utf-8'
+    }
+
+The dictionary is special, though: it's made just for HTTP headers. According to `RFC 2616 <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html>`_, HTTP
+Headers are case-insensitive.
+
+So, we can access the headers using any capitalization we want::
+
+    >>> r.headers['Content-Type']
+    'application/json; charset=utf-8'
+
+    >>> r.headers.get('content-type')
+    'application/json; charset=utf-8'
+
+If a header doesn't exist in the Response, its value defaults to ``None``::
+
+    >>> r.headers['X-Random']
+    None
 
 
-HTTP PUT
---------
+Cookies
+-------
 
+If a response contains some Cookies, you can get quick access to them::
 
-HTTP DELETE
------------
+    >>> url = 'http://httpbin.org/cookies/set/requests-is/awesome'
+    >>> r = requests.get(url)
 
+    >>> print r.cookies
+    {'requests-is': 'awesome'}
 
-HTTP HEAD
----------
+The underlying CookieJar is also available for more advanced handing::
+
+    >>> r.request.cookiejar
+    <cookielib.CookieJar>
+
+To send your own cookies to the server, you can use the ``cookies``
+parameter::
+
+    >>> url = 'http://httpbin.org/cookies'
+    >>> cookies = dict(cookies_are='working')
+
+    >>> r = requests.get(url, cookies=cookies)
+    >>> r.content
+    '{"cookies": {"cookies_are": "working"}}'
