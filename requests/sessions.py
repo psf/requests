@@ -12,6 +12,7 @@ requests (cookies, auth, proxies).
 import cookielib
 
 from . import api
+from .utils import add_dict_to_cookiejar
 
 
 
@@ -58,6 +59,14 @@ class Session(object):
                 # Combine instance-local values with kwargs values, with
                 # priority to values in kwargs
                 kwargs = dict(inst_attrs.items() + kwargs.items())
+
+                # If a session request has a cookie_dict, inject the
+                # values into the existing CookieJar instead.
+                if isinstance(kwargs.get('cookies', None), dict):
+                    kwargs['cookies'] = add_dict_to_cookiejar(
+                        inst_attrs['cookies'], kwargs['cookies']
+                    )
+
                 return func(*args, **kwargs)
             return wrapper_func
 
