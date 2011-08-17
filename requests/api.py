@@ -12,15 +12,16 @@ This module impliments the Requests API.
 """
 
 import config
-from .models import Request, Response, AuthManager, AuthObject, auth_manager
+from .models import Request, Response, AuthObject
 from .status_codes import codes
+from .hooks import dispatch_hook
 
 
 __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
 
 def request(method, url,
     params=None, data=None, headers=None, cookies=None, files=None, auth=None,
-    timeout=None, allow_redirects=False, proxies=None):
+    timeout=None, allow_redirects=False, proxies=None, hooks=None):
 
     """Constructs and sends a :class:`Request <models.Request>`. Returns :class:`Response <models.Response>` object.
 
@@ -37,7 +38,7 @@ def request(method, url,
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     """
 
-    r = Request(
+    args = dict(
         method = method,
         url = url,
         data = data,
@@ -45,11 +46,15 @@ def request(method, url,
         headers = headers,
         cookiejar = cookies,
         files = files,
-        auth = auth or auth_manager.get_auth(url),
+        auth = auth,
         timeout = timeout or config.settings.timeout,
         allow_redirects = allow_redirects,
         proxies = proxies or config.settings.proxies
     )
+
+    args = dispatch_hook('args', hooks, args)
+
+    r = Request(**args)
 
     r.send()
 
