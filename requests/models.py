@@ -39,7 +39,7 @@ class Request(object):
         allow_redirects=False, proxies=None):
 
         #: Float describ the timeout of the request.
-        # (Use socket.setdefaulttimeout() as fallback)
+        #  (Use socket.setdefaulttimeout() as fallback)
         self.timeout = timeout
 
         #: Request URL.
