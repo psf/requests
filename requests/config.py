@@ -53,8 +53,12 @@ class Settings(object):
                 return None
         return object.__getattribute__(self, key)
 
+
 settings = Settings()
+
 settings.base_headers = {'User-Agent': 'python-requests.org'}
 settings.accept_gzip = True
 settings.proxies = None
-settings.timeout_fallback = True # Use socket.setdefaulttimeout() as fallback?
+
+#: Use socket.setdefaulttimeout() as fallback?
+settings.timeout_fallback = True
