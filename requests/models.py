@@ -225,6 +225,11 @@ class Request(object):
 
                 url = r.headers['location']
 
+                # Handle redirection without scheme (see: RFC 1808 Section 4)
+                if url.startswith('//'):
+                    parsed_rurl = urlparse(r.url)
+                    url = '%s:%s' % (parsed_rurl.scheme, url)
+
                 # Facilitate non-RFC2616-compliant 'location' headers
                 # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
                 if not urlparse(url).netloc:
