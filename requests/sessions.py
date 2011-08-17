@@ -9,13 +9,16 @@ requests (cookies, auth, proxies).
 
 """
 
-import requests.api
 import cookielib
+
+from . import api
+
+
 
 class Session(object):
     """A Requests session."""
 
-    __attrs__ = ['headers', 'cookies', 'auth', 'timeout', 'proxies']
+    __attrs__ = ['headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks']
 
 
     def __init__(self, **kwargs):
@@ -33,6 +36,13 @@ class Session(object):
 
     def __repr__(self):
         return '<requests-client at 0x%x>' % (id(self))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        # print args
+        pass
 
 
     def _map_api_methods(self):
@@ -52,7 +62,11 @@ class Session(object):
             return wrapper_func
 
         # Map and decorate each function available in requests.api
-        map(lambda fn: setattr(self, fn, pass_args(getattr(requests.api, fn))),
-                requests.api.__all__)
+        map(lambda fn: setattr(self, fn, pass_args(getattr(api, fn))),
+                api.__all__)
 
 
+def session(**kwargs):
+    """Returns a :class:`Session` for context-managment."""
+
+    return Session(**kwargs)
