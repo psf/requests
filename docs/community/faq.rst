@@ -34,7 +34,7 @@ Chris Adams gave an excellent summary on
 Python 3 Support?
 -----------------
 
-It's on the way.
+It's on the way. Here's a list of `supported interpreters <interpreters>`_.
 
 
 Keep-alive Support?
