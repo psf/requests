@@ -53,11 +53,23 @@ def request(method, url,
         proxies = proxies or config.settings.proxies,
     )
 
+    # Arguments manipulation hook.
     args = dispatch_hook('args', hooks, args)
+
 
     r = Request(hooks=hooks, **args)
 
+    # Pre-request hook.
+    r = dispatch_hook('pre_request', hooks, r)
+
+    # Send the HTTP Request.
     r.send()
+
+    # Post-request hook.
+    r = dispatch_hook('post_request', hooks, r)
+
+    # Response manipulation hook.
+    r.response = dispatch_hook('response', hooks, r.response)
 
     return r.response
 

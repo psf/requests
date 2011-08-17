@@ -16,7 +16,6 @@ from urlparse import urlparse, urlunparse, urljoin
 from datetime import datetime
 
 from .config import settings
-from .hooks import dispatch_hook
 from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
@@ -328,12 +327,6 @@ class Request(object):
                 opener = self._get_opener()
                 try:
 
-                    # pre-request hook.
-                    self.__dict__.update(
-                        dispatch_hook('pre_request',
-                            self.hooks, self.__dict__)
-                    )
-
                     resp = opener(req, timeout=self.timeout)
 
                 except TypeError, err:
@@ -369,9 +362,6 @@ class Request(object):
 
 
         self.sent = self.response.ok
-
-        self.__dict__.update(
-            dispatch_hook('post_request', self.hooks, self.__dict__))
 
         return self.sent
 
