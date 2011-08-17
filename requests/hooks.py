@@ -5,6 +5,21 @@ requests.hooks
 ~~~~~~~~~~~~~~
 
 This module provides the capabilities for the Requests hooks system.
+
+Available hooks:
+
+``args``:
+    A dictionary of the arguments being sent to Request().
+
+``pre-request``:
+    The Request object, directly before being sent.
+
+``post-request``:
+    The Request object, directly after being sent.
+
+``response``:
+    The response generated from a Request.
+
 """
 
 import warnings
