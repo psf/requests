@@ -20,6 +20,7 @@ from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicA
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
+from .utils import dict_from_cookiejar
 from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod
 
 
@@ -187,6 +188,12 @@ class Request(object):
                 response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
                 response.read = resp.read
                 response.close = resp.close
+
+                if self.cookiejar:
+
+                    response.cookies = dict_from_cookiejar(self.cookiejar)
+
+
             except AttributeError:
                 pass
 
@@ -397,6 +404,7 @@ class Response(object):
         self.history = []
         #: The Request that created the Response.
         self.request = None
+        self.cookies = None
 
 
     def __repr__(self):
