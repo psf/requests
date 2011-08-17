@@ -32,7 +32,7 @@ class Request(object):
     Requests. Recommended interface is with the Requests functions.
     """
 
-    _METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH')
+    _METHODS = ('GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH', 'PURGE')
 
     def __init__(self,
         url=None, headers=dict(), files=None, method=None, data=dict(),
