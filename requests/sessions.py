@@ -67,6 +67,9 @@ class Session(object):
                         inst_attrs['cookies'], kwargs['cookies']
                     )
 
+                if kwargs.get('headers', None) and inst_attrs.get('headers', None):
+                    kwargs['headers'].update(inst_attrs['headers'])
+
                 return func(*args, **kwargs)
             return wrapper_func
 
