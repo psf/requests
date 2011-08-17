@@ -34,7 +34,7 @@ Sessions can also be used to provide default data to the request methods::
     with requests.session(auth=auth, headers=headers) as c:
 
         # both 'x-test' and 'x-test2' are sent
-        c.get('http://httpbin.org/headers', header={'x-test2', 'true'})
+        c.get('http://httpbin.org/headers', headers={'x-test2': 'true'})
 
 
 .. admonition:: Global Settings
