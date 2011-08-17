@@ -128,6 +128,7 @@ class Request(object):
 
         if self.auth:
             if not isinstance(self.auth.handler, (urllib2.AbstractBasicAuthHandler, urllib2.AbstractDigestAuthHandler)):
+                # TODO: REMOVE THIS COMPLETELY
                 auth_manager.add_password(self.auth.realm, self.url, self.auth.username, self.auth.password)
                 self.auth.handler = self.auth.handler(auth_manager)
                 auth_manager.add_auth(self.url, self.auth)
@@ -314,14 +315,14 @@ class Request(object):
                     # timeout argument is new since Python v2.6
                     if not "timeout" in str(err):
                         raise
-                    
+
                     if settings.timeout_fallback:
                         # fall-back and use global socket timeout (This is not thread-safe!)
                         old_timeout = socket.getdefaulttimeout()
                         socket.setdefaulttimeout(self.timeout)
-                        
+
                     resp = opener(req)
-                    
+
                     if settings.timeout_fallback:
                         # restore gobal timeout
                         socket.setdefaulttimeout(old_timeout)
