@@ -56,7 +56,6 @@ def request(method, url,
     # Arguments manipulation hook.
     args = dispatch_hook('args', hooks, args)
 
-
     r = Request(hooks=hooks, **args)
 
     # Pre-request hook.
