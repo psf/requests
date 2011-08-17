@@ -11,10 +11,10 @@ Available hooks:
 ``args``:
     A dictionary of the arguments being sent to Request().
 
-``pre-request``:
+``pre_request``:
     The Request object, directly before being sent.
 
-``post-request``:
+``post_request``:
     The Request object, directly after being sent.
 
 ``response``:
