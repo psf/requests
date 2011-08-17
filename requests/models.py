@@ -510,7 +510,9 @@ class AuthManager(object):
             scheme = None
             authority = uri
             path = '/'
+
         host, port = urllib2.splitport(authority)
+
         if default_port and port is None and scheme is not None:
             dport = {"http": 80,
                      "https": 443,
