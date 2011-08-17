@@ -15,7 +15,9 @@ import config
 from .models import Request, Response, AuthObject
 from .status_codes import codes
 from .hooks import dispatch_hook
+from .utils import cookiejar_from_dict
 
+from urlparse import urlparse
 
 __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
 
@@ -38,6 +40,11 @@ def request(method, url,
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     """
+
+    if cookies is None:
+        cookies = {}
+
+    cookies = cookiejar_from_dict(cookies)
 
     args = dict(
         method = method,
