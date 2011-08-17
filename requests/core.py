@@ -19,7 +19,7 @@ __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
 
 
-from models import HTTPError, auth_manager
+from models import HTTPError
 from api import *
 from exceptions import *
 from status_codes import codes
