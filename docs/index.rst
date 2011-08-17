@@ -13,7 +13,8 @@ Requests is an :ref:`ISC Licensed <isc>` HTTP library, written in Python, for hu
 Most existing Python modules for sending HTTP requests are extremely verbose
 and cumbersome. Python's builtin **urllib2** module provides most of
 the HTTP capabilities you should need, but the api is thoroughly **broken**.
-It requires an *enormous* amount of work (even method overrides) to perform the simplest of tasks.
+It requires an *enormous* amount of work (even method overrides) to perform
+the simplest of tasks.
 
 Things shouldn’t be this way. Not in Python.
 
@@ -21,9 +22,11 @@ Things shouldn’t be this way. Not in Python.
 
     >>> r = requests.get('https://api.github.com', auth=('user', 'pass'))
     >>> r.status_code
-    200
+    204
     >>> r.headers['content-type']
     'application/json'
+    >>> r.content
+    ...
 
 See `the same code, without Requests <https://gist.github.com/973705>`_.
 
@@ -39,31 +42,49 @@ Testimonals
 `Twitter, Inc <http://twitter.com>`_ uses Requests internally.
 
 **Daniel Greenfeld**
-    Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to @kennethreitz's request library. Today has been AWESOME.
+    Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to
+    @kennethreitz's request library. Today has been AWESOME.
 
 **Kenny Meyers**
-    Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful, simple, Pythonic.
+    Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful,
+    simple, Pythonic.
 
 **Rich Leland**
    Requests is awesome. That is all.
 
 **Steve Pike**
-  I can never remember how to do it the regular way. ``import requests; requests.get()`` is just so easy!
+  I can never remember how to do it the regular way.
+  ``import requests; requests.get()`` is just so easy!
 
 
 User Guide
 ----------
 
-This part of the documentation, which is mostly prose, begins with some background information about Requests, then focuses on step-by-step instructions for getting the most out of Requests.
+This part of the documentation, which is mostly prose, begins with some
+background information about Requests, then focuses on step-by-step
+instructions for getting the most out of Requests.
 
 .. toctree::
    :maxdepth: 2
 
    user/intro
    user/install
-..   user/quickstart
+   user/quickstart
    user/advanced
 
+
+Community Guide
+-----------------
+
+This part of the documentation, which is mostly prose, details the
+Requests ecosystem and community.
+
+.. toctree::
+   :maxdepth: 2
+
+   community/faq
+   community/support
+   community/updates
 
 API Documentation
 -----------------
@@ -88,3 +109,4 @@ you.
 
    dev/internals
    dev/todo
+   dev/authors

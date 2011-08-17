@@ -15,7 +15,7 @@ Installing requests is simple with `pip <http://www.pip-installer.org/>`_::
 
 or, with `easy_install <http://pypi.python.org/pypi/setuptools>`_::
 
-    $ easy_install install requests
+    $ easy_install requests
 
 But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/index.html#pip-compared-to-easy-install>`_.
 
@@ -24,7 +24,7 @@ But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/index
 Cheeseshop Mirror
 -----------------
 
-If the Cheeseshop is down, you can also install Requests from Kenneth Reitz's personal `Cheeseshop mirror <pip.kreitz.co/>`_::
+If the Cheeseshop is down, you can also install Requests from Kenneth Reitz's personal `Cheeseshop mirror <http://pip.kreitz.co/>`_::
 
     $ pip install -i http://pip.kreitz.co/simple requests
 
@@ -32,7 +32,7 @@ If the Cheeseshop is down, you can also install Requests from Kenneth Reitz's pe
 Get the Code
 ------------
 
-Requsts is actively developed on GitHub, where the code is
+Requests is actively developed on GitHub, where the code is
 `always available <https://github.com/kennethreitz/requests>`_.
 
 You can either clone the public repository::
