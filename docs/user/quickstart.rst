@@ -105,3 +105,32 @@ If a header doesn't exist in the Response, its value defaults to ``None``::
 
     >>> r.headers['X-Random']
     None
+
+
+Cookies
+-------
+
+If a response contains some Cookies, you can get quick access to them::
+
+    # cookies test url
+    >>> url = 'http://httpbin.org/cookies/set/requests-is/awesome'
+
+    >>> r = requests.get(url)
+
+    >>> print r.cookies
+    {'requests-is': 'awesome'}
+
+The underlying CookieJar is also available for more advanced handing::
+
+    >>> r.request.cookiejar
+    <cookielib.CookieJar>
+
+To send your own cookies to the server, you can use the ``cookies``
+parameter::
+
+    >>> url = 'http://httpbin.org/cookies'
+    >>> cookies = dict(cookies_are='working')
+
+    >>> r = requests.get(url, cookies=cookies)
+    >>> r.content
+    '{"cookies": {"cookies_are": "working"}}'
