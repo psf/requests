@@ -28,9 +28,10 @@ class Session(object):
         return '<requests-client at %s>' % (id(self))
 
     def _map_api_methods(self):
-        """ Reads each available method from requests.api and decorates
-        them with a wrapper that inserts any instance-local attributes
-        (from __attrs__) that have been set, combining them with **kwargs """
+        """Reads each available method from requests.api and decorates
+        them with a wrapper, which inserts any instance-local attributes
+        (from __attrs__) that have been set, combining them with **kwargs.
+        """
         def pass_args(func):
             def wrapper_func(*args, **kwargs):
                 inst_attrs = dict((k, v) for k, v in self.__dict__.iteritems()
