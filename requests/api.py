@@ -50,12 +50,12 @@ def request(method, url,
         auth = auth,
         timeout = timeout or config.settings.timeout,
         allow_redirects = allow_redirects,
-        proxies = proxies or config.settings.proxies
+        proxies = proxies or config.settings.proxies,
     )
 
     args = dispatch_hook('args', hooks, args)
 
-    r = Request(**args)
+    r = Request(hooks=hooks, **args)
 
     r.send()
 
