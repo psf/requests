@@ -260,7 +260,7 @@ class Request(object):
 
 
     def _build_url(self):
-        """Build the actual URL to use"""
+        """Build the actual URL to use."""
 
         # Support for unicode domain names.
         parsed_url = list(urlparse(self.url))
@@ -286,6 +286,7 @@ class Request(object):
         :param anyway: If True, request will be sent, even if it has
         already been sent.
         """
+
         self._checks()
         success = False
 
@@ -495,8 +496,10 @@ class AuthManager(object):
 
     def reduce_uri(self, uri, default_port=True):
         """Accept authority or URI and extract only the authority and path."""
+
         # note HTTP URLs do not have a userinfo component
         parts = urllib2.urlparse.urlsplit(uri)
+
         if parts[1]:
             # URI
             scheme = parts[0]
