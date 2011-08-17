@@ -44,23 +44,31 @@ class Request(object):
 
         #: Request URL.
         self.url = url
+
         #: Dictonary of HTTP Headers to attach to the :class:`Request <models.Request>`.
         self.headers = headers
+
         #: Dictionary of files to multipart upload (``{filename: content}``).
         self.files = files
+
         #: HTTP Method to use. Available: GET, HEAD, PUT, POST, DELETE.
         self.method = method
+
         #: Dictionary or byte of request body data to attach to the
         #: :class:`Request <models.Request>`.
         self.data = None
+
         #: Dictionary or byte of querystring data to attach to the
         #: :class:`Request <models.Request>`.
         self.params = None
+
         #: True if :class:`Request <models.Request>` is part of a redirect chain (disables history
         #: and HTTPError storage).
         self.redirect = redirect
+
         #: Set to True if full redirects are allowed (e.g. re-POST-ing of data at new ``Location``)
         self.allow_redirects = allow_redirects
+
         # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})
         self.proxies = proxies
 
@@ -75,10 +83,13 @@ class Request(object):
             auth = AuthObject(*auth)
         if not auth:
             auth = auth_manager.get_auth(self.url)
+
         #: :class:`AuthObject` to attach to :class:`Request <models.Request>`.
         self.auth = auth
+
         #: CookieJar to attach to :class:`Request <models.Request>`.
         self.cookiejar = cookiejar
+
         #: True if Request has been sent.
         self.sent = False
 
