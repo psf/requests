@@ -37,7 +37,7 @@ class Request(object):
     def __init__(self,
         url=None, headers=dict(), files=None, method=None, data=dict(),
         params=dict(), auth=None, cookiejar=None, timeout=None, redirect=False,
-        allow_redirects=False, proxies=None, hooks=None):
+        allow_redirects=False, proxies=None):
 
         #: Float describ the timeout of the request.
         #  (Use socket.setdefaulttimeout() as fallback)
@@ -93,9 +93,6 @@ class Request(object):
 
         #: True if Request has been sent.
         self.sent = False
-
-        #: Dictionary of event hook callbacks.
-        self.hooks = hooks
 
 
         # Header manipulation and defaults.
@@ -404,6 +401,7 @@ class Response(object):
         self.history = []
         #: The Request that created the Response.
         self.request = None
+        #: A dictionary of Cookies the server sent back.
         self.cookies = None
 
 
