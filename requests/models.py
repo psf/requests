@@ -38,7 +38,8 @@ class Request(object):
         params=dict(), auth=None, cookiejar=None, timeout=None, redirect=False,
         allow_redirects=False, proxies=None):
 
-        #: Float describ the timeout of the request. (Use socket.setdefaulttimeout() as fallback)
+        #: Float describ the timeout of the request.
+        # (Use socket.setdefaulttimeout() as fallback)
         self.timeout = timeout
 
         #: Request URL.
