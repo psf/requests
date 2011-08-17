@@ -22,5 +22,6 @@ __copyright__ = 'Copyright 2011 Kenneth Reitz'
 from models import HTTPError
 from api import *
 from exceptions import *
+from sessions import session
 from status_codes import codes
 from config import settings
