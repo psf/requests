@@ -23,22 +23,25 @@ class Session(object):
                 kwargs.iterkeys(), kwargs.itervalues())
         # Map and wrap requests.api methods
         self._map_api_methods()
-        
+
+    def __repr__(self):
+        return '<requests-client at %s>' % (id(self))
+
     def _map_api_methods(self):
         """ Reads each available method from requests.api and decorates
         them with a wrapper that inserts any instance-local attributes
         (from __attrs__) that have been set, combining them with **kwargs """
         def pass_args(func):
             def wrapper_func(*args, **kwargs):
-                inst_attrs = dict((k, v) for k, v in self.__dict__.iteritems() 
+                inst_attrs = dict((k, v) for k, v in self.__dict__.iteritems()
                         if k in self.__attrs__)
-                # Combine instance-local values with kwargs values, with 
+                # Combine instance-local values with kwargs values, with
                 # priority to values in kwargs
                 kwargs = dict(inst_attrs.items() + kwargs.items())
                 return func(*args, **kwargs)
             return wrapper_func
         # Map and decorate each function available in requests.api
         map(lambda fn: setattr(self, fn, pass_args(getattr(requests.api, fn))),
-                requests.api.__all__) 
+                requests.api.__all__)
 
 
