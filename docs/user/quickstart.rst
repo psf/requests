@@ -64,7 +64,7 @@ If we made a bad request, we can raise it with
         raise self.error
     urllib2.HTTPError: HTTP Error 404: NOT FOUND
 
-But, sice our ``status_code`` was ``200``, when we call it::
+But, since our ``status_code`` was ``200``, when we call it::
 
     >>> r.raise_for_status()
     None
