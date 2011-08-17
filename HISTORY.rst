@@ -1,10 +1,14 @@
 History
 -------
 
-0.5.2 (2011-09-??)
+
+0.6.0 (2011-09-??)
 ++++++++++++++++++
 
-* status code reference dict?
+* New callback hook system
+* New persistient sessions object and context manager
+* Transparent Dict-cookie handling
+* status code reference object
 * Removed Response.cached
 * Added Response.request
 * all args are kwargs
