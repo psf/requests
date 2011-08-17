@@ -27,7 +27,7 @@ def dict_from_cookiejar(cookiejar):
 
 
 def cookiejar_from_dict(cookie_dict, domain=None):
-    """Returns a CookieJar from a key/value dictoinary."""
+    """Returns a CookieJar from a key/value dictionary."""
 
     # create cookiejar
     cj = cookielib.CookieJar()
