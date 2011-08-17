@@ -25,7 +25,7 @@ Available hooks:
 import warnings
 
 def dispatch_hook(key, hooks, hook_data):
-    """"""
+    """Dipatches a hook dictionary on a given peice of data."""
 
     hooks = hooks or dict()
 
