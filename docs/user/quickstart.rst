@@ -112,9 +112,7 @@ Cookies
 
 If a response contains some Cookies, you can get quick access to them::
 
-    # cookies test url
     >>> url = 'http://httpbin.org/cookies/set/requests-is/awesome'
-
     >>> r = requests.get(url)
 
     >>> print r.cookies
