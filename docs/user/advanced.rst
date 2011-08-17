@@ -45,4 +45,60 @@ Sessions can also be used to provide default data to the request methods::
 Event Hooks
 -----------
 
-Requests has a hook system that allows you . This is useful for
+Requests has a hook system that you can use to manipulate portions of
+the request process, or signal event handling.
+
+Available hooks:
+
+``args``:
+    A dictionary of the arguments being sent to Request().
+
+``pre_request``:
+    The Request object, directly before being sent.
+
+``post_request``:
+    The Request object, directly after being sent.
+
+``response``:
+    The response generated from a Request.
+
+
+You can assign a hook function on a per-request basis by passing a
+``{hook_name: callback_function}`` dictionary to the ``hooks`` request
+paramaeter::
+
+    hooks=dict(args=print_url)
+
+That ``callback_function`` will receive a chunk of data as its first
+argument.
+
+::
+
+    def print_url(args):
+        print args['url']
+
+If an error occurs while executing your callback, a warning is given.
+
+If the callback function returns a value, it is assumed that it is to
+replace the data that was passed in. If the function doesn't return
+anything, nothing else is effected.
+
+Let's print some request method arguments at runtime::
+
+    >>> requests.get('http://httpbin', hooks=dict(args=print_url))
+    http://httpbin
+    <Response [200]>
+
+
+Verbose Logging
+---------------
+
+If you want to get a good look at what HTTP requests are being sent
+by your application, you can turn on verbose logging.
+
+To do so, just configure Requests with a stream to write to::
+
+    >>> requests.settings.verbose = sys.stderr
+    >>> requests.get('http://httpbin.org/headers')
+    2011-08-17T03:04:23.380175   GET   http://httpbin.org/headers
+    <Response [200]>
