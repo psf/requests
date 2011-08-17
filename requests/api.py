@@ -33,7 +33,7 @@ def request(method, url,
     :param params: (optional) Dictionary or bytes to be sent in the query string for the :class:`Request`.
     :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
-    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
+    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
@@ -63,7 +63,7 @@ def request(method, url,
     # Arguments manipulation hook.
     args = dispatch_hook('args', hooks, args)
 
-    r = Request(hooks=hooks, **args)
+    r = Request(**args)
 
     # Pre-request hook.
     r = dispatch_hook('pre_request', hooks, r)
@@ -87,7 +87,7 @@ def get(url, **kwargs):
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
-    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
+    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
@@ -103,7 +103,7 @@ def head(url, **kwargs):
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
-    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
+    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
@@ -120,7 +120,7 @@ def post(url, data='', **kwargs):
     :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
-    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
+    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
     :param allow_redirects: (optional) Boolean. Set to True if redirect following is allowed.
@@ -138,7 +138,7 @@ def put(url, data='', **kwargs):
     :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
-    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
+    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
     :param allow_redirects: (optional) Boolean. Set to True if redirect following is allowed.
@@ -156,7 +156,7 @@ def patch(url, data='', **kwargs):
     :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
     :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
-    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
+    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
     :param allow_redirects: (optional) Boolean. Set to True if redirect following is allowed.
@@ -174,7 +174,7 @@ def delete(url, **kwargs):
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
-    :param cookies: (optional) CookieJar object to send with the :class:`Request`.
+    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
     :param allow_redirects: (optional) Boolean. Set to True if redirect following is allowed.

@@ -2,16 +2,16 @@ History
 -------
 
 
-0.6.0 (2011-09-??)
+0.6.0 (2011-08-17)
 ++++++++++++++++++
 
 * New callback hook system
 * New persistient sessions object and context manager
 * Transparent Dict-cookie handling
-* status code reference object
+* Status code reference object
 * Removed Response.cached
 * Added Response.request
-* all args are kwargs
+* All args are kwargs
 * Relative redirect support
 * HTTPError handling improvements
 * Improved https testing
