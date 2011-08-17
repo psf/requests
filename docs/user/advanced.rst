@@ -89,7 +89,7 @@ Let's print some request method arguments at runtime::
     http://httpbin
     <Response [200]>
 
-Let's hijack some arguments this time::
+Let's hijack some arguments this time with a new callback::
 
     def hack_headers(args):
         if not args[headers]:
@@ -97,11 +97,12 @@ Let's hijack some arguments this time::
 
         args['headers'].update({'X-Testing': 'True'})
 
-
         return args
 
     hooks = dict(args=hack_headers)
     headers = dict(yo=dawg)
+
+And give it a try::
 
     >>> requests.get('http://httpbin/headers', hooks=hooks, headers=headers)
     {
