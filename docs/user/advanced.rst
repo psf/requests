@@ -23,6 +23,7 @@ Let's persist some cookies across requests::
         r = s.get("http://httpbin.org/cookies")
 
         print r.content
+        # '{"cookies": {"sessioncookie": "123456789"}}'
 
 
 Sessions can also be used to provide default data to the request methods::

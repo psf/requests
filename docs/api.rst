@@ -22,7 +22,7 @@ all return a :class:`Response <models.Response>` object.
 .. autofunction:: put
 .. autofunction:: patch
 .. autofunction:: delete
-
+.. autofunction:: request
 
 -----------
 
@@ -50,19 +50,8 @@ These items are an internal component to Requests, and should never be
 seen by the end user (developer). This part of the API documentation
 exists for those who are extending the functionality of Requests.
 
-Functions
-~~~~~~~~~
-
-.. autofunction:: request
-
 Classes
 ~~~~~~~
 
 .. autoclass:: requests.models.Request
-   :inherited-members:
-
-Structures
-~~~~~~~~~~
-
-.. autoclass:: requests.structures.CaseInsensitiveDict
    :inherited-members:
