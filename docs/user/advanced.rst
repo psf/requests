@@ -3,20 +3,46 @@
 Advanced Usage
 ==============
 
-This document covers more advanced features.
+This document covers some of Requests more advanced features.
+
 
 Session Objects
-===============
+---------------
 
-.. module:: requests.session 
+The Session object allows you to persist certain parameters across
+requests. It also establishes a CookieJar and passes it along
+to any requests made from the Session instance.
 
-The Session object allows you to persist certain parameters across requests.  It also establishes a CookieJar by default and passes it along in any requests made from the Session instance.  For a complete list of allowed parameters, please see the *__attrs__* field in *requests/session.py*. ::
+A session object has all the methods of the main Requests API.
 
-    from requests.session import Session
+Let's persist some cookies across requests::
 
-    s = Session()
-    s.get("http://httpbin.org/cookies/set/sessioncookie/123456789")
-    r = s.get("http://httpbin.org/cookies")
-    print r.content
+    with requests.session() as s:
 
-Note: Certain parameters are best set at the request.config level (i.e. a global proxy, user agent header).
+        s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
+        r = s.get("http://httpbin.org/cookies")
+
+        print r.content
+
+
+Sessions can also be used to provide default data to the request methods::
+
+    headers = {'x-test': 'true'}
+    auth = ('user', 'pass')
+
+    with requests.session(auth=auth, headers=headers) as c:
+
+        # both 'x-test' and 'x-test2' are sent
+        c.get('http://httpbin.org/headers', header={'x-test2', 'true'})
+
+
+.. admonition:: Global Settings
+
+    Certain parameters are best set at the ``request.config`` level
+    (e.g.. a global proxy, user agent header).
+
+
+Event Hooks
+-----------
+
+Requests has a hook system that allows you . This is useful for
