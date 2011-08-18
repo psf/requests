@@ -430,23 +430,24 @@ class Response(object):
         2. every encodings from <meta ... charset=XXX>
         3. fall back and replace all unicode characters
         """
+        tried_encodings = []
         # Try charset from content-type
         encoding = self.get_encoding_from_content_type()
         if encoding:
             try:
                 return unicode(content, encoding)
             except UnicodeError:
-                self.tried_encodings.append(encoding)
+                tried_encodings.append(encoding)
 
         # Try every encodings from <meta ... charset=XXX>
         encodings = self.get_encodings_from_content(content)
         for encoding in encodings:
-            if encoding in self.tried_encodings:
+            if encoding in tried_encodings:
                 continue
             try:
                 return unicode(content, encoding)
             except UnicodeError:
-                self.tried_encodings.append(encoding)
+                tried_encodings.append(encoding)
 
         # Fall back:
         return unicode(content, encoding, errors="replace")
