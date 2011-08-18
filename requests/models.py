@@ -11,6 +11,7 @@ import urllib2
 import socket
 import zlib
 import cgi
+import re
 
 from urllib2 import HTTPError
 from urlparse import urlparse, urlunparse, urljoin
