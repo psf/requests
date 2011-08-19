@@ -416,7 +416,8 @@ class Response(object):
                 except zlib.error:
                     pass
             return self._content
-
+        else:
+            raise AttributeError
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occured."""
