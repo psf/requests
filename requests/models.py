@@ -446,7 +446,7 @@ class Response(object):
             self._content = self.read()
 
             # Decode GZip'd content.
-            if self.headers.get('content-encoding', '') == 'gzip':
+            if 'gzip' in self.headers.get('content-encoding', ''):
                 try:
                     self._content = zlib.decompress(self._content, 16+zlib.MAX_WBITS)
                 except zlib.error:
