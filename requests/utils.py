@@ -12,6 +12,7 @@ that are also useful for external consumption.
 import cgi
 import cookielib
 import re
+import zlib
 
 
 def dict_from_cookiejar(cookiejar):
@@ -131,3 +132,9 @@ def get_unicode_from_response(r):
         return unicode(r.content, encoding, errors='replace')
     except TypeError:
         return r.content
+
+
+def decode_gzip(content):
+    """Return gzip-decoded string."""
+
+    return zlib.decompress(content, 16+zlib.MAX_WBITS)

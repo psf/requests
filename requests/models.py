@@ -21,7 +21,7 @@ from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicA
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
-from .utils import dict_from_cookiejar, get_unicode_from_response
+from .utils import dict_from_cookiejar, get_unicode_from_response, decode_gzip
 from .status_codes import codes
 from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod, TooManyRedirects
 
@@ -448,7 +448,7 @@ class Response(object):
             # Decode GZip'd content.
             if 'gzip' in self.headers.get('content-encoding', ''):
                 try:
-                    self._content = zlib.decompress(self._content, 16+zlib.MAX_WBITS)
+                    self._content = decode_gzip(self._content)
                 except zlib.error:
                     pass
 
