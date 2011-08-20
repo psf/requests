@@ -11,6 +11,7 @@ import urllib2
 import socket
 import zlib
 
+
 from urllib2 import HTTPError
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import datetime
@@ -20,9 +21,9 @@ from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicA
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
-from .utils import dict_from_cookiejar
-from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod, TooManyRedirects
+from .utils import dict_from_cookiejar, get_unicode_from_response
 from .status_codes import codes
+from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod, TooManyRedirects
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
@@ -132,9 +133,16 @@ class Request(object):
             _handlers.append(urllib2.HTTPCookieProcessor(self.cookiejar))
 
         if self.auth:
-            if not isinstance(self.auth.handler, (urllib2.AbstractBasicAuthHandler, urllib2.AbstractDigestAuthHandler)):
+            if not isinstance(self.auth.handler,
+                (urllib2.AbstractBasicAuthHandler,
+                urllib2.AbstractDigestAuthHandler)):
+
                 # TODO: REMOVE THIS COMPLETELY
-                auth_manager.add_password(self.auth.realm, self.url, self.auth.username, self.auth.password)
+                auth_manager.add_password(
+                    self.auth.realm, self.url,
+                    self.auth.username,
+                    self.auth.password)
+
                 self.auth.handler = self.auth.handler(auth_manager)
                 auth_manager.add_auth(self.url, self.auth)
 
@@ -166,7 +174,10 @@ class Request(object):
 
 
     def _build_response(self, resp, is_error=False):
-        """Build internal :class:`Response <models.Response>` object from given response."""
+        """Build internal :class:`Response <models.Response>` object
+        from given response.
+        """
+
 
         def build(resp):
 
@@ -176,8 +187,7 @@ class Request(object):
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
                 response.read = resp.read
-                response.readline = resp.readline
-                response._resp = resp
+                response.fo = resp
                 response._close = resp.close
 
                 if self.cookiejar:
@@ -419,23 +429,43 @@ class Response(object):
 
     def __nonzero__(self):
         """Returns true if :attr:`status_code` is 'OK'."""
+
         return not self.error
 
 
     def __getattr__(self, name):
-        """Read and returns the full stream when accessing to :attr: `content`"""
+        """Read and returns the full stream when accessing to
+        :attr: `content`
+        """
+
         if name == 'content':
             if self._content is not None:
                 return self._content
+
+            # Read the contents.
             self._content = self.read()
+
+            # Decode GZip'd content.
             if self.headers.get('content-encoding', '') == 'gzip':
                 try:
                     self._content = zlib.decompress(self._content, 16+zlib.MAX_WBITS)
                 except zlib.error:
                     pass
+
+            # Decode unicode content.
+            try:
+                self._content = get_unicode_from_response(self)
+            # Don't trust this stuff.
+            except UserWarning, e:
+                print e
+
+
             return self._content
+
         else:
             raise AttributeError
+
+
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occured."""
@@ -444,9 +474,11 @@ class Response(object):
 
 
     def close(self):
-        if self._resp.fp is not None and hasattr(self._resp.fp, '_sock'):
-            self._resp.fp._sock.recv = None
+        if self.fo.fp is not None and hasattr(self.fo.fp, '_sock'):
+            self.fo.fp._sock.recv = None
         self._close()
+
+
 
 class AuthManager(object):
     """Requests Authentication Manager."""
