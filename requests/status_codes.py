@@ -24,7 +24,7 @@ _codes = {
     300: ('multiple_choices',),
     301: ('moved_permanently', 'moved', '\\o-'),
     302: ('found',),
-    302: ('see_other', 'other'),
+    303: ('see_other', 'other'),
     304: ('not_modified',),
     305: ('use_proxy',),
     306: ('switch_proxy',),
