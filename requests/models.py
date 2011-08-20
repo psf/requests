@@ -186,9 +186,7 @@ class Request(object):
 
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
-                response.read = resp.read
                 response.fo = resp
-                response._close = resp.close
 
                 if self.cookiejar:
 
@@ -443,7 +441,7 @@ class Response(object):
                 return self._content
 
             # Read the contents.
-            self._content = self.read()
+            self._content = self.fo.read()
 
             # Decode GZip'd content.
             if 'gzip' in self.headers.get('content-encoding', ''):
@@ -462,17 +460,10 @@ class Response(object):
             raise AttributeError
 
 
-
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occured."""
         if self.error:
             raise self.error
-
-
-    def close(self):
-        if self.fo.fp is not None and hasattr(self.fo.fp, '_sock'):
-            self.fo.fp._sock.recv = None
-        self._close()
 
 
 
