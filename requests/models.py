@@ -266,8 +266,8 @@ class Request(object):
 
         Otherwise, assumes the data is already encoded appropriately, and
         returns it twice.
-
         """
+
         if hasattr(data, 'items'):
             result = []
             for k, vs in data.items():
@@ -375,7 +375,6 @@ class Request(object):
 
                 self._build_response(why, is_error=True)
 
-
             else:
                 self._build_response(resp)
                 self.response.ok = True
@@ -384,7 +383,6 @@ class Request(object):
         self.sent = self.response.ok
 
         return self.sent
-
 
 
 class Response(object):
