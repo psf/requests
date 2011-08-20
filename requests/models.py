@@ -176,6 +176,7 @@ class Request(object):
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
                 response.read = resp.read
+                response.readline = resp.readline
                 response._resp = resp
                 response._close = resp.close
 
