@@ -100,11 +100,5 @@ Contribute
 If you'd like to contribute, simply fork `the repository`_, commit your changes to the **develop** branch (or branch off of it), and send a pull request. Make sure you add yourself to AUTHORS_.
 
 
-
-Roadmap
--------
-
-- Sphinx Documentation
-
 .. _`the repository`: http://github.com/kennethreitz/requests
 .. _AUTHORS: http://github.com/kennethreitz/requests/blob/master/AUTHORS
