@@ -53,7 +53,7 @@ class Request(object):
         #: Dictionary of files to multipart upload (``{filename: content}``).
         self.files = files
 
-        #: HTTP Method to use. Available: GET, HEAD, PUT, POST, DELETE.
+        #: HTTP Method to use.
         self.method = method
 
         #: Dictionary or byte of request body data to attach to the
