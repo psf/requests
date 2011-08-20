@@ -15,12 +15,15 @@ import re
 import zlib
 
 
-def dict_from_cookiejar(cookiejar):
-    """Returns a key/value dictionary from a CookieJar."""
+def dict_from_cookiejar(cj):
+    """Returns a key/value dictionary from a CookieJar.
+
+    :param cj: CookieJar object to extract cookies from.
+    """
 
     cookie_dict = {}
 
-    for _, cookies in cookiejar._cookies.items():
+    for _, cookies in cj._cookies.items():
         for _, cookies in cookies.items():
             for cookie in cookies.values():
                 # print cookie
@@ -30,7 +33,10 @@ def dict_from_cookiejar(cookiejar):
 
 
 def cookiejar_from_dict(cookie_dict):
-    """Returns a CookieJar from a key/value dictionary."""
+    """Returns a CookieJar from a key/value dictionary.
+
+    :param cookie_dict: Dict of key/values to insert into CookieJar.
+    """
 
     # return cookiejar if one was passed in
     if isinstance(cookie_dict, cookielib.CookieJar):
@@ -45,7 +51,11 @@ def cookiejar_from_dict(cookie_dict):
 
 
 def add_dict_to_cookiejar(cj, cookie_dict):
-    """Returns a CookieJar from a key/value dictionary."""
+    """Returns a CookieJar from a key/value dictionary.
+
+    :param cj: CookieJar to insert cookies into.
+    :param cookie_dict: Dict of key/values to insert into CookieJar.
+    """
 
     for k, v in cookie_dict.items():
 
@@ -76,7 +86,10 @@ def add_dict_to_cookiejar(cj, cookie_dict):
 
 
 def get_encodings_from_content(content):
-    """Returns encodings from given content string."""
+    """Returns encodings from given content string.
+
+    :param content: bytestring to extract encodings from.
+    """
 
     charset_re = re.compile(r'<meta.*?charset=["\']*(.+?)["\'>]', flags=re.I)
 
@@ -85,7 +98,10 @@ def get_encodings_from_content(content):
 
 
 def get_encoding_from_headers(headers):
-    """Returns encodings from given HTTP Header Dict."""
+    """Returns encodings from given HTTP Header Dict.
+
+    :param headers: dictionary to extract encoding from.
+    """
 
     content_type = headers.get('content-type')
     content_type, params = cgi.parse_header(content_type)
@@ -96,6 +112,8 @@ def get_encoding_from_headers(headers):
 
 def get_unicode_from_response(r):
     """Returns the requested content back in unicode.
+
+    :param r: Reponse object to get unicode content from.
 
     Tried:
     1. charset from content-type
@@ -135,6 +153,9 @@ def get_unicode_from_response(r):
 
 
 def decode_gzip(content):
-    """Return gzip-decoded string."""
+    """Return gzip-decoded string.
+
+    :param content: bytestring to gzip-decode.
+    """
 
     return zlib.decompress(content, 16+zlib.MAX_WBITS)
