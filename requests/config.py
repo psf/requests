@@ -62,7 +62,7 @@ settings.proxies = None
 settings.verbose = None
 settings.timeout = None
 settings.max_redirects = 30
-settings.allow_unicode = True
+settings.decode_unicode = True
 
 #: Use socket.setdefaulttimeout() as fallback?
 settings.timeout_fallback = True

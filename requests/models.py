@@ -453,7 +453,7 @@ class Response(object):
                     pass
 
             # Decode unicode content.
-            if settings.allow_unicode:
+            if settings.decode_unicode:
                 self._content = get_unicode_from_response(self)
 
             return self._content
