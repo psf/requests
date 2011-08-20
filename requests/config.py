@@ -61,6 +61,7 @@ settings.accept_gzip = True
 settings.proxies = None
 settings.verbose = None
 settings.timeout = None
+settings.max_redirects = 30
 
 #: Use socket.setdefaulttimeout() as fallback?
 settings.timeout_fallback = True

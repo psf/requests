@@ -22,9 +22,9 @@ _codes = {
 
     # Redirection.
     300: ('multiple_choices',),
-    301: ('moved_permanently', 'moved'),
+    301: ('moved_permanently', 'moved', '\\o-'),
     302: ('found',),
-    302: ('see_other', 'other'),
+    303: ('see_other', 'other'),
     304: ('not_modified',),
     305: ('use_proxy',),
     306: ('switch_proxy',),
@@ -36,7 +36,7 @@ _codes = {
     401: ('unauthorized',),
     402: ('payment_required', 'payment'),
     403: ('forbidden',),
-    404: ('not_found',),
+    404: ('not_found', '-o-'),
     405: ('method_not_allowed', 'not_allowed'),
     406: ('not_acceptable',),
     407: ('proxy_authentication_required', 'proxy_auth', 'proxy_authentication'),
@@ -62,7 +62,7 @@ _codes = {
     499: ('client_closed_request',),
 
     # Server Error.
-    500: ('internal_server_error', 'server_error'),
+    500: ('internal_server_error', 'server_error', '/o\\'),
     501: ('not_implemented',),
     502: ('bad_gateway',),
     503: ('service_unavailable', 'unavailable'),

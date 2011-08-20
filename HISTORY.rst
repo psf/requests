@@ -2,6 +2,17 @@ History
 -------
 
 
+0.6.1 (2011-08-20)
+++++++++++++++++++
+
+* Enhanced status codes experience ``\o/``
+* Set a maximum number of redirects (``settings.max_redirects``)
+* Full Unicode URL support
+* Support for protocol-less redirects.
+* Allow for arbitrary request types.
+* Bugfixes
+
+
 0.6.0 (2011-08-17)
 ++++++++++++++++++
 
