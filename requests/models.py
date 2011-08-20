@@ -21,10 +21,12 @@ from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
 from .utils import dict_from_cookiejar
-from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod
+from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod, TooManyRedirects
+from .status_codes import codes
 
 
-REDIRECT_STATI = (301, 302, 303, 307)
+REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
+
 
 
 class Request(object):
@@ -174,7 +176,8 @@ class Request(object):
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
                 response.read = resp.read
-                response.close = resp.close
+                response._resp = resp
+                response._close = resp.close
 
                 if self.cookiejar:
 
@@ -201,20 +204,31 @@ class Request(object):
             while (
                 ('location' in r.headers) and
                 ((self.method in ('GET', 'HEAD')) or
-                (r.status_code is 303) or
+                (r.status_code is codes.see_other) or
                 (self.allow_redirects))
             ):
+
+                r.close()
+
+                if not len(history) < settings.max_redirects:
+                    raise TooManyRedirects()
 
                 history.append(r)
 
                 url = r.headers['location']
 
+                # Handle redirection without scheme (see: RFC 1808 Section 4)
+                if url.startswith('//'):
+                    parsed_rurl = urlparse(r.url)
+                    url = '%s:%s' % (parsed_rurl.scheme, url)
+
                 # Facilitate non-RFC2616-compliant 'location' headers
                 # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
-                url = urljoin(r.url, url)
+                if not urlparse(url).netloc:
+                    url = urljoin(r.url, urllib.quote(urllib.unquote(url)))
 
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
-                if r.status_code is 303:
+                if r.status_code is codes.see_other:
                     method = 'GET'
                 else:
                     method = self.method
@@ -259,10 +273,13 @@ class Request(object):
     def _build_url(self):
         """Build the actual URL to use."""
 
-        # Support for unicode domain names.
-        parsed_url = list(urlparse(self.url))
-        parsed_url[1] = parsed_url[1].encode('idna')
-        self.url = urlunparse(parsed_url)
+        # Support for unicode domain names and paths.
+        scheme, netloc, path, params, query, fragment = urlparse(self.url)
+        netloc = netloc.encode('idna')
+        if isinstance(path, unicode):
+            path = path.encode('utf-8')
+        path = urllib.quote(urllib.unquote(path))
+        self.url = str(urlunparse([ scheme, netloc, path, params, query, fragment ]))
 
         if self._enc_params:
             if urlparse(self.url).query:
@@ -424,6 +441,11 @@ class Response(object):
         if self.error:
             raise self.error
 
+
+    def close(self):
+        if self._resp.fp is not None and hasattr(self._resp.fp, '_sock'):
+            self._resp.fp._sock.recv = None
+        self._close()
 
 class AuthManager(object):
     """Requests Authentication Manager."""
