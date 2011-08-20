@@ -10,6 +10,8 @@ import urllib
 import urllib2
 import socket
 import zlib
+import cgi
+import re
 
 from urllib2 import HTTPError
 from urlparse import urlparse, urlunparse, urljoin
@@ -432,9 +434,59 @@ class Response(object):
                     self._content = zlib.decompress(self._content, 16+zlib.MAX_WBITS)
                 except zlib.error:
                     pass
-            return self._content
+            return self.unicode_content(self._content)
+
+    
         else:
             raise AttributeError
+    
+
+    def get_content_type(self):
+        content_type = self.headers.get("content-type")
+        content_type, params = cgi.parse_header(content_type)
+        return content_type, params
+
+    def get_encoding_from_content_type(self):
+        content_type, params = self.get_content_type()
+        if "charset" in params:
+            return params["charset"].strip("'\"")
+
+    def get_encodings_from_content(self, content):
+        if self._charset_re is None:
+            self._charset_re = re.compile(
+                r'<meta.*?charset=["\']*(.+?)["\'>]', flags=re.I
+            )
+        return self._charset_re.findall(content)
+    
+    def unicode_content(self, content):
+        """
+        Returns the requested content back in unicode.
+        Tried:
+        1. charset from content-type
+        2. every encodings from <meta ... charset=XXX>
+        3. fall back and replace all unicode characters
+        """
+        tried_encodings = []
+        # Try charset from content-type
+        encoding = self.get_encoding_from_content_type()
+        if encoding:
+            try:
+                return unicode(content, encoding)
+            except UnicodeError:
+                tried_encodings.append(encoding)
+
+        # Try every encodings from <meta ... charset=XXX>
+        encodings = self.get_encodings_from_content(content)
+        for encoding in encodings:
+            if encoding in tried_encodings:
+                continue
+            try:
+                return unicode(content, encoding)
+            except UnicodeError:
+                tried_encodings.append(encoding)
+
+        # Fall back:
+        return unicode(content, encoding, errors="replace")
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occured."""
