@@ -22,9 +22,11 @@ from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
 from .utils import dict_from_cookiejar
 from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod, TooManyRedirects
+from .status_codes import codes
 
 
-REDIRECT_STATI = (301, 302, 303, 307)
+REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
+
 
 
 class Request(object):
@@ -202,13 +204,13 @@ class Request(object):
             while (
                 ('location' in r.headers) and
                 ((self.method in ('GET', 'HEAD')) or
-                (r.status_code is 303) or
+                (r.status_code is codes.see_other) or
                 (self.allow_redirects))
             ):
 
                 r.close()
 
-                if not len(history) < 30:
+                if not len(history) < settings.max_redirects:
                     raise TooManyRedirects()
 
                 history.append(r)
@@ -226,7 +228,7 @@ class Request(object):
                     url = urljoin(r.url, urllib.quote(urllib.unquote(url)))
 
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
-                if r.status_code is 303:
+                if r.status_code is codes.see_other:
                     method = 'GET'
                 else:
                     method = self.method
