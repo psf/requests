@@ -393,30 +393,45 @@ class Response(object):
     """
 
     def __init__(self):
-        #: Raw content of the response, in bytes.
+        #: Content of the response, in bytes or unicode (if available).
         #: If ``content-encoding`` of response was set to ``gzip``, the
         #: response data will be automatically deflated.
-        self._content = None
+        self.content = None
+
+        # Hack for Sphinx.
+        del self.content
+
         #: Integer Code of responded HTTP Status.
         self.status_code = None
         #: Case-insensitive Dictionary of Response Headers.
         #: For example, ``headers['content-encoding']`` will return the
         #: value of a ``'Content-Encoding'`` response header.
         self.headers = CaseInsensitiveDict()
+
+        #: File-like object representation of response (for advanced usage).
+        self.fo = None
+
         #: Final URL location of Response.
         self.url = None
+
         #: True if no :attr:`error` occured.
         self.ok = False
+
         #: Resulting :class:`HTTPError` of request, if one occured.
         self.error = None
+
         #: A list of :class:`Response <models.Response>` objects from
         #: the history of the Request. Any redirect responses will end
         #: up here.
         self.history = []
+
         #: The Request that created the Response.
         self.request = None
+
         #: A dictionary of Cookies the server sent back.
         self.cookies = None
+
+        self._content = None
 
 
     def __repr__(self):
