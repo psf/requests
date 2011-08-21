@@ -393,8 +393,8 @@ class Response(object):
     """
 
     def __init__(self):
-        #: Content of the response, in bytes or unicode (if available).
-        self.content = None
+
+        self._content = None
 
         #: Integer Code of responded HTTP Status.
         self.status_code = None
@@ -441,7 +441,8 @@ class Response(object):
     @property
     def content(self):
         """Content of the response, in bytes or unicode
-        (if available)."""
+        (if available).
+        """
 
         if self._content is not None:
             return self._content
