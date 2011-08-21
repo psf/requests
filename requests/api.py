@@ -41,7 +41,7 @@ def request(method, url,
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     """
 
-    method = method.upper()
+    method = str(method).upper()
 
     if cookies is None:
         cookies = {}

@@ -424,7 +424,7 @@ class Response(object):
         #: up here.
         self.history = []
 
-        #: The Request that created the Response.
+        #: The :class:`Request <Request>` that created the Response.
         self.request = None
 
         #: A dictionary of Cookies the server sent back.
