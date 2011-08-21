@@ -3,13 +3,16 @@
 Frequently Asked Questions
 ==========================
 
-This part of the documentation covers common questions about Requests.
+This part of the documentation answers common questions about Requests.
 
 Encoded Data?
 -------------
 
-Requests automatically decompresses GZip'ed responses, and decodes
-response conten tinto unicode when encoding information is available.
+Requests automatically decompresses gzip-encoded responses, and does
+it's best to decodes response content to unicode when possible.
+
+You can get direct access to the raw reasponse (and even the socket),
+if needed as well.
 
 
 Custom User-Agents?
