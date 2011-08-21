@@ -396,9 +396,6 @@ class Response(object):
         #: Content of the response, in bytes or unicode (if available).
         self.content = None
 
-        # Hack for Sphinx.
-        del self.content
-
         #: Integer Code of responded HTTP Status.
         self.status_code = None
 
@@ -430,8 +427,6 @@ class Response(object):
         #: A dictionary of Cookies the server sent back.
         self.cookies = None
 
-        self._content = None
-
 
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
@@ -443,33 +438,34 @@ class Response(object):
         return not self.error
 
 
-    def __getattr__(self, name):
-        """Read and returns the full stream when accessing to
-        :attr: `content`
-        """
-
-        if name == 'content':
-            if self._content is not None:
-                return self._content
-
-            # Read the contents.
-            self._content = self.fo.read()
-
-            # Decode GZip'd content.
-            if 'gzip' in self.headers.get('content-encoding', ''):
-                try:
-                    self._content = decode_gzip(self._content)
-                except zlib.error:
-                    pass
-
-            # Decode unicode content.
-            if settings.decode_unicode:
-                self._content = get_unicode_from_response(self)
-
+    @property
+    def content(self):
+        """Content of the response, in bytes or unicode
+        (if available)."""
+        
+        if self._content is not None:
             return self._content
 
-        else:
-            raise AttributeError
+        # Read the contents.
+        self._content = self.fo.read()
+
+        # Decode GZip'd content.
+        if 'gzip' in self.headers.get('content-encoding', ''):
+            try:
+                self._content = decode_gzip(self._content)
+            except zlib.error:
+                pass
+
+        # Decode unicode content.
+        if settings.decode_unicode:
+            self._content = get_unicode_from_response(self)
+
+        return self._content
+
+
+    @content.setter
+    def content(self, value):
+        self._content = value
 
 
     def raise_for_status(self):
