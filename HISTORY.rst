@@ -1,6 +1,11 @@
 History
 -------
 
+* Automatic decoding of unicode, when available.
+* New ``decode_unicode`` setting
+* Removal of ``r.read/close`` methods
+* New ``r.fo`` interface for advanced response usage.
+
 
 0.6.1 (2011-08-20)
 ++++++++++++++++++
