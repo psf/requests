@@ -5,6 +5,21 @@ Frequently Asked Questions
 
 This part of the documentation covers common questions about Requests.
 
+Encoded Data?
+-------------
+
+Requests automatically decompresses GZip'ed responses, and decodes
+response conten tinto unicode when encoding information is available.
+
+
+Custom User-Agents?
+-------------------
+
+Requests allows you to easily override User-Agent strings, along with
+any other HTTP Header.
+
+
+
 Why not Httplib2?
 -----------------
 
@@ -41,3 +56,10 @@ Keep-alive Support?
 -------------------
 
 It's on the way.
+
+
+Proxy Support?
+--------------
+
+You bet!
+
