@@ -442,7 +442,7 @@ class Response(object):
     def content(self):
         """Content of the response, in bytes or unicode
         (if available)."""
-        
+
         if self._content is not None:
             return self._content
 
@@ -461,11 +461,6 @@ class Response(object):
             self._content = get_unicode_from_response(self)
 
         return self._content
-
-
-    @content.setter
-    def content(self, value):
-        self._content = value
 
 
     def raise_for_status(self):
