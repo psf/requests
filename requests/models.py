@@ -31,7 +31,7 @@ REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 
 
 class Request(object):
-    """The :class:`Request <models.Request>` object. It carries out all functionality of
+    """The :class:`Request <Request>` object. It carries out all functionality of
     Requests. Recommended interface is with the Requests functions.
     """
 
@@ -47,7 +47,7 @@ class Request(object):
         #: Request URL.
         self.url = url
 
-        #: Dictonary of HTTP Headers to attach to the :class:`Request <models.Request>`.
+        #: Dictonary of HTTP Headers to attach to the :class:`Request <Request>`.
         self.headers = headers
 
         #: Dictionary of files to multipart upload (``{filename: content}``).
@@ -57,14 +57,14 @@ class Request(object):
         self.method = method
 
         #: Dictionary or byte of request body data to attach to the
-        #: :class:`Request <models.Request>`.
+        #: :class:`Request <Request>`.
         self.data = None
 
         #: Dictionary or byte of querystring data to attach to the
-        #: :class:`Request <models.Request>`.
+        #: :class:`Request <Request>`.
         self.params = None
 
-        #: True if :class:`Request <models.Request>` is part of a redirect chain (disables history
+        #: True if :class:`Request <Request>` is part of a redirect chain (disables history
         #: and HTTPError storage).
         self.redirect = redirect
 
@@ -77,7 +77,7 @@ class Request(object):
         self.data, self._enc_data = self._encode_params(data)
         self.params, self._enc_params = self._encode_params(params)
 
-        #: :class:`Response <models.Response>` instance, containing
+        #: :class:`Response <Response>` instance, containing
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
         self.response = Response()
 
@@ -86,10 +86,10 @@ class Request(object):
         if not auth:
             auth = auth_manager.get_auth(self.url)
 
-        #: :class:`AuthObject` to attach to :class:`Request <models.Request>`.
+        #: :class:`AuthObject` to attach to :class:`Request <Request>`.
         self.auth = auth
 
-        #: CookieJar to attach to :class:`Request <models.Request>`.
+        #: CookieJar to attach to :class:`Request <Request>`.
         self.cookiejar = cookiejar
 
         #: True if Request has been sent.
@@ -174,7 +174,7 @@ class Request(object):
 
 
     def _build_response(self, resp, is_error=False):
-        """Build internal :class:`Response <models.Response>` object
+        """Build internal :class:`Response <Response>` object
         from given response.
         """
 
@@ -386,9 +386,9 @@ class Request(object):
 
 
 class Response(object):
-    """The core :class:`Response <models.Response>` object. All
-    :class:`Request <models.Request>` objects contain a
-    :class:`response <models.Response>` attribute, which is an instance
+    """The core :class:`Response <Response>` object. All
+    :class:`Request <Request>` objects contain a
+    :class:`response <Response>` attribute, which is an instance
     of this class.
     """
 
@@ -419,7 +419,7 @@ class Response(object):
         #: Resulting :class:`HTTPError` of request, if one occured.
         self.error = None
 
-        #: A list of :class:`Response <models.Response>` objects from
+        #: A list of :class:`Response <Response>` objects from
         #: the history of the Request. Any redirect responses will end
         #: up here.
         self.history = []
