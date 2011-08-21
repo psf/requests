@@ -394,8 +394,6 @@ class Response(object):
 
     def __init__(self):
         #: Content of the response, in bytes or unicode (if available).
-        #: If ``content-encoding`` of response was set to ``gzip``, the
-        #: response data will be automatically deflated.
         self.content = None
 
         # Hack for Sphinx.
@@ -403,6 +401,7 @@ class Response(object):
 
         #: Integer Code of responded HTTP Status.
         self.status_code = None
+
         #: Case-insensitive Dictionary of Response Headers.
         #: For example, ``headers['content-encoding']`` will return the
         #: value of a ``'Content-Encoding'`` response header.
