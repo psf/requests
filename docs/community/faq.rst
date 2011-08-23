@@ -11,7 +11,7 @@ Encoded Data?
 Requests automatically decompresses gzip-encoded responses, and does
 it's best to decodes response content to unicode when possible.
 
-You can get direct access to the raw reasponse (and even the socket),
+You can get direct access to the raw response (and even the socket),
 if needed as well.
 
 
@@ -20,7 +20,6 @@ Custom User-Agents?
 
 Requests allows you to easily override User-Agent strings, along with
 any other HTTP Header.
-
 
 
 Why not Httplib2?
