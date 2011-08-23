@@ -11,7 +11,7 @@ from cgi import parse_header
 #: Dictionary of content decoders.
 decoders = {
     # No decoding applied.
-    'identity': lambda r: r,
+    'identity': lambda r: r.content,
     # Decode Response file object compressed with deflate.
     'deflate': lambda r: zlib.decompress(r.content),
     # Decode Response file object compressed with gzip.
@@ -33,11 +33,12 @@ def unicode_response(r):
     """Encode response file object in unicode."""
     content_type, params = parse_header(r.headers.get('content-type'))
     charset = params.get('charset', '').strip("'\"")
-    r.content = unicode(r.content, charset) if charset else unicode(r.content)
+    r._content = unicode(r.content, charset) if charset else unicode(r.content)
     return r
 
 def decode_response(r):
     """Decode compressed response content using Contetn-Encoding header."""
     encoding = r.headers.get('content-encoding')
-    return decoders.get(encoding)(r)
+    r._content = decoders.get(encoding)(r)
+    return r
 
