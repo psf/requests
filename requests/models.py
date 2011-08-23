@@ -444,22 +444,20 @@ class Response(object):
         (if available).
         """
 
-        if self._content is not None:
-            return self._content
+        if self._content is None:
+            # Read the contents.
+            self._content = self.fo.read()
 
-        # Read the contents.
-        self._content = self.fo.read()
+        # # Decode GZip'd content.
+        # if 'gzip' in self.headers.get('content-encoding', ''):
+        #     try:
+        #         self._content = decode_gzip(self._content)
+        #     except zlib.error:
+        #         pass
 
-        # Decode GZip'd content.
-        if 'gzip' in self.headers.get('content-encoding', ''):
-            try:
-                self._content = decode_gzip(self._content)
-            except zlib.error:
-                pass
-
-        # Decode unicode content.
-        if settings.decode_unicode:
-            self._content = get_unicode_from_response(self)
+        # # Decode unicode content.
+        # if settings.decode_unicode:
+        #     self._content = get_unicode_from_response(self)
 
         return self._content
 

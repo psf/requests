@@ -24,8 +24,24 @@ Available hooks:
 
 import warnings
 from collections import Iterable
+from .. import config
+from response import unicode_response, decode_response
 
-def dispatch_hooks(key, hooks, hook_data):
+def setup_hooks(hooks):
+    """Setup hooks as a dictionary. Each value is a set of hooks."""
+
+    for key, values in hooks.items():
+        hook_list = values if isinstance(values, Iterable) else [values]
+        hooks[key] = set(hook_list) 
+
+    # Also, based on settings, 
+    if config.settings.unicode_response:
+        hooks.setdefault('response', set()).add(unicode_response)
+    if config.settings.decode_response:
+        hooks.setdefault('response', set()).add(decode_response)
+    return hooks
+
+def dispatch_hooks(hooks, hook_data):
     """Dispatches multiple hooks on a given piece of data.
 
     :param key: the hooks group to lookup
@@ -36,13 +52,10 @@ def dispatch_hooks(key, hooks, hook_data):
     :param hook_data: the object on witch the hooks should be applied
     :type hook_data: object
     """
-    hook_list = hooks.get(key, []) if hooks else []
-    dispatching = hook_list if isinstance(hook_list, Iterable) else [hook_list]
-    for hook in dispatching:
+    for hook in hooks:
         try:
             # hook must be a callable
             hook_data = hook(hook_data)
         except Exception, why:
             warnings.warn(str(why))
     return hook_data
-
