@@ -383,6 +383,41 @@ class Request(object):
 
         return self.sent
 
+    @property
+    def curl(self):
+        """Creates a curl command from the request"""
+
+        #TODO - Auth with User names and accounts
+        #TODO - Files
+        #TODO - OAuth
+        #TODO - Cookies?
+
+        #: -L/--location - if there is a redirect, redo request on the new place
+        curl_cmd = 'curl -L '
+
+        #: -H/--header - Extra header to use when getting a web page
+        header = ''
+        if self.headers:
+            header = header.join(['-H "' + key + ':' + value + '" ' for key, value in self.headers.iteritems()])
+
+        if self.method.upper() == 'HEAD':
+            #: -I/--head - fetch headers only
+            method_opt = '-I '
+        else:
+            #: -X/--request - specify request method
+            method_opt = '-X %s ' % self.method.upper()
+
+        data = ''
+        if self.method in ('PUT', 'POST', 'PATCH'):
+            #: -d/--data - send specified data in post request.
+            if isinstance(self.data, (list, tuple)):
+                data = data.join(['-d ' + key + '=' + value + ' ' for key, value in self.data])
+            elif self._enc_data is not None:
+                data = '-d ' + self._enc_data + ' '
+
+        #: Params handled in _build_url
+        return curl_cmd + method_opt + data + header + '"' + self._build_url() + '"'
+
 
 class Response(object):
     """The core :class:`Response <Response>` object. All
