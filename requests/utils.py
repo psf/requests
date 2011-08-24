@@ -172,7 +172,7 @@ def curl_from_request(request):
     """Creates a curl command from the request."""
 
     #TODO - Files
-    #TODO - OAuth/Other Auths
+    #TODO - OAuth
     #TODO - Cookies
 
     #: -L/--location - if there is a redirect, redo request on the new place
