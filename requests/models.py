@@ -311,7 +311,6 @@ class Request(object):
         """
 
         self._checks()
-        success = False
 
         # Logging
         if settings.verbose:
