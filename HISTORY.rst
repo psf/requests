@@ -1,13 +1,33 @@
 History
 -------
 
-0.5.2 (2011-09-??)
+* Automatic decoding of unicode, when available.
+* New ``decode_unicode`` setting
+* Removal of ``r.read/close`` methods
+* New ``r.fo`` interface for advanced response usage.
+
+
+0.6.1 (2011-08-20)
 ++++++++++++++++++
 
-* status code reference dict?
+* Enhanced status codes experience ``\o/``
+* Set a maximum number of redirects (``settings.max_redirects``)
+* Full Unicode URL support
+* Support for protocol-less redirects.
+* Allow for arbitrary request types.
+* Bugfixes
+
+
+0.6.0 (2011-08-17)
+++++++++++++++++++
+
+* New callback hook system
+* New persistient sessions object and context manager
+* Transparent Dict-cookie handling
+* Status code reference object
 * Removed Response.cached
 * Added Response.request
-* all args are kwargs
+* All args are kwargs
 * Relative redirect support
 * HTTPError handling improvements
 * Improved https testing

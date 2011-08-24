@@ -12,7 +12,7 @@ class Settings(object):
     _singleton = {}
 
     # attributes with defaults
-    __attrs__ = ('timeout', 'verbose')
+    __attrs__ = []
 
     def __init__(self, **kwargs):
         super(Settings, self).__init__()
@@ -53,7 +53,16 @@ class Settings(object):
                 return None
         return object.__getattribute__(self, key)
 
+
 settings = Settings()
+
 settings.base_headers = {'User-Agent': 'python-requests.org'}
 settings.accept_gzip = True
 settings.proxies = None
+settings.verbose = None
+settings.timeout = None
+settings.max_redirects = 30
+settings.decode_unicode = True
+
+#: Use socket.setdefaulttimeout() as fallback?
+settings.timeout_fallback = True

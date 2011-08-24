@@ -13,6 +13,7 @@ except ImportError:
 
 import requests
 
+from requests.sessions import Session
 
 
 HTTPBIN_URL = 'http://httpbin.org/'
@@ -131,21 +132,20 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
 
 
-    def test_AUTH_HTTPS_200_OK_GET(self):
+    def test_AUTH_HTTP_200_OK_GET(self):
 
         for service in SERVICES:
 
             auth = ('user', 'pass')
             url = service('basic-auth', 'user', 'pass')
-            r = requests.get(url, auth=auth)
 
+            r = requests.get(url, auth=auth)
+            # print r.__dict__
             self.assertEqual(r.status_code, 200)
+
 
             r = requests.get(url)
             self.assertEqual(r.status_code, 200)
-
-            # reset auto authentication
-            requests.auth_manager.empty()
 
 
     def test_POSTBIN_GET_POST_FILES(self):
@@ -242,21 +242,6 @@ class RequestsTestSuite(unittest.TestCase):
 
         r = requests.get(httpbin('gzip'))
         r.content.decode('ascii')
-
-
-    def test_autoauth(self):
-
-        http_auth = ('user', 'pass')
-        requests.auth_manager.add_auth('httpbin.org', http_auth)
-
-        r = requests.get(httpbin('basic-auth', 'user', 'pass'))
-        self.assertEquals(r.status_code, 200)
-
-
-        requests.auth_manager.add_auth('httpbin.ep.io', http_auth)
-
-        r = requests.get(httpsbin('basic-auth', 'user', 'pass'))
-        self.assertEquals(r.status_code, 200)
 
 
     def test_unicode_get(self):
@@ -453,6 +438,37 @@ class RequestsTestSuite(unittest.TestCase):
             r = requests.get(service('relative-redirect', '3'))
             self.assertEquals(r.status_code, 200)
             self.assertEquals(len(r.history), 3)
+
+
+    def test_session_HTTP_200_OK_GET(self):
+
+        s = Session()
+        r = s.get(httpbin('/'))
+        self.assertEqual(r.status_code, 200)
+
+
+    def test_session_HTTPS_200_OK_GET(self):
+
+        s = Session()
+        r = s.get(httpsbin('/'))
+        self.assertEqual(r.status_code, 200)
+
+
+    def test_session_persistent_headers(self):
+
+        heads = {'User-agent': 'Mozilla/5.0'}
+
+        s = Session()
+        s.headers = heads
+        # Make 2 requests from Session object, should send header both times
+        r1 = s.get(httpbin('user-agent'))
+
+        assert heads['User-agent'] in r1.content
+        r2 = s.get(httpbin('user-agent'))
+
+        assert heads['User-agent'] in r2.content
+        self.assertEqual(r2.status_code, 200)
+
 
 
 if __name__ == '__main__':

@@ -21,3 +21,6 @@ class URLRequired(RequestException):
 
 class InvalidMethod(RequestException):
     """An inappropriate method was attempted."""
+
+class TooManyRedirects(RequestException):
+    """Too many redirects."""

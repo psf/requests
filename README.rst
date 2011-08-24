@@ -1,11 +1,35 @@
 Requests: HTTP for Humans
 =========================
 
-Most existing Python modules for dealing HTTP requests are insane. I have to look up *everything* that I want to do. Most of my worst Python experiences are a result of the various built-in HTTP libraries (yes, even worse than Logging).
+Requests is an ISC Licensed HTTP library, written in Python, for human
+beings.
 
-But this one's different. This one's going to be awesome. And simple.
+Most existing Python modules for sending HTTP requests are extremely
+verbose and cumbersome. Python's builtin urllib2 module provides most of
+the HTTP capabilities you should need, but the api is thoroughly broken.
+It requires an enormous amount of work (even method overrides) to
+perform the simplest of tasks.
 
-Really simple.
+Things shouldn't be this way. Not in Python.
+
+::
+
+    >>> r = requests.get('https://api.github.com', auth=('user', 'pass'))
+    >>> r.status_code
+    204
+    >>> r.headers['content-type']
+    'application/json'
+    >>> r.content
+    ...
+
+See `the same code, without Requests <https://gist.github.com/973705>`_.
+
+Requests allow you to send  **HEAD**, **GET**, **POST**, **PUT**,
+**PATCH**, and **DELETE** HTTP requests. You can add headers, form data,
+multipart files, and parameters with simple Python dictionaries, and access the
+response data in the same way. It's powered by urllib2, but it does
+all the hard work and crazy hacks for you.
+
 
 Features
 --------
@@ -55,80 +79,6 @@ Uh oh, we're not authorized! Let's add authentication. ::
     '{"authenticated": true, "user": "user"}'
 
 
-
-API
----
-
-**Requests:**
-
-All request functions return a Response object (see below).
-
-If a {filename: fileobject} dictionary is passed in (files=...), a multipart_encode upload will be performed.
-If CookieJar object is is passed in (cookies=...), the cookies will be sent with the request.
-
-  HEAD Requests
-    >>> requests.head(url, params={}, headers={}, cookies=None, auth=None, timeout=None, proxies={})
-    <Response [200]>
-
-  GET Requests
-    >>> requests.get(url, params={}, headers={}, cookies=None, auth=None, timeout=None, proxies={})
-    <Response [200]>
-
-  POST Requests
-    >>> requests.post(url, data={}, headers={}, files={}, cookies=None, auth=None, timeout=None, allow_redirects=False, params{}, proxies={})
-    <Response [200]>
-
-  PUT Requests
-    >>> requests.put(url, data={}, headers={}, files={}, cookies=None, auth=None, timeout=None, allow_redirects=False, params{}, proxies={})
-    <Response [200]>
-
-  PATCH Requests
-    >>> requests.patch(url, data={}, headers={}, files={}, cookies=None, auth=None, timeout=None, allow_redirects=False, params{}, proxies={})
-    <Response [200]>
-
-  DELETE Requests
-    >>> requests.delete(url, params={}, headers={}, cookies=None, auth=None, timeout=None, allow_redirects=False, params{}, proxies={})
-    <Response [200]>
-
-
-**Responses:**
-
-    Response.status_code
-         (Integer) Received HTTP Status Code Response
-
-    Response.headers
-        ((CaseInsensitive) Dictionary) Received HTTP Response Headers.
-
-    Response.content
-        (Bytes) Received Content.
-
-    Response.history
-        (List of Responses) Redirection History.
-
-    Response.url
-        (String) URL of response. Useful for detecting redirects.
-
-    Response.ok
-        (Bool) True if no errors occurred during the request, and the status_code is kosher.
-
-    Response.cached
-        (Bool) True if Response.content is stored within the object.
-
-    Response.error
-        (HTTPError) If an HTTPError occurred (e.g. status of 404), Otherwise this is None.
-
-    Response.raise_for_status()
-        Raises HTTPError if a request is not kosher.
-
-
-**HTTP Authentication Registry:**
-
-    You can register AuthObjects to automatically enable HTTP Authentication on requests that contain a registered base URL string.
-
-    >>> requests.auth_manager.add_auth(url, authobject)
-
-
-
 Installation
 ------------
 
@@ -149,12 +99,6 @@ Contribute
 
 If you'd like to contribute, simply fork `the repository`_, commit your changes to the **develop** branch (or branch off of it), and send a pull request. Make sure you add yourself to AUTHORS_.
 
-
-
-Roadmap
--------
-
-- Sphinx Documentation
 
 .. _`the repository`: http://github.com/kennethreitz/requests
 .. _AUTHORS: http://github.com/kennethreitz/requests/blob/master/AUTHORS
