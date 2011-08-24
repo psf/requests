@@ -168,41 +168,41 @@ def decode_gzip(content):
     return zlib.decompress(content, 16+zlib.MAX_WBITS)
 
 
-def curl_from_request(request): 
-    """Creates a curl command from the request.""" 
+def curl_from_request(request):
+    """Creates a curl command from the request."""
 
-    #TODO - Files 
-    #TODO - OAuth 
-    #TODO - Cookies 
+    #TODO - Files
+    #TODO - OAuth
+    #TODO - Cookies
 
-    #: -L/--location - if there is a redirect, redo request on the new place 
-    curl = 'curl -L ' 
+    #: -L/--location - if there is a redirect, redo request on the new place
+    curl = 'curl -L '
 
-    #: -u/--user - Specify the user name and password to use for server auth. 
-    auth = '' 
-    if request.auth is not None: 
-       auth = '-u "%s:%s" ' % (request.auth.username, request.auth.password) 
+    #: -u/--user - Specify the user name and password to use for server auth.
+    auth = ''
+    if request.auth is not None:
+       auth = '-u "%s:%s" ' % (request.auth.username, request.auth.password)
 
-    if request.method.upper() == 'HEAD': 
-        #: -I/--head - fetch headers only 
-        method = '-I ' 
-    else: 
-        #: -X/--request - specify request method 
-        method = '-X %s ' % request.method.upper() 
+    if request.method.upper() == 'HEAD':
+        #: -I/--head - fetch headers only
+        method = '-I '
+    else:
+        #: -X/--request - specify request method
+        method = '-X %s ' % request.method.upper()
 
-    #: -H/--header - Extra header to use when getting a web page 
-    header = '' 
-    if request.headers: 
-        header = header.join(['-H "%s:%s" ' % (k, v) for k, v in request.headers.iteritems()]) 
+    #: -H/--header - Extra header to use when getting a web page
+    header = ''
+    if request.headers:
+        header = header.join(['-H "%s:%s" ' % (k, v) for k, v in request.headers.iteritems()])
 
-    data = '' 
-    if request.method in ('PUT', 'POST', 'PATCH'): 
-        #: -d/--data - send specified data in post request. 
-        if isinstance(request.data, (list, tuple)): 
-            data = data.join(['-d "%s=%s" ' % (k, v) for (k, v) in request.data]) 
-        elif request._enc_data is not None: 
-            data = '-d %s ' % (request._enc_data) 
+    data = ''
+    if request.method in ('PUT', 'POST', 'PATCH'):
+        #: -d/--data - send specified data in post request.
+        if isinstance(request.data, (list, tuple)):
+            data = data.join(['-d "%s=%s" ' % (k, v) for (k, v) in request.data])
+        elif request._enc_data is not None:
+            data = '-d %s ' % (request._enc_data)
 
 
-    #: Params handled in _build_url 
-    return curl + auth + method + header + data + '"' + request._build_url() + '"' 
+    #: Params handled in _build_url
+    return curl + auth + method + header + data + '"' + request._build_url() + '"'
