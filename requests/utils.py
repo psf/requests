@@ -132,21 +132,8 @@ def get_unicode_from_response(r):
 
     if encoding:
         try:
-            print '!'
             return unicode(r.content, encoding)
         except UnicodeError:
-            tried_encodings.append(encoding)
-
-    # Try every encodings from <meta ... charset=XXX>
-    encodings = get_encodings_from_content(r.content)
-
-    for encoding in encodings:
-        if encoding in tried_encodings:
-            continue
-        try:
-
-            return unicode(r.content, encoding)
-        except (UnicodeError, TypeError):
             tried_encodings.append(encoding)
 
     # Fall back:
