@@ -391,6 +391,7 @@ class Request(object):
         #TODO - Auth with User names and accounts
         #TODO - Files
         #TODO - OAuth
+        #TODO - Cookies?
 
         #: -L/--location - if there is a redirect, redo request on the new place
         curl_cmd = 'curl -L '
@@ -410,12 +411,9 @@ class Request(object):
         data = ''
         if self.method in ('PUT', 'POST', 'PATCH'):
             #: -d/--data - send specified data in post request.
-            #: '-d name=John -d last=Doe' generates the
-            #: post chunk 'name=John&last=Doe'
-
             if isinstance(self.data, (list, tuple)):
                 data = data.join(['-d ' + key + '=' + value + ' ' for key, value in self.data])
-            else:
+            elif self._enc_data is not None:
                 data = '-d ' + self._enc_data + ' '
 
         #: Params handled in _build_url
