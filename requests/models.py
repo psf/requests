@@ -332,23 +332,24 @@ class Request(object):
     def curl(self):
         """Creates a curl command from the request"""
 
-        #TODO - Auth. User names and accounts
-        #TODO - Files...How do I do files???
+        #TODO - Auth with User names and accounts
+        #TODO - Files
+        #TODO - OAuth
 
-        #: --location - if there is a redirect, redo request on the new place
-        curl_cmd = 'curl --location '
+        #: -L/--location - if there is a redirect, redo request on the new place
+        curl_cmd = 'curl -L '
 
-        #: --header - Extra header to use when getting a web page
+        #: -H/--header - Extra header to use when getting a web page
         header = ''
         if self.headers:
-            header = header.join(['--header "' + key + ':' + value + '" ' for key, value in self.headers.iteritems()])
+            header = header.join(['-H "' + key + ':' + value + '" ' for key, value in self.headers.iteritems()])
 
         if self.method.upper() == 'HEAD':
-            #: --head - fetch headers only
-            method_opt = '--head '
+            #: -I/--head - fetch headers only
+            method_opt = '-I '
         else:
-            #: --request - specify request method
-            method_opt = '--request %s ' % self.method.upper()
+            #: -X/--request - specify request method
+            method_opt = '-X %s ' % self.method.upper()
 
         data = ''
         if self.method in ('PUT', 'POST', 'PATCH'):
@@ -358,9 +359,9 @@ class Request(object):
 
             #if data is file:
             if isinstance(self.data, (list, tuple)):
-                data = data.join(['--data ' + key + '=' + value + ' ' for key, value in self.data])
+                data = data.join(['-d ' + key + '=' + value + ' ' for key, value in self.data])
             else:
-                data = '--data ' + self._enc_data + ' '
+                data = '-d ' + self._enc_data + ' '
 
         #: Params handled in _build_url
         curl_cmd = curl_cmd + method_opt + data + header + '"' + self._build_url() + '"'
