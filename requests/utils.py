@@ -171,33 +171,37 @@ def decode_gzip(content):
 def curl_from_request(request):
     """Creates a curl command from the request."""
 
-    #TODO - Auth with User names and accounts
     #TODO - Files
-    #TODO - OAuth
-    #TODO - Cookies?
+    #TODO - OAuth/Other Auths
+    #TODO - Cookies
 
     #: -L/--location - if there is a redirect, redo request on the new place
-    curl_cmd = 'curl -L '
+    curl = 'curl -L '
+
+    #: -u/--user - Specify the user name and password to use for server auth. 
+    auth = ''
+    if request.auth is not None:
+       auth = '-u "%s:%s" ' % (request.auth.username, request.auth.password) 
+
+    if request.method.upper() == 'HEAD':
+        #: -I/--head - fetch headers only
+        method = '-I '
+    else:
+        #: -X/--request - specify request method
+        method = '-X %s ' % request.method.upper()
 
     #: -H/--header - Extra header to use when getting a web page
     header = ''
     if request.headers:
-        header = header.join(['-H "' + key + ':' + value + '" ' for key, value in request.headers.iteritems()])
-
-    if request.method.upper() == 'HEAD':
-        #: -I/--head - fetch headers only
-        method_opt = '-I '
-    else:
-        #: -X/--request - specify request method
-        method_opt = '-X %s ' % request.method.upper()
+        header = header.join(['-H "%s:%s" ' % (k, v) for k, v in request.headers.iteritems()])
 
     data = ''
     if request.method in ('PUT', 'POST', 'PATCH'):
         #: -d/--data - send specified data in post request.
         if isinstance(request.data, (list, tuple)):
-            data = data.join(['-d %s=%s ' % (k, v) for (k, v) in request.data])
+            data = data.join(['-d "%s=%s" ' % (k, v) for (k, v) in request.data])
         elif request._enc_data is not None:
             data = '-d %s ' % (request._enc_data)
 
     #: Params handled in _build_url
-    return curl_cmd + method_opt + data + header + '"' + request._build_url() + '"'
+    return curl + auth + method + header + data + '"' + request._build_url() + '"'
