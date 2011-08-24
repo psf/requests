@@ -110,6 +110,25 @@ def get_encoding_from_headers(headers):
         return params['charset'].strip("'\"")
 
 
+def unicode_from_html(content):
+    """Attempts to decode an HTML string into unicode.
+    If unsuccessful, the original content is returned.
+    """
+
+    encodings = get_encodings_from_content(content)
+
+    for encoding in encodings:
+
+        try:
+            return unicode(content, encoding)
+        except (UnicodeError, TypeError):
+            pass
+
+    return content
+
+
+
+
 def get_unicode_from_response(r):
     """Returns the requested content back in unicode.
 
