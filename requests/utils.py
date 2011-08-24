@@ -195,9 +195,9 @@ def curl_from_request(request):
     if request.method in ('PUT', 'POST', 'PATCH'):
         #: -d/--data - send specified data in post request.
         if isinstance(request.data, (list, tuple)):
-            data = data.join(['-d ' + key + '=' + value + ' ' for key, value in request.data])
+            data = data.join(['-d %s=%s ' % (k, v) for (k, v) in request.data])
         elif request._enc_data is not None:
-            data = '-d ' + request._enc_data + ' '
+            data = '-d %s ' % (request._enc_data)
 
     #: Params handled in _build_url
     return curl_cmd + method_opt + data + header + '"' + request._build_url() + '"'
