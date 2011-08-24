@@ -203,6 +203,5 @@ def curl_from_request(request):
         elif request._enc_data is not None:
             data = '-d %s ' % (request._enc_data)
 
-
     #: Params handled in _build_url
     return curl + auth + method + header + data + '"' + request._build_url() + '"'
