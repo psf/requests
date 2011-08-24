@@ -96,7 +96,6 @@ def get_encodings_from_content(content):
     return charset_re.findall(content)
 
 
-
 def get_encoding_from_headers(headers):
     """Returns encodings from given HTTP Header Dict.
 
@@ -124,9 +123,7 @@ def unicode_from_html(content):
         except (UnicodeError, TypeError):
             pass
 
-    return content
-
-
+        return content
 
 
 def get_unicode_from_response(r):
