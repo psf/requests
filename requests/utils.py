@@ -166,3 +166,38 @@ def decode_gzip(content):
     """
 
     return zlib.decompress(content, 16+zlib.MAX_WBITS)
+
+
+def curl_from_request(request):
+    """Creates a curl command from the request."""
+
+    #TODO - Auth with User names and accounts
+    #TODO - Files
+    #TODO - OAuth
+    #TODO - Cookies?
+
+    #: -L/--location - if there is a redirect, redo request on the new place
+    curl_cmd = 'curl -L '
+
+    #: -H/--header - Extra header to use when getting a web page
+    header = ''
+    if request.headers:
+        header = header.join(['-H "' + key + ':' + value + '" ' for key, value in request.headers.iteritems()])
+
+    if request.method.upper() == 'HEAD':
+        #: -I/--head - fetch headers only
+        method_opt = '-I '
+    else:
+        #: -X/--request - specify request method
+        method_opt = '-X %s ' % request.method.upper()
+
+    data = ''
+    if request.method in ('PUT', 'POST', 'PATCH'):
+        #: -d/--data - send specified data in post request.
+        if isinstance(request.data, (list, tuple)):
+            data = data.join(['-d ' + key + '=' + value + ' ' for key, value in request.data])
+        elif request._enc_data is not None:
+            data = '-d ' + request._enc_data + ' '
+
+    #: Params handled in _build_url
+    return curl_cmd + method_opt + data + header + '"' + request._build_url() + '"'
