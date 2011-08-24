@@ -353,20 +353,17 @@ class Request(object):
 
         data = ''
         if self.method in ('PUT', 'POST', 'PATCH'):
-            #: --data - send specified data in post request.
-            #: '-data name=John -data skill=Doe' generates the
-            #: post chunk 'name=daniel&skill=lousy'
+            #: -d/--data - send specified data in post request.
+            #: '-d name=John -d last=Doe' generates the
+            #: post chunk 'name=John&last=Doe'
 
-            #if data is file:
             if isinstance(self.data, (list, tuple)):
                 data = data.join(['-d ' + key + '=' + value + ' ' for key, value in self.data])
             else:
                 data = '-d ' + self._enc_data + ' '
 
         #: Params handled in _build_url
-        curl_cmd = curl_cmd + method_opt + data + header + '"' + self._build_url() + '"'
-
-        return curl_cmd
+        return curl_cmd + method_opt + data + header + '"' + self._build_url() + '"'
 
 
 class Response(object):
