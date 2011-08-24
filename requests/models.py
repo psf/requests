@@ -421,6 +421,7 @@ class Request(object):
         #: Params handled in _build_url
         return curl_cmd + method_opt + data + header + '"' + self._build_url() + '"'
 
+
 class Response(object):
     """The core :class:`Response <Response>` object. All
     :class:`Request <Request>` objects contain a
