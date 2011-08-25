@@ -56,15 +56,25 @@ class Settings(object):
 
 settings = Settings()
 
-settings.base_headers = {'User-Agent': 'python-requests.org'}
+settings.base_headers = {
+    'User-Agent': 'python-requests.org',
+    'Accept-Encoding': ', '.join([ 'identity', 'deflate', 'compress', 'gzip' ]),
+}
 settings.accept_gzip = True
 settings.proxies = None
 settings.verbose = None
 settings.timeout = None
 settings.max_redirects = 30
-# settings.decode_unicode = True
-settings.unicode_response = True
-settings.decode_response = True
+settings.decode_unicode = False
+settings.gracefull_hooks = True
+
+#: A dictionary of default hooks to be applied, based on settings.
+settings.default_hooks = {
+    'args': list(),
+    'pre_request': list(),
+    'post_request': list(),
+    'response': list()
+}
 
 #: Use socket.setdefaulttimeout() as fallback?
 settings.timeout_fallback = True
