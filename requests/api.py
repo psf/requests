@@ -43,9 +43,7 @@ def request(method, url,
 
     method = str(method).upper()
 
-    cookies = cookiejar_from_dict(cookies or dict())
-
-    hooks = setup_hooks(hooks or dict())
+    cookies = cookiejar_from_dict(cookies if cookies is not None else dict())
 
     args = dict(
         method = method,
@@ -61,23 +59,24 @@ def request(method, url,
         proxies = proxies or config.settings.proxies,
     )
     
+    hooks = setup_hooks(hooks if hooks is not None else dict())
 
     # Arguments manipulation hook.
-    args = dispatch_hooks(hooks.get('args', []), args)
+    args = dispatch_hooks(hooks['args'], args)
 
     r = Request(**args)
 
     # Pre-request hook.
-    r = dispatch_hooks(hooks.get('pre_request', []), r)
+    r = dispatch_hooks(hooks['pre_request'], r)
 
     # Send the HTTP Request.
     r.send()
 
     # Post-request hook.
-    r = dispatch_hooks(hooks.get('post_request', []), hooks, r)
+    r = dispatch_hooks(hooks['post_request'], r)
 
     # Response manipulation hook.
-    r.response = dispatch_hooks(hooks.get('response', []), r.response)
+    r.response = dispatch_hooks(hooks['response'], r.response)
 
     return r.response
 
