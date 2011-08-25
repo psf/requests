@@ -171,7 +171,6 @@ def decode_gzip(content):
 def curl_from_request(request):
     """Creates a curl command from the request."""
 
-    #TODO - Files
     #TODO - OAuth
     #TODO - Cookies
 
@@ -179,6 +178,7 @@ def curl_from_request(request):
     curl = 'curl -L '
 
     #: -u/--user - Specify the user name and password to use for server auth.
+    #: Basic Auth only for now
     auth = ''
     if request.auth is not None:
        auth = '-u "%s:%s" ' % (request.auth.username, request.auth.password)
@@ -195,13 +195,26 @@ def curl_from_request(request):
     if request.headers:
         header = header.join(['-H "%s:%s" ' % (k, v) for k, v in request.headers.iteritems()])
 
-    data = ''
+    form = ''
     if request.method in ('PUT', 'POST', 'PATCH'):
-        #: -d/--data - send specified data in post request.
-        if isinstance(request.data, (list, tuple)):
-            data = data.join(['-d "%s=%s" ' % (k, v) for (k, v) in request.data])
-        elif request._enc_data is not None:
-            data = '-d %s ' % (request._enc_data)
+        #: request.files is updated with request.data if both exist.
+        #: ContentType multipart/form-data is used
+        if request.files:
+           #: -F/--form - Emulate form data. To force 'content' to a file, prefix file name @.
+            for k, v in request.files.iteritems():
+                if isinstance(v, file):
+                    form = form + '-F "%s=@%s" ' % (k, v.name)
+                elif v not in (None, ''):
+                    form = form + '-F "%s=%s" ' % (k, v)
+
+        #: content-type application/x-www-form-urlencoded is used here
+        else:
+            #: -d/--data - send specified data in post request.
+            if isinstance(request.data, (list, tuple)):
+                form = form.join(['-d "%s=%s" ' % (k, v) for k, v in request.data])
+            elif request._enc_data not in (None, ''):
+                form = "-d '%s' " % (request._enc_data)
 
     #: Params handled in _build_url
-    return curl + auth + method + header + data + '"' + request._build_url() + '"'
+    return curl + auth + method + header + form + '"' + request._build_url() + '"'
+
