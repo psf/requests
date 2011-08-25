@@ -25,23 +25,49 @@ Available hooks:
 import warnings
 from collections import Iterable
 from .. import config
-from response import unicode_response, decode_response
+from . import args
+from . import pre_request
+from . import post_request
+from . import response
 
-def setup_hooks(hooks):
-    """Setup hooks as a dictionary. Each value is a set of hooks."""
+def setup_hooks(supplied):
+    """Setup the supplied dictionary of hooks.
+    Each value is a list of hooks and will extend **default_hooks**.
 
-    for key, values in hooks.items():
+    :param supplied: a dictionary of hooks. Each value can either be a callable
+                     or a list of callables.
+    :type supplied: dict
+    :returns: a dictionary of hooks that extends the **default_hooks** dictionary.
+    :rtype: dict
+    """
+
+    # Copy the default hooks settings.
+    dispatching = dict([(k, v[:]) for k, v in config.settings.default_hooks])
+
+    # I abandoned the idea of a dictionary of sets because sets may not keep
+    # insertion order, while it may be important. Also, there is no real reason
+    # to force hooks to run once.
+    for hooks, values in supplied.items():
         hook_list = values if isinstance(values, Iterable) else [values]
-        hooks[key] = set(hook_list) 
+        dispatching[hooks].extends(hook_list)
 
-    # Also, based on settings, 
-    if config.settings.unicode_response:
-        hooks.setdefault('response', set()).add(unicode_response)
-    if config.settings.decode_response:
-        hooks.setdefault('response', set()).add(decode_response)
-    return hooks
+    # If header is set, maybe response is encoded. Whatever hook you want to
+    # run on response, content decoding should be first.
+    if config.settings.base_headers.get('Accept-Encoding', ''):
+        dispatching['response'].insert(0, response.decode_encoding)
 
-def dispatch_hooks(hooks, hook_data):
+    if config.settings.decode_unicode:
+        try:
+            # Try unicode encoding just after content decoding...
+            index = dispatching['response'].index(response.decode_encoding) + 1
+        except ValueError:
+            # ... Or as first hook
+            index = 0
+        dispatching['response'].insert(index, response.decode_unicode)
+
+    return dispatching
+
+def dispatch_hooks(hooks, data):
     """Dispatches multiple hooks on a given piece of data.
 
     :param key: the hooks group to lookup
@@ -49,13 +75,22 @@ def dispatch_hooks(hooks, hook_data):
     :param hooks: the hooks dictionary. The value of each key can be a callable
                   object, or a list of callable objects.
     :type hooks: dict
-    :param hook_data: the object on witch the hooks should be applied
-    :type hook_data: object
+    :param data: the object on witch the hooks should be applied
+    :type data: object
     """
     for hook in hooks:
         try:
-            # hook must be a callable
-            hook_data = hook(hook_data)
+            # hook must be a callable.
+            data = hook(data)
+
         except Exception, why:
+
+            # Letting users to choose a policy may be an idea. It can be as
+            # simple as "be gracefull, or not":
+            #
+            # config.settings.gracefull_hooks = True | False
+            if not config.settings.gracefull_hooks: raise
+
             warnings.warn(str(why))
-    return hook_data
+
+    return data
