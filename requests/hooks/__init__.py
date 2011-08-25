@@ -42,7 +42,8 @@ def setup_hooks(supplied):
     """
 
     # Copy the default hooks settings.
-    dispatching = dict([(k, v[:]) for k, v in config.settings.default_hooks])
+    default = config.settings.default_hooks
+    dispatching = dict([(k, v[:]) for k, v in default.items()])
 
     # I abandoned the idea of a dictionary of sets because sets may not keep
     # insertion order, while it may be important. Also, there is no real reason
