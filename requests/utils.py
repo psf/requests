@@ -172,7 +172,6 @@ def curl_from_request(request):
     """Creates a curl command from the request."""
 
     #TODO - OAuth
-    #TODO - Cookies
 
     #: -L/--location - if there is a redirect, redo request on the new place
     curl = 'curl -L '
@@ -183,12 +182,20 @@ def curl_from_request(request):
     if request.auth is not None:
        auth = '-u "%s:%s" ' % (request.auth.username, request.auth.password)
 
+    method = ''
     if request.method.upper() == 'HEAD':
         #: -I/--head - fetch headers only
         method = '-I '
     else:
         #: -X/--request - specify request method
         method = '-X %s ' % request.method.upper()
+
+    #: -b/--cookie
+    #: (HTTP) Pass the data to the HTTP server as a cookie. It is supposedly the
+    #: data previously received from the server in a "Set-Cookie:" line. 
+    cookies = ''
+    if request.cookiejar:
+        cookies = cookies.join(['-b "%s=%s" ' % (k.name, k.value) for k in request.cookiejar]) 
 
     #: -H/--header - Extra header to use when getting a web page
     header = ''
@@ -216,5 +223,5 @@ def curl_from_request(request):
                 form = "-d '%s' " % (request._enc_data)
 
     #: Params handled in _build_url
-    return curl + auth + method + header + form + '"' + request._build_url() + '"'
+    return curl + auth + method + header + cookies + form + '"' + request._build_url() + '"'
 
