@@ -14,7 +14,7 @@ This module impliments the Requests API.
 import config
 from .models import Request, Response, AuthObject
 from .status_codes import codes
-from .hooks import dispatch_hook
+from hooks import setup_hooks, dispatch_hooks
 from .utils import cookiejar_from_dict
 
 from urlparse import urlparse
@@ -43,10 +43,7 @@ def request(method, url,
 
     method = str(method).upper()
 
-    if cookies is None:
-        cookies = {}
-
-    cookies = cookiejar_from_dict(cookies)
+    cookies = cookiejar_from_dict(cookies if cookies is not None else dict())
 
     args = dict(
         method = method,
@@ -61,23 +58,25 @@ def request(method, url,
         allow_redirects = allow_redirects,
         proxies = proxies or config.settings.proxies,
     )
+    
+    hooks = setup_hooks(hooks if hooks is not None else dict())
 
     # Arguments manipulation hook.
-    args = dispatch_hook('args', hooks, args)
+    args = dispatch_hooks(hooks['args'], args)
 
     r = Request(**args)
 
     # Pre-request hook.
-    r = dispatch_hook('pre_request', hooks, r)
+    r = dispatch_hooks(hooks['pre_request'], r)
 
     # Send the HTTP Request.
     r.send()
 
     # Post-request hook.
-    r = dispatch_hook('post_request', hooks, r)
+    r = dispatch_hooks(hooks['post_request'], r)
 
     # Response manipulation hook.
-    r.response = dispatch_hook('response', hooks, r.response)
+    r.response = dispatch_hooks(hooks['response'], r.response)
 
     return r.response
 
