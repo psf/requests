@@ -192,10 +192,10 @@ def curl_from_request(request):
 
     #: -b/--cookie
     #: (HTTP) Pass the data to the HTTP server as a cookie. It is supposedly the
-    #: data previously received from the server in a "Set-Cookie:" line. 
+    #: data previously received from the server in a "Set-Cookie:" line.
     cookies = ''
     if request.cookiejar:
-        cookies = cookies.join(['-b "%s=%s" ' % (k.name, k.value) for k in request.cookiejar]) 
+        cookies = cookies.join(['-b "%s=%s" ' % (k.name, k.value) for k in request.cookiejar])
 
     #: -H/--header - Extra header to use when getting a web page
     header = ''
