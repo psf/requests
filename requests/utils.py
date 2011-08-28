@@ -32,6 +32,9 @@ def header_expand(headers):
     if isinstance(headers, dict):
         headers = headers.items()
 
+    elif isinstance(headers, basestring):
+        return headers
+
     for i, (value, params) in enumerate(headers):
 
         _params = []
