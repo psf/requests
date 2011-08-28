@@ -53,9 +53,6 @@ def request(method, url,
         for k, v in headers.items() or {}:
             headers[k] = header_expand(v)
 
-    # headers = [(k, map(header_expand, v)) for k,v in headers.items()]
-    # print headers
-
     args = dict(
         method = method,
         url = url,
