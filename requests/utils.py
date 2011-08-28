@@ -15,31 +15,48 @@ import re
 import zlib
 
 
-def header_expand(header_dict):
+def header_expand(headers):
     """Returns an HTTP Header value string from a dictionary.
 
     Example expansion::
 
-        # Accept: text/x-dvi; q=.8; mxb=100000; mxt=5.0, text/x-c
         {'text/x-dvi': {'q': '.8', 'mxb': '100000', 'mxt': '5.0'}, 'text/x-c': {}}
+        # Accept: text/x-dvi; q=.8; mxb=100000; mxt=5.0, text/x-c
+
+        (('text/x-dvi', {'q': '.8', 'mxb': '100000', 'mxt': '5.0'}), ('text/x-c', {}))
+        # Accept: text/x-dvi; q=.8; mxb=100000; mxt=5.0, text/x-c
     """
 
     collector = []
 
-    for i, (value, params) in enumerate(header_dict.items()):
+    if isinstance(headers, dict):
+
+        # Assume header-tuple
+        headers = headers.items()
+
+    # print headers
+
+    for i, (value, params) in enumerate(headers):
+
         _params = []
 
-        for p_k, p_v in params.items():
+        for (p_k, p_v) in params.items():
 
-            _params.append('{k}={v}'.format(k=p_k, v=p_v))
+            _params.append('%s=%s' % (p_k, p_v))
+
+        collector.append(value)
+        collector.append('; ')
 
         if len(params):
-            collector.append(value)
-            collector.append('; ')
+
             collector.append('; '.join(_params))
 
-            if not len(header_dict) == i+1:
+            if not len(headers) == i+1:
                 collector.append(', ')
+
+
+    if collector[-1] in (', ', '; '):
+        del collector[-1]
 
     return ''.join(collector)
 
