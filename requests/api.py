@@ -15,7 +15,7 @@ import config
 from .models import Request, Response, AuthObject
 from .status_codes import codes
 from .hooks import dispatch_hook
-from .utils import cookiejar_from_dict
+from .utils import cookiejar_from_dict, header_expand
 
 from urlparse import urlparse
 
@@ -47,6 +47,14 @@ def request(method, url,
         cookies = {}
 
     cookies = cookiejar_from_dict(cookies)
+
+    # Expand header values
+    if headers:
+        for k, v in headers.items() or {}:
+            headers[k] = header_expand(v)
+
+    # headers = [(k, map(header_expand, v)) for k,v in headers.items()]
+    # print headers
 
     args = dict(
         method = method,
