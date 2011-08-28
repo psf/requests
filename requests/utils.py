@@ -15,6 +15,36 @@ import re
 import zlib
 
 
+def header_expand(header_dict):
+    """Returns an HTTP Header value string from a dictionary.
+
+    Example expansion::
+
+        # Accept: text/x-dvi; q=.8; mxb=100000; mxt=5.0, text/x-c
+        {'text/x-dvi': {'q': '.8', 'mxb': '100000', 'mxt': '5.0'}, 'text/x-c': {}}
+    """
+
+    collector = []
+
+    for i, (value, params) in enumerate(header_dict.items()):
+        _params = []
+
+        for p_k, p_v in params.items():
+
+            _params.append('{k}={v}'.format(k=p_k, v=p_v))
+
+        if len(params):
+            collector.append(value)
+            collector.append('; ')
+            collector.append('; '.join(_params))
+
+            if not len(header_dict) == i+1:
+                collector.append(', ')
+
+    return ''.join(collector)
+
+
+
 def dict_from_cookiejar(cj):
     """Returns a key/value dictionary from a CookieJar.
 
