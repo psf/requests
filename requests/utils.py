@@ -30,11 +30,7 @@ def header_expand(headers):
     collector = []
 
     if isinstance(headers, dict):
-
-        # Assume header-tuple
         headers = headers.items()
-
-    # print headers
 
     for i, (value, params) in enumerate(headers):
 
@@ -55,6 +51,7 @@ def header_expand(headers):
                 collector.append(', ')
 
 
+    # Remove trailing seperators.
     if collector[-1] in (', ', '; '):
         del collector[-1]
 
