@@ -169,11 +169,21 @@ def decode_gzip(content):
 
 
 def curl_from_request(request):
-    """Creates a curl command from the request."""
+    """Returns a curl command from the request.
+
+    :param request: The :class:`Request <Request>` object
+
+    Example:
+        | import requests
+        | from requests.utils import curl_from_request
+        | r = requests.get('http://httpbin.org/get')
+        | curl_from_request(r.request)
+
+    """
 
     #TODO - OAuth
 
-    #: -L/--location - if there is a redirect, redo request on the new place
+    #: -L/--location - if there is a redirect, redo request on the new place.
     curl = 'curl -L '
 
     #: -u/--user - Specify the user name and password to use for server auth.
@@ -184,10 +194,10 @@ def curl_from_request(request):
 
     method = ''
     if request.method.upper() == 'HEAD':
-        #: -I/--head - fetch headers only
+        #: -I/--head - fetch headers only.
         method = '-I '
     else:
-        #: -X/--request - specify request method
+        #: -X/--request - specify request method.
         method = '-X %s ' % request.method.upper()
 
     #: -b/--cookie
@@ -197,15 +207,15 @@ def curl_from_request(request):
     if request.cookiejar:
         cookies = cookies.join(['-b "%s=%s" ' % (k.name, k.value) for k in request.cookiejar])
 
-    #: -H/--header - Extra header to use when getting a web page
+    #: -H/--header - Extra header to use when getting a web page.
     header = ''
     if request.headers:
         header = header.join(['-H "%s:%s" ' % (k, v) for k, v in request.headers.iteritems()])
 
     form = ''
     if request.method in ('PUT', 'POST', 'PATCH'):
-        #: request.files is updated with request.data if both exist.
-        #: ContentType multipart/form-data is used
+        #: request.files is updated with request.data if both exist, so only iterate request.files.
+        #: ContentType multipart/form-data is used.
         if request.files:
            #: -F/--form - Emulate form data. To force 'content' to a file, prefix file name @.
             for k, v in request.files.iteritems():
@@ -214,7 +224,7 @@ def curl_from_request(request):
                 elif v not in (None, ''):
                     form = form + '-F "%s=%s" ' % (k, v)
 
-        #: content-type application/x-www-form-urlencoded is used here
+        #: content-type application/x-www-form-urlencoded is used here.
         else:
             #: -d/--data - send specified data in post request.
             if isinstance(request.data, (list, tuple)):
