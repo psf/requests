@@ -95,6 +95,9 @@ def get(url, **kwargs):
     :param **kwargs: Optional arguments that ``request`` takes.
     """
 
+    if "allow_redirects" not in kwargs:
+        kwargs["allow_redirects"] = True
+
     return request('get', url, **kwargs)
 
 
@@ -104,6 +107,9 @@ def head(url, **kwargs):
     :param url: URL for the new :class:`Request` object.
     :param **kwargs: Optional arguments that ``request`` takes.
     """
+
+    if "allow_redirects" not in kwargs:
+        kwargs["allow_redirects"] = True
 
     return request('head', url, **kwargs)
 
