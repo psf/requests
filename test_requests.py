@@ -60,6 +60,13 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get(httpbin('/'))
         self.assertEqual(r.status_code, 200)
 
+    def test_HTTP_302_ALLOW_REDIRECT_GET(self):
+	r = requests.get(httpbin('redirect', '1'))
+	self.assertEqual(r.status_code, 200)
+
+    def test_HTTP_302_GET(self):
+	r = requests.get(httpbin('redirect', '1'), allow_redirects=False)
+	self.assertEqual(r.status_code, 302)
 
     def test_HTTPS_200_OK_GET(self):
         r = requests.get(httpsbin('/'))
