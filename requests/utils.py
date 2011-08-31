@@ -150,6 +150,8 @@ def get_encoding_from_headers(headers):
     """
 
     content_type = headers.get('content-type')
+    if not content_type :
+        return
     content_type, params = cgi.parse_header(content_type)
 
     if 'charset' in params:
