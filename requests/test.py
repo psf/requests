@@ -3,17 +3,22 @@
 
 from __future__ import with_statement
 
+
 import unittest
 import cookielib
+from cStringIO import StringIO
 
 try:
     import omnijson as json
 except ImportError:
-    import json
+    try:
+        import simplejson as json
+    except ImportError:
+        import json
 
-import requests
+import __init__ as requests
 
-from requests.sessions import Session
+from sessions import Session
 
 
 HTTPBIN_URL = 'http://httpbin.org/'
@@ -158,7 +163,7 @@ class RequestsTestSuite(unittest.TestCase):
             post = requests.post(url, data={'some': 'data'})
             self.assertEqual(post.status_code, 200)
 
-            post2 = requests.post(url, files={'some': open('test_requests.py')})
+            post2 = requests.post(url, files={'some': StringIO('Test.')})
             self.assertEqual(post2.status_code, 200)
 
             post3 = requests.post(url, data='[{"some": "json"}]')
@@ -171,7 +176,7 @@ class RequestsTestSuite(unittest.TestCase):
 
             url = service('post')
             post = requests.post(url,
-                files={'some': open('test_requests.py')},
+                files={'some': StringIO('Test.')},
                 data={'some': 'data'})
 
             self.assertEqual(post.status_code, 200)
@@ -184,7 +189,7 @@ class RequestsTestSuite(unittest.TestCase):
             url = service('post')
 
             post2 = requests.post(url,
-                files={'some': open('test_requests.py')},
+                files={'some': StringIO('Sample string.')},
                 headers = {'User-Agent': 'requests-tests'})
 
             self.assertEqual(post2.status_code, 200)
