@@ -477,6 +477,5 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEqual(r2.status_code, 200)
 
 
-
 if __name__ == '__main__':
     unittest.main()
