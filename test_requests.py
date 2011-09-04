@@ -513,10 +513,9 @@ class RequestsTestSuite(unittest.TestCase):
        post2 = requests.post(httpsbin('post'), files={'some': open('test_requests.py')})
        self.assertEqual(curl_from_request(post2.request), curl_str)
 
-       #TODO - This doesn't seem right with \ \
-       #curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -d \'[{"some": "json"}]\' "http://httpbin.org/post"' 
-       #post3 = requests.post(httpbin('post'), data='[{"some": "json"}]')
-       #self.assertEqual(curl_from_request(post3.request), curl_str)
+       curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -d \'[{"some": "json"}]\' "http://httpbin.org/post"' 
+       post3 = requests.post(httpbin('post'), data='[{"some": "json"}]')
+       self.assertEqual(curl_from_request(post3.request), curl_str)
 
 
 if __name__ == '__main__':
