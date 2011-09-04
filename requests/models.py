@@ -9,6 +9,7 @@ requests.models
 import urllib
 import urllib2
 import socket
+import codecs
 import zlib
 
 
@@ -21,7 +22,7 @@ from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicA
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
-from .utils import dict_from_cookiejar, get_unicode_from_response, decode_gzip
+from .utils import dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip
 from .status_codes import codes
 from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod, TooManyRedirects
 
@@ -393,6 +394,7 @@ class Response(object):
     def __init__(self):
 
         self._content = None
+        self._content_consumed = False
 
         #: Integer Code of responded HTTP Status.
         self.status_code = None
@@ -435,6 +437,31 @@ class Response(object):
 
         return not self.error
 
+    def iter_content(self, chunk_size=10 * 1024, decode_unicode=None):
+        """Iterates over the response data.  This avoids reading the content
+        at once into memory for large responses.  The chunk size is the number
+        of bytes it should read into memory.  This is not necessarily the
+        length of each item returned as decoding can take place.
+        """
+        if self._content_consumed:
+            raise RuntimeError('The content for this response was '
+                               'already consumed')
+
+        def generate():
+            while 1:
+                chunk = self.fo.read(chunk_size)
+                if not chunk:
+                    break
+                yield chunk
+            self._content_consumed = True
+        gen = generate()
+        if 'gzip' in self.headers.get('content-encoding', ''):
+            gen = stream_decode_gzip(gen)
+        if decode_unicode is None:
+            decode_unicode = settings.decode_unicode
+        if decode_unicode:
+            gen = stream_decode_response_unicode(gen, self)
+        return gen
 
     @property
     def content(self):
@@ -444,6 +471,10 @@ class Response(object):
 
         if self._content is not None:
             return self._content
+
+        if self._content_consumed:
+            raise RuntimeError('The content for this response was '
+                               'already consumed')
 
         # Read the contents.
         self._content = self.fo.read()
@@ -459,6 +490,7 @@ class Response(object):
         if settings.decode_unicode:
             self._content = get_unicode_from_response(self)
 
+        self._content_consumed = True
         return self._content
 
 
