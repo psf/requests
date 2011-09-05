@@ -217,3 +217,72 @@ def decode_gzip(content):
     """
 
     return zlib.decompress(content, 16+zlib.MAX_WBITS)
+
+
+def curl_from_request(request):
+    """Returns a curl command from the request.
+
+    :param request: The :class:`Request <Request>` object
+
+    Example:
+        | import requests
+        | from requests.utils import curl_from_request
+        | r = requests.get('http://httpbin.org/get')
+        | curl_from_request(r.request)
+
+    """
+
+    #TODO - OAuth
+
+    #: -L/--location - if there is a redirect, redo request on the new place.
+    curl = 'curl -L '
+
+    #: -u/--user - Specify the user name and password to use for server auth.
+    #: Basic Auth only for now
+    auth = ''
+    if request.auth is not None:
+       auth = '-u "%s:%s" ' % (request.auth.username, request.auth.password)
+
+    method = ''
+    if request.method.upper() == 'HEAD':
+        #: -I/--head - fetch headers only.
+        method = '-I '
+    else:
+        #: -X/--request - specify request method.
+        method = '-X %s ' % request.method.upper()
+
+    #: -b/--cookie
+    #: (HTTP) Pass the data to the HTTP server as a cookie. It is supposedly the
+    #: data previously received from the server in a "Set-Cookie:" line.
+    cookies = ''
+    if request.cookiejar:
+        cookies = cookies.join(['-b "%s=%s" ' % (k.name, k.value) for k in request.cookiejar])
+
+    #: -H/--header - Extra header to use when getting a web page.
+    header = ''
+    if request.headers:
+        header = header.join(['-H "%s:%s" ' % (k, v) for k, v in request.headers.iteritems()])
+
+    form = ''
+    if request.method in ('PUT', 'POST', 'PATCH'):
+        #: request.files is updated with request.data if both exist, so only iterate request.files.
+        #: ContentType multipart/form-data is used.
+        if request.files:
+           #: -F/--form - Emulate form data. To force 'content' to a file, prefix file name @.
+            for k, v in request.files.iteritems():
+                if isinstance(v, file):
+                    form = form + '-F "%s=@%s" ' % (k, v.name)
+                elif v not in (None, ''):
+                    form = form + '-F "%s=%s" ' % (k, v)
+
+        #: content-type application/x-www-form-urlencoded is used here.
+        else:
+            #: -d/--data - send specified data in post request.
+            if isinstance(request.data, (list, tuple)):
+                form = form.join(['-d "%s=%s" ' % (k, v) for k, v in request.data])
+            elif request._enc_data not in (None, ''):
+                form = "-d '%s' " % (request._enc_data)
+
+    #: Params handled in _build_url
+    return curl + auth + method + header + cookies + form + '"' + request._build_url() + '"'
+
