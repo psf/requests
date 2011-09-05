@@ -1,11 +1,12 @@
 History
 -------
 
-* Automatic decoding of unicode, when available.
+* Automatic decoding of unicode, based on HTTP Headers.
 * New ``decode_unicode`` setting
 * Removal of ``r.read/close`` methods
-* New ``r.fo`` interface for advanced response usage.
-
+* New ``r.fo`` interface for advanced response usage.*
+* Automatic expansion of parameterized headers
+* Turn off Redirects for GET/HEAD requests
 
 0.6.1 (2011-08-20)
 ++++++++++++++++++
