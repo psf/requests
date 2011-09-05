@@ -48,6 +48,10 @@ Cookies
 .. autofunction:: cookiejar_from_dict
 .. autofunction:: add_dict_to_cookiejar
 
+Curl
+~~~~
+.. autofunction:: curl_from_request
+
 Encodings
 ~~~~~~~~~
 

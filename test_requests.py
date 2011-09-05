@@ -14,6 +14,7 @@ except ImportError:
 import requests
 
 from requests.sessions import Session
+from requests.utils import curl_from_request
 
 
 HTTPBIN_URL = 'http://httpbin.org/'
@@ -469,6 +470,52 @@ class RequestsTestSuite(unittest.TestCase):
         assert heads['User-agent'] in r2.content
         self.assertEqual(r2.status_code, 200)
 
+
+    def test_curl_HTTP_OK_GET(self):
+        curl_str = 'curl -L -X GET -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" "http://httpbin.org//"'
+        r = requests.get(httpbin('/'))
+        self.assertEqual(curl_from_request(r.request), curl_str)
+
+
+    def test_curl_HTTP_OK_GET_WITH_PARAMS(self):
+        curl_str = 'curl -L -X GET -H "Accept-Encoding:gzip" -H "User-agent:Mozilla/5.0" "http://httpbin.org/user-agent"'
+
+        heads = {'User-agent': 'Mozilla/5.0'}
+        r = requests.get(httpbin('user-agent'), headers=heads)
+        self.assertEqual(curl_from_request(r.request), curl_str)
+
+
+    def test_curl_HTTP_OK_HEAD(self):
+        curl_str ='curl -L -I -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" "http://httpbin.org//"'
+        r = requests.head(httpbin('/'))
+        self.assertEqual(curl_from_request(r.request), curl_str)
+
+
+    def test_curl_HTTP_OK_PATCH(self):
+        curl_str = 'curl -L -X PATCH -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" "http://httpbin.org/patch"'
+        r = requests.patch(httpbin('patch'))
+        self.assertEqual(curl_from_request(r.request), curl_str)
+
+
+    def test_curl_AUTH_HTTPS_OK_GET(self):
+        curl_str = 'curl -L -u "user:pass" -X GET -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" "https://httpbin.ep.io/basic-auth/user/pass"'
+        auth = ('user', 'pass')
+        r = requests.get(httpsbin('basic-auth', 'user', 'pass'), auth=auth)
+        self.assertEqual(curl_from_request(r.request), curl_str)
+
+
+    def test_curl_POSTBIN_GET_POST_FILES(self):
+       curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -d "some=data" "http://httpbin.org/post"' 
+       post = requests.post(httpbin('post'), data={'some': 'data'})
+       self.assertEqual(curl_from_request(post.request), curl_str)
+
+       curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -F "some=@test_requests.py" "https://httpbin.ep.io/post"' 
+       post2 = requests.post(httpsbin('post'), files={'some': open('test_requests.py')})
+       self.assertEqual(curl_from_request(post2.request), curl_str)
+
+       curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -d \'[{"some": "json"}]\' "http://httpbin.org/post"' 
+       post3 = requests.post(httpbin('post'), data='[{"some": "json"}]')
+       self.assertEqual(curl_from_request(post3.request), curl_str)
 
 
 if __name__ == '__main__':
