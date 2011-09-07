@@ -5,7 +5,6 @@ test:
 	python test_requests.py
 
 site:
-	# Building Docs
+	cd docs; make dirhtml
 
 docs: site
-	cd docs; make dirhtml
