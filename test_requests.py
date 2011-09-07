@@ -512,15 +512,15 @@ class RequestsTestSuite(unittest.TestCase):
 
 
     def test_curl_POSTBIN_GET_POST_FILES(self):
-       curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -d "some=data" "http://httpbin.org/post"' 
+       curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -d "some=data" "http://httpbin.org/post"'
        post = requests.post(httpbin('post'), data={'some': 'data'})
        self.assertEqual(curl_from_request(post.request), curl_str)
 
-       curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -F "some=@test_requests.py" "https://httpbin.ep.io/post"' 
+       curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -F "some=@test_requests.py" "https://httpbin.ep.io/post"'
        post2 = requests.post(httpsbin('post'), files={'some': open('test_requests.py')})
        self.assertEqual(curl_from_request(post2.request), curl_str)
 
-       curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -d \'[{"some": "json"}]\' "http://httpbin.org/post"' 
+       curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -d \'[{"some": "json"}]\' "http://httpbin.org/post"'
        post3 = requests.post(httpbin('post'), data='[{"some": "json"}]')
        self.assertEqual(curl_from_request(post3.request), curl_str)
 
