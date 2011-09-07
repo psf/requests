@@ -22,9 +22,6 @@ if sys.argv[-1] == "test":
 
 required = []
 
-if sys.version_info[:2] < (2,6):
-    required.append('simplejson')
-
 setup(
     name='requests',
     version=requests.__version__,
