@@ -12,12 +12,12 @@ except ImportError:
 
 
 
-if sys.argv[-1] == "publish":
-    os.system("python setup.py sdist upload")
+if 'publish' in sys.argv:
+    os.system('python setup.py sdist upload')
     sys.exit()
 
-if sys.argv[-1] == "test":
-    os.system("python test_requests.py")
+if 'test' in sys.argv:
+    os.system('python test_requests.py')
     sys.exit()
 
 required = []
