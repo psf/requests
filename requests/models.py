@@ -270,7 +270,9 @@ class Request(object):
         returns it twice.
         """
 
-        if hasattr(data, 'items'):
+        if not data:
+            return None, None
+        elif hasattr(data, 'items'):
             result = []
             for k, vs in data.items():
                 for v in isinstance(vs, list) and vs or [vs]:
@@ -278,7 +280,7 @@ class Request(object):
                                    v.encode('utf-8') if isinstance(v, unicode) else v))
             return result, urllib.urlencode(result, doseq=True)
         else:
-            return data, data
+            return data, urllib.urlencode(data, doseq=True)
 
 
     def _build_url(self):
