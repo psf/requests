@@ -40,7 +40,7 @@ Testimonials
 ------------
 
 `Twitter, Inc <http://twitter.com>`_,
-a Federal US Institution,
+a U.S. Federal Institution,
 and `Readability <http://readability.com>`_
 use Requests internally.
 
