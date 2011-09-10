@@ -39,7 +39,9 @@ all the hard work and crazy hacks for you.
 Testimonials
 ------------
 
-`Twitter, Inc <http://twitter.com>`_ and an Unnamed Federal US Institution use Requests internally.
+`Twitter, Inc <http://twitter.com>`_,
+`Readability <http://readability.com>`_,
+and an Unnamed Federal US Institution use Requests internally.
 
 **Daniel Greenfeld**
     Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to
