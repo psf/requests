@@ -10,6 +10,7 @@ that are also useful for external consumption.
 """
 
 import cgi
+import codecs
 import cookielib
 import re
 import zlib
@@ -177,6 +178,24 @@ def unicode_from_html(content):
         return content
 
 
+def stream_decode_response_unicode(iterator, r):
+    """Stream decodes a iterator."""
+    encoding = get_encoding_from_headers(r.headers)
+    if encoding is None:
+        for item in iterator:
+            yield item
+        return
+
+    decoder = codecs.getincrementaldecoder(encoding)(errors='replace')
+    for chunk in iterator:
+        rv = decoder.decode(chunk)
+        if rv:
+            yield rv
+    rv = decoder.decode('', final=True)
+    if rv:
+        yield rv
+
+
 def get_unicode_from_response(r):
     """Returns the requested content back in unicode.
 
@@ -217,7 +236,24 @@ def decode_gzip(content):
     """
 
     return zlib.decompress(content, 16+zlib.MAX_WBITS)
+    return zlib.decompress(content, 16+zlib.MAX_WBITS)
+    return zlib.decompress(content, 16 + zlib.MAX_WBITS)
 
+
+def stream_decode_gzip(iterator):
+    """Stream decodes a gzip-encoded iterator"""
+    try:
+        dec = zlib.decompressobj(16 + zlib.MAX_WBITS)
+        for chunk in iterator:
+            rv = dec.decompress(chunk)
+            if rv:
+                yield rv
+        buf = dec.decompress('')
+        rv = buf + dec.flush()
+        if rv:
+            yield rv
+    except zlib.error:
+        pass
 
 def curl_from_request(request):
     """Returns a curl command from the request.

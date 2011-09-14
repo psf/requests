@@ -478,6 +478,7 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEqual(r2.status_code, 200)
 
 
+
     def test_curl_HTTP_OK_GET(self):
         curl_str = 'curl -L -X GET -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" "http://httpbin.org//"'
         r = requests.get(httpbin('/'))
