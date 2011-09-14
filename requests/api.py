@@ -17,9 +17,9 @@ from .status_codes import codes
 from .hooks import dispatch_hook
 from .utils import cookiejar_from_dict, header_expand
 
-from urlparse import urlparse
 
 __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
+
 
 def request(method, url,
     params=None, data=None, headers=None, cookies=None, files=None, auth=None,
@@ -88,7 +88,6 @@ def request(method, url,
 
 
 def get(url, **kwargs):
-
     """Sends a GET request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -144,7 +143,7 @@ def patch(url, data='', **kwargs):
     :param **kwargs: Optional arguments that ``request`` takes.
     """
 
-    return request('patch', url, **kwargs)
+    return request('patch', url, data=data, **kwargs)
 
 
 def delete(url, **kwargs):
