@@ -236,7 +236,7 @@ class Request(object):
                 parsed_url = urlparse(url)
                 if not parsed_url.netloc:
                     parsed_url = list(parsed_url)
-                    parsed_url[2] = urllib.quote(urllib.unquote(parsed_url[2]))
+                    parsed_url[2] = urllib.quote(parsed_url[2], safe="%/:=&?~#+!$,;'@()*[]")
                     url = urljoin(r.url, str(urlunparse(parsed_url)))
 
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
@@ -290,7 +290,7 @@ class Request(object):
         netloc = netloc.encode('idna')
         if isinstance(path, unicode):
             path = path.encode('utf-8')
-        path = urllib.quote(urllib.unquote(path))
+        path = urllib.quote(path, safe="%/:=&?~#+!$,;'@()*[]")
         self.url = str(urlunparse([ scheme, netloc, path, params, query, fragment ]))
 
         if self._enc_params:
