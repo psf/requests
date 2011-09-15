@@ -16,9 +16,10 @@ class Request(urllib2.Request):
     setting of HTTP methods.
     """
 
-    def __init__(self, url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None):
+    def __init__(self, url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None, response_class=None):
         urllib2.Request.__init__(self, url, data, headers, origin_req_host, unverifiable)
         self.method = method
+        self.response_class = response_class
 
     def get_method(self):
         if self.method:

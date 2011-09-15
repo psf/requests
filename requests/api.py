@@ -23,7 +23,7 @@ __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
 
 def request(method, url,
     params=None, data=None, headers=None, cookies=None, files=None, auth=None,
-    timeout=None, allow_redirects=False, proxies=None, hooks=None):
+    timeout=None, allow_redirects=False, proxies=None, hooks=None, response_class=None):
 
     """Constructs and sends a :class:`Request <Request>`.
     Returns :class:`Response <Response>` object.
@@ -39,6 +39,7 @@ def request(method, url,
     :param timeout: (optional) Float describing the timeout of the request.
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param response_class: (optional) The response object will be an instance of this class.
     """
 
     method = str(method).upper()
@@ -65,8 +66,9 @@ def request(method, url,
         timeout = timeout or config.settings.timeout,
         allow_redirects = allow_redirects,
         proxies = proxies or config.settings.proxies,
+        response_class = response_class,
     )
-
+    
     # Arguments manipulation hook.
     args = dispatch_hook('args', hooks, args)
 
