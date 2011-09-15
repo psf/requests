@@ -7,8 +7,9 @@ History
 * New ``r.fo`` interface for advanced response usage.*
 * Automatic expansion of parameterized headers
 * Turn off Redirects for GET/HEAD requests
-* Fix for Python Pre-2.7 URL quoting
-* New ``r.iter_content`` method.
+* Fix for Python Pre-2.7 URL quoting (http://bugs.python.org/issue918368)
+* New ``r.iter_content`` method
+
 
 0.6.1 (2011-08-20)
 ++++++++++++++++++
