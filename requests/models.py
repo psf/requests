@@ -39,7 +39,7 @@ class Request(object):
     def __init__(self,
         url=None, headers=dict(), files=None, method=None, data=dict(),
         params=dict(), auth=None, cookiejar=None, timeout=None, redirect=False,
-        allow_redirects=False, proxies=None):
+        allow_redirects=False, proxies=None, response_class=None):
 
         #: Float describ the timeout of the request.
         #  (Use socket.setdefaulttimeout() as fallback)
@@ -78,9 +78,14 @@ class Request(object):
         self.data, self._enc_data = self._encode_params(data)
         self.params, self._enc_params = self._encode_params(params)
 
-        #: :class:`Response <Response>` instance, containing
+        self.response_class = response_class
+
+        #: :class:`Response <Response>` instance (or subclass), containing
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
-        self.response = Response()
+        if not self.response_class:
+            self.response = Response()
+        else:
+            self.response = response_class()
 
         if isinstance(auth, (list, tuple)):
             auth = AuthObject(*auth)
@@ -182,7 +187,11 @@ class Request(object):
 
         def build(resp):
 
-            response = Response()
+            if not self.response_class:
+                response = Response()
+            else:
+                response = self.response_class()
+                
             response.status_code = getattr(resp, 'code', None)
 
             try:
@@ -248,7 +257,7 @@ class Request(object):
                 request = Request(
                     url, self.headers, self.files, method,
                     self.data, self.params, self.auth, self.cookiejar,
-                    redirect=True
+                    redirect=True, response_class=self.response_class
                 )
                 request.send()
                 r = request.response
@@ -324,7 +333,7 @@ class Request(object):
 
         url = self._build_url()
         if self.method in ('GET', 'HEAD', 'DELETE'):
-            req = _Request(url, method=self.method)
+            req = _Request(url, method=self.method, response_class=self.response_class)
         else:
 
             if self.files:
@@ -334,10 +343,10 @@ class Request(object):
                     self.files.update(self.data)
 
                 datagen, headers = multipart_encode(self.files)
-                req = _Request(url, data=datagen, headers=headers, method=self.method)
+                req = _Request(url, data=datagen, headers=headers, method=self.method, response_class=self.response_class)
 
             else:
-                req = _Request(url, data=self._enc_data, method=self.method)
+                req = _Request(url, data=self._enc_data, method=self.method, response_class=self.response_class)
 
         if self.headers:
             for k,v in self.headers.iteritems():
