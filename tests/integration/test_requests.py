@@ -60,18 +60,22 @@ class RequestsTestSuite(unittest.TestCase):
     def test_HTTP_200_OK_GET(self):
         r = requests.get(httpbin('/'))
         self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_msg, "OK")
 
     def test_HTTP_302_ALLOW_REDIRECT_GET(self):
-	r = requests.get(httpbin('redirect', '1'))
-	self.assertEqual(r.status_code, 200)
+        r = requests.get(httpbin('redirect', '1'))
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_msg, "OK")
 
     def test_HTTP_302_GET(self):
-	r = requests.get(httpbin('redirect', '1'), allow_redirects=False)
-	self.assertEqual(r.status_code, 302)
+        r = requests.get(httpbin('redirect', '1'), allow_redirects=False)
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r.status_msg, "FOUND")
 
     def test_HTTPS_200_OK_GET(self):
         r = requests.get(httpsbin('/'))
         self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_msg, "OK")
 
 
     def test_HTTP_200_OK_GET_WITH_PARAMS(self):
