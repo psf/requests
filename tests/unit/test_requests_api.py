@@ -111,6 +111,7 @@ class RequestsAPIUnitTests(unittest.TestCase):
                      allow_redirects=False,
                      proxies="proxies", hooks="hooks")
 
+    @mock.patch('requests.api.request')
     def test_http_post(self, mock_request):
         mock_request.return_value = Response()
         requests.post('http://google.com', {})
@@ -118,6 +119,22 @@ class RequestsAPIUnitTests(unittest.TestCase):
                                               data= {})
 
     @mock.patch('requests.api.request')
+    def test_http_post_with_kwargs(self, mock_request):
+        mock_request.return_value = Response()
+        requests.post('http://google.com',
+                     params="params", data="data", headers="headers",
+                     cookies="cookies",
+                     files="files", auth="auth", timeout="timeout",
+                     allow_redirects=False,
+                     proxies="proxies", hooks="hooks")
+        mock_request.assert_called_once_with('post', 'http://google.com',
+                     params="params", data="data", headers="headers",
+                     cookies="cookies",
+                     files="files", auth="auth", timeout="timeout",
+                     allow_redirects=False,
+                     proxies="proxies", hooks="hooks")
+
+
     def test_http_put(self, mock_request):
         mock_request.return_value = Response()
         requests.put('http://google.com', {})
