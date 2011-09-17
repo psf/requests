@@ -182,10 +182,28 @@ class RequestsAPIUnitTests(unittest.TestCase):
                      allow_redirects=False,
                      proxies="proxies", hooks="hooks")
 
+    @mock.patch('requests.api.request')
     def test_http_delete(self, mock_request):
         mock_request.return_value = Response()
         requests.delete('http://google.com')
         mock_request.assert_called_once_with('delete', 'http://google.com')
+
+    @mock.patch('requests.api.request')
+    def test_http_delete_with_kwargs(self, mock_request):
+        mock_request.return_value = Response()
+        requests.delete('http://google.com',
+                     params="params", data="data", headers="headers",
+                     cookies="cookies",
+                     files="files", auth="auth", timeout="timeout",
+                     allow_redirects=False,
+                     proxies="proxies", hooks="hooks")
+        mock_request.assert_called_once_with('delete', 'http://google.com',
+                     params="params", data="data", headers="headers",
+                     cookies="cookies",
+                     files="files", auth="auth", timeout="timeout",
+                     allow_redirects=False,
+                     proxies="proxies", hooks="hooks")
+
 
 if __name__ == '__main__':
     unittest.main()
