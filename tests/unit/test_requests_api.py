@@ -26,6 +26,45 @@ class RequestsAPIUnitTests(unittest.TestCase):
         pass
 
 
+    @mock.patch('requests.api.dispatch_hook')
+    @mock.patch('requests.api.Request')
+    @mock.patch('requests.api.cookiejar_from_dict')
+    def test_request(self, mock_cjar, mock_request, mock_hook):
+        args = dict(
+                    method = None,
+                    url = None,
+                    data = None,
+                    params = None,
+                    headers = None,
+                    cookiejar = None,
+                    files = None,
+                    auth = None,
+                    timeout = 1,
+                    allow_redirects = None,
+                    proxies = None,
+                   )
+        hooks = {'args': args, 'pre_request': mock_request,
+                 'post_request': mock_request, 'response': 'response'}
+        sideeffect = lambda x,y,z: hooks[x]
+        mock_cjar.return_value = None
+        mock_request.send = mock.Mock(return_value={})
+        mock_request.response = "response"
+        mock_hook.side_effect = sideeffect
+
+        r = requests.request('get','http://google.com')
+
+
+        mock_cjar.assert_called_once_with({})
+        mock_hook.assert_called__with('args', None, args)
+        mock_request.assert_called_once_with(**args)
+        mock_hook.assert_called__with('pre_request', None, mock_request)
+        mock_request.send.assert_called_once_with()
+        mock_hook.assert_called__with('post_request', None, mock_request)
+        mock_hook.assert_called__with('response', None, mock_request)
+        self.assertEqual(r, "response")
+
+
+
     @mock.patch('requests.api.request')
     def test_http_get(self, mock_request):
         mock_request.return_value = Response()
