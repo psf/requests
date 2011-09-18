@@ -285,19 +285,34 @@ class Request(object):
         """Build the actual URL to use."""
 
         # Support for unicode domain names and paths.
-        scheme, netloc, path, params, query, fragment = urlparse(self.url)
+        (scheme, netloc, path, params, query, fragment) = urlparse(self.url)
+
+        # International Domain Name
         netloc = netloc.encode('idna')
+
+        # Encode the path to to utf-8.
         if isinstance(path, unicode):
             path = path.encode('utf-8')
-        path = urllib.quote(path, safe="%/:=&?~#+!$,;'@()*[]")
-        self.url = str(urlunparse([ scheme, netloc, path, params, query, fragment ]))
 
+        # URL-encode the path.
+        path = urllib.quote(path, safe="%/:=&?~#+!$,;'@()*[]")
+
+        # Turn it back into a bytestring.
+        self.url = str(urlunparse([scheme, netloc, path, params, query, fragment]))
+
+        # Query Parameters?
         if self._enc_params:
+
+            # If query parameters already exist in the URL, append.
             if urlparse(self.url).query:
                 return '%s&%s' % (self.url, self._enc_params)
+
+            # Otherwise, have at it.
             else:
                 return '%s?%s' % (self.url, self._enc_params)
+
         else:
+            # Kosher URL.
             return self.url
 
 
