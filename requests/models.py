@@ -357,9 +357,8 @@ class Request(object):
             pass
 
         # Setup cookies.
-        elif self.cookies:
-            pass
-
+        # elif self.cookies:
+            # pass
 
         # req = _Request(url, data=self._enc_data, method=self.method)
 
