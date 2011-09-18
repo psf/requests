@@ -21,13 +21,10 @@ from .packages import urllib3
 # print dir(urllib3)
 
 from .config import settings
-from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
 from .structures import CaseInsensitiveDict
-# from .packages.poster.encode import multipart_encode
-# from .packages.poster.streaminghttp import register_openers, get_handlers
 from .utils import dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip
 from .status_codes import codes
-from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, TooManyRedirects
+from .exceptions import RequestException, Timeout, URLRequired, TooManyRedirects
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
@@ -209,6 +206,7 @@ class Request(object):
 
 
         r = build(resp)
+        r._response = resp
 
         if r.status_code in REDIRECT_STATI and not self.redirect:
 
@@ -303,7 +301,7 @@ class Request(object):
             return self.url
 
 
-    def send(self, anyway=False):
+    def send(self, connection=None, anyway=False):
         """Sends the shit."""
 
         # Safety check.
@@ -320,20 +318,24 @@ class Request(object):
                 # req = _Request(url, data=self._enc_data, method=self.method)
 
 
-        if not self.sent or anyway:
+        if (anyway) or (not self.sent):
 
             try:
+                if not connection:
+                    connection = urllib3.connection_from_url(url,
+                        timeout=self.timeout)
+                    do_block = False
+                else:
+                    do_block = True
 
-                pool = urllib3.connection_from_url(url, timeout=self.timeout)
-
-                r = pool.urlopen(
+                r = connection.urlopen(
                     method=self.method,
                     url=url,
                     body=self.data,
                     headers=self.headers,
                     redirect=False,
                     assert_same_host=False,
-                    block=True
+                    block=do_block
                 )
 
                 # r.socket = pool._get_conn().sock
@@ -524,6 +526,7 @@ class Response(object):
             gen = stream_decode_response_unicode(gen, self)
         return gen
 
+
     @property
     def content(self):
         """Content of the response, in bytes or unicode
@@ -534,11 +537,13 @@ class Response(object):
             return self._content
 
         if self._content_consumed:
-            raise RuntimeError('The content for this response was '
-                               'already consumed')
+            raise RuntimeError(
+                'The content for this response was already consumed')
 
         # Read the contents.
-        self._content = self.raw.read()
+        # print self.raw.__dict__
+        self._content = self.raw.read() or self._response.data
+        # print self.raw.__dict__
 
         # Decode GZip'd content.
         if 'gzip' in self.headers.get('content-encoding', ''):
@@ -556,7 +561,9 @@ class Response(object):
 
 
     def raise_for_status(self):
-        """Raises stored :class:`HTTPError` or :class:`URLError`, if one occured."""
+        """Raises stored :class:`HTTPError` or :class:`URLError`,
+        if one occured.
+        """
 
         if self.error:
             raise self.error
@@ -729,11 +736,11 @@ class AuthObject(object):
     """
 
     _handlers = {
-        'basic': HTTPBasicAuthHandler,
-        'forced_basic': HTTPForcedBasicAuthHandler,
-        'digest': HTTPDigestAuthHandler,
-        'proxy_basic': urllib2.ProxyBasicAuthHandler,
-        'proxy_digest': urllib2.ProxyDigestAuthHandler
+        # 'basic': HTTPBasicAuthHandler,
+        # 'forced_basic': HTTPForcedBasicAuthHandler,
+        # 'digest': HTTPDigestAuthHandler,
+        # 'proxy_basic': urllib2.ProxyBasicAuthHandler,
+        # 'proxy_digest': urllib2.ProxyDigestAuthHandler
     }
 
     def __init__(self, username, password, handler='forced_basic', realm=None):
