@@ -18,7 +18,7 @@ from datetime import datetime
 
 
 from .packages import urllib3
-print dir(urllib3)
+# print dir(urllib3)
 
 from .config import settings
 from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
@@ -190,7 +190,7 @@ class Request(object):
 
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
-                # response.fo = resp
+                response.raw = resp._raw
 
                 # if self.cookiejar:
 
@@ -202,12 +202,11 @@ class Request(object):
             if is_error:
                 response.error = resp
 
-            response.url = getattr(resp, 'url', None)
-
             return response
 
 
         history = []
+
 
         r = build(resp)
 
@@ -219,7 +218,7 @@ class Request(object):
                 (self.allow_redirects))
             ):
 
-                # r.fo.close()
+                r.raw.close()
 
                 if not len(history) < settings.max_redirects:
                     raise TooManyRedirects()
@@ -333,10 +332,12 @@ class Request(object):
                     body=self.data,
                     headers=self.headers,
                     redirect=False,
-                    assert_same_host=False
+                    assert_same_host=False,
+                    block=True
                 )
 
-                r.socket = pool._get_conn().sock
+                # r.socket = pool._get_conn().sock
+                # r.fo = r.data
 
                 # if self.cookiejar is not None:
                     # self.cookiejar.extract_cookies(resp, req)
@@ -468,10 +469,7 @@ class Response(object):
         self.headers = CaseInsensitiveDict()
 
         #: File-like object representation of response (for advanced usage).
-        self.fo = None
-
-        #: Final URL location of Response.
-        self.url = None
+        self.raw = None
 
         #: True if no :attr:`error` occured.
         self.ok = False
@@ -512,7 +510,7 @@ class Response(object):
 
         def generate():
             while 1:
-                chunk = self.fo.read(chunk_size)
+                chunk = self.raw.read(chunk_size)
                 if not chunk:
                     break
                 yield chunk
@@ -540,7 +538,7 @@ class Response(object):
                                'already consumed')
 
         # Read the contents.
-        self._content = self.fo.read()
+        self._content = self.raw.read()
 
         # Decode GZip'd content.
         if 'gzip' in self.headers.get('content-encoding', ''):
@@ -559,9 +557,18 @@ class Response(object):
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occured."""
+
         if self.error:
             raise self.error
 
+        if (self.status_code >= 300) and (self.status_code < 400):
+            raise Exception('300 yo')
+
+        elif (self.status_code >= 400) and (self.status_code < 500):
+            raise Exception('400 yo')
+
+        elif (self.status_code >= 500) and (self.status_code < 600):
+            raise Exception('500 yo')
 
 
 class AuthManager(object):
