@@ -23,7 +23,8 @@ __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
 
 def request(method, url,
     params=None, data=None, headers=None, cookies=None, files=None, auth=None,
-    timeout=None, allow_redirects=False, proxies=None, hooks=None):
+    timeout=None, allow_redirects=False, proxies=None, hooks=None,
+    _connection=None):
 
     """Constructs and sends a :class:`Request <Request>`.
     Returns :class:`Response <Response>` object.
@@ -39,6 +40,7 @@ def request(method, url,
     :param timeout: (optional) Float describing the timeout of the request.
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param _connection: (optional) An HTTP Connection to re-use.
     """
 
     method = str(method).upper()
@@ -64,19 +66,20 @@ def request(method, url,
         auth = auth,
         timeout = timeout or config.settings.timeout,
         allow_redirects = allow_redirects,
-        proxies = proxies or config.settings.proxies,
+        proxies = proxies or config.settings.proxies
     )
 
     # Arguments manipulation hook.
     args = dispatch_hook('args', hooks, args)
 
+    # Create Request object.
     r = Request(**args)
 
     # Pre-request hook.
     r = dispatch_hook('pre_request', hooks, r)
 
     # Send the HTTP Request.
-    r.send()
+    r.send(connection=_connection)
 
     # Post-request hook.
     r = dispatch_hook('post_request', hooks, r)
@@ -94,8 +97,8 @@ def get(url, **kwargs):
     :param **kwargs: Optional arguments that ``request`` takes.
     """
 
-    if "allow_redirects" not in kwargs:
-        kwargs["allow_redirects"] = True
+    if 'allow_redirects' not in kwargs:
+        kwargs['allow_redirects'] = True
 
     return request('get', url, **kwargs)
 
@@ -107,8 +110,8 @@ def head(url, **kwargs):
     :param **kwargs: Optional arguments that ``request`` takes.
     """
 
-    if "allow_redirects" not in kwargs:
-        kwargs["allow_redirects"] = True
+    if 'allow_redirects' not in kwargs:
+        kwargs['allow_redirects'] = True
 
     return request('head', url, **kwargs)
 
