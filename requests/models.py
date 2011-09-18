@@ -9,7 +9,6 @@ requests.models
 import urllib
 import urllib2
 import socket
-import codecs
 import zlib
 
 
@@ -24,7 +23,7 @@ from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
 from .utils import dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip
 from .status_codes import codes
-from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod, TooManyRedirects
+from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, TooManyRedirects
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
