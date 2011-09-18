@@ -311,23 +311,37 @@ class Request(object):
         url = self._build_url()
 
         # Setup Files.
+        if self.files:
+            pass
+
         # Setup form data.
-        #
-        # def urlopen(self, method, url, body=None, headers=None, retries=3,
-        #         redirect=True, assert_same_host=True):
-                # req = _Request(url, data=self._enc_data, method=self.method)
+        elif self.data:
+            pass
+
+        # Setup cookies.
+        elif self.cookies:
+            pass
 
 
+        # req = _Request(url, data=self._enc_data, method=self.method)
+
+        # Only send the Request if new or forced.
         if (anyway) or (not self.sent):
 
             try:
+
+                # Create a new HTTP connection, since one wasn't passed in.
                 if not connection:
                     connection = urllib3.connection_from_url(url,
                         timeout=self.timeout)
+
+                    # One-off request. Delay fetching the content until needed.
                     do_block = False
                 else:
+                    # Part of a connection pool, so no streaming. Sorry!
                     do_block = True
 
+                # Create the connection.
                 r = connection.urlopen(
                     method=self.method,
                     url=url,
@@ -337,9 +351,6 @@ class Request(object):
                     assert_same_host=False,
                     block=do_block
                 )
-
-                # r.socket = pool._get_conn().sock
-                # r.fo = r.data
 
                 # if self.cookiejar is not None:
                     # self.cookiejar.extract_cookies(resp, req)
