@@ -202,27 +202,40 @@ class Request(object):
             return response
 
 
+        # Request collector.
         history = []
 
-
+        # Create the lone response object.
         r = build(resp)
+
+        # Store the HTTP response, just in case.
         r._response = resp
 
+        # It's a redirect, and we're not already in a redirect loop.
         if r.status_code in REDIRECT_STATI and not self.redirect:
 
             while (
+                # There's a `Location` header.
                 ('location' in r.headers) and
+
+                # See other response.
                 ((r.status_code is codes.see_other) or
+
+                # Opt-in to redirects for non- idempotent methods.
                 (self.allow_redirects))
             ):
 
+                # We already redirected. Don't keep it alive.
                 r.raw.close()
 
-                if not len(history) < settings.max_redirects:
+                # Woah, this is getting crazy.
+                if len(history) >= settings.max_redirects:
                     raise TooManyRedirects()
 
+                # Add the old request to the history collector.
                 history.append(r)
 
+                # Redirect to...
                 url = r.headers['location']
 
                 # Handle redirection without scheme (see: RFC 1808 Section 4)
@@ -238,23 +251,33 @@ class Request(object):
                     parsed_url[2] = urllib.quote(parsed_url[2], safe="%/:=&?~#+!$,;'@()*[]")
                     url = urljoin(r.url, str(urlunparse(parsed_url)))
 
+                # If 303, convert to idempotent GET.
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
                 if r.status_code is codes.see_other:
                     method = 'GET'
                 else:
                     method = self.method
 
+                # Create the new Request.
                 request = Request(
                     url, self.headers, self.files, method,
                     self.data, self.params, self.auth, self.cookiejar,
+
+                    # Flag as part of a redirect loop.
                     redirect=True
                 )
+
+                # Send her away!
                 request.send()
                 r = request.response
 
+            # Insert collected history.
             r.history = history
 
+        # Attach Response to Request.
         self.response = r
+
+        # Give Response some context.
         self.response.request = self
 
 
@@ -344,7 +367,6 @@ class Request(object):
         if (anyway) or (not self.sent):
 
             try:
-
                 # Create a new HTTP connection, since one wasn't passed in.
                 if not connection:
                     connection = urllib3.connection_from_url(url,
@@ -353,7 +375,7 @@ class Request(object):
                     # One-off request. Delay fetching the content until needed.
                     do_block = False
                 else:
-                    # Part of a connection pool, so no streaming. Sorry!
+                    # Part of a connection pool, so no fancy stuff. Sorry!
                     do_block = True
 
                 # Create the connection.
@@ -367,6 +389,7 @@ class Request(object):
                     block=do_block
                 )
 
+                # Extract cookies.
                 # if self.cookiejar is not None:
                     # self.cookiejar.extract_cookies(resp, req)
 
