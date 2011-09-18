@@ -76,7 +76,7 @@ class HTTPResponse(object):
         self.strict = strict
 
     @staticmethod
-    def from_httplib(r):
+    def from_httplib(r, block=True):
         """
         Given an httplib.HTTPResponse instance, return a corresponding
         urllib3.HTTPResponse object.
@@ -84,35 +84,42 @@ class HTTPResponse(object):
         NOTE: This method will perform r.read() which will have side effects
         on the original http.HTTPResponse object.
         """
-        tmp_data = r.read()
-        try:
-            if r.getheader('content-encoding') == 'gzip':
-                log.debug("Received response with content-encoding: gzip, "
-                          "decompressing with gzip.")
 
-                gzipper = gzip.GzipFile(fileobj=StringIO(tmp_data))
-                data = gzipper.read()
-            elif r.getheader('content-encoding') == 'deflate':
-                log.debug("Received response with content-encoding: deflate, "
-                          "decompressing with zlib.")
-                try:
-                    data = zlib.decompress(tmp_data)
-                except zlib.error, e:
-                    data = zlib.decompress(tmp_data, -zlib.MAX_WBITS)
-            else:
-                data = tmp_data
+        if block:
+            tmp_data = r.read()
+            try:
+                if r.getheader('content-encoding') == 'gzip':
+                    log.debug("Received response with content-encoding: gzip, "
+                              "decompressing with gzip.")
 
-        except IOError:
-            raise HTTPError("Received response with content-encoding: %s, "
-                            "but failed to decompress it." %
-                            (r.getheader('content-encoding')))
+                    gzipper = gzip.GzipFile(fileobj=StringIO(tmp_data))
+                    data = gzipper.read()
+                elif r.getheader('content-encoding') == 'deflate':
+                    log.debug("Received response with content-encoding: deflate, "
+                              "decompressing with zlib.")
+                    try:
+                        data = zlib.decompress(tmp_data)
+                    except zlib.error, e:
+                        data = zlib.decompress(tmp_data, -zlib.MAX_WBITS)
+                else:
+                    data = tmp_data
 
-        return HTTPResponse(data=data,
+            except IOError:
+                raise HTTPError("Received response with content-encoding: %s, "
+                                "but failed to decompress it." %
+                                (r.getheader('content-encoding')))
+        else:
+            data = None
+
+        resp = HTTPResponse(data=data,
                     headers=dict(r.getheaders()),
                     status=r.status,
                     version=r.version,
                     reason=r.reason,
                     strict=r.strict)
+
+        resp._raw = r
+        return resp
 
     # Backwards-compatibility methods for httplib.HTTPResponse
     def getheaders(self):
@@ -262,7 +269,7 @@ class HTTPConnectionPool(object):
                 get_host(url) == (self.scheme, self.host, self.port))
 
     def urlopen(self, method, url, body=None, headers=None, retries=3,
-                redirect=True, assert_same_host=True):
+                redirect=True, assert_same_host=True, block=True):
         """
         Get a connection from the pool and perform an HTTP request.
 
@@ -323,7 +330,7 @@ class HTTPConnectionPool(object):
             # from_httplib will perform httplib_response.read() which will have
             # the side effect of letting us use this connection for another
             # request.
-            response = HTTPResponse.from_httplib(httplib_response)
+            response = HTTPResponse.from_httplib(httplib_response, block=block)
 
             # Put the connection back to be reused
             self._put_conn(conn)
