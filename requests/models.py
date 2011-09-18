@@ -16,11 +16,15 @@ from urllib2 import HTTPError
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import datetime
 
+
+from .packages import urllib3
+print dir(urllib3)
+
 from .config import settings
 from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
 from .structures import CaseInsensitiveDict
-from .packages.poster.encode import multipart_encode
-from .packages.poster.streaminghttp import register_openers, get_handlers
+# from .packages.poster.encode import multipart_encode
+# from .packages.poster.streaminghttp import register_openers, get_handlers
 from .utils import dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip
 from .status_codes import codes
 from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, TooManyRedirects
@@ -182,16 +186,15 @@ class Request(object):
         def build(resp):
 
             response = Response()
-            response.status_code = getattr(resp, 'code', None)
+            response.status_code = getattr(resp, 'status', None)
 
             try:
-                response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
-                response.fo = resp
+                response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
+                # response.fo = resp
 
-                if self.cookiejar:
+                # if self.cookiejar:
 
-                    response.cookies = dict_from_cookiejar(self.cookiejar)
-
+                    # response.cookies = dict_from_cookiejar(self.cookiejar)
 
             except AttributeError:
                 pass
@@ -216,7 +219,7 @@ class Request(object):
                 (self.allow_redirects))
             ):
 
-                r.fo.close()
+                # r.fo.close()
 
                 if not len(history) < settings.max_redirects:
                     raise TooManyRedirects()
@@ -302,6 +305,64 @@ class Request(object):
 
 
     def send(self, anyway=False):
+        """Sends the shit."""
+
+        # Safety check.
+        self._checks()
+
+        # Build the final URL.
+        url = self._build_url()
+
+        # Setup Files.
+        # Setup form data.
+        #
+        # def urlopen(self, method, url, body=None, headers=None, retries=3,
+        #         redirect=True, assert_same_host=True):
+                # req = _Request(url, data=self._enc_data, method=self.method)
+
+
+        if not self.sent or anyway:
+
+            try:
+
+                pool = urllib3.connection_from_url(url, timeout=self.timeout)
+
+                r = pool.urlopen(
+                    method=self.method,
+                    url=url,
+                    body=self.data,
+                    headers=self.headers,
+                    redirect=False,
+                    assert_same_host=False
+                )
+
+                r.socket = pool._get_conn().sock
+
+                # if self.cookiejar is not None:
+                    # self.cookiejar.extract_cookies(resp, req)
+
+            # except (urllib2.HTTPError, urllib2.URLError), why:
+            except Exception, why:
+                # if hasattr(why, 'reason'):
+                #     if isinstance(why.reason, socket.timeout):
+                #         why = Timeout(why)
+
+                # self._build_response(why, is_error=True)
+                print 'FUCK'
+                print why
+
+            else:
+                self._build_response(r)
+                self.response.ok = True
+
+
+        self.sent = self.response.ok
+
+        return self.sent
+
+
+
+    def old_send(self, anyway=False):
         """Sends the request. Returns True of successful, false if not.
         If there was an HTTPError during transmission,
         self.response.status_code will contain the HTTPError code.
