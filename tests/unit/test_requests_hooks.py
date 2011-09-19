@@ -8,7 +8,7 @@ sys.path.append(os.getcwd())
 
 from requests.hooks import dispatch_hook
 
-class RequestsAPIUnitTests(unittest.TestCase):
+class RequestsHooksUnitTests(unittest.TestCase):
     """Requests API unit test cases."""
 
     def setUp(self):
