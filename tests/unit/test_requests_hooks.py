@@ -50,5 +50,21 @@ class RequestsHooksUnitTests(unittest.TestCase):
         self.response_hook.assert_called_once_with("called")
         self.assertEqual("response", res)
 
+    def test_dispatch_hook_args_with_None(self):
+        res = dispatch_hook("args", None, "called")
+        self.assertEqual("called", res)
+
+    def test_dispatch_hook_pre_request_with_None(self):
+        res = dispatch_hook("pre_request", None, "called")
+        self.assertEqual("called", res)
+
+    def test_dispatch_hook_post_request_with_None(self):
+        res = dispatch_hook("post_request", None, "called")
+        self.assertEqual("called", res)
+
+    def test_dispatch_hook_response_with_None(self):
+        res = dispatch_hook("response", None, "called")
+        self.assertEqual("called", res)
+
 if __name__ == '__main__':
     unittest.main()
