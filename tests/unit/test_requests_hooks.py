@@ -66,5 +66,25 @@ class RequestsHooksUnitTests(unittest.TestCase):
         res = dispatch_hook("response", None, "called")
         self.assertEqual("called", res)
 
+    @mock.patch('warnings.warn')
+    def test_dispatch_hook_args_with_warning(self, mock_warn):
+        dispatch_hook("args", {'args': None}, None)
+        mock_warn.assert_called_with("'NoneType' object has no attribute '__call__'")
+
+    @mock.patch('warnings.warn')
+    def test_dispatch_hook_pre_request_with_warning(self, mock_warn):
+        dispatch_hook("pre_request", {'pre_request': None}, None)
+        mock_warn.assert_called_with("'NoneType' object has no attribute '__call__'")
+
+    @mock.patch('warnings.warn')
+    def test_dispatch_hook_post_request_with_warning(self, mock_warn):
+        dispatch_hook("post_request", {'post_request': None}, None)
+        mock_warn.assert_called_with("'NoneType' object has no attribute '__call__'")
+
+    @mock.patch('warnings.warn')
+    def test_dispatch_hook_response_with_warning(self, mock_warn):
+        dispatch_hook("response", {'response': None}, None)
+        mock_warn.assert_called_with("'NoneType' object has no attribute '__call__'")
+
 if __name__ == '__main__':
     unittest.main()
