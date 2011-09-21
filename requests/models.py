@@ -184,6 +184,7 @@ class Request(object):
 
             response = Response()
             response.status_code = getattr(resp, 'code', None)
+            response.status_msg = getattr(resp, 'msg', None)
 
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
@@ -401,6 +402,9 @@ class Response(object):
 
         #: Integer Code of responded HTTP Status.
         self.status_code = None
+
+        #: String Reason of responded HTTP Status.
+        self.status_msg = None
 
         #: Case-insensitive Dictionary of Response Headers.
         #: For example, ``headers['content-encoding']`` will return the
