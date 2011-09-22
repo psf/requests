@@ -8,8 +8,9 @@ Urllib2 Monkey patches.
 
 """
 
-import urllib2
 import re
+import urllib2
+
 
 class Request(urllib2.Request):
     """Hidden wrapper around the urllib2.Request object. Allows for manual
@@ -35,7 +36,6 @@ class HTTPRedirectHandler(urllib2.HTTPRedirectHandler):
     http_error_302 = http_error_303 = http_error_307 = http_error_301
 
 
-
 class HTTPBasicAuthHandler(urllib2.HTTPBasicAuthHandler):
     """HTTP Basic Auth Handler with authentication loop fixes."""
 
@@ -44,13 +44,11 @@ class HTTPBasicAuthHandler(urllib2.HTTPBasicAuthHandler):
         self.retried_req = None
         self.retried = 0
 
-
     def reset_retry_count(self):
         # Python 2.6.5 will call this on 401 or 407 errors and thus loop
         # forever. We disable reset_retry_count completely and reset in
         # http_error_auth_reqed instead.
         pass
-
 
     def http_error_auth_reqed(self, auth_header, host, req, headers):
         # Reset the retry counter once for each request.
@@ -63,7 +61,6 @@ class HTTPBasicAuthHandler(urllib2.HTTPBasicAuthHandler):
         )
 
 
-
 class HTTPForcedBasicAuthHandler(HTTPBasicAuthHandler):
     """HTTP Basic Auth Handler with forced Authentication."""
 
@@ -71,9 +68,8 @@ class HTTPForcedBasicAuthHandler(HTTPBasicAuthHandler):
     rx = re.compile('(?:.*,)*[ \t]*([^ \t]+)[ \t]+'
                     'realm=(["\'])(.*?)\\2', re.I)
 
-    def __init__(self,  *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         HTTPBasicAuthHandler.__init__(self, *args, **kwargs)
-
 
     def http_error_401(self, req, fp, code, msg, headers):
         url = req.get_full_url()
@@ -82,7 +78,6 @@ class HTTPForcedBasicAuthHandler(HTTPBasicAuthHandler):
         return response
 
     http_error_404 = http_error_401
-
 
     def _http_error_auth_reqed(self, authreq, host, req, headers):
 
@@ -114,7 +109,6 @@ class HTTPForcedBasicAuthHandler(HTTPBasicAuthHandler):
             if response and response.code not in (401, 404):
                 self.retried = 0
             return response
-
 
 
 class HTTPDigestAuthHandler(urllib2.HTTPDigestAuthHandler):

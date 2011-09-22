@@ -51,16 +51,14 @@ def header_expand(headers):
 
             collector.append('; '.join(_params))
 
-            if not len(headers) == i+1:
+        if not len(headers) == i + 1:
                 collector.append(', ')
-
 
     # Remove trailing seperators.
     if collector[-1] in (', ', '; '):
         del collector[-1]
 
     return ''.join(collector)
-
 
 
 def dict_from_cookiejar(cj):
@@ -235,8 +233,8 @@ def decode_gzip(content):
     :param content: bytestring to gzip-decode.
     """
 
-    return zlib.decompress(content, 16+zlib.MAX_WBITS)
-    return zlib.decompress(content, 16+zlib.MAX_WBITS)
+    return zlib.decompress(content, 16 + zlib.MAX_WBITS)
+    return zlib.decompress(content, 16 + zlib.MAX_WBITS)
     return zlib.decompress(content, 16 + zlib.MAX_WBITS)
 
 
@@ -254,6 +252,7 @@ def stream_decode_gzip(iterator):
             yield rv
     except zlib.error:
         pass
+
 
 def curl_from_request(request):
     """Returns a curl command from the request.
@@ -276,10 +275,13 @@ def curl_from_request(request):
     #: -u/--user - Specify the user name and password to use for server auth.
     #: Basic Auth only for now
     auth = ''
+
     if request.auth is not None:
-       auth = '-u "%s:%s" ' % (request.auth.username, request.auth.password)
+
+        auth = '-u "%s:%s" ' % (request.auth.username, request.auth.password)
 
     method = ''
+
     if request.method.upper() == 'HEAD':
         #: -I/--head - fetch headers only.
         method = '-I '
@@ -321,4 +323,3 @@ def curl_from_request(request):
 
     #: Params handled in _build_url
     return curl + auth + method + header + cookies + form + '"' + request._build_url() + '"'
-
