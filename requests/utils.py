@@ -181,12 +181,12 @@ def unicode_from_html(content):
 def stream_decode_response_unicode(iterator, r):
     """Stream decodes a iterator."""
     encoding = get_encoding_from_headers(r.headers)
-    if encoding is None:
+    try:
+        decoder = codecs.getincrementaldecoder(str(encoding))(errors='replace')
+    except LookupError:
         for item in iterator:
             yield item
         return
-
-    decoder = codecs.getincrementaldecoder(encoding)(errors='replace')
     for chunk in iterator:
         rv = decoder.decode(chunk)
         if rv:
@@ -221,6 +221,8 @@ def get_unicode_from_response(r):
             return unicode(r.content, encoding)
         except UnicodeError:
             tried_encodings.append(encoding)
+        except LookupError:
+            return r.content
 
     # Fall back:
     try:
