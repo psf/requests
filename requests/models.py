@@ -30,7 +30,6 @@ from .exceptions import RequestException, AuthenticationError, Timeout, URLRequi
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 
 
-
 class Request(object):
     """The :class:`Request <Request>` object. It carries out all functionality of
     Requests. Recommended interface is with the Requests functions.
@@ -96,7 +95,6 @@ class Request(object):
         #: True if Request has been sent.
         self.sent = False
 
-
         # Header manipulation and defaults.
 
         if settings.accept_gzip:
@@ -113,17 +111,14 @@ class Request(object):
 
         self.headers = headers
 
-
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
-
 
     def _checks(self):
         """Deterministic checks for consistency."""
 
         if not self.url:
             raise URLRequired
-
 
     def _get_opener(self):
         """Creates appropriate opener object for urllib2."""
@@ -173,12 +168,10 @@ class Request(object):
 
         return opener.open
 
-
     def _build_response(self, resp, is_error=False):
         """Build internal :class:`Response <Response>` object
         from given response.
         """
-
 
         def build(resp):
 
@@ -193,7 +186,6 @@ class Request(object):
 
                     response.cookies = dict_from_cookiejar(self.cookiejar)
 
-
             except AttributeError:
                 pass
 
@@ -203,7 +195,6 @@ class Request(object):
             response.url = getattr(resp, 'url', None)
 
             return response
-
 
         history = []
 
@@ -258,7 +249,6 @@ class Request(object):
         self.response = r
         self.response.request = self
 
-
     @staticmethod
     def _encode_params(data):
         """Encode parameters in a piece of data.
@@ -276,11 +266,12 @@ class Request(object):
             for k, vs in data.items():
                 for v in isinstance(vs, list) and vs or [vs]:
                     result.append((k.encode('utf-8') if isinstance(k, unicode) else k,
-                                   v.encode('utf-8') if isinstance(v, unicode) else v))
-            return result, urllib.urlencode(result, doseq=True)
+                                   v.encode('utf-8') if isinstance(v, unicode) else v)
+                    )
+            return (result, urllib.urlencode(result, doseq=True))
+
         else:
             return data, data
-
 
     def _build_url(self):
         """Build the actual URL to use."""
@@ -288,10 +279,15 @@ class Request(object):
         # Support for unicode domain names and paths.
         scheme, netloc, path, params, query, fragment = urlparse(self.url)
         netloc = netloc.encode('idna')
+
         if isinstance(path, unicode):
             path = path.encode('utf-8')
+
         path = urllib.quote(path, safe="%/:=&?~#+!$,;'@()*[]")
-        self.url = str(urlunparse([ scheme, netloc, path, params, query, fragment ]))
+
+        self.url = str(urlunparse(
+          [scheme, netloc, path, params, query, fragment]
+         ))
 
         if self._enc_params:
             if urlparse(self.url).query:
@@ -300,7 +296,6 @@ class Request(object):
                 return '%s?%s' % (self.url, self._enc_params)
         else:
             return self.url
-
 
     def send(self, anyway=False):
         """Sends the request. Returns True of successful, false if not.
@@ -321,7 +316,6 @@ class Request(object):
                 datetime.now().isoformat(), self.method, self.url
             ))
 
-
         url = self._build_url()
         if self.method in ('GET', 'HEAD', 'DELETE'):
             req = _Request(url, method=self.method)
@@ -340,7 +334,7 @@ class Request(object):
                 req = _Request(url, data=self._enc_data, method=self.method)
 
         if self.headers:
-            for k,v in self.headers.iteritems():
+            for k, v in self.headers.iteritems():
                 req.add_header(k, v)
 
         if not self.sent or anyway:
@@ -381,17 +375,17 @@ class Request(object):
                 self._build_response(resp)
                 self.response.ok = True
 
-
         self.sent = self.response.ok
 
         return self.sent
 
 
 class Response(object):
-    """The core :class:`Response <Response>` object. All
-    :class:`Request <Request>` objects contain a
-    :class:`response <Response>` attribute, which is an instance
-    of this class.
+    """The core :class:`Response <Response>` object.
+
+
+    All :class:`Request <Request>` objects contain a :class:`response
+    <Response>` attribute, which is an instance of this class.
     """
 
     def __init__(self):
@@ -430,10 +424,8 @@ class Response(object):
         #: A dictionary of Cookies the server sent back.
         self.cookies = None
 
-
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
-
 
     def __nonzero__(self):
         """Returns true if :attr:`status_code` is 'OK'."""
@@ -496,12 +488,10 @@ class Response(object):
         self._content_consumed = True
         return self._content
 
-
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occured."""
         if self.error:
             raise self.error
-
 
 
 class AuthManager(object):
@@ -516,15 +506,12 @@ class AuthManager(object):
 
         return singleton
 
-
     def __init__(self):
         self.passwd = {}
         self._auth = {}
 
-
     def __repr__(self):
         return '<AuthManager [%s]>' % (self.method)
-
 
     def add_auth(self, uri, auth):
         """Registers AuthObject to AuthManager."""
@@ -540,7 +527,6 @@ class AuthManager(object):
 
         self._auth[uri] = auth
 
-
     def add_password(self, realm, uri, user, passwd):
         """Adds password to AuthManager."""
         # uri could be a single URI or a sequence
@@ -553,7 +539,6 @@ class AuthManager(object):
             self.passwd[reduced_uri] = {}
         self.passwd[reduced_uri] = (user, passwd)
 
-
     def find_user_password(self, realm, authuri):
         for uris, authinfo in self.passwd.iteritems():
             reduced_authuri = self.reduce_uri(authuri, False)
@@ -562,7 +547,6 @@ class AuthManager(object):
                     return authinfo
 
         return (None, None)
-
 
     def get_auth(self, uri):
         (in_domain, in_path) = self.reduce_uri(uri, False)
@@ -573,7 +557,6 @@ class AuthManager(object):
             if in_domain == domain:
                 if path in in_path:
                     return authority
-
 
     def reduce_uri(self, uri, default_port=True):
         """Accept authority or URI and extract only the authority and path."""
@@ -603,7 +586,6 @@ class AuthManager(object):
 
         return authority, path
 
-
     def is_suburi(self, base, test):
         """Check if test is below base in a URI tree
 
@@ -618,10 +600,8 @@ class AuthManager(object):
             return True
         return False
 
-
     def empty(self):
         self.passwd = {}
-
 
     def remove(self, uri, realm=None):
         # uri could be a single URI or a sequence
@@ -631,7 +611,6 @@ class AuthManager(object):
         for default_port in True, False:
             reduced_uri = tuple([self.reduce_uri(u, default_port) for u in uri])
             del self.passwd[reduced_uri][realm]
-
 
     def __contains__(self, uri):
         # uri could be a single URI or a sequence
@@ -648,12 +627,12 @@ class AuthManager(object):
 auth_manager = AuthManager()
 
 
-
 class AuthObject(object):
-    """The :class:`AuthObject` is a simple HTTP Authentication token. When
-    given to a Requests function, it enables Basic HTTP Authentication for that
-    Request. You can also enable Authorization for domain realms with AutoAuth.
-    See AutoAuth for more details.
+    """The :class:`AuthObject` is a simple HTTP Authentication token.
+
+    When given to a Requests function, it enables Basic HTTP Authentication
+    for that Request. You can also enable Authorization for domain realms
+    with AutoAuth. See AutoAuth for more details.
 
     :param username: Username to authenticate with.
     :param password: Password for given username.

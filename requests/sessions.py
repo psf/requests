@@ -15,12 +15,10 @@ from . import api
 from .utils import add_dict_to_cookiejar
 
 
-
 class Session(object):
     """A Requests session."""
 
     __attrs__ = ['headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks']
-
 
     def __init__(self, **kwargs):
 
@@ -34,7 +32,6 @@ class Session(object):
         # Map and wrap requests.api methods
         self._map_api_methods()
 
-
     def __repr__(self):
         return '<requests-client at 0x%x>' % (id(self))
 
@@ -44,7 +41,6 @@ class Session(object):
     def __exit__(self, *args):
         # print args
         pass
-
 
     def _map_api_methods(self):
         """Reads each available method from requests.api and decorates
