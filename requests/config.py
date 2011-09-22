@@ -6,7 +6,22 @@ requests.config
 
 This module provides the Requests settings feature set.
 
+settings parameters:
+
+TODO: Verify!!!
+TODO: Make sure format is acceptabl/cool
+- :base_headers: - Sets default User-Agent to `python-requests.org`
+- :accept_gzip:  - Whether or not to accept gzip-compressed data
+- :proxies: - http proxies?
+- :verbose: - display verbose information?
+- :timeout: - timeout time until request terminates
+- :max_redirects: - maximum number of allowed redirects?
+- :decode_unicode: - whether or not to accept unicode?
+
+Used globally
+
 """
+
 
 class Settings(object):
 
