@@ -35,7 +35,7 @@ class Request(object):
 
     def __init__(self,
         url=None, headers=dict(), files=None, method=None, data=dict(),
-        params=dict(), auth=None, cookiejar=None, timeout=None, redirect=False,
+        params=dict(), auth=None, cookies=None, timeout=None, redirect=False,
         allow_redirects=False, proxies=None):
 
         #: Float describ the timeout of the request.
@@ -90,7 +90,7 @@ class Request(object):
         self.auth = auth
 
         #: CookieJar to attach to :class:`Request <Request>`.
-        self.cookiejar = cookiejar
+        self.cookies = cookies
 
         #: True if Request has been sent.
         self.sent = False
@@ -298,10 +298,8 @@ class Request(object):
             pass
 
         # Setup cookies.
-        # elif self.cookies:
-            # pass
-
-        # req = _Request(url, data=self._enc_data, method=self.method)
+        elif self.cookies:
+            pass
 
         # Only send the Request if new or forced.
         if (anyway) or (not self.sent):
