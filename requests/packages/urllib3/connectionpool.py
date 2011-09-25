@@ -1,5 +1,3 @@
-import gzip
-import zlib
 import logging
 import socket
 
@@ -14,122 +12,25 @@ from socket import error as SocketError, timeout as SocketTimeout
 try:
     import ssl
     BaseSSLError = ssl.SSLError
-except ImportError, e:
+except ImportError:
     ssl = None
     BaseSSLError = None
 
-try:
-    from cStringIO import StringIO
-except ImportError, e:
-    from StringIO import StringIO
 
-
-from filepost import encode_multipart_formdata
+from .filepost import encode_multipart_formdata
+from .response import HTTPResponse
+from .exceptions import (
+    SSLError,
+    MaxRetryError,
+    TimeoutError,
+    HostChangedError,
+    EmptyPoolError)
 
 
 log = logging.getLogger(__name__)
 
 
-## Exceptions
-
-class HTTPError(Exception):
-    "Base exception used by this module."
-    pass
-
-
-class SSLError(Exception):
-    "Raised when SSL certificate fails in an HTTPS connection."
-    pass
-
-
-class MaxRetryError(HTTPError):
-    "Raised when the maximum number of retries is exceeded."
-    pass
-
-
-class TimeoutError(HTTPError):
-    "Raised when a socket timeout occurs."
-    pass
-
-
-class HostChangedError(HTTPError):
-    "Raised when an existing pool gets a request for a foreign host."
-    pass
-
-
-## Response objects
-
-class HTTPResponse(object):
-    """
-    HTTP Response container.
-
-    Similar to httplib's HTTPResponse but the data is pre-loaded.
-    """
-
-    def __init__(self, data='', headers=None, status=0, version=0, reason=None,
-                 strict=0):
-        self.data = data
-        self.headers = headers or {}
-        self.status = status
-        self.version = version
-        self.reason = reason
-        self.strict = strict
-
-    @staticmethod
-    def from_httplib(r, block=True):
-        """
-        Given an httplib.HTTPResponse instance, return a corresponding
-        urllib3.HTTPResponse object.
-
-        NOTE: This method will perform r.read() which will have side effects
-        on the original http.HTTPResponse object.
-        """
-
-        if block:
-            tmp_data = r.read()
-            try:
-                if r.getheader('content-encoding') == 'gzip':
-                    log.debug("Received response with content-encoding: gzip, "
-                              "decompressing with gzip.")
-
-                    gzipper = gzip.GzipFile(fileobj=StringIO(tmp_data))
-                    data = gzipper.read()
-                elif r.getheader('content-encoding') == 'deflate':
-                    log.debug("Received response with content-encoding: deflate, "
-                              "decompressing with zlib.")
-                    try:
-                        data = zlib.decompress(tmp_data)
-                    except zlib.error, e:
-                        data = zlib.decompress(tmp_data, -zlib.MAX_WBITS)
-                else:
-                    data = tmp_data
-
-            except IOError:
-                raise HTTPError("Received response with content-encoding: %s, "
-                                "but failed to decompress it." %
-                                (r.getheader('content-encoding')))
-        else:
-            data = None
-
-        resp = HTTPResponse(data=data,
-                    headers=dict(r.getheaders()),
-                    status=r.status,
-                    version=r.version,
-                    reason=r.reason,
-                    strict=r.strict)
-
-        resp._raw = r
-        return resp
-
-    # Backwards-compatibility methods for httplib.HTTPResponse
-    def getheaders(self):
-        return self.headers
-
-    def getheader(self, name, default=None):
-        return self.headers.get(name, default)
-
-
-## Connection objects
+## Connection objects (extension of httplib)
 
 class VerifiedHTTPSConnection(HTTPSConnection):
     """
@@ -137,8 +38,13 @@ class VerifiedHTTPSConnection(HTTPSConnection):
     SSL certification.
     """
 
-    def set_cert(self, key_file=None, cert_file=None, cert_reqs='CERT_NONE',
-                 ca_certs=None):
+    def __init__(self):
+        HTTPSConnection.__init__()
+        self.cert_reqs = None
+        self.ca_certs = None
+
+    def set_cert(self, key_file=None, cert_file=None,
+                 cert_reqs='CERT_NONE', ca_certs=None):
         ssl_req_scheme = {
             'CERT_NONE': ssl.CERT_NONE,
             'CERT_OPTIONAL': ssl.CERT_OPTIONAL,
@@ -163,7 +69,11 @@ class VerifiedHTTPSConnection(HTTPSConnection):
 
 ## Pool objects
 
-class HTTPConnectionPool(object):
+class ConnectionPool(object):
+    pass
+
+
+class HTTPConnectionPool(ConnectionPool):
     """
     Thread-safe connection pool for one host.
 
@@ -215,8 +125,10 @@ class HTTPConnectionPool(object):
         self.headers = headers or {}
 
         # Fill the queue up so that doing get() on it will block properly
-        [self.pool.put(None) for i in xrange(maxsize)]
+        for _ in xrange(maxsize):
+            self.pool.put(None)
 
+        # These are mostly for testing and debugging purposes.
         self.num_connections = 0
         self.num_requests = 0
 
@@ -241,11 +153,13 @@ class HTTPConnectionPool(object):
             # If this is a persistent connection, check if it got disconnected
             if conn and conn.sock and select([conn.sock], [], [], 0.0)[0]:
                 # Either data is buffered (bad), or the connection is dropped.
-                log.warning("Connection pool detected dropped "
-                            "connection, resetting: %s" % self.host)
+                log.info("Resetting dropped connection: %s" % self.host)
                 conn.close()
 
-        except Empty, e:
+        except Empty:
+            if self.block:
+                raise EmptyPoolError("Pool reached maximum size and no more "
+                                     "connections are allowed.")
             pass  # Oh well, we'll create a new connection then
 
         return conn or self._new_conn()
@@ -259,17 +173,37 @@ class HTTPConnectionPool(object):
         """
         try:
             self.pool.put(conn, block=False)
-        except Full, e:
+        except Full:
             # This should never happen if self.block == True
             log.warning("HttpConnectionPool is full, discarding connection: %s"
                         % self.host)
+
+    def _make_request(self, conn, method, url, **httplib_request_kw):
+        """
+        Perform a request on a given httplib connection object taken from our
+        pool.
+        """
+        self.num_requests += 1
+
+        conn.request(method, url, **httplib_request_kw)
+        conn.sock.settimeout(self.timeout)
+        httplib_response = conn.getresponse()
+
+        log.debug("\"%s %s %s\" %s %s" %
+                  (method, url,
+                   conn._http_vsn_str, # pylint: disable-msg=W0212
+                   httplib_response.status, httplib_response.length))
+
+        return httplib_response
+
 
     def is_same_host(self, url):
         return (url.startswith('/') or
                 get_host(url) == (self.scheme, self.host, self.port))
 
     def urlopen(self, method, url, body=None, headers=None, retries=3,
-                redirect=True, assert_same_host=True, block=True):
+                redirect=True, assert_same_host=True, pool_timeout=None,
+                **response_kw):
         """
         Get a connection from the pool and perform an HTTP request.
 
@@ -298,8 +232,16 @@ class HTTPConnectionPool(object):
             If True, will make sure that the host of the pool requests is
             consistent else will raise HostChangedError. When False, you can
             use the pool on an HTTP proxy and request foreign hosts.
+
+        pool_timeout
+            If set and the pool is set to block=True, then this method will
+            block for ``pool_timeout`` seconds and raise EmptyPoolError if no
+            connection is available within the time period.
+
+        Additional parameters are passed to
+        ``HTTPResponse.from_httplib(r, **response_kw)``
         """
-        if headers == None:
+        if headers is None:
             headers = self.headers
 
         if retries < 0:
@@ -316,24 +258,20 @@ class HTTPConnectionPool(object):
 
         try:
             # Request a connection from the queue
-            conn = self._get_conn()
+            conn = self._get_conn(timeout=pool_timeout)
 
-            # Make the request
-            self.num_requests += 1
-            conn.request(method, url, body=body, headers=headers)
-            conn.sock.settimeout(self.timeout)
-            httplib_response = conn.getresponse()
-            log.debug("\"%s %s %s\" %s %s" %
-                      (method, url, conn._http_vsn_str,
-                       httplib_response.status, httplib_response.length))
+            # Make the request on the httplib connection object
+            httplib_response = self._make_request(conn, method, url,
+                                                  body=body, headers=headers)
 
-            # from_httplib will perform httplib_response.read() which will have
-            # the side effect of letting us use this connection for another
-            # request.
-            response = HTTPResponse.from_httplib(httplib_response, block=block)
+            # Import httplib's response into our own wrapper object
+            response = HTTPResponse.from_httplib(httplib_response,
+                                                 pool=self,
+                                                 connection=conn,
+                                                 **response_kw)
 
-            # Put the connection back to be reused
-            self._put_conn(conn)
+            # The connection will be put back into the pool when
+            # response.release_conn() is called (implicitly by response.read())
 
         except (SocketTimeout, Empty), e:
             # Timed out either by socket or queue
@@ -363,7 +301,7 @@ class HTTPConnectionPool(object):
         return response
 
     def get_url(self, url, fields=None, headers=None, retries=3,
-                redirect=True):
+                redirect=True, **response_kw):
         """
         Wrapper for performing GET with urlopen (see urlopen for more details).
 
@@ -373,10 +311,11 @@ class HTTPConnectionPool(object):
         if fields:
             url += '?' + urlencode(fields)
         return self.urlopen('GET', url, headers=headers, retries=retries,
-                            redirect=redirect)
+                            redirect=redirect, **response_kw)
 
     def post_url(self, url, fields=None, headers=None, retries=3,
-                 redirect=True, encode_multipart=True):
+                 redirect=True, encode_multipart=True, multipart_boundary=None,
+                 **response_kw):
         """
         Wrapper for performing POST with urlopen (see urlopen
         for more details).
@@ -404,7 +343,8 @@ class HTTPConnectionPool(object):
         which is used to compose the body of the request.
         """
         if encode_multipart:
-            body, content_type = encode_multipart_formdata(fields or {})
+            body, content_type = encode_multipart_formdata(fields or {},
+                                    boundary=multipart_boundary)
         else:
             body, content_type = (
                 urlencode(fields or {}),
@@ -414,7 +354,7 @@ class HTTPConnectionPool(object):
         headers.update({'Content-Type': content_type})
 
         return self.urlopen('POST', url, body, headers=headers,
-                            retries=retries, redirect=redirect)
+                            retries=retries, redirect=redirect, **response_kw)
 
 
 class HTTPSConnectionPool(HTTPConnectionPool):
@@ -424,27 +364,19 @@ class HTTPSConnectionPool(HTTPConnectionPool):
 
     scheme = 'https'
 
-    def __init__(self, host, port=None, strict=False, timeout=None, maxsize=1,
-                 block=False, headers=None, key_file=None,
-                 cert_file=None, cert_reqs='CERT_NONE', ca_certs=None):
-        self.host = host
-        self.port = port
-        self.strict = strict
-        self.timeout = timeout
-        self.pool = Queue(maxsize)
-        self.block = block
-        self.headers = headers or {}
+    def __init__(self, host, port=None,
+                 strict=False, timeout=None, maxsize=1,
+                 block=False, headers=None,
+                 key_file=None, cert_file=None,
+                 cert_reqs='CERT_NONE', ca_certs=None):
 
+        super(HTTPSConnectionPool, self).__init__(host, port,
+                                                  strict, timeout, maxsize,
+                                                  block, headers)
         self.key_file = key_file
         self.cert_file = cert_file
         self.cert_reqs = cert_reqs
         self.ca_certs = ca_certs
-
-        # Fill the queue up so that doing get() on it will block properly
-        [self.pool.put(None) for i in xrange(maxsize)]
-
-        self.num_connections = 0
-        self.num_requests = 0
 
     def _new_conn(self):
         """
@@ -527,7 +459,7 @@ def get_host(url):
     if '//' in url:
         scheme, url = url.split('://', 1)
     if '/' in url:
-        url, path = url.split('/', 1)
+        url, _path = url.split('/', 1)
     if ':' in url:
         url, port = url.split(':', 1)
         port = int(port)

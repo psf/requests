@@ -1,10 +1,11 @@
 import codecs
 import mimetools
 import mimetypes
+
 try:
     from cStringIO import StringIO
-except:
-    from StringIO import StringIO
+except ImportError:
+    from StringIO import StringIO # pylint: disable-msg=W0404
 
 
 writer = codecs.lookup('utf-8')[3]
@@ -14,12 +15,13 @@ def get_content_type(filename):
     return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
 
-def encode_multipart_formdata(fields):
+def encode_multipart_formdata(fields, boundary=None):
     body = StringIO()
-    BOUNDARY = mimetools.choose_boundary()
+    if boundary is None:
+        boundary = mimetools.choose_boundary()
 
     for fieldname, value in fields.iteritems():
-        body.write('--%s\r\n' % (BOUNDARY))
+        body.write('--%s\r\n' % (boundary))
 
         if isinstance(value, tuple):
             filename, data = value
@@ -43,8 +45,8 @@ def encode_multipart_formdata(fields):
 
         body.write('\r\n')
 
-    body.write('--%s--\r\n' % (BOUNDARY))
+    body.write('--%s--\r\n' % (boundary))
 
-    content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
+    content_type = 'multipart/form-data; boundary=%s' % boundary
 
     return body.getvalue(), content_type
