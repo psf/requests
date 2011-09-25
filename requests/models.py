@@ -81,11 +81,6 @@ class Request(object):
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
         self.response = Response()
 
-        # if isinstance(auth, (list, tuple)):
-        #     auth = AuthObject(*auth)
-        # if not auth:
-        #     auth = auth_manager.get_auth(self.url)
-
         #: :class:`AuthObject` to attach to :class:`Request <Request>`.
         # self.auth = auth
 
@@ -120,54 +115,6 @@ class Request(object):
         if not self.url:
             raise URLRequired
 
-    def _get_opener(self):
-        """Creates appropriate opener object for urllib2."""
-
-        _handlers = []
-
-        if self.cookiejar is not None:
-            _handlers.append(urllib2.HTTPCookieProcessor(self.cookiejar))
-
-        if self.auth:
-            if not isinstance(self.auth.handler,
-                (urllib2.AbstractBasicAuthHandler,
-                urllib2.AbstractDigestAuthHandler)):
-
-                # TODO: REMOVE THIS COMPLETELY
-                auth_manager.add_password(
-                    self.auth.realm, self.url,
-                    self.auth.username,
-                    self.auth.password)
-
-                self.auth.handler = self.auth.handler(auth_manager)
-                auth_manager.add_auth(self.url, self.auth)
-
-            _handlers.append(self.auth.handler)
-
-        if self.proxies:
-            _handlers.append(urllib2.ProxyHandler(self.proxies))
-
-        _handlers.append(HTTPRedirectHandler)
-
-        if not _handlers:
-            return urllib2.urlopen
-
-        if self.data or self.files:
-            _handlers.extend(get_handlers())
-
-        opener = urllib2.build_opener(*_handlers)
-
-        if self.headers:
-            # Allow default headers in the opener to be overloaded
-            normal_keys = [k.capitalize() for k in self.headers]
-            for key, val in opener.addheaders[:]:
-                if key not in normal_keys:
-                    continue
-                # Remove it, we have a value to take its place
-                opener.addheaders.remove((key, val))
-
-        return opener.open
-
     def _build_response(self, resp, is_error=False):
         """Build internal :class:`Response <Response>` object
         from given response.
@@ -181,23 +128,6 @@ class Request(object):
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
                 response.raw = resp
-                # print dir(self.response.raw)
-                # print self
-
-                # print (response.raw)
-                # print dir(response.raw)
-                # print response.raw.sock.read()
-                # print '------'
-
-
-                # if self.cookiejar:
-
-                    # response.cookies = dict_from_cookiejar(self.cookiejar)
-
-
-                    # response.cookies = dict_from_cookiejar(self.cookiejar)
-
-                    # response.cookies = dict_from_cookiejar(self.cookiejar)
 
             except AttributeError:
                 pass
@@ -455,20 +385,7 @@ class Response(object):
                 'The content for this response was already consumed')
 
         # Read the contents.
-        # print self.raw.__dict__
-
-        # print
-        # print '~'
-        # # print self.raw
-        # print self.raw.getresponse()
-        # print dir(self.raw)
-        # print
-        # print
-        # print
-
-        # self.raw.read() or
         self._content = self.raw.read() or self.raw.data
-        # print self.raw.__dict__
 
         # Decode GZip'd content.
         if 'gzip' in self.headers.get('content-encoding', ''):
@@ -502,35 +419,3 @@ class Response(object):
 
         elif (self.status_code >= 500) and (self.status_code < 600):
             raise Exception('500 yo')
-
-
-class AuthObject(object):
-    """The :class:`AuthObject` is a simple HTTP Authentication token.
-
-    When given to a Requests function, it enables Basic HTTP Authentication
-    for that Request. You can also enable Authorization for domain realms
-    with AutoAuth. See AutoAuth for more details.
-
-    :param username: Username to authenticate with.
-    :param password: Password for given username.
-    :param realm: (optional) the realm this auth applies to
-    :param handler: (optional) basic || digest || proxy_basic || proxy_digest
-    """
-
-    _handlers = {
-        # 'basic': HTTPBasicAuthHandler,
-        # 'forced_basic': HTTPForcedBasicAuthHandler,
-        # 'digest': HTTPDigestAuthHandler,
-        # 'proxy_basic': urllib2.ProxyBasicAuthHandler,
-        # 'proxy_digest': urllib2.ProxyDigestAuthHandler
-    }
-
-    def __init__(self, username, password, handler='forced_basic', realm=None):
-        self.username = username
-        self.password = password
-        self.realm = realm
-
-        if isinstance(handler, basestring):
-            self.handler = self._handlers.get(handler.lower(), HTTPForcedBasicAuthHandler)
-        else:
-            self.handler = handler
