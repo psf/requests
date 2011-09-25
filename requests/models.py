@@ -11,8 +11,6 @@ import urllib2
 import socket
 import zlib
 
-
-from urllib2 import HTTPError
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import datetime
 
@@ -22,7 +20,7 @@ from .packages import urllib3
 
 from .config import settings
 from .structures import CaseInsensitiveDict
-from .utils import dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip
+from .utils import *
 from .status_codes import codes
 from .exceptions import RequestException, Timeout, URLRequired, TooManyRedirects
 
@@ -74,8 +72,10 @@ class Request(object):
         # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})
         self.proxies = proxies
 
-        self.data, self._enc_data = self._encode_params(data)
-        self.params, self._enc_params = self._encode_params(params)
+        self.data = data
+        self._enc_data = encode_params(data)
+        self.params = params
+        self._enc_params = encode_params(params)
 
         #: :class:`Response <Response>` instance, containing
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
@@ -277,66 +277,7 @@ class Request(object):
         # Give Response some context.
         self.response.request = self
 
-    @staticmethod
-    def _encode_params(data):
-        """Encode parameters in a piece of data.
 
-        If the data supplied is a dictionary, encodes each parameter in it, and
-        returns a list of tuples containing the encoded parameters, and a urlencoded
-        version of that.
-
-        Otherwise, assumes the data is already encoded appropriately, and
-        returns it twice.
-        """
-
-        if hasattr(data, 'items'):
-            result = []
-            for k, vs in data.items():
-                for v in isinstance(vs, list) and vs or [vs]:
-                    result.append((k.encode('utf-8') if isinstance(k, unicode) else k,
-                                   v.encode('utf-8') if isinstance(v, unicode) else v)
-                    )
-            return (result, urllib.urlencode(result, doseq=True))
-
-        else:
-            return data, data
-
-    def _build_url(self):
-        """Build the actual URL to use."""
-
-        # Support for unicode domain names and paths.
-        (scheme, netloc, path, params, query, fragment) = urlparse(self.url)
-
-        # International Domain Name
-        netloc = netloc.encode('idna')
-
-        # Encode the path to to utf-8.
-        if isinstance(path, unicode):
-            path = path.encode('utf-8')
-
-        # URL-encode the path.
-        path = urllib.quote(path, safe="%/:=&?~#+!$,;'@()*[]")
-
-        # Turn it back into a bytestring.
-        self.url = str(urlunparse([scheme, netloc, path, params, query, fragment]))
-        self.url = str(urlunparse(
-          [scheme, netloc, path, params, query, fragment]
-         ))
-
-        # Query Parameters?
-        if self._enc_params:
-
-            # If query parameters already exist in the URL, append.
-            if urlparse(self.url).query:
-                return '%s&%s' % (self.url, self._enc_params)
-
-            # Otherwise, have at it.
-            else:
-                return '%s?%s' % (self.url, self._enc_params)
-
-        else:
-            # Kosher URL.
-            return self.url
 
     def send(self, connection=None, anyway=False):
         """Sends the shit."""
@@ -345,8 +286,9 @@ class Request(object):
         self._checks()
 
         # Build the final URL.
-        url = self._build_url()
+        url = build_url(self.url, self.params)
 
+        print url
         # Setup Files.
         if self.files:
             pass
@@ -367,8 +309,7 @@ class Request(object):
             try:
                 # Create a new HTTP connection, since one wasn't passed in.
                 if not connection:
-                    connection = urllib3.connection_from_url(url,
-                        timeout=self.timeout)
+                    connection = urllib3.connection_from_url(url, timeout=self.timeout)
 
                     # One-off request. Delay fetching the content until needed.
                     do_block = False
@@ -384,7 +325,8 @@ class Request(object):
                     headers=self.headers,
                     redirect=False,
                     assert_same_host=False,
-                    block=do_block
+                    preload_content=do_block
+                    # block=do_block
                 )
 
                 # Extract cookies.
@@ -412,87 +354,87 @@ class Request(object):
 
 
 
-    def old_send(self, anyway=False):
-        """Sends the request. Returns True of successful, false if not.
-        If there was an HTTPError during transmission,
-        self.response.status_code will contain the HTTPError code.
+    # def old_send(self, anyway=False):
+    #     """Sends the request. Returns True of successful, false if not.
+    #     If there was an HTTPError during transmission,
+    #     self.response.status_code will contain the HTTPError code.
 
-        Once a request is successfully sent, `sent` will equal True.
+    #     Once a request is successfully sent, `sent` will equal True.
 
-        :param anyway: If True, request will be sent, even if it has
-        already been sent.
-        """
+    #     :param anyway: If True, request will be sent, even if it has
+    #     already been sent.
+    #     """
 
-        self._checks()
+    #     self._checks()
 
-        # Logging
-        if settings.verbose:
-            settings.verbose.write('%s   %s   %s\n' % (
-                datetime.now().isoformat(), self.method, self.url
-            ))
+    #     # Logging
+    #     if settings.verbose:
+    #         settings.verbose.write('%s   %s   %s\n' % (
+    #             datetime.now().isoformat(), self.method, self.url
+    #         ))
 
-        url = self._build_url()
-        if self.method in ('GET', 'HEAD', 'DELETE'):
-            req = _Request(url, method=self.method)
-        else:
+    #     url = self._build_url()
+    #     if self.method in ('GET', 'HEAD', 'DELETE'):
+    #         req = _Request(url, method=self.method)
+    #     else:
 
-            if self.files:
-                register_openers()
+    #         if self.files:
+    #             register_openers()
 
-                if self.data:
-                    self.files.update(self.data)
+    #             if self.data:
+    #                 self.files.update(self.data)
 
-                datagen, headers = multipart_encode(self.files)
-                req = _Request(url, data=datagen, headers=headers, method=self.method)
+    #             datagen, headers = multipart_encode(self.files)
+    #             req = _Request(url, data=datagen, headers=headers, method=self.method)
 
-            else:
-                req = _Request(url, data=self._enc_data, method=self.method)
+    #         else:
+    #             req = _Request(url, data=self._enc_data, method=self.method)
 
-        if self.headers:
-            for k, v in self.headers.iteritems():
-                req.add_header(k, v)
+    #     if self.headers:
+    #         for k, v in self.headers.iteritems():
+    #             req.add_header(k, v)
 
-        if not self.sent or anyway:
+    #     if not self.sent or anyway:
 
-            try:
-                opener = self._get_opener()
-                try:
+    #         try:
+    #             opener = self._get_opener()
+    #             try:
 
-                    resp = opener(req, timeout=self.timeout)
+    #                 resp = opener(req, timeout=self.timeout)
 
-                except TypeError, err:
-                    # timeout argument is new since Python v2.6
-                    if not 'timeout' in str(err):
-                        raise
+    #             except TypeError, err:
+    #                 # timeout argument is new since Python v2.6
+    #                 if not 'timeout' in str(err):
+    #                     raise
 
-                    if settings.timeout_fallback:
-                        # fall-back and use global socket timeout (This is not thread-safe!)
-                        old_timeout = socket.getdefaulttimeout()
-                        socket.setdefaulttimeout(self.timeout)
+    #                 if settings.timeout_fallback:
+    #                     # fall-back and use global socket timeout (This is not thread-safe!)
+    #                     old_timeout = socket.getdefaulttimeout()
+    #                     socket.setdefaulttimeout(self.timeout)
 
-                    resp = opener(req)
+    #                 resp = opener(req)
 
-                    if settings.timeout_fallback:
-                        # restore gobal timeout
-                        socket.setdefaulttimeout(old_timeout)
+    #                 if settings.timeout_fallback:
+    #                     # restore gobal timeout
+    #                     socket.setdefaulttimeout(old_timeout)
 
-                if self.cookiejar is not None:
-                    self.cookiejar.extract_cookies(resp, req)
+    #             if self.cookiejar is not None:
+    #                 self.cookiejar.extract_cookies(resp, req)
 
-            except (urllib2.HTTPError, urllib2.URLError), why:
-                if hasattr(why, 'reason'):
-                    if isinstance(why.reason, socket.timeout):
-                        why = Timeout(why)
+    #         except (urllib2.HTTPError, urllib2.URLError), why:
+    #             if hasattr(why, 'reason'):
+    #                 if isinstance(why.reason, socket.timeout):
+    #                     why = Timeout(why)
 
-                self._build_response(why, is_error=True)
+    #             self._build_response(why, is_error=True)
 
-            else:
-                self._build_response(resp)
-                self.response.ok = True
+    #         else:
+    #             self._build_response(resp)
+    #             self.response.ok = True
 
-        self.sent = self.response.ok
+    #     self.sent = self.response.ok
 
-        return self.sent
+    #     return self.sent
 
 
 class Response(object):

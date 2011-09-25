@@ -13,7 +13,72 @@ import cgi
 import codecs
 import cookielib
 import re
+import urllib
 import zlib
+from urlparse import urlparse, urlunparse, urljoin
+
+
+def encode_params(params):
+    """Encode parameters in a piece of data.
+
+    If the data supplied is a dictionary, encodes each parameter in it, and
+    returns a list of tuples containing the encoded parameters, and a urlencoded
+    version of that.
+
+    Otherwise, assumes the data is already encoded appropriately, and
+    returns it twice.
+    """
+
+    if hasattr(params, 'items'):
+        result = []
+        for k, vs in params.items():
+            for v in isinstance(vs, list) and vs or [vs]:
+                result.append((k.encode('utf-8') if isinstance(k, unicode) else k,
+                               v.encode('utf-8') if isinstance(v, unicode) else v)
+                )
+        return urllib.urlencode(result, doseq=True)
+
+    else:
+        return params
+
+def build_url(url, params):
+    """Build the actual URL to use."""
+
+
+    # Support for unicode domain names and paths.
+    (scheme, netloc, path, params, query, fragment) = urlparse(url)
+
+    # International Domain Name
+    netloc = netloc.encode('idna')
+
+    # Encode the path to to utf-8.
+    if isinstance(path, unicode):
+        path = path.encode('utf-8')
+
+    # URL-encode the path.
+    path = urllib.quote(path, safe="%/:=&?~#+!$,;'@()*[]")
+
+    # Turn it back into a bytestring.
+    url = str(urlunparse([scheme, netloc, path, params, query, fragment]))
+    url = str(urlunparse(
+      [scheme, netloc, path, params, query, fragment]
+     ))
+
+    # Query Parameters?
+    if params:
+        params = encode_params(params)
+
+        # If query parameters already exist in the URL, append.
+        if urlparse(url).query:
+            return '%s&%s' % (url, params)
+
+        # Otherwise, have at it.
+        else:
+            return '%s?%s' % (url, params)
+
+    else:
+        # Kosher URL.
+        return url
 
 
 def header_expand(headers):

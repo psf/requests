@@ -22,7 +22,7 @@ __copyright__ = 'Copyright 2011 Kenneth Reitz'
 from api import *
 from config import settings
 from exceptions import *
-from models import HTTPError, Request, Response
+from models import Request, Response
 from sessions import session
 from status_codes import codes
 
