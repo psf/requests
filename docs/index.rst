@@ -41,7 +41,8 @@ Testimonials
 
 `Twitter, Inc <http://twitter.com>`_,
 a U.S. Federal Institution,
-and `Readability <http://readability.com>`_
+`Readability <http://readability.com>`_, and
+`Work for Pie <http://workforpie.com>`_
 use Requests internally.
 
 **Daniel Greenfeld**

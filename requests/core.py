@@ -19,11 +19,11 @@ __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
 
 
-from models import HTTPError, Request, Response
 from api import *
+from config import settings
 from exceptions import *
+from models import HTTPError, Request, Response
 from sessions import session
 from status_codes import codes
-from config import settings
 
 import utils
