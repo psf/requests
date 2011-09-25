@@ -82,7 +82,7 @@ class Request(object):
         self.response = Response()
 
         #: :class:`AuthObject` to attach to :class:`Request <Request>`.
-        # self.auth = auth
+        self.auth = auth
 
         #: CookieJar to attach to :class:`Request <Request>`.
         self.cookies = cookies
@@ -161,7 +161,7 @@ class Request(object):
             ):
 
                 # We already redirected. Don't keep it alive.
-                r.raw.close()
+                # r.raw.close()
 
                 # Woah, this is getting crazy.
                 if len(history) >= settings.max_redirects:
@@ -196,7 +196,7 @@ class Request(object):
                 # Create the new Request.
                 request = Request(
                     url, self.headers, self.files, method,
-                    self.data, self.params, self.auth, self.cookiejar,
+                    self.data, self.params, self.auth, self.cookies,
 
                     # Flag as part of a redirect loop.
                     redirect=True
