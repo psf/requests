@@ -15,7 +15,7 @@ import cookielib
 import re
 import urllib
 import zlib
-from urlparse import urlparse, urlunparse, urljoin
+from urlparse import urlparse, urlunparse
 
 
 def encode_params(params):
@@ -33,8 +33,11 @@ def encode_params(params):
         result = []
         for k, vs in params.items():
             for v in isinstance(vs, list) and vs or [vs]:
-                result.append((k.encode('utf-8') if isinstance(k, unicode) else k,
-                               v.encode('utf-8') if isinstance(v, unicode) else v)
+                result.append(
+                    (
+                        k.encode('utf-8') if isinstance(k, unicode) else k,
+                        v.encode('utf-8') if isinstance(v, unicode) else v
+                    )
                 )
         return urllib.urlencode(result, doseq=True)
 

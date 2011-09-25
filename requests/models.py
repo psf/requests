@@ -332,8 +332,8 @@ class Request(object):
                     redirect=False,
                     assert_same_host=False,
                     # preload_content=True
-                    preload_content=False
-                    # block=do_block
+                    # preload_content=False
+                    preload_content=do_block
                 )
 
                 # Extract cookies.
@@ -466,8 +466,8 @@ class Response(object):
         # print
         # print
 
-         # self.raw.read() or
-        self._content = self.raw.read()
+        # self.raw.read() or
+        self._content = self.raw.read() or self.raw.data
         # print self.raw.__dict__
 
         # Decode GZip'd content.
