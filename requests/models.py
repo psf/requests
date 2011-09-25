@@ -81,13 +81,13 @@ class Request(object):
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
         self.response = Response()
 
-        if isinstance(auth, (list, tuple)):
-            auth = AuthObject(*auth)
-        if not auth:
-            auth = auth_manager.get_auth(self.url)
+        # if isinstance(auth, (list, tuple)):
+        #     auth = AuthObject(*auth)
+        # if not auth:
+        #     auth = auth_manager.get_auth(self.url)
 
         #: :class:`AuthObject` to attach to :class:`Request <Request>`.
-        self.auth = auth
+        # self.auth = auth
 
         #: CookieJar to attach to :class:`Request <Request>`.
         self.cookies = cookies
@@ -180,7 +180,15 @@ class Request(object):
 
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
-                response.raw = resp._raw
+                response.raw = resp
+                # print dir(self.response.raw)
+                # print self
+
+                # print (response.raw)
+                # print dir(response.raw)
+                # print response.raw.sock.read()
+                # print '------'
+
 
                 # if self.cookiejar:
 
@@ -323,7 +331,8 @@ class Request(object):
                     headers=self.headers,
                     redirect=False,
                     assert_same_host=False,
-                    preload_content=do_block
+                    # preload_content=True
+                    preload_content=False
                     # block=do_block
                 )
 
@@ -342,6 +351,7 @@ class Request(object):
                 print why
 
             else:
+                # self.response = Response.from_urllib3()
                 self._build_response(r)
                 self.response.ok = True
 
@@ -349,90 +359,6 @@ class Request(object):
         self.sent = self.response.ok
 
         return self.sent
-
-
-
-    # def old_send(self, anyway=False):
-    #     """Sends the request. Returns True of successful, false if not.
-    #     If there was an HTTPError during transmission,
-    #     self.response.status_code will contain the HTTPError code.
-
-    #     Once a request is successfully sent, `sent` will equal True.
-
-    #     :param anyway: If True, request will be sent, even if it has
-    #     already been sent.
-    #     """
-
-    #     self._checks()
-
-    #     # Logging
-    #     if settings.verbose:
-    #         settings.verbose.write('%s   %s   %s\n' % (
-    #             datetime.now().isoformat(), self.method, self.url
-    #         ))
-
-    #     url = self._build_url()
-    #     if self.method in ('GET', 'HEAD', 'DELETE'):
-    #         req = _Request(url, method=self.method)
-    #     else:
-
-    #         if self.files:
-    #             register_openers()
-
-    #             if self.data:
-    #                 self.files.update(self.data)
-
-    #             datagen, headers = multipart_encode(self.files)
-    #             req = _Request(url, data=datagen, headers=headers, method=self.method)
-
-    #         else:
-    #             req = _Request(url, data=self._enc_data, method=self.method)
-
-    #     if self.headers:
-    #         for k, v in self.headers.iteritems():
-    #             req.add_header(k, v)
-
-    #     if not self.sent or anyway:
-
-    #         try:
-    #             opener = self._get_opener()
-    #             try:
-
-    #                 resp = opener(req, timeout=self.timeout)
-
-    #             except TypeError, err:
-    #                 # timeout argument is new since Python v2.6
-    #                 if not 'timeout' in str(err):
-    #                     raise
-
-    #                 if settings.timeout_fallback:
-    #                     # fall-back and use global socket timeout (This is not thread-safe!)
-    #                     old_timeout = socket.getdefaulttimeout()
-    #                     socket.setdefaulttimeout(self.timeout)
-
-    #                 resp = opener(req)
-
-    #                 if settings.timeout_fallback:
-    #                     # restore gobal timeout
-    #                     socket.setdefaulttimeout(old_timeout)
-
-    #             if self.cookiejar is not None:
-    #                 self.cookiejar.extract_cookies(resp, req)
-
-    #         except (urllib2.HTTPError, urllib2.URLError), why:
-    #             if hasattr(why, 'reason'):
-    #                 if isinstance(why.reason, socket.timeout):
-    #                     why = Timeout(why)
-
-    #             self._build_response(why, is_error=True)
-
-    #         else:
-    #             self._build_response(resp)
-    #             self.response.ok = True
-
-    #     self.sent = self.response.ok
-
-    #     return self.sent
 
 
 class Response(object):
@@ -501,13 +427,17 @@ class Response(object):
                     break
                 yield chunk
             self._content_consumed = True
-        gen = generate()
+        gen = generate
+
         if 'gzip' in self.headers.get('content-encoding', ''):
             gen = stream_decode_gzip(gen)
+
         if decode_unicode is None:
             decode_unicode = settings.decode_unicode
+
         if decode_unicode:
             gen = stream_decode_response_unicode(gen, self)
+
         return gen
 
 
@@ -526,7 +456,18 @@ class Response(object):
 
         # Read the contents.
         # print self.raw.__dict__
-        self._content = self.raw.read() or self._response.data
+
+        # print
+        # print '~'
+        # # print self.raw
+        # print self.raw.getresponse()
+        # print dir(self.raw)
+        # print
+        # print
+        # print
+
+         # self.raw.read() or
+        self._content = self.raw.read()
         # print self.raw.__dict__
 
         # Decode GZip'd content.
@@ -542,6 +483,7 @@ class Response(object):
 
         self._content_consumed = True
         return self._content
+
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`,
@@ -560,139 +502,6 @@ class Response(object):
 
         elif (self.status_code >= 500) and (self.status_code < 600):
             raise Exception('500 yo')
-
-
-class AuthManager(object):
-    """Requests Authentication Manager."""
-
-    def __new__(cls):
-        singleton = cls.__dict__.get('__singleton__')
-        if singleton is not None:
-            return singleton
-
-        cls.__singleton__ = singleton = object.__new__(cls)
-
-        return singleton
-
-    def __init__(self):
-        self.passwd = {}
-        self._auth = {}
-
-    def __repr__(self):
-        return '<AuthManager [%s]>' % (self.method)
-
-    def add_auth(self, uri, auth):
-        """Registers AuthObject to AuthManager."""
-
-        uri = self.reduce_uri(uri, False)
-
-        # try to make it an AuthObject
-        if not isinstance(auth, AuthObject):
-            try:
-                auth = AuthObject(*auth)
-            except TypeError:
-                pass
-
-        self._auth[uri] = auth
-
-    def add_password(self, realm, uri, user, passwd):
-        """Adds password to AuthManager."""
-        # uri could be a single URI or a sequence
-        if isinstance(uri, basestring):
-            uri = [uri]
-
-        reduced_uri = tuple([self.reduce_uri(u, False) for u in uri])
-
-        if reduced_uri not in self.passwd:
-            self.passwd[reduced_uri] = {}
-        self.passwd[reduced_uri] = (user, passwd)
-
-    def find_user_password(self, realm, authuri):
-        for uris, authinfo in self.passwd.iteritems():
-            reduced_authuri = self.reduce_uri(authuri, False)
-            for uri in uris:
-                if self.is_suburi(uri, reduced_authuri):
-                    return authinfo
-
-        return (None, None)
-
-    def get_auth(self, uri):
-        (in_domain, in_path) = self.reduce_uri(uri, False)
-
-        for domain, path, authority in (
-            (i[0][0], i[0][1], i[1]) for i in self._auth.iteritems()
-        ):
-            if in_domain == domain:
-                if path in in_path:
-                    return authority
-
-    def reduce_uri(self, uri, default_port=True):
-        """Accept authority or URI and extract only the authority and path."""
-
-        # note HTTP URLs do not have a userinfo component
-        parts = urllib2.urlparse.urlsplit(uri)
-
-        if parts[1]:
-            # URI
-            scheme = parts[0]
-            authority = parts[1]
-            path = parts[2] or '/'
-        else:
-            # host or host:port
-            scheme = None
-            authority = uri
-            path = '/'
-
-        host, port = urllib2.splitport(authority)
-
-        if default_port and port is None and scheme is not None:
-            dport = {"http": 80,
-                     "https": 443,
-                     }.get(scheme)
-            if dport is not None:
-                authority = "%s:%d" % (host, dport)
-
-        return authority, path
-
-    def is_suburi(self, base, test):
-        """Check if test is below base in a URI tree
-
-        Both args must be URIs in reduced form.
-        """
-        if base == test:
-            return True
-        if base[0] != test[0]:
-            return False
-        common = urllib2.posixpath.commonprefix((base[1], test[1]))
-        if len(common) == len(base[1]):
-            return True
-        return False
-
-    def empty(self):
-        self.passwd = {}
-
-    def remove(self, uri, realm=None):
-        # uri could be a single URI or a sequence
-        if isinstance(uri, basestring):
-            uri = [uri]
-
-        for default_port in True, False:
-            reduced_uri = tuple([self.reduce_uri(u, default_port) for u in uri])
-            del self.passwd[reduced_uri][realm]
-
-    def __contains__(self, uri):
-        # uri could be a single URI or a sequence
-        if isinstance(uri, basestring):
-            uri = [uri]
-
-        uri = tuple([self.reduce_uri(u, False) for u in uri])
-
-        if uri in self.passwd:
-            return True
-
-        return False
-
-auth_manager = AuthManager()
 
 
 class AuthObject(object):

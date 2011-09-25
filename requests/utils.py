@@ -41,44 +41,32 @@ def encode_params(params):
     else:
         return params
 
-def build_url(url, params):
+
+def build_url(url, query_params):
     """Build the actual URL to use."""
 
-
     # Support for unicode domain names and paths.
-    (scheme, netloc, path, params, query, fragment) = urlparse(url)
-
-    # International Domain Name
+    scheme, netloc, path, params, query, fragment = urlparse(url)
     netloc = netloc.encode('idna')
 
-    # Encode the path to to utf-8.
     if isinstance(path, unicode):
-        path = path.encode('utf-8')
+       path = path.encode('utf-8')
 
-    # URL-encode the path.
     path = urllib.quote(path, safe="%/:=&?~#+!$,;'@()*[]")
 
-    # Turn it back into a bytestring.
-    url = str(urlunparse([scheme, netloc, path, params, query, fragment]))
     url = str(urlunparse(
-      [scheme, netloc, path, params, query, fragment]
-     ))
+     [scheme, netloc, path, params, query, fragment]
+    ))
 
-    # Query Parameters?
-    if params:
-        params = encode_params(params)
+    query_params = encode_params(query_params)
 
-        # If query parameters already exist in the URL, append.
-        if urlparse(url).query:
-            return '%s&%s' % (url, params)
-
-        # Otherwise, have at it.
-        else:
-            return '%s?%s' % (url, params)
-
+    if query_params:
+       if urlparse(url).query:
+           return '%s&%s' % (url, query_params)
+       else:
+           return '%s?%s' % (url, query_params)
     else:
-        # Kosher URL.
-        return url
+       return url
 
 
 def header_expand(headers):
@@ -137,7 +125,6 @@ def dict_from_cookiejar(cj):
     for _, cookies in cj._cookies.items():
         for _, cookies in cookies.items():
             for cookie in cookies.values():
-                # print cookie
                 cookie_dict[cookie.name] = cookie.value
 
     return cookie_dict
