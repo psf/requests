@@ -184,12 +184,12 @@ class Request(object):
 
                 # if self.cookiejar:
 
-                    response.cookies = dict_from_cookiejar(self.cookiejar)
+                    # response.cookies = dict_from_cookiejar(self.cookiejar)
 
 
                     # response.cookies = dict_from_cookiejar(self.cookiejar)
 
-                    response.cookies = dict_from_cookiejar(self.cookiejar)
+                    # response.cookies = dict_from_cookiejar(self.cookiejar)
 
             except AttributeError:
                 pass
