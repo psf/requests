@@ -83,6 +83,7 @@ class HTTPResponse(object):
             return
 
         self._pool._put_conn(self._connection)
+        self._connection = None
 
     @property
     def data(self):

@@ -34,18 +34,14 @@ class PoolManager(object):
         self.pools = RecentlyUsedContainer(num_pools)
         self.recently_used_pools = []
 
-    def connection_from_url(self, url):
+    def connection_from_host(self, host, port=80, scheme='http'):
         """
-        Similar to connectionpool.connection_from_url but doesn't pass any
-        additional keywords to the ConnectionPool constructor. Additional
-        keywords are taken from the PoolManager constructor.
+        Get a ConnectionPool based on the host, port, and scheme.
         """
-        scheme, host, port = get_host(url)
+        pool_key = (scheme, host, port)
 
         # If the scheme, host, or port doesn't match existing open connections,
         # open a new ConnectionPool.
-        pool_key = (scheme, host, port or port_by_scheme.get(scheme, 80))
-
         pool = self.pools.get(pool_key)
         if pool:
             return pool
@@ -58,7 +54,19 @@ class PoolManager(object):
 
         return pool
 
+    def connection_from_url(self, url):
+        """
+        Similar to connectionpool.connection_from_url but doesn't pass any
+        additional keywords to the ConnectionPool constructor. Additional
+        keywords are taken from the PoolManager constructor.
+        """
+        scheme, host, port = get_host(url)
+
+        port = port or port_by_scheme.get(scheme, 80)
+
+        return  self.connection_from_host(host, port=port, scheme=scheme)
+
     def urlopen(self, method, url, **kw):
-        "Same as HTTP(S)ConnectionPool.urlopen"
+        "Same as HTTP(S)ConnectionPool.urlopen, ``url`` must be absolute."
         conn = self.connection_from_url(url)
         return conn.urlopen(method, url, **kw)

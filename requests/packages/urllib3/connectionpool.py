@@ -29,6 +29,8 @@ from .exceptions import (
 
 log = logging.getLogger(__name__)
 
+_Default = object()
+
 
 ## Connection objects (extension of httplib)
 
@@ -178,15 +180,19 @@ class HTTPConnectionPool(ConnectionPool):
             log.warning("HttpConnectionPool is full, discarding connection: %s"
                         % self.host)
 
-    def _make_request(self, conn, method, url, **httplib_request_kw):
+    def _make_request(self, conn, method, url, timeout=_Default,
+                      **httplib_request_kw):
         """
         Perform a request on a given httplib connection object taken from our
         pool.
         """
         self.num_requests += 1
 
+        if timeout is _Default:
+            timeout = self.timeout
+
         conn.request(method, url, **httplib_request_kw)
-        conn.sock.settimeout(self.timeout)
+        conn.sock.settimeout(timeout)
         httplib_response = conn.getresponse()
 
         log.debug("\"%s %s %s\" %s %s" %
@@ -202,8 +208,8 @@ class HTTPConnectionPool(ConnectionPool):
                 get_host(url) == (self.scheme, self.host, self.port))
 
     def urlopen(self, method, url, body=None, headers=None, retries=3,
-                redirect=True, assert_same_host=True, pool_timeout=None,
-                release_conn=None, **response_kw):
+                redirect=True, assert_same_host=True, timeout=_Default,
+                pool_timeout=None, release_conn=None, **response_kw):
         """
         Get a connection from the pool and perform an HTTP request.
 
@@ -232,6 +238,9 @@ class HTTPConnectionPool(ConnectionPool):
             If True, will make sure that the host of the pool requests is
             consistent else will raise HostChangedError. When False, you can
             use the pool on an HTTP proxy and request foreign hosts.
+
+        timeout
+            If specified, overrides the default timeout for this one request.
 
         pool_timeout
             If set and the pool is set to block=True, then this method will
@@ -273,6 +282,7 @@ class HTTPConnectionPool(ConnectionPool):
         try:
             # Make the request on the httplib connection object
             httplib_response = self._make_request(conn, method, url,
+                                                  timeout=timeout,
                                                   body=body, headers=headers)
             # Import httplib's response into our own wrapper object
             response = HTTPResponse.from_httplib(httplib_response,
