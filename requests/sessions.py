@@ -56,10 +56,6 @@ class Session(object):
         hooks=None,
         config=None):
 
-        # Set up a CookieJar to be used by default
-        # self.cookies = cookielib.FileCookieJar()
-        # self.config = kwargs.get('config')
-        # self.configs =
         self.headers = headers
         self.cookies = cookies
         self.auth = auth
@@ -67,13 +63,8 @@ class Session(object):
         self.proxies = proxies
         self.hooks = hooks
         self.config = get_config(config)
-        # print self.config
 
-        # Map args from kwargs to instance-local variables
-        # map(lambda k, v: (k in self.__attrs__) and setattr(self, k, v),
-                # kwargs.iterkeys(), kwargs.itervalues())
-
-        # Map and wrap requests.api methods
+        # Map and wrap requests.api methods.
         self._map_api_methods()
 
 
