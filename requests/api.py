@@ -11,7 +11,7 @@ This module impliments the Requests API.
 
 """
 
-import config
+from ._config import get_config
 from .models import Request, Response
 from .status_codes import codes
 from .hooks import dispatch_hook
@@ -24,7 +24,7 @@ __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
 def request(method, url,
     params=None, data=None, headers=None, cookies=None, files=None, auth=None,
     timeout=None, allow_redirects=False, proxies=None, hooks=None,
-    _connection=None):
+    config=None, _connection=None):
 
     """Constructs and sends a :class:`Request <Request>`.
     Returns :class:`Response <Response>` object.
@@ -44,6 +44,7 @@ def request(method, url,
     """
 
     method = str(method).upper()
+    config = get_config(config)
 
     if cookies is None:
         cookies = {}
@@ -64,9 +65,9 @@ def request(method, url,
         cookies=cookies,
         files=files,
         auth=auth,
-        timeout=timeout or config.settings.timeout,
+        timeout=timeout or config.get('timeout'),
         allow_redirects=allow_redirects,
-        proxies=proxies or config.settings.proxies,
+        proxies=proxies or config.get('proxies'),
     )
 
     # Arguments manipulation hook.

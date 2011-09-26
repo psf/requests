@@ -15,7 +15,7 @@ from urlparse import urlparse, urlunparse, urljoin
 from .packages import urllib3
 # print dir(urllib3)
 
-from .config import get_config
+from ._config import get_config
 from .structures import CaseInsensitiveDict
 from .utils import *
 from .status_codes import codes
@@ -91,15 +91,15 @@ class Request(object):
 
         # Header manipulation and defaults.
 
-        if settings.accept_gzip:
-            settings.base_headers.update({'Accept-Encoding': 'gzip'})
+        if self.config.get('accept_gzip'):
+            self.headers.update({'Accept-Encoding': 'gzip'})
 
         if headers:
             headers = CaseInsensitiveDict(self.headers)
         else:
             headers = CaseInsensitiveDict()
 
-        for (k, v) in settings.base_headers.items():
+        for (k, v) in self.config.get('base_headers').items():
             if k not in headers:
                 headers[k] = v
 

@@ -12,23 +12,31 @@ requests (cookies, auth, proxies).
 import cookielib
 
 from . import api
-from .config import get_config
+from ._config import get_config
 from .utils import add_dict_to_cookiejar
 
 
-def merge_kwargs(local_kwargs, default_kwargs):
+def merge_kwargs(local_kwarg, default_kwarg):
     """Merges kwarg dictionaries.
+
+    If a key in the dictionary is set to None, i
     """
 
     # Bypass if not a dictionary (e.g. timeout)
-    if not hasattr(local_kwargs, 'items'):
-        return local_kwargs
+    if not hasattr(local_kwarg, 'items'):
+        return local_kwarg
 
-    kwargs = default_kwargs.copy()
-    kwargs.update(local_kwargs)
+    kwargs = default_kwarg.copy()
+    kwargs.update(local_kwarg)
+
+    # from clint.textui import colored
+
+
+    # print colored.red(default_kwarg)
+    # print colored.red(local_kwarg)
 
     # Remove keys that are set to None.
-    for (k,v) in local_kwargs.items():
+    for (k,v) in local_kwarg.items():
         if v is None:
             del kwargs[k]
 
@@ -74,8 +82,19 @@ class Session(object):
         self._map_api_methods()
 
 
-    def get(url, **kwargs):
+    def get(self, url, **kwargs):
 
+        _kwargs = {}
+        for attr in self.__attrs__:
+            default_attr = getattr(self, attr)
+            local_attr = kwargs.get(attr)
+
+            new_attr = merge_kwargs(local_attr, default_attr)
+
+            if new_attr is not None:
+                _kwargs[attr] = new_attr
+
+        return api.get(url, **_kwargs)
 
     def __repr__(self):
         return '<requests-client at 0x%x>' % (id(self))
