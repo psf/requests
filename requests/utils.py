@@ -117,7 +117,7 @@ def header_expand(headers):
     return ''.join(collector)
 
 
-def dict_from_cookiejar(cj):
+def dict_from_cookiejar(cookies):
     """Returns a key/value dictionary from a CookieJar.
 
     :param cj: CookieJar object to extract cookies from.
@@ -125,7 +125,7 @@ def dict_from_cookiejar(cj):
 
     cookie_dict = {}
 
-    for _, cookies in cj._cookies.items():
+    for _, cookies in cookies.items():
         for _, cookies in cookies.items():
             for cookie in cookies.values():
                 cookie_dict[cookie.name] = cookie.value

@@ -49,7 +49,7 @@ def request(method, url,
     if cookies is None:
         cookies = {}
 
-    cookies = cookiejar_from_dict(cookies)
+    # cookies = cookiejar_from_dict(cookies)
 
     # Expand header values
     if headers:

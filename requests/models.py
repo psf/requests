@@ -8,6 +8,7 @@ requests.models
 
 import urllib
 import zlib
+from Cookie import SimpleCookie
 from urlparse import urlparse, urlunparse, urljoin
 
 from .packages import urllib3
@@ -133,6 +134,22 @@ class Request(object):
             # Make headers case-insensitive.
             response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
 
+            # Start off with our local cookies.
+            cookies = self.cookies or dict()
+
+            # Add new cookies from the server.
+            if 'set-cookie' in response.headers:
+                cookie_header = response.headers['set-cookie']
+
+                c = SimpleCookie()
+                c.load(cookie_header)
+
+                for k,v in c.items():
+                    cookies.update({k: v.value})
+
+            # Save cookies in Response.
+            response.cookies = cookies
+
             # Save original resopnse for later.
             response.raw = resp
 
@@ -240,6 +257,7 @@ class Request(object):
         # Build the final URL.
         url = build_url(self.url, self.params)
 
+        # Nottin' on you.
         body = None
         content_type = None
 
@@ -296,6 +314,20 @@ class Request(object):
                     # Part of a connection pool, so no fancy stuff. Sorry!
                     do_block = True
 
+                if self.cookies:
+                    # Skip if 'cookie' header is explicitly set.
+                    if 'cookie' not in self.headers:
+
+                        # Simple cookie with our dict.
+                        c = SimpleCookie()
+                        c.load(self.cookies)
+
+                        # Turn it into a header.
+                        cookie_header = c.output(header='').strip()
+
+                        # Attach Cookie header to request.
+                        self.headers['Cookie'] = cookie_header
+
                 # Create the connection.
                 r = connection.urlopen(
                     method=self.method,
@@ -313,7 +345,14 @@ class Request(object):
                     self._pools = pools
 
                 # Extract cookies.
-                # if self.cookiejar is not None:
+                if self.cookies is not None:
+                    pass
+                    # cookies = cookiejar_from_dict(self.cookies)
+#                     >>> C = Cookie.SimpleCookie()
+# >>> C["rocky"] = "road"
+# >>> C["rocky"]["path"] = "/cookie"
+# >>> print C.output(header="Cookie:")
+# Cookie: rocky=road; Path=/cookie
                     # self.cookiejar.extract_cookies(resp, req)
 
             # except (urllib2.HTTPError, urllib2.URLError), why:
@@ -331,7 +370,6 @@ class Request(object):
                 # self.response = Response.from_urllib3()
                 self._build_response(r)
                 self.response.ok = True
-
 
         self.sent = self.response.ok
 
