@@ -284,6 +284,7 @@ class HTTPConnectionPool(ConnectionPool):
             httplib_response = self._make_request(conn, method, url,
                                                   timeout=timeout,
                                                   body=body, headers=headers)
+
             # Import httplib's response into our own wrapper object
             response = HTTPResponse.from_httplib(httplib_response,
                                                  pool=self,
@@ -309,7 +310,8 @@ class HTTPConnectionPool(ConnectionPool):
         finally:
             if release_conn:
                 # Put the connection back to be reused
-                self._put_conn(conn)
+                response.release_conn() # Equivalent to self._put_conn(conn) but
+                                        # tracks release state.
 
         if not conn:
             log.warn("Retrying (%d attempts remain) after connection "
