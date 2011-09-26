@@ -14,7 +14,7 @@ import zlib
 
 
 from urllib2 import HTTPError
-from urlparse import urlparse, urlunparse, urljoin
+from urlparse import urlparse
 from datetime import datetime
 
 from .config import settings
