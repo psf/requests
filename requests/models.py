@@ -7,18 +7,15 @@ requests.models
 """
 
 import urllib
-import urllib2
-import socket
 import zlib
 
 from urlparse import urlparse, urlunparse, urljoin
-from datetime import datetime
 
 
 from .packages import urllib3
 # print dir(urllib3)
 
-from .config import settings
+from .config import get_config
 from .structures import CaseInsensitiveDict
 from .utils import *
 from .status_codes import codes
@@ -36,7 +33,7 @@ class Request(object):
     def __init__(self,
         url=None, headers=dict(), files=None, method=None, data=dict(),
         params=dict(), auth=None, cookies=None, timeout=None, redirect=False,
-        allow_redirects=False, proxies=None):
+        allow_redirects=False, proxies=None, config=None):
 
         #: Float describ the timeout of the request.
         #  (Use socket.setdefaulttimeout() as fallback)
@@ -71,6 +68,8 @@ class Request(object):
 
         # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})
         self.proxies = proxies
+
+        self.config = get_config(config)
 
         self.data = data
         self._enc_data = encode_params(data)

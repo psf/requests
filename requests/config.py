@@ -4,7 +4,7 @@
 requests.config
 ~~~~~~~~~~~~~~~
 
-This module provides the Requests settings feature set.
+This module provides the Requests configuration defaults.
 
 settings parameters:
 
@@ -18,27 +18,34 @@ settings parameters:
 
 """
 
-def merge_configs(config, default_config=None):
-    """Merge two given configurations."""
+def get_config(config=None, default_config=None):
+    """Merges two given configurations."""
+
+    # Allow raw calls.
+    if config is None:
+        config=dict()
 
     # Use the module-level defaults, if none is given.
     if default_config is None:
-        default_config = config.copy()
+        default_config = defaults.copy()
+
 
     d = default_config.copy()
     d.update(config)
 
     return d
 
-# Module-level defaults.
-config = dict()
 
-config['base_headers'] = {'User-Agent': 'python-requests.org'}
-config['accept_gzip'] = True
-config['proxies'] = {}
-config['verbose'] = None
-config['timeout'] = None
-config['max_redirects'] = 30
-config['decode_unicode'] = True
+# Module-level defaults.
+defaults = dict()
+
+defaults['base_headers'] = {'User-Agent': 'python-requests.org'}
+defaults['accept_gzip'] = True
+defaults['proxies'] = {}
+defaults['verbose'] = None
+defaults['timeout'] = None
+defaults['max_redirects'] = 30
+defaults['decode_unicode'] = True
+defaults['keepalive'] = True
 
 
