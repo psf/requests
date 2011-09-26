@@ -67,21 +67,6 @@ class Session(object):
         # Map and wrap requests.api methods.
         self._map_api_methods()
 
-
-    def get(self, url, **kwargs):
-
-        _kwargs = {}
-        for attr in self.__attrs__:
-            default_attr = getattr(self, attr)
-            local_attr = kwargs.get(attr)
-
-            new_attr = merge_kwargs(local_attr, default_attr)
-
-            if new_attr is not None:
-                _kwargs[attr] = new_attr
-
-        return api.get(url, **_kwargs)
-
     def __repr__(self):
         return '<requests-client at 0x%x>' % (id(self))
 
