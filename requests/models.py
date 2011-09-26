@@ -122,15 +122,18 @@ class Request(object):
         def build(resp):
 
             response = Response()
+
+            # Pass settings over.
             response.config = self.config
+
+            # Fallback to None if there's no staus_code, for whatever reason.
             response.status_code = getattr(resp, 'status', None)
 
-            try:
-                response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
-                response.raw = resp
+            # Make headers case-insensitive.
+            response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
 
-            except AttributeError:
-                pass
+            # Save original resopnse for later.
+            response.raw = resp
 
             if is_error:
                 response.error = resp
