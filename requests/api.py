@@ -24,7 +24,7 @@ __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
 def request(method, url,
     params=None, data=None, headers=None, cookies=None, files=None, auth=None,
     timeout=None, allow_redirects=False, proxies=None, hooks=None,
-    config=None, _connection=None):
+    config=None, _pools=None):
 
     """Constructs and sends a :class:`Request <Request>`.
     Returns :class:`Response <Response>` object.
@@ -40,7 +40,7 @@ def request(method, url,
     :param timeout: (optional) Float describing the timeout of the request.
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
-    :param _connection: (optional) An HTTP Connection to re-use.
+    :param _pools: (optional) An HTTP PoolManager to use.
     """
 
     method = str(method).upper()
@@ -80,7 +80,7 @@ def request(method, url,
     r = dispatch_hook('pre_request', hooks, r)
 
     # Send the HTTP Request.
-    r.send(connection=_connection)
+    r.send(pools=_pools)
 
     # Post-request hook.
     r = dispatch_hook('post_request', hooks, r)

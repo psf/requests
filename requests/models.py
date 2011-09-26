@@ -227,7 +227,7 @@ class Request(object):
 
 
 
-    def send(self, connection=None, anyway=False):
+    def send(self, pools=None, anyway=False):
         """Sends the shit."""
 
         # Safety check.
@@ -254,12 +254,13 @@ class Request(object):
 
             try:
                 # Create a new HTTP connection, since one wasn't passed in.
-                if not connection:
+                if not pools:
                     connection = urllib3.connection_from_url(url, timeout=self.timeout)
 
                     # One-off request. Delay fetching the content until needed.
                     do_block = False
                 else:
+                    connection = pools.connection_from_url(url, timeout=self.timeout)
                     # Part of a connection pool, so no fancy stuff. Sorry!
                     do_block = True
 

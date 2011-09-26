@@ -47,5 +47,6 @@ defaults['timeout'] = None
 defaults['max_redirects'] = 30
 defaults['decode_unicode'] = True
 defaults['keepalive'] = True
+defaults['max_connections'] = 10
 
 

@@ -14,6 +14,7 @@ import cookielib
 from . import api
 from ._config import get_config
 from .utils import add_dict_to_cookiejar
+from .packages.urllib3.poolmanager import PoolManager
 
 
 def merge_kwargs(local_kwarg, default_kwarg):
@@ -64,6 +65,10 @@ class Session(object):
         self.hooks = hooks
         self.config = get_config(config)
 
+        self.__pool = PoolManager(
+            num_pools=self.config.get('max_connections')
+        )
+
         # Map and wrap requests.api methods.
         self._map_api_methods()
 
@@ -104,6 +109,10 @@ class Session(object):
                 for (k, v) in kwargs.items():
                     if k not in _kwargs:
                         _kwargs[k] = v
+
+                # Add in PoolManager, if neccesary.
+                if self.config.get('keepalive'):
+                    _kwargs['_pool'] = self.__pool
 
                 # TODO: Persist cookies.
 
