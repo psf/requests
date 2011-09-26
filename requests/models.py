@@ -263,6 +263,7 @@ class Request(object):
         elif self.cookies:
             pass
 
+        # Add content-type if it wasn't explicitly provided.
         if (content_type) and (not 'content-type' in self.headers):
             self.headers['Content-Type'] = content_type
 
