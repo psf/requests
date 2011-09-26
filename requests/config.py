@@ -8,8 +8,6 @@ This module provides the Requests settings feature set.
 
 settings parameters:
 
-TODO: Verify!!!
-TODO: Make sure format is acceptabl/cool
 - :base_headers: - Sets default User-Agent to `python-requests.org`
 - :accept_gzip:  - Whether or not to accept gzip-compressed data
 - :proxies: - http proxies?
@@ -18,29 +16,29 @@ TODO: Make sure format is acceptabl/cool
 - :max_redirects: - maximum number of allowed redirects?
 - :decode_unicode: - whether or not to accept unicode?
 
-Used globally
-
 """
 
+def merge_configs(config, default_config=None):
+    """Merge two given configurations."""
 
-class Settings(object):
+    # Use the module-level defaults, if none is given.
+    if default_config is None:
+        default_config = config.copy()
 
-    def __init__(self, **kwargs):
-        super(Settings, self).__init__()
+    d = default_config.copy()
+    d.update(config)
 
-    def __getattribute__(self, key):
-        return object.__getattribute__(self, key)
+    return d
+
+# Module-level defaults.
+config = dict()
+
+config['base_headers'] = {'User-Agent': 'python-requests.org'}
+config['accept_gzip'] = True
+config['proxies'] = {}
+config['verbose'] = None
+config['timeout'] = None
+config['max_redirects'] = 30
+config['decode_unicode'] = True
 
 
-settings = Settings()
-
-settings.base_headers = {'User-Agent': 'python-requests.org'}
-settings.accept_gzip = True
-settings.proxies = None
-settings.verbose = None
-settings.timeout = None
-settings.max_redirects = 30
-settings.decode_unicode = True
-
-#: Use socket.setdefaulttimeout() as fallback?
-settings.timeout_fallback = True

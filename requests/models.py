@@ -160,6 +160,10 @@ class Request(object):
                 (self.allow_redirects))
             ):
 
+                # print r.headers['location']
+                # print dir(r.raw._original_response.fp)
+                # print '--'
+
                 # We already redirected. Don't keep it alive.
                 # r.raw.close()
 
@@ -195,8 +199,15 @@ class Request(object):
 
                 # Create the new Request.
                 request = Request(
-                    url, self.headers, self.files, method,
-                    self.data, self.params, self.auth, self.cookies,
+                    url=url,
+                    headers=self.headers,
+                    files=self.files,
+                    method=method,
+                    data=self.data,
+                    # params=self.params,
+                    params=None,
+                    auth=self.auth,
+                    cookies=self.cookies,
 
                     # Flag as part of a redirect loop.
                     redirect=True
@@ -272,6 +283,7 @@ class Request(object):
 
             # except (urllib2.HTTPError, urllib2.URLError), why:
             except Exception, why:
+                print why.__dict__
                 # if hasattr(why, 'reason'):
                 #     if isinstance(why.reason, socket.timeout):
                 #         why = Timeout(why)
