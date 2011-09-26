@@ -22,7 +22,7 @@ from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicA
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
-from .utils import dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip
+from .utils import get_clean_url, dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip
 from .status_codes import codes
 from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod, TooManyRedirects
 
@@ -215,20 +215,7 @@ class Request(object):
 
                 history.append(r)
 
-                url = r.headers['location']
-
-                # Handle redirection without scheme (see: RFC 1808 Section 4)
-                if url.startswith('//'):
-                    parsed_rurl = urlparse(r.url)
-                    url = '%s:%s' % (parsed_rurl.scheme, url)
-
-                # Facilitate non-RFC2616-compliant 'location' headers
-                # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
-                parsed_url = urlparse(url)
-                if not parsed_url.netloc:
-                    parsed_url = list(parsed_url)
-                    parsed_url[2] = urllib.quote(parsed_url[2], safe="%/:=&?~#+!$,;'@()*[]")
-                    url = urljoin(r.url, str(urlunparse(parsed_url)))
+                url = get_clean_url(r.headers['location'], parent_url=r.url)
 
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
                 if r.status_code is codes.see_other:
@@ -276,18 +263,7 @@ class Request(object):
     def _build_url(self):
         """Build the actual URL to use."""
 
-        # Support for unicode domain names and paths.
-        scheme, netloc, path, params, query, fragment = urlparse(self.url)
-        netloc = netloc.encode('idna')
-
-        if isinstance(path, unicode):
-            path = path.encode('utf-8')
-
-        path = urllib.quote(path, safe="%/:=&?~#+!$,;'@()*[]")
-
-        self.url = str(urlunparse(
-          [scheme, netloc, path, params, query, fragment]
-         ))
+        self.url = get_clean_url(self.url)
 
         if self._enc_params:
             if urlparse(self.url).query:

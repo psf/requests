@@ -13,8 +13,36 @@ import cgi
 import codecs
 import cookielib
 import re
+import urllib
 import zlib
 
+from urlparse import urlparse, urlunparse, urljoin
+
+def get_clean_url(url, parent_url=None):
+    # Handle redirection without scheme (see: RFC 1808 Section 4)
+    if url.startswith('//'):
+        parsed_rurl = urlparse(parent_url)
+        url = '%s:%s' % (parsed_rurl.scheme, url)
+
+    scheme, netloc, path, params, query, fragment = urlparse(url)
+    if netloc:
+        netloc = netloc.encode('idna')
+
+    if isinstance(path, unicode):
+        path = path.encode('utf-8')
+
+    path = urllib.quote(path, safe="%/:=&?~#+!$,;'@()*[]")
+    params = urllib.quote(params, safe="%/:=&?~#+!$,;'@()*[]")
+    query = urllib.quote(query, safe="%/:=&?~#+!$,;'@()*[]")
+
+    url = str(urlunparse([scheme, netloc, path, params, query, fragment]))
+
+    # Facilitate non-RFC2616-compliant 'location' headers
+    # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
+    if not netloc and parent_url:
+        url = urljoin(parent_url, url)
+
+    return url
 
 def header_expand(headers):
     """Returns an HTTP Header value string from a dictionary.
