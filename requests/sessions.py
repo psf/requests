@@ -112,7 +112,7 @@ class Session(object):
 
                 # Add in PoolManager, if neccesary.
                 if self.config.get('keepalive'):
-                    _kwargs['_pool'] = self.__pool
+                    _kwargs['_pools'] = self.__pool
 
                 # TODO: Persist cookies.
 

@@ -122,6 +122,7 @@ class Request(object):
         def build(resp):
 
             response = Response()
+            response.config = self.config
             response.status_code = getattr(resp, 'status', None)
 
             try:
@@ -236,7 +237,6 @@ class Request(object):
         # Build the final URL.
         url = build_url(self.url, self.params)
 
-        print url
         # Setup Files.
         if self.files:
             pass
@@ -260,7 +260,7 @@ class Request(object):
                     # One-off request. Delay fetching the content until needed.
                     do_block = False
                 else:
-                    connection = pools.connection_from_url(url, timeout=self.timeout)
+                    connection = pools.connection_from_url(url)
                     # Part of a connection pool, so no fancy stuff. Sorry!
                     do_block = True
 
@@ -344,6 +344,9 @@ class Response(object):
         #: A dictionary of Cookies the server sent back.
         self.cookies = None
 
+        #: A dictionary of configuration.
+        self.config = None
+
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
 
@@ -407,7 +410,7 @@ class Response(object):
                 pass
 
         # Decode unicode content.
-        if settings.decode_unicode:
+        if self.config.get('decode_unicode'):
             self._content = get_unicode_from_response(self)
 
         self._content_consumed = True
