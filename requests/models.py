@@ -20,6 +20,7 @@ from .structures import CaseInsensitiveDict
 from .utils import *
 from .status_codes import codes
 from .exceptions import RequestException, Timeout, URLRequired, TooManyRedirects
+from .packages.urllib3.poolmanager import PoolManager
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
@@ -33,7 +34,7 @@ class Request(object):
     def __init__(self,
         url=None, headers=dict(), files=None, method=None, data=dict(),
         params=dict(), auth=None, cookies=None, timeout=None, redirect=False,
-        allow_redirects=False, proxies=None, config=None):
+        allow_redirects=False, proxies=None, config=None, _pools=None):
 
         #: Float describ the timeout of the request.
         #  (Use socket.setdefaulttimeout() as fallback)
@@ -43,10 +44,10 @@ class Request(object):
         self.url = url
 
         #: Dictonary of HTTP Headers to attach to the :class:`Request <Request>`.
-        self.headers = headers
+        self.headers = headers or {}
 
         #: Dictionary of files to multipart upload (``{filename: content}``).
-        self.files = files
+        self.files = files or {}
 
         #: HTTP Method to use.
         self.method = method
@@ -104,6 +105,8 @@ class Request(object):
                 headers[k] = v
 
         self.headers = headers
+
+        self._pools = _pools
 
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
@@ -164,15 +167,11 @@ class Request(object):
                 (self.allow_redirects))
             ):
 
-                # print r.headers['location']
-                # print dir(r.raw._original_response.fp)
-                # print '--'
-
                 # We already redirected. Don't keep it alive.
                 # r.raw.close()
 
                 # Woah, this is getting crazy.
-                if len(history) >= settings.max_redirects:
+                if len(history) >= self.config.get('max_redirects'):
                     raise TooManyRedirects()
 
                 # Add the old request to the history collector.
@@ -212,6 +211,8 @@ class Request(object):
                     params=None,
                     auth=self.auth,
                     cookies=self.cookies,
+                    _pools=self._pools,
+                    config=self.config,
 
                     # Flag as part of a redirect loop.
                     redirect=True
@@ -232,7 +233,7 @@ class Request(object):
 
 
 
-    def send(self, pools=None, anyway=False):
+    def send(self, anyway=False):
         """Sends the shit."""
 
         # Safety check.
@@ -258,13 +259,25 @@ class Request(object):
 
             try:
                 # Create a new HTTP connection, since one wasn't passed in.
-                if not pools:
-                    connection = urllib3.connection_from_url(url, timeout=self.timeout)
+                if not self._pools:
+                    # Create a pool manager for this one connection.
+                    pools = PoolManager(
+                        num_pools=self.config.get('max_connections'),
+                        maxsize=1
+                    )
+
+                    # Create a connection.
+                    connection = pools.connection_from_url(url, timeout=self.timeout)
 
                     # One-off request. Delay fetching the content until needed.
                     do_block = False
                 else:
-                    connection = pools.connection_from_url(url)
+                    # Create a connection.
+                    connection = self._pools.connection_from_url(url)
+
+                    # Syntax sugar.
+                    pools = self._pools
+
                     # Part of a connection pool, so no fancy stuff. Sorry!
                     do_block = True
 
@@ -276,11 +289,13 @@ class Request(object):
                     headers=self.headers,
                     redirect=False,
                     assert_same_host=False,
-                    # preload_content=True
-                    # preload_content=False
                     preload_content=do_block,
                     decode_content=False
                 )
+
+                # Set the pools manager for redirections, if allowed.
+                if self.config.get('keepalive') and pools:
+                    self._pools = pools
 
                 # Extract cookies.
                 # if self.cookiejar is not None:

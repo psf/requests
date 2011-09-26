@@ -65,8 +65,9 @@ class Session(object):
         self.hooks = hooks
         self.config = get_config(config)
 
-        self.__pool = PoolManager(
-            num_pools=self.config.get('max_connections')
+        self.__pools = PoolManager(
+            num_pools=10,
+            maxsize=1
         )
 
         # Map and wrap requests.api methods.
@@ -112,7 +113,7 @@ class Session(object):
 
                 # Add in PoolManager, if neccesary.
                 if self.config.get('keepalive'):
-                    _kwargs['_pools'] = self.__pool
+                    _kwargs['_pools'] = self.__pools
 
                 # TODO: Persist cookies.
 

@@ -68,6 +68,7 @@ def request(method, url,
         timeout=timeout or config.get('timeout'),
         allow_redirects=allow_redirects,
         proxies=proxies or config.get('proxies'),
+        _pools=_pools
     )
 
     # Arguments manipulation hook.
@@ -80,7 +81,7 @@ def request(method, url,
     r = dispatch_hook('pre_request', hooks, r)
 
     # Send the HTTP Request.
-    r.send(pools=_pools)
+    r.send()
 
     # Post-request hook.
     r = dispatch_hook('post_request', hooks, r)
