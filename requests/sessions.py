@@ -19,21 +19,16 @@ from .utils import add_dict_to_cookiejar
 def merge_kwargs(local_kwarg, default_kwarg):
     """Merges kwarg dictionaries.
 
-    If a key in the dictionary is set to None, i
+    If a local key in the dictionary is set to None, it will be removed.
     """
 
     # Bypass if not a dictionary (e.g. timeout)
     if not hasattr(local_kwarg, 'items'):
         return local_kwarg
 
+    # Update new values.
     kwargs = default_kwarg.copy()
     kwargs.update(local_kwarg)
-
-    # from clint.textui import colored
-
-
-    # print colored.red(default_kwarg)
-    # print colored.red(local_kwarg)
 
     # Remove keys that are set to None.
     for (k,v) in local_kwarg.items():
@@ -130,7 +125,7 @@ class Session(object):
                         _kwargs[attr] = new_attr
 
                 # Make sure we didn't miss anything.
-                for (k, v) in kwargs:
+                for (k, v) in kwargs.items():
                     if k not in _kwargs:
                         _kwargs[k] = v
 
