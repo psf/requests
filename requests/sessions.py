@@ -113,23 +113,30 @@ class Session(object):
 
         def pass_args(func):
             def wrapper_func(*args, **kwargs):
-                inst_attrs = dict((k, v) for k, v in self.__dict__.iteritems() if k in self.__attrs__)
 
-                # Combine instance-local values with kwargs values, with
-                # priority to values in kwargs
-                kwargs = dict(inst_attrs.items() + kwargs.items())
+                # Argument collector.
+                _kwargs = {}
 
-                # If a session request has a cookie_dict, inject the
-                # values into the existing CookieJar instead.
-                # if isinstance(kwargs.get('cookies', None), dict):
-                #     kwargs['cookies'] = add_dict_to_cookiejar(
-                #         inst_attrs['cookies'], kwargs['cookies']
-                #     )
+                # Merge local and session arguments.
+                for attr in self.__attrs__:
+                    default_attr = getattr(self, attr)
+                    local_attr = kwargs.get(attr)
 
-                if kwargs.get('headers', None) and inst_attrs.get('headers', None):
-                    kwargs['headers'].update(inst_attrs['headers'])
+                    # Merge local and session dictionaries.
+                    new_attr = merge_kwargs(local_attr, default_attr)
 
-                return func(*args, **kwargs)
+                    # Skip attributes that were set to None.
+                    if new_attr is not None:
+                        _kwargs[attr] = new_attr
+
+                # Make sure we didn't miss anything.
+                for (k, v) in kwargs:
+                    if k not in _kwargs:
+                        _kwargs[k] = v
+
+                # TODO: Persist cookies.
+
+                return func(*args, **_kwargs)
             return wrapper_func
 
         # Map and decorate each function available in requests.api
