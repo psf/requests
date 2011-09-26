@@ -58,7 +58,7 @@ class Session(object):
         config=None):
 
         self.headers = headers
-        self.cookies = cookies
+        self.cookies = cookies or {}
         self.auth = auth
         self.timeout = timeout
         self.proxies = proxies
@@ -96,10 +96,18 @@ class Session(object):
 
                 # Merge local and session arguments.
                 for attr in self.__attrs__:
+                    # if attr == 'cookies':
+                        # print getattr(self, attr)
+                        # print kwargs.get(attr)
+
+                    # Merge local and session dictionaries.
                     default_attr = getattr(self, attr)
                     local_attr = kwargs.get(attr)
 
-                    # Merge local and session dictionaries.
+                    # Cookies persist.
+                    if attr == 'cookies':
+                        local_attr = local_attr or {}
+
                     new_attr = merge_kwargs(local_attr, default_attr)
 
                     # Skip attributes that were set to None.
@@ -116,8 +124,15 @@ class Session(object):
                     _kwargs['_pools'] = self.__pools
 
                 # TODO: Persist cookies.
+                # print self.cookies
 
-                return func(*args, **_kwargs)
+                # print _kwargs.get('cookies')
+                # print '%%%'
+
+                r = func(*args, **_kwargs)
+                # print r.cookies
+                self.cookies.update(r.cookies)
+                return r
             return wrapper_func
 
         # Map and decorate each function available in requests.api

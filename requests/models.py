@@ -164,6 +164,7 @@ class Request(object):
 
         # Create the lone response object.
         r = build(resp)
+        self.cookies.update(r.cookies)
 
         # Store the HTTP response, just in case.
         r._response = resp
@@ -236,6 +237,7 @@ class Request(object):
                 # Send her away!
                 request.send()
                 r = request.response
+                self.cookies.update(r.cookies)
 
             # Insert collected history.
             r.history = history
@@ -344,16 +346,6 @@ class Request(object):
                 if self.config.get('keepalive') and pools:
                     self._pools = pools
 
-                # Extract cookies.
-                if self.cookies is not None:
-                    pass
-                    # cookies = cookiejar_from_dict(self.cookies)
-#                     >>> C = Cookie.SimpleCookie()
-# >>> C["rocky"] = "road"
-# >>> C["rocky"]["path"] = "/cookie"
-# >>> print C.output(header="Cookie:")
-# Cookie: rocky=road; Path=/cookie
-                    # self.cookiejar.extract_cookies(resp, req)
 
             # except (urllib2.HTTPError, urllib2.URLError), why:
             except Exception, why:
