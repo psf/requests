@@ -8,12 +8,10 @@ requests.models
 
 import urllib
 import zlib
-
 from urlparse import urlparse, urlunparse, urljoin
 
-
 from .packages import urllib3
-# print dir(urllib3)
+from .packages.urllib3.filepost import encode_multipart_formdata
 
 from ._config import get_config
 from .structures import CaseInsensitiveDict
@@ -242,13 +240,24 @@ class Request(object):
         # Build the final URL.
         url = build_url(self.url, self.params)
 
-        # Setup Files.
+        body = None
+        content_type = None
+
+        # Multi-part file uploads.
         if self.files:
-            pass
+            if not isinstance(self.data, basestring):
+                fields = self.data.copy()
+                for (k, v) in self.files.items():
+                    fields.update({k: (None, v.read()))
+                (body, content_type) = encode_multipart_formdata(fields)
 
         # Setup form data.
-        elif self.data:
-            pass
+        if self.data and (not body):
+            if isinstance(self.data, basestring):
+                body = self.data
+            else:
+                body = urlencode(self.data)
+                content_type = 'application/x-www-form-urlencoded'
 
         # Setup cookies.
         elif self.cookies:
@@ -264,10 +273,12 @@ class Request(object):
                     # Create a pool manager for this one connection.
                     pools = PoolManager(
                         num_pools=self.config.get('max_connections'),
-                        maxsize=1)
+                        maxsize=1,
+                        timeout=self.timeout
+                    )
 
                     # Create a connection.
-                    connection = pools.connection_from_url(url, timeout=self.timeout)
+                    connection = pools.connection_from_url(url)
 
                     # One-off request. Delay fetching the content until needed.
                     do_block = False
