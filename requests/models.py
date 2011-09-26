@@ -248,7 +248,7 @@ class Request(object):
             if not isinstance(self.data, basestring):
                 fields = self.data.copy()
                 for (k, v) in self.files.items():
-                    fields.update({k: (None, v.read()))
+                    fields.update({k: (k, v.read())})
                 (body, content_type) = encode_multipart_formdata(fields)
 
         # Setup form data.
@@ -256,12 +256,15 @@ class Request(object):
             if isinstance(self.data, basestring):
                 body = self.data
             else:
-                body = urlencode(self.data)
+                body = encode_params(self.data)
                 content_type = 'application/x-www-form-urlencoded'
 
         # Setup cookies.
         elif self.cookies:
             pass
+
+        if (content_type) and (not 'content-type' in self.headers):
+            self.headers['Content-Type'] = content_type
 
         # Only send the Request if new or forced.
         if (anyway) or (not self.sent):
@@ -296,7 +299,7 @@ class Request(object):
                 r = connection.urlopen(
                     method=self.method,
                     url=url,
-                    body=self.data,
+                    body=body,
                     headers=self.headers,
                     redirect=False,
                     assert_same_host=False,
