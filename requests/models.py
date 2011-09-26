@@ -260,11 +260,11 @@ class Request(object):
             try:
                 # Create a new HTTP connection, since one wasn't passed in.
                 if not self._pools:
+
                     # Create a pool manager for this one connection.
                     pools = PoolManager(
                         num_pools=self.config.get('max_connections'),
-                        maxsize=1
-                    )
+                        maxsize=1)
 
                     # Create a connection.
                     connection = pools.connection_from_url(url, timeout=self.timeout)
