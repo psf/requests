@@ -135,6 +135,7 @@ class Request(object):
             # Save original resopnse for later.
             response.raw = resp
 
+            # TODO: ?
             if is_error:
                 response.error = resp
 
@@ -277,7 +278,8 @@ class Request(object):
                     assert_same_host=False,
                     # preload_content=True
                     # preload_content=False
-                    preload_content=do_block
+                    preload_content=do_block,
+                    decode_content=False
                 )
 
                 # Extract cookies.
@@ -430,7 +432,6 @@ class Response(object):
 
         if (self.status_code >= 300) and (self.status_code < 400):
             raise Exception('300 yo')
-
 
         elif (self.status_code >= 400) and (self.status_code < 500):
             raise Exception('400 yo')
