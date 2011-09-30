@@ -24,7 +24,7 @@ __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
 def request(method, url,
     params=None, data=None, headers=None, cookies=None, files=None, auth=None,
     timeout=None, allow_redirects=False, proxies=None, hooks=None,
-    config=None, _pools=None):
+    config=None, _pools=None, _return_request=False):
 
     """Constructs and sends a :class:`Request <Request>`.
     Returns :class:`Response <Response>` object.
@@ -66,6 +66,7 @@ def request(method, url,
         files=files,
         auth=auth,
         timeout=timeout or config.get('timeout'),
+        hooks=hooks,
         allow_redirects=allow_redirects,
         proxies=proxies or config.get('proxies'),
         _pools=_pools
@@ -80,9 +81,14 @@ def request(method, url,
     # Pre-request hook.
     r = dispatch_hook('pre_request', hooks, r)
 
+    # Only construct the request (for async)
+    if _return_request:
+        return r
+
     # Send the HTTP Request.
     r.send()
 
+    # TODO: Add these hooks inline.
     # Post-request hook.
     r = dispatch_hook('post_request', hooks, r)
 
