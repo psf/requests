@@ -120,7 +120,7 @@ class Session(object):
                         _kwargs[k] = v
 
                 # Add in PoolManager, if neccesary.
-                if self.config.get('keepalive'):
+                if self.config.get('keep_alive'):
                     _kwargs['_pools'] = self.__pools
 
                 # TODO: Persist cookies.
@@ -131,7 +131,7 @@ class Session(object):
 
                 r = func(*args, **_kwargs)
                 # print r.cookies
-                self.cookies.update(r.cookies)
+                self.cookies.update(r.cookies or {})
                 return r
             return wrapper_func
 
