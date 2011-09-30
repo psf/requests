@@ -33,7 +33,12 @@ class Request(object):
     def __init__(self,
         url=None, headers=dict(), files=None, method=None, data=dict(),
         params=dict(), auth=None, cookies=None, timeout=None, redirect=False,
-        allow_redirects=False, proxies=None, config=None, _pools=None):
+        allow_redirects=False, proxies=None, config=None, hooks=None,
+        _pools=None):
+
+        if cookies is None:
+            cookies = {}
+
 
         #: Float describ the timeout of the request.
         #  (Use socket.setdefaulttimeout() as fallback)
@@ -105,6 +110,7 @@ class Request(object):
 
         self.headers = headers
 
+        self.hooks = hooks
         self._pools = _pools
 
     def __repr__(self):
@@ -237,7 +243,8 @@ class Request(object):
                 # Send her away!
                 request.send()
                 r = request.response
-                self.cookies.update(r.cookies)
+
+                self.cookies.update(r.cookies or {})
 
             # Insert collected history.
             r.history = history
@@ -280,8 +287,6 @@ class Request(object):
                 content_type = 'application/x-www-form-urlencoded'
 
         # Setup cookies.
-        elif self.cookies:
-            pass
 
         # Add content-type if it wasn't explicitly provided.
         if (content_type) and (not 'content-type' in self.headers):
@@ -343,7 +348,7 @@ class Request(object):
                 )
 
                 # Set the pools manager for redirections, if allowed.
-                if self.config.get('keepalive') and pools:
+                if self.config.get('keep_alive') and pools:
                     self._pools = pools
 
 
