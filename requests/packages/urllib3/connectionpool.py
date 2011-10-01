@@ -46,8 +46,8 @@ class VerifiedHTTPSConnection(HTTPSConnection):
     SSL certification.
     """
 
-    def __init__(self):
-        HTTPSConnection.__init__()
+    def __init__(self, **kwargs):
+        HTTPSConnection.__init__(self, **kwargs)
         self.cert_reqs = None
         self.ca_certs = None
 
