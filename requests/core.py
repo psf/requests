@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+#   __
+#  /__)  _  _     _   _ _/   _
+# / (   (- (/ (/ (- _)  /  _)
+#          /
+
 """
 requests.core
 ~~~~~~~~~~~~~
@@ -10,6 +15,7 @@ This module implements the main Requests system.
 :license: ISC, see LICENSE for more details.
 
 """
+
 
 __title__ = 'requests'
 __version__ = '0.6.2 (dev)'

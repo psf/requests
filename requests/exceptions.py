@@ -13,7 +13,7 @@ class RequestException(Exception):
 
 class AuthenticationError(RequestException):
     """The authentication credentials provided were invalid."""
-    
+
 
 class AuthenticationError(RequestException):
     """The authentication credentials provided were invalid."""
