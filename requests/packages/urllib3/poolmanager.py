@@ -1,3 +1,9 @@
+# urllib3/poolmanager.py
+# Copyright 2008-2011 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
+#
+# This module is part of urllib3 and is released under
+# the MIT License: http://www.opensource.org/licenses/mit-license.php
+
 from ._collections import RecentlyUsedContainer
 from .connectionpool import HTTPConnectionPool, HTTPSConnectionPool, get_host
 
@@ -40,6 +46,7 @@ class PoolManager(object):
         """
         pool_key = (scheme, host, port)
 
+
         # If the scheme, host, or port doesn't match existing open connections,
         # open a new ConnectionPool.
         pool = self.pools.get(pool_key)
@@ -64,7 +71,7 @@ class PoolManager(object):
 
         port = port or port_by_scheme.get(scheme, 80)
 
-        return  self.connection_from_host(host, port=port, scheme=scheme)
+        return self.connection_from_host(host, port=port, scheme=scheme)
 
     def urlopen(self, method, url, **kw):
         "Same as HTTP(S)ConnectionPool.urlopen, ``url`` must be absolute."

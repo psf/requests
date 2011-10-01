@@ -1,3 +1,9 @@
+# urllib3/connectionpool.py
+# Copyright 2008-2011 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
+#
+# This module is part of urllib3 and is released under
+# the MIT License: http://www.opensource.org/licenses/mit-license.php
+
 import logging
 import socket
 
@@ -191,9 +197,11 @@ class HTTPConnectionPool(ConnectionPool):
         if timeout is _Default:
             timeout = self.timeout
 
+
         conn.request(method, url, **httplib_request_kw)
         conn.sock.settimeout(timeout)
         httplib_response = conn.getresponse()
+
 
         log.debug("\"%s %s %s\" %s %s" %
                   (method, url,
@@ -276,14 +284,17 @@ class HTTPConnectionPool(ConnectionPool):
             raise HostChangedError("Connection pool with host '%s' tried to "
                                    "open a foreign host: %s" % (host, url))
 
-        # Request a connection from the queue
-        conn = self._get_conn(timeout=pool_timeout)
+        conn = None
 
         try:
+            # Request a connection from the queue
+            # (Could raise SocketError: Bad file descriptor)
+            conn = self._get_conn(timeout=pool_timeout)
             # Make the request on the httplib connection object
             httplib_response = self._make_request(conn, method, url,
                                                   timeout=timeout,
                                                   body=body, headers=headers)
+            # print '!'
 
             # Import httplib's response into our own wrapper object
             response = HTTPResponse.from_httplib(httplib_response,
@@ -291,8 +302,14 @@ class HTTPConnectionPool(ConnectionPool):
                                                  connection=conn,
                                                  **response_kw)
 
-            # The connection will be put back into the pool when
-            # response.release_conn() is called (implicitly by response.read())
+            if release_conn:
+                # The connection will be released manually in the ``finally:``
+                response.connection = None
+
+            # else:
+            #     The connection will be put back into the pool when
+            #     ``response.release_conn()`` is called (implicitly by
+            #     ``response.read()``)
 
         except (SocketTimeout, Empty), e:
             # Timed out either by socket or queue
@@ -308,10 +325,9 @@ class HTTPConnectionPool(ConnectionPool):
             conn = None
 
         finally:
-            if release_conn:
+            if conn and release_conn:
                 # Put the connection back to be reused
-                response.release_conn() # Equivalent to self._put_conn(conn) but
-                                        # tracks release state.
+                self._put_conn(conn)
 
         if not conn:
             log.warn("Retrying (%d attempts remain) after connection "
@@ -399,7 +415,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
                  strict=False, timeout=None, maxsize=1,
                  block=False, headers=None,
                  key_file=None, cert_file=None,
-                 cert_reqs='CERT_NONE', ca_certs=None):
+                 cert_reqs=ssl.CERT_REQUIRED, ca_certs=None):
 
         super(HTTPSConnectionPool, self).__init__(host, port,
                                                   strict, timeout, maxsize,
@@ -413,6 +429,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
         """
         Return a fresh HTTPSConnection.
         """
+
         self.num_connections += 1
         log.info("Starting new HTTPS connection (%d): %s"
                  % (self.num_connections, self.host))
