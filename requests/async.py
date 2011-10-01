@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-reqeusts.async
+requests.async
 ~~~~~~~~~~~~~~
 
-This module contains an asyncronous replica of ``requests.api``, powered
+This module contains an asynchronous replica of ``requests.api``, powered
 by gevent. All API methods return a ``Request`` instance (as opposed to
 ``Response``). A list of requests can be sent with ``map()``.
 """
