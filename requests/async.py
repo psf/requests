@@ -23,8 +23,14 @@ from .hooks import dispatch_hook
 from .packages.urllib3.poolmanager import PoolManager
 
 
+__all__ = (
+    'map', 'get', 'head', 'post', 'put', 'patch', 'delete', 'request'
+)
+
+
+
 def _patched(f):
-    """Patches a given api function to not send."""
+    """Patches a given API function to not send."""
 
     def wrapped(*args, **kwargs):
         return f(*args, _return_request=True, **kwargs)
@@ -33,7 +39,7 @@ def _patched(f):
 
 
 def _send(r, pools=None):
-    """Dispatcher."""
+    """Sends a given Request object."""
 
     if pools:
         r._pools = pools
@@ -48,6 +54,7 @@ def _send(r, pools=None):
 
     return r.response
 
+
 # Patched requests.api functions.
 get = _patched(api.get)
 head = _patched(api.head)
@@ -57,10 +64,12 @@ patch = _patched(api.patch)
 delete = _patched(api.delete)
 request = _patched(api.request)
 
-from requests.sessions import session
 
 def map(requests, keep_alive=False):
-    """Sends the requests... Asynchronously."""
+    """Concurrently converts a list of Requests to Responses.
+
+    :param requests: a collection of Request objects.
+    """
 
     if keep_alive:
         pools = PoolManager(num_pools=len(requests), maxsize=1)
@@ -71,5 +80,7 @@ def map(requests, keep_alive=False):
     gevent.joinall(jobs)
 
     return [r.response for r in requests]
+
+
 
 
