@@ -15,7 +15,7 @@ pool_classes_by_scheme = {
 
 port_by_scheme = {
     'http': 80,
-    'https': 433,
+    'https': 443,
 }
 
 
