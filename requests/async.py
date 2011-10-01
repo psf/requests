@@ -24,9 +24,9 @@ from .packages.urllib3.poolmanager import PoolManager
 
 
 __all__ = (
-    'map', 'get', 'head', 'post', 'put', 'patch', 'delete', 'request'
+    'map',
+    'get', 'head', 'post', 'put', 'patch', 'delete', 'request'
 )
-
 
 
 def _patched(f):
@@ -69,6 +69,7 @@ def map(requests, keep_alive=False):
     """Concurrently converts a list of Requests to Responses.
 
     :param requests: a collection of Request objects.
+    :param keep_alive: If True, HTTP Keep-Alive will be used.
     """
 
     if keep_alive:
