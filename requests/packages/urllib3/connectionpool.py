@@ -38,6 +38,7 @@ log = logging.getLogger(__name__)
 _Default = object()
 
 
+
 ## Connection objects (extension of httplib)
 
 class VerifiedHTTPSConnection(HTTPSConnection):
