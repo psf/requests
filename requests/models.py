@@ -199,7 +199,7 @@ class Request(object):
                 # Add the old request to the history collector.
                 history.append(r)
 
-                url = get_clean_url(r.headers['location'], parent_url=self.url)
+                url = cleanup_url(r.headers['location'], parent_url=self.url)
 
                 # If 303, convert to idempotent GET.
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4

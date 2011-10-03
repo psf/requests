@@ -44,7 +44,7 @@ def encode_params(params):
     else:
         return params
 
-def get_clean_url(url, parent_url=None):
+def cleanup_url(url, parent_url=None):
     # Handle redirection without scheme (see: RFC 1808 Section 4)
     if url.startswith('//'):
         parsed_rurl = urlparse(parent_url)
@@ -73,7 +73,7 @@ def get_clean_url(url, parent_url=None):
 def build_url(url, query_params):
     """Build the actual URL to use."""
 
-    url = get_clean_url(url)
+    url = cleanup_url(url)
 
     query_params = encode_params(query_params)
 
