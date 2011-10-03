@@ -199,21 +199,7 @@ class Request(object):
                 # Add the old request to the history collector.
                 history.append(r)
 
-                # Redirect to...
-                url = r.headers['location']
-
-                # Handle redirection without scheme (see: RFC 1808 Section 4)
-                if url.startswith('//'):
-                    parsed_rurl = urlparse(r.url)
-                    url = '%s:%s' % (parsed_rurl.scheme, url)
-
-                # Facilitate non-RFC2616-compliant 'location' headers
-                # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
-                parsed_url = urlparse(url)
-                if not parsed_url.netloc:
-                    parsed_url = list(parsed_url)
-                    parsed_url[2] = urllib.quote(parsed_url[2], safe="%/:=&?~#+!$,;'@()*[]")
-                    url = urljoin(r.url, str(urlunparse(parsed_url)))
+                url = cleanup_url(r.headers['location'], parent_url=self.url)
 
                 # If 303, convert to idempotent GET.
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
@@ -254,7 +240,6 @@ class Request(object):
 
         # Give Response some context.
         self.response.request = self
-
 
 
     def send(self, anyway=False):
