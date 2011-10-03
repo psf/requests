@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+#   __
+#  /__)  _  _     _   _ _/   _
+# / (   (- (/ (/ (- _)  /  _)
+#          /
+
 """
 requests.core
 ~~~~~~~~~~~~~
@@ -11,6 +16,7 @@ This module implements the main Requests system.
 
 """
 
+
 __title__ = 'requests'
 __version__ = '0.6.2 (dev)'
 __build__ = 0x000602
@@ -18,11 +24,12 @@ __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
 
+import logging
+logging.basicConfig()
 
 from api import *
-from config import settings
 from exceptions import *
-from models import HTTPError, Request, Response
+from models import Request, Response
 from sessions import session
 from status_codes import codes
 

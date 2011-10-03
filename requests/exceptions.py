@@ -11,6 +11,9 @@ class RequestException(Exception):
     """There was an ambiguous exception that occured while handling your
     request."""
 
+class AuthenticationError(RequestException):
+    """The authentication credentials provided were invalid."""
+
 
 class AuthenticationError(RequestException):
     """The authentication credentials provided were invalid."""
@@ -22,6 +25,9 @@ class Timeout(RequestException):
 
 class URLRequired(RequestException):
     """A valid URL is required to make a request."""
+
+class InvalidMethod(RequestException):
+    """An inappropriate method was attempted."""
 
 
 class InvalidMethod(RequestException):

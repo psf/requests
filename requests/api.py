@@ -4,15 +4,15 @@
 requests.api
 ~~~~~~~~~~~~
 
-This module impliments the Requests API.
+This module implements the Requests API.
 
 :copyright: (c) 2011 by Kenneth Reitz.
 :license: ISC, see LICENSE for more details.
 
 """
 
-import config
-from .models import Request, Response, AuthObject
+from ._config import get_config
+from .models import Request, Response
 from .status_codes import codes
 from .hooks import dispatch_hook
 from .utils import cookiejar_from_dict, header_expand
@@ -23,7 +23,8 @@ __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
 
 def request(method, url,
     params=None, data=None, headers=None, cookies=None, files=None, auth=None,
-    timeout=None, allow_redirects=False, proxies=None, hooks=None):
+    timeout=None, allow_redirects=False, proxies=None, hooks=None,
+    config=None, _pools=None, _return_request=False):
 
     """Constructs and sends a :class:`Request <Request>`.
     Returns :class:`Response <Response>` object.
@@ -39,14 +40,16 @@ def request(method, url,
     :param timeout: (optional) Float describing the timeout of the request.
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param _pools: (optional) An HTTP PoolManager to use.
     """
 
     method = str(method).upper()
+    config = get_config(config)
 
     if cookies is None:
         cookies = {}
 
-    cookies = cookiejar_from_dict(cookies)
+    # cookies = cookiejar_from_dict(cookies)
 
     # Expand header values
     if headers:
@@ -59,25 +62,33 @@ def request(method, url,
         data=data,
         params=params,
         headers=headers,
-        cookiejar=cookies,
+        cookies=cookies,
         files=files,
         auth=auth,
-        timeout=timeout or config.settings.timeout,
+        timeout=timeout or config.get('timeout'),
+        hooks=hooks,
         allow_redirects=allow_redirects,
-        proxies=proxies or config.settings.proxies,
+        proxies=proxies or config.get('proxies'),
+        _pools=_pools
     )
 
     # Arguments manipulation hook.
     args = dispatch_hook('args', hooks, args)
 
+    # Create Request object.
     r = Request(**args)
 
     # Pre-request hook.
     r = dispatch_hook('pre_request', hooks, r)
 
+    # Only construct the request (for async)
+    if _return_request:
+        return r
+
     # Send the HTTP Request.
     r.send()
 
+    # TODO: Add these hooks inline.
     # Post-request hook.
     r = dispatch_hook('post_request', hooks, r)
 
@@ -94,8 +105,8 @@ def get(url, **kwargs):
     :param **kwargs: Optional arguments that ``request`` takes.
     """
 
-    if "allow_redirects" not in kwargs:
-        kwargs["allow_redirects"] = True
+    if 'allow_redirects' not in kwargs:
+        kwargs['allow_redirects'] = True
 
     return request('get', url, **kwargs)
 
@@ -107,8 +118,8 @@ def head(url, **kwargs):
     :param **kwargs: Optional arguments that ``request`` takes.
     """
 
-    if "allow_redirects" not in kwargs:
-        kwargs["allow_redirects"] = True
+    if 'allow_redirects' not in kwargs:
+        kwargs['allow_redirects'] = True
 
     return request('head', url, **kwargs)
 

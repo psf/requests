@@ -15,8 +15,34 @@ import cookielib
 import re
 import urllib
 import zlib
-
 from urlparse import urlparse, urlunparse, urljoin
+
+
+def encode_params(params):
+    """Encode parameters in a piece of data.
+
+    If the data supplied is a dictionary, encodes each parameter in it, and
+    returns a list of tuples containing the encoded parameters, and a urlencoded
+    version of that.
+
+    Otherwise, assumes the data is already encoded appropriately, and
+    returns it twice.
+    """
+
+    if hasattr(params, 'items'):
+        result = []
+        for k, vs in params.items():
+            for v in isinstance(vs, list) and vs or [vs]:
+                result.append(
+                    (
+                        k.encode('utf-8') if isinstance(k, unicode) else k,
+                        v.encode('utf-8') if isinstance(v, unicode) else v
+                    )
+                )
+        return urllib.urlencode(result, doseq=True)
+
+    else:
+        return params
 
 def get_clean_url(url, parent_url=None):
     # Handle redirection without scheme (see: RFC 1808 Section 4)
@@ -43,6 +69,21 @@ def get_clean_url(url, parent_url=None):
         url = urljoin(parent_url, url)
 
     return url
+
+def build_url(url, query_params):
+    """Build the actual URL to use."""
+
+    url = get_clean_url(url)
+
+    query_params = encode_params(query_params)
+
+    if query_params:
+       if urlparse(url).query:
+           return '%s&%s' % (url, query_params)
+       else:
+           return '%s?%s' % (url, query_params)
+    else:
+       return url
 
 def header_expand(headers):
     """Returns an HTTP Header value string from a dictionary.
@@ -89,7 +130,7 @@ def header_expand(headers):
     return ''.join(collector)
 
 
-def dict_from_cookiejar(cj):
+def dict_from_cookiejar(cookies):
     """Returns a key/value dictionary from a CookieJar.
 
     :param cj: CookieJar object to extract cookies from.
@@ -97,10 +138,9 @@ def dict_from_cookiejar(cj):
 
     cookie_dict = {}
 
-    for _, cookies in cj._cookies.items():
+    for _, cookies in cookies.items():
         for _, cookies in cookies.items():
             for cookie in cookies.values():
-                # print cookie
                 cookie_dict[cookie.name] = cookie.value
 
     return cookie_dict

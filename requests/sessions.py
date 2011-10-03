@@ -12,24 +12,65 @@ requests (cookies, auth, proxies).
 import cookielib
 
 from . import api
+from ._config import get_config
 from .utils import add_dict_to_cookiejar
+from .packages.urllib3.poolmanager import PoolManager
+
+
+def merge_kwargs(local_kwarg, default_kwarg):
+    """Merges kwarg dictionaries.
+
+    If a local key in the dictionary is set to None, it will be removed.
+    """
+
+    # Bypass if not a dictionary (e.g. timeout)
+    if not hasattr(local_kwarg, 'items'):
+        return local_kwarg
+
+    # Update new values.
+    kwargs = default_kwarg.copy()
+    kwargs.update(local_kwarg)
+
+    # Remove keys that are set to None.
+    for (k,v) in local_kwarg.items():
+        if v is None:
+            del kwargs[k]
+
+    return kwargs
+
 
 
 class Session(object):
     """A Requests session."""
 
-    __attrs__ = ['headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks']
+    __attrs__ = [
+        'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
+        'config'
+    ]
 
-    def __init__(self, **kwargs):
+    def __init__(self,
+        headers=None,
+        cookies=None,
+        auth=None,
+        timeout=None,
+        proxies=None,
+        hooks=None,
+        config=None):
 
-        # Set up a CookieJar to be used by default
-        self.cookies = cookielib.FileCookieJar()
+        self.headers = headers
+        self.cookies = cookies or {}
+        self.auth = auth
+        self.timeout = timeout
+        self.proxies = proxies
+        self.hooks = hooks
+        self.config = get_config(config)
 
-        # Map args from kwargs to instance-local variables
-        map(lambda k, v: (k in self.__attrs__) and setattr(self, k, v),
-                kwargs.iterkeys(), kwargs.itervalues())
+        self.__pools = PoolManager(
+            num_pools=10,
+            maxsize=1
+        )
 
-        # Map and wrap requests.api methods
+        # Map and wrap requests.api methods.
         self._map_api_methods()
 
     def __repr__(self):
@@ -39,7 +80,6 @@ class Session(object):
         return self
 
     def __exit__(self, *args):
-        # print args
         pass
 
     def _map_api_methods(self):
@@ -50,28 +90,53 @@ class Session(object):
 
         def pass_args(func):
             def wrapper_func(*args, **kwargs):
-                inst_attrs = dict((k, v) for k, v in self.__dict__.iteritems()
-                        if k in self.__attrs__)
-                # Combine instance-local values with kwargs values, with
-                # priority to values in kwargs
-                kwargs = dict(inst_attrs.items() + kwargs.items())
 
-                # If a session request has a cookie_dict, inject the
-                # values into the existing CookieJar instead.
-                if isinstance(kwargs.get('cookies', None), dict):
-                    kwargs['cookies'] = add_dict_to_cookiejar(
-                        inst_attrs['cookies'], kwargs['cookies']
-                    )
+                # Argument collector.
+                _kwargs = {}
 
-                if kwargs.get('headers', None) and inst_attrs.get('headers', None):
-                    kwargs['headers'].update(inst_attrs['headers'])
+                # Merge local and session arguments.
+                for attr in self.__attrs__:
+                    # if attr == 'cookies':
+                        # print getattr(self, attr)
+                        # print kwargs.get(attr)
 
-                return func(*args, **kwargs)
+                    # Merge local and session dictionaries.
+                    default_attr = getattr(self, attr)
+                    local_attr = kwargs.get(attr)
+
+                    # Cookies persist.
+                    if attr == 'cookies':
+                        local_attr = local_attr or {}
+
+                    new_attr = merge_kwargs(local_attr, default_attr)
+
+                    # Skip attributes that were set to None.
+                    if new_attr is not None:
+                        _kwargs[attr] = new_attr
+
+                # Make sure we didn't miss anything.
+                for (k, v) in kwargs.items():
+                    if k not in _kwargs:
+                        _kwargs[k] = v
+
+                # Add in PoolManager, if neccesary.
+                if self.config.get('keep_alive'):
+                    _kwargs['_pools'] = self.__pools
+
+                # TODO: Persist cookies.
+                # print self.cookies
+
+                # print _kwargs.get('cookies')
+                # print '%%%'
+
+                r = func(*args, **_kwargs)
+                # print r.cookies
+                self.cookies.update(r.cookies or {})
+                return r
             return wrapper_func
 
         # Map and decorate each function available in requests.api
-        map(lambda fn: setattr(self, fn, pass_args(getattr(api, fn))),
-                api.__all__)
+        map(lambda fn: setattr(self, fn, pass_args(getattr(api, fn))), api.__all__)
 
 
 def session(**kwargs):
