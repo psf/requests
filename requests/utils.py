@@ -54,6 +54,10 @@ def cleanup_url(url, parent_url=None):
     if netloc:
         netloc = netloc.encode('idna')
 
+    # Add a trailing slash to root domain reqests.
+    if not len(path):
+        path = '/'
+
     if isinstance(path, unicode):
         path = path.encode('utf-8')
 
