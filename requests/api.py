@@ -90,9 +90,11 @@ def get(url, **kwargs):
     :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
+    :param allow_redirects: (optional) Boolean. Set to False to disable redirect following.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     """
 
+    kwargs.setdefault('allow_redirects', True)
     return request('GET', url, **kwargs)
 
 
@@ -106,9 +108,11 @@ def head(url, **kwargs):
     :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
     :param auth: (optional) AuthObject to enable Basic HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
+    :param allow_redirects: (optional) Boolean. Set to False to disable redirect following.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     """
 
+    kwargs.setdefault('allow_redirects', True)
     return request('HEAD', url, **kwargs)
 
 

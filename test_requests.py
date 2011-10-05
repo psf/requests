@@ -422,6 +422,24 @@ class RequestsTestSuite(unittest.TestCase):
             self.assertEquals(rbody.get('data'), '')
 
 
+    def test_GET_no_redirect(self):
+
+        for service in SERVICES:
+
+            r = requests.get(service('redirect', '3'), allow_redirects=False)
+            self.assertEquals(r.status_code, 302)
+            self.assertEquals(len(r.history), 0)
+
+
+    def test_HEAD_no_redirect(self):
+
+        for service in SERVICES:
+
+            r = requests.head(service('redirect', '3'), allow_redirects=False)
+            self.assertEquals(r.status_code, 302)
+            self.assertEquals(len(r.history), 0)
+
+
     def test_redirect_history(self):
 
         for service in SERVICES:
