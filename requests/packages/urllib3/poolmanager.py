@@ -72,7 +72,7 @@ class PoolManager(object):
         port = port or port_by_scheme.get(scheme, 80)
 
         r = self.connection_from_host(host, port=port, scheme=scheme)
-        print r.__dict__
+
         return r
 
     def urlopen(self, method, url, **kw):
