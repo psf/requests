@@ -11,6 +11,7 @@ import urllib
 import zlib
 from Cookie import SimpleCookie
 from urlparse import urlparse, urlunparse, urljoin
+from weakref import ref
 
 from .packages import urllib3
 from .packages.urllib3.filepost import encode_multipart_formdata
@@ -240,7 +241,8 @@ class Request(object):
         self.response = r
 
         # Give Response some context.
-        self.response.request = self
+        self.response.request = ref(self)()
+        self.response.request.response = ref(self.response)()
 
 
     def send(self, anyway=False):
