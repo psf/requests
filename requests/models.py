@@ -203,9 +203,7 @@ class Request(object):
 
             while (
                 ('location' in r.headers) and
-                ((self.method in ('GET', 'HEAD')) or
-                (r.status_code is codes.see_other) or
-                (self.allow_redirects))
+                ((r.status_code is codes.see_other) or (self.allow_redirects))
             ):
 
                 r.close()
