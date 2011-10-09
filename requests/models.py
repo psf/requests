@@ -4,6 +4,7 @@
 requests.models
 ~~~~~~~~~~~~~~~
 
+This module contains the primary classes that power Requests.
 """
 
 import urllib
@@ -243,7 +244,10 @@ class Request(object):
 
 
     def send(self, anyway=False):
-        """Sends the shit."""
+        """Sends the HTTP Request. Populates `Request.response`.
+
+        Returns True if everything went according to plan.
+        """
 
         # Safety check.
         self._checks()
