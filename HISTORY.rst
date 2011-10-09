@@ -1,6 +1,9 @@
 History
 -------
 
+0.7.0 (??)
+++++++++++
+
 * Automatic decoding of unicode, based on HTTP Headers.
 * New ``decode_unicode`` setting
 * Removal of ``r.read/close`` methods
@@ -9,6 +12,12 @@ History
 * Turn off Redirects for GET/HEAD requests
 * Fix for Python Pre-2.7 URL quoting (http://bugs.python.org/issue918368)
 * New ``r.iter_content`` method
+
+
+0.6.2 (2011-10-09)
+++++++++++++++++++
+
+* GET/HEAD obeys follow_redirect=False
 
 
 0.6.1 (2011-08-20)
