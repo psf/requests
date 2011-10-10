@@ -45,6 +45,10 @@ a U.S. Federal Institution,
 `Work for Pie <http://workforpie.com>`_
 use Requests internally.
 
+**Armin Ronacher**
+    Requests is the perfect example how beautiful an API can be with the
+    right level of abstraction.
+
 **Daniel Greenfeld**
     Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to
     @kennethreitz's request library. Today has been AWESOME.
