@@ -60,10 +60,6 @@ use Requests internally.
 **Rich Leland**
    Requests is awesome. That is all.
 
-**Steve Pike**
-  I can never remember how to do it the regular way.
-  ``import requests; requests.get()`` is just so easy!
-
 
 User Guide
 ----------
