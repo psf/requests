@@ -1,3 +1,4 @@
 nose
 mock
 pyflakes
+NoseXUnit
