@@ -258,8 +258,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             these headers completely replace any pool-specific headers.
 
         :param retries:
-            Number of retries to allow before raising
-            a MaxRetryError exception.
+            Number of retries to allow before raising a MaxRetryError exception.
 
         :param redirect:
             Automatically handle redirects (status codes 301, 302, 303, 307),
@@ -320,15 +319,18 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
                                                   timeout=timeout,
                                                   body=body, headers=headers)
 
+            # If we're going to release the connection in ``finally:``, then
+            # the request doesn't need to know about the connection. Otherwise
+            # it will also try to release it and we'll have a double-release
+            # mess.
+            response_conn = not release_conn and conn
+
+
             # Import httplib's response into our own wrapper object
             response = HTTPResponse.from_httplib(httplib_response,
                                                  pool=self,
-                                                 connection=conn,
+                                                 connection=response_conn,
                                                  **response_kw)
-
-            if release_conn:
-                # The connection will be released manually in the ``finally:``
-                response.connection = None
 
             # else:
             #     The connection will be put back into the pool when
