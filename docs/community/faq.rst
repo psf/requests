@@ -51,7 +51,23 @@ Chris Adams gave an excellent summary on
 Python 3 Support?
 -----------------
 
-It's on the way. Here's a list of `supported interpreters <interpreters>`_.
+It's on the way. Here's a list of Python platforms that are officially
+supported:
+
+* cPython 2.5
+* cPython 2.5.5
+* cPython 2.5.6
+* cPython 2.6
+* cPython 2.6.6
+* cPython 2.6.7
+* cPython 2.7
+* cPython 2.7.1
+* cPython 2.7.2
+* PyPy-c 1.4
+* PyPy-c 1.5
+
+
+Support for Python 3.x is coming *very* soon.
 
 
 Keep-alive Support?
