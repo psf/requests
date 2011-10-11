@@ -24,8 +24,6 @@ __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
 
-import logging
-logging.basicConfig()
 
 from api import *
 from exceptions import *
