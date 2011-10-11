@@ -452,14 +452,21 @@ class Response(object):
         (if available).
         """
 
-        if self._content is not None:
-            return self._content
+        if self._content is None:
+            # Read the contents.
+            self._content = self.fo.read()
 
         if self._content_consumed:
             raise RuntimeError(
                 'The content for this response was already consumed')
+        # # Decode GZip'd content.
+        # if 'gzip' in self.headers.get('content-encoding', ''):
+        #     try:
+        #         self._content = decode_gzip(self._content)
+        #     except zlib.error:
+        #         pass
 
-        # Read the contents.
+        self._content = self.fo.read()
         self._content = self.raw.read() or self.raw.data
 
         # Decode GZip'd content.
@@ -470,8 +477,21 @@ class Response(object):
                 pass
 
         # Decode unicode content.
+        if settings.decode_unicode:
+            self._content = get_unicode_from_response(self)
+        # Decode GZip'd content.
+        if 'gzip' in self.headers.get('content-encoding', ''):
+            try:
+                self._content = decode_gzip(self._content)
+            except zlib.error:
+                pass
+
+        # Decode unicode content.
         if self.config.get('decode_unicode'):
             self._content = get_unicode_from_response(self)
+        # # Decode unicode content.
+        # if settings.decode_unicode:
+        #     self._content = get_unicode_from_response(self)
 
         self._content_consumed = True
         return self._content

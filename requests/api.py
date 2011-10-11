@@ -14,7 +14,7 @@ This module implements the Requests API.
 from ._config import get_config
 from .models import Request, Response
 from .status_codes import codes
-from .hooks import dispatch_hook
+from hooks import setup_hooks, dispatch_hooks
 from .utils import cookiejar_from_dict, header_expand
 
 
@@ -46,8 +46,9 @@ def request(method, url,
     method = str(method).upper()
     config = get_config(config)
 
-    if cookies is None:
-        cookies = {}
+    cookies = cookiejar_from_dict(cookies if cookies is not None else dict())
+
+    cookies = cookiejar_from_dict(cookies)
 
     # cookies = cookiejar_from_dict(cookies)
 
@@ -71,15 +72,17 @@ def request(method, url,
         proxies=proxies or config.get('proxies'),
         _pools=_pools
     )
+    
+    hooks = setup_hooks(hooks if hooks is not None else dict())
 
     # Arguments manipulation hook.
-    args = dispatch_hook('args', hooks, args)
+    args = dispatch_hooks(hooks['args'], args)
 
     # Create Request object.
     r = Request(**args)
 
     # Pre-request hook.
-    r = dispatch_hook('pre_request', hooks, r)
+    r = dispatch_hooks(hooks['pre_request'], r)
 
     # Only construct the request (for async)
     if _return_request:
@@ -90,10 +93,10 @@ def request(method, url,
 
     # TODO: Add these hooks inline.
     # Post-request hook.
-    r = dispatch_hook('post_request', hooks, r)
+    r = dispatch_hooks(hooks['post_request'], r)
 
     # Response manipulation hook.
-    r.response = dispatch_hook('response', hooks, r.response)
+    r.response = dispatch_hooks(hooks['response'], r.response)
 
     return r.response
 
