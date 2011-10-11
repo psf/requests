@@ -8,9 +8,9 @@
 urllib3 - Thread-safe connection pooling and re-using.
 """
 
-__author__ = "Andrey Petrov (andrey.petrov@shazow.net)"
-__license__ = "MIT"
-__version__ = "$Rev$"
+__author__ = 'Andrey Petrov (andrey.petrov@shazow.net)'
+__license__ = 'MIT'
+__version__ = '1.0'
 
 
 from .connectionpool import (
@@ -27,6 +27,22 @@ from .exceptions import (
     SSLError,
     TimeoutError)
 
-from .poolmanager import PoolManager
+from .poolmanager import PoolManager, ProxyManager, proxy_from_url
 from .response import HTTPResponse
 from .filepost import encode_multipart_formdata
+
+
+# Set default logging handler to avoid "No handler found" warnings.
+import logging
+try:
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
+
+logging.getLogger(__name__).addHandler(NullHandler())
+
+# ... Clean up.
+del logging
+del NullHandler

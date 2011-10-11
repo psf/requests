@@ -8,7 +8,6 @@ import logging
 import socket
 
 
-from urllib import urlencode
 from httplib import HTTPConnection, HTTPSConnection, HTTPException
 from Queue import Queue, Empty, Full
 from select import select
@@ -23,20 +22,20 @@ except ImportError:
     BaseSSLError = None
 
 
-from .filepost import encode_multipart_formdata
+from .request import RequestMethods
 from .response import HTTPResponse
 from .exceptions import (
     SSLError,
     MaxRetryError,
     TimeoutError,
     HostChangedError,
-    EmptyPoolError)
+    EmptyPoolError,
+)
 
 
 log = logging.getLogger(__name__)
 
 _Default = object()
-
 
 
 ## Connection objects (extension of httplib)
@@ -46,11 +45,8 @@ class VerifiedHTTPSConnection(HTTPSConnection):
     Based on httplib.HTTPSConnection but wraps the socket with
     SSL certification.
     """
-
-    def __init__(self, **kwargs):
-        HTTPSConnection.__init__(self, **kwargs)
-        self.cert_reqs = None
-        self.ca_certs = None
+    cert_reqs = None
+    cert_reqs = None
 
     def set_cert(self, key_file=None, cert_file=None,
                  cert_reqs='CERT_NONE', ca_certs=None):
@@ -79,44 +75,48 @@ class VerifiedHTTPSConnection(HTTPSConnection):
 ## Pool objects
 
 class ConnectionPool(object):
+    """
+    Base class for all connection pools, such as
+    :class:`.HTTPConnectionPool` and :class:`.HTTPSConnectionPool`.
+    """
     pass
 
 
-class HTTPConnectionPool(ConnectionPool):
+class HTTPConnectionPool(ConnectionPool, RequestMethods):
     """
     Thread-safe connection pool for one host.
 
-    host
+    :param host:
         Host used for this HTTP Connection (e.g. "localhost"), passed into
-        httplib.HTTPConnection()
+        :class:`httplib.HTTPConnection`.
 
-    port
+    :param port:
         Port used for this HTTP Connection (None is equivalent to 80), passed
-        into httplib.HTTPConnection()
+        into :class:`httplib.HTTPConnection`.
 
-    strict
+    :param strict:
         Causes BadStatusLine to be raised if the status line can't be parsed
         as a valid HTTP/1.0 or 1.1 status line, passed into
-        httplib.HTTPConnection()
+        :class:`httplib.HTTPConnection`.
 
-    timeout
+    :param timeout:
         Socket timeout for each individual connection, can be a float. None
         disables timeout.
 
-    maxsize
+    :param maxsize:
         Number of connections to save that can be reused. More than 1 is useful
         in multithreaded situations. If ``block`` is set to false, more
         connections will be created but they will not be saved once they've
         been used.
 
-    block
+    :param block:
         If set to True, no more than ``maxsize`` connections will be used at
         a time. When no free connections are available, the call will block
         until a connection has been released. This is a useful side effect for
         particular multithreaded situations where one does not want to use more
         than maxsize connections per host to prevent flooding.
 
-    headers
+    :param headers:
         Headers to include with all requests, unless other headers are given
         explicitly.
     """
@@ -143,7 +143,7 @@ class HTTPConnectionPool(ConnectionPool):
 
     def _new_conn(self):
         """
-        Return a fresh HTTPConnection.
+        Return a fresh :class:`httplib.HTTPConnection`.
         """
         self.num_connections += 1
         log.info("Starting new HTTP connection (%d): %s" %
@@ -153,7 +153,14 @@ class HTTPConnectionPool(ConnectionPool):
     def _get_conn(self, timeout=None):
         """
         Get a connection. Will return a pooled connection if one is available.
-        Otherwise, a fresh connection is returned.
+
+        If no connections are available and :prop:`.block` is ``False``, then a
+        fresh connection is returned.
+
+        :param timeout:
+            Seconds to wait before giving up and raising
+            :class:`urllib3.exceptions.EmptyPoolError` if the pool is empty and
+            :prop:`.block` is ``True``.
         """
         conn = None
         try:
@@ -176,6 +183,11 @@ class HTTPConnectionPool(ConnectionPool):
     def _put_conn(self, conn):
         """
         Put a connection back into the pool.
+
+        :param conn:
+            Connection object for the current host and port as returned by
+            :meth:`._new_conn` or :meth:`._get_conn`.
+
         If the pool is already full, the connection is discarded because we
         exceeded maxsize. If connections are discarded frequently, then maxsize
         should be increased.
@@ -198,11 +210,9 @@ class HTTPConnectionPool(ConnectionPool):
         if timeout is _Default:
             timeout = self.timeout
 
-
         conn.request(method, url, **httplib_request_kw)
         conn.sock.settimeout(timeout)
         httplib_response = conn.getresponse()
-
 
         log.debug("\"%s %s %s\" %s %s" %
                   (method, url,
@@ -213,6 +223,11 @@ class HTTPConnectionPool(ConnectionPool):
 
 
     def is_same_host(self, url):
+        """
+        Check if the given ``url`` is a member of the same host as this
+        conncetion pool.
+        """
+        # TODO: Add optional support for socket.gethostbyname checking.
         return (url.startswith('/') or
                 get_host(url) == (self.scheme, self.host, self.port))
 
@@ -220,43 +235,50 @@ class HTTPConnectionPool(ConnectionPool):
                 redirect=True, assert_same_host=True, timeout=_Default,
                 pool_timeout=None, release_conn=None, **response_kw):
         """
-        Get a connection from the pool and perform an HTTP request.
+        Get a connection from the pool and perform an HTTP request. This is the
+        lowest level call for making a request, so you'll need to specify all
+        the raw details.
 
-        method
+        .. note::
+
+           More commonly, it's appropriate to use a convenience method provided
+           by :class:`.RequestMethods`, such as :meth:`.request`.
+
+        :param method:
             HTTP request method (such as GET, POST, PUT, etc.)
 
-        body
+        :param body:
             Data to send in the request body (useful for creating
             POST requests, see HTTPConnectionPool.post_url for
             more convenience).
 
-        headers
+        :param headers:
             Dictionary of custom headers to send, such as User-Agent,
             If-None-Match, etc. If None, pool headers are used. If provided,
             these headers completely replace any pool-specific headers.
 
-        retries
+        :param retries:
             Number of retries to allow before raising
             a MaxRetryError exception.
 
-        redirect
+        :param redirect:
             Automatically handle redirects (status codes 301, 302, 303, 307),
             each redirect counts as a retry.
 
-        assert_same_host
-            If True, will make sure that the host of the pool requests is
+        :param assert_same_host:
+            If ``True``, will make sure that the host of the pool requests is
             consistent else will raise HostChangedError. When False, you can
             use the pool on an HTTP proxy and request foreign hosts.
 
-        timeout
+        :param timeout:
             If specified, overrides the default timeout for this one request.
 
-        pool_timeout
+        :param pool_timeout:
             If set and the pool is set to block=True, then this method will
             block for ``pool_timeout`` seconds and raise EmptyPoolError if no
             connection is available within the time period.
 
-        release_conn
+        :param release_conn:
             If False, then the urlopen call will not release the connection
             back into the pool once a response is received. This is useful if
             you're not preloading the response's content immediately. You will
@@ -264,8 +286,9 @@ class HTTPConnectionPool(ConnectionPool):
             the connection back into the pool. If None, it takes the value of
             ``response_kw.get('preload_content', True)``.
 
-        Additional parameters are passed to
-        ``HTTPResponse.from_httplib(r, **response_kw)``
+        :param \**response_kw:
+            Additional parameters are passed to
+            :meth:`urllib3.response.HTTPResponse.from_httplib`
         """
         if headers is None:
             headers = self.headers
@@ -291,11 +314,11 @@ class HTTPConnectionPool(ConnectionPool):
             # Request a connection from the queue
             # (Could raise SocketError: Bad file descriptor)
             conn = self._get_conn(timeout=pool_timeout)
+
             # Make the request on the httplib connection object
             httplib_response = self._make_request(conn, method, url,
                                                   timeout=timeout,
                                                   body=body, headers=headers)
-            # print '!'
 
             # Import httplib's response into our own wrapper object
             response = HTTPResponse.from_httplib(httplib_response,
@@ -348,66 +371,18 @@ class HTTPConnectionPool(ConnectionPool):
 
         return response
 
-    def get_url(self, url, fields=None, headers=None, retries=3,
-                redirect=True, **response_kw):
-        """
-        Wrapper for performing GET with urlopen (see urlopen for more details).
-
-        Supports an optional ``fields`` dictionary parameter key/value strings.
-        If provided, they will be added to the url.
-        """
-        if fields:
-            url += '?' + urlencode(fields)
-        return self.urlopen('GET', url, headers=headers, retries=retries,
-                            redirect=redirect, **response_kw)
-
-    def post_url(self, url, fields=None, headers=None, retries=3,
-                 redirect=True, encode_multipart=True, multipart_boundary=None,
-                 **response_kw):
-        """
-        Wrapper for performing POST with urlopen (see urlopen
-        for more details).
-
-        Supports an optional ``fields`` parameter of key/value strings AND
-        key/filetuple. A filetuple is a (filename, data) tuple. For example:
-
-        fields = {
-            'foo': 'bar',
-            'foofile': ('foofile.txt', 'contents of foofile'),
-        }
-
-        If encode_multipart=True (default), then
-        ``urllib3.filepost.encode_multipart_formdata`` is used to encode the
-        payload with the appropriate content type. Otherwise
-        ``urllib.urlencode`` is used with 'application/x-www-form-urlencoded'
-        content type.
-
-        Multipart encoding must be used when posting files, and it's reasonably
-        safe to use it other times too. It may break request signing, such as
-        OAuth.
-
-        NOTE: If ``headers`` are supplied, the 'Content-Type' value will be
-        overwritten because it depends on the dynamic random boundary string
-        which is used to compose the body of the request.
-        """
-        if encode_multipart:
-            body, content_type = encode_multipart_formdata(fields or {},
-                                    boundary=multipart_boundary)
-        else:
-            body, content_type = (
-                urlencode(fields or {}),
-                'application/x-www-form-urlencoded')
-
-        headers = headers or {}
-        headers.update({'Content-Type': content_type})
-
-        return self.urlopen('POST', url, body, headers=headers,
-                            retries=retries, redirect=redirect, **response_kw)
-
 
 class HTTPSConnectionPool(HTTPConnectionPool):
     """
-    Same as HTTPConnectionPool, but HTTPS.
+    Same as :class:`.HTTPConnectionPool`, but HTTPS.
+
+    When Python is compiled with the :mod:`ssl` module, then
+    :class:`.VerifiedHTTPSConnection` is used, which *can* verify certificates,
+    instead of :class:httplib.HTTPSConnection`.
+
+    The ``key_file``, ``cert_file``, ``cert_reqs``, and ``ca_certs`` parameters
+    are only used if :mod:`ssl` is available and are fed into
+    :meth:`ssl.wrap_socket` to upgrade the connection socket into an SSL socket.
     """
 
     scheme = 'https'
@@ -416,7 +391,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
                  strict=False, timeout=None, maxsize=1,
                  block=False, headers=None,
                  key_file=None, cert_file=None,
-                 cert_reqs=ssl.CERT_REQUIRED, ca_certs=None):
+                 cert_reqs='CERT_NONE', ca_certs=None):
 
         super(HTTPSConnectionPool, self).__init__(host, port,
                                                   strict, timeout, maxsize,
@@ -428,9 +403,8 @@ class HTTPSConnectionPool(HTTPConnectionPool):
 
     def _new_conn(self):
         """
-        Return a fresh HTTPSConnection.
+        Return a fresh :class:`httplib.HTTPSConnection`.
         """
-
         self.num_connections += 1
         log.info("Starting new HTTPS connection (%d): %s"
                  % (self.num_connections, self.host))
@@ -451,22 +425,29 @@ def make_headers(keep_alive=None, accept_encoding=None, user_agent=None,
     """
     Shortcuts for generating request headers.
 
-    keep_alive
-        If true, adds 'connection: keep-alive' header.
+    :param keep_alive:
+        If ``True``, adds 'connection: keep-alive' header.
 
-    accept_encoding
+    :param accept_encoding:
         Can be a boolean, list, or string.
-        True translates to 'gzip,deflate'.
+        ``True`` translates to 'gzip,deflate'.
         List will get joined by comma.
         String will be used as provided.
 
-    user_agent
+    :param user_agent:
         String representing the user-agent you want, such as
         "python-urllib3/0.6"
 
-    basic_auth
+    :param basic_auth:
         Colon-separated username:password string for 'authorization: basic ...'
         auth header.
+
+    Example: ::
+
+        >>> make_headers(keep_alive=True, user_agent="Batman/1.0")
+        {'connection': 'keep-alive', 'user-agent': 'Batman/1.0'}
+        >>> make_headers(accept_encoding=True)
+        {'accept-encoding': 'gzip,deflate'}
     """
     headers = {}
     if accept_encoding:
@@ -495,11 +476,12 @@ def get_host(url):
     """
     Given a url, return its scheme, host and port (None if it's not there).
 
-    For example:
-    >>> get_host('http://google.com/mail/')
-    http, google.com, None
-    >>> get_host('google.com:80')
-    http, google.com, 80
+    For example: ::
+
+        >>> get_host('http://google.com/mail/')
+        ('http', 'google.com', None)
+        >>> get_host('google.com:80')
+        ('http', 'google.com', 80)
     """
     # This code is actually similar to urlparse.urlsplit, but much
     # simplified for our needs.
@@ -517,13 +499,23 @@ def get_host(url):
 
 def connection_from_url(url, **kw):
     """
-    Given a url, return an HTTP(S)ConnectionPool instance of its host.
+    Given a url, return an :class:`.ConnectionPool` instance of its host.
 
-    This is a shortcut for not having to determine the host of the url
-    before creating an HTTP(S)ConnectionPool instance.
+    This is a shortcut for not having to parse out the scheme, host, and port
+    of the url before creating an :class:`.ConnectionPool` instance.
 
-    Passes on whatever kw arguments to the constructor of
-    HTTP(S)ConnectionPool. (e.g. timeout, maxsize, block)
+    :param url:
+        Absolute URL string that must include the scheme. Port is optional.
+
+    :param \**kw:
+        Passes additional parameters to the constructor of the appropriate
+        :class:`.ConnectionPool`. Useful for specifying things like
+        timeout, maxsize, headers, etc.
+
+    Example: ::
+
+        >>> conn = connection_from_url('http://google.com/')
+        >>> r = conn.request('GET', '/')
     """
     scheme, host, port = get_host(url)
     if scheme == 'https':

@@ -105,14 +105,13 @@ class RecentlyUsedContainer(MutableMapping):
         # Discard invalid and excess entries
         self._prune_entries(len(self._container) - self._maxsize)
 
-
     def __delitem__(self, key):
         self._invalidate_entry(key)
         del self._container[key]
         del self._access_lookup[key]
 
     def __len__(self):
-        return len(self.access_log)
+        return self._container.__len__()
 
     def __iter__(self):
         return self._container.__iter__()

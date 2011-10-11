@@ -42,15 +42,15 @@ class HTTPResponse(object):
 
     Extra parameters for behaviour not present in httplib.HTTPResponse:
 
-    preload_content
+    :param preload_content:
         If True, the response's body will be preloaded during construction.
 
-    decode_content
+    :param decode_content:
         If True, attempts to decode specific content-encoding's based on headers
         (like 'gzip' and 'deflate') will be skipped and raw data will be used
         instead.
 
-    original_response
+    :param original_response:
         When this HTTPResponse wrapper is generated from an httplib.HTTPResponse
         object, it's convenient to include the original for debug purposes. It's
         otherwise unused.
@@ -103,18 +103,19 @@ class HTTPResponse(object):
 
     def read(self, amt=None, decode_content=True, cache_content=False):
         """
-        Similar to ``httplib.HTTPResponse.read(amt=None)``.
+        Similar to :meth:`httplib.HTTPResponse.read`, but with two additional
+        parameters: ``decode_content`` and ``cache_content``.
 
-        amt
+        :param amt:
             How much of the content to read. If specified, decoding and caching
             is skipped because we can't decode partial content nor does it make
             sense to cache partial content as the full response.
 
-        decode_content
+        :param decode_content:
             If True, will attempt to decode the body based on the
             'content-encoding' header. (Overridden if ``amt`` is set.)
 
-        cache_content
+        :param cache_content:
             If True, will save the returned data such that the same result is
             returned despite of the state of the underlying file object. This
             is useful if you want the ``.data`` property to continue working
@@ -156,8 +157,8 @@ class HTTPResponse(object):
     @staticmethod
     def from_httplib(r, **response_kw):
         """
-        Given an httplib.HTTPResponse instance ``r``, return a corresponding
-        urllib3.HTTPResponse object.
+        Given an :class:`httplib.HTTPResponse` instance ``r``, return a
+        corresponding :class:`urllib3.response.HTTPResponse` object.
 
         Remaining parameters are passed to the HTTPResponse constructor, along
         with ``original_response=r``.

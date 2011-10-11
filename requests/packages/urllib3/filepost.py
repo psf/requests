@@ -22,6 +22,19 @@ def get_content_type(filename):
 
 
 def encode_multipart_formdata(fields, boundary=None):
+    """
+    Encode a dictionary of ``fields`` using the multipart/form-data mime format.
+
+    :param fields:
+        Dictionary of fields. The key is treated as the field name, and the
+        value as the body of the form-data. If the value is a tuple of two
+        elements, then the first element is treated as the filename of the
+        form-data section.
+
+    :param boundary:
+        If not specified, then a random boundary will be generated using
+        :func:`mimetools.choose_boundary`.
+    """
     body = StringIO()
     if boundary is None:
         boundary = mimetools.choose_boundary()

@@ -5,7 +5,17 @@
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
 from ._collections import RecentlyUsedContainer
-from .connectionpool import HTTPConnectionPool, HTTPSConnectionPool, get_host
+from .connectionpool import (
+    HTTPConnectionPool, HTTPSConnectionPool,
+    get_host, connection_from_url,
+)
+
+
+__all__ = ['PoolManager', 'ProxyManager', 'proxy_from_url']
+
+
+from .request import RequestMethods
+from .connectionpool import HTTPConnectionPool, HTTPSConnectionPool
 
 
 pool_classes_by_scheme = {
@@ -19,16 +29,27 @@ port_by_scheme = {
 }
 
 
-class PoolManager(object):
+class PoolManager(RequestMethods):
     """
     Allows for arbitrary requests while transparently keeping track of
     necessary connection pools for you.
 
-    num_pools
+    :param num_pools:
         Number of connection pools to cache before discarding the least recently
         used pool.
 
-    Additional parameters are used to create fresh ConnectionPool instances.
+    :param \**connection_pool_kw:
+        Additional parameters are used to create fresh
+        :class:`urllib3.connectionpool.ConnectionPool` instances.
+
+    Example: ::
+
+        >>> manager = PoolManager()
+        >>> r = manager.urlopen("http://google.com/")
+        >>> r = manager.urlopen("http://google.com/mail")
+        >>> r = manager.urlopen("http://yahoo.com/")
+        >>> len(r.pools)
+        2
 
     """
 
@@ -36,16 +57,16 @@ class PoolManager(object):
 
     def __init__(self, num_pools=10, **connection_pool_kw):
         self.connection_pool_kw = connection_pool_kw
-
         self.pools = RecentlyUsedContainer(num_pools)
-        self.recently_used_pools = []
 
     def connection_from_host(self, host, port=80, scheme='http'):
         """
-        Get a ConnectionPool based on the host, port, and scheme.
+        Get a :class:`ConnectionPool` based on the host, port, and scheme.
+
+        Note that an appropriate ``port`` value is required here to normalize
+        connection pools in our container most effectively.
         """
         pool_key = (scheme, host, port)
-
 
         # If the scheme, host, or port doesn't match existing open connections,
         # open a new ConnectionPool.
@@ -63,19 +84,45 @@ class PoolManager(object):
 
     def connection_from_url(self, url):
         """
-        Similar to connectionpool.connection_from_url but doesn't pass any
-        additional keywords to the ConnectionPool constructor. Additional
-        keywords are taken from the PoolManager constructor.
+        Similar to :func:`urllib3.connectionpool.connection_from_url` but
+        doesn't pass any additional parameters to the
+        :class:`urllib3.connectionpool.ConnectionPool` constructor.
+
+        Additional parameters are taken from the :class:`.PoolManager`
+        constructor.
         """
         scheme, host, port = get_host(url)
 
         port = port or port_by_scheme.get(scheme, 80)
 
-        r = self.connection_from_host(host, port=port, scheme=scheme)
+        return self.connection_from_host(host, port=port, scheme=scheme)
 
-        return r
+    def urlopen(self, method, url, **kw):
+        """
+        Same as :meth:`urllib3.connectionpool.HTTPConnectionPool.urlopen`.
+
+        ``url`` must be absolute, such that an appropriate
+        :class:`urllib3.connectionpool.ConnectionPool` can be chosen for it.
+        """
+        conn = self.connection_from_url(url)
+        return conn.urlopen(method, url, assert_same_host=False, **kw)
+
+
+class ProxyManager(object):
+    """
+    Given a ConnectionPool to a proxy, the ProxyManager's ``urlopen`` method
+    will make requests to any url through the defined proxy.
+    """
+
+    def __init__(self, proxy_pool):
+        self.proxy_pool = proxy_pool
 
     def urlopen(self, method, url, **kw):
         "Same as HTTP(S)ConnectionPool.urlopen, ``url`` must be absolute."
-        conn = self.connection_from_url(url)
-        return conn.urlopen(method, url, **kw)
+        kw['assert_same_host'] = False
+        return self.proxy_pool.urlopen(method, url, **kw)
+
+
+def proxy_from_url(url, **pool_kw):
+    proxy_pool = connection_from_url(url, **pool_kw)
+    return ProxyManager(proxy_pool)
