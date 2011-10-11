@@ -265,10 +265,8 @@ class Request(object):
         if self.files:
             if not isinstance(self.data, basestring):
                 fields = self.data.copy()
-                fields.update({
-                    k: (getattr(v, 'name', k), v.read())
-                    for k, v in self.files.items()
-                })
+                for k, v in self.files.items():
+                    fields[k] = getattr(v, 'name', k), v.read()
                 (body, content_type) = encode_multipart_formdata(fields)
 
         # Setup form data.
