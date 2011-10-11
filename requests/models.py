@@ -241,8 +241,7 @@ class Request(object):
         self.response = r
 
         # Give Response some context.
-        self.response.request = ref(self)()
-        self.response.request.response = ref(self.response)()
+        self.response.request = self
 
 
     def send(self, anyway=False):
@@ -310,7 +309,7 @@ class Request(object):
                     pools = self._pools
 
                     # Part of a connection pool, so no fancy stuff. Sorry!
-                    do_block = True
+                    do_block = False
 
                 if self.cookies:
                     # Skip if 'cookie' header is explicitly set.
