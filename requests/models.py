@@ -90,7 +90,7 @@ class Request(object):
         #: :class:`AuthObject` to attach to :class:`Request <Request>`.
         self.auth = auth
 
-        #: CookieJar to attach to :class:`Request <Request>`.
+        #: CookieDict to attach to :class:`Request <Request>`.
         self.cookies = cookies
 
         #: True if Request has been sent.
@@ -316,6 +316,7 @@ class Request(object):
                     if 'cookie' not in self.headers:
 
                         # Simple cookie with our dict.
+                        # TODO: Multi-value headers.
                         c = SimpleCookie()
                         c.load(self.cookies)
 

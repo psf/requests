@@ -46,10 +46,7 @@ def request(method, url,
     method = str(method).upper()
     config = get_config(config)
 
-    cookies = cookiejar_from_dict(cookies if cookies is not None else dict())
-
-    cookies = cookiejar_from_dict(cookies)
-
+    # cookies = cookiejar_from_dict(cookies if cookies is not None else dict())
     # cookies = cookiejar_from_dict(cookies)
 
     # Expand header values
@@ -72,7 +69,7 @@ def request(method, url,
         proxies=proxies or config.get('proxies'),
         _pools=_pools
     )
-    
+
     hooks = setup_hooks(hooks if hooks is not None else dict())
 
     # Arguments manipulation hook.
