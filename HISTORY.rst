@@ -4,7 +4,7 @@ History
 0.6.2 (2011-10-09)
 ++++++++++++++++++
 
-* GET/HEAD obeys follow_redirect=False
+* GET/HEAD obeys allow_redirects=False
 
 
 0.6.1 (2011-08-20)
