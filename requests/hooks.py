@@ -26,7 +26,7 @@ import warnings
 import collections
 
 
-def dispatch_hooks(key, hooks, hook_data):
+def dispatch_hook(key, hooks, hook_data):
     """Dipatches a hook dictionary on a given peice of data."""
 
     hooks = (hooks or {}).get(key, [])

@@ -14,7 +14,7 @@ This module implements the Requests API.
 from ._config import get_config
 from .models import Request, Response
 from .status_codes import codes
-from .hooks import dispatch_hooks
+from .hooks import dispatch_hook
 from .utils import cookiejar_from_dict, header_expand
 
 
@@ -73,13 +73,13 @@ def request(method, url,
     )
 
     # Arguments manipulation hook.
-    args = dispatch_hooks('args', hooks, args)
+    args = dispatch_hook('args', hooks, args)
 
     # Create Request object.
     r = Request(**args)
 
     # Pre-request hook.
-    r = dispatch_hooks('pre_request', hooks, r)
+    r = dispatch_hook('pre_request', hooks, r)
 
     # Only construct the request (for async)
     if _return_request:
@@ -90,10 +90,10 @@ def request(method, url,
 
     # TODO: Add these hooks inline.
     # Post-request hook.
-    r = dispatch_hooks('post_request', hooks, r)
+    r = dispatch_hook('post_request', hooks, r)
 
     # Response manipulation hook.
-    r.response = dispatch_hooks('response', hooks, r.response)
+    r.response = dispatch_hook('response', hooks, r.response)
 
     return r.response
 
