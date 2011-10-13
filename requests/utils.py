@@ -280,6 +280,8 @@ def get_unicode_from_response(r):
     3. fall back and replace all unicode characters
 
     """
+    # TODO: DEBUG
+    return r.content
 
     tried_encodings = []
 

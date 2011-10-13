@@ -39,8 +39,12 @@ def get_config(config=None, default_config=None):
 # Module-level defaults.
 defaults = dict()
 
-defaults['base_headers'] = {'User-Agent': 'python-requests.org'}
-defaults['accept_gzip'] = True
+defaults['base_headers'] = {
+    'User-Agent': 'python-requests.org',
+    'Accept-Encoding': ', '.join([ 'identity', 'deflate', 'compress', 'gzip' ]),
+}
+
+# defaults['accept_gzip'] = True
 defaults['proxies'] = {}
 defaults['verbose'] = None
 defaults['timeout'] = None
@@ -50,3 +54,9 @@ defaults['keep_alive'] = True
 defaults['max_connections'] = 10
 
 
+defaults['hooks'] = {
+    'args': list(),
+    'pre_request': list(),
+    'post_request': list(),
+    'response': list()
+}
