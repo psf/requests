@@ -36,10 +36,18 @@ multipart files, and parameters with simple Python dictionaries, and access the
 response data in the same way. It's powered by :py:class:`urllib2`, but it does
 all the hard work and crazy hacks for you.
 
-Testimonals
------------
+Testimonials
+------------
 
-`Twitter, Inc <http://twitter.com>`_ uses Requests internally.
+`Twitter, Inc <http://twitter.com>`_,
+a U.S. Federal Institution,
+`Readability <http://readability.com>`_, and
+`Work for Pie <http://workforpie.com>`_
+use Requests internally.
+
+**Armin Ronacher**
+    Requests is the perfect example how beautiful an API can be with the
+    right level of abstraction.
 
 **Daniel Greenfeld**
     Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to
@@ -51,10 +59,6 @@ Testimonals
 
 **Rich Leland**
    Requests is awesome. That is all.
-
-**Steve Pike**
-  I can never remember how to do it the regular way.
-  ``import requests; requests.get()`` is just so easy!
 
 
 User Guide

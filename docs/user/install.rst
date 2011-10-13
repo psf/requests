@@ -3,7 +3,8 @@
 Installation
 ============
 
-This part of the documentation covers the installation of Requests. The first step to using any software package is getting it properly installed.
+This part of the documentation covers the installation of Requests.
+The first step to using any software package is getting it properly installed.
 
 
 Distribute & Pip
@@ -24,7 +25,8 @@ But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/index
 Cheeseshop Mirror
 -----------------
 
-If the Cheeseshop is down, you can also install Requests from Kenneth Reitz's personal `Cheeseshop mirror <http://pip.kreitz.co/>`_::
+If the Cheeseshop is down, you can also install Requests from Kenneth Reitz's
+personal `Cheeseshop mirror <http://pip.kreitz.co/>`_::
 
     $ pip install -i http://pip.kreitz.co/simple requests
 
@@ -48,6 +50,7 @@ Or, download the `zipball <https://github.com/kennethreitz/requests/zipball/mast
     $ curl -O https://github.com/kennethreitz/requests/zipball/master
 
 
-Once you have a copy of the source, you can embed it in your Python package, or install it into your site-packages easily::
+Once you have a copy of the source, you can embed it in your Python package,
+or install it into your site-packages easily::
 
     $ python setup.py install

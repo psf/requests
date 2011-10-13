@@ -20,7 +20,6 @@ I often tweet about new features and releases of Requests.
 Follow `@kennethreitz <https://twitter.com/kennethreitz>`_ for updates.
 
 
-
 Mailing List
 ------------
 

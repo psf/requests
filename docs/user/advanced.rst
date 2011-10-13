@@ -66,7 +66,7 @@ Available hooks:
 
 You can assign a hook function on a per-request basis by passing a
 ``{hook_name: callback_function}`` dictionary to the ``hooks`` request
-paramaeter::
+parameter::
 
     hooks=dict(args=print_url)
 

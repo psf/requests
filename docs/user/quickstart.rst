@@ -5,7 +5,9 @@ Quickstart
 
 .. module:: requests.models
 
-Eager to get started? This page gives a good introduction in how to get started with Requests. This assumes you already have Requests installed. If you do not, head over to the :ref:`Installation <install>` section.
+Eager to get started? This page gives a good introduction in how to get started
+with Requests. This assumes you already have Requests installed. If you do not,
+head over to the :ref:`Installation <install>` section.
 
 First, make sure that:
 
@@ -25,7 +27,8 @@ Let's get GitHub's public timeline ::
 
     r = requests.get('https://github.com/timeline.json')
 
-Now, we have a :class:`Response` object called ``r``. We can get all the information we need from this.
+Now, we have a :class:`Response` object called ``r``. We can get all the
+information we need from this.
 
 
 Response Content
@@ -90,7 +93,8 @@ interface::
         'content-type': 'application/json; charset=utf-8'
     }
 
-The dictionary is special, though: it's made just for HTTP headers. According to `RFC 2616 <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html>`_, HTTP
+The dictionary is special, though: it's made just for HTTP headers. According to
+`RFC 2616 <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html>`_, HTTP
 Headers are case-insensitive.
 
 So, we can access the headers using any capitalization we want::
@@ -118,7 +122,7 @@ If a response contains some Cookies, you can get quick access to them::
     >>> print r.cookies
     {'requests-is': 'awesome'}
 
-The underlying CookieJar is also available for more advanced handing::
+The underlying CookieJar is also available for more advanced handling::
 
     >>> r.request.cookiejar
     <cookielib.CookieJar>
