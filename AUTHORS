@@ -7,6 +7,12 @@ Development Lead
 - Kenneth Reitz <me@kennethreitz.com>
 
 
+Urllib3
+```````
+
+- Andrey Petrov <shazow@gmail.com>
+
+
 Patches and Suggestions
 ```````````````````````
 
@@ -39,4 +45,12 @@ Patches and Suggestions
 - Shrikant Sharat Kandula
 - Mikko Ohtamaa
 - Den Shabalin
+- Alejandro Giacometti
+- Rick Mak
+- Johan Bergström
+- Josselin Jacquard
+- Michael Van Veen <michael@mvanveen.net>
+- Mike Waldner
+- Serge Domkowski
 - Daniel Miller <danielm@vs-networks.com>
+- Pat Nakajima

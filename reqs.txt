@@ -1,0 +1,4 @@
+nose
+mock
+pyflakes
+NoseXUnit

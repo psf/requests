@@ -14,10 +14,11 @@ except ImportError:
 import requests
 
 from requests.sessions import Session
+from requests.utils import curl_from_request
 
 
 HTTPBIN_URL = 'http://httpbin.org/'
-HTTPSBIN_URL = 'https://httpbin.ep.io/'
+HTTPSBIN_URL = 'https://httpbin.herokuapp.com/'
 
 # HTTPBIN_URL = 'http://staging.httpbin.org/'
 # HTTPSBIN_URL = 'https://httpbin-staging.ep.io/'
@@ -42,24 +43,29 @@ SERVICES = (httpbin, httpsbin)
 class RequestsTestSuite(unittest.TestCase):
     """Requests test cases."""
 
+    # It goes to eleven.
+    _multiprocess_can_split_ = True
 
     def setUp(self):
         pass
 
-
     def tearDown(self):
-        """Teardown."""
         pass
-
 
     def test_invalid_url(self):
         self.assertRaises(ValueError, requests.get, 'hiwpefhipowhefopw')
-
 
     def test_HTTP_200_OK_GET(self):
         r = requests.get(httpbin('/'))
         self.assertEqual(r.status_code, 200)
 
+    def test_HTTP_302_ALLOW_REDIRECT_GET(self):
+	r = requests.get(httpbin('redirect', '1'))
+	self.assertEqual(r.status_code, 200)
+
+    def test_HTTP_302_GET(self):
+	r = requests.get(httpbin('redirect', '1'), allow_redirects=False)
+	self.assertEqual(r.status_code, 302)
 
     def test_HTTPS_200_OK_GET(self):
         r = requests.get(httpsbin('/'))
@@ -422,24 +428,6 @@ class RequestsTestSuite(unittest.TestCase):
             self.assertEquals(rbody.get('data'), '')
 
 
-    def test_GET_no_redirect(self):
-
-        for service in SERVICES:
-
-            r = requests.get(service('redirect', '3'), allow_redirects=False)
-            self.assertEquals(r.status_code, 302)
-            self.assertEquals(len(r.history), 0)
-
-
-    def test_HEAD_no_redirect(self):
-
-        for service in SERVICES:
-
-            r = requests.head(service('redirect', '3'), allow_redirects=False)
-            self.assertEquals(r.status_code, 302)
-            self.assertEquals(len(r.history), 0)
-
-
     def test_redirect_history(self):
 
         for service in SERVICES:
@@ -487,6 +475,53 @@ class RequestsTestSuite(unittest.TestCase):
         assert heads['User-agent'] in r2.content
         self.assertEqual(r2.status_code, 200)
 
+
+
+    def test_curl_HTTP_OK_GET(self):
+        curl_str = 'curl -L -X GET -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" "http://httpbin.org//"'
+        r = requests.get(httpbin('/'))
+        self.assertEqual(curl_from_request(r.request), curl_str)
+
+
+    def test_curl_HTTP_OK_GET_WITH_PARAMS(self):
+        curl_str = 'curl -L -X GET -H "Accept-Encoding:gzip" -H "User-agent:Mozilla/5.0" "http://httpbin.org/user-agent"'
+
+        heads = {'User-agent': 'Mozilla/5.0'}
+        r = requests.get(httpbin('user-agent'), headers=heads)
+        self.assertEqual(curl_from_request(r.request), curl_str)
+
+
+    def test_curl_HTTP_OK_HEAD(self):
+        curl_str ='curl -L -I -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" "http://httpbin.org//"'
+        r = requests.head(httpbin('/'))
+        self.assertEqual(curl_from_request(r.request), curl_str)
+
+
+    def test_curl_HTTP_OK_PATCH(self):
+        curl_str = 'curl -L -X PATCH -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" "http://httpbin.org/patch"'
+        r = requests.patch(httpbin('patch'))
+        self.assertEqual(curl_from_request(r.request), curl_str)
+
+
+    def test_curl_AUTH_HTTPS_OK_GET(self):
+        curl_str = 'curl -L -u "user:pass" -X GET -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" "https://httpbin.ep.io/basic-auth/user/pass"'
+        auth = ('user', 'pass')
+        r = requests.get(httpsbin('basic-auth', 'user', 'pass'), auth=auth)
+        self.assertEqual(curl_from_request(r.request), curl_str)
+
+
+    def test_curl_POSTBIN_GET_POST_FILES(self):
+       curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -d "some=data" "http://httpbin.org/post"'
+       post = requests.post(httpbin('post'), data={'some': 'data'})
+       self.assertEqual(curl_from_request(post.request), curl_str)
+
+       curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -F "some=@test_requests.py" "https://httpbin.ep.io/post"'
+       post2 = requests.post(httpsbin('post'), files={'some': open('test_requests.py')})
+       self.assertEqual(curl_from_request(post2.request), curl_str)
+
+       curl_str = 'curl -L -X POST -H "Accept-Encoding:gzip" -H "User-Agent:python-requests.org" -d \'[{"some": "json"}]\' "http://httpbin.org/post"'
+       post3 = requests.post(httpbin('post'), data='[{"some": "json"}]')
+       self.assertEqual(curl_from_request(post3.request), curl_str)
 
 
 if __name__ == '__main__':
