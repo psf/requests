@@ -1,0 +1,5 @@
+nose
+mock
+pyflakes
+NoseXUnit
+gevent
