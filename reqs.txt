@@ -2,5 +2,4 @@ nose
 mock
 pyflakes
 NoseXUnit
-gevent
 omnijson
