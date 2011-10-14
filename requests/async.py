@@ -64,15 +64,18 @@ delete = _patched(api.delete)
 request = _patched(api.request)
 
 
-def map(requests):
+def map(requests, prefetch=True):
     """Concurrently converts a list of Requests to Responses.
 
     :param requests: a collection of Request objects.
-    :param keep_alive: If True, HTTP Keep-Alive will be used.
+    :param prefetch: If False, the content will not be downloaded immediately.
     """
 
     jobs = [gevent.spawn(_send, r) for r in requests]
     gevent.joinall(jobs)
+
+    if prefetch:
+        [r.response.content for r in requests]
 
     return [r.response for r in requests]
 
