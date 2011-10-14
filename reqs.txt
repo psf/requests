@@ -3,3 +3,4 @@ mock
 pyflakes
 NoseXUnit
 gevent
+omnijson
