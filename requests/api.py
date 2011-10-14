@@ -17,13 +17,12 @@ from .status_codes import codes
 from .hooks import dispatch_hook
 from .utils import cookiejar_from_dict
 
-from urlparse import urlparse
 
 __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
 
 def request(method, url,
     params=None, data=None, headers=None, cookies=None, files=None, auth=None,
-    timeout=None, allow_redirects=False, proxies=None, hooks=None):
+    timeout=None, allow_redirects=False, proxies=None, hooks=None, return_response=True):
 
     """Constructs and sends a :class:`Request <models.Request>`.
     Returns :class:`Response <models.Response>` object.
@@ -67,6 +66,10 @@ def request(method, url,
 
     # Pre-request hook.
     r = dispatch_hook('pre_request', hooks, r)
+
+    # Don't send if asked nicely.
+    if not return_response:
+        return r
 
     # Send the HTTP Request.
     r.send()

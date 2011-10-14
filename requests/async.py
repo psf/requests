@@ -33,7 +33,7 @@ def _patched(f):
     """Patches a given API function to not send."""
 
     def wrapped(*args, **kwargs):
-        return f(*args, _return_request=True, **kwargs)
+        return f(*args, return_response=False, **kwargs)
 
     return wrapped
 
