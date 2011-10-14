@@ -1,8 +1,8 @@
 History
 -------
 
-0.6.3 (??)
-+++++++++++
+0.6.3 (2011-10-13)
+++++++++++++++++++
 
 * Beautiful ``requests.async`` module, for making async requests w/ gevent.
 
@@ -38,6 +38,7 @@ History
 * HTTPError handling improvements
 * Improved https testing
 * Bugfixes
+
 
 0.5.1 (2011-07-23)
 ++++++++++++++++++
