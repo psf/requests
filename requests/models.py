@@ -189,7 +189,7 @@ class Request(object):
 
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
-                response.fo = resp
+                response.raw = resp
 
                 if self.cookiejar:
                     response.cookies = dict_from_cookiejar(self.cookiejar)
@@ -217,7 +217,7 @@ class Request(object):
                 ((r.status_code is codes.see_other) or (self.allow_redirects))
             ):
 
-                r.fo.close()
+                r.raw.close()
 
                 if not len(history) < settings.max_redirects:
                     raise TooManyRedirects()
@@ -407,7 +407,7 @@ class Response(object):
         self.headers = CaseInsensitiveDict()
 
         #: File-like object representation of response (for advanced usage).
-        self.fo = None
+        self.raw = None
 
         #: Final URL location of Response.
         self.url = None
@@ -451,7 +451,7 @@ class Response(object):
 
         def generate():
             while 1:
-                chunk = self.fo.read(chunk_size)
+                chunk = self.raw.read(chunk_size)
                 if not chunk:
                     break
                 yield chunk
@@ -479,7 +479,7 @@ class Response(object):
                                'already consumed')
 
         # Read the contents.
-        self._content = self.fo.read()
+        self._content = self.raw.read()
 
         # Decode GZip'd content.
         if 'gzip' in self.headers.get('content-encoding', ''):
