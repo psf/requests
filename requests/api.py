@@ -38,6 +38,7 @@ def request(method, url,
     :param timeout: (optional) Float describing the timeout of the request.
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param return_response: (optional) If False, an un-sent Request object will returned.
     """
 
     method = str(method).upper()
@@ -96,19 +97,6 @@ def get(url, **kwargs):
     """Sends a GET request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
-    :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
-    :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
-    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
-    :param auth: (optional) AuthObject to enable Basic HTTP Auth.
-    :param timeout: (optional) Float describing the timeout of the request.
-    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
-    :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
-    :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
-    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
-    :param auth: (optional) AuthObject to enable Basic HTTP Auth.
-    :param timeout: (optional) Float describing the timeout of the request.
-    :param allow_redirects: (optional) Boolean. Set to False to disable redirect following.
-    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     :param **kwargs: Optional arguments that ``request`` takes.
     """
 
@@ -121,19 +109,6 @@ def head(url, **kwargs):
     """Sends a HEAD request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
-    :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
-    :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
-    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
-    :param auth: (optional) AuthObject to enable Basic HTTP Auth.
-    :param timeout: (optional) Float describing the timeout of the request.
-    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
-    :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
-    :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
-    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
-    :param auth: (optional) AuthObject to enable Basic HTTP Auth.
-    :param timeout: (optional) Float describing the timeout of the request.
-    :param allow_redirects: (optional) Boolean. Set to False to disable redirect following.
-    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     :param **kwargs: Optional arguments that ``request`` takes.
     """
 
