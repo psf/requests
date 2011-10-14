@@ -9,7 +9,9 @@ requests.models
 import urllib
 import urllib2
 import socket
+import codecs
 import zlib
+
 
 from urllib2 import HTTPError
 from urlparse import urlparse, urlunparse, urljoin
@@ -20,9 +22,9 @@ from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicA
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
-from .utils import dict_from_cookiejar
-from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod, TooManyRedirects
+from .utils import dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip
 from .status_codes import codes
+from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod, TooManyRedirects
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
@@ -30,7 +32,7 @@ REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 
 
 class Request(object):
-    """The :class:`Request <models.Request>` object. It carries out all functionality of
+    """The :class:`Request <Request>` object. It carries out all functionality of
     Requests. Recommended interface is with the Requests functions.
     """
 
@@ -46,24 +48,24 @@ class Request(object):
         #: Request URL.
         self.url = url
 
-        #: Dictonary of HTTP Headers to attach to the :class:`Request <models.Request>`.
+        #: Dictonary of HTTP Headers to attach to the :class:`Request <Request>`.
         self.headers = headers
 
         #: Dictionary of files to multipart upload (``{filename: content}``).
         self.files = files
 
-        #: HTTP Method to use. Available: GET, HEAD, PUT, POST, DELETE.
+        #: HTTP Method to use.
         self.method = method
 
         #: Dictionary or byte of request body data to attach to the
-        #: :class:`Request <models.Request>`.
+        #: :class:`Request <Request>`.
         self.data = None
 
         #: Dictionary or byte of querystring data to attach to the
-        #: :class:`Request <models.Request>`.
+        #: :class:`Request <Request>`.
         self.params = None
 
-        #: True if :class:`Request <models.Request>` is part of a redirect chain (disables history
+        #: True if :class:`Request <Request>` is part of a redirect chain (disables history
         #: and HTTPError storage).
         self.redirect = redirect
 
@@ -76,7 +78,7 @@ class Request(object):
         self.data, self._enc_data = self._encode_params(data)
         self.params, self._enc_params = self._encode_params(params)
 
-        #: :class:`Response <models.Response>` instance, containing
+        #: :class:`Response <Response>` instance, containing
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
         self.response = Response()
 
@@ -85,10 +87,10 @@ class Request(object):
         if not auth:
             auth = auth_manager.get_auth(self.url)
 
-        #: :class:`AuthObject` to attach to :class:`Request <models.Request>`.
+        #: :class:`AuthObject` to attach to :class:`Request <Request>`.
         self.auth = auth
 
-        #: CookieJar to attach to :class:`Request <models.Request>`.
+        #: CookieJar to attach to :class:`Request <Request>`.
         self.cookiejar = cookiejar
 
         #: True if Request has been sent.
@@ -134,9 +136,16 @@ class Request(object):
             _handlers.append(urllib2.HTTPCookieProcessor(self.cookiejar))
 
         if self.auth:
-            if not isinstance(self.auth.handler, (urllib2.AbstractBasicAuthHandler, urllib2.AbstractDigestAuthHandler)):
+            if not isinstance(self.auth.handler,
+                (urllib2.AbstractBasicAuthHandler,
+                urllib2.AbstractDigestAuthHandler)):
+
                 # TODO: REMOVE THIS COMPLETELY
-                auth_manager.add_password(self.auth.realm, self.url, self.auth.username, self.auth.password)
+                auth_manager.add_password(
+                    self.auth.realm, self.url,
+                    self.auth.username,
+                    self.auth.password)
+
                 self.auth.handler = self.auth.handler(auth_manager)
                 auth_manager.add_auth(self.url, self.auth)
 
@@ -168,7 +177,10 @@ class Request(object):
 
 
     def _build_response(self, resp, is_error=False):
-        """Build internal :class:`Response <models.Response>` object from given response."""
+        """Build internal :class:`Response <Response>` object
+        from given response.
+        """
+
 
         def build(resp):
 
@@ -177,12 +189,9 @@ class Request(object):
 
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
-                response.read = resp.read
-                response._resp = resp
-                response._close = resp.close
+                response.raw = resp
 
                 if self.cookiejar:
-
                     response.cookies = dict_from_cookiejar(self.cookiejar)
 
 
@@ -208,7 +217,7 @@ class Request(object):
                 ((r.status_code is codes.see_other) or (self.allow_redirects))
             ):
 
-                r.close()
+                r.raw.close()
 
                 if not len(history) < settings.max_redirects:
                     raise TooManyRedirects()
@@ -257,8 +266,8 @@ class Request(object):
 
         Otherwise, assumes the data is already encoded appropriately, and
         returns it twice.
-
         """
+
         if hasattr(data, 'items'):
             result = []
             for k, vs in data.items():
@@ -302,7 +311,6 @@ class Request(object):
         """
 
         self._checks()
-        success = False
 
         # Logging
         if settings.verbose:
@@ -368,7 +376,6 @@ class Request(object):
 
                 self._build_response(why, is_error=True)
 
-
             else:
                 self._build_response(resp)
                 self.response.ok = True
@@ -379,37 +386,46 @@ class Request(object):
         return self.sent
 
 
-
 class Response(object):
-    """The core :class:`Response <models.Response>` object. All
-    :class:`Request <models.Request>` objects contain a
-    :class:`response <models.Response>` attribute, which is an instance
+    """The core :class:`Response <Response>` object. All
+    :class:`Request <Request>` objects contain a
+    :class:`response <Response>` attribute, which is an instance
     of this class.
     """
 
     def __init__(self):
-        #: Raw content of the response, in bytes.
-        #: If ``content-encoding`` of response was set to ``gzip``, the
-        #: response data will be automatically deflated.
+
         self._content = None
+        self._content_consumed = False
+
         #: Integer Code of responded HTTP Status.
         self.status_code = None
+
         #: Case-insensitive Dictionary of Response Headers.
         #: For example, ``headers['content-encoding']`` will return the
         #: value of a ``'Content-Encoding'`` response header.
         self.headers = CaseInsensitiveDict()
+
+        #: File-like object representation of response (for advanced usage).
+        self.raw = None
+
         #: Final URL location of Response.
         self.url = None
+
         #: True if no :attr:`error` occured.
         self.ok = False
+
         #: Resulting :class:`HTTPError` of request, if one occured.
         self.error = None
-        #: A list of :class:`Response <models.Response>` objects from
+
+        #: A list of :class:`Response <Response>` objects from
         #: the history of the Request. Any redirect responses will end
         #: up here.
         self.history = []
-        #: The Request that created the Response.
+
+        #: The :class:`Request <Request>` that created the Response.
         self.request = None
+
         #: A dictionary of Cookies the server sent back.
         self.cookies = None
 
@@ -420,23 +436,65 @@ class Response(object):
 
     def __nonzero__(self):
         """Returns true if :attr:`status_code` is 'OK'."""
+
         return not self.error
 
+    def iter_content(self, chunk_size=10 * 1024, decode_unicode=None):
+        """Iterates over the response data.  This avoids reading the content
+        at once into memory for large responses.  The chunk size is the number
+        of bytes it should read into memory.  This is not necessarily the
+        length of each item returned as decoding can take place.
+        """
+        if self._content_consumed:
+            raise RuntimeError('The content for this response was '
+                               'already consumed')
 
-    def __getattr__(self, name):
-        """Read and returns the full stream when accessing to :attr: `content`"""
-        if name == 'content':
-            if self._content is not None:
-                return self._content
-            self._content = self.read()
-            if self.headers.get('content-encoding', '') == 'gzip':
-                try:
-                    self._content = zlib.decompress(self._content, 16+zlib.MAX_WBITS)
-                except zlib.error:
-                    pass
+        def generate():
+            while 1:
+                chunk = self.raw.read(chunk_size)
+                if not chunk:
+                    break
+                yield chunk
+            self._content_consumed = True
+        gen = generate()
+        if 'gzip' in self.headers.get('content-encoding', ''):
+            gen = stream_decode_gzip(gen)
+        if decode_unicode is None:
+            decode_unicode = settings.decode_unicode
+        if decode_unicode:
+            gen = stream_decode_response_unicode(gen, self)
+        return gen
+
+    @property
+    def content(self):
+        """Content of the response, in bytes or unicode
+        (if available).
+        """
+
+        if self._content is not None:
             return self._content
-        else:
-            raise AttributeError
+
+        if self._content_consumed:
+            raise RuntimeError('The content for this response was '
+                               'already consumed')
+
+        # Read the contents.
+        self._content = self.raw.read()
+
+        # Decode GZip'd content.
+        if 'gzip' in self.headers.get('content-encoding', ''):
+            try:
+                self._content = decode_gzip(self._content)
+            except zlib.error:
+                pass
+
+        # Decode unicode content.
+        if settings.decode_unicode:
+            self._content = get_unicode_from_response(self)
+
+        self._content_consumed = True
+        return self._content
+
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occured."""
@@ -444,10 +502,6 @@ class Response(object):
             raise self.error
 
 
-    def close(self):
-        if self._resp.fp is not None and hasattr(self._resp.fp, '_sock'):
-            self._resp.fp._sock.recv = None
-        self._close()
 
 class AuthManager(object):
     """Requests Authentication Manager."""

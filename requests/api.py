@@ -15,7 +15,7 @@ import config
 from .models import Request, Response, AuthObject
 from .status_codes import codes
 from .hooks import dispatch_hook
-from .utils import cookiejar_from_dict
+from .utils import cookiejar_from_dict, header_expand
 
 
 __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
@@ -24,8 +24,8 @@ def request(method, url,
     params=None, data=None, headers=None, cookies=None, files=None, auth=None,
     timeout=None, allow_redirects=False, proxies=None, hooks=None, return_response=True):
 
-    """Constructs and sends a :class:`Request <models.Request>`.
-    Returns :class:`Response <models.Response>` object.
+    """Constructs and sends a :class:`Request <Request>`.
+    Returns :class:`Response <Response>` object.
 
     :param method: method for the new :class:`Request` object.
     :param url: URL for the new :class:`Request` object.
@@ -38,12 +38,20 @@ def request(method, url,
     :param timeout: (optional) Float describing the timeout of the request.
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param return_response: (optional) If False, an un-sent Request object will returned.
     """
+
+    method = str(method).upper()
 
     if cookies is None:
         cookies = {}
 
     cookies = cookiejar_from_dict(cookies)
+
+    # Expand header values
+    if headers:
+        for k, v in headers.items() or {}:
+            headers[k] = header_expand(v)
 
     args = dict(
         method = method,
@@ -89,31 +97,19 @@ def get(url, **kwargs):
     """Sends a GET request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
-    :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
-    :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
-    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
-    :param auth: (optional) AuthObject to enable Basic HTTP Auth.
-    :param timeout: (optional) Float describing the timeout of the request.
-    :param allow_redirects: (optional) Boolean. Set to False to disable redirect following.
-    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param **kwargs: Optional arguments that ``request`` takes.
     """
+
 
     kwargs.setdefault('allow_redirects', True)
     return request('GET', url, **kwargs)
 
 
 def head(url, **kwargs):
-
     """Sends a HEAD request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
-    :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
-    :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
-    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
-    :param auth: (optional) AuthObject to enable Basic HTTP Auth.
-    :param timeout: (optional) Float describing the timeout of the request.
-    :param allow_redirects: (optional) Boolean. Set to False to disable redirect following.
-    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param **kwargs: Optional arguments that ``request`` takes.
     """
 
     kwargs.setdefault('allow_redirects', True)
@@ -121,22 +117,14 @@ def head(url, **kwargs):
 
 
 def post(url, data='', **kwargs):
-
     """Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
-    :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
-    :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
-    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
-    :param auth: (optional) AuthObject to enable Basic HTTP Auth.
-    :param timeout: (optional) Float describing the timeout of the request.
-    :param allow_redirects: (optional) Boolean. Set to True if redirect following is allowed.
-    :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
-    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param **kwargs: Optional arguments that ``request`` takes.
     """
 
-    return request('POST', url, data=data, **kwargs)
+    return request('post', url, data=data, **kwargs)
 
 
 def put(url, data='', **kwargs):
@@ -144,17 +132,10 @@ def put(url, data='', **kwargs):
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
-    :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
-    :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
-    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
-    :param auth: (optional) AuthObject to enable Basic HTTP Auth.
-    :param timeout: (optional) Float describing the timeout of the request.
-    :param allow_redirects: (optional) Boolean. Set to True if redirect following is allowed.
-    :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
-    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param **kwargs: Optional arguments that ``request`` takes.
     """
 
-    return request('PUT', url, data=data, **kwargs)
+    return request('put', url, data=data, **kwargs)
 
 
 def patch(url, data='', **kwargs):
@@ -162,31 +143,17 @@ def patch(url, data='', **kwargs):
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
-    :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
-    :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
-    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
-    :param auth: (optional) AuthObject to enable Basic HTTP Auth.
-    :param timeout: (optional) Float describing the timeout of the request.
-    :param allow_redirects: (optional) Boolean. Set to True if redirect following is allowed.
-    :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
-    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param **kwargs: Optional arguments that ``request`` takes.
     """
 
-    return request('PATCH', url, **kwargs)
+    return request('patch', url, **kwargs)
 
 
 def delete(url, **kwargs):
-
     """Sends a DELETE request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
-    :param params: (optional) Dictionary of parameters, or bytes, to be sent in the query string for the :class:`Request`.
-    :param headers: (optional) Dictionary of HTTP Headers to sent with the :class:`Request`.
-    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
-    :param auth: (optional) AuthObject to enable Basic HTTP Auth.
-    :param timeout: (optional) Float describing the timeout of the request.
-    :param allow_redirects: (optional) Boolean. Set to True if redirect following is allowed.
-    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param **kwargs: Optional arguments that ``request`` takes.
     """
 
-    return request('DELETE', url, **kwargs)
+    return request('delete', url, **kwargs)

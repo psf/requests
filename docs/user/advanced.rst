@@ -50,7 +50,7 @@ Requests has first-class support for non-blocking i/o requests, powered
 by gevent. This allows you to send a bunch of HTTP requests at the same
 
 First, let's import the async module. Heads up — if you don't have
-**gevent** installed, this will fail.::
+`gevent <gevent>`_ this will fail::
 
     from requests import async
 
