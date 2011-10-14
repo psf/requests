@@ -32,7 +32,9 @@ def _patched(f):
     """Patches a given API function to not send."""
 
     def wrapped(*args, **kwargs):
-        return f(*args, return_response=False, **kwargs)
+        new_kwargs = dict(kwargs)
+        new_kwargs['return_response'] = False
+        return f(*args, **kwargs)
 
     return wrapped
 
