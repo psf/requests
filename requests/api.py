@@ -112,13 +112,9 @@ def get(url, **kwargs):
     :param **kwargs: Optional arguments that ``request`` takes.
     """
 
-    return request('GET', url, **kwargs)
+
     kwargs.setdefault('allow_redirects', True)
     return request('GET', url, **kwargs)
-    if "allow_redirects" not in kwargs:
-        kwargs["allow_redirects"] = True
-
-    return request('get', url, **kwargs)
 
 
 def head(url, **kwargs):
@@ -141,13 +137,8 @@ def head(url, **kwargs):
     :param **kwargs: Optional arguments that ``request`` takes.
     """
 
-    return request('HEAD', url, **kwargs)
     kwargs.setdefault('allow_redirects', True)
     return request('HEAD', url, **kwargs)
-    if "allow_redirects" not in kwargs:
-        kwargs["allow_redirects"] = True
-
-    return request('head', url, **kwargs)
 
 
 def post(url, data='', **kwargs):
