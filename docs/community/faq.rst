@@ -10,6 +10,7 @@ Encoded Data?
 
 Requests automatically decompresses gzip-encoded responses, and does
 its best to decodes response content to unicode when possible.
+it's best to decodes response content to unicode when possible.
 
 You can get direct access to the raw response (and even the socket),
 if needed as well.
