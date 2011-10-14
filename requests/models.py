@@ -361,6 +361,8 @@ class Request(object):
                 if hasattr(why, 'reason'):
                     if isinstance(why.reason, socket.timeout):
                         why = Timeout(why)
+                    elif isinstance(why.reason, socket.error):
+                        why = Timeout(why)
 
                 self._build_response(why, is_error=True)
 
