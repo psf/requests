@@ -3,7 +3,24 @@
 Frequently Asked Questions
 ==========================
 
-This part of the documentation covers common questions about Requests.
+This part of the documentation answers common questions about Requests.
+
+Encoded Data?
+-------------
+
+Requests automatically decompresses gzip-encoded responses, and does
+its best to decodes response content to unicode when possible.
+
+You can get direct access to the raw response (and even the socket),
+if needed as well.
+
+
+Custom User-Agents?
+-------------------
+
+Requests allows you to easily override User-Agent strings, along with
+any other HTTP Header.
+
 
 Why not Httplib2?
 -----------------
@@ -34,10 +51,33 @@ Chris Adams gave an excellent summary on
 Python 3 Support?
 -----------------
 
-It's on the way. Here's a list of `supported interpreters <interpreters>`_.
+It's on the way. Here's a list of Python platforms that are officially
+supported:
+
+* cPython 2.5
+* cPython 2.5.5
+* cPython 2.5.6
+* cPython 2.6
+* cPython 2.6.6
+* cPython 2.6.7
+* cPython 2.7
+* cPython 2.7.1
+* cPython 2.7.2
+* PyPy-c 1.4
+* PyPy-c 1.5
+
+
+Support for Python 3.x is coming *very* soon.
 
 
 Keep-alive Support?
 -------------------
 
 It's on the way.
+
+
+Proxy Support?
+--------------
+
+You bet!
+

@@ -1,41 +1,84 @@
 # -*- coding: utf-8 -*-
 
 """
-    requests.async
-    ~~~~~~~~~~~~~~
+requests.async
+~~~~~~~~~~~~~~
 
-    This module implements the main Requests system, after monkey-patching
-    the urllib2 module with eventlet or gevent..
-
-    :copyright: (c) 2011 by Kenneth Reitz.
-    :license: ISC, see LICENSE for more details.
+This module contains an asynchronous replica of ``requests.api``, powered
+by gevent. All API methods return a ``Request`` instance (as opposed to
+``Response``). A list of requests can be sent with ``map()``.
 """
 
-
-from __future__ import absolute_import
-
-import urllib
-import urllib2
-
-from urllib2 import HTTPError
-
-
 try:
-    import eventlet
-    eventlet.monkey_patch()
+    import gevent
+    from gevent import monkey as curious_george
 except ImportError:
-    pass
+    raise RuntimeError('Gevent is required for requests.async.')
 
-if not 'eventlet' in locals():
-    try:
-        from gevent import monkey
-        monkey.patch_all()
-    except ImportError:
-        pass
+# Monkey-patch.
+curious_george.patch_all(thread=False)
 
-
-if not 'eventlet' in locals():
-    raise ImportError('No Async adaptations of urllib2 found!')
+from . import api
+from .hooks import dispatch_hook
 
 
-from .core import *
+__all__ = (
+    'map',
+    'get', 'head', 'post', 'put', 'patch', 'delete', 'request'
+)
+
+
+def _patched(f):
+    """Patches a given API function to not send."""
+
+    def wrapped(*args, **kwargs):
+        return f(*args, return_response=False, **kwargs)
+
+    return wrapped
+
+
+def _send(r, pools=None):
+    """Sends a given Request object."""
+
+    if pools:
+        r._pools = pools
+
+    r.send()
+
+    # Post-request hook.
+    r = dispatch_hook('post_request', r.hooks, r)
+
+    # Response manipulation hook.
+    r.response = dispatch_hook('response', r.hooks, r.response)
+
+    return r.response
+
+
+# Patched requests.api functions.
+get = _patched(api.get)
+head = _patched(api.head)
+post = _patched(api.post)
+put = _patched(api.put)
+patch = _patched(api.patch)
+delete = _patched(api.delete)
+request = _patched(api.request)
+
+
+def map(requests, prefetch=True):
+    """Concurrently converts a list of Requests to Responses.
+
+    :param requests: a collection of Request objects.
+    :param prefetch: If False, the content will not be downloaded immediately.
+    """
+
+    jobs = [gevent.spawn(_send, r) for r in requests]
+    gevent.joinall(jobs)
+
+    if prefetch:
+        [r.response.content for r in requests]
+
+    return [r.response for r in requests]
+
+
+
+
