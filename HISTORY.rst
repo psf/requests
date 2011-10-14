@@ -1,6 +1,12 @@
 History
 -------
 
+0.6.3 (??)
++++++++++++
+
+* Beautiful ``requests.async`` module, for making async requests w/ gevent.
+
+
 0.6.2 (2011-10-09)
 ++++++++++++++++++
 
