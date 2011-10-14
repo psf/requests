@@ -1,10 +1,13 @@
 History
 -------
 
+0.6.4 (2011-10-13)
+++++++++++++++++++
+
 * Automatic decoding of unicode, based on HTTP Headers.
 * New ``decode_unicode`` setting
 * Removal of ``r.read/close`` methods
-* New ``r.fo`` interface for advanced response usage.*
+* New ``r.faw`` interface for advanced response usage.*
 * Automatic expansion of parameterized headers
 
 0.6.3 (2011-10-13)
