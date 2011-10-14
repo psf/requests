@@ -1,11 +1,19 @@
 History
 -------
 
+0.6.4 (2011-10-13)
+++++++++++++++++++
+
+* Automatic decoding of unicode, based on HTTP Headers.
+* New ``decode_unicode`` setting
+* Removal of ``r.read/close`` methods
+* New ``r.faw`` interface for advanced response usage.*
+* Automatic expansion of parameterized headers
+
 0.6.3 (2011-10-13)
 ++++++++++++++++++
 
 * Beautiful ``requests.async`` module, for making async requests w/ gevent.
-
 
 0.6.2 (2011-10-09)
 ++++++++++++++++++

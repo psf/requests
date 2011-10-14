@@ -31,6 +31,21 @@ They all return an instance of the :class:`Response <Response>` object.
 .. autoclass:: Response
    :inherited-members:
 
+Async
+-----
+
+.. module:: requests.async
+
+
+.. autofunction:: map
+.. autofunction:: request
+.. autofunction:: head
+.. autofunction:: get
+.. autofunction:: post
+.. autofunction:: put
+.. autofunction:: patch
+.. autofunction:: delete
+
 
 
 Utilities
@@ -48,9 +63,6 @@ Cookies
 .. autofunction:: cookiejar_from_dict
 .. autofunction:: add_dict_to_cookiejar
 
-Curl
-~~~~
-.. autofunction:: curl_from_request
 
 Encodings
 ~~~~~~~~~
