@@ -182,7 +182,6 @@ class Request(object):
                 response._close = resp.close
 
                 if self.cookiejar:
-
                     response.cookies = dict_from_cookiejar(self.cookiejar)
 
 
