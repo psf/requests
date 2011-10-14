@@ -20,7 +20,6 @@ curious_george.patch_all(thread=False)
 
 from . import api
 from .hooks import dispatch_hook
-from .packages.urllib3.poolmanager import PoolManager
 
 
 __all__ = (
@@ -65,19 +64,14 @@ delete = _patched(api.delete)
 request = _patched(api.request)
 
 
-def map(requests, keep_alive=False):
+def map(requests):
     """Concurrently converts a list of Requests to Responses.
 
     :param requests: a collection of Request objects.
     :param keep_alive: If True, HTTP Keep-Alive will be used.
     """
 
-    if keep_alive:
-        pools = PoolManager(num_pools=len(requests), maxsize=1)
-    else:
-        pools = None
-
-    jobs = [gevent.spawn(_send, r, pools=pools) for r in requests]
+    jobs = [gevent.spawn(_send, r) for r in requests]
     gevent.joinall(jobs)
 
     return [r.response for r in requests]
