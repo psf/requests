@@ -10,7 +10,7 @@ History
 0.6.2 (2011-10-09)
 ++++++++++++++++++
 
-* ``allow_redirects=False`` on safe verbs
+* GET/HEAD obeys allow_redirects=False
 
 
 0.6.1 (2011-08-20)
