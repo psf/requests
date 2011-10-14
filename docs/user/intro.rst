@@ -49,3 +49,5 @@ Requests License
 
 
 
+Support for Python 3.x is planned.
+Support for Python 3.x is planned.
