@@ -16,7 +16,7 @@ import requests
 from requests.sessions import Session
 
 
-HTTPBIN_URL = 'http://httpbin.org/'
+HTTPBIN_URL = 'http://httpbin.ep.io/'
 HTTPSBIN_URL = 'https://httpbin.ep.io/'
 
 # HTTPBIN_URL = 'http://staging.httpbin.org/'
@@ -42,6 +42,8 @@ SERVICES = (httpbin, httpsbin)
 class RequestsTestSuite(unittest.TestCase):
     """Requests test cases."""
 
+    # It goes to eleven.
+    _multiprocess_can_split_ = True
 
     def setUp(self):
         pass
