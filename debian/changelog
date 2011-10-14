@@ -1,5 +1,0 @@
-python-requests (0.4.1-0) testing; urgency=low
-
-  * Initial Debian package
-
- -- Bruno Clermont <bruno.clermont@gmail.com>  Thu, 26 May 2011 16:25:00 -0500
