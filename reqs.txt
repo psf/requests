@@ -2,4 +2,4 @@ envoy==0.0.2
 nose
 pyflakes
 omnijson
-httpbin
+httpbin==0.0.4
