@@ -5,27 +5,15 @@ requests.async
 ~~~~~~~~~~~~~~
 
 This module contains an asynchronous replica of ``requests.api``, powered
-by gevent. All API methods return a ``Request`` instance (as opposed to
+by gevent or eventlet. All API methods return a ``Request`` instance (as opposed to
 ``Response``). A list of requests can be sent with ``map()``.
 """
 
-try:
-    import gevent
-    from gevent import monkey as curious_george
-except ImportError:
-    raise RuntimeError('Gevent is required for requests.async.')
-
-# Monkey-patch.
-curious_george.patch_all(thread=False)
-
-from . import api
-from .hooks import dispatch_hook
+from .. import api
+from ..hooks import dispatch_hook
 
 
-__all__ = (
-    'map',
-    'get', 'head', 'post', 'put', 'patch', 'delete', 'request'
-)
+__all__ = ('get', 'head', 'post', 'put', 'patch', 'delete', 'request')
 
 
 def _patched(f):
@@ -62,23 +50,4 @@ put = _patched(api.put)
 patch = _patched(api.patch)
 delete = _patched(api.delete)
 request = _patched(api.request)
-
-
-def map(requests, prefetch=True):
-    """Concurrently converts a list of Requests to Responses.
-
-    :param requests: a collection of Request objects.
-    :param prefetch: If False, the content will not be downloaded immediately.
-    """
-
-    jobs = [gevent.spawn(_send, r) for r in requests]
-    gevent.joinall(jobs)
-
-    if prefetch:
-        [r.response.content for r in requests]
-
-    return [r.response for r in requests]
-
-
-
 
