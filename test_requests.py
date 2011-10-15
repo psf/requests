@@ -3,8 +3,11 @@
 
 from __future__ import with_statement
 
-import unittest
+import time
 import cookielib
+import unittest
+
+import envoy
 
 try:
     import omnijson as json
@@ -16,7 +19,8 @@ import requests
 from requests.sessions import Session
 
 
-HTTPBIN_URL = 'http://127.0.0.1:44444/'
+HTTPBIN_URL = 'http://0.0.0.0:7045/'
+# HTTPBIN_URL = 'http://127.0.0.1:8000/'
 
 
 def httpbin(*suffix):
@@ -40,14 +44,10 @@ class RequestsTestSuite(unittest.TestCase):
         global _httpbin
 
         if not _httpbin:
-            import envoy
-            self.httpbin = envoy.connect('httpbin 44444')
-            # print self.httpbin
+
+            self.httpbin = envoy.connect('gunicorn httpbin:app --bind=0.0.0.0:7045')
 
             _httpbin = True
-            # print '!'/
-
-            import time
             time.sleep(1)
 
 
@@ -122,6 +122,9 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_HTTP_200_OK_PATCH(self):
         r = requests.patch(httpbin('patch'))
+        print r.__dict__
+        print r.content
+        print r.url
         self.assertEqual(r.status_code, 200)
 
 
