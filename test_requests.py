@@ -261,19 +261,6 @@ class RequestsTestSuite(unittest.TestCase):
             self.assertEquals(r.status_code, 401)
 
 
-    def test_settings(self):
-
-        def test():
-            r = requests.get(httpbin(''))
-            r.raise_for_status()
-
-        with requests.settings(timeout=0.0000000001):
-            self.assertRaises(requests.Timeout, test)
-
-        with requests.settings(timeout=100):
-            requests.get(httpbin(''))
-
-
     def test_urlencoded_post_data(self):
 
         for service in SERVICES:
