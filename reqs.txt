@@ -1,3 +1,5 @@
+envoy==0.0.2
 nose
 pyflakes
 omnijson
+httpbin
