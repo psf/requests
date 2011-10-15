@@ -124,9 +124,6 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_HTTP_200_OK_PATCH(self):
         r = requests.patch(httpbin('patch'))
-        print r.__dict__
-        print r.content
-        print r.url
         self.assertEqual(r.status_code, 200)
 
 
@@ -270,7 +267,7 @@ class RequestsTestSuite(unittest.TestCase):
             r = requests.get(httpbin(''))
             r.raise_for_status()
 
-        with requests.settings(timeout=0.0000001):
+        with requests.settings(timeout=0.0000000001):
             self.assertRaises(requests.Timeout, test)
 
         with requests.settings(timeout=100):
