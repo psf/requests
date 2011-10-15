@@ -370,9 +370,9 @@ class RequestsTestSuite(unittest.TestCase):
             self.assertEquals(rbody.get('data'), 'foobar')
 
 
-    def test_idna(self):
-        r = requests.get(u'http://➡.ws/httpbin')
-        assert 'httpbin' in r.url
+    # def test_idna(self):
+    #     r = requests.get(u'http://➡.ws/httpbin')
+    #     assert 'httpbin' in r.url
 
 
     def test_urlencoded_get_query_multivalued_param(self):
