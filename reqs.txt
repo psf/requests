@@ -1,6 +1,7 @@
-gunicorn
 envoy==0.0.2
+httpbin==0.0.4
+gunicorn
 nose
 pyflakes
 omnijson
-httpbin==0.0.4
+rudolf

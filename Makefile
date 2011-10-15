@@ -2,7 +2,7 @@ init:
 	pip install -r reqs.txt
 
 test:
-	python test_requests.py
+	nosetests test_requests.py --with-color
 
 ci: init
 	nosetests test_requests.py --with-xunit --xunit-file=junit-report.xml
