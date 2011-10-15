@@ -1,5 +1,3 @@
 nose
-mock
 pyflakes
-NoseXUnit
 omnijson
