@@ -5,6 +5,7 @@ from __future__ import with_statement
 
 import time
 import cookielib
+import os
 import unittest
 
 import envoy
@@ -18,8 +19,9 @@ import requests
 
 from requests.sessions import Session
 
+PORT = os.environ.get('HTTPBIN_PORT', '7045')
 
-HTTPBIN_URL = 'http://0.0.0.0:7045/'
+HTTPBIN_URL = 'http://0.0.0.0:%s/' % (PORT)
 # HTTPBIN_URL = 'http://127.0.0.1:8000/'
 
 
@@ -45,7 +47,7 @@ class RequestsTestSuite(unittest.TestCase):
 
         if not _httpbin:
 
-            self.httpbin = envoy.connect('gunicorn httpbin:app --bind=0.0.0.0:7045')
+            self.httpbin = envoy.connect('gunicorn httpbin:app --bind=0.0.0.0:%s' % (PORT))
 
             _httpbin = True
             time.sleep(1)
