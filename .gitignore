@@ -7,3 +7,4 @@ pylint.txt
 docs/_build
 toy.py
 .gitignore
+junit-report.xml
