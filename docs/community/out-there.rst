@@ -15,7 +15,7 @@ Articles & Talks
 - `My 'Python for Humans' talk <http://python-for-humans.heroku.com>`_ ( `audio <http://codeconf.s3.amazonaws.com/2011/pycodeconf/talks/PyCodeConf2011%20-%20Kenneth%20Reitz.m4a>`_ )
 - `Issac Kelly's 'Consuming Web APIs' talk <http://issackelly.github.com/Consuming-Web-APIs-with-Python-Talk/slides/slides.html>`_
 - `Blog post about Requests via Yum <http://arunsag.wordpress.com/2011/08/17/new-package-python-requests-http-for-humans/>`_
-- `Russian blog post intrudcing Requests <http://habrahabr.ru/blogs/python/126262/>`_
+- `Russian blog post introducing Requests <http://habrahabr.ru/blogs/python/126262/>`_
 
 
 Integrations
