@@ -10,7 +10,7 @@ Modules
 
 Articles & Talks
 ================
-
+- `Python for the Web <http://gun.io/blog/python-for-the-web/>`_ teaches how to use Python to interact with the web, using Requests.
 - `Daniel Greenfield's Review of Requests <http://pydanny.blogspot.com/2011/05/python-http-requests-for-humans.html>`_
 - `My 'Python for Humans' talk <http://python-for-humans.heroku.com>`_ ( `audio <http://codeconf.s3.amazonaws.com/2011/pycodeconf/talks/PyCodeConf2011%20-%20Kenneth%20Reitz.m4a>`_ )
 - `Issac Kelly's 'Consuming Web APIs' talk <http://issackelly.github.com/Consuming-Web-APIs-with-Python-Talk/slides/slides.html>`_
