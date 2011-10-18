@@ -1,21 +1,21 @@
 Modules
 =======
 
-- https://github.com/maraujop/requests-oauth-hook
-- https://github.com/jgorset/facepy
-- https://github.com/bulkan/robotframework-requests
-- https://github.com/bitprophet/fullerene]
-- https://github.com/benjaminws/urbanairship-python
+- `requests-oauth-hook <https://github.com/maraujop/requests-oauth-hook>`_, for adding OAuth1 support to Requests
+- `FacePy <https://github.com/jgorset/facepy>`_, a Python wrapper to the Facebook API.
+- `robotframework-requests <https://github.com/bulkan/robotframework-requests>`_, a Robot Framework API wrapper.
+- `fullerene <https://github.com/bitprophet/fullerene>`_, a Graphite Dashboard.
+- `urbanairship-python <https://github.com/benjaminws/urbanairship-python>`_, a fork of the Urban Airship API wrapper.
 
 
 Articles & Talks
 ================
 
-- http://pydanny.blogspot.com/2011/05/python-http-requests-for-humans.html
-- http://python-for-humans.heroku.com
-- http://issackelly.github.com/Consuming-Web-APIs-with-Python-Talk/slides/slides.html
-- http://arunsag.wordpress.com/2011/08/17/new-package-python-requests-http-for-humans/
-- http://habrahabr.ru/blogs/python/126262/ [Russian]
+- `Daniel Greenfield's Review of Requests <http://pydanny.blogspot.com/2011/05/python-http-requests-for-humans.html>`_
+- `My 'Python for Humans' talk <http://python-for-humans.heroku.com>`_
+- `Issac Kelly's 'Consuming Web APIs' talk <http://issackelly.github.com/Consuming-Web-APIs-with-Python-Talk/slides/slides.html>`_
+- `Blog post about Requests via Yum <http://arunsag.wordpress.com/2011/08/17/new-package-python-requests-http-for-humans/>`_
+- `Russian blog post intrudcing Requests <http://habrahabr.ru/blogs/python/126262/>`_
 
 
 Integrations
@@ -24,8 +24,9 @@ Integrations
 ScraperWiki
 ------------
 
-ScraperWiki is an excellent service that allows you to run Python, Ruby, and PHP
-scraper scripts on the web. Now, Requests v0.6.1 is available to use in your scrapers!
+`ScraperWiki <https://scraperwiki.com/>`_ is an excellent service that allows
+you to run Python, Ruby, and PHP scraper scripts on the web. Now, Requests
+v0.6.1 is available to use in your scrapers!
 
 To give it a try, simply::
 
