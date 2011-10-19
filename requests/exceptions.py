@@ -7,7 +7,7 @@ requests.exceptions
 """
 
 class RequestException(Exception):
-    """There was an ambiguous exception that occured while handling your
+    """There was an ambiguous exception that occurred while handling your
     request."""
 
 class AuthenticationError(RequestException):

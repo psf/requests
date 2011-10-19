@@ -41,14 +41,14 @@ class Request(object):
         params=dict(), auth=None, cookiejar=None, timeout=None, redirect=False,
         allow_redirects=False, proxies=None, hooks=None):
 
-        #: Float describ the timeout of the request.
+        #: Float describes the timeout of the request.
         #  (Use socket.setdefaulttimeout() as fallback)
         self.timeout = timeout
 
         #: Request URL.
         self.url = url
 
-        #: Dictonary of HTTP Headers to attach to the :class:`Request <Request>`.
+        #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.
         self.headers = headers
 
         #: Dictionary of files to multipart upload (``{filename: content}``).
@@ -361,7 +361,7 @@ class Request(object):
                     resp = opener(req)
 
                     if settings.timeout_fallback:
-                        # restore gobal timeout
+                        # restore global timeout
                         socket.setdefaulttimeout(old_timeout)
 
                 if self.cookiejar is not None:
@@ -412,10 +412,10 @@ class Response(object):
         #: Final URL location of Response.
         self.url = None
 
-        #: True if no :attr:`error` occured.
+        #: True if no :attr:`error` occurred.
         self.ok = False
 
-        #: Resulting :class:`HTTPError` of request, if one occured.
+        #: Resulting :class:`HTTPError` of request, if one occurred.
         self.error = None
 
         #: A list of :class:`Response <Response>` objects from
@@ -497,7 +497,7 @@ class Response(object):
 
 
     def raise_for_status(self):
-        """Raises stored :class:`HTTPError` or :class:`URLError`, if one occured."""
+        """Raises stored :class:`HTTPError` or :class:`URLError`, if one occurred."""
         if self.error:
             raise self.error
 

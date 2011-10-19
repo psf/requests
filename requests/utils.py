@@ -55,7 +55,7 @@ def header_expand(headers):
                 collector.append(', ')
 
 
-    # Remove trailing seperators.
+    # Remove trailing separators.
     if collector[-1] in (', ', '; '):
         del collector[-1]
 
@@ -199,7 +199,7 @@ def stream_decode_response_unicode(iterator, r):
 def get_unicode_from_response(r):
     """Returns the requested content back in unicode.
 
-    :param r: Reponse object to get unicode content from.
+    :param r: Response object to get unicode content from.
 
     Tried:
 

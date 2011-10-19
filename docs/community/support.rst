@@ -3,7 +3,7 @@
 Support
 =======
 
-If you have a questions or issues about Requests, there are serveral options:
+If you have a questions or issues about Requests, there are several options:
 
 Send a Tweet
 ------------
