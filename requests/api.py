@@ -4,7 +4,7 @@
 requests.api
 ~~~~~~~~~~~~
 
-This module impliments the Requests API.
+This module implements the Requests API.
 
 :copyright: (c) 2011 by Kenneth Reitz.
 :license: ISC, see LICENSE for more details.

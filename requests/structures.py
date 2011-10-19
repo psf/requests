@@ -4,7 +4,7 @@
 requests.structures
 ~~~~~~~~~~~~~~~~~~~
 
-Datastructures that power Requests.
+Data structures that power Requests.
 
 """
 
