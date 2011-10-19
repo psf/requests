@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
-"""
-requests.core
-~~~~~~~~~~~~~
+#   __
+#  /__)  _  _     _   _ _/   _
+# / (   (- (/ (/ (- _)  /  _)
+#          /
 
-This module implements the main Requests system.
+"""
+requests
+~~~~~~~~
 
 :copyright: (c) 2011 by Kenneth Reitz.
 :license: ISC, see LICENSE for more details.
