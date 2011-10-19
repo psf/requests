@@ -130,6 +130,6 @@ class Session(object):
 
 
 def session(**kwargs):
-    """Returns a :class:`Session` for context-managment."""
+    """Returns a :class:`Session` for context-management."""
 
     return Session(**kwargs)

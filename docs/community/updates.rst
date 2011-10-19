@@ -4,7 +4,7 @@ Updates
 =======
 
 If you'd like to stay up to date on the community and development of Requests,
-there are serveral options:
+there are several options:
 
 GitHub
 ------
