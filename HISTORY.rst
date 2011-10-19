@@ -1,7 +1,13 @@
 History
 -------
 
-0.6.5 (2011-10-19)
+0.6.6 (2011-10-19)
+++++++++++++++++++
+
+* Session parameter bugfix (params merging)
+
+
+0.6.5 (2011-10-18)
 ++++++++++++++++++
 
 * Offline (fast) test suite.
