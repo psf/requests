@@ -453,13 +453,18 @@ class RequestsTestSuite(unittest.TestCase):
 
         s = Session()
         s.headers = heads
+
         # Make 2 requests from Session object, should send header both times
         r1 = s.get(httpbin('user-agent'))
-
         assert heads['User-agent'] in r1.content
-        r2 = s.get(httpbin('user-agent'))
 
+        r2 = s.get(httpbin('user-agent'))
         assert heads['User-agent'] in r2.content
+
+        new_heads = {'User-agent': 'blah'}
+        r3 = s.get(httpbin('user-agent'), headers=new_heads)
+        assert new_heads['User-agent'] in r3.content
+
         self.assertEqual(r2.status_code, 200)
 
 
