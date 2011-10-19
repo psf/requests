@@ -1,6 +1,13 @@
 History
 -------
 
+0.6.5 (2011-10-19)
+++++++++++++++++++
+
+* Offline (fast) test suite.
+* Session dictionary argument merging.
+
+
 0.6.4 (2011-10-13)
 ++++++++++++++++++
 

@@ -87,6 +87,7 @@ Requests ecosystem and community.
    :maxdepth: 2
 
    community/faq
+   community/out-there.rst
    community/support
    community/updates
 

@@ -3,8 +3,12 @@
 
 from __future__ import with_statement
 
-import unittest
+import time
 import cookielib
+import os
+import unittest
+
+import envoy
 
 try:
     import omnijson as json
@@ -15,12 +19,10 @@ import requests
 
 from requests.sessions import Session
 
+PORT = os.environ.get('HTTPBIN_PORT', '7045')
 
-HTTPBIN_URL = 'http://httpbin.ep.io/'
-HTTPSBIN_URL = 'https://httpbin.ep.io/'
-
-# HTTPBIN_URL = 'http://staging.httpbin.org/'
-# HTTPSBIN_URL = 'https://httpbin-staging.ep.io/'
+HTTPBIN_URL = 'http://0.0.0.0:%s/' % (PORT)
+# HTTPBIN_URL = 'http://127.0.0.1:8000/'
 
 
 def httpbin(*suffix):
@@ -29,15 +31,9 @@ def httpbin(*suffix):
     return HTTPBIN_URL + '/'.join(suffix)
 
 
-def httpsbin(*suffix):
-    """Returns url for HTTPSBIN resource."""
+SERVICES = (httpbin, )
 
-    return HTTPSBIN_URL + '/'.join(suffix)
-
-
-SERVICES = (httpbin, httpsbin)
-
-
+_httpbin = False
 
 class RequestsTestSuite(unittest.TestCase):
     """Requests test cases."""
@@ -46,12 +42,21 @@ class RequestsTestSuite(unittest.TestCase):
     _multiprocess_can_split_ = True
 
     def setUp(self):
-        pass
+
+        global _httpbin
+
+        if not _httpbin:
+
+            self.httpbin = envoy.connect('gunicorn httpbin:app --bind=0.0.0.0:%s' % (PORT))
+
+            _httpbin = True
+            time.sleep(1)
+
 
 
     def tearDown(self):
         """Teardown."""
-        pass
+        # self.httpbin.kill()
 
 
     def test_invalid_url(self):
@@ -59,7 +64,7 @@ class RequestsTestSuite(unittest.TestCase):
 
 
     def test_HTTP_200_OK_GET(self):
-        r = requests.get(httpbin('/'))
+        r = requests.get(httpbin('/get'))
         self.assertEqual(r.status_code, 200)
 
     def test_HTTP_302_ALLOW_REDIRECT_GET(self):
@@ -69,10 +74,6 @@ class RequestsTestSuite(unittest.TestCase):
     def test_HTTP_302_GET(self):
 	r = requests.get(httpbin('redirect', '1'), allow_redirects=False)
 	self.assertEqual(r.status_code, 302)
-
-    def test_HTTPS_200_OK_GET(self):
-        r = requests.get(httpsbin('/'))
-        self.assertEqual(r.status_code, 200)
 
 
     def test_HTTP_200_OK_GET_WITH_PARAMS(self):
@@ -112,12 +113,7 @@ class RequestsTestSuite(unittest.TestCase):
 
 
     def test_HTTP_200_OK_HEAD(self):
-        r = requests.head(httpbin('/'))
-        self.assertEqual(r.status_code, 200)
-
-
-    def test_HTTPS_200_OK_HEAD(self):
-        r = requests.head(httpsbin('/'))
+        r = requests.head(httpbin('/get'))
         self.assertEqual(r.status_code, 200)
 
 
@@ -126,18 +122,8 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
 
 
-    def test_HTTPS_200_OK_PUT(self):
-        r = requests.put(httpsbin('put'))
-        self.assertEqual(r.status_code, 200)
-
-
     def test_HTTP_200_OK_PATCH(self):
         r = requests.patch(httpbin('patch'))
-        self.assertEqual(r.status_code, 200)
-
-
-    def test_HTTPS_200_OK_PATCH(self):
-        r = requests.patch(httpsbin('patch'))
         self.assertEqual(r.status_code, 200)
 
 
@@ -206,7 +192,7 @@ class RequestsTestSuite(unittest.TestCase):
             r = requests.get(service('status', '500'))
             self.assertEqual(bool(r), False)
 
-            r = requests.get(service('/'))
+            r = requests.get(service('/get'))
             self.assertEqual(bool(r), True)
 
 
@@ -257,7 +243,7 @@ class RequestsTestSuite(unittest.TestCase):
 
         for service in SERVICES:
 
-            url = service('/')
+            url = service('/get')
 
             requests.get(url, params={'foo': u'føø'})
             requests.get(url, params={u'føø': u'føø'})
@@ -273,19 +259,6 @@ class RequestsTestSuite(unittest.TestCase):
         for service in SERVICES:
             r = requests.get(service('basic-auth', 'user', 'pass'), auth=http_auth)
             self.assertEquals(r.status_code, 401)
-
-
-    def test_settings(self):
-
-        def test():
-            r = requests.get(httpbin(''))
-            r.raise_for_status()
-
-        with requests.settings(timeout=0.0000001):
-            self.assertRaises(requests.Timeout, test)
-
-        with requests.settings(timeout=100):
-            requests.get(httpbin(''))
 
 
     def test_urlencoded_post_data(self):
@@ -386,9 +359,9 @@ class RequestsTestSuite(unittest.TestCase):
             self.assertEquals(rbody.get('data'), 'foobar')
 
 
-    def test_idna(self):
-        r = requests.get(u'http://➡.ws/httpbin')
-        assert 'httpbin' in r.url
+    # def test_idna(self):
+    #     r = requests.get(u'http://➡.ws/httpbin')
+    #     assert 'httpbin' in r.url
 
 
     def test_urlencoded_get_query_multivalued_param(self):
@@ -470,14 +443,7 @@ class RequestsTestSuite(unittest.TestCase):
     def test_session_HTTP_200_OK_GET(self):
 
         s = Session()
-        r = s.get(httpbin('/'))
-        self.assertEqual(r.status_code, 200)
-
-
-    def test_session_HTTPS_200_OK_GET(self):
-
-        s = Session()
-        r = s.get(httpsbin('/'))
+        r = s.get(httpbin('/get'))
         self.assertEqual(r.status_code, 200)
 
 
@@ -487,13 +453,18 @@ class RequestsTestSuite(unittest.TestCase):
 
         s = Session()
         s.headers = heads
+
         # Make 2 requests from Session object, should send header both times
         r1 = s.get(httpbin('user-agent'))
-
         assert heads['User-agent'] in r1.content
-        r2 = s.get(httpbin('user-agent'))
 
+        r2 = s.get(httpbin('user-agent'))
         assert heads['User-agent'] in r2.content
+
+        new_heads = {'User-agent': 'blah'}
+        r3 = s.get(httpbin('user-agent'), headers=new_heads)
+        assert new_heads['User-agent'] in r3.content
+
         self.assertEqual(r2.status_code, 200)
 
 
