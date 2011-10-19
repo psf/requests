@@ -17,10 +17,12 @@ History
 * New ``r.faw`` interface for advanced response usage.*
 * Automatic expansion of parameterized headers
 
+
 0.6.3 (2011-10-13)
 ++++++++++++++++++
 
 * Beautiful ``requests.async`` module, for making async requests w/ gevent.
+
 
 0.6.2 (2011-10-09)
 ++++++++++++++++++
