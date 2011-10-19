@@ -19,11 +19,13 @@ __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
 
 
-from models import HTTPError, Request, Response
-from api import *
-from exceptions import *
-from sessions import session
-from status_codes import codes
-from config import settings
-
-import utils
+from . import utils
+from .models import HTTPError, Request, Response
+from .api import request, get, head, post, patch, put, delete
+from .sessions import session
+from .status_codes import codes
+from .config import settings
+from .exceptions import (
+    RequestException, AuthenticationError, Timeout, URLRequired,
+    InvalidMethod, TooManyRedirects
+)

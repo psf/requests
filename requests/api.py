@@ -11,7 +11,7 @@ This module impliments the Requests API.
 
 """
 
-import config
+from . import config
 from .models import Request, Response, AuthObject
 from .status_codes import codes
 from .hooks import dispatch_hook
