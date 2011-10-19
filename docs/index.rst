@@ -41,6 +41,7 @@ Testimonials
 
 `Twitter, Inc <http://twitter.com>`_,
 a U.S. Federal Institution,
+NIH, 
 `Readability <http://readability.com>`_, and
 `Work for Pie <http://workforpie.com>`_
 use Requests internally.
