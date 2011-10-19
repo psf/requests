@@ -1,7 +1,13 @@
 History
 -------
 
-0.6.5 (2011-10-19)
+0.6.6 (2011-10-19)
+++++++++++++++++++
+
+* Session parameter bugfix (params merging)
+
+
+0.6.5 (2011-10-18)
 ++++++++++++++++++
 
 * Offline (fast) test suite.
@@ -17,10 +23,12 @@ History
 * New ``r.faw`` interface for advanced response usage.*
 * Automatic expansion of parameterized headers
 
+
 0.6.3 (2011-10-13)
 ++++++++++++++++++
 
 * Beautiful ``requests.async`` module, for making async requests w/ gevent.
+
 
 0.6.2 (2011-10-09)
 ++++++++++++++++++

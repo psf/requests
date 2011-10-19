@@ -468,5 +468,33 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEqual(r2.status_code, 200)
 
 
+    def test_session_persistent_params(self):
+
+        params = {'a': 'a_test'}
+
+        s = Session()
+        s.params = params
+
+        # Make 2 requests from Session object, should send header both times
+        r1 = s.get(httpbin('get'))
+        assert params['a'] in r1.content
+
+
+        params2 = {'b': 'b_test'}
+
+        r2 = s.get(httpbin('get'), params=params2)
+        assert params['a'] in r2.content
+        assert params2['b'] in r2.content
+
+
+        params3 = {'b': 'b_test', 'a': None, 'c': 'c_test'}
+
+        r3 = s.get(httpbin('get'), params=params3)
+
+        assert not params['a'] in r3.content
+        assert params3['b'] in r3.content
+        assert params3['c'] in r3.content
+
+
 if __name__ == '__main__':
     unittest.main()

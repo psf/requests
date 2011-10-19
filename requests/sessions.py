@@ -49,7 +49,7 @@ def merge_kwargs(local_kwarg, default_kwarg):
 class Session(object):
     """A Requests session."""
 
-    __attrs__ = ['headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks']
+    __attrs__ = ['headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks', 'params']
 
 
     def __init__(self,
@@ -58,7 +58,8 @@ class Session(object):
         auth=None,
         timeout=None,
         proxies=None,
-        hooks=None):
+        hooks=None,
+        params=None):
 
         self.headers = headers or {}
         self.cookies = cookies or {}
@@ -66,6 +67,7 @@ class Session(object):
         self.timeout = timeout
         self.proxies = proxies or {}
         self.hooks = hooks or {}
+        self.params = params or {}
 
         # Set up a CookieJar to be used by default
         self.cookies = cookielib.FileCookieJar()
