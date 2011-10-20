@@ -64,7 +64,7 @@ class RequestsAPIUnitTests(unittest.TestCase):
     def test_http_get(self, mock_request):
         mock_request.return_value = Response()
         requests.get('http://google.com')
-        mock_request.assert_called_once_with('get', 'http://google.com',
+        mock_request.assert_called_once_with('GET', 'http://google.com',
                                              allow_redirects= True)
 
     @mock.patch('requests.api.request')
@@ -76,7 +76,7 @@ class RequestsAPIUnitTests(unittest.TestCase):
                      files="files", auth="auth", timeout="timeout",
                      allow_redirects=False,
                      proxies="proxies", hooks="hooks")
-        mock_request.assert_called_once_with('get', 'http://google.com',
+        mock_request.assert_called_once_with('GET', 'http://google.com',
                      params="params", data="data", headers="headers",
                      cookies="cookies",
                      files="files", auth="auth", timeout="timeout",
@@ -87,7 +87,7 @@ class RequestsAPIUnitTests(unittest.TestCase):
     def test_http_head(self, mock_request):
         mock_request.return_value = Response()
         requests.head('http://google.com')
-        mock_request.assert_called_once_with('head', 'http://google.com',
+        mock_request.assert_called_once_with('HEAD', 'http://google.com',
                                              allow_redirects= True)
 
     @mock.patch('requests.api.request')
@@ -99,7 +99,7 @@ class RequestsAPIUnitTests(unittest.TestCase):
                      files="files", auth="auth", timeout="timeout",
                      allow_redirects=False,
                      proxies="proxies", hooks="hooks")
-        mock_request.assert_called_once_with('head', 'http://google.com',
+        mock_request.assert_called_once_with('HEAD', 'http://google.com',
                      params="params", data="data", headers="headers",
                      cookies="cookies",
                      files="files", auth="auth", timeout="timeout",
