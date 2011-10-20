@@ -18,7 +18,7 @@ or, with `easy_install <http://pypi.python.org/pypi/setuptools>`_::
 
     $ easy_install requests
 
-But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/index.html#pip-compared-to-easy-install>`_.
+But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/other-tools.html#pip-compared-to-easy-install>`_.
 
 
 
