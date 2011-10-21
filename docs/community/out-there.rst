@@ -6,7 +6,7 @@ Modules
 - `robotframework-requests <https://github.com/bulkan/robotframework-requests>`_, a Robot Framework API wrapper.
 - `fullerene <https://github.com/bitprophet/fullerene>`_, a Graphite Dashboard.
 - `urbanairship-python <https://github.com/benjaminws/urbanairship-python>`_, a fork of the Urban Airship API wrapper.
-
+- `WhitespaceBot <https://github.com/Gunio/WhitespaceBot/>`_, a project that automatically forks repos, strips trailing whitespace, and sends a pull request.
 
 Articles & Talks
 ================
