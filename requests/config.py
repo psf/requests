@@ -63,6 +63,7 @@ settings.verbose = None
 settings.timeout = None
 settings.max_redirects = 30
 settings.decode_unicode = True
+settings.async_module = 'gevent'
 
 #: Use socket.setdefaulttimeout() as fallback?
 settings.timeout_fallback = True

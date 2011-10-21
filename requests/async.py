@@ -5,15 +5,32 @@ requests.async
 ~~~~~~~~~~~~~~
 
 This module contains an asynchronous replica of ``requests.api``, powered
-by gevent. All API methods return a ``Request`` instance (as opposed to
+by gevent or eventlet. All API methods return a ``Request`` instance (as opposed to
 ``Response``). A list of requests can be sent with ``map()``.
 """
 
-try:
-    import gevent
-    from gevent import monkey as curious_george
-except ImportError:
-    raise RuntimeError('Gevent is required for requests.async.')
+from .config import settings
+
+if settings.async_module not in ('gevent', 'eventlet'):
+    raise RuntimeError('async_module can only be one of "gevent" or "eventlet"')
+
+async_module = None
+if settings.async_module == "gevent":
+    try:
+        import gevent
+        from gevent import monkey as curious_george
+        async_module = 'gevent'
+    except ImportError:
+        pass
+
+if async_module is None:
+    try:
+        import eventlet
+        from eventlet import patcher as curious_george
+        curious_george.patch_all = curious_george.monkey_patch
+        async_module = 'eventlet'
+    except ImportError:
+        raise RuntimeError('Gevent or Eventlet is required for requests.async.')
 
 # Monkey-patch.
 curious_george.patch_all(thread=False)
@@ -71,8 +88,13 @@ def map(requests, prefetch=True):
     :param prefetch: If False, the content will not be downloaded immediately.
     """
 
-    jobs = [gevent.spawn(_send, r) for r in requests]
-    gevent.joinall(jobs)
+    if async_module == 'gevent':
+        jobs = [gevent.spawn(_send, r) for r in requests]
+        gevent.joinall(jobs)
+    else:
+        pool = eventlet.GreenPool()
+        [pool.spawn(_send, r) for r in requests]
+        pool.waitall()
 
     if prefetch:
         [r.response.content for r in requests]
