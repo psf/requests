@@ -69,9 +69,10 @@ We can build a list of ``Request`` objects easily::
 
     rs = [async.get(u) for u in urls]
 
-Now we have a list of ``Request`` objects, ready to be sent. We could
-send them one at a time with ``Request.send()``, but that would take a while.
-Instead, we'll send them all at the same time with ``async.map()``::
+Now we have a list of ``Request`` objects, ready to be sent. We could send them
+one at a time with ``Request.send()``, but that would take a while.  Instead,
+we'll send them all at the same time with ``async.map()``.  Using ``async.map()``
+will also guarantee execution of the ``response`` hook, described below. ::
 
     >>> async.map(rs)
     [<Response [200]>, <Response [200]>, <Response [200]>, <Response [200]>]
