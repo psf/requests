@@ -10,7 +10,7 @@ History
 0.6.6 (2011-10-19)
 ++++++++++++++++++
 
-* Session parameter bugfix (params merging)
+* Session parameter bugfix (params merging).
 
 
 0.6.5 (2011-10-18)
@@ -24,10 +24,10 @@ History
 ++++++++++++++++++
 
 * Automatic decoding of unicode, based on HTTP Headers.
-* New ``decode_unicode`` setting
-* Removal of ``r.read/close`` methods
+* New ``decode_unicode`` setting.
+* Removal of ``r.read/close`` methods.
 * New ``r.faw`` interface for advanced response usage.*
-* Automatic expansion of parameterized headers
+* Automatic expansion of parameterized headers.
 
 
 0.6.3 (2011-10-13)
@@ -39,7 +39,7 @@ History
 0.6.2 (2011-10-09)
 ++++++++++++++++++
 
-* GET/HEAD obeys allow_redirects=False
+* GET/HEAD obeys allow_redirects=False.
 
 
 0.6.1 (2011-08-20)
