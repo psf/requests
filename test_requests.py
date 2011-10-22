@@ -8,6 +8,7 @@ import cookielib
 import os
 import unittest
 
+import requests
 import envoy
 
 try:
@@ -15,11 +16,10 @@ try:
 except ImportError:
     import json
 
-import requests
 
-from requests.sessions import Session
 
-PORT = os.environ.get('HTTPBIN_PORT', '7045')
+# TODO: Detect an open port.
+PORT = os.environ.get('HTTPBIN_PORT', '7077')
 
 HTTPBIN_URL = 'http://0.0.0.0:%s/' % (PORT)
 # HTTPBIN_URL = 'http://127.0.0.1:8000/'
@@ -442,7 +442,7 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_session_HTTP_200_OK_GET(self):
 
-        s = Session()
+        s = requests.session()
         r = s.get(httpbin('/get'))
         self.assertEqual(r.status_code, 200)
 
@@ -451,7 +451,7 @@ class RequestsTestSuite(unittest.TestCase):
 
         heads = {'User-agent': 'Mozilla/5.0'}
 
-        s = Session()
+        s = requests.session()
         s.headers = heads
 
         # Make 2 requests from Session object, should send header both times
@@ -472,7 +472,7 @@ class RequestsTestSuite(unittest.TestCase):
 
         params = {'a': 'a_test'}
 
-        s = Session()
+        s = requests.session()
         s.params = params
 
         # Make 2 requests from Session object, should send header both times
