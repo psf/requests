@@ -11,11 +11,6 @@ This module implements the Requests API.
 
 """
 
-from . import config
-from .models import Request, Response, AuthObject
-from .status_codes import codes
-from .hooks import dispatch_hook
-from .utils import cookiejar_from_dict, header_expand
 from .sessions import session
 
 __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
@@ -39,7 +34,6 @@ def get(url, **kwargs):
     :param url: URL for the new :class:`Request` object.
     :param **kwargs: Optional arguments that ``request`` takes.
     """
-
 
     kwargs.setdefault('allow_redirects', True)
     return request('GET', url, **kwargs)
