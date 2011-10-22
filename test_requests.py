@@ -17,7 +17,6 @@ except ImportError:
     import json
 
 
-
 # TODO: Detect an open port.
 PORT = os.environ.get('HTTPBIN_PORT', '7077')
 
@@ -47,8 +46,9 @@ class RequestsTestSuite(unittest.TestCase):
 
         if not _httpbin:
 
-            self.httpbin = envoy.connect('gunicorn httpbin:app --bind=0.0.0.0:%s' % (PORT))
+            c = envoy.connect('gunicorn httpbin:app --bind=0.0.0.0:%s' % (PORT))
 
+            self.httpbin = c
             _httpbin = True
             time.sleep(1)
 
