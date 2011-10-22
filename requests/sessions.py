@@ -167,6 +167,7 @@ class Session(object):
 
         return r.response
 
+
     def get(self, url, **kwargs):
         """Sends a GET request. Returns :class:`Response` object.
 
@@ -176,6 +177,61 @@ class Session(object):
 
         kwargs.setdefault('allow_redirects', True)
         return self.request('GET', url, **kwargs)
+
+
+    def head(self, url, **kwargs):
+        """Sends a HEAD request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param **kwargs: Optional arguments that ``request`` takes.
+        """
+
+        kwargs.setdefault('allow_redirects', True)
+        return self.request('HEAD', url, **kwargs)
+
+
+    def post(self, url, data='', **kwargs):
+        """Sends a POST request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+        :param **kwargs: Optional arguments that ``request`` takes.
+        """
+
+        return self.request('post', url, data=data, **kwargs)
+
+
+    def put(self, url, data='', **kwargs):
+        """Sends a PUT request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+        :param **kwargs: Optional arguments that ``request`` takes.
+        """
+
+        return self.request('put', url, data=data, **kwargs)
+
+
+    def patch(url, data='', **kwargs):
+        """Sends a PATCH request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+        :param **kwargs: Optional arguments that ``request`` takes.
+        """
+
+        return self.request('patch', url,  data='', **kwargs)
+
+
+    def delete(self, url, **kwargs):
+        """Sends a DELETE request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param **kwargs: Optional arguments that ``request`` takes.
+        """
+
+        return self.request('delete', url, **kwargs)
+
 
 
 def session(**kwargs):
