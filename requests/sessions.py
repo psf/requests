@@ -74,10 +74,6 @@ class Session(object):
         # Set up a CookieJar to be used by default
         self.cookies = cookielib.FileCookieJar()
 
-        # Map and wrap requests.api methods
-        # self._map_api_methods()
-
-
     def __repr__(self):
         return '<requests-client at 0x%x>' % (id(self))
 
