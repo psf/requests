@@ -212,7 +212,7 @@ class Session(object):
         return self.request('put', url, data=data, **kwargs)
 
 
-    def patch(url, data='', **kwargs):
+    def patch(self, url, data='', **kwargs):
         """Sends a PATCH request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
