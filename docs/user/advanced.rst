@@ -17,13 +17,13 @@ A session object has all the methods of the main Requests API.
 
 Let's persist some cookies across requests::
 
-    with requests.session() as s:
+    s = requests.session()
 
-        s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
-        r = s.get("http://httpbin.org/cookies")
+    s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
+    r = s.get("http://httpbin.org/cookies")
 
-        print r.content
-        # '{"cookies": {"sessioncookie": "123456789"}}'
+    print r.content
+    # '{"cookies": {"sessioncookie": "123456789"}}'
 
 
 Sessions can also be used to provide default data to the request methods::
