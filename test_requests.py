@@ -58,10 +58,22 @@ class RequestsTestSuite(unittest.TestCase):
         """Teardown."""
         # self.httpbin.kill()
 
+    def test_entry_points(self):
+        import requests
+
+        requests.session
+        requests.session().get
+        requests.session().head
+        requests.get
+        requests.head
+        requests.put
+        requests.patch
+        requests.post
+
+
 
     def test_invalid_url(self):
         self.assertRaises(ValueError, requests.get, 'hiwpefhipowhefopw')
-
 
     def test_HTTP_200_OK_GET(self):
         r = requests.get(httpbin('/get'))
