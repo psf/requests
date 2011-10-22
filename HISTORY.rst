@@ -4,6 +4,8 @@ History
 0.6.7
 +++++
 
+* Sessions are now the primary interface.
+* Deprecated InvalidMethodException.
 * PATCH fix.
 
 

@@ -24,7 +24,7 @@ from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
 from .utils import dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip
 from .status_codes import codes
-from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod, TooManyRedirects
+from .exceptions import Timeout, URLRequired, TooManyRedirects
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
@@ -38,7 +38,7 @@ class Request(object):
 
     def __init__(self,
         url=None, headers=dict(), files=None, method=None, data=dict(),
-        params=dict(), auth=None, cookiejar=None, timeout=None, redirect=False,
+        params=dict(), auth=None, cookies=None, timeout=None, redirect=False,
         allow_redirects=False, proxies=None, hooks=None):
 
         #: Float describes the timeout of the request.
@@ -91,7 +91,7 @@ class Request(object):
         self.auth = auth
 
         #: CookieJar to attach to :class:`Request <Request>`.
-        self.cookiejar = cookiejar
+        self.cookies = cookies
 
         #: True if Request has been sent.
         self.sent = False
@@ -132,8 +132,8 @@ class Request(object):
 
         _handlers = []
 
-        if self.cookiejar is not None:
-            _handlers.append(urllib2.HTTPCookieProcessor(self.cookiejar))
+        if self.cookies is not None:
+            _handlers.append(urllib2.HTTPCookieProcessor(self.cookies))
 
         if self.auth:
             if not isinstance(self.auth.handler,
@@ -191,8 +191,8 @@ class Request(object):
                 response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
                 response.raw = resp
 
-                if self.cookiejar:
-                    response.cookies = dict_from_cookiejar(self.cookiejar)
+                if self.cookies:
+                    response.cookies = dict_from_cookiejar(self.cookies)
 
 
             except AttributeError:
@@ -244,7 +244,7 @@ class Request(object):
 
                 request = Request(
                     url, self.headers, self.files, method,
-                    self.data, self.params, self.auth, self.cookiejar,
+                    self.data, self.params, self.auth, self.cookies,
                     redirect=True
                 )
                 request.send()
@@ -364,8 +364,8 @@ class Request(object):
                         # restore global timeout
                         socket.setdefaulttimeout(old_timeout)
 
-                if self.cookiejar is not None:
-                    self.cookiejar.extract_cookies(resp, req)
+                if self.cookies is not None:
+                    self.cookies.extract_cookies(resp, req)
 
             except (urllib2.HTTPError, urllib2.URLError), why:
                 if hasattr(why, 'reason'):
