@@ -11,9 +11,10 @@ requests (cookies, auth, proxies).
 
 import cookielib
 
-from . import api
-from .utils import add_dict_to_cookiejar
-
+from . import config
+from .models import Request
+from .hooks import dispatch_hook
+from .utils import add_dict_to_cookiejar, cookiejar_from_dict, header_expand
 
 
 def merge_kwargs(local_kwarg, default_kwarg):
@@ -25,14 +26,15 @@ def merge_kwargs(local_kwarg, default_kwarg):
     if default_kwarg is None:
         return local_kwarg
 
+    if isinstance(local_kwarg, basestring):
+        return local_kwarg
+
     if local_kwarg is None:
         return default_kwarg
 
     # Bypass if not a dictionary (e.g. timeout)
     if not hasattr(default_kwarg, 'items'):
         return local_kwarg
-
-
 
     # Update new values.
     kwargs = default_kwarg.copy()
@@ -73,7 +75,7 @@ class Session(object):
         self.cookies = cookielib.FileCookieJar()
 
         # Map and wrap requests.api methods
-        self._map_api_methods()
+        # self._map_api_methods()
 
 
     def __repr__(self):
@@ -85,48 +87,95 @@ class Session(object):
     def __exit__(self, *args):
         pass
 
-    def _map_api_methods(self):
-        """Reads each available method from requests.api and decorates
-        them with a wrapper, which inserts any instance-local attributes
-        (from __attrs__) that have been set, combining them with **kwargs.
+    def request(self, method, url,
+        params=None, data=None, headers=None, cookies=None, files=None, auth=None,
+        timeout=None, allow_redirects=False, proxies=None, hooks=None, return_response=True):
+
+        """Constructs and sends a :class:`Request <Request>`.
+        Returns :class:`Response <Response>` object.
+
+        :param method: method for the new :class:`Request` object.
+        :param url: URL for the new :class:`Request` object.
+        :param params: (optional) Dictionary or bytes to be sent in the query string for the :class:`Request`.
+        :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+        :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
+        :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
+        :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
+        :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+        :param timeout: (optional) Float describing the timeout of the request.
+        :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
+        :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+        :param return_response: (optional) If False, an un-sent Request object will returned.
         """
 
-        def pass_args(func):
-            def wrapper_func(*args, **kwargs):
+        method = str(method).upper()
 
-                # Argument collector.
-                _kwargs = {}
+        if cookies is None:
+            cookies = {}
 
-                # If a session request has a cookie_dict, inject the
-                # values into the existing CookieJar instead.
-                if isinstance(kwargs.get('cookies', None), dict):
-                    kwargs['cookies'] = add_dict_to_cookiejar(
-                        self.cookies, kwargs['cookies']
-                    )
+        if isinstance(cookies, dict):
+            cookies = add_dict_to_cookiejar(self.cookies, cookies)
 
-                for attr in self.__attrs__:
-                # for attr in ['headers',]:
-                    s_val = self.__dict__.get(attr)
-                    r_val = kwargs.get(attr)
+        cookies = cookiejar_from_dict(cookies)
 
-                    new_attr = merge_kwargs(r_val, s_val)
+        # Expand header values
+        if headers:
+            for k, v in headers.items() or {}:
+                headers[k] = header_expand(v)
 
-                    # Skip attributes that were set to None.
-                    if new_attr is not None:
-                        _kwargs[attr] = new_attr
+        args = dict(
+            method = method,
+            url = url,
+            data = data,
+            params = params,
+            headers = headers,
+            cookies = cookies,
+            files = files,
+            auth = auth,
+            hooks = hooks,
+            timeout = timeout or config.settings.timeout,
+            allow_redirects = allow_redirects,
+            proxies = proxies or config.settings.proxies,
+        )
 
-                # Make sure we didn't miss anything.
-                for (k, v) in kwargs.items():
-                    if k not in _kwargs:
-                        _kwargs[k] = v
+        for attr in self.__attrs__:
+            session_val = getattr(self, attr, None)
+            local_val = args.get(attr)
 
-                return func(*args, **_kwargs)
+            args[attr] = merge_kwargs(local_val, session_val)
 
-            return wrapper_func
+        # Arguments manipulation hook.
+        args = dispatch_hook('args', hooks, args)
 
-        # Map and decorate each function available in requests.api
-        map(lambda fn: setattr(self, fn, pass_args(getattr(api, fn))),
-                api.__all__)
+        r = Request(**args)
+
+        # Pre-request hook.
+        r = dispatch_hook('pre_request', hooks, r)
+
+        # Don't send if asked nicely.
+        if not return_response:
+            return r
+
+        # Send the HTTP Request.
+        r.send()
+
+        # Post-request hook.
+        r = dispatch_hook('post_request', hooks, r)
+
+        # Response manipulation hook.
+        r.response = dispatch_hook('response', hooks, r.response)
+
+        return r.response
+
+    def get(self, url, **kwargs):
+        """Sends a GET request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param **kwargs: Optional arguments that ``request`` takes.
+        """
+
+        kwargs.setdefault('allow_redirects', True)
+        return self.request('GET', url, **kwargs)
 
 
 def session(**kwargs):
