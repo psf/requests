@@ -30,5 +30,5 @@ from .status_codes import codes
 from .config import settings
 from .exceptions import (
     RequestException, AuthenticationError, Timeout, URLRequired,
-    InvalidMethod, TooManyRedirects
+    TooManyRedirects
 )
