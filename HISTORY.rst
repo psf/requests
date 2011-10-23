@@ -7,6 +7,7 @@ History
 * Sessions are now the primary interface.
 * Deprecated InvalidMethodException.
 * PATCH fix.
+* New config system (no more global settings).
 
 
 0.6.6 (2011-10-19)
