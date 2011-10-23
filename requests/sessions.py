@@ -11,7 +11,7 @@ requests (cookies, auth, proxies).
 
 import cookielib
 
-from . import config
+from .defaults import defaults
 from .models import Request
 from .hooks import dispatch_hook
 from .utils import add_dict_to_cookiejar, cookiejar_from_dict, header_expand
@@ -51,7 +51,7 @@ def merge_kwargs(local_kwarg, default_kwarg):
 class Session(object):
     """A Requests session."""
 
-    __attrs__ = ['headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks', 'params']
+    __attrs__ = ['headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks', 'params', 'config']
 
 
     def __init__(self,
@@ -61,7 +61,8 @@ class Session(object):
         timeout=None,
         proxies=None,
         hooks=None,
-        params=None):
+        params=None,
+        config=None):
 
         self.headers = headers or {}
         self.cookies = cookies or {}
@@ -70,6 +71,10 @@ class Session(object):
         self.proxies = proxies or {}
         self.hooks = hooks or {}
         self.params = params or {}
+        self.config = config or {}
+
+        for (k, v) in defaults.items():
+            self.config.setdefault(k, v)
 
         # Set up a CookieJar to be used by default
         self.cookies = cookielib.FileCookieJar()
@@ -84,8 +89,18 @@ class Session(object):
         pass
 
     def request(self, method, url,
-        params=None, data=None, headers=None, cookies=None, files=None, auth=None,
-        timeout=None, allow_redirects=False, proxies=None, hooks=None, return_response=True):
+        params=None,
+        data=None,
+        headers=None,
+        cookies=None,
+        files=None,
+        auth=None,
+        timeout=None,
+        allow_redirects=False,
+        proxies=None,
+        hooks=None,
+        return_response=True,
+        config=None):
 
         """Constructs and sends a :class:`Request <Request>`.
         Returns :class:`Response <Response>` object.
@@ -102,6 +117,7 @@ class Session(object):
         :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
         :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
         :param return_response: (optional) If False, an un-sent Request object will returned.
+        :param config: (optional) A configuration dictionary.
         """
 
         method = str(method).upper()
@@ -120,18 +136,19 @@ class Session(object):
                 headers[k] = header_expand(v)
 
         args = dict(
-            method = method,
-            url = url,
-            data = data,
-            params = params,
-            headers = headers,
-            cookies = cookies,
-            files = files,
-            auth = auth,
-            hooks = hooks,
-            timeout = timeout or config.settings.timeout,
-            allow_redirects = allow_redirects,
-            proxies = proxies or config.settings.proxies,
+            method=method,
+            url=url,
+            data=data,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            files=files,
+            auth=auth,
+            hooks=hooks,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            proxies=proxies,
+            config=config
         )
 
         for attr in self.__attrs__:
