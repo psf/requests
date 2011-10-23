@@ -1,8 +1,8 @@
 History
 -------
 
-0.7.1
-+++++
+0.7.1 (2011-10-23)
+++++++++++++++++++
 
 * Move away from urllib2 authentication handling.
 * Fully Remove AuthManager, AuthObject, &c.
