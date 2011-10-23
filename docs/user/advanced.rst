@@ -39,8 +39,8 @@ Sessions can also be used to provide default data to the request methods::
 
 .. admonition:: Global Settings
 
-    Certain parameters are best set at the ``request.config`` level
-    (e.g.. a global proxy, user agent header).
+    Certain parameters are best set in the ``config`` dictionary
+    (e.g. user agent header).
 
 
 Asynchronous Requests

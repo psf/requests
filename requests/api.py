@@ -17,13 +17,24 @@ __all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
 
 
 def request(method, url,
-    params=None, data=None, headers=None, cookies=None, files=None, auth=None,
-    timeout=None, allow_redirects=False, proxies=None, hooks=None, return_response=True):
+    params=None,
+    data=None,
+    headers=None,
+    cookies=None,
+    files=None,
+    auth=None,
+    timeout=None,
+    allow_redirects=False,
+    proxies=None,
+    hooks=None,
+    return_response=True,
+    config=None):
 
     s = session()
     return s.request(
         method, url, params, data, headers, cookies, files, auth,
-        timeout, allow_redirects, proxies, hooks, return_response
+        timeout, allow_redirects, proxies, hooks, return_response,
+        config
     )
 
 
