@@ -35,4 +35,5 @@ defaults['max_redirects'] = 30
 defaults['decode_unicode'] = True
 defaults['timeout_fallback'] = True
 # defaults['keep_alive'] = True
-# defaults['max_connections'] = 10
+defaults['pool_connections'] = 10
+defaults['pool_maxsize'] = 1
