@@ -354,9 +354,6 @@ class Request(object):
             if self.data:
                 body = self._enc_data
                 content_type = 'application/x-www-form-urlencoded'
-                print body
-
-
 
         # TODO: Setup cookies.
 
@@ -548,12 +545,12 @@ class Response(object):
             raise self.error
 
         if (self.status_code >= 300) and (self.status_code < 400):
-            raise RequestException('%s Redirection' % self.status_code)
+            raise HTTPError('%s Redirection' % self.status_code)
 
         elif (self.status_code >= 400) and (self.status_code < 500):
-            raise RequestException('%s Client Error' % self.status_code)
+            raise HTTPError('%s Client Error' % self.status_code)
 
         elif (self.status_code >= 500) and (self.status_code < 600):
-            raise RequestException('%s Server Error' % self.status_code)
+            raise HTTPError('%s Server Error' % self.status_code)
 
 

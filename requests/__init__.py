@@ -29,5 +29,5 @@ from .sessions import session
 from .status_codes import codes
 from .exceptions import (
     RequestException, AuthenticationError, Timeout, URLRequired,
-    TooManyRedirects
+    TooManyRedirects, HTTPError
 )
