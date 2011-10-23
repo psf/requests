@@ -139,7 +139,7 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
 
 
-    def test_AUTH_HTTP_200_OK_GET(self):
+    def test_BASICAUTH_HTTP_200_OK_GET(self):
 
         for service in SERVICES:
 
@@ -157,6 +157,24 @@ class RequestsTestSuite(unittest.TestCase):
             r = s.get(url)
             self.assertEqual(r.status_code, 200)
 
+
+    def test_DIGESTAUTH_HTTP_200_OK_GET(self):
+
+        for service in SERVICES:
+
+            auth = ('digest', 'user', 'pass')
+            url = service('digest-auth', 'auth', 'user', 'pass')
+
+            r = requests.get(url, auth=auth)
+            self.assertEqual(r.status_code, 200)
+
+            r = requests.get(url)
+            self.assertEqual(r.status_code, 401)
+
+
+            s = requests.session(auth=auth)
+            r = s.get(url)
+            self.assertEqual(r.status_code, 200)
 
     def test_POSTBIN_GET_POST_FILES(self):
 
