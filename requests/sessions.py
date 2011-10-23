@@ -112,7 +112,7 @@ class Session(object):
         :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
         :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
         :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
-        :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+        :param auth: (optional) Auth typle to enable Basic/Digest/Custom HTTP Auth.
         :param timeout: (optional) Float describing the timeout of the request.
         :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
         :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
