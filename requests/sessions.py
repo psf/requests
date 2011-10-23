@@ -112,7 +112,7 @@ class Session(object):
         :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
         :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
         :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
-        :param auth: (optional) AuthObject to enable Basic HTTP Auth.
+        :param auth: (optional) Auth typle to enable Basic/Digest/Custom HTTP Auth.
         :param timeout: (optional) Float describing the timeout of the request.
         :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
         :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
@@ -162,9 +162,6 @@ class Session(object):
 
         r = Request(**args)
 
-        # Pre-request hook.
-        r = dispatch_hook('pre_request', hooks, r)
-
         # Don't send if asked nicely.
         if not return_response:
             return r
@@ -172,11 +169,6 @@ class Session(object):
         # Send the HTTP Request.
         r.send()
 
-        # Post-request hook.
-        r = dispatch_hook('post_request', hooks, r)
-
-        # Response manipulation hook.
-        r.response = dispatch_hook('response', hooks, r.response)
 
         return r.response
 

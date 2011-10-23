@@ -1,6 +1,14 @@
 History
 -------
 
+0.7.1 (2011-10-23)
+++++++++++++++++++
+
+* Move away from urllib2 authentication handling.
+* Fully Remove AuthManager, AuthObject, &c.
+* New tuple-based auth system with handler callbacks.
+
+
 0.7.0 (2011-10-22)
 ++++++++++++++++++
 
