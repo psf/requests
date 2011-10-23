@@ -51,7 +51,9 @@ def merge_kwargs(local_kwarg, default_kwarg):
 class Session(object):
     """A Requests session."""
 
-    __attrs__ = ['headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks', 'params', 'config']
+    __attrs__ = [
+        'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
+        'params', 'config']
 
 
     def __init__(self,
@@ -62,7 +64,8 @@ class Session(object):
         proxies=None,
         hooks=None,
         params=None,
-        config=None):
+        config=None,
+        keep_alive=True):
 
         self.headers = headers or {}
         self.cookies = cookies or {}
@@ -72,6 +75,7 @@ class Session(object):
         self.hooks = hooks or {}
         self.params = params or {}
         self.config = config or {}
+        self.keep_alive = keep_alive
 
         for (k, v) in defaults.items():
             self.config.setdefault(k, v)
@@ -168,7 +172,6 @@ class Session(object):
 
         # Send the HTTP Request.
         r.send()
-
 
         return r.response
 
