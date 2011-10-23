@@ -28,8 +28,6 @@ defaults['base_headers'] = {
     'Accept-Encoding': ', '.join([ 'identity', 'deflate', 'compress', 'gzip' ]),
 }
 
-
-# defaults['accept_gzip'] = True
 defaults['proxies'] = {}
 defaults['verbose'] = None
 defaults['timeout'] = None
@@ -38,11 +36,3 @@ defaults['decode_unicode'] = True
 defaults['timeout_fallback'] = True
 # defaults['keep_alive'] = True
 # defaults['max_connections'] = 10
-
-
-# defaults['hooks'] = {
-#     'args': list(),
-#     'pre_request': list(),
-#     'post_request': list(),
-#     'response': list()
-# }

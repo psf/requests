@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 
 """
@@ -112,10 +113,6 @@ class Request(object):
 
         #: Event-handling hooks.
         self.hooks = hooks
-
-        # Header manipulation and defaults.
-        if self.config.get('accept_gzip'):
-            self.headers.update({'Accept-Encoding': 'gzip'})
 
         if headers:
             headers = CaseInsensitiveDict(self.headers)
