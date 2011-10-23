@@ -25,7 +25,7 @@ defaults = dict()
 
 defaults['base_headers'] = {
     'User-Agent': 'python-requests/%s' % __version__,
-    'Accept-Encoding': ', '.join([ 'identity', 'deflate', 'compress', 'gzip' ]),
+    'Accept-Encoding': ', '.join(('identity', 'deflate', 'compress', 'gzip')),
 }
 
 defaults['proxies'] = {}

@@ -16,6 +16,7 @@ from urllib2 import HTTPError
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import datetime
 
+from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
@@ -23,10 +24,9 @@ from .utils import (dict_from_cookiejar, get_unicode_from_response, stream_decod
 from .status_codes import codes
 from .exceptions import Timeout, URLRequired, TooManyRedirects
 from .monkeys import Request as _Request
-from .monkeys import (
-    HTTPBasicAuthHandler, HTTPForcedBasicAuthHandler,
-    HTTPDigestAuthHandler, HTTPRedirectHandler)
+from .monkeys import HTTPRedirectHandler
 
+from .auth import dispatch as auth_dispatch
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 
@@ -94,13 +94,8 @@ class Request(object):
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
         self.response = Response()
 
-        if isinstance(auth, (list, tuple)):
-            auth = AuthObject(*auth)
-        if not auth:
-            auth = auth_manager.get_auth(self.url)
-
-        #: :class:`AuthObject` to attach to :class:`Request <Request>`.
-        self.auth = auth
+        #: Authentication tuple to attach to :class:`Request <Request>`.
+        self.auth = auth_dispatch(auth)
 
         #: CookieJar to attach to :class:`Request <Request>`.
         self.cookies = cookies
@@ -125,6 +120,10 @@ class Request(object):
 
         self.headers = headers
 
+        # Pre-request hook.
+        r = dispatch_hook('pre_request', hooks, self)
+        self.__dict__.update(r.__dict__)
+
 
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
@@ -137,22 +136,6 @@ class Request(object):
 
         if self.cookies is not None:
             _handlers.append(urllib2.HTTPCookieProcessor(self.cookies))
-
-        if self.auth:
-            if not isinstance(self.auth.handler,
-                (urllib2.AbstractBasicAuthHandler,
-                urllib2.AbstractDigestAuthHandler)):
-
-                # TODO: REMOVE THIS COMPLETELY
-                auth_manager.add_password(
-                    self.auth.realm, self.url,
-                    self.auth.username,
-                    self.auth.password)
-
-                self.auth.handler = self.auth.handler(auth_manager)
-                auth_manager.add_auth(self.url, self.auth)
-
-            _handlers.append(self.auth.handler)
 
         if self.proxies:
             _handlers.append(urllib2.ProxyHandler(self.proxies))
@@ -348,6 +331,13 @@ class Request(object):
             data = self._enc_data
             headers = {}
 
+        if self.auth:
+            auth_func, auth_args = self.auth
+
+            r = auth_func(self, *auth_args)
+
+            self.__dict__.update(r.__dict__)
+
         # Build the Urllib2 Request.
         req = _Request(url, data=data, headers=headers, method=self.method)
 
@@ -398,6 +388,13 @@ class Request(object):
 
 
         self.sent = self.response.ok
+
+        # Response manipulation hook.
+        self.response = dispatch_hook('response', self.hooks, self.response)
+
+        # Post-request hook.
+        r = dispatch_hook('post_request', self.hooks, self)
+        self.__dict__.update(r.__dict__)
 
         return self.sent
 
@@ -520,179 +517,3 @@ class Response(object):
         if self.error:
             raise self.error
 
-
-
-class AuthManager(object):
-    """Requests Authentication Manager."""
-
-    def __new__(cls):
-        singleton = cls.__dict__.get('__singleton__')
-        if singleton is not None:
-            return singleton
-
-        cls.__singleton__ = singleton = object.__new__(cls)
-
-        return singleton
-
-
-    def __init__(self):
-        self.passwd = {}
-        self._auth = {}
-
-
-    def __repr__(self):
-        return '<AuthManager [%s]>' % (self.method)
-
-
-    def add_auth(self, uri, auth):
-        """Registers AuthObject to AuthManager."""
-
-        uri = self.reduce_uri(uri, False)
-
-        # try to make it an AuthObject
-        if not isinstance(auth, AuthObject):
-            try:
-                auth = AuthObject(*auth)
-            except TypeError:
-                pass
-
-        self._auth[uri] = auth
-
-
-    def add_password(self, realm, uri, user, passwd):
-        """Adds password to AuthManager."""
-        # uri could be a single URI or a sequence
-        if isinstance(uri, basestring):
-            uri = [uri]
-
-        reduced_uri = tuple([self.reduce_uri(u, False) for u in uri])
-
-        if reduced_uri not in self.passwd:
-            self.passwd[reduced_uri] = {}
-        self.passwd[reduced_uri] = (user, passwd)
-
-
-    def find_user_password(self, realm, authuri):
-        for uris, authinfo in self.passwd.iteritems():
-            reduced_authuri = self.reduce_uri(authuri, False)
-            for uri in uris:
-                if self.is_suburi(uri, reduced_authuri):
-                    return authinfo
-
-        return (None, None)
-
-
-    def get_auth(self, uri):
-        (in_domain, in_path) = self.reduce_uri(uri, False)
-
-        for domain, path, authority in (
-            (i[0][0], i[0][1], i[1]) for i in self._auth.iteritems()
-        ):
-            if in_domain == domain:
-                if path in in_path:
-                    return authority
-
-
-    def reduce_uri(self, uri, default_port=True):
-        """Accept authority or URI and extract only the authority and path."""
-
-        # note HTTP URLs do not have a userinfo component
-        parts = urllib2.urlparse.urlsplit(uri)
-
-        if parts[1]:
-            # URI
-            scheme = parts[0]
-            authority = parts[1]
-            path = parts[2] or '/'
-        else:
-            # host or host:port
-            scheme = None
-            authority = uri
-            path = '/'
-
-        host, port = urllib2.splitport(authority)
-
-        if default_port and port is None and scheme is not None:
-            dport = {"http": 80,
-                     "https": 443,
-                     }.get(scheme)
-            if dport is not None:
-                authority = "%s:%d" % (host, dport)
-
-        return authority, path
-
-
-    def is_suburi(self, base, test):
-        """Check if test is below base in a URI tree
-
-        Both args must be URIs in reduced form.
-        """
-        if base == test:
-            return True
-        if base[0] != test[0]:
-            return False
-        common = urllib2.posixpath.commonprefix((base[1], test[1]))
-        if len(common) == len(base[1]):
-            return True
-        return False
-
-
-    def empty(self):
-        self.passwd = {}
-
-
-    def remove(self, uri, realm=None):
-        # uri could be a single URI or a sequence
-        if isinstance(uri, basestring):
-            uri = [uri]
-
-        for default_port in True, False:
-            reduced_uri = tuple([self.reduce_uri(u, default_port) for u in uri])
-            del self.passwd[reduced_uri][realm]
-
-
-    def __contains__(self, uri):
-        # uri could be a single URI or a sequence
-        if isinstance(uri, basestring):
-            uri = [uri]
-
-        uri = tuple([self.reduce_uri(u, False) for u in uri])
-
-        if uri in self.passwd:
-            return True
-
-        return False
-
-auth_manager = AuthManager()
-
-
-
-class AuthObject(object):
-    """The :class:`AuthObject` is a simple HTTP Authentication token. When
-    given to a Requests function, it enables Basic HTTP Authentication for that
-    Request. You can also enable Authorization for domain realms with AutoAuth.
-    See AutoAuth for more details.
-
-    :param username: Username to authenticate with.
-    :param password: Password for given username.
-    :param realm: (optional) the realm this auth applies to
-    :param handler: (optional) basic || digest || proxy_basic || proxy_digest
-    """
-
-    _handlers = {
-        'basic': HTTPBasicAuthHandler,
-        'forced_basic': HTTPForcedBasicAuthHandler,
-        'digest': HTTPDigestAuthHandler,
-        'proxy_basic': urllib2.ProxyBasicAuthHandler,
-        'proxy_digest': urllib2.ProxyDigestAuthHandler
-    }
-
-    def __init__(self, username, password, handler='forced_basic', realm=None):
-        self.username = username
-        self.password = password
-        self.realm = realm
-
-        if isinstance(handler, basestring):
-            self.handler = self._handlers.get(handler.lower(), HTTPForcedBasicAuthHandler)
-        else:
-            self.handler = handler
