@@ -45,12 +45,6 @@ def _send(r, pools=None):
 
     r.send()
 
-    # Post-request hook.
-    r = dispatch_hook('post_request', r.hooks, r)
-
-    # Response manipulation hook.
-    r.response = dispatch_hook('response', r.hooks, r.response)
-
     return r.response
 
 

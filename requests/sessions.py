@@ -157,13 +157,7 @@ class Session(object):
 
             args[attr] = merge_kwargs(local_val, session_val)
 
-        # Arguments manipulation hook.
-        args = dispatch_hook('args', hooks, args)
-
         r = Request(**args)
-
-        # Pre-request hook.
-        r = dispatch_hook('pre_request', hooks, r)
 
         # Don't send if asked nicely.
         if not return_response:
@@ -171,12 +165,6 @@ class Session(object):
 
         # Send the HTTP Request.
         r.send()
-
-        # Post-request hook.
-        r = dispatch_hook('post_request', hooks, r)
-
-        # Response manipulation hook.
-        r.response = dispatch_hook('response', hooks, r.response)
 
         return r.response
 
