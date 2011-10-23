@@ -1,6 +1,63 @@
 History
 -------
 
+0.7.2 (2011-10-23)
+++++++++++++++++++
+
+* PATCH Fix.
+
+
+0.7.1 (2011-10-23)
+++++++++++++++++++
+
+* Move away from urllib2 authentication handling.
+* Fully Remove AuthManager, AuthObject, &c.
+* New tuple-based auth system with handler callbacks.
+
+
+0.7.0 (2011-10-22)
+++++++++++++++++++
+
+* Sessions are now the primary interface.
+* Deprecated InvalidMethodException.
+* PATCH fix.
+* New config system (no more global settings).
+
+
+0.6.6 (2011-10-19)
+++++++++++++++++++
+
+* Session parameter bugfix (params merging).
+
+
+0.6.5 (2011-10-18)
+++++++++++++++++++
+
+* Offline (fast) test suite.
+* Session dictionary argument merging.
+
+
+0.6.4 (2011-10-13)
+++++++++++++++++++
+
+* Automatic decoding of unicode, based on HTTP Headers.
+* New ``decode_unicode`` setting.
+* Removal of ``r.read/close`` methods.
+* New ``r.faw`` interface for advanced response usage.*
+* Automatic expansion of parameterized headers.
+
+
+0.6.3 (2011-10-13)
+++++++++++++++++++
+
+* Beautiful ``requests.async`` module, for making async requests w/ gevent.
+
+
+0.6.2 (2011-10-09)
+++++++++++++++++++
+
+* GET/HEAD obeys allow_redirects=False.
+
 
 0.6.1 (2011-08-20)
 ++++++++++++++++++
@@ -27,6 +84,7 @@ History
 * HTTPError handling improvements
 * Improved https testing
 * Bugfixes
+
 
 0.5.1 (2011-07-23)
 ++++++++++++++++++

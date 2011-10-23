@@ -18,7 +18,7 @@ or, with `easy_install <http://pypi.python.org/pypi/setuptools>`_::
 
     $ easy_install requests
 
-But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/index.html#pip-compared-to-easy-install>`_.
+But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/other-tools.html#pip-compared-to-easy-install>`_.
 
 
 
@@ -54,3 +54,25 @@ Once you have a copy of the source, you can embed it in your Python package,
 or install it into your site-packages easily::
 
     $ python setup.py install
+
+.. _gevent:
+
+Installing Gevent
+-----------------
+
+If you are using the ``requests.async`` module for making concurrent
+requests, you need to install gevent.
+
+To install gevent, you'll need ``libevent``.
+
+OSX::
+
+    $ brew install libevent
+
+Ubuntu::
+
+    $ apt-get install libevent-dev
+
+Once you have ``libevent``, you can install ``gevent`` with ``pip``::
+
+    $ pip install gevent

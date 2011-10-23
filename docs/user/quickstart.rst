@@ -136,3 +136,32 @@ parameter::
     >>> r = requests.get(url, cookies=cookies)
     >>> r.content
     '{"cookies": {"cookies_are": "working"}}'
+
+
+Basic Authentication
+--------------------
+
+Most web services require authentication. There many different types of
+authentication, but the most common is called HTTP Basic Auth.
+
+Making requests with Basic Auth is easy, with Requests::
+
+    >>> requests.get('https://api.github.com/user', auth=('user', 'pass'))
+    <Response [200]>
+
+
+Digest Authentication
+---------------------
+
+Another popular form of protecting web service is Digest Authentication.
+
+Requests supports it!::
+
+    >>> url = 'http://httpbin.org/digest-auth/auth/user/pass'
+    >>> requests.get(url, auth=('digest', 'user', 'pass'))
+    <Response [200]>
+
+
+-----------------------
+
+Ready for more? Check out the advanced_ section.
