@@ -16,6 +16,7 @@ from urllib2 import HTTPError
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import datetime
 
+from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
@@ -120,6 +121,10 @@ class Request(object):
                 headers[k] = v
 
         self.headers = headers
+
+        # Pre-request hook.
+        r = dispatch_hook('pre_request', hooks, self)
+        self.__dict__.update(r.__dict__)
 
 
     def __repr__(self):
@@ -385,6 +390,13 @@ class Request(object):
 
 
         self.sent = self.response.ok
+
+        # Response manipulation hook.
+        self.response = dispatch_hook('response', self.hooks, self.response)
+
+        # Post-request hook.
+        r = dispatch_hook('post_request', self.hooks, self)
+        self.__dict__.update(r.__dict__)
 
         return self.sent
 
