@@ -1,6 +1,13 @@
 History
 -------
 
+0.7.1
++++++
+
+* Move away from urllib2 authentication.
+* Remove AuthManager.
+
+
 0.7.0 (2011-10-22)
 ++++++++++++++++++
 
