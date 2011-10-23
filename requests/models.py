@@ -24,9 +24,7 @@ from .utils import (dict_from_cookiejar, get_unicode_from_response, stream_decod
 from .status_codes import codes
 from .exceptions import Timeout, URLRequired, TooManyRedirects
 from .monkeys import Request as _Request
-from .monkeys import (
-    HTTPBasicAuthHandler, HTTPForcedBasicAuthHandler,
-    HTTPDigestAuthHandler, HTTPRedirectHandler)
+from .monkeys import HTTPRedirectHandler
 
 from .auth import dispatch as auth_dispatch
 
