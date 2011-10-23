@@ -22,7 +22,7 @@ from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
 from .utils import (dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip)
 from .status_codes import codes
-from .exceptions import Timeout, URLRequired, TooManyRedirects
+from .exceptions import Timeout, URLRequired, TooManyRedirects, RequestException
 from .monkeys import Request as _Request
 from .monkeys import HTTPRedirectHandler
 
@@ -514,6 +514,17 @@ class Response(object):
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occurred."""
+
         if self.error:
             raise self.error
+
+        if (self.status_code >= 300) and (self.status_code < 400):
+            raise RequestException('%s Redirection' % self.status_code)
+
+        elif (self.status_code >= 400) and (self.status_code < 500):
+            raise RequestException('%s Client Error' % self.status_code)
+
+        elif (self.status_code >= 500) and (self.status_code < 600):
+            raise RequestException('%s Server Error' % self.status_code)
+
 
