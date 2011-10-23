@@ -40,7 +40,7 @@ def dispatch(t):
         t = list(t)
 
     # Make sure they're passing in something.
-    assert len(t) <= 2
+    assert len(t) >= 2
 
     # If only two items are passed in, assume HTTPBasic.
     if (len(t) == 2):
@@ -54,6 +54,6 @@ def dispatch(t):
             t[0] = http_digest
 
     # Return a custom callable.
-    return (t[0], t[1:])
+    return (t[0], tuple(t[1:]))
 
 
