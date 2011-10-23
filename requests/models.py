@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 
 """
@@ -9,22 +10,22 @@ requests.models
 import urllib
 import urllib2
 import socket
-import codecs
 import zlib
-
 
 from urllib2 import HTTPError
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import datetime
 
-from .config import settings
-from .monkeys import Request as _Request, HTTPBasicAuthHandler, HTTPForcedBasicAuthHandler, HTTPDigestAuthHandler, HTTPRedirectHandler
 from .structures import CaseInsensitiveDict
 from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
-from .utils import dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip
+from .utils import (dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip)
 from .status_codes import codes
-from .exceptions import RequestException, AuthenticationError, Timeout, URLRequired, InvalidMethod, TooManyRedirects
+from .exceptions import Timeout, URLRequired, TooManyRedirects
+from .monkeys import Request as _Request
+from .monkeys import (
+    HTTPBasicAuthHandler, HTTPForcedBasicAuthHandler,
+    HTTPDigestAuthHandler, HTTPRedirectHandler)
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
@@ -37,9 +38,20 @@ class Request(object):
     """
 
     def __init__(self,
-        url=None, headers=dict(), files=None, method=None, data=dict(),
-        params=dict(), auth=None, cookiejar=None, timeout=None, redirect=False,
-        allow_redirects=False, proxies=None, hooks=None):
+        url=None,
+        headers=dict(),
+        files=None,
+        method=None,
+        data=dict(),
+        params=dict(),
+        auth=None,
+        cookies=None,
+        timeout=None,
+        redirect=False,
+        allow_redirects=False,
+        proxies=None,
+        hooks=None,
+        config=None):
 
         #: Float describes the timeout of the request.
         #  (Use socket.setdefaulttimeout() as fallback)
@@ -91,7 +103,10 @@ class Request(object):
         self.auth = auth
 
         #: CookieJar to attach to :class:`Request <Request>`.
-        self.cookiejar = cookiejar
+        self.cookies = cookies
+
+        #: Dictionary of configurations for this request.
+        self.config = config
 
         #: True if Request has been sent.
         self.sent = False
@@ -99,17 +114,12 @@ class Request(object):
         #: Event-handling hooks.
         self.hooks = hooks
 
-        # Header manipulation and defaults.
-
-        if settings.accept_gzip:
-            settings.base_headers.update({'Accept-Encoding': 'gzip'})
-
         if headers:
             headers = CaseInsensitiveDict(self.headers)
         else:
             headers = CaseInsensitiveDict()
 
-        for (k, v) in settings.base_headers.items():
+        for (k, v) in self.config.get('base_headers', {}).items():
             if k not in headers:
                 headers[k] = v
 
@@ -120,20 +130,13 @@ class Request(object):
         return '<Request [%s]>' % (self.method)
 
 
-    def _checks(self):
-        """Deterministic checks for consistency."""
-
-        if not self.url:
-            raise URLRequired
-
-
     def _get_opener(self):
         """Creates appropriate opener object for urllib2."""
 
         _handlers = []
 
-        if self.cookiejar is not None:
-            _handlers.append(urllib2.HTTPCookieProcessor(self.cookiejar))
+        if self.cookies is not None:
+            _handlers.append(urllib2.HTTPCookieProcessor(self.cookies))
 
         if self.auth:
             if not isinstance(self.auth.handler,
@@ -185,14 +188,15 @@ class Request(object):
         def build(resp):
 
             response = Response()
+            response.config = self.config
             response.status_code = getattr(resp, 'code', None)
 
             try:
                 response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
                 response.raw = resp
 
-                if self.cookiejar:
-                    response.cookies = dict_from_cookiejar(self.cookiejar)
+                if self.cookies:
+                    response.cookies = dict_from_cookiejar(self.cookies)
 
 
             except AttributeError:
@@ -219,7 +223,7 @@ class Request(object):
 
                 r.raw.close()
 
-                if not len(history) < settings.max_redirects:
+                if not len(history) < self.config.get('max_redirects'):
                     raise TooManyRedirects()
 
                 history.append(r)
@@ -243,9 +247,16 @@ class Request(object):
                     method = self.method
 
                 request = Request(
-                    url, self.headers, self.files, method,
-                    self.data, self.params, self.auth, self.cookiejar,
-                    redirect=True
+                    url=url,
+                    headers=self.headers,
+                    files=self.files,
+                    method=method,
+                    # data=self.data,
+                    # params=self.params,
+                    auth=self.auth,
+                    cookies=self.cookies,
+                    redirect=True,
+                    config=self.config
                 )
                 request.send()
                 r = request.response
@@ -310,32 +321,37 @@ class Request(object):
         already been sent.
         """
 
-        self._checks()
+        # Some people...
+        if not self.url:
+            raise URLRequired
 
         # Logging
-        if settings.verbose:
-            settings.verbose.write('%s   %s   %s\n' % (
+        if self.config.get('verbose'):
+            self.config.get('verbose').write('%s   %s   %s\n' % (
                 datetime.now().isoformat(), self.method, self.url
             ))
 
-
+        # Build the URL
         url = self._build_url()
-        if self.method in ('GET', 'HEAD', 'DELETE'):
-            req = _Request(url, method=self.method)
+
+        # Attach uploaded files.
+        if self.files:
+            register_openers()
+
+            # Add form-data to the multipart.
+            if self.data:
+                self.files.update(self.data)
+
+            data, headers = multipart_encode(self.files)
+
         else:
+            data = self._enc_data
+            headers = {}
 
-            if self.files:
-                register_openers()
+        # Build the Urllib2 Request.
+        req = _Request(url, data=data, headers=headers, method=self.method)
 
-                if self.data:
-                    self.files.update(self.data)
-
-                datagen, headers = multipart_encode(self.files)
-                req = _Request(url, data=datagen, headers=headers, method=self.method)
-
-            else:
-                req = _Request(url, data=self._enc_data, method=self.method)
-
+        # Add the headers to the request.
         if self.headers:
             for k,v in self.headers.iteritems():
                 req.add_header(k, v)
@@ -353,19 +369,19 @@ class Request(object):
                     if not 'timeout' in str(err):
                         raise
 
-                    if settings.timeout_fallback:
+                    if self.config.get('timeout_fallback'):
                         # fall-back and use global socket timeout (This is not thread-safe!)
                         old_timeout = socket.getdefaulttimeout()
                         socket.setdefaulttimeout(self.timeout)
 
                     resp = opener(req)
 
-                    if settings.timeout_fallback:
+                    if self.config.get('timeout_fallback'):
                         # restore global timeout
                         socket.setdefaulttimeout(old_timeout)
 
-                if self.cookiejar is not None:
-                    self.cookiejar.extract_cookies(resp, req)
+                if self.cookies is not None:
+                    self.cookies.extract_cookies(resp, req)
 
             except (urllib2.HTTPError, urllib2.URLError), why:
                 if hasattr(why, 'reason'):
@@ -429,6 +445,9 @@ class Response(object):
         #: A dictionary of Cookies the server sent back.
         self.cookies = None
 
+        #: Dictionary of configurations for this request.
+        self.config = None
+
 
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
@@ -460,7 +479,7 @@ class Response(object):
         if 'gzip' in self.headers.get('content-encoding', ''):
             gen = stream_decode_gzip(gen)
         if decode_unicode is None:
-            decode_unicode = settings.decode_unicode
+            decode_unicode = self.config.get('decode_unicode')
         if decode_unicode:
             gen = stream_decode_response_unicode(gen, self)
         return gen
@@ -489,7 +508,7 @@ class Response(object):
                 pass
 
         # Decode unicode content.
-        if settings.decode_unicode:
+        if self.config.get('decode_unicode'):
             self._content = get_unicode_from_response(self)
 
         self._content_consumed = True

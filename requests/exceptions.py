@@ -2,7 +2,9 @@
 
 """
 requests.exceptions
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+
+This module contains the set of Requests' exceptions.
 
 """
 
@@ -12,15 +14,12 @@ class RequestException(Exception):
 
 class AuthenticationError(RequestException):
     """The authentication credentials provided were invalid."""
-    
+
 class Timeout(RequestException):
     """The request timed out."""
 
 class URLRequired(RequestException):
     """A valid URL is required to make a request."""
-
-class InvalidMethod(RequestException):
-    """An inappropriate method was attempted."""
 
 class TooManyRedirects(RequestException):
     """Too many redirects."""

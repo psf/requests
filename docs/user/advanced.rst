@@ -17,13 +17,13 @@ A session object has all the methods of the main Requests API.
 
 Let's persist some cookies across requests::
 
-    with requests.session() as s:
+    s = requests.session()
 
-        s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
-        r = s.get("http://httpbin.org/cookies")
+    s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
+    r = s.get("http://httpbin.org/cookies")
 
-        print r.content
-        # '{"cookies": {"sessioncookie": "123456789"}}'
+    print r.content
+    # '{"cookies": {"sessioncookie": "123456789"}}'
 
 
 Sessions can also be used to provide default data to the request methods::
@@ -39,8 +39,8 @@ Sessions can also be used to provide default data to the request methods::
 
 .. admonition:: Global Settings
 
-    Certain parameters are best set at the ``request.config`` level
-    (e.g.. a global proxy, user agent header).
+    Certain parameters are best set in the ``config`` dictionary
+    (e.g. user agent header).
 
 
 Asynchronous Requests
