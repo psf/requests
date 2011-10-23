@@ -347,6 +347,16 @@ class Request(object):
                 for (k, v) in self.files.items():
                     fields.update({k: (k, v.read())})
                 (body, content_type) = encode_multipart_formdata(fields)
+            else:
+                pass
+                # TODO: Conflict?
+        else:
+            if self.data:
+                body = self._enc_data
+                content_type = 'application/x-www-form-urlencoded'
+                print body
+
+
 
         # TODO: Setup cookies.
 
