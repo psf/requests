@@ -12,7 +12,6 @@ import socket
 import zlib
 from Cookie import SimpleCookie
 
-from urllib2 import HTTPError
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import datetime
 
@@ -22,7 +21,7 @@ from .packages.poster.encode import multipart_encode
 from .packages.poster.streaminghttp import register_openers, get_handlers
 from .utils import (dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip)
 from .status_codes import codes
-from .exceptions import Timeout, URLRequired, TooManyRedirects, RequestException
+from .exceptions import Timeout, URLRequired, TooManyRedirects, RequestException, HTTPError
 
 from .auth import dispatch as auth_dispatch
 
@@ -263,7 +262,13 @@ class Request(object):
             r.history = history
 
         self.response = r
-        self.response.ok = True
+
+        try:
+            r.raise_for_status()
+            self.response.ok = True
+        except HTTPError:
+            self.response.ok = False
+
         self.response.request = self
 
 
@@ -475,11 +480,15 @@ class Response(object):
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
 
-
     def __nonzero__(self):
         """Returns true if :attr:`status_code` is 'OK'."""
 
-        return not self.error
+        try:
+            self.raise_for_status()
+        except HTTPError:
+            return False
+        finally:
+            return True
 
     def iter_content(self, chunk_size=10 * 1024, decode_unicode=None):
         """Iterates over the response data.  This avoids reading the content
