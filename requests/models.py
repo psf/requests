@@ -27,6 +27,7 @@ from .monkeys import (
     HTTPBasicAuthHandler, HTTPForcedBasicAuthHandler,
     HTTPDigestAuthHandler, HTTPRedirectHandler)
 
+from .auth import dispatch as auth_dispatch
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 
@@ -94,15 +95,8 @@ class Request(object):
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
         self.response = Response()
 
-        if isinstance(auth, (list, tuple)):
-            from .auth import http_basic
-            auth = (http_basic, auth)
-            # auth = AuthObject(*auth)
-        # if not auth:
-            # auth = auth_manager.get_auth(self.url)
-
-        #: :class:`AuthObject` to attach to :class:`Request <Request>`.
-        self.auth = auth
+        #: Authentication tuple to attach to :class:`Request <Request>`.
+        self.auth = auth_dispatch(auth)
 
         #: CookieJar to attach to :class:`Request <Request>`.
         self.cookies = cookies
@@ -139,22 +133,6 @@ class Request(object):
 
         if self.cookies is not None:
             _handlers.append(urllib2.HTTPCookieProcessor(self.cookies))
-
-
-            # if not isinstance(self.auth.handler,
-                # (urllib2.AbstractBasicAuthHandler,
-                # urllib2.AbstractDigestAuthHandler)):
-
-                # TODO: REMOVE THIS COMPLETELY
-                # auth_manager.add_password(
-                #     self.auth.realm, self.url,
-                #     self.auth.username,
-                #     self.auth.password)
-
-                # self.auth.handler = self.auth.handler(auth_manager)
-                # auth_manager.add_auth(self.url, self.auth)
-
-            # _handlers.append(self.auth.handler)
 
         if self.proxies:
             _handlers.append(urllib2.ProxyHandler(self.proxies))
@@ -529,34 +507,3 @@ class Response(object):
         if self.error:
             raise self.error
 
-
-
-class AuthObject(object):
-    """The :class:`AuthObject` is a simple HTTP Authentication token. When
-    given to a Requests function, it enables Basic HTTP Authentication for that
-    Request. You can also enable Authorization for domain realms with AutoAuth.
-    See AutoAuth for more details.
-
-    :param username: Username to authenticate with.
-    :param password: Password for given username.
-    :param realm: (optional) the realm this auth applies to
-    :param handler: (optional) basic || digest || proxy_basic || proxy_digest
-    """
-
-    _handlers = {
-        'basic': HTTPBasicAuthHandler,
-        'forced_basic': HTTPForcedBasicAuthHandler,
-        'digest': HTTPDigestAuthHandler,
-        'proxy_basic': urllib2.ProxyBasicAuthHandler,
-        'proxy_digest': urllib2.ProxyDigestAuthHandler
-    }
-
-    def __init__(self, username, password, handler='forced_basic', realm=None):
-        self.username = username
-        self.password = password
-        self.realm = realm
-
-        if isinstance(handler, basestring):
-            self.handler = self._handlers.get(handler.lower(), HTTPForcedBasicAuthHandler)
-        else:
-            self.handler = handler
