@@ -8,9 +8,9 @@ requests.models
 """
 
 import urllib
-import urllib2
 import socket
 import zlib
+from Cookie import SimpleCookie
 
 from urllib2 import HTTPError
 from urlparse import urlparse, urlunparse, urljoin
@@ -23,8 +23,6 @@ from .packages.poster.streaminghttp import register_openers, get_handlers
 from .utils import (dict_from_cookiejar, get_unicode_from_response, stream_decode_response_unicode, decode_gzip, stream_decode_gzip)
 from .status_codes import codes
 from .exceptions import Timeout, URLRequired, TooManyRedirects, RequestException
-from .monkeys import Request as _Request
-from .monkeys import HTTPRedirectHandler
 
 from .auth import dispatch as auth_dispatch
 
@@ -51,7 +49,8 @@ class Request(object):
         allow_redirects=False,
         proxies=None,
         hooks=None,
-        config=None):
+        config=None,
+        _poolmanager=None):
 
         #: Float describes the timeout of the request.
         #  (Use socket.setdefaulttimeout() as fallback)
@@ -119,6 +118,7 @@ class Request(object):
                 headers[k] = v
 
         self.headers = headers
+        self._poolmanager = _poolmanager
 
         # Pre-request hook.
         r = dispatch_hook('pre_request', hooks, self)
@@ -129,37 +129,37 @@ class Request(object):
         return '<Request [%s]>' % (self.method)
 
 
-    def _get_opener(self):
-        """Creates appropriate opener object for urllib2."""
+    # def _get_opener(self):
+    #     """Creates appropriate opener object for urllib2."""
 
-        _handlers = []
+    #     _handlers = []
 
-        if self.cookies is not None:
-            _handlers.append(urllib2.HTTPCookieProcessor(self.cookies))
+    #     if self.cookies is not None:
+    #         _handlers.append(urllib2.HTTPCookieProcessor(self.cookies))
 
-        if self.proxies:
-            _handlers.append(urllib2.ProxyHandler(self.proxies))
+    #     if self.proxies:
+    #         _handlers.append(urllib2.ProxyHandler(self.proxies))
 
-        _handlers.append(HTTPRedirectHandler)
+    #     _handlers.append(HTTPRedirectHandler)
 
-        if not _handlers:
-            return urllib2.urlopen
+    #     if not _handlers:
+    #         return urllib2.urlopen
 
-        if self.data or self.files:
-            _handlers.extend(get_handlers())
+    #     if self.data or self.files:
+    #         _handlers.extend(get_handlers())
 
-        opener = urllib2.build_opener(*_handlers)
+    #     opener = urllib2.build_opener(*_handlers)
 
-        if self.headers:
-            # Allow default headers in the opener to be overloaded
-            normal_keys = [k.capitalize() for k in self.headers]
-            for key, val in opener.addheaders[:]:
-                if key not in normal_keys:
-                    continue
-                # Remove it, we have a value to take its place
-                opener.addheaders.remove((key, val))
+    #     if self.headers:
+    #         # Allow default headers in the opener to be overloaded
+    #         normal_keys = [k.capitalize() for k in self.headers]
+    #         for key, val in opener.addheaders[:]:
+    #             if key not in normal_keys:
+    #                 continue
+    #             # Remove it, we have a value to take its place
+    #             opener.addheaders.remove((key, val))
 
-        return opener.open
+    #     return opener.open
 
 
     def _build_response(self, resp, is_error=False):
@@ -171,24 +171,39 @@ class Request(object):
         def build(resp):
 
             response = Response()
+
+            # Pass settings over.
             response.config = self.config
-            response.status_code = getattr(resp, 'code', None)
 
-            try:
-                response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
-                response.raw = resp
+            # Fallback to None if there's no staus_code, for whatever reason.
+            response.status_code = getattr(resp, 'status', None)
 
-                if self.cookies:
-                    response.cookies = dict_from_cookiejar(self.cookies)
+            # Make headers case-insensitive.
+            response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
 
+            # Start off with our local cookies.
+            cookies = self.cookies or dict()
 
-            except AttributeError:
-                pass
+            # Add new cookies from the server.
+            if 'set-cookie' in response.headers:
+                cookie_header = response.headers['set-cookie']
+
+                c = SimpleCookie()
+                c.load(cookie_header)
+
+                for k,v in c.items():
+                    cookies.update({k: v.value})
+
+            # Save cookies in Response.
+            response.cookies = cookies
+
+            # Save original resopnse for later.
+            response.raw = resp
 
             if is_error:
                 response.error = resp
 
-            response.url = getattr(resp, 'url', None)
+            response.url = self._build_url()
 
             return response
 
@@ -204,7 +219,7 @@ class Request(object):
                 ((r.status_code is codes.see_other) or (self.allow_redirects))
             ):
 
-                r.raw.close()
+                # r.raw.close()
 
                 if not len(history) < self.config.get('max_redirects'):
                     raise TooManyRedirects()
@@ -239,7 +254,8 @@ class Request(object):
                     auth=self.auth,
                     cookies=self.cookies,
                     redirect=True,
-                    config=self.config
+                    config=self.config,
+                    _poolmanager=self._poolmanager
                 )
                 request.send()
                 r = request.response
@@ -247,6 +263,7 @@ class Request(object):
             r.history = history
 
         self.response = r
+        self.response.ok = True
         self.response.request = self
 
 
@@ -317,19 +334,26 @@ class Request(object):
         # Build the URL
         url = self._build_url()
 
-        # Attach uploaded files.
+        # Nottin' on you.
+        body = None
+        content_type = None
+
+        from .packages.urllib3.filepost import encode_multipart_formdata
+
+        # Multi-part file uploads.
         if self.files:
-            register_openers()
+            if not isinstance(self.data, basestring):
+                fields = self.data.copy()
+                for (k, v) in self.files.items():
+                    fields.update({k: (k, v.read())})
+                (body, content_type) = encode_multipart_formdata(fields)
 
-            # Add form-data to the multipart.
-            if self.data:
-                self.files.update(self.data)
+        # TODO: Setup cookies.
 
-            data, headers = multipart_encode(self.files)
+        # Add content-type if it wasn't explicitly provided.
+        if (content_type) and (not 'content-type' in self.headers):
+            self.headers['Content-Type'] = content_type
 
-        else:
-            data = self._enc_data
-            headers = {}
 
         if self.auth:
             auth_func, auth_args = self.auth
@@ -338,65 +362,60 @@ class Request(object):
 
             self.__dict__.update(r.__dict__)
 
-        # Build the Urllib2 Request.
-        req = _Request(url, data=data, headers=headers, method=self.method)
 
-        # Add the headers to the request.
-        if self.headers:
-            for k,v in self.headers.iteritems():
-                req.add_header(k, v)
+        conn = self._poolmanager.connection_from_url(url)
 
         if not self.sent or anyway:
 
             try:
-                opener = self._get_opener()
-                try:
+                if self.cookies:
 
-                    resp = opener(req, timeout=self.timeout)
+                    # Skip if 'cookie' header is explicitly set.
+                    if 'cookie' not in self.headers:
 
-                except TypeError, err:
-                    # timeout argument is new since Python v2.6
-                    if not 'timeout' in str(err):
-                        raise
+                        # Simple cookie with our dict.
+                        # TODO: Multi-value headers.
+                        c = SimpleCookie()
+                        c.load(self.cookies)
 
-                    if self.config.get('timeout_fallback'):
-                        # fall-back and use global socket timeout (This is not thread-safe!)
-                        old_timeout = socket.getdefaulttimeout()
-                        socket.setdefaulttimeout(self.timeout)
+                        # Turn it into a header.
+                        cookie_header = c.output(header='').strip()
 
-                    resp = opener(req)
+                        # Attach Cookie header to request.
+                        self.headers['Cookie'] = cookie_header
 
-                    if self.config.get('timeout_fallback'):
-                        # restore global timeout
-                        socket.setdefaulttimeout(old_timeout)
+                # Create the connection.
+                r = conn.urlopen(
+                    method=self.method,
+                    url=url,
+                    body=body,
+                    headers=self.headers,
+                    redirect=False,
+                    assert_same_host=False,
+                    preload_content=False,
+                    decode_content=False
+                )
 
-                if self.cookies is not None:
-                    self.cookies.extract_cookies(resp, req)
+                # resp = {}
 
-            except (urllib2.HTTPError, urllib2.URLError), why:
-                if hasattr(why, 'reason'):
-                    if isinstance(why.reason, socket.timeout):
-                        why = Timeout(why)
-                    elif isinstance(why.reason, socket.error):
-                        why = Timeout(why)
 
-                self._build_response(why, is_error=True)
+            except ArithmeticError:
+                pass
 
             else:
-                self._build_response(resp)
+                self._build_response(r)
                 self.response.ok = True
 
+        # self.sent = self.response.ok
 
-        self.sent = self.response.ok
+            # Response manipulation hook.
+            self.response = dispatch_hook('response', self.hooks, self.response)
 
-        # Response manipulation hook.
-        self.response = dispatch_hook('response', self.hooks, self.response)
+            # Post-request hook.
+            r = dispatch_hook('post_request', self.hooks, self)
+            self.__dict__.update(r.__dict__)
 
-        # Post-request hook.
-        r = dispatch_hook('post_request', self.hooks, self)
-        self.__dict__.update(r.__dict__)
-
-        return self.sent
+            return self.sent
 
 
 class Response(object):
