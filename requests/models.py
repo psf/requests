@@ -331,24 +331,27 @@ class Request(object):
                 datetime.now().isoformat(), self.method, self.url
             ))
 
-
         # Build the URL
         url = self._build_url()
 
-
+        # Attach uploaded files.
         if self.files:
             register_openers()
 
+            # Add form-data to the multipart.
             if self.data:
                 self.files.update(self.data)
 
-            datagen, headers = multipart_encode(self.files)
-            req = _Request(url, data=datagen, headers=headers, method=self.method)
+            data, headers = multipart_encode(self.files)
 
         else:
-            req = _Request(url, data=self._enc_data, method=self.method)
+            data = self._enc_data
+            headers = {}
 
+        # Build the Urllib2 Request.
+        req = _Request(url, data=data, headers=headers, method=self.method)
 
+        # Add the headers to the request.
         if self.headers:
             for k,v in self.headers.iteritems():
                 req.add_header(k, v)
