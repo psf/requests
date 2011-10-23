@@ -130,13 +130,6 @@ class Request(object):
         return '<Request [%s]>' % (self.method)
 
 
-    def _checks(self):
-        """Deterministic checks for consistency."""
-
-        if not self.url:
-            raise URLRequired
-
-
     def _get_opener(self):
         """Creates appropriate opener object for urllib2."""
 
@@ -328,7 +321,9 @@ class Request(object):
         already been sent.
         """
 
-        self._checks()
+        # Some people...
+        if not self.url:
+            raise URLRequired
 
         # Logging
         if self.config.get('verbose'):
