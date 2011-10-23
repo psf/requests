@@ -332,22 +332,22 @@ class Request(object):
             ))
 
 
+        # Build the URL
         url = self._build_url()
-        if self.method in ('GET', 'HEAD', 'DELETE'):
-            req = _Request(url, method=self.method)
+
+
+        if self.files:
+            register_openers()
+
+            if self.data:
+                self.files.update(self.data)
+
+            datagen, headers = multipart_encode(self.files)
+            req = _Request(url, data=datagen, headers=headers, method=self.method)
+
         else:
+            req = _Request(url, data=self._enc_data, method=self.method)
 
-            if self.files:
-                register_openers()
-
-                if self.data:
-                    self.files.update(self.data)
-
-                datagen, headers = multipart_encode(self.files)
-                req = _Request(url, data=datagen, headers=headers, method=self.method)
-
-            else:
-                req = _Request(url, data=self._enc_data, method=self.method)
 
         if self.headers:
             for k,v in self.headers.iteritems():
