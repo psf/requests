@@ -94,7 +94,9 @@ class Request(object):
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
         self.response = Response()
 
-        # if isinstance(auth, (list, tuple)):
+        if isinstance(auth, (list, tuple)):
+            from .auth import http_basic
+            auth = (http_basic, auth)
             # auth = AuthObject(*auth)
         # if not auth:
             # auth = auth_manager.get_auth(self.url)
@@ -138,7 +140,7 @@ class Request(object):
         if self.cookies is not None:
             _handlers.append(urllib2.HTTPCookieProcessor(self.cookies))
 
-        # if self.auth:
+
             # if not isinstance(self.auth.handler,
                 # (urllib2.AbstractBasicAuthHandler,
                 # urllib2.AbstractDigestAuthHandler)):
@@ -347,6 +349,13 @@ class Request(object):
         else:
             data = self._enc_data
             headers = {}
+
+        if self.auth:
+            auth_func, auth_args = self.auth
+
+            r = auth_func(self, *auth_args)
+
+            self.__dict__.update(r.__dict__)
 
         # Build the Urllib2 Request.
         req = _Request(url, data=data, headers=headers, method=self.method)
