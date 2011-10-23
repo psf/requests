@@ -29,3 +29,31 @@ def http_digest(r, username, password):
     """
 
     r.headers
+
+
+def dispatch(t):
+    """Given an auth tuple, return an expanded version."""
+
+    if not t:
+        return t
+    else:
+        t = list(t)
+
+    # Make sure they're passing in something.
+    assert len(t) <= 2
+
+    # If only two items are passed in, assume HTTPBasic.
+    if (len(t) == 2):
+        t.insert(0, 'basic')
+
+    # Allow built-in string referenced auths.
+    if isinstance(t[0], basestring):
+        if t[0] in ('basic', 'forced_basic'):
+            t[0] = http_basic
+        elif t[0] in ('digest',):
+            t[0] = http_digest
+
+    # Return a custom callable.
+    return (t[0], t[1:])
+
+
