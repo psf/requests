@@ -147,11 +147,14 @@ class RequestsTestSuite(unittest.TestCase):
             url = service('basic-auth', 'user', 'pass')
 
             r = requests.get(url, auth=auth)
-            # print r.__dict__
             self.assertEqual(r.status_code, 200)
 
-
             r = requests.get(url)
+            self.assertEqual(r.status_code, 401)
+
+
+            s = requests.session(auth=auth)
+            r = s.get(url)
             self.assertEqual(r.status_code, 200)
 
 
