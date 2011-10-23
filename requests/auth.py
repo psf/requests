@@ -7,7 +7,7 @@ requests.auth
 This module contains the authentication handlers for Requests.
 """
 
-from base64 import base64
+from base64 import b64encode
 
 def http_basic(r, username, password):
     """Attaches HTTP Basic Authentication to the given Request object.
@@ -17,7 +17,7 @@ def http_basic(r, username, password):
     username = str(username)
     password = str(password)
 
-    auth_s = base64('%s:%s' % (username, password))
+    auth_s = b64encode('%s:%s' % (username, password))
     r.headers['Authorization'] = ('Basic %s' % auth_s)
 
     return r
