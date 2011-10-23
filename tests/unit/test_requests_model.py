@@ -7,11 +7,13 @@ import os
 sys.path.append(os.getcwd())
 
 from requests import models
-from requests.monkeys import HTTPBasicAuthHandler, HTTPForcedBasicAuthHandler,\
-                             HTTPDigestAuthHandler, HTTPRedirectHandler
+from requests.monkeys import (HTTPBasicAuthHandler,
+                              HTTPForcedBasicAuthHandler,
+                              HTTPDigestAuthHandler,
+                              HTTPRedirectHandler)
 import urllib2
 
-class RequestsAPIUnitTests(unittest.TestCase):
+class RequestsModelUnitTests(unittest.TestCase):
     """Requests API unit test cases."""
 
     def setUp(self):
