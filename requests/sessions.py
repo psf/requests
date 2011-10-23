@@ -15,6 +15,7 @@ from .defaults import defaults
 from .models import Request
 from .hooks import dispatch_hook
 from .utils import add_dict_to_cookiejar, cookiejar_from_dict, header_expand
+from .packages.urllib3.poolmanager import PoolManager
 
 
 def merge_kwargs(local_kwarg, default_kwarg):
@@ -75,6 +76,11 @@ class Session(object):
 
         for (k, v) in defaults.items():
             self.config.setdefault(k, v)
+
+        self.poolmanager = PoolManager(
+            num_pools=self.config.get('pool_connections'),
+            maxsize=self.config.get('pool_maxsize')
+        )
 
         # Set up a CookieJar to be used by default
         self.cookies = cookielib.FileCookieJar()
@@ -148,7 +154,8 @@ class Session(object):
             timeout=timeout,
             allow_redirects=allow_redirects,
             proxies=proxies,
-            config=config
+            config=config,
+            _poolmanager=self.poolmanager
         )
 
         for attr in self.__attrs__:
