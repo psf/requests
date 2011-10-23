@@ -34,19 +34,15 @@ all the hard work and crazy hacks for you.
 Features
 --------
 
-- Extremely simple HEAD, GET, POST, PUT, PATCH, DELETE Requests
-    + Simple HTTP Header Request Attachment
-    + Simple Data/Params Request Attachment
-    + Simple Multipart File Uploads
-    + CookieJar Support
-    + Redirection History
-    + Proxy Support
-    + Redirection Recursion Urllib Fix
-    + Auto Decompression of GZipped Content
-    + Unicode URL Support
-
-- Simple Authentication
-    + Simple URL + HTTP Auth Registry
+- Extremely simple HEAD, GET, POST, PUT, PATCH, DELETE Requests.
+- Gevent support for Asyncronous Requests.
+- Sessions with cookie persistience.
+- Basic, Digest, and Custom Authentication support.
+- Automatic form-encoding of dictionaries
+- A simple dictionary interface for request/response cookies.
+- Multipart file uploads.
+- Automatc decoding of Unicode, gzip, and deflate responses.
+- Full support for unicode URLs and domain names.
 
 
 Usage
