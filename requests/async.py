@@ -28,7 +28,7 @@ __all__ = (
 )
 
 
-def _patched(f):
+def patched(f):
     """Patches a given API function to not send."""
 
     def wrapped(*args, **kwargs):
@@ -37,7 +37,7 @@ def _patched(f):
     return wrapped
 
 
-def _send(r, pools=None):
+def send(r, pools=None):
     """Sends a given Request object."""
 
     if pools:
@@ -49,13 +49,13 @@ def _send(r, pools=None):
 
 
 # Patched requests.api functions.
-get = _patched(api.get)
-head = _patched(api.head)
-post = _patched(api.post)
-put = _patched(api.put)
-patch = _patched(api.patch)
-delete = _patched(api.delete)
-request = _patched(api.request)
+get = patched(api.get)
+head = patched(api.head)
+post = patched(api.post)
+put = patched(api.put)
+patch = patched(api.patch)
+delete = patched(api.delete)
+request = patched(api.request)
 
 
 def map(requests, prefetch=True):
@@ -65,7 +65,7 @@ def map(requests, prefetch=True):
     :param prefetch: If False, the content will not be downloaded immediately.
     """
 
-    jobs = [gevent.spawn(_send, r) for r in requests]
+    jobs = [gevent.spawn(send, r) for r in requests]
     gevent.joinall(jobs)
 
     if prefetch:
