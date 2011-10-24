@@ -108,13 +108,7 @@ def http_digest(r, username, password):
             r.request.send(anyway=True)
             _r = r.request.response
             _r.history.append(r)
-            print _r.status_code
 
-            # r.request.response
-
-            print locals()
-
-            print _r.headers
             return _r
 
         return r
