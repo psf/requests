@@ -262,13 +262,6 @@ class Request(object):
             r.history = history
 
         self.response = r
-
-        try:
-            r.raise_for_status()
-            self.response.ok = True
-        except HTTPError:
-            self.response.ok = False
-
         self.response.request = self
 
 
@@ -284,6 +277,9 @@ class Request(object):
         returns it twice.
         """
 
+        if hasattr(data, '__iter__'):
+            data = dict(data)
+
         if hasattr(data, 'items'):
             result = []
             for k, vs in data.items():
@@ -298,11 +294,20 @@ class Request(object):
     def _build_url(self):
         """Build the actual URL to use."""
 
+        if not self.url:
+            raise URLRequired()
+
         # Support for unicode domain names and paths.
         scheme, netloc, path, params, query, fragment = urlparse(self.url)
+
+        if not scheme:
+            raise ValueError()
+
         netloc = netloc.encode('idna')
+
         if isinstance(path, unicode):
             path = path.encode('utf-8')
+
         path = urllib.quote(urllib.unquote(path))
         self.url = str(urlunparse([ scheme, netloc, path, params, query, fragment ]))
 
@@ -326,10 +331,6 @@ class Request(object):
         already been sent.
         """
 
-        # Some people...
-        if not self.url:
-            raise URLRequired
-
         # Logging
         if self.config.get('verbose'):
             self.config.get('verbose').write('%s   %s   %s\n' % (
@@ -348,7 +349,12 @@ class Request(object):
         # Multi-part file uploads.
         if self.files:
             if not isinstance(self.data, basestring):
-                fields = self.data.copy()
+
+                try:
+                    fields = self.data.copy()
+                except AttributeError:
+                    fields = dict(self.data)
+
                 for (k, v) in self.files.items():
                     fields.update({k: (k, v.read())})
                 (body, content_type) = encode_multipart_formdata(fields)
@@ -379,46 +385,35 @@ class Request(object):
 
         if not self.sent or anyway:
 
-            try:
-                if self.cookies:
+            if self.cookies:
 
-                    # Skip if 'cookie' header is explicitly set.
-                    if 'cookie' not in self.headers:
+                # Skip if 'cookie' header is explicitly set.
+                if 'cookie' not in self.headers:
 
-                        # Simple cookie with our dict.
-                        # TODO: Multi-value headers.
-                        c = SimpleCookie()
-                        c.load(self.cookies)
+                    # Simple cookie with our dict.
+                    # TODO: Multi-value headers.
+                    c = SimpleCookie()
+                    c.load(self.cookies)
 
-                        # Turn it into a header.
-                        cookie_header = c.output(header='').strip()
+                    # Turn it into a header.
+                    cookie_header = c.output(header='').strip()
 
-                        # Attach Cookie header to request.
-                        self.headers['Cookie'] = cookie_header
+                    # Attach Cookie header to request.
+                    self.headers['Cookie'] = cookie_header
 
-                # Create the connection.
-                r = conn.urlopen(
-                    method=self.method,
-                    url=url,
-                    body=body,
-                    headers=self.headers,
-                    redirect=False,
-                    assert_same_host=False,
-                    preload_content=False,
-                    decode_content=False
-                )
+            # Create the connection.
+            r = conn.urlopen(
+                method=self.method,
+                url=url,
+                body=body,
+                headers=self.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False
+            )
 
-                # resp = {}
-
-
-            except ArithmeticError:
-                pass
-
-            else:
-                self._build_response(r)
-                self.response.ok = True
-
-        # self.sent = self.response.ok
+            self._build_response(r)
 
             # Response manipulation hook.
             self.response = dispatch_hook('response', self.hooks, self.response)
@@ -456,9 +451,6 @@ class Response(object):
         #: Final URL location of Response.
         self.url = None
 
-        #: True if no :attr:`error` occurred.
-        self.ok = False
-
         #: Resulting :class:`HTTPError` of request, if one occurred.
         self.error = None
 
@@ -482,13 +474,16 @@ class Response(object):
 
     def __nonzero__(self):
         """Returns true if :attr:`status_code` is 'OK'."""
+        return self.ok
 
+    @property
+    def ok(self):
         try:
             self.raise_for_status()
         except HTTPError:
             return False
-        finally:
-            return True
+        return True
+
 
     def iter_content(self, chunk_size=10 * 1024, decode_unicode=None):
         """Iterates over the response data.  This avoids reading the content
@@ -497,8 +492,9 @@ class Response(object):
         length of each item returned as decoding can take place.
         """
         if self._content_consumed:
-            raise RuntimeError('The content for this response was '
-                               'already consumed')
+            raise RuntimeError(
+                'The content for this response was already consumed'
+            )
 
         def generate():
             while 1:
@@ -507,14 +503,20 @@ class Response(object):
                     break
                 yield chunk
             self._content_consumed = True
+
         gen = generate()
+
         if 'gzip' in self.headers.get('content-encoding', ''):
             gen = stream_decode_gzip(gen)
+
         if decode_unicode is None:
             decode_unicode = self.config.get('decode_unicode')
+
         if decode_unicode:
             gen = stream_decode_response_unicode(gen, self)
+
         return gen
+
 
     @property
     def content(self):

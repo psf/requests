@@ -234,6 +234,7 @@ class RequestsTestSuite(unittest.TestCase):
         for service in SERVICES:
 
             r = requests.get(service('status', '404'))
+            print r.status_code
             self.assertEqual(r.ok, False)
 
 
@@ -244,26 +245,6 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get(httpbin('status', '200'))
         self.assertFalse(r.error)
         r.raise_for_status()
-
-
-    def test_cookie_jar(self):
-
-        jar = cookielib.CookieJar()
-        self.assertFalse(jar)
-
-        url = httpbin('cookies', 'set', 'requests_cookie', 'awesome')
-        r = requests.get(url, cookies=jar)
-        self.assertTrue(jar)
-
-        cookie_found = False
-        for cookie in jar:
-            if cookie.name == 'requests_cookie':
-                self.assertEquals(cookie.value, 'awesome')
-                cookie_found = True
-        self.assertTrue(cookie_found)
-
-        r = requests.get(httpbin('cookies'), cookies=jar)
-        self.assertTrue('awesome' in r.content)
 
 
     def test_decompress_gzip(self):
