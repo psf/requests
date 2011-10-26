@@ -10,6 +10,7 @@ import unittest
 
 import requests
 import envoy
+from urllib2 import HTTPError
 
 try:
     import omnijson as json
@@ -239,7 +240,7 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_status_raising(self):
         r = requests.get(httpbin('status', '404'))
-        self.assertRaises(requests.HTTPError, r.raise_for_status)
+        self.assertRaises(HTTPError, r.raise_for_status)
 
         r = requests.get(httpbin('status', '200'))
         self.assertFalse(r.error)
