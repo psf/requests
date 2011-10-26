@@ -15,15 +15,15 @@ requests
 """
 
 __title__ = 'requests'
-__version__ = '0.7.3'
-__build__ = 0x000703
+__version__ = '0.7.4'
+__build__ = 0x000704
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
 
 
 from . import utils
-from .models import HTTPError, Request, Response
+from .models import Request, Response
 from .api import request, get, head, post, patch, put, delete
 from .sessions import session
 from .status_codes import codes
