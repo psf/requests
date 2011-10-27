@@ -168,8 +168,9 @@ class Session(object):
 
             args[attr] = merge_kwargs(local_val, session_val)
 
+
         # Arguments manipulation hook.
-        args = dispatch_hook('args', hooks, args)
+        args = dispatch_hook('args', args['hooks'], args)
 
         r = Request(**args)
 
