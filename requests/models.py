@@ -18,16 +18,9 @@ from datetime import datetime
 from .auth import dispatch as auth_dispatch
 from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
-from .packages.poster.encode import multipart_encode
-from .packages.poster.streaminghttp import register_openers, get_handlers
 from .status_codes import codes
-from .exceptions import Timeout, URLRequired, TooManyRedirects
-from .monkeys import Request as _Request
-from .monkeys import HTTPRedirectHandler
-from .exceptions import Timeout, URLRequired, TooManyRedirects, RequestException, HTTPError
-from .exceptions import Timeout, URLRequired, TooManyRedirects
-from .monkeys import Request as _Request
-from .monkeys import HTTPRedirectHandler
+from .exceptions import Timeout, URLRequired, TooManyRedirects, HTTPError
+
 from .utils import (
     dict_from_cookiejar, get_unicode_from_response,
     stream_decode_response_unicode, decode_gzip, stream_decode_gzip)
@@ -190,6 +183,7 @@ class Request(object):
 
             # Start off with our local cookies.
             cookies = self.cookies or dict()
+            print '  %s' % str(cookies)
 
             # Add new cookies from the server.
             if 'set-cookie' in response.headers:

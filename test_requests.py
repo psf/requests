@@ -4,13 +4,12 @@
 from __future__ import with_statement
 
 import time
-import cookielib
 import os
 import unittest
 
 import requests
 import envoy
-from urllib2 import HTTPError
+from requests import HTTPError
 
 try:
     import omnijson as json
@@ -235,7 +234,8 @@ class RequestsTestSuite(unittest.TestCase):
         for service in SERVICES:
 
             r = requests.get(service('status', '404'))
-            print r.status_code
+            # print r.status_code
+            # r.raise_for_status()
             self.assertEqual(r.ok, False)
 
 
@@ -509,6 +509,15 @@ class RequestsTestSuite(unittest.TestCase):
         assert not params['a'] in r3.content
         assert params3['b'] in r3.content
         assert params3['c'] in r3.content
+
+    def test_cookies(self):
+
+        s = requests.session()
+        r = s.get(httpbin('cookies', 'set', 'face', 'book'))
+        print r.headers
+        print r.history[0].cookies
+        print r.content
+        print r.url
 
 
 if __name__ == '__main__':

@@ -9,12 +9,10 @@ requests (cookies, auth, proxies).
 
 """
 
-import cookielib
-
 from .defaults import defaults
 from .models import Request
 from .hooks import dispatch_hook
-from .utils import add_dict_to_cookiejar, cookiejar_from_dict, header_expand
+from .utils import header_expand
 from .packages.urllib3.poolmanager import PoolManager
 
 
@@ -87,7 +85,7 @@ class Session(object):
         )
 
         # Set up a CookieJar to be used by default
-        self.cookies = cookielib.FileCookieJar()
+        self.cookies = {}
 
     def __repr__(self):
         return '<requests-client at 0x%x>' % (id(self))
@@ -134,11 +132,6 @@ class Session(object):
 
         if cookies is None:
             cookies = {}
-
-        if isinstance(cookies, dict):
-            cookies = add_dict_to_cookiejar(self.cookies, cookies)
-
-        cookies = cookiejar_from_dict(cookies)
 
         # Expand header values
         if headers:
