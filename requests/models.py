@@ -264,11 +264,11 @@ class Request(object):
         """
 
         if hasattr(data, 'items'):
-            result = []
+            result = {}
             for k, vs in data.items():
                 for v in isinstance(vs, list) and vs or [vs]:
-                    result.append((k.encode('utf-8') if isinstance(k, unicode) else k,
-                                   v.encode('utf-8') if isinstance(v, unicode) else v))
+                    result.update(k.encode('utf-8') if isinstance(k, unicode) else k,
+                                   v.encode('utf-8') if isinstance(v, unicode) else v)
             return result, urllib.urlencode(result, doseq=True)
         else:
             return data, data
