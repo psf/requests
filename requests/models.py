@@ -72,11 +72,11 @@ class Request(object):
 
         #: Dictionary or byte of request body data to attach to the
         #: :class:`Request <Request>`.
-        self.data = None
+        self.data = {}
 
         #: Dictionary or byte of querystring data to attach to the
         #: :class:`Request <Request>`.
-        self.params = None
+        self.params = {}
 
         #: True if :class:`Request <Request>` is part of a redirect chain (disables history
         #: and HTTPError storage).
