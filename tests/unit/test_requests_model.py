@@ -21,11 +21,7 @@ class RequestsModelUnitTests(unittest.TestCase):
 
     @mock.patch('requests.models.dispatch_hook')
     def test_Request_init(self, mock_dispatch):
-        r = models.Request(url="google.com", headers=dict(), files=None,
-                           method='get',
-                           data=dict(), params=dict(), auth=None, cookies=None,
-                           timeout=None, redirect=False, allow_redirects=False,
-                           proxies=None, hooks=None, config=None)
+        r = models.Request(url="google.com", method='get')
 
         mock_dispatch.assert_called_once_with('pre_request', None, r)
 
@@ -40,7 +36,7 @@ class RequestsModelUnitTests(unittest.TestCase):
         self.assertEqual(False,r.redirect)
         self.assertEqual(False,r.allow_redirects)
         self.assertEqual(None,r.hooks)
-        self.assertEqual(None,r.config)
+        self.assertEqual({},r.config)
 
     @mock.patch('requests.models.dispatch_hook')
     def test_Request_init_no_args(self, mock_dispatch):
@@ -58,7 +54,7 @@ class RequestsModelUnitTests(unittest.TestCase):
         self.assertEqual(False,r.redirect)
         self.assertEqual(False,r.allow_redirects)
         self.assertEqual(None,r.hooks)
-        self.assertEqual(None,r.config)
+        self.assertEqual({},r.config)
 
 if __name__ == '__main__':
     unittest.main()
