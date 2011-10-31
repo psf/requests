@@ -56,5 +56,17 @@ class RequestsModelUnitTests(unittest.TestCase):
         self.assertEqual(None,r.hooks)
         self.assertEqual({},r.config)
 
+    @mock.patch('requests.models.HTTPRedirectHandler')
+    @mock.patch('requests.models.urllib2')
+    def test_Request_get_opener(self, mock_urllib, mock_redhandler):
+        mock_opener = mock.Mock()
+        mock_opener.open.return_value = True
+        mock_urllib.build_opener = mock.Mock(return_value=mock_opener)
+        r = models.Request(config={})
+        opener = r._get_opener()
+        self.assertEqual(mock_opener.open, opener)
+        mock_urllib.build_opener.assert_called_once_with(mock_redhandler)
+
+
 if __name__ == '__main__':
     unittest.main()
