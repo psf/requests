@@ -28,12 +28,14 @@ def request(method, url,
     proxies=None,
     hooks=None,
     return_response=True,
+    source_address=None,
     config=None):
 
     s = session()
     return s.request(
         method, url, params, data, headers, cookies, files, auth,
         timeout, allow_redirects, proxies, hooks, return_response,
+        source_address,
         config
     )
 

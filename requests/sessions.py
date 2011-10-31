@@ -104,6 +104,7 @@ class Session(object):
         proxies=None,
         hooks=None,
         return_response=True,
+        source_address=None,
         config=None):
 
         """Constructs and sends a :class:`Request <Request>`.
@@ -152,6 +153,7 @@ class Session(object):
             timeout=timeout,
             allow_redirects=allow_redirects,
             proxies=proxies,
+            source_address=source_address,
             config=config
         )
 

@@ -23,7 +23,7 @@ from .packages.poster.streaminghttp import register_openers, get_handlers
 from .status_codes import codes
 from .exceptions import Timeout, URLRequired, TooManyRedirects
 from .monkeys import Request as _Request
-from .monkeys import HTTPRedirectHandler
+from .monkeys import HTTPRedirectHandler, build_bindable_http_handler, have_ssl
 from .utils import (
     dict_from_cookiejar, get_unicode_from_response,
     stream_decode_response_unicode, decode_gzip, stream_decode_gzip)
@@ -52,6 +52,7 @@ class Request(object):
         allow_redirects=False,
         proxies=None,
         hooks=None,
+        source_address=None,
         config=None):
 
         #: Float describes the timeout of the request.
@@ -101,9 +102,11 @@ class Request(object):
         #: CookieJar to attach to :class:`Request <Request>`.
         self.cookies = cookies
 
+        self.source_address = source_address
+        
         #: Dictionary of configurations for this request.
         self.config = config
-
+        
         #: True if Request has been sent.
         self.sent = False
 
@@ -135,6 +138,11 @@ class Request(object):
 
         _handlers = []
 
+        if self.source_address is not None:
+            _handlers.append(build_bindable_http_handler(self.source_address))
+            if have_ssl:
+                _handlers.append(build_bindable_http_handler(self.source_address, https=True))
+            
         if self.cookies is not None:
             _handlers.append(urllib2.HTTPCookieProcessor(self.cookies))
 
