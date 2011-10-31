@@ -19,12 +19,15 @@ class RequestsModelUnitTests(unittest.TestCase):
         """Teardown."""
         pass
 
-    def test_Request_init(self):
+    @mock.patch('requests.models.dispatch_hook')
+    def test_Request_init(self, mock_dispatch):
         r = models.Request(url="google.com", headers=dict(), files=None,
                            method='get',
                            data=dict(), params=dict(), auth=None, cookies=None,
                            timeout=None, redirect=False, allow_redirects=False,
                            proxies=None, hooks=None, config=None)
+
+        mock_dispatch.assert_called_once_with('pre_request', None, r)
 
         self.assertEqual('get',r.method)
         self.assertEqual('google.com',r.url)
@@ -39,8 +42,11 @@ class RequestsModelUnitTests(unittest.TestCase):
         self.assertEqual(None,r.hooks)
         self.assertEqual(None,r.config)
 
-    def test_Request_init_no_args(self):
+    @mock.patch('requests.models.dispatch_hook')
+    def test_Request_init_no_args(self, mock_dispatch):
         r = models.Request()
+
+        mock_dispatch.assert_called_once_with('pre_request', None, r)
         self.assertEqual(None,r.method)
         self.assertEqual(None,r.url)
         self.assertEqual(None,r.timeout)
