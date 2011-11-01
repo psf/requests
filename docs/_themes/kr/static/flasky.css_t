@@ -393,6 +393,11 @@ a:hover tt {
     	display: none;
     }
 
+    div.document {
+       width: 100%;
+       
+    }
+    
     div.documentwrapper {
     	margin-left: 0;
     	margin-top: 0;
