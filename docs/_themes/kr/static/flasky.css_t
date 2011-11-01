@@ -420,6 +420,10 @@ a:hover tt {
     	width: auto;
     }
 
+    .footer {
+    	width: auto;
+    }
+
     .bodywrapper {
     	margin: 0;
     }
