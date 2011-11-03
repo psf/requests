@@ -96,6 +96,7 @@ class Request(object):
         self.response = Response()
 
         #: Authentication tuple to attach to :class:`Request <Request>`.
+        self._auth = auth
         self.auth = auth_dispatch(auth)
 
         #: CookieJar to attach to :class:`Request <Request>`.
@@ -237,7 +238,7 @@ class Request(object):
                     method=method,
                     # data=self.data,
                     # params=self.params,
-                    auth=self.auth,
+                    auth=self._auth,
                     cookies=self.cookies,
                     redirect=True,
                     config=self.config
@@ -338,7 +339,6 @@ class Request(object):
             r = auth_func(self, *auth_args)
 
             self.__dict__.update(r.__dict__)
-            self.auth = auth_args
 
         # Build the Urllib2 Request.
         req = _Request(url, data=data, headers=headers, method=self.method)
