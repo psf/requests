@@ -12,6 +12,9 @@ class RequestException(Exception):
     """There was an ambiguous exception that occurred while handling your
     request."""
 
+class HTTPError(RequestException):
+    """An HTTP error occured."""
+
 class AuthenticationError(RequestException):
     """The authentication credentials provided were invalid."""
 

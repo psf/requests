@@ -4,13 +4,12 @@
 from __future__ import with_statement
 
 import time
-import cookielib
 import os
 import unittest
 
 import requests
 import envoy
-from urllib2 import HTTPError
+from requests import HTTPError
 
 try:
     import omnijson as json
@@ -235,6 +234,8 @@ class RequestsTestSuite(unittest.TestCase):
         for service in SERVICES:
 
             r = requests.get(service('status', '404'))
+            # print r.status_code
+            # r.raise_for_status()
             self.assertEqual(r.ok, False)
 
 
@@ -245,26 +246,6 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get(httpbin('status', '200'))
         self.assertFalse(r.error)
         r.raise_for_status()
-
-
-    def test_cookie_jar(self):
-
-        jar = cookielib.CookieJar()
-        self.assertFalse(jar)
-
-        url = httpbin('cookies', 'set', 'requests_cookie', 'awesome')
-        r = requests.get(url, cookies=jar)
-        self.assertTrue(jar)
-
-        cookie_found = False
-        for cookie in jar:
-            if cookie.name == 'requests_cookie':
-                self.assertEquals(cookie.value, 'awesome')
-                cookie_found = True
-        self.assertTrue(cookie_found)
-
-        r = requests.get(httpbin('cookies'), cookies=jar)
-        self.assertTrue('awesome' in r.content)
 
 
     def test_decompress_gzip(self):
@@ -528,6 +509,15 @@ class RequestsTestSuite(unittest.TestCase):
         assert not params['a'] in r3.content
         assert params3['b'] in r3.content
         assert params3['c'] in r3.content
+
+    def test_cookies(self):
+
+        s = requests.session()
+        r = s.get(httpbin('cookies', 'set', 'face', 'book'))
+        print r.headers
+        print r.history[0].cookies
+        print r.content
+        print r.url
 
 
 if __name__ == '__main__':
