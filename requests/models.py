@@ -338,6 +338,7 @@ class Request(object):
             r = auth_func(self, *auth_args)
 
             self.__dict__.update(r.__dict__)
+            self.auth = auth_args
 
         # Build the Urllib2 Request.
         req = _Request(url, data=data, headers=headers, method=self.method)
