@@ -29,6 +29,23 @@ def request(method, url,
     hooks=None,
     return_response=True,
     config=None):
+    """Constructs and sends a :class:`Request <Request>`.
+    Returns :class:`Response <Response>` object.
+
+    :param method: method for the new :class:`Request` object.
+    :param url: URL for the new :class:`Request` object.
+    :param params: (optional) Dictionary or bytes to be sent in the query string for the :class:`Request`.
+    :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+    :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
+    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
+    :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
+    :param auth: (optional) Auth typle to enable Basic/Digest/Custom HTTP Auth.
+    :param timeout: (optional) Float describing the timeout of the request.
+    :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
+    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param return_response: (optional) If False, an un-sent Request object will returned.
+    :param config: (optional) A configuration dictionary.
+    """
 
     s = session()
     return s.request(
