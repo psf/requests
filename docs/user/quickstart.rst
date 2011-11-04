@@ -164,4 +164,4 @@ Requests supports it!::
 
 -----------------------
 
-Ready for more? Check out the advanced_ section.
+Ready for more? Check out the :ref:`advanced <advanced>` section.
