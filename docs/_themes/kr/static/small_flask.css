@@ -77,42 +77,14 @@ div.body {
     width: auto;
 }
 
+.footer {
+	width: auto;
+}
 
-/*
-div.sphinxsidebar {
+.footer {
+	width: auto;
+}
+
+.github {
     display: none;
 }
-
-div.documentwrapper {
-	margin-left: 0;
-	margin-top: 0;
-	margin-right: 0;
-	margin-bottom: 0;
-}
-
-div.bodywrapper {
-	margin-top: 0;
-	margin-right: 0;
-	margin-bottom: 0;
-	margin-left: 0;
-}
-
-ul {
-	margin-left: 0;
-}
-
-
-
-.footer {
-	width: auto;
-}
-
-.bodywrapper {
-	margin: 0;
-}
-
-.footer {
-	width: auto;
-}
-
-*/

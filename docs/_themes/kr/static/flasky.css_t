@@ -395,9 +395,9 @@ a:hover tt {
 
     div.document {
        width: 100%;
-       
+
     }
-    
+
     div.documentwrapper {
     	margin-left: 0;
     	margin-top: 0;
@@ -432,7 +432,9 @@ a:hover tt {
     	width: auto;
     }
 
-
+    .github {
+        display: none;
+    }
 
 }
 
