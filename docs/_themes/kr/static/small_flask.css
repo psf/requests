@@ -68,13 +68,18 @@ div.body {
     min-height: 0;
     padding: 0;
 }
-/*
-div.sphinxsidebar {
-	display: none;
+
+.rtd_doc_footer {
+    display: none;
 }
 
 div.document {
    width: 100%;
+}
+
+/*
+div.sphinxsidebar {
+    display: none;
 }
 
 div.documentwrapper {
