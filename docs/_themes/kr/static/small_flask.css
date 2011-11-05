@@ -73,9 +73,10 @@ div.body {
     display: none;
 }
 
-div.document {
-   width: 100%;
+.document {
+    width: auto;
 }
+
 
 /*
 div.sphinxsidebar {
@@ -100,9 +101,7 @@ ul {
 	margin-left: 0;
 }
 
-.document {
-	width: auto;
-}
+
 
 .footer {
 	width: auto;
