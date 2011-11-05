@@ -496,7 +496,11 @@ class Response(object):
                                'already consumed')
 
         # Read the contents.
-        self._content = self.raw.read()
+        try:
+            self._content = self.raw.read()
+        except AttributeError:
+            return None
+
 
         # Decode GZip'd content.
         if 'gzip' in self.headers.get('content-encoding', ''):

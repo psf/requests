@@ -529,6 +529,11 @@ class RequestsTestSuite(unittest.TestCase):
         assert params3['b'] in r3.content
         assert params3['c'] in r3.content
 
+    def test_invalid_content(self):
+
+        r = requests.get('http://somedomainthatclearlydoesntexistg.com')
+        assert r.content == None
+
 
 if __name__ == '__main__':
     unittest.main()
