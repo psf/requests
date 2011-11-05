@@ -1,6 +1,12 @@
 History
 -------
 
+0.7.5 (2001-11-04)
+++++++++++++++++++
+
+* Response.content = None if there was an invalid repsonse.
+* Redirection auth handling.
+
 0.7.4 (2011-10-26)
 ++++++++++++++++++
 
