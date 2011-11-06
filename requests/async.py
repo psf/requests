@@ -12,6 +12,7 @@ by gevent. All API methods return a ``Request`` instance (as opposed to
 try:
     import gevent
     from gevent import monkey as curious_george
+    from gevent.pool import Pool
 except ImportError:
     raise RuntimeError('Gevent is required for requests.async.')
 
@@ -61,15 +62,21 @@ delete = patched(api.delete)
 request = patched(api.request)
 
 
-def map(requests, prefetch=True):
+def map(requests, prefetch=True, size=None):
     """Concurrently converts a list of Requests to Responses.
 
     :param requests: a collection of Request objects.
     :param prefetch: If False, the content will not be downloaded immediately.
+    :param size: Specifies the number of requests to make at a time. If None, no throttling occurs.
     """
 
-    jobs = [gevent.spawn(send, r) for r in requests]
-    gevent.joinall(jobs)
+    if size:
+        pool = Pool(size)
+        pool.map(send, requests)
+        pool.join()
+    else:
+        jobs = [gevent.spawn(send, r) for r in requests]
+        gevent.joinall(jobs)
 
     if prefetch:
         [r.response.content for r in requests]
