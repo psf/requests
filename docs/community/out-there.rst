@@ -8,6 +8,7 @@ Modules
 - `urbanairship-python <https://github.com/benjaminws/urbanairship-python>`_, a fork of the Urban Airship API wrapper.
 - `WhitespaceBot <https://github.com/Gunio/WhitespaceBot/>`_, a project that automatically forks repos, strips trailing whitespace, and sends a pull request.
 - `python-rexster <https://github.com/CulturePlex/python-rexster>`_, Rexter client that provides a simple interface for graph databases.
+- `daikon <https://github.com/neogenix/daikon>`_, a CLI for ElasticSearch.
 
 Articles & Talks
 ================
