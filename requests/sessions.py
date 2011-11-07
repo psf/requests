@@ -188,6 +188,17 @@ class Session(object):
         return self.request('GET', url, **kwargs)
 
 
+    def options(self, url, **kwargs):
+        """Sends a OPTIONS request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param **kwargs: Optional arguments that ``request`` takes.
+        """
+
+        kwargs.setdefault('allow_redirects', True)
+        return self.request('OPTIONS', url, **kwargs)
+
+
     def head(self, url, **kwargs):
         """Sends a HEAD request. Returns :class:`Response` object.
 
