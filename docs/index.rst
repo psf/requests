@@ -39,7 +39,7 @@ all the hard work and crazy hacks for you.
 Testimonials
 ------------
 
-`Twitter, Inc <http://twitter.com>`_,
+`The Washington Post <http://www.washingtonpost.com/>`_, `Twitter, Inc <http://twitter.com>`_,
 a U.S. Federal Institution,
 NIH, 
 `Readability <http://readability.com>`_, and
