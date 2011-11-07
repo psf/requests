@@ -1,7 +1,12 @@
 History
 -------
 
-0.7.5 (2001-11-04)
+0.7.6 (2011-11-07)
+++++++++++++++++++
+
+* Digest authentication bugfix (attach query data to path)
+
+0.7.5 (2011-11-04)
 ++++++++++++++++++
 
 * Response.content = None if there was an invalid repsonse.
