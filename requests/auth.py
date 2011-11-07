@@ -67,7 +67,8 @@ def http_digest(r, username, password):
 
             # XXX not implemented yet
             entdig = None
-            path = urlparse(r.request.url).path
+            p_parsed = urlparse(r.request.url)
+            path = p_parsed.path + p_parsed.query
 
             A1 = "%s:%s:%s" % (username, realm, password)
             A2 = "%s:%s" % (r.request.method, path)
