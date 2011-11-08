@@ -23,7 +23,7 @@ Make a GET Request
 
 Making a standard request with Requests is very simple.
 
-Let's get GitHub's public timeline ::
+Let's use httpbin to test our requests. ::
 
     r = requests.get("http://httpbin.org/get")
 
