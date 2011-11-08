@@ -23,13 +23,12 @@ Make a GET Request
 
 Making a standard request with Requests is very simple.
 
-Let's use httpbin to test our requests. ::
+Let's get GitHub's public timeline ::
 
-    r = requests.get("http://httpbin.org/get")
+    r = requests.get('https://github.com/timeline.json')
 
 Now, we have a :class:`Response` object called ``r``. We can get all the
 information we need from this.
-
 
 
 Response Content
@@ -38,7 +37,7 @@ Response Content
 We can read the content of the server's response::
 
     >>> r.content
-    '{\n  "url": "http://httpbin.org/get", \n  "headers": ...
+    '[{"repository":{"open_issues":0,"url":"https://github.com/...
 
 
 Make a POST Request
@@ -55,11 +54,10 @@ argument to the requests.post method with your dictionary ::
     >>> dataDict = {"key1":"value1", "key2":"value2"}
     >>> r = requests.post("http://httpbin.org/post", data=dataDict)
     >>> r.content
-    '{\n  "origin": "::ffff:YourIpAddress", \n  "files": {}, \n  "form": {\n    "key2": "value2", \n    "key1": "value1"\n  }, 
+    '{\n  "origin": "::ffff:YourIpAddress", \n  "files": {}, \n  "form": {\n    "key2": "value2", \n    "key1": "value1"\n  }, ...
 
 Note the data= argument is equivalent to -d in cURL scripts. dataDict will
 be form-encoded. 
-
 
 Response Status Codes
 ---------------------
@@ -186,4 +184,3 @@ Requests supports it!::
 -----------------------
 
 Ready for more? Check out the :ref:`advanced <advanced>` section.
-
