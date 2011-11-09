@@ -8,7 +8,6 @@ requests.models
 """
 
 import urllib
-import socket
 import zlib
 from Cookie import SimpleCookie
 
@@ -183,7 +182,6 @@ class Request(object):
 
             # Start off with our local cookies.
             cookies = self.cookies or dict()
-            print '  %s' % str(cookies)
 
             # Add new cookies from the server.
             if 'set-cookie' in response.headers:
