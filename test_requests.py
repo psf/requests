@@ -506,6 +506,12 @@ class RequestsTestSuite(unittest.TestCase):
         assert c == _c
 
 
+        s = requests.session(cookies=_c)
+        c = json.loads(r.content).get('cookies')
+        assert c == _c
+
+
+
     def test_session_persistent_params(self):
 
         params = {'a': 'a_test'}
