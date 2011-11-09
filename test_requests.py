@@ -323,21 +323,6 @@ class RequestsTestSuite(unittest.TestCase):
             self.assertEquals(rbody.get('data'), '')
 
 
-    def test_nonurlencoded_post_querystring(self):
-
-        for service in SERVICES:
-
-            r = requests.post(service('post'), params='fooaowpeuf')
-
-            self.assertEquals(r.status_code, 200)
-            self.assertEquals(r.headers['content-type'], 'application/json')
-            self.assertEquals(r.url, service('post?fooaowpeuf'))
-
-            rbody = json.loads(r.content)
-            self.assertEquals(rbody.get('form'), {}) # No form supplied
-            self.assertEquals(rbody.get('data'), '')
-
-
     def test_urlencoded_post_query_and_data(self):
 
         for service in SERVICES:
@@ -356,16 +341,14 @@ class RequestsTestSuite(unittest.TestCase):
             self.assertEquals(rbody.get('data'), '')
 
 
-    def test_nonurlencoded_post_query_and_data(self):
+    def test_nonurlencoded_postdata(self):
 
         for service in SERVICES:
 
-            r = requests.post(service('post'),
-                params='fooaowpeuf', data="foobar")
+            r = requests.post(service('post'), data="foobar")
 
             self.assertEquals(r.status_code, 200)
             self.assertEquals(r.headers['content-type'], 'application/json')
-            self.assertEquals(r.url, service('post?fooaowpeuf'))
 
             rbody = json.loads(r.content)
 
@@ -539,22 +522,35 @@ class RequestsTestSuite(unittest.TestCase):
         assert params3['b'] in r3.content
         assert params3['c'] in r3.content
 
+
     def test_cookies(self):
 
         s = requests.session()
         r = s.get(httpbin('cookies', 'set', 'face', 'book'))
-        print r.headers
-        print r.history[0].cookies
-        print r.content
-        print r.url
+        # print r.headers
+        # print r.history[0].cookies
+        # print r.content
+        # print r.url
+
 
     def test_invalid_content(self):
 
         # WARNING: if you're using a terrible DNS provider (comcast),
         # this will fail.
-        r = requests.get('http://somedomainthatclearlydoesntexistg.com', allow_redirects=False)
+        try:
+            hah = 'http://somedomainthatclearlydoesntexistg.com'
+            r = requests.get(hah, allow_redirects=False)
+        except requests.ConnectionError:
+            pass   # \o/
+        else:
+            assert False
 
+
+        config = {'safe_mode': True}
+        r = requests.get(hah, allow_redirects=False, config=config)
         assert r.content == None
+
+
 
 
 
