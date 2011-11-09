@@ -61,7 +61,7 @@ class Request(object):
         self.url = url
 
         #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.
-        self.headers = headers
+        self.headers = dict(headers or [])
 
         #: Dictionary of files to multipart upload (``{filename: content}``).
         self.files = files
@@ -85,7 +85,7 @@ class Request(object):
         self.allow_redirects = allow_redirects
 
         # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})
-        self.proxies = proxies
+        self.proxies = dict(proxies or [])
 
         self.data, self._enc_data = self._encode_params(data)
         self.params, self._enc_params = self._encode_params(params)
@@ -99,10 +99,10 @@ class Request(object):
         self.auth = auth_dispatch(auth)
 
         #: CookieJar to attach to :class:`Request <Request>`.
-        self.cookies = cookies
+        self.cookies = dict(cookies or [])
 
         #: Dictionary of configurations for this request.
-        self.config = config
+        self.config = dict(config or [])
 
         #: True if Request has been sent.
         self.sent = False
@@ -144,27 +144,29 @@ class Request(object):
             # Pass settings over.
             response.config = self.config
 
-            # Fallback to None if there's no staus_code, for whatever reason.
-            response.status_code = getattr(resp, 'status', None)
+            if resp:
 
-            # Make headers case-insensitive.
-            response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
+                # Fallback to None if there's no staus_code, for whatever reason.
+                response.status_code = getattr(resp, 'status', None)
 
-            # Start off with our local cookies.
-            cookies = self.cookies or dict()
+                # Make headers case-insensitive.
+                response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
 
-            # Add new cookies from the server.
-            if 'set-cookie' in response.headers:
-                cookie_header = response.headers['set-cookie']
+                # Start off with our local cookies.
+                cookies = self.cookies or dict()
 
-                c = SimpleCookie()
-                c.load(cookie_header)
+                # Add new cookies from the server.
+                if 'set-cookie' in response.headers:
+                    cookie_header = response.headers['set-cookie']
 
-                for k,v in c.items():
-                    cookies.update({k: v.value})
+                    c = SimpleCookie()
+                    c.load(cookie_header)
 
-            # Save cookies in Response.
-            response.cookies = cookies
+                    for k,v in c.items():
+                        cookies.update({k: v.value})
+
+                # Save cookies in Response.
+                response.cookies = cookies
 
             # Save original resopnse for later.
             response.raw = resp
@@ -383,10 +385,10 @@ class Request(object):
                     retries=self.config.get('max_retries', 0)
                 )
             except MaxRetryError, e:
-                if self.config.get('safe_mode', False):
-                    pass
-                raise ConnectionError(e)
-
+                if not self.config.get('safe_mode', False):
+                    raise ConnectionError(e)
+                else:
+                    r = None
 
             self._build_response(r)
 
