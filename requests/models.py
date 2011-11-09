@@ -14,12 +14,14 @@ from Cookie import SimpleCookie
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import datetime
 
+
 from .auth import dispatch as auth_dispatch
 from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
-from .exceptions import Timeout, URLRequired, TooManyRedirects, HTTPError
-
+from .packages.urllib3.exceptions import MaxRetryError
+from .exceptions import (
+    Timeout, URLRequired, TooManyRedirects, HTTPError, ConnectionError)
 from .utils import (
     dict_from_cookiejar, get_unicode_from_response,
     stream_decode_response_unicode, decode_gzip, stream_decode_gzip)
@@ -129,39 +131,6 @@ class Request(object):
         return '<Request [%s]>' % (self.method)
 
 
-    # def _get_opener(self):
-    #     """Creates appropriate opener object for urllib2."""
-
-    #     _handlers = []
-
-    #     if self.cookies is not None:
-    #         _handlers.append(urllib2.HTTPCookieProcessor(self.cookies))
-
-    #     if self.proxies:
-    #         _handlers.append(urllib2.ProxyHandler(self.proxies))
-
-    #     _handlers.append(HTTPRedirectHandler)
-
-    #     if not _handlers:
-    #         return urllib2.urlopen
-
-    #     if self.data or self.files:
-    #         _handlers.extend(get_handlers())
-
-    #     opener = urllib2.build_opener(*_handlers)
-
-    #     if self.headers:
-    #         # Allow default headers in the opener to be overloaded
-    #         normal_keys = [k.capitalize() for k in self.headers]
-    #         for key, val in opener.addheaders[:]:
-    #             if key not in normal_keys:
-    #                 continue
-    #             # Remove it, we have a value to take its place
-    #             opener.addheaders.remove((key, val))
-
-    #     return opener.open
-
-
     def _build_response(self, resp, is_error=False):
         """Build internal :class:`Response <Response>` object
         from given response.
@@ -218,8 +187,6 @@ class Request(object):
                 ('location' in r.headers) and
                 ((r.status_code is codes.see_other) or (self.allow_redirects))
             ):
-
-                # r.raw.close()
 
                 if not len(history) < self.config.get('max_redirects'):
                     raise TooManyRedirects()
@@ -402,17 +369,24 @@ class Request(object):
                     # Attach Cookie header to request.
                     self.headers['Cookie'] = cookie_header
 
-            # Create the connection.
-            r = conn.urlopen(
-                method=self.method,
-                url=url,
-                body=body,
-                headers=self.headers,
-                redirect=False,
-                assert_same_host=False,
-                preload_content=False,
-                decode_content=False
-            )
+            try:
+                # Create the connection.
+                r = conn.urlopen(
+                    method=self.method,
+                    url=url,
+                    body=body,
+                    headers=self.headers,
+                    redirect=False,
+                    assert_same_host=False,
+                    preload_content=False,
+                    decode_content=False,
+                    retries=self.config.get('max_retries', 0)
+                )
+            except MaxRetryError, e:
+                if self.config.get('safe_mode', False):
+                    pass
+                raise ConnectionError(e)
+
 
             self._build_response(r)
 
