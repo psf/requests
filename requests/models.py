@@ -20,6 +20,7 @@ from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
 from .packages.urllib3.exceptions import MaxRetryError
+from .packages.urllib3 import connectionpool
 from .exceptions import (
     Timeout, URLRequired, TooManyRedirects, HTTPError, ConnectionError)
 from .utils import (
@@ -352,7 +353,11 @@ class Request(object):
             self.__dict__.update(r.__dict__)
 
 
-        conn = self._poolmanager.connection_from_url(url)
+        if self.config.get('keep_alive'):
+            conn = self._poolmanager.connection_from_url(url)
+        else:
+            conn = connectionpool.connection_from_url(url)
+            print 'NO CONNECTION FOR YOU1'
 
         if not self.sent or anyway:
 
@@ -373,7 +378,7 @@ class Request(object):
                     self.headers['Cookie'] = cookie_header
 
             try:
-                # Create the connection.
+                # Send the request.
                 r = conn.urlopen(
                     method=self.method,
                     url=url,
@@ -385,6 +390,7 @@ class Request(object):
                     decode_content=False,
                     retries=self.config.get('max_retries', 0)
                 )
+
             except MaxRetryError, e:
                 if not self.config.get('safe_mode', False):
                     raise ConnectionError(e)

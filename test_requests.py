@@ -57,6 +57,8 @@ class RequestsTestSuite(unittest.TestCase):
     def tearDown(self):
         """Teardown."""
         # self.httpbin.kill()
+        pass
+
 
     def test_entry_points(self):
 
@@ -549,9 +551,6 @@ class RequestsTestSuite(unittest.TestCase):
         config = {'safe_mode': True}
         r = requests.get(hah, allow_redirects=False, config=config)
         assert r.content == None
-
-
-
 
 
 if __name__ == '__main__':
