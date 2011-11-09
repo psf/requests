@@ -59,7 +59,6 @@ class RequestsTestSuite(unittest.TestCase):
         # self.httpbin.kill()
 
     def test_entry_points(self):
-        import requests
 
         requests.session
         requests.session().get
@@ -481,6 +480,30 @@ class RequestsTestSuite(unittest.TestCase):
         assert new_heads['User-agent'] in r3.content
 
         self.assertEqual(r2.status_code, 200)
+
+    def test_session_persistent_cookies(self):
+
+        s = requests.session()
+
+        # Internally dispatched cookies are sent.
+        _c = {'kenneth': 'reitz', 'bessie': 'monke'}
+        r = s.get(httpbin('cookies'), cookies=_c)
+        r = s.get(httpbin('cookies'))
+
+        # Those cookies persist transparently.
+        c = json.loads(r.content).get('cookies')
+        assert c == _c
+
+        # Double check.
+        r = s.get(httpbin('cookies'), cookies={})
+        c = json.loads(r.content).get('cookies')
+        assert c == _c
+
+        # Remove a cookie by setting it's value to None.
+        r = s.get(httpbin('cookies'), cookies={'bessie': None})
+        c = json.loads(r.content).get('cookies')
+        del _c['bessie']
+        assert c == _c
 
 
     def test_session_persistent_params(self):
