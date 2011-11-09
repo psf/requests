@@ -68,3 +68,23 @@ div.body {
     min-height: 0;
     padding: 0;
 }
+
+.rtd_doc_footer {
+    display: none;
+}
+
+.document {
+    width: auto;
+}
+
+.footer {
+	width: auto;
+}
+
+.footer {
+	width: auto;
+}
+
+.github {
+    display: none;
+}

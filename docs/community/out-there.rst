@@ -7,6 +7,8 @@ Modules
 - `fullerene <https://github.com/bitprophet/fullerene>`_, a Graphite Dashboard.
 - `urbanairship-python <https://github.com/benjaminws/urbanairship-python>`_, a fork of the Urban Airship API wrapper.
 - `WhitespaceBot <https://github.com/Gunio/WhitespaceBot/>`_, a project that automatically forks repos, strips trailing whitespace, and sends a pull request.
+- `python-rexster <https://github.com/CulturePlex/python-rexster>`_, Rexter client that provides a simple interface for graph databases.
+- `daikon <https://github.com/neogenix/daikon>`_, a CLI for ElasticSearch.
 
 Articles & Talks
 ================
@@ -16,6 +18,7 @@ Articles & Talks
 - `Issac Kelly's 'Consuming Web APIs' talk <http://issackelly.github.com/Consuming-Web-APIs-with-Python-Talk/slides/slides.html>`_
 - `Blog post about Requests via Yum <http://arunsag.wordpress.com/2011/08/17/new-package-python-requests-http-for-humans/>`_
 - `Russian blog post introducing Requests <http://habrahabr.ru/blogs/python/126262/>`_
+- `French blog post introducing Requests <http://www.nicosphere.net/requests-urllib2-de-python-simplifie-2432/>`_
 
 
 Integrations

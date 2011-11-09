@@ -93,6 +93,7 @@ class Request(object):
         self.response = Response()
 
         #: Authentication tuple to attach to :class:`Request <Request>`.
+        self._auth = auth
         self.auth = auth_dispatch(auth)
 
         #: CookieJar to attach to :class:`Request <Request>`.
@@ -250,7 +251,7 @@ class Request(object):
                     method=method,
                     # data=self.data,
                     # params=self.params,
-                    auth=self.auth,
+                    auth=self._auth,
                     cookies=self.cookies,
                     redirect=True,
                     config=self.config,
@@ -532,7 +533,11 @@ class Response(object):
                                'already consumed')
 
         # Read the contents.
-        self._content = self.raw.read()
+        try:
+            self._content = self.raw.read()
+        except AttributeError:
+            return None
+
 
         # Decode GZip'd content.
         if 'gzip' in self.headers.get('content-encoding', ''):

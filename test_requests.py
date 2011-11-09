@@ -548,6 +548,15 @@ class RequestsTestSuite(unittest.TestCase):
         print r.content
         print r.url
 
+    def test_invalid_content(self):
+
+        # WARNING: if you're using a terrible DNS provider (comcast),
+        # this will fail.
+        r = requests.get('http://somedomainthatclearlydoesntexistg.com', allow_redirects=False)
+
+        assert r.content == None
+
+
 
 if __name__ == '__main__':
     unittest.main()

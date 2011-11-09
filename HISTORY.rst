@@ -1,6 +1,17 @@
 History
 -------
 
+0.7.6 (2011-11-07)
+++++++++++++++++++
+
+* Digest authentication bugfix (attach query data to path)
+
+0.7.5 (2011-11-04)
+++++++++++++++++++
+
+* Response.content = None if there was an invalid repsonse.
+* Redirection auth handling.
+
 0.7.4 (2011-10-26)
 ++++++++++++++++++
 
