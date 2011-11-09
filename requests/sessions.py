@@ -87,6 +87,9 @@ class Session(object):
         # Set up a CookieJar to be used by default
         self.cookies = {}
 
+        if cookies is not None:
+            self.cookies.update(cookies)
+
     def __repr__(self):
         return '<requests-client at 0x%x>' % (id(self))
 
@@ -165,6 +168,7 @@ class Session(object):
         # Arguments manipulation hook.
         args = dispatch_hook('args', args['hooks'], args)
 
+        # Create the (empty) response.
         r = Request(**args)
 
         # Don't send if asked nicely.
@@ -174,6 +178,10 @@ class Session(object):
         # Send the HTTP Request.
         r.send()
 
+        # Send any cookies back up the to the session.
+        self.cookies.update(r.response.cookies)
+
+        # Return the response.
         return r.response
 
 
