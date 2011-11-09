@@ -87,6 +87,7 @@ class Session(object):
         # Set up a CookieJar to be used by default
         self.cookies = {}
 
+        # Add passed cookies in.
         if cookies is not None:
             self.cookies.update(cookies)
 
