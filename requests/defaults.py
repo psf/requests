@@ -39,3 +39,4 @@ defaults['timeout_fallback'] = True
 defaults['pool_connections'] = 10
 defaults['pool_maxsize'] = 1
 defaults['max_retries'] = 0
+defaults['safe_mode'] = False
