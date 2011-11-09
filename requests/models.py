@@ -444,7 +444,7 @@ class Response(object):
         self.cookies = {}
 
         #: Dictionary of configurations for this request.
-        self.config = None
+        self.config = {}
 
 
     def __repr__(self):

@@ -28,6 +28,6 @@ from .api import request, get, head, post, patch, put, delete
 from .sessions import session
 from .status_codes import codes
 from .exceptions import (
-    RequestException, AuthenticationError, Timeout, URLRequired,
-    TooManyRedirects, HTTPError
+    RequestException, Timeout, URLRequired,
+    TooManyRedirects, HTTPError, ConnectionError
 )
