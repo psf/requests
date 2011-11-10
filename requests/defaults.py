@@ -6,15 +6,18 @@ requests.defaults
 
 This module provides the Requests configuration defaults.
 
-settings parameters:
+Configurations:
 
-- :base_headers: - Sets default User-Agent to `python-requests.org`
-- :accept_gzip:  - Whether or not to accept gzip-compressed data
-- :proxies: - http proxies?
-- :verbose: - display verbose information?
-- :timeout: - timeout time until request terminates
-- :max_redirects: - maximum number of allowed redirects?
-- :decode_unicode: - whether or not to accept unicode?
+:base_headers: Default HTTP headers.
+:verbose: Stream to write request logging to.
+:timeout: Seconds until request timeout.
+:max_redirects: Maximum njumber of redirects allowed within a request.
+:decode_unicode: Decode unicode responses automatically?
+:keep_alive: Reuse HTTP Connections?
+:max_retries: The number of times a request should be retried in the event of a connection failure.
+:safe_mode: If true, Requests will catch all errors.
+:pool_maxsize: The maximium size of an HTTP connection pool.
+:pool_connections: The number of active HTTP connection pools to use.
 
 """
 
@@ -29,31 +32,12 @@ defaults['base_headers'] = {
     'Accept': '*/*'
 }
 
-
-#: Stream to log requests to.
 defaults['verbose'] = None
-
-#: Seconds until timeout.
 defaults['timeout'] = None
-
-#: Maximum number of redirects allowed within a request.
 defaults['max_redirects'] = 30
-
-#: Should Requests decode unicode?
 defaults['decode_unicode'] = True
-
-#: Reuse HTTP Connections?
 defaults['keep_alive'] = True
-
-#: The number of active HTTP connection pools to use at a time.
 defaults['pool_connections'] = 10
-
-#: The maximium size of an HTTP connection pool.
 defaults['pool_maxsize'] = 1
-
-#: The number of times a request should be retried in the event of a
-#: connection failure.
 defaults['max_retries'] = 0
-
-#: If true, Requests will catch all errors.
 defaults['safe_mode'] = False
