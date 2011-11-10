@@ -10,8 +10,8 @@ Session Objects
 ---------------
 
 The Session object allows you to persist certain parameters across
-requests. It also establishes a CookieJar and passes it along
-to any requests made from the Session instance.
+requests. It also perstists cookies across all requests made from the
+Session instance.
 
 A session object has all the methods of the main Requests API.
 

@@ -122,11 +122,6 @@ If a response contains some Cookies, you can get quick access to them::
     >>> print r.cookies
     {'requests-is': 'awesome'}
 
-The underlying CookieJar is also available for more advanced handling::
-
-    >>> r.request.cookiejar
-    <cookielib.CookieJar>
-
 To send your own cookies to the server, you can use the ``cookies``
 parameter::
 
