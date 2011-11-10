@@ -423,6 +423,10 @@ class Request(object):
             r = dispatch_hook('post_request', self.hooks, self)
             self.__dict__.update(r.__dict__)
 
+            # If prefetch is True, mark content as consumed.
+            if prefetch:
+                self.response._content_consumed = True
+
             return self.sent
 
 
