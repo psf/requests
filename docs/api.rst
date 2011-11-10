@@ -137,6 +137,8 @@ Classes
 .. autoclass:: requests.Request
    :inherited-members:
 
+.. _sessionapi:
+
 .. autoclass:: requests.Session
    :inherited-members:
 
