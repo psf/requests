@@ -112,7 +112,8 @@ class Session(object):
         proxies=None,
         hooks=None,
         return_response=True,
-        config=None):
+        config=None,
+        prefetch=False):
 
         """Constructs and sends a :class:`Request <Request>`.
         Returns :class:`Response <Response>` object.
@@ -130,6 +131,7 @@ class Session(object):
         :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
         :param return_response: (optional) If False, an un-sent Request object will returned.
         :param config: (optional) A configuration dictionary.
+        :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
         """
 
         method = str(method).upper()
@@ -177,7 +179,7 @@ class Session(object):
             return r
 
         # Send the HTTP Request.
-        r.send()
+        r.send(prefetch=prefetch)
 
         # Send any cookies back up the to the session.
         self.cookies.update(r.response.cookies)

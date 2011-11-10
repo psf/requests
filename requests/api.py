@@ -28,6 +28,7 @@ def request(method, url,
     proxies=None,
     hooks=None,
     return_response=True,
+    prefetch=False,
     config=None):
     """Constructs and sends a :class:`Request <Request>`.
     Returns :class:`Response <Response>` object.
@@ -51,7 +52,7 @@ def request(method, url,
     return s.request(
         method, url, params, data, headers, cookies, files, auth,
         timeout, allow_redirects, proxies, hooks, return_response,
-        config
+        config, prefetch
     )
 
 
