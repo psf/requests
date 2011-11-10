@@ -350,8 +350,6 @@ class Request(object):
                 body = self._enc_data
                 content_type = 'application/x-www-form-urlencoded'
 
-        # TODO: Setup cookies.
-
         # Add content-type if it wasn't explicitly provided.
         if (content_type) and (not 'content-type' in self.headers):
             self.headers['Content-Type'] = content_type
