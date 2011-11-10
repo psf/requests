@@ -29,14 +29,31 @@ defaults['base_headers'] = {
     'Accept': '*/*'
 }
 
-defaults['proxies'] = {}
+
+#: Stream to log requests to.
 defaults['verbose'] = None
+
+#: Seconds until timeout.
 defaults['timeout'] = None
+
+#: Maximum number of redirects allowed within a request.
 defaults['max_redirects'] = 30
+
+#: Should Requests decode unicode?
 defaults['decode_unicode'] = True
-defaults['timeout_fallback'] = True
+
+#: Reuse HTTP Connections?
 defaults['keep_alive'] = True
+
+#: The number of active HTTP connection pools to use at a time.
 defaults['pool_connections'] = 10
+
+#: The maximium size of an HTTP connection pool.
 defaults['pool_maxsize'] = 1
+
+#: The number of times a request should be retried in the event of a
+#: connection failure.
 defaults['max_retries'] = 0
+
+#: If true, Requests will catch all errors.
 defaults['safe_mode'] = False
