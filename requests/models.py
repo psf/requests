@@ -246,11 +246,7 @@ class Request(object):
 
         self.response = r
         self.response.request = self
-        # print locals()
         self.response.cookies.update(self.cookies)
-        # print cookies
-        # print self.response.cookies
-        # print '!!!'
 
 
     @staticmethod

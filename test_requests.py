@@ -490,10 +490,23 @@ class RequestsTestSuite(unittest.TestCase):
         del _c['bessie']
         assert c == _c
 
-
+        # Test session-level cookies.
         s = requests.session(cookies=_c)
+        r = s.get(httpbin('cookies'))
         c = json.loads(r.content).get('cookies')
         assert c == _c
+
+        # Have the server set a cookie.
+        r = s.get(httpbin('cookies', 'set', 'k', 'v'), allow_redirects=True)
+        c = json.loads(r.content).get('cookies')
+
+        assert 'k' in c
+
+        # And server-set cookie persistience.
+        r = s.get(httpbin('cookies'))
+        c = json.loads(r.content).get('cookies')
+
+        assert 'k' in c
 
 
 
@@ -523,17 +536,6 @@ class RequestsTestSuite(unittest.TestCase):
         assert not params['a'] in r3.content
         assert params3['b'] in r3.content
         assert params3['c'] in r3.content
-
-
-    def test_cookies(self):
-
-        s = requests.session()
-        r = s.get(httpbin('cookies', 'set', 'face', 'book'))
-        # print r.headers
-        # print r.history[0].cookies
-        # print r.content
-        # print r.url
-
 
     def test_invalid_content(self):
 
