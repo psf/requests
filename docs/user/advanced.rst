@@ -43,10 +43,7 @@ Any dictionaries that you pass to a request method will be merged with the sessi
 
     Sometimes you'll want to omit session-level keys from a dict parameter. To do this, you simply set that key's value to ``None`` in the method-level parameter. It will automatically be omitted.
 
-All values that are contained within a session are directly available to you:
-
-  Session attibutes:
-    ``auth``, ``config``, ``cookies``, ``headers``, ``hooks``, ``keep_alive``, ``params``, ``proxies``, ``timeout``
+All values that are contained within a session are directly available to you. See the:ref:`Session API Docs <sessionapi>` to learn more.
 
 
 
@@ -54,13 +51,13 @@ Configuring Requests
 --------------------
 
 Sometimes you may want to configure a request to customize it's behavior. To do
-this, you can pass in a ``config`` dictionary to a request or session.
+this, you can pass in a ``config`` dictionary to a request or session. See the :ref:`Configuration API Docs <configurations>` to learn more.
 
 
 Keep-Alive
 ----------
 
-Excellent news — keep alive is 100% automatic within a session! Couldn't be easier.
+Excellent news — thanks to urllib3. keep-alive is 100% automatic within a session! Any requests that you make within a session will automatically reuse the appropriate connection!
 
 If you'd like to disable keep-alive, you can simply set the ``keep_alive`` configuration to ``False``::
 
