@@ -34,6 +34,7 @@ def patched(f):
     def wrapped(*args, **kwargs):
 
         kwargs['return_response'] = False
+        kwargs['prefetch'] = True
 
         return f(*args, **kwargs)
 
