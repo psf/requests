@@ -11,6 +11,7 @@ History
 * Complete removal of CookieJars
 * New ConnectionError raising
 * Safe_mode for error catching
+* prefetch parameter for request methods
 
 0.7.6 (2011-11-07)
 ++++++++++++++++++
