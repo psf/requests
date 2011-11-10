@@ -20,7 +20,7 @@ from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
 from .packages.urllib3.exceptions import MaxRetryError
-from .packages.urllib3 import connectionpool
+from .packages.urllib3 import connectionpool, poolmanager
 from .exceptions import (
     Timeout, URLRequired, TooManyRedirects, HTTPError, ConnectionError)
 from .utils import (
@@ -368,7 +368,7 @@ class Request(object):
         proxy = self.proxies.get(_p.scheme)
 
         if proxy:
-            conn = connectionpool.proxy_from_url()
+            conn = poolmanager.proxy_from_url(url)
         else:
             # Check to see if keep_alive is allowed.
             if self.config.get('keep_alive'):
