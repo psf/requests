@@ -304,7 +304,7 @@ class Request(object):
             return self.url
 
 
-    def send(self, anyway=False):
+    def send(self, anyway=False, prefetch=False):
         """Sends the request. Returns True of successful, false if not.
         If there was an HTTPError during transmission,
         self.response.status_code will contain the HTTPError code.
@@ -364,11 +364,17 @@ class Request(object):
             # Update self to reflect the auth changes.
             self.__dict__.update(r.__dict__)
 
-        # Check to see if keep_alive is allowed.
-        if self.config.get('keep_alive'):
-            conn = self._poolmanager.connection_from_url(url)
+        _p = urlparse(url)
+        proxy = self.proxies.get(_p.scheme)
+
+        if proxy:
+            conn = connectionpool.proxy_from_url()
         else:
-            conn = connectionpool.connection_from_url(url)
+            # Check to see if keep_alive is allowed.
+            if self.config.get('keep_alive'):
+                conn = self._poolmanager.connection_from_url(url)
+            else:
+                conn = connectionpool.connection_from_url(url)
 
         if not self.sent or anyway:
 
@@ -397,7 +403,7 @@ class Request(object):
                     headers=self.headers,
                     redirect=False,
                     assert_same_host=False,
-                    preload_content=False,
+                    preload_content=prefetch,
                     decode_content=False,
                     retries=self.config.get('max_retries', 0)
                 )
