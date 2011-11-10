@@ -33,15 +33,14 @@ See `the same code, without Requests <https://gist.github.com/973705>`_.
 Requests allow you to send  **HEAD**, **GET**, **POST**, **PUT**,
 **PATCH**, and **DELETE** HTTP requests. You can add headers, form data,
 multipart files, and parameters with simple Python dictionaries, and access the
-response data in the same way. It's powered by :py:class:`urllib2`, but it does
-all the hard work and crazy hacks for you.
+response data in the same way. It's powered by :py:class:`httplib` and urllib3, and it works just as you'd expect.
 
 Testimonials
 ------------
 
 `The Washington Post <http://www.washingtonpost.com/>`_, `Twitter, Inc <http://twitter.com>`_,
 a U.S. Federal Institution,
-NIH, 
+NIH,
 `Readability <http://readability.com>`_, and
 `Work for Pie <http://workforpie.com>`_
 use Requests internally.
