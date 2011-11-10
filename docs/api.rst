@@ -17,6 +17,15 @@ All of Request's functionality can be accessed by these 7 methods.
 They all return an instance of the :class:`Response <Response>` object.
 
 .. autofunction:: request
+
+---------------------
+
+
+.. autoclass:: Response
+   :inherited-members:
+
+---------------------
+
 .. autofunction:: head
 .. autofunction:: get
 .. autofunction:: post
@@ -25,11 +34,31 @@ They all return an instance of the :class:`Response <Response>` object.
 .. autofunction:: delete
 
 
------------
+-----------------
+
+.. autofunction:: session
 
 
-.. autoclass:: Response
-   :inherited-members:
+
+Exceptions
+~~~~~~~~~~
+
+.. module:: requests
+
+.. autoexception:: RequestException
+.. autoexception:: ConnectionError
+.. autoexception:: HTTPError
+.. autoexception:: URLRequired
+.. autoexception:: TooManyRedirects
+
+
+
+Configurations
+--------------
+
+.. automodule:: requests.defaults
+
+
 
 Async
 -----
@@ -56,6 +85,22 @@ Requests.
 
 .. module:: requests.utils
 
+Status Code Lookup
+~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: requests.codes
+
+::
+
+    >>> requests.codes['temporary_redirect']
+    301
+
+    >>> requests.codes.teapot
+    416
+
+    >>> requests.codes['\o/']
+    416
+
 Cookies
 ~~~~~~~
 
@@ -80,26 +125,16 @@ These items are an internal component to Requests, and should never be
 seen by the end user (developer). This part of the API documentation
 exists for those who are extending the functionality of Requests.
 
-Exceptions
-~~~~~~~~~~
-
-.. module:: requests
-
-.. autoexception:: HTTPError
-
-.. autoexception:: RequestException
-
-.. autoexception:: AuthenticationError
-.. autoexception:: URLRequired
-.. autoexception:: InvalidMethod
-.. autoexception:: TooManyRedirects
-
-
 
 Classes
 ~~~~~~~
 
+.. autoclass:: requests.Response
+   :inherited-members:
+
 .. autoclass:: requests.Request
    :inherited-members:
 
+.. autoclass:: requests.Session
+   :inherited-members:
 
