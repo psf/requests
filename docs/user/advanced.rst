@@ -227,7 +227,7 @@ by your application, you can turn on verbose logging.
 
 To do so, just configure Requests with a stream to write to::
 
-    >>> requests.settings.verbose = sys.stderr
-    >>> requests.get('http://httpbin.org/headers')
+    >>> my_config = {'verbose': sys.stderr}
+    >>> requests.get('http://httpbin.org/headers', config=my_config)
     2011-08-17T03:04:23.380175   GET   http://httpbin.org/headers
     <Response [200]>
