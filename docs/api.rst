@@ -52,6 +52,7 @@ Exceptions
 .. autoexception:: TooManyRedirects
 
 
+.. _configurations:
 
 Configurations
 --------------
@@ -59,6 +60,7 @@ Configurations
 .. automodule:: requests.defaults
 
 
+.. _async:
 
 Async
 -----
