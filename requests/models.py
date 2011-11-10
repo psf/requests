@@ -184,6 +184,8 @@ class Request(object):
         history = []
 
         r = build(resp)
+        cookies = self.cookies
+        self.cookies.update(r.cookies)
 
         if r.status_code in REDIRECT_STATI and not self.redirect:
 
@@ -215,26 +217,40 @@ class Request(object):
                 else:
                     method = self.method
 
+                # Remove the cookie headers that were sent.
+                headers = self.headers
+                try:
+                    del headers['Cookie']
+                except KeyError:
+                    pass
+
                 request = Request(
                     url=url,
-                    headers=self.headers,
+                    headers=headers,
                     files=self.files,
                     method=method,
-                    # data=self.data,
                     # params=self.params,
                     auth=self._auth,
-                    cookies=self.cookies,
+                    cookies=cookies,
                     redirect=True,
                     config=self.config,
                     _poolmanager=self._poolmanager
                 )
+
                 request.send()
+                cookies.update(request.response.cookies)
                 r = request.response
+                self.cookies.update(r.cookies)
 
             r.history = history
 
         self.response = r
         self.response.request = self
+        # print locals()
+        self.response.cookies.update(self.cookies)
+        # print cookies
+        # print self.response.cookies
+        # print '!!!'
 
 
     @staticmethod
@@ -348,16 +364,17 @@ class Request(object):
         if self.auth:
             auth_func, auth_args = self.auth
 
+            # Allow auth to make its changes.
             r = auth_func(self, *auth_args)
 
+            # Update self to reflect the auth changes.
             self.__dict__.update(r.__dict__)
 
-
+        # Check to see if keep_alive is allowed.
         if self.config.get('keep_alive'):
             conn = self._poolmanager.connection_from_url(url)
         else:
             conn = connectionpool.connection_from_url(url)
-            print 'NO CONNECTION FOR YOU1'
 
         if not self.sent or anyway:
 
