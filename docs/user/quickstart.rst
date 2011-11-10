@@ -40,6 +40,25 @@ We can read the content of the server's response::
     '[{"repository":{"open_issues":0,"url":"https://github.com/...
 
 
+Make a POST Request
+------------------
+
+POST requests are equally simple ::
+
+    >>> r = requests.post("http://httpbin.org/post")
+    
+
+Suppose you want to send data over HTTP. Simply pass a data
+argument to the requests.post method with your dictionary ::
+
+    >>> dataDict = {"key1":"value1", "key2":"value2"}
+    >>> r = requests.post("http://httpbin.org/post", data=dataDict)
+    >>> r.content
+    '{\n  "origin": "::ffff:YourIpAddress", \n  "files": {}, \n  "form": {\n    "key2": "value2", \n    "key1": "value1"\n  }, ...
+
+Note the data= argument is equivalent to -d in cURL scripts. dataDict will
+be form-encoded. 
+
 Response Status Codes
 ---------------------
 
