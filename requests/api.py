@@ -13,7 +13,7 @@ This module implements the Requests API.
 
 from .sessions import session
 
-__all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
+__all__ = ('request', 'get', 'options', 'head', 'post', 'patch', 'put', 'delete')
 
 
 def request(method, url,
@@ -66,6 +66,17 @@ def get(url, **kwargs):
 
     kwargs.setdefault('allow_redirects', True)
     return request('GET', url, **kwargs)
+
+
+def options(url, **kwargs):
+    """Sends a OPTIONS request. Returns :class:`Response` object.
+
+    :param url: URL for the new :class:`Request` object.
+    :param **kwargs: Optional arguments that ``request`` takes.
+    """
+
+    kwargs.setdefault('allow_redirects', True)
+    return request('OPTIONS', url, **kwargs)
 
 
 def head(url, **kwargs):

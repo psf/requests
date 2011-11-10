@@ -24,7 +24,7 @@ from .hooks import dispatch_hook
 
 __all__ = (
     'map',
-    'get', 'head', 'post', 'put', 'patch', 'delete', 'request'
+    'get', 'options', 'head', 'post', 'put', 'patch', 'delete', 'request'
 )
 
 
@@ -54,6 +54,7 @@ def send(r, pools=None):
 
 # Patched requests.api functions.
 get = patched(api.get)
+options = patched(api.options)
 head = patched(api.head)
 post = patched(api.post)
 put = patched(api.put)
