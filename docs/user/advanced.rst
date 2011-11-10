@@ -46,7 +46,7 @@ Any dictionaries that you pass to a request method will be merged with the sessi
 All values that are contained within a session are directly available to you:
 
   Session attibutes:
-    ``auth``, ``config``, ``cookies``, ``headers``, ``hooks``, ``keep_alive``, ``params``, ``proxies``, ''timeout``
+    ``auth``, ``config``, ``cookies``, ``headers``, ``hooks``, ``keep_alive``, ``params``, ``proxies``, ``timeout``
 
 
 
@@ -71,7 +71,7 @@ If you'd like to disable keep-alive, you can simply set the ``keep_alive`` confi
 Asynchronous Requests
 ----------------------
 
-Requests has first-class support for non-blocking i/o requests, powered
+Requests has first-class support for concurrent requests, powered
 by gevent. This allows you to send a bunch of HTTP requests at the same
 
 First, let's import the async module. Heads up — if you don't have
@@ -101,6 +101,12 @@ will also guarantee execution of the ``response`` hook, described below. ::
 
     >>> async.map(rs)
     [<Response [200]>, <Response [200]>, <Response [200]>, <Response [200]>]
+
+.. admonition:: Throttling
+
+    The ``map`` function also takes a ``size`` parameter, that specifies the nubmer of connections to make at a time::
+
+        async.map(rs, size=5)
 
 
 Event Hooks
