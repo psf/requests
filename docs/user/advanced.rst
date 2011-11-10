@@ -37,10 +37,35 @@ Sessions can also be used to provide default data to the request methods::
         c.get('http://httpbin.org/headers', headers={'x-test2': 'true'})
 
 
-.. admonition:: Global Settings
+Any dictionaries that you pass to a request method will be merged with the session-level values that are set. The method-level parameters override session parameters.
 
-    Certain parameters are best set in the ``config`` dictionary
-    (e.g. user agent header).
+.. admonition:: Remove a Value From a Dict Parameter
+
+    Sometimes you'll want to omit session-level keys from a dict parameter. To do this, you simply set that key's value to ``None`` in the method-level parameter. It will automatically be omitted.
+
+All values that are contained within a session are directly available to you:
+
+  Session attibutes:
+    ``auth``, ``config``, ``cookies``, ``headers``, ``hooks``, ``keep_alive``, ``params``, ``proxies``, ''timeout``
+
+
+
+Configuring Requests
+--------------------
+
+Sometimes you may want to configure a request to customize it's behavior. To do
+this, you can pass in a ``config`` dictionary to a request or session.
+
+
+Keep-Alive
+----------
+
+Excellent news — keep alive is 100% automatic within a session! Couldn't be easier.
+
+If you'd like to disable keep-alive, you can simply set the ``keep_alive`` configuration to ``False``::
+
+    s = requests.session()
+    s.config['keep_alive'] = False
 
 
 Asynchronous Requests
