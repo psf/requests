@@ -225,9 +225,21 @@ Verbose Logging
 If you want to get a good look at what HTTP requests are being sent
 by your application, you can turn on verbose logging.
 
-To do so, just configure Requests with a stream to write to::
+To do so for all requests, just configure Requests with a stream to write to::
 
+    >>> import sys
+    >>> requests.defaults.defaults["verbose"] = sys.stderr
+    >>> requests.get("http://httpbin.org/get")
+    2011-11-11T16:22:44.199502   GET   http://httpbin.org/get
+    <Response [200]>
+
+Or if you want verbose logging on a per-request basis::
+
+    >>> import sys
     >>> my_config = {'verbose': sys.stderr}
     >>> requests.get('http://httpbin.org/headers', config=my_config)
     2011-08-17T03:04:23.380175   GET   http://httpbin.org/headers
     <Response [200]>
+    >>> requests.get('http://httpbin.org/headers')
+    <Response [200]>
+    
