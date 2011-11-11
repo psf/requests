@@ -233,7 +233,8 @@ To do so for all requests, just configure Requests with a stream to write to::
     2011-11-11T16:22:44.199502   GET   http://httpbin.org/get
     <Response [200]>
 
-Or if you want verbose logging on a per-request basis::
+Or if you just want verbose logging on a per-request basis, override 
+Requests' defaults via the ``config`` argument::
 
     >>> import sys
     >>> my_config = {'verbose': sys.stderr}
@@ -243,3 +244,4 @@ Or if you want verbose logging on a per-request basis::
     >>> requests.get('http://httpbin.org/headers')
     <Response [200]>
     
+To see what other default values you can override, check the :ref:`Configuration API Docs <configurations>`.
