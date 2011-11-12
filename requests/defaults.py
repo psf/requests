@@ -33,7 +33,6 @@ defaults['base_headers'] = {
 }
 
 defaults['verbose'] = None
-defaults['timeout'] = None
 defaults['max_redirects'] = 30
 defaults['decode_unicode'] = True
 defaults['keep_alive'] = True
