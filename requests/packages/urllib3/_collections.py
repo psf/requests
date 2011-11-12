@@ -4,9 +4,11 @@
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
-from collections import deque, MutableMapping
 
+from collections import deque
 from threading import RLock
+
+from .__collections import MutableMapping
 
 __all__ = ['RecentlyUsedContainer']
 
