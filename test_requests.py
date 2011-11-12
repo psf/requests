@@ -306,7 +306,7 @@ class RequestsTestSuite(unittest.TestCase):
             rbody = json.loads(r.content)
             # Body wasn't valid url encoded data, so the server returns None as
             # "form" and the raw body as "data".
-            self.assertEquals(rbody.get('form'), None)
+            self.assertAlmostEquals(rbody.get('form'), {})
             self.assertEquals(rbody.get('data'), 'fooaowpeuf')
 
 
@@ -354,7 +354,7 @@ class RequestsTestSuite(unittest.TestCase):
 
             rbody = json.loads(r.content)
 
-            self.assertEquals(rbody.get('form'), None)
+            self.assertEquals(rbody.get('form'), {})
             self.assertEquals(rbody.get('data'), 'foobar')
 
 
