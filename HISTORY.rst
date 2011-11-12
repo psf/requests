@@ -13,6 +13,7 @@ History
 * Safe_mode for error catching
 * prefetch parameter for request methods
 * OPTION method
+* Async pool size throttling
 
 0.7.6 (2011-11-07)
 ++++++++++++++++++
