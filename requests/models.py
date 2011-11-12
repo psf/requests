@@ -5,12 +5,13 @@
 requests.models
 ~~~~~~~~~~~~~~~
 
+This module contains the primary objects that power Requests.
 """
 
 import urllib
 import zlib
-from Cookie import SimpleCookie
 
+from Cookie import SimpleCookie
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import datetime
 
@@ -26,8 +27,8 @@ from .packages.urllib3.filepost import encode_multipart_formdata
 from .exceptions import (
     Timeout, URLRequired, TooManyRedirects, HTTPError, ConnectionError)
 from .utils import (
-    dict_from_cookiejar, get_unicode_from_response,
-    stream_decode_response_unicode, decode_gzip, stream_decode_gzip)
+    get_unicode_from_response, stream_decode_response_unicode,
+    decode_gzip, stream_decode_gzip)
 
 
 
@@ -393,9 +394,9 @@ class Request(object):
                 if 'cookie' not in self.headers:
 
                     # Simple cookie with our dict.
-                    # TODO: Multi-value headers.
                     c = SimpleCookie()
-                    c.load(self.cookies)
+                    for (k, v) in self.cookies.items():
+                        c[k] = v
 
                     # Turn it into a header.
                     cookie_header = c.output(header='').strip()
