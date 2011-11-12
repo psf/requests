@@ -39,25 +39,83 @@ We can read the content of the server's response::
     >>> r.content
     '[{"repository":{"open_issues":0,"url":"https://github.com/...
 
+Requests does its best to decode content from the server. Most unicode charsets, ``gzip``, and ``deflate`` encodings are all seamlessly decoded.
+
 
 Make a POST Request
-------------------
+-------------------
 
-POST requests are equally simple ::
+POST requests are equally simple::
 
-    >>> r = requests.post("http://httpbin.org/post")
-    
+    r = requests.post("http://httpbin.org/post")
 
-Suppose you want to send data over HTTP. Simply pass a data
-argument to the requests.post method with your dictionary ::
 
-    >>> dataDict = {"key1":"value1", "key2":"value2"}
-    >>> r = requests.post("http://httpbin.org/post", data=dataDict)
+Typically, you want to send some form-encoded data — much like an HTML form.
+To do this, simply pass a dictionary to the `data` argument. Your dictionary of data will automatically be form-encoded when the request is made::
+
+    >>> payload = {'key1': 'value1', 'key2': 'value2'}
+    >>> r = requests.post("http://httpbin.org/post", data=payload)
+    >>> print r.content
+    {
+      "origin": "179.13.100.4",
+      "files": {},
+      "form": {
+        "key2": "value2",
+        "key1": "value1"
+      },
+      "url": "http://httpbin.org/post",
+      "args": {},
+      "headers": {
+        "Content-Length": "23",
+        "Accept-Encoding": "identity, deflate, compress, gzip",
+        "Accept": "*/*",
+        "User-Agent": "python-requests/0.8.0",
+        "Host": "127.0.0.1:7077",
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "data": ""
+    }
+
+There are many times that you want to send data that is not form-encoded. If you pass in a ``string`` instead of a ``dict``, that data will be posted directly.
+
+For example, the GitHub API v3 accepts JSON-Encoded POST/PATCH data::
+
+    url = 'https://api.github.com/some/endpoint'
+    payload = {'some': 'data'}
+
+    r = requests.post(url, data=json.dumps(payload))
+
+
+Custom Headers
+--------------
+
+If you'd like to add HTTP headers to a request, simply pass in a ``dict`` to the
+``headers`` parameter.
+
+For example, we didn't specify our content-type in the previous example::
+
+    url = 'https://api.github.com/some/endpoint'
+    payload = {'some': 'data'}
+    headers = {'content-type': 'application/json'}
+
+    r = requests.post(url, data=json.dumps(payload), headers=headers)
+
+
+POST a Multipart-Encoded File
+-----------------------------
+
+Requests makes it simple to upload Multipart-encoded files::
+
+    >>> url = 'http://httpbin.org/post'
+    >>> files = {'report.xls': open('report.xls', 'rb')}
+
+    >>> r = requests.post(url, data=None, files=files)
     >>> r.content
-    '{\n  "origin": "::ffff:YourIpAddress", \n  "files": {}, \n  "form": {\n    "key2": "value2", \n    "key1": "value1"\n  }, ...
 
-Note the data= argument is equivalent to -d in cURL scripts. dataDict will
-be form-encoded. 
+
+
+
+
 
 Response Status Codes
 ---------------------
@@ -73,7 +131,7 @@ reference::
     >>> r.status_code == requests.codes.ok
     True
 
-If we made a bad request, we can raise it with
+If we made a bad request (non-200 response), we can raise it with
 :class:`Response.raise_for_status()`::
 
     >>> _r = requests.get('http://httpbin.org/status/404')
@@ -158,7 +216,7 @@ Basic Authentication
 Most web services require authentication. There many different types of
 authentication, but the most common is called HTTP Basic Auth.
 
-Making requests with Basic Auth is easy, with Requests::
+Making requests with Basic Auth is extremely simple::
 
     >>> requests.get('https://api.github.com/user', auth=('user', 'pass'))
     <Response [200]>
@@ -167,9 +225,7 @@ Making requests with Basic Auth is easy, with Requests::
 Digest Authentication
 ---------------------
 
-Another popular form of protecting web service is Digest Authentication.
-
-Requests supports it!::
+Another popular form of protecting web service is Digest Authentication::
 
     >>> url = 'http://httpbin.org/digest-auth/auth/user/pass'
     >>> requests.get(url, auth=('digest', 'user', 'pass'))
