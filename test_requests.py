@@ -306,7 +306,7 @@ class RequestsTestSuite(unittest.TestCase):
             rbody = json.loads(r.content)
             # Body wasn't valid url encoded data, so the server returns None as
             # "form" and the raw body as "data".
-            self.assertAlmostEquals(rbody.get('form'), {})
+            self.assertEquals(rbody.get('form'), {})
             self.assertEquals(rbody.get('data'), 'fooaowpeuf')
 
 
@@ -538,7 +538,6 @@ class RequestsTestSuite(unittest.TestCase):
         assert params3['c'] in r3.content
 
     def test_invalid_content(self):
-
         # WARNING: if you're using a terrible DNS provider (comcast),
         # this will fail.
         try:

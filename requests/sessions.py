@@ -269,7 +269,6 @@ class Session(object):
         return self.request('delete', url, **kwargs)
 
 
-
 def session(**kwargs):
     """Returns a :class:`Session` for context-management."""
 
