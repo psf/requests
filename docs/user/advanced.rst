@@ -72,7 +72,7 @@ Requests has first-class support for concurrent requests, powered
 by gevent. This allows you to send a bunch of HTTP requests at the same
 
 First, let's import the async module. Heads up — if you don't have
-`gevent <gevent>`_ this will fail::
+`gevent <http://pypi.python.org/pypi/gevent>`_ this will fail::
 
     from requests import async
 
