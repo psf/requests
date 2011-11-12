@@ -63,8 +63,7 @@ class Session(object):
         proxies=None,
         hooks=None,
         params=None,
-        config=None,
-        keep_alive=True):
+        config=None):
 
         self.headers = headers or {}
         self.cookies = cookies or {}
@@ -74,7 +73,6 @@ class Session(object):
         self.hooks = hooks or {}
         self.params = params or {}
         self.config = config or {}
-        self.keep_alive = keep_alive
 
         for (k, v) in defaults.items():
             self.config.setdefault(k, v)
@@ -136,8 +134,12 @@ class Session(object):
 
         method = str(method).upper()
 
-        if cookies is None:
-            cookies = {}
+        # Default empty dicts for dict params.
+        cookies = {} if cookies is None else cookies
+        data = {} if data is None else data
+        files = {} if files is None else files
+        headers = {} if headers is None else headers
+        params = {} if params is None else params
 
         # Expand header values
         if headers:
@@ -221,7 +223,7 @@ class Session(object):
         return self.request('HEAD', url, **kwargs)
 
 
-    def post(self, url, data='', **kwargs):
+    def post(self, url, data=None, **kwargs):
         """Sends a POST request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -232,7 +234,7 @@ class Session(object):
         return self.request('post', url, data=data, **kwargs)
 
 
-    def put(self, url, data='', **kwargs):
+    def put(self, url, data=None, **kwargs):
         """Sends a PUT request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -243,7 +245,7 @@ class Session(object):
         return self.request('put', url, data=data, **kwargs)
 
 
-    def patch(self, url, data='', **kwargs):
+    def patch(self, url, data=None, **kwargs):
         """Sends a PATCH request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -251,7 +253,7 @@ class Session(object):
         :param **kwargs: Optional arguments that ``request`` takes.
         """
 
-        return self.request('patch', url,  data='', **kwargs)
+        return self.request('patch', url,  data=data, **kwargs)
 
 
     def delete(self, url, **kwargs):
