@@ -43,7 +43,7 @@ Any dictionaries that you pass to a request method will be merged with the sessi
 
     Sometimes you'll want to omit session-level keys from a dict parameter. To do this, you simply set that key's value to ``None`` in the method-level parameter. It will automatically be omitted.
 
-All values that are contained within a session are directly available to you. See the:ref:`Session API Docs <sessionapi>` to learn more.
+All values that are contained within a session are directly available to you. See the :ref:`Session API Docs <sessionapi>` to learn more.
 
 
 
@@ -72,7 +72,7 @@ Requests has first-class support for concurrent requests, powered
 by gevent. This allows you to send a bunch of HTTP requests at the same
 
 First, let's import the async module. Heads up — if you don't have
-`gevent <gevent>`_ this will fail::
+`gevent <http://pypi.python.org/pypi/gevent>`_ this will fail::
 
     from requests import async
 
@@ -227,7 +227,7 @@ by your application, you can turn on verbose logging.
 
 To do so, just configure Requests with a stream to write to::
 
-    >>> requests.settings.verbose = sys.stderr
-    >>> requests.get('http://httpbin.org/headers')
+    >>> my_config = {'verbose': sys.stderr}
+    >>> requests.get('http://httpbin.org/headers', config=my_config)
     2011-08-17T03:04:23.380175   GET   http://httpbin.org/headers
     <Response [200]>
