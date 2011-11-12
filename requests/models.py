@@ -20,6 +20,8 @@ from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
 from .packages.urllib3.exceptions import MaxRetryError
+from .packages.urllib3.exceptions import SSLError as _SSLError
+from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .packages.urllib3 import connectionpool, poolmanager
 from .exceptions import (
     Timeout, URLRequired, TooManyRedirects, HTTPError, ConnectionError)
@@ -405,14 +407,20 @@ class Request(object):
                     assert_same_host=False,
                     preload_content=prefetch,
                     decode_content=False,
-                    retries=self.config.get('max_retries', 0)
+                    retries=self.config.get('max_retries', 0),
+                    timeout=self.timeout,
                 )
+
 
             except MaxRetryError, e:
                 if not self.config.get('safe_mode', False):
                     raise ConnectionError(e)
                 else:
                     r = None
+
+            except (_SSLError, _HTTPError), e:
+                if not self.config.get('safe_mode', False):
+                    raise Timeout('Request timed out.')
 
             self._build_response(r)
 
