@@ -108,7 +108,7 @@ class PoolManager(RequestMethods):
         return conn.urlopen(method, url, assert_same_host=False, **kw)
 
 
-class ProxyManager(object):
+class ProxyManager(RequestMethods):
     """
     Given a ConnectionPool to a proxy, the ProxyManager's ``urlopen`` method
     will make requests to any url through the defined proxy.
