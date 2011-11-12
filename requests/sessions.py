@@ -175,6 +175,7 @@ class Session(object):
 
         # Create the (empty) response.
         r = Request(**args)
+        r.session = self
 
         # Don't send if asked nicely.
         if not return_response:

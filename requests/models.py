@@ -14,7 +14,6 @@ from Cookie import SimpleCookie
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import datetime
 
-
 from .auth import dispatch as auth_dispatch
 from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
@@ -116,6 +115,9 @@ class Request(object):
 
         #: Event-handling hooks.
         self.hooks = hooks
+
+        #: Session.
+        self.session = None
 
         if headers:
             headers = CaseInsensitiveDict(self.headers)
@@ -234,7 +236,7 @@ class Request(object):
                     headers=headers,
                     files=self.files,
                     method=method,
-                    # params=self.params,
+                    params=self.session.params,
                     auth=self._auth,
                     cookies=cookies,
                     redirect=True,
