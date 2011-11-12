@@ -132,8 +132,6 @@ Requests makes it simple to upload Multipart-encoded files::
 
 
 
-
-
 Response Status Codes
 ---------------------
 
@@ -231,7 +229,7 @@ Basic Authentication
 --------------------
 
 Most web services require authentication. There many different types of
-authentication, but the most common is called HTTP Basic Auth.
+authentication, but the most common is HTTP Basic Auth.
 
 Making requests with Basic Auth is extremely simple::
 
@@ -242,7 +240,7 @@ Making requests with Basic Auth is extremely simple::
 Digest Authentication
 ---------------------
 
-Another popular form of protecting web service is Digest Authentication::
+Another popular form of web service protection is Digest Authentication::
 
     >>> url = 'http://httpbin.org/digest-auth/auth/user/pass'
     >>> requests.get(url, auth=('digest', 'user', 'pass'))
