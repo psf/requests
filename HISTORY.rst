@@ -1,6 +1,20 @@
 History
 -------
 
+
+0.8.0 (2011-11-09)
+++++++++++++++++++
+
+* Keep-alive support!
+* Complete removal of Urllib2
+* Complete removal of Poster
+* Complete removal of CookieJars
+* New ConnectionError raising
+* Safe_mode for error catching
+* prefetch parameter for request methods
+* OPTION method
+* Async pool size throttling
+
 0.7.6 (2011-11-07)
 ++++++++++++++++++
 

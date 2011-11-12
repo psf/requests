@@ -12,8 +12,11 @@ class RequestException(Exception):
     """There was an ambiguous exception that occurred while handling your
     request."""
 
-class AuthenticationError(RequestException):
-    """The authentication credentials provided were invalid."""
+class HTTPError(RequestException):
+    """An HTTP error occured."""
+
+class ConnectionError(RequestException):
+    """A Connection error occured."""
 
 class Timeout(RequestException):
     """The request timed out."""

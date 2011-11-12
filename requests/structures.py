@@ -8,6 +8,7 @@ Data structures that power Requests.
 
 """
 
+
 class CaseInsensitiveDict(dict):
     """Case-insensitive Dictionary
 

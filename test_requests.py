@@ -4,13 +4,12 @@
 from __future__ import with_statement
 
 import time
-import cookielib
 import os
 import unittest
 
 import requests
 import envoy
-from urllib2 import HTTPError
+from requests import HTTPError
 
 try:
     import omnijson as json
@@ -58,9 +57,10 @@ class RequestsTestSuite(unittest.TestCase):
     def tearDown(self):
         """Teardown."""
         # self.httpbin.kill()
+        pass
+
 
     def test_entry_points(self):
-        import requests
 
         requests.session
         requests.session().get
@@ -235,6 +235,8 @@ class RequestsTestSuite(unittest.TestCase):
         for service in SERVICES:
 
             r = requests.get(service('status', '404'))
+            # print r.status_code
+            # r.raise_for_status()
             self.assertEqual(r.ok, False)
 
 
@@ -245,26 +247,6 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get(httpbin('status', '200'))
         self.assertFalse(r.error)
         r.raise_for_status()
-
-
-    def test_cookie_jar(self):
-
-        jar = cookielib.CookieJar()
-        self.assertFalse(jar)
-
-        url = httpbin('cookies', 'set', 'requests_cookie', 'awesome')
-        r = requests.get(url, cookies=jar)
-        self.assertTrue(jar)
-
-        cookie_found = False
-        for cookie in jar:
-            if cookie.name == 'requests_cookie':
-                self.assertEquals(cookie.value, 'awesome')
-                cookie_found = True
-        self.assertTrue(cookie_found)
-
-        r = requests.get(httpbin('cookies'), cookies=jar)
-        self.assertTrue('awesome' in r.content)
 
 
     def test_decompress_gzip(self):
@@ -324,7 +306,7 @@ class RequestsTestSuite(unittest.TestCase):
             rbody = json.loads(r.content)
             # Body wasn't valid url encoded data, so the server returns None as
             # "form" and the raw body as "data".
-            self.assertEquals(rbody.get('form'), None)
+            self.assertEquals(rbody.get('form'), {})
             self.assertEquals(rbody.get('data'), 'fooaowpeuf')
 
 
@@ -337,21 +319,6 @@ class RequestsTestSuite(unittest.TestCase):
             self.assertEquals(r.status_code, 200)
             self.assertEquals(r.headers['content-type'], 'application/json')
             self.assertEquals(r.url, service('post?test=fooaowpeuf'))
-
-            rbody = json.loads(r.content)
-            self.assertEquals(rbody.get('form'), {}) # No form supplied
-            self.assertEquals(rbody.get('data'), '')
-
-
-    def test_nonurlencoded_post_querystring(self):
-
-        for service in SERVICES:
-
-            r = requests.post(service('post'), params='fooaowpeuf')
-
-            self.assertEquals(r.status_code, 200)
-            self.assertEquals(r.headers['content-type'], 'application/json')
-            self.assertEquals(r.url, service('post?fooaowpeuf'))
 
             rbody = json.loads(r.content)
             self.assertEquals(rbody.get('form'), {}) # No form supplied
@@ -376,20 +343,18 @@ class RequestsTestSuite(unittest.TestCase):
             self.assertEquals(rbody.get('data'), '')
 
 
-    def test_nonurlencoded_post_query_and_data(self):
+    def test_nonurlencoded_postdata(self):
 
         for service in SERVICES:
 
-            r = requests.post(service('post'),
-                params='fooaowpeuf', data="foobar")
+            r = requests.post(service('post'), data="foobar")
 
             self.assertEquals(r.status_code, 200)
             self.assertEquals(r.headers['content-type'], 'application/json')
-            self.assertEquals(r.url, service('post?fooaowpeuf'))
 
             rbody = json.loads(r.content)
 
-            self.assertEquals(rbody.get('form'), None)
+            self.assertEquals(rbody.get('form'), {})
             self.assertEquals(rbody.get('data'), 'foobar')
 
 
@@ -501,6 +466,49 @@ class RequestsTestSuite(unittest.TestCase):
 
         self.assertEqual(r2.status_code, 200)
 
+    def test_session_persistent_cookies(self):
+
+        s = requests.session()
+
+        # Internally dispatched cookies are sent.
+        _c = {'kenneth': 'reitz', 'bessie': 'monke'}
+        r = s.get(httpbin('cookies'), cookies=_c)
+        r = s.get(httpbin('cookies'))
+
+        # Those cookies persist transparently.
+        c = json.loads(r.content).get('cookies')
+        assert c == _c
+
+        # Double check.
+        r = s.get(httpbin('cookies'), cookies={})
+        c = json.loads(r.content).get('cookies')
+        assert c == _c
+
+        # Remove a cookie by setting it's value to None.
+        r = s.get(httpbin('cookies'), cookies={'bessie': None})
+        c = json.loads(r.content).get('cookies')
+        del _c['bessie']
+        assert c == _c
+
+        # Test session-level cookies.
+        s = requests.session(cookies=_c)
+        r = s.get(httpbin('cookies'))
+        c = json.loads(r.content).get('cookies')
+        assert c == _c
+
+        # Have the server set a cookie.
+        r = s.get(httpbin('cookies', 'set', 'k', 'v'), allow_redirects=True)
+        c = json.loads(r.content).get('cookies')
+
+        assert 'k' in c
+
+        # And server-set cookie persistience.
+        r = s.get(httpbin('cookies'))
+        c = json.loads(r.content).get('cookies')
+
+        assert 'k' in c
+
+
 
     def test_session_persistent_params(self):
 
@@ -530,8 +538,19 @@ class RequestsTestSuite(unittest.TestCase):
         assert params3['c'] in r3.content
 
     def test_invalid_content(self):
+        # WARNING: if you're using a terrible DNS provider (comcast),
+        # this will fail.
+        try:
+            hah = 'http://somedomainthatclearlydoesntexistg.com'
+            r = requests.get(hah, allow_redirects=False)
+        except requests.ConnectionError:
+            pass   # \o/
+        else:
+            assert False
 
-        r = requests.get('http://somedomainthatclearlydoesntexistg.com')
+
+        config = {'safe_mode': True}
+        r = requests.get(hah, allow_redirects=False, config=config)
         assert r.content == None
 
 

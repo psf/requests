@@ -5,28 +5,32 @@
 requests.models
 ~~~~~~~~~~~~~~~
 
+This module contains the primary objects that power Requests.
 """
 
 import urllib
-import urllib2
-import socket
 import zlib
 
+from Cookie import SimpleCookie
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import datetime
 
 from .auth import dispatch as auth_dispatch
 from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
-from .packages.poster.encode import multipart_encode
-from .packages.poster.streaminghttp import register_openers, get_handlers
 from .status_codes import codes
-from .exceptions import Timeout, URLRequired, TooManyRedirects
-from .monkeys import Request as _Request
-from .monkeys import HTTPRedirectHandler
+from .packages.urllib3.exceptions import MaxRetryError
+from .packages.urllib3.exceptions import SSLError as _SSLError
+from .packages.urllib3.exceptions import HTTPError as _HTTPError
+from .packages.urllib3 import connectionpool, poolmanager
+from .packages.urllib3.filepost import encode_multipart_formdata
+from .exceptions import (
+    Timeout, URLRequired, TooManyRedirects, HTTPError, ConnectionError)
 from .utils import (
-    dict_from_cookiejar, get_unicode_from_response,
-    stream_decode_response_unicode, decode_gzip, stream_decode_gzip)
+    get_unicode_from_response, stream_decode_response_unicode,
+    decode_gzip, stream_decode_gzip)
+
+
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
@@ -52,7 +56,8 @@ class Request(object):
         allow_redirects=False,
         proxies=None,
         hooks=None,
-        config=None):
+        config=None,
+        _poolmanager=None):
 
         #: Float describes the timeout of the request.
         #  (Use socket.setdefaulttimeout() as fallback)
@@ -62,7 +67,7 @@ class Request(object):
         self.url = url
 
         #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.
-        self.headers = headers
+        self.headers = dict(headers or [])
 
         #: Dictionary of files to multipart upload (``{filename: content}``).
         self.files = files
@@ -77,6 +82,7 @@ class Request(object):
         #: Dictionary or byte of querystring data to attach to the
         #: :class:`Request <Request>`.
         self.params = None
+        self.params = dict(params or [])
 
         #: True if :class:`Request <Request>` is part of a redirect chain (disables history
         #: and HTTPError storage).
@@ -86,7 +92,7 @@ class Request(object):
         self.allow_redirects = allow_redirects
 
         # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})
-        self.proxies = proxies
+        self.proxies = dict(proxies or [])
 
         self.data, self._enc_data = self._encode_params(data)
         self.params, self._enc_params = self._encode_params(params)
@@ -100,16 +106,19 @@ class Request(object):
         self.auth = auth_dispatch(auth)
 
         #: CookieJar to attach to :class:`Request <Request>`.
-        self.cookies = cookies
+        self.cookies = dict(cookies or [])
 
         #: Dictionary of configurations for this request.
-        self.config = config
+        self.config = dict(config or [])
 
         #: True if Request has been sent.
         self.sent = False
 
         #: Event-handling hooks.
         self.hooks = hooks
+
+        #: Session.
+        self.session = None
 
         if headers:
             headers = CaseInsensitiveDict(self.headers)
@@ -121,6 +130,7 @@ class Request(object):
                 headers[k] = v
 
         self.headers = headers
+        self._poolmanager = _poolmanager
 
         # Pre-request hook.
         r = dispatch_hook('pre_request', hooks, self)
@@ -129,39 +139,6 @@ class Request(object):
 
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
-
-
-    def _get_opener(self):
-        """Creates appropriate opener object for urllib2."""
-
-        _handlers = []
-
-        if self.cookies is not None:
-            _handlers.append(urllib2.HTTPCookieProcessor(self.cookies))
-
-        if self.proxies:
-            _handlers.append(urllib2.ProxyHandler(self.proxies))
-
-        _handlers.append(HTTPRedirectHandler)
-
-        if not _handlers:
-            return urllib2.urlopen
-
-        if self.data or self.files:
-            _handlers.extend(get_handlers())
-
-        opener = urllib2.build_opener(*_handlers)
-
-        if self.headers:
-            # Allow default headers in the opener to be overloaded
-            normal_keys = [k.capitalize() for k in self.headers]
-            for key, val in opener.addheaders[:]:
-                if key not in normal_keys:
-                    continue
-                # Remove it, we have a value to take its place
-                opener.addheaders.remove((key, val))
-
-        return opener.open
 
 
     def _build_response(self, resp, is_error=False):
@@ -173,24 +150,41 @@ class Request(object):
         def build(resp):
 
             response = Response()
+
+            # Pass settings over.
             response.config = self.config
-            response.status_code = getattr(resp, 'code', None)
 
-            try:
-                response.headers = CaseInsensitiveDict(getattr(resp.info(), 'dict', None))
-                response.raw = resp
+            if resp:
 
-                if self.cookies:
-                    response.cookies = dict_from_cookiejar(self.cookies)
+                # Fallback to None if there's no staus_code, for whatever reason.
+                response.status_code = getattr(resp, 'status', None)
 
+                # Make headers case-insensitive.
+                response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
 
-            except AttributeError:
-                pass
+                # Start off with our local cookies.
+                cookies = self.cookies or dict()
+
+                # Add new cookies from the server.
+                if 'set-cookie' in response.headers:
+                    cookie_header = response.headers['set-cookie']
+
+                    c = SimpleCookie()
+                    c.load(cookie_header)
+
+                    for k,v in c.items():
+                        cookies.update({k: v.value})
+
+                # Save cookies in Response.
+                response.cookies = cookies
+
+            # Save original resopnse for later.
+            response.raw = resp
 
             if is_error:
                 response.error = resp
 
-            response.url = getattr(resp, 'url', None)
+            response.url = self._build_url()
 
             return response
 
@@ -198,6 +192,8 @@ class Request(object):
         history = []
 
         r = build(resp)
+        cookies = self.cookies
+        self.cookies.update(r.cookies)
 
         if r.status_code in REDIRECT_STATI and not self.redirect:
 
@@ -205,8 +201,6 @@ class Request(object):
                 ('location' in r.headers) and
                 ((r.status_code is codes.see_other) or (self.allow_redirects))
             ):
-
-                r.raw.close()
 
                 if not len(history) < self.config.get('max_redirects'):
                     raise TooManyRedirects()
@@ -231,25 +225,36 @@ class Request(object):
                 else:
                     method = self.method
 
+                # Remove the cookie headers that were sent.
+                headers = self.headers
+                try:
+                    del headers['Cookie']
+                except KeyError:
+                    pass
+
                 request = Request(
                     url=url,
-                    headers=self.headers,
+                    headers=headers,
                     files=self.files,
                     method=method,
-                    # data=self.data,
-                    # params=self.params,
+                    params=self.session.params,
                     auth=self._auth,
-                    cookies=self.cookies,
+                    cookies=cookies,
                     redirect=True,
-                    config=self.config
+                    config=self.config,
+                    _poolmanager=self._poolmanager
                 )
+
                 request.send()
+                cookies.update(request.response.cookies)
                 r = request.response
+                self.cookies.update(r.cookies)
 
             r.history = history
 
         self.response = r
         self.response.request = self
+        self.response.cookies.update(self.cookies)
 
 
     @staticmethod
@@ -263,6 +268,9 @@ class Request(object):
         Otherwise, assumes the data is already encoded appropriately, and
         returns it twice.
         """
+
+        if hasattr(data, '__iter__'):
+            data = dict(data)
 
         if hasattr(data, 'items'):
             result = []
@@ -278,11 +286,20 @@ class Request(object):
     def _build_url(self):
         """Build the actual URL to use."""
 
+        if not self.url:
+            raise URLRequired()
+
         # Support for unicode domain names and paths.
         scheme, netloc, path, params, query, fragment = urlparse(self.url)
+
+        if not scheme:
+            raise ValueError()
+
         netloc = netloc.encode('idna')
+
         if isinstance(path, unicode):
             path = path.encode('utf-8')
+
         path = urllib.quote(urllib.unquote(path))
         self.url = str(urlunparse([ scheme, netloc, path, params, query, fragment ]))
 
@@ -295,7 +312,7 @@ class Request(object):
             return self.url
 
 
-    def send(self, anyway=False):
+    def send(self, anyway=False, prefetch=False):
         """Sends the request. Returns True of successful, false if not.
         If there was an HTTPError during transmission,
         self.response.status_code will contain the HTTPError code.
@@ -306,10 +323,6 @@ class Request(object):
         already been sent.
         """
 
-        # Some people...
-        if not self.url:
-            raise URLRequired
-
         # Logging
         if self.config.get('verbose'):
             self.config.get('verbose').write('%s   %s   %s\n' % (
@@ -319,86 +332,119 @@ class Request(object):
         # Build the URL
         url = self._build_url()
 
-        # Attach uploaded files.
+        # Nottin' on you.
+        body = None
+        content_type = None
+
+        # Multi-part file uploads.
         if self.files:
-            register_openers()
+            if not isinstance(self.data, basestring):
 
-            # Add form-data to the multipart.
-            if self.data:
-                self.files.update(self.data)
+                try:
+                    fields = self.data.copy()
+                except AttributeError:
+                    fields = dict(self.data)
 
-            data, headers = multipart_encode(self.files)
-
+                for (k, v) in self.files.items():
+                    fields.update({k: (k, v.read())})
+                (body, content_type) = encode_multipart_formdata(fields)
+            else:
+                pass
+                # TODO: Conflict?
         else:
-            data = self._enc_data
-            headers = {}
+            if self.data:
+
+                body = self._enc_data
+                if isinstance(self.data, basestring):
+                    content_type = None
+                else:
+                    content_type = 'application/x-www-form-urlencoded'
+
+        # Add content-type if it wasn't explicitly provided.
+        if (content_type) and (not 'content-type' in self.headers):
+            self.headers['Content-Type'] = content_type
+
 
         if self.auth:
             auth_func, auth_args = self.auth
 
+            # Allow auth to make its changes.
             r = auth_func(self, *auth_args)
 
+            # Update self to reflect the auth changes.
             self.__dict__.update(r.__dict__)
 
-        # Build the Urllib2 Request.
-        req = _Request(url, data=data, headers=headers, method=self.method)
+        _p = urlparse(url)
+        proxy = self.proxies.get(_p.scheme)
 
-        # Add the headers to the request.
-        if self.headers:
-            for k,v in self.headers.iteritems():
-                req.add_header(k, v)
+        if proxy:
+            conn = poolmanager.proxy_from_url(url)
+        else:
+            # Check to see if keep_alive is allowed.
+            if self.config.get('keep_alive'):
+                conn = self._poolmanager.connection_from_url(url)
+            else:
+                conn = connectionpool.connection_from_url(url)
 
         if not self.sent or anyway:
 
+            if self.cookies:
+
+                # Skip if 'cookie' header is explicitly set.
+                if 'cookie' not in self.headers:
+
+                    # Simple cookie with our dict.
+                    c = SimpleCookie()
+                    for (k, v) in self.cookies.items():
+                        c[k] = v
+
+                    # Turn it into a header.
+                    cookie_header = c.output(header='').strip()
+
+                    # Attach Cookie header to request.
+                    self.headers['Cookie'] = cookie_header
+
             try:
-                opener = self._get_opener()
-                try:
+                # Send the request.
 
-                    resp = opener(req, timeout=self.timeout)
-
-                except TypeError, err:
-                    # timeout argument is new since Python v2.6
-                    if not 'timeout' in str(err):
-                        raise
-
-                    if self.config.get('timeout_fallback'):
-                        # fall-back and use global socket timeout (This is not thread-safe!)
-                        old_timeout = socket.getdefaulttimeout()
-                        socket.setdefaulttimeout(self.timeout)
-
-                    resp = opener(req)
-
-                    if self.config.get('timeout_fallback'):
-                        # restore global timeout
-                        socket.setdefaulttimeout(old_timeout)
-
-                if self.cookies is not None:
-                    self.cookies.extract_cookies(resp, req)
-
-            except (urllib2.HTTPError, urllib2.URLError), why:
-                if hasattr(why, 'reason'):
-                    if isinstance(why.reason, socket.timeout):
-                        why = Timeout(why)
-                    elif isinstance(why.reason, socket.error):
-                        why = Timeout(why)
-
-                self._build_response(why, is_error=True)
-
-            else:
-                self._build_response(resp)
-                self.response.ok = True
+                r = conn.urlopen(
+                    method=self.method,
+                    url=url,
+                    body=body,
+                    headers=self.headers,
+                    redirect=False,
+                    assert_same_host=False,
+                    preload_content=prefetch,
+                    decode_content=False,
+                    retries=self.config.get('max_retries', 0),
+                    timeout=self.timeout,
+                )
 
 
-        self.sent = self.response.ok
+            except MaxRetryError, e:
+                if not self.config.get('safe_mode', False):
+                    raise ConnectionError(e)
+                else:
+                    r = None
 
-        # Response manipulation hook.
-        self.response = dispatch_hook('response', self.hooks, self.response)
+            except (_SSLError, _HTTPError), e:
+                if not self.config.get('safe_mode', False):
+                    raise Timeout('Request timed out.')
 
-        # Post-request hook.
-        r = dispatch_hook('post_request', self.hooks, self)
-        self.__dict__.update(r.__dict__)
+            self._build_response(r)
 
-        return self.sent
+            # Response manipulation hook.
+            self.response = dispatch_hook('response', self.hooks, self.response)
+
+            # Post-request hook.
+            r = dispatch_hook('post_request', self.hooks, self)
+            self.__dict__.update(r.__dict__)
+
+            # If prefetch is True, mark content as consumed.
+            if prefetch:
+                self.response._content_consumed = True
+
+            return self.sent
 
 
 class Response(object):
@@ -427,9 +473,6 @@ class Response(object):
         #: Final URL location of Response.
         self.url = None
 
-        #: True if no :attr:`error` occurred.
-        self.ok = False
-
         #: Resulting :class:`HTTPError` of request, if one occurred.
         self.error = None
 
@@ -442,20 +485,27 @@ class Response(object):
         self.request = None
 
         #: A dictionary of Cookies the server sent back.
-        self.cookies = None
+        self.cookies = {}
 
         #: Dictionary of configurations for this request.
-        self.config = None
+        self.config = {}
 
 
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
 
-
     def __nonzero__(self):
         """Returns true if :attr:`status_code` is 'OK'."""
+        return self.ok
 
-        return not self.error
+    @property
+    def ok(self):
+        try:
+            self.raise_for_status()
+        except HTTPError:
+            return False
+        return True
+
 
     def iter_content(self, chunk_size=10 * 1024, decode_unicode=None):
         """Iterates over the response data.  This avoids reading the content
@@ -464,8 +514,9 @@ class Response(object):
         length of each item returned as decoding can take place.
         """
         if self._content_consumed:
-            raise RuntimeError('The content for this response was '
-                               'already consumed')
+            raise RuntimeError(
+                'The content for this response was already consumed'
+            )
 
         def generate():
             while 1:
@@ -474,14 +525,20 @@ class Response(object):
                     break
                 yield chunk
             self._content_consumed = True
+
         gen = generate()
+
         if 'gzip' in self.headers.get('content-encoding', ''):
             gen = stream_decode_gzip(gen)
+
         if decode_unicode is None:
             decode_unicode = self.config.get('decode_unicode')
+
         if decode_unicode:
             gen = stream_decode_response_unicode(gen, self)
+
         return gen
+
 
     @property
     def content(self):
@@ -520,6 +577,17 @@ class Response(object):
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occurred."""
+
         if self.error:
             raise self.error
+
+        if (self.status_code >= 300) and (self.status_code < 400):
+            raise HTTPError('%s Redirection' % self.status_code)
+
+        elif (self.status_code >= 400) and (self.status_code < 500):
+            raise HTTPError('%s Client Error' % self.status_code)
+
+        elif (self.status_code >= 500) and (self.status_code < 600):
+            raise HTTPError('%s Server Error' % self.status_code)
+
 

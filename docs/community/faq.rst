@@ -73,7 +73,7 @@ Support for Python 3.x is coming *very* soon.
 Keep-alive Support?
 -------------------
 
-It's on the way.
+Yep!
 
 
 Proxy Support?
