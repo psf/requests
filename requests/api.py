@@ -48,9 +48,21 @@ def request(method, url,
 
     s = session()
     return s.request(
-        method, url, params, data, headers, cookies, files, auth,
-        timeout, allow_redirects, proxies, hooks, return_response,
-        config, prefetch
+        method=method,
+        url=url,
+        params=params,
+        data=data,
+        headers=headers,
+        cookies=cookies,
+        files=files,
+        auth=auth,
+        timeout=timeout,
+        allow_redirects=allow_redirects,
+        proxies=proxies,
+        hooks=hooks,
+        return_response=return_response,
+        config=config,
+        prefetch=prefetch
     )
 
 
