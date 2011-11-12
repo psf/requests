@@ -90,7 +90,7 @@ def head(url, **kwargs):
     return request('HEAD', url, **kwargs)
 
 
-def post(url, data='', **kwargs):
+def post(url, data=None, **kwargs):
     """Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -101,7 +101,7 @@ def post(url, data='', **kwargs):
     return request('post', url, data=data, **kwargs)
 
 
-def put(url, data='', **kwargs):
+def put(url, data=None, **kwargs):
     """Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -112,7 +112,7 @@ def put(url, data='', **kwargs):
     return request('put', url, data=data, **kwargs)
 
 
-def patch(url, data='', **kwargs):
+def patch(url, data=None, **kwargs):
     """Sends a PATCH request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
