@@ -43,7 +43,7 @@ Any dictionaries that you pass to a request method will be merged with the sessi
 
     Sometimes you'll want to omit session-level keys from a dict parameter. To do this, you simply set that key's value to ``None`` in the method-level parameter. It will automatically be omitted.
 
-All values that are contained within a session are directly available to you. See the:ref:`Session API Docs <sessionapi>` to learn more.
+All values that are contained within a session are directly available to you. See the :ref:`Session API Docs <sessionapi>` to learn more.
 
 
 
