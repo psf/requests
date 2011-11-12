@@ -283,6 +283,38 @@ If you're using POST, PUT, PATCH, *&c*, you can also explicitly enable redirecti
     [<Response [301]>]
 
 
+Timeouts
+--------
+
+You can tell requests to stop waiting for a response after a given number of seconds with the ``timeout`` parameter::
+
+    >>> requests.get('http://github.com', timeout=0.001)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    requests.exceptions.Timeout: Request timed out.
+
+.. admonition:: Note
+
+    ``timeout`` only effects the connection process itself, not the downloading of the respone body.
+
+
+Note
+
+Errors and Exceptions
+---------------------
+
+In the event of a network problem (e.g. DNS failure, refused connection, etc),
+Requests will raise a :class:`ConnectionError` exception.
+
+In the event of the rare invalid HTTP response, Requests will raise
+an  :class:`HTTPError` exception.
+
+If a request times out, a :class:`Timeout` exception is raised.
+
+If a request exceeds the configured number of maximum redirections, a :class:`TooManyRedirects` exception is raised.
+
+All exceptions that Requests explicitly raises inherit from
+:class:`requests.exceptions.RequestException`.
 
 -----------------------
 
