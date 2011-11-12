@@ -37,7 +37,7 @@ setup(
     packages= [
         'requests',
         'requests.packages',
-        'requests.packages.poster'
+        'requests.packages.urllib3'
     ],
     install_requires=required,
     license='ISC',
