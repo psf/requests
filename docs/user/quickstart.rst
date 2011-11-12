@@ -247,6 +247,43 @@ Another popular form of web service protection is Digest Authentication::
     <Response [200]>
 
 
+Redirection and History
+-----------------------
+
+Requests will automatically perform location redirection while using impodotent methods.
+
+GitHub redirects all HTTP requests to HTTPS. Let's see what happens::
+
+    >>> r = request.get('http://github.com')
+    >>> r.url
+    'https://github.com/'
+    >>> r.status_code
+    200
+    >>> r.history
+    [<Response [301]>]
+
+The :class:`Response.history` list contains a list of the
+:class:`Request` objects that were created in order to complete the request.
+
+If you're using GET, HEAD, or OPTIONS, you can disable redirection
+handling with the ``disable_redirects`` parameter::
+
+    >>> r = request.get('http://github.com')
+    >>> r.status_code
+    301
+    >>> r.history
+    []
+
+If you're using POST, PUT, PATCH, *&c*, you can also explicitly enable redirection as well::
+
+    >>> r = request.post('http://github.com')
+    >>> r.url
+    'https://github.com/'
+    >>> r.history
+    [<Response [301]>]
+
+
+
 -----------------------
 
 Ready for more? Check out the :ref:`advanced <advanced>` section.
