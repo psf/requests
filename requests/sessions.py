@@ -141,7 +141,7 @@ class Session(object):
         headers = {} if headers is None else headers
         params = {} if params is None else params
 
-        # Expand header values
+        # Expand header values.
         if headers:
             for k, v in headers.items() or {}:
                 headers[k] = header_expand(v)
@@ -198,7 +198,7 @@ class Session(object):
         """
 
         kwargs.setdefault('allow_redirects', True)
-        return self.request('GET', url, **kwargs)
+        return self.request('get', url, **kwargs)
 
 
     def options(self, url, **kwargs):
@@ -209,7 +209,7 @@ class Session(object):
         """
 
         kwargs.setdefault('allow_redirects', True)
-        return self.request('OPTIONS', url, **kwargs)
+        return self.request('options', url, **kwargs)
 
 
     def head(self, url, **kwargs):
@@ -220,7 +220,7 @@ class Session(object):
         """
 
         kwargs.setdefault('allow_redirects', True)
-        return self.request('HEAD', url, **kwargs)
+        return self.request('head', url, **kwargs)
 
 
     def post(self, url, data=None, **kwargs):

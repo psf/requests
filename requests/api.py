@@ -65,7 +65,7 @@ def get(url, **kwargs):
     """
 
     kwargs.setdefault('allow_redirects', True)
-    return request('GET', url, **kwargs)
+    return request('get', url, **kwargs)
 
 
 def options(url, **kwargs):
@@ -76,7 +76,7 @@ def options(url, **kwargs):
     """
 
     kwargs.setdefault('allow_redirects', True)
-    return request('OPTIONS', url, **kwargs)
+    return request('options', url, **kwargs)
 
 
 def head(url, **kwargs):
@@ -87,7 +87,7 @@ def head(url, **kwargs):
     """
 
     kwargs.setdefault('allow_redirects', True)
-    return request('HEAD', url, **kwargs)
+    return request('head', url, **kwargs)
 
 
 def post(url, data=None, **kwargs):
