@@ -20,7 +20,6 @@ except ImportError:
 curious_george.patch_all(thread=False)
 
 from . import api
-from .hooks import dispatch_hook
 
 
 __all__ = (

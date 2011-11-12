@@ -13,8 +13,6 @@ This module implements the Requests API.
 
 from .sessions import session
 
-__all__ = ('request', 'get', 'options', 'head', 'post', 'patch', 'put', 'delete')
-
 
 def request(method, url,
     params=None,
