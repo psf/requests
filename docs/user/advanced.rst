@@ -46,6 +46,27 @@ Any dictionaries that you pass to a request method will be merged with the sessi
 All values that are contained within a session are directly available to you. See the :ref:`Session API Docs <sessionapi>` to learn more.
 
 
+Body Content Workflow
+----------------------
+
+By default, When you make a request, the body of the response isn't downloaded immediately. The response headers are downloaded when you make a request, but the content isn't downloaded until you access the :class:`Response.content` attribute.
+
+Let's walk through it::
+
+    tarball_url = 'https://github.com/kennethreitz/requests/tarball/master'
+    r = requests.get(tarball_url)
+
+The request has been made, but the connection is still open. The response body has not been downloaded yet. ::
+
+    r.content
+
+The content has been downloaded and cached.
+
+You can override this default behavior with the ``prefetch`` parameter::
+
+    r = requests.get(tarball_url, prefetch=True)
+    # Blocks until all of request body has been downloaded.
+
 
 Configuring Requests
 --------------------
