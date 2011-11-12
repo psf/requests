@@ -163,18 +163,20 @@ class Session(object):
             _poolmanager=self.poolmanager
         )
 
+        # Merge local kwargs with session kwargs.
         for attr in self.__attrs__:
             session_val = getattr(self, attr, None)
             local_val = args.get(attr)
 
             args[attr] = merge_kwargs(local_val, session_val)
 
-
         # Arguments manipulation hook.
         args = dispatch_hook('args', args['hooks'], args)
 
         # Create the (empty) response.
         r = Request(**args)
+
+        # Give the response some context.
         r.session = self
 
         # Don't send if asked nicely.
