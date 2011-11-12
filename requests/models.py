@@ -23,11 +23,14 @@ from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .packages.urllib3 import connectionpool, poolmanager
+from .packages.urllib3.filepost import encode_multipart_formdata
 from .exceptions import (
     Timeout, URLRequired, TooManyRedirects, HTTPError, ConnectionError)
 from .utils import (
     dict_from_cookiejar, get_unicode_from_response,
     stream_decode_response_unicode, decode_gzip, stream_decode_gzip)
+
+
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
@@ -330,8 +333,6 @@ class Request(object):
         body = None
         content_type = None
 
-        from .packages.urllib3.filepost import encode_multipart_formdata
-
         # Multi-part file uploads.
         if self.files:
             if not isinstance(self.data, basestring):
@@ -349,8 +350,12 @@ class Request(object):
                 # TODO: Conflict?
         else:
             if self.data:
+
                 body = self._enc_data
-                content_type = 'application/x-www-form-urlencoded'
+                if isinstance(self.data, basestring):
+                    content_type = None
+                else:
+                    content_type = 'application/x-www-form-urlencoded'
 
         # Add content-type if it wasn't explicitly provided.
         if (content_type) and (not 'content-type' in self.headers):
@@ -398,6 +403,7 @@ class Request(object):
 
             try:
                 # Send the request.
+
                 r = conn.urlopen(
                     method=self.method,
                     url=url,
