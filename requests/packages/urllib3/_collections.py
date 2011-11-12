@@ -8,7 +8,10 @@
 from collections import deque
 from threading import RLock
 
-from .__collections import MutableMapping
+try:
+    from collections import MutableMapping
+except ImportError:
+    from .__collections import MutableMapping
 
 __all__ = ['RecentlyUsedContainer']
 
