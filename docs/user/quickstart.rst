@@ -39,7 +39,8 @@ We can read the content of the server's response::
     >>> r.content
     '[{"repository":{"open_issues":0,"url":"https://github.com/...
 
-Requests does its best to decode content from the server. Most unicode charsets, ``gzip``, and ``deflate`` encodings are all seamlessly decoded.
+Requests does its best to decode content from the server. Most unicode
+charsets, ``gzip``, and ``deflate`` encodings are all seamlessly decoded.
 
 
 Make a POST Request
@@ -51,7 +52,8 @@ POST requests are equally simple::
 
 
 Typically, you want to send some form-encoded data — much like an HTML form.
-To do this, simply pass a dictionary to the `data` argument. Your dictionary of data will automatically be form-encoded when the request is made::
+To do this, simply pass a dictionary to the `data` argument. Your
+dictionary of data will automatically be form-encoded when the request is made::
 
     >>> payload = {'key1': 'value1', 'key2': 'value2'}
     >>> r = requests.post("http://httpbin.org/post", data=payload)
@@ -114,7 +116,7 @@ Requests makes it simple to upload Multipart-encoded files::
     {
       "origin": "179.13.100.4",
       "files": {
-        "hmm": "<censored...binary...data>"
+        "report.xls": "<censored...binary...data>"
       },
       "form": {},
       "url": "http://httpbin.org/post",
@@ -254,7 +256,7 @@ Requests will automatically perform location redirection while using impodotent 
 
 GitHub redirects all HTTP requests to HTTPS. Let's see what happens::
 
-    >>> r = request.get('http://github.com')
+    >>> r = requests.get('http://github.com')
     >>> r.url
     'https://github.com/'
     >>> r.status_code
@@ -268,7 +270,7 @@ The :class:`Response.history` list contains a list of the
 If you're using GET, HEAD, or OPTIONS, you can disable redirection
 handling with the ``disable_redirects`` parameter::
 
-    >>> r = request.get('http://github.com')
+    >>> r = requests.get('http://github.com')
     >>> r.status_code
     301
     >>> r.history
@@ -276,7 +278,7 @@ handling with the ``disable_redirects`` parameter::
 
 If you're using POST, PUT, PATCH, *&c*, you can also explicitly enable redirection as well::
 
-    >>> r = request.post('http://github.com')
+    >>> r = requests.post('http://github.com')
     >>> r.url
     'https://github.com/'
     >>> r.history
