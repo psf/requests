@@ -338,7 +338,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         except (SocketTimeout, Empty), e:
             # Timed out either by socket or queue
-            raise TimeoutError("Request timed out after %s seconds" %
+            raise TimeoutError("Request timed out after %f seconds" %
                                self.timeout)
 
         except (BaseSSLError), e:

@@ -4,14 +4,9 @@
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
-
 from collections import deque
-from threading import RLock
 
-try:
-    from collections import MutableMapping
-except ImportError:
-    from .__collections import MutableMapping
+from threading import RLock
 
 __all__ = ['RecentlyUsedContainer']
 
@@ -24,7 +19,7 @@ class AccessEntry(object):
         self.is_valid = is_valid
 
 
-class RecentlyUsedContainer(MutableMapping):
+class RecentlyUsedContainer(dict):
     """
     Provides a dict-like that maintains up to ``maxsize`` keys while throwing
     away the least-recently-used keys beyond ``maxsize``.
@@ -81,7 +76,7 @@ class RecentlyUsedContainer(MutableMapping):
             if not p.is_valid:
                 continue # Invalidated entry, skip
 
-            self._container.pop(p.key, None)
+            dict.pop(self, p.key, None)
             self.access_lookup.pop(p.key, None)
             num -= 1
 
@@ -100,7 +95,7 @@ class RecentlyUsedContainer(MutableMapping):
         return r
 
     def __getitem__(self, key):
-        item = self._container.get(key)
+        item = dict.get(self, key)
 
         if not item:
             raise KeyError(key)
@@ -118,22 +113,19 @@ class RecentlyUsedContainer(MutableMapping):
 
     def __setitem__(self, key, item):
         # Add item to our container and access log
-        self._container[key] = item
+        dict.__setitem__(self, key, item)
         self._push_entry(key)
 
         # Discard invalid and excess entries
-        self._prune_entries(len(self._container) - self._maxsize)
+        self._prune_entries(len(self) - self._maxsize)
 
     def __delitem__(self, key):
         self._invalidate_entry(key)
-        del self._container[key]
-        del self.access_lookup[key]
+        self.access_lookup.pop(key, None)
+        dict.__delitem__(self, key)
 
-    def __len__(self):
-        return self._container.__len__()
-
-    def __iter__(self):
-        return self._container.__iter__()
-
-    def __contains__(self, key):
-        return self._container.__contains__(key)
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError:
+            return default
