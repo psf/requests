@@ -2,7 +2,7 @@ History
 -------
 
 
-0.8.0 (2011-11-09)
+0.8.0 (2011-11-13)
 ++++++++++++++++++
 
 * Keep-alive support!
@@ -14,6 +14,7 @@ History
 * prefetch parameter for request methods
 * OPTION method
 * Async pool size throttling
+* File uploads send real names
 
 0.7.6 (2011-11-07)
 ++++++++++++++++++
