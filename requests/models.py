@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 """
@@ -29,8 +28,6 @@ from .exceptions import (
 from .utils import (
     get_unicode_from_response, stream_decode_response_unicode,
     decode_gzip, stream_decode_gzip, guess_filename)
-
-
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
