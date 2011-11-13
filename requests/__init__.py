@@ -15,8 +15,8 @@ requests
 """
 
 __title__ = 'requests'
-__version__ = '0.7.6'
-__build__ = 0x000706
+__version__ = '0.8.0'
+__build__ = 0x000800
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2011 Kenneth Reitz'
@@ -24,10 +24,10 @@ __copyright__ = 'Copyright 2011 Kenneth Reitz'
 
 from . import utils
 from .models import Request, Response
-from .api import request, get, head, post, patch, put, delete
-from .sessions import session
+from .api import request, get, head, post, patch, put, delete, options
+from .sessions import session, Session
 from .status_codes import codes
 from .exceptions import (
-    RequestException, AuthenticationError, Timeout, URLRequired,
-    TooManyRedirects
+    RequestException, Timeout, URLRequired,
+    TooManyRedirects, HTTPError, ConnectionError
 )

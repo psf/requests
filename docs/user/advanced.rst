@@ -10,8 +10,8 @@ Session Objects
 ---------------
 
 The Session object allows you to persist certain parameters across
-requests. It also establishes a CookieJar and passes it along
-to any requests made from the Session instance.
+requests. It also perstists cookies across all requests made from the
+Session instance.
 
 A session object has all the methods of the main Requests API.
 
@@ -37,20 +37,63 @@ Sessions can also be used to provide default data to the request methods::
         c.get('http://httpbin.org/headers', headers={'x-test2': 'true'})
 
 
-.. admonition:: Global Settings
+Any dictionaries that you pass to a request method will be merged with the session-level values that are set. The method-level parameters override session parameters.
 
-    Certain parameters are best set in the ``config`` dictionary
-    (e.g. user agent header).
+.. admonition:: Remove a Value From a Dict Parameter
+
+    Sometimes you'll want to omit session-level keys from a dict parameter. To do this, you simply set that key's value to ``None`` in the method-level parameter. It will automatically be omitted.
+
+All values that are contained within a session are directly available to you. See the :ref:`Session API Docs <sessionapi>` to learn more.
+
+
+Body Content Workflow
+----------------------
+
+By default, When you make a request, the body of the response isn't downloaded immediately. The response headers are downloaded when you make a request, but the content isn't downloaded until you access the :class:`Response.content` attribute.
+
+Let's walk through it::
+
+    tarball_url = 'https://github.com/kennethreitz/requests/tarball/master'
+    r = requests.get(tarball_url)
+
+The request has been made, but the connection is still open. The response body has not been downloaded yet. ::
+
+    r.content
+
+The content has been downloaded and cached.
+
+You can override this default behavior with the ``prefetch`` parameter::
+
+    r = requests.get(tarball_url, prefetch=True)
+    # Blocks until all of request body has been downloaded.
+
+
+Configuring Requests
+--------------------
+
+Sometimes you may want to configure a request to customize it's behavior. To do
+this, you can pass in a ``config`` dictionary to a request or session. See the :ref:`Configuration API Docs <configurations>` to learn more.
+
+
+Keep-Alive
+----------
+
+Excellent news — thanks to urllib3. keep-alive is 100% automatic within a session! Any requests that you make within a session will automatically reuse the appropriate connection!
+
+If you'd like to disable keep-alive, you can simply set the ``keep_alive`` configuration to ``False``::
+
+    s = requests.session()
+    s.config['keep_alive'] = False
 
 
 Asynchronous Requests
 ----------------------
 
-Requests has first-class support for non-blocking i/o requests, powered
+Requests has first-class support for concurrent requests, powered
 by gevent. This allows you to send a bunch of HTTP requests at the same
 
 First, let's import the async module. Heads up — if you don't have
-`gevent <gevent>`_ this will fail::
+`gevent <http://pypi.python.org/pypi/gevent>`_ this will fail::
 
     from requests import async
 
@@ -76,6 +119,12 @@ will also guarantee execution of the ``response`` hook, described below. ::
 
     >>> async.map(rs)
     [<Response [200]>, <Response [200]>, <Response [200]>, <Response [200]>]
+
+.. admonition:: Throttling
+
+    The ``map`` function also takes a ``size`` parameter, that specifies the nubmer of connections to make at a time::
+
+        async.map(rs, size=5)
 
 
 Event Hooks
@@ -199,7 +248,7 @@ by your application, you can turn on verbose logging.
 
 To do so, just configure Requests with a stream to write to::
 
-    >>> requests.settings.verbose = sys.stderr
-    >>> requests.get('http://httpbin.org/headers')
+    >>> my_config = {'verbose': sys.stderr}
+    >>> requests.get('http://httpbin.org/headers', config=my_config)
     2011-08-17T03:04:23.380175   GET   http://httpbin.org/headers
     <Response [200]>

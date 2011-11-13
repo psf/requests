@@ -9,12 +9,11 @@ requests (cookies, auth, proxies).
 
 """
 
-import cookielib
-
 from .defaults import defaults
 from .models import Request
 from .hooks import dispatch_hook
-from .utils import add_dict_to_cookiejar, cookiejar_from_dict, header_expand
+from .utils import header_expand
+from .packages.urllib3.poolmanager import PoolManager
 
 
 def merge_kwargs(local_kwarg, default_kwarg):
@@ -64,8 +63,7 @@ class Session(object):
         proxies=None,
         hooks=None,
         params=None,
-        config=None,
-        keep_alive=True):
+        config=None):
 
         self.headers = headers or {}
         self.cookies = cookies or {}
@@ -75,13 +73,21 @@ class Session(object):
         self.hooks = hooks or {}
         self.params = params or {}
         self.config = config or {}
-        self.keep_alive = keep_alive
 
         for (k, v) in defaults.items():
             self.config.setdefault(k, v)
 
+        self.poolmanager = PoolManager(
+            num_pools=self.config.get('pool_connections'),
+            maxsize=self.config.get('pool_maxsize')
+        )
+
         # Set up a CookieJar to be used by default
-        self.cookies = cookielib.FileCookieJar()
+        self.cookies = {}
+
+        # Add passed cookies in.
+        if cookies is not None:
+            self.cookies.update(cookies)
 
     def __repr__(self):
         return '<requests-client at 0x%x>' % (id(self))
@@ -104,7 +110,8 @@ class Session(object):
         proxies=None,
         hooks=None,
         return_response=True,
-        config=None):
+        config=None,
+        prefetch=False):
 
         """Constructs and sends a :class:`Request <Request>`.
         Returns :class:`Response <Response>` object.
@@ -122,19 +129,19 @@ class Session(object):
         :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
         :param return_response: (optional) If False, an un-sent Request object will returned.
         :param config: (optional) A configuration dictionary.
+        :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
         """
 
         method = str(method).upper()
 
-        if cookies is None:
-            cookies = {}
+        # Default empty dicts for dict params.
+        cookies = {} if cookies is None else cookies
+        data = {} if data is None else data
+        files = {} if files is None else files
+        headers = {} if headers is None else headers
+        params = {} if params is None else params
 
-        if isinstance(cookies, dict):
-            cookies = add_dict_to_cookiejar(self.cookies, cookies)
-
-        cookies = cookiejar_from_dict(cookies)
-
-        # Expand header values
+        # Expand header values.
         if headers:
             for k, v in headers.items() or {}:
                 headers[k] = header_expand(v)
@@ -152,28 +159,37 @@ class Session(object):
             timeout=timeout,
             allow_redirects=allow_redirects,
             proxies=proxies,
-            config=config
+            config=config,
+            _poolmanager=self.poolmanager
         )
 
+        # Merge local kwargs with session kwargs.
         for attr in self.__attrs__:
             session_val = getattr(self, attr, None)
             local_val = args.get(attr)
 
             args[attr] = merge_kwargs(local_val, session_val)
 
-
         # Arguments manipulation hook.
         args = dispatch_hook('args', args['hooks'], args)
 
+        # Create the (empty) response.
         r = Request(**args)
+
+        # Give the response some context.
+        r.session = self
 
         # Don't send if asked nicely.
         if not return_response:
             return r
 
         # Send the HTTP Request.
-        r.send()
+        r.send(prefetch=prefetch)
 
+        # Send any cookies back up the to the session.
+        self.cookies.update(r.response.cookies)
+
+        # Return the response.
         return r.response
 
 
@@ -185,7 +201,18 @@ class Session(object):
         """
 
         kwargs.setdefault('allow_redirects', True)
-        return self.request('GET', url, **kwargs)
+        return self.request('get', url, **kwargs)
+
+
+    def options(self, url, **kwargs):
+        """Sends a OPTIONS request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param **kwargs: Optional arguments that ``request`` takes.
+        """
+
+        kwargs.setdefault('allow_redirects', True)
+        return self.request('options', url, **kwargs)
 
 
     def head(self, url, **kwargs):
@@ -196,10 +223,10 @@ class Session(object):
         """
 
         kwargs.setdefault('allow_redirects', True)
-        return self.request('HEAD', url, **kwargs)
+        return self.request('head', url, **kwargs)
 
 
-    def post(self, url, data='', **kwargs):
+    def post(self, url, data=None, **kwargs):
         """Sends a POST request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -210,7 +237,7 @@ class Session(object):
         return self.request('post', url, data=data, **kwargs)
 
 
-    def put(self, url, data='', **kwargs):
+    def put(self, url, data=None, **kwargs):
         """Sends a PUT request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -221,7 +248,7 @@ class Session(object):
         return self.request('put', url, data=data, **kwargs)
 
 
-    def patch(self, url, data='', **kwargs):
+    def patch(self, url, data=None, **kwargs):
         """Sends a PATCH request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -229,7 +256,7 @@ class Session(object):
         :param **kwargs: Optional arguments that ``request`` takes.
         """
 
-        return self.request('patch', url,  data='', **kwargs)
+        return self.request('patch', url,  data=data, **kwargs)
 
 
     def delete(self, url, **kwargs):
@@ -240,7 +267,6 @@ class Session(object):
         """
 
         return self.request('delete', url, **kwargs)
-
 
 
 def session(**kwargs):

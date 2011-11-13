@@ -13,8 +13,6 @@ This module implements the Requests API.
 
 from .sessions import session
 
-__all__ = ('request', 'get', 'head', 'post', 'patch', 'put', 'delete')
-
 
 def request(method, url,
     params=None,
@@ -28,6 +26,7 @@ def request(method, url,
     proxies=None,
     hooks=None,
     return_response=True,
+    prefetch=False,
     config=None):
     """Constructs and sends a :class:`Request <Request>`.
     Returns :class:`Response <Response>` object.
@@ -49,9 +48,21 @@ def request(method, url,
 
     s = session()
     return s.request(
-        method, url, params, data, headers, cookies, files, auth,
-        timeout, allow_redirects, proxies, hooks, return_response,
-        config
+        method=method,
+        url=url,
+        params=params,
+        data=data,
+        headers=headers,
+        cookies=cookies,
+        files=files,
+        auth=auth,
+        timeout=timeout,
+        allow_redirects=allow_redirects,
+        proxies=proxies,
+        hooks=hooks,
+        return_response=return_response,
+        config=config,
+        prefetch=prefetch
     )
 
 
@@ -64,7 +75,18 @@ def get(url, **kwargs):
     """
 
     kwargs.setdefault('allow_redirects', True)
-    return request('GET', url, **kwargs)
+    return request('get', url, **kwargs)
+
+
+def options(url, **kwargs):
+    """Sends a OPTIONS request. Returns :class:`Response` object.
+
+    :param url: URL for the new :class:`Request` object.
+    :param **kwargs: Optional arguments that ``request`` takes.
+    """
+
+    kwargs.setdefault('allow_redirects', True)
+    return request('options', url, **kwargs)
 
 
 def head(url, **kwargs):
@@ -75,10 +97,10 @@ def head(url, **kwargs):
     """
 
     kwargs.setdefault('allow_redirects', True)
-    return request('HEAD', url, **kwargs)
+    return request('head', url, **kwargs)
 
 
-def post(url, data='', **kwargs):
+def post(url, data=None, **kwargs):
     """Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -89,7 +111,7 @@ def post(url, data='', **kwargs):
     return request('post', url, data=data, **kwargs)
 
 
-def put(url, data='', **kwargs):
+def put(url, data=None, **kwargs):
     """Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
@@ -100,7 +122,7 @@ def put(url, data='', **kwargs):
     return request('put', url, data=data, **kwargs)
 
 
-def patch(url, data='', **kwargs):
+def patch(url, data=None, **kwargs):
     """Sends a PATCH request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
