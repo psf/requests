@@ -28,7 +28,7 @@ from .exceptions import (
     Timeout, URLRequired, TooManyRedirects, HTTPError, ConnectionError)
 from .utils import (
     get_unicode_from_response, stream_decode_response_unicode,
-    decode_gzip, stream_decode_gzip)
+    decode_gzip, stream_decode_gzip, guess_filename)
 
 
 
@@ -346,7 +346,8 @@ class Request(object):
                     fields = dict(self.data)
 
                 for (k, v) in self.files.items():
-                    fields.update({k: (k, v.read())})
+                    fields.update({k: (guess_filename(k) or k, v.read())})
+
                 (body, content_type) = encode_multipart_formdata(fields)
             else:
                 pass
