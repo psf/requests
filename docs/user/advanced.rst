@@ -71,7 +71,7 @@ You can override this default behavior with the ``prefetch`` parameter::
 Configuring Requests
 --------------------
 
-Sometimes you may want to configure a request to customize it's behavior. To do
+Sometimes you may want to configure a request to customize its behavior. To do
 this, you can pass in a ``config`` dictionary to a request or session. See the :ref:`Configuration API Docs <configurations>` to learn more.
 
 
