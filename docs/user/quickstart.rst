@@ -300,8 +300,6 @@ You can tell requests to stop waiting for a response after a given number of sec
     ``timeout`` only effects the connection process itself, not the downloading of the respone body.
 
 
-Note
-
 Errors and Exceptions
 ---------------------
 
