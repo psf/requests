@@ -278,7 +278,7 @@ handling with the ``disable_redirects`` parameter::
 
 If you're using POST, PUT, PATCH, *&c*, you can also explicitly enable redirection as well::
 
-    >>> r = requests.post('http://github.com')
+    >>> r = requests.post('http://github.com', allow_redirects=True)
     >>> r.url
     'https://github.com/'
     >>> r.history
