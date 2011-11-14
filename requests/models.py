@@ -239,6 +239,7 @@ class Request(object):
                     cookies=cookies,
                     redirect=True,
                     config=self.config,
+                    timeout=self.timeout,
                     _poolmanager=self._poolmanager
                 )
 
