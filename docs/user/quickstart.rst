@@ -238,6 +238,11 @@ Making requests with Basic Auth is extremely simple::
     >>> requests.get('https://api.github.com/user', auth=('user', 'pass'))
     <Response [200]>
 
+OAuth Authentication
+--------------------
+
+Miguel Araujo's `requests-oauth <http://pypi.python.org/pypi/requests-oauth>`_ project provides a simple interface for
+establishing OAuth connections. Documentation and examples can be found on the requests-oauth `git repository <https://github.com/maraujop/requests-oauth>`_.
 
 Digest Authentication
 ---------------------
