@@ -240,7 +240,8 @@ class Request(object):
                     redirect=True,
                     config=self.config,
                     timeout=self.timeout,
-                    _poolmanager=self._poolmanager
+                    _poolmanager=self._poolmanager,
+                    proxies = self.proxies,
                 )
 
                 request.send()
