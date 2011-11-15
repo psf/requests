@@ -377,7 +377,7 @@ class Request(object):
         proxy = self.proxies.get(_p.scheme)
 
         if proxy:
-            conn = poolmanager.proxy_from_url(url)
+            conn = poolmanager.proxy_from_url(proxy)
         else:
             # Check to see if keep_alive is allowed.
             if self.config.get('keep_alive'):
