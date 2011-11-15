@@ -11,7 +11,7 @@ import urllib
 import zlib
 
 from Cookie import SimpleCookie
-from urlparse import urlparse, urlunparse, urljoin
+from urlparse import urlparse, urlunparse, urljoin, urlsplit
 from datetime import datetime
 
 from .auth import dispatch as auth_dispatch
@@ -181,7 +181,7 @@ class Request(object):
             if is_error:
                 response.error = resp
 
-            response.url = self._build_url()
+            response.url = self.full_url
 
             return response
 
@@ -239,7 +239,9 @@ class Request(object):
                     cookies=cookies,
                     redirect=True,
                     config=self.config,
-                    _poolmanager=self._poolmanager
+                    timeout=self.timeout,
+                    _poolmanager=self._poolmanager,
+                    proxies = self.proxies,
                 )
 
                 request.send()
@@ -279,8 +281,8 @@ class Request(object):
         else:
             return data, data
 
-
-    def _build_url(self):
+    @property
+    def full_url(self):
         """Build the actual URL to use."""
 
         if not self.url:
@@ -298,15 +300,41 @@ class Request(object):
             path = path.encode('utf-8')
 
         path = urllib.quote(urllib.unquote(path))
-        self.url = str(urlunparse([ scheme, netloc, path, params, query, fragment ]))
+
+        url = str(urlunparse([ scheme, netloc, path, params, query, fragment ]))
 
         if self._enc_params:
-            if urlparse(self.url).query:
-                return '%s&%s' % (self.url, self._enc_params)
+            if urlparse(url).query:
+                return '%s&%s' % (url, self._enc_params)
             else:
-                return '%s?%s' % (self.url, self._enc_params)
+                return '%s?%s' % (url, self._enc_params)
         else:
-            return self.url
+            return url
+
+    @property
+    def path_url(self):
+        """Build the path URL to use."""
+
+        url = []
+
+        p = urlsplit(self.full_url)
+
+        # Proxies use full URLs.
+        if p.scheme in self.proxies:
+            return self.full_url
+
+        path = p.path
+        if not path:
+            path = '/'
+        url.append(path)
+
+        query = p.query
+        if query:
+            url.append('?')
+            url.append(query)
+
+        return ''.join(url)
+
 
 
     def send(self, anyway=False, prefetch=False):
@@ -327,7 +355,7 @@ class Request(object):
             ))
 
         # Build the URL
-        url = self._build_url()
+        url = self.full_url
 
         # Nottin' on you.
         body = None
@@ -376,7 +404,7 @@ class Request(object):
         proxy = self.proxies.get(_p.scheme)
 
         if proxy:
-            conn = poolmanager.proxy_from_url(url)
+            conn = poolmanager.proxy_from_url(proxy)
         else:
             # Check to see if keep_alive is allowed.
             if self.config.get('keep_alive'):
@@ -404,10 +432,9 @@ class Request(object):
 
             try:
                 # Send the request.
-
                 r = conn.urlopen(
                     method=self.method,
-                    url=url,
+                    url=self.path_url,
                     body=body,
                     headers=self.headers,
                     redirect=False,

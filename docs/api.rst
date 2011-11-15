@@ -95,13 +95,13 @@ Status Code Lookup
 ::
 
     >>> requests.codes['temporary_redirect']
-    301
+    307
 
     >>> requests.codes.teapot
-    416
+    418
 
     >>> requests.codes['\o/']
-    416
+    200
 
 Cookies
 ~~~~~~~
