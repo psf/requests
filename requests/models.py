@@ -431,7 +431,7 @@ class Request(object):
                         c[k] = v
 
                     # Turn it into a header.
-                    cookie_header = c.output(header='').strip()
+                    cookie_header = c.output(header='', sep='; ').strip()
 
                     # Attach Cookie header to request.
                     self.headers['Cookie'] = cookie_header
