@@ -10,11 +10,9 @@ Release v\ |version|. (:ref:`Installation <install>`)
 
 Requests is an :ref:`ISC Licensed <isc>` HTTP library, written in Python, for human beings.
 
-Most existing Python modules for sending HTTP requests are extremely verbose
-and cumbersome. Python's builtin **urllib2** module provides most of
-the HTTP capabilities you should need, but the api is thoroughly **broken**.
-It requires an *enormous* amount of work (even method overrides) to perform
-the simplest of tasks.
+Python's standard **urllib2** module provides most of
+the HTTP capabilities you need, but the API is thoroughly **broken**.
+It was built for a different time — and a different web. It requires an *enormous* amount of work (even method overrides) to perform the simplest of tasks.
 
 Things shouldn’t be this way. Not in Python.
 
@@ -30,20 +28,17 @@ Things shouldn’t be this way. Not in Python.
 
 See `the same code, without Requests <https://gist.github.com/973705>`_.
 
-Requests allows you to send  **HEAD**, **GET**, **POST**, **PUT**,
-**PATCH**, and **DELETE** HTTP requests. You can add headers, form data,
-multipart files, and parameters with simple Python dictionaries, and access the
-response data in the same way. It's powered by :py:class:`httplib` and :py:class:`urllib3`, and it strives to be as elegant and approachable as possible.
+Requests takes all of the work out of Python HTTP — making your integration with web services seamless. There's no need to manually add query strings to your URLs, or to form-encode your POST data.
+
 
 Testimonials
 ------------
 
-`The Washington Post <http://www.washingtonpost.com/>`_, `Twitter, Inc <http://twitter.com>`_,
-a U.S. Federal Institution,
-NIH,
+`The Washington Post <http://www.washingtonpost.com/>`_,
+`Twitter, Inc <http://twitter.com>`_,
 `Readability <http://readability.com>`_, and
-`Work for Pie <http://workforpie.com>`_
-use Requests internally.
+Federal US Institutions
+use Requests internally. It has been installed over 45,000 times from PyPi.
 
 **Armin Ronacher**
     Requests is the perfect example how beautiful an API can be with the
@@ -59,6 +54,24 @@ use Requests internally.
 
 **Rich Leland**
    Requests is awesome. That is all.
+
+
+Feature Support
+---------------
+
+Requests is ready for today's web.
+
+- International Domains and URLs
+- Keep-Alive & Connection Pooling
+- Sessions with Cookie Persistence
+- Basic/Digest Authentication
+- Elegant Key/Value Cookies
+- Automatic Decompression
+- Unicode Response Bodies
+- Multipart File Uploads
+- Connection Timeouts
+- Zero Dependencies
+
 
 
 User Guide
