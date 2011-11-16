@@ -371,7 +371,13 @@ class Request(object):
                     fields = dict(self.data)
 
                 for (k, v) in self.files.items():
-                    fields.update({k: (guess_filename(k) or k, v.read())})
+                    # support for explicit filename
+                    if isinstance(v, (tuple, list)):
+                        fn, fp = v
+                    else:
+                        fn = guess_filename(v) or k
+                        fp = v
+                    fields.update({k: (fn, fp.read())})
 
                 (body, content_type) = encode_multipart_formdata(fields)
             else:
