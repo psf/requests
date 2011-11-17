@@ -235,7 +235,8 @@ authentication, but the most common is HTTP Basic Auth.
 
 Making requests with Basic Auth is extremely simple::
 
-    >>> requests.get('https://api.github.com/user', auth=('user', 'pass'))
+    >>> from requests.auth import HTTPBasicAuth
+    >>> requests.get('https://api.github.com/user', auth=HTTPBasicAuth('user', 'pass'))
     <Response [200]>
 
 OAuth Authentication
@@ -249,8 +250,9 @@ Digest Authentication
 
 Another popular form of web service protection is Digest Authentication::
 
+    >>> from requests.auth import HTTPDigestAuth
     >>> url = 'http://httpbin.org/digest-auth/auth/user/pass'
-    >>> requests.get(url, auth=('digest', 'user', 'pass'))
+    >>> requests.get(url, auth=HTTPDigestAuth('user', 'pass'))
     <Response [200]>
 
 

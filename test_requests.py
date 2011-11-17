@@ -10,6 +10,7 @@ import unittest
 import requests
 import envoy
 from requests import HTTPError
+from requests.auth import HTTPBasicAuth, HTTPDigestAuth
 
 try:
     import omnijson as json
@@ -144,7 +145,7 @@ class RequestsTestSuite(unittest.TestCase):
 
         for service in SERVICES:
 
-            auth = ('user', 'pass')
+            auth = HTTPBasicAuth('user', 'pass')
             url = service('basic-auth', 'user', 'pass')
 
             r = requests.get(url, auth=auth)
@@ -163,7 +164,7 @@ class RequestsTestSuite(unittest.TestCase):
 
         for service in SERVICES:
 
-            auth = ('digest', 'user', 'pass')
+            auth = HTTPDigestAuth('user', 'pass')
             url = service('digest-auth', 'auth', 'user', 'pass')
 
             r = requests.get(url, auth=auth)
@@ -270,7 +271,7 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_httpauth_recursion(self):
 
-        http_auth = ('user', 'BADpass')
+        http_auth = HTTPBasicAuth('user', 'BADpass')
 
         for service in SERVICES:
             r = requests.get(service('basic-auth', 'user', 'pass'), auth=http_auth)

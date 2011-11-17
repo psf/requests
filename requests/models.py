@@ -14,7 +14,6 @@ from Cookie import SimpleCookie
 from urlparse import urlparse, urlunparse, urljoin, urlsplit
 from datetime import datetime
 
-from .auth import dispatch as auth_dispatch
 from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
@@ -99,8 +98,7 @@ class Request(object):
         self.response = Response()
 
         #: Authentication tuple to attach to :class:`Request <Request>`.
-        self._auth = auth
-        self.auth = auth_dispatch(auth)
+        self.auth = auth
 
         #: CookieJar to attach to :class:`Request <Request>`.
         self.cookies = dict(cookies or [])
@@ -235,7 +233,7 @@ class Request(object):
                     files=self.files,
                     method=method,
                     params=self.session.params,
-                    auth=self._auth,
+                    auth=self.auth,
                     cookies=cookies,
                     redirect=True,
                     config=self.config,
@@ -392,10 +390,8 @@ class Request(object):
 
 
         if self.auth:
-            auth_func, auth_args = self.auth
-
             # Allow auth to make its changes.
-            r = auth_func(self, *auth_args)
+            r = self.auth(self)
 
             # Update self to reflect the auth changes.
             self.__dict__.update(r.__dict__)
