@@ -27,7 +27,7 @@ from .exceptions import (
     Timeout, URLRequired, TooManyRedirects, HTTPError, ConnectionError)
 from .utils import (
     get_unicode_from_response, stream_decode_response_unicode,
-    decode_gzip, stream_decode_gzip, guess_filename)
+    decode_gzip, stream_decode_gzip, guess_filename, requote_path)
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
@@ -214,7 +214,7 @@ class Request(object):
                 # Facilitate non-RFC2616-compliant 'location' headers
                 # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
                 if not urlparse(url).netloc:
-                    url = urljoin(r.url, urllib.quote(urllib.unquote(url)))
+                    url = urljoin(r.url, requote_path(url))
 
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
                 if r.status_code is codes.see_other:
@@ -299,7 +299,7 @@ class Request(object):
         if isinstance(path, unicode):
             path = path.encode('utf-8')
 
-        path = urllib.quote(urllib.unquote(path))
+        path = requote_path(path)
 
         url = str(urlunparse([ scheme, netloc, path, params, query, fragment ]))
 
