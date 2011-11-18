@@ -132,6 +132,31 @@ Requests makes it simple to upload Multipart-encoded files::
       "data": ""
     }
 
+Setting filename explicitly::
+
+    >>> url = 'http://httpbin.org/post'
+    >>> files = {'file': ('report.xls', open('report.xls', 'rb'))}
+
+    >>> r = requests.post(url, files=files)
+    >>> r.content
+    {
+      "origin": "179.13.100.4",
+      "files": {
+        "file": "<censored...binary...data>"
+      },
+      "form": {},
+      "url": "http://httpbin.org/post",
+      "args": {},
+      "headers": {
+        "Content-Length": "3196",
+        "Accept-Encoding": "identity, deflate, compress, gzip",
+        "Accept": "*/*",
+        "User-Agent": "python-requests/0.8.0",
+        "Host": "httpbin.org:80",
+        "Content-Type": "multipart/form-data; boundary=127.0.0.1.502.21746.1321131593.786.1"
+      },
+      "data": ""
+    }
 
 
 Response Status Codes
