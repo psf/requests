@@ -60,3 +60,4 @@ Patches and Suggestions
 - Juergen Brendel
 - Juan Riaza
 - Ryan Kelly
+- Rolando Espinoza La fuente
