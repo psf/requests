@@ -44,6 +44,10 @@ use Requests internally. It has been installed over 45,000 times from PyPi.
     Requests is the perfect example how beautiful an API can be with the
     right level of abstraction.
 
+**Matt DeBoard**
+    I'm going to get @kennethreitz 's Python requests module tattooed
+    on my body, somehow. The whole thing.
+
 **Daniel Greenfeld**
     Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to
     @kennethreitz's request library. Today has been AWESOME.
@@ -51,9 +55,6 @@ use Requests internally. It has been installed over 45,000 times from PyPi.
 **Kenny Meyers**
     Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful,
     simple, Pythonic.
-
-**Rich Leland**
-   Requests is awesome. That is all.
 
 
 Feature Support
