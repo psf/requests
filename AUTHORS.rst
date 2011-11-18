@@ -59,3 +59,4 @@ Patches and Suggestions
 - Joseph McCullough
 - Juergen Brendel
 - Juan Riaza
+- Ryan Kelly

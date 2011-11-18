@@ -1,6 +1,11 @@
 History
 -------
 
+0.8.2
++++++
+
+* Proper URL slash-quote handling.
+
 0.8.1 (2011-11-15)
 ++++++++++++++++++
 
