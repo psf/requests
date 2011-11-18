@@ -16,6 +16,7 @@ import os
 import random
 import re
 import zlib
+import urllib
 
 from urllib2 import parse_http_list as _parse_list_header
 
@@ -367,3 +368,14 @@ def stream_decode_gzip(iterator):
             yield rv
     except zlib.error:
         pass
+
+
+def requote_path(path):
+    """Re-quote the given URL path component.
+
+    This function passes the given path through an unquote/quote cycle to
+    ensure that it is fully and consistenty quoted.
+    """
+    parts = path.split("/")
+    parts = (urllib.quote(urllib.unquote(part), safe="") for part in parts)
+    return "/".join(parts)
