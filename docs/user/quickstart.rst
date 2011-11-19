@@ -42,6 +42,11 @@ We can read the content of the server's response::
 Requests does its best to decode content from the server. Most unicode
 charsets, ``gzip``, and ``deflate`` encodings are all seamlessly decoded.
 
+When you make a request, ``r.encoding`` is set, based on the HTTP headers.
+Requests will attempt to use that encoding when you access ``r.content``. You
+can manually set ``r.encoding`` to any encoding you'd like (including ``None``),
+and that charset will be used.
+
 
 Make a POST Request
 -------------------
@@ -132,6 +137,31 @@ Requests makes it simple to upload Multipart-encoded files::
       "data": ""
     }
 
+Setting filename explicitly::
+
+    >>> url = 'http://httpbin.org/post'
+    >>> files = {'file': ('report.xls', open('report.xls', 'rb'))}
+
+    >>> r = requests.post(url, files=files)
+    >>> r.content
+    {
+      "origin": "179.13.100.4",
+      "files": {
+        "file": "<censored...binary...data>"
+      },
+      "form": {},
+      "url": "http://httpbin.org/post",
+      "args": {},
+      "headers": {
+        "Content-Length": "3196",
+        "Accept-Encoding": "identity, deflate, compress, gzip",
+        "Accept": "*/*",
+        "User-Agent": "python-requests/0.8.0",
+        "Host": "httpbin.org:80",
+        "Content-Type": "multipart/form-data; boundary=127.0.0.1.502.21746.1321131593.786.1"
+      },
+      "data": ""
+    }
 
 
 Response Status Codes

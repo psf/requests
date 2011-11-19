@@ -78,7 +78,7 @@ this, you can pass in a ``config`` dictionary to a request or session. See the :
 Keep-Alive
 ----------
 
-Excellent news — thanks to urllib3. keep-alive is 100% automatic within a session! Any requests that you make within a session will automatically reuse the appropriate connection!
+Excellent news — thanks to urllib3, keep-alive is 100% automatic within a session! Any requests that you make within a session will automatically reuse the appropriate connection!
 
 If you'd like to disable keep-alive, you can simply set the ``keep_alive`` configuration to ``False``::
 

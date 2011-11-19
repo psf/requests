@@ -10,7 +10,6 @@ This module contains the primary objects that power Requests.
 import urllib
 import zlib
 
-from Cookie import SimpleCookie
 from urlparse import urlparse, urlunparse, urljoin, urlsplit
 from datetime import datetime
 
@@ -18,6 +17,7 @@ from .auth import dispatch as auth_dispatch
 from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
+from .packages import oreos
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
@@ -26,8 +26,8 @@ from .packages.urllib3.filepost import encode_multipart_formdata
 from .exceptions import (
     Timeout, URLRequired, TooManyRedirects, HTTPError, ConnectionError)
 from .utils import (
-    get_unicode_from_response, stream_decode_response_unicode,
-    decode_gzip, stream_decode_gzip, guess_filename)
+    get_encoding_from_headers, stream_decode_response_unicode,
+    decode_gzip, stream_decode_gzip, guess_filename, requote_path)
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
@@ -143,7 +143,6 @@ class Request(object):
         from given response.
         """
 
-
         def build(resp):
 
             response = Response()
@@ -159,18 +158,16 @@ class Request(object):
                 # Make headers case-insensitive.
                 response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
 
+                # Set encoding.
+                response.encoding = get_encoding_from_headers(response.headers)
+
                 # Start off with our local cookies.
                 cookies = self.cookies or dict()
 
                 # Add new cookies from the server.
                 if 'set-cookie' in response.headers:
                     cookie_header = response.headers['set-cookie']
-
-                    c = SimpleCookie()
-                    c.load(cookie_header)
-
-                    for k,v in c.items():
-                        cookies.update({k: v.value})
+                    cookies = oreos.dict_from_string(cookie_header)
 
                 # Save cookies in Response.
                 response.cookies = cookies
@@ -184,7 +181,6 @@ class Request(object):
             response.url = self.full_url
 
             return response
-
 
         history = []
 
@@ -214,7 +210,7 @@ class Request(object):
                 # Facilitate non-RFC2616-compliant 'location' headers
                 # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
                 if not urlparse(url).netloc:
-                    url = urljoin(r.url, urllib.quote(urllib.unquote(url)))
+                    url = urljoin(r.url, url)
 
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
                 if r.status_code is codes.see_other:
@@ -299,7 +295,7 @@ class Request(object):
         if isinstance(path, unicode):
             path = path.encode('utf-8')
 
-        path = urllib.quote(urllib.unquote(path))
+        path = requote_path(path)
 
         url = str(urlunparse([ scheme, netloc, path, params, query, fragment ]))
 
@@ -371,7 +367,13 @@ class Request(object):
                     fields = dict(self.data)
 
                 for (k, v) in self.files.items():
-                    fields.update({k: (guess_filename(k) or k, v.read())})
+                    # support for explicit filename
+                    if isinstance(v, (tuple, list)):
+                        fn, fp = v
+                    else:
+                        fn = guess_filename(v) or k
+                        fp = v
+                    fields.update({k: (fn, fp.read())})
 
                 (body, content_type) = encode_multipart_formdata(fields)
             else:
@@ -420,12 +422,12 @@ class Request(object):
                 if 'cookie' not in self.headers:
 
                     # Simple cookie with our dict.
-                    c = SimpleCookie()
+                    c = oreos.monkeys.SimpleCookie()
                     for (k, v) in self.cookies.items():
                         c[k] = v
 
                     # Turn it into a header.
-                    cookie_header = c.output(header='').strip()
+                    cookie_header = c.output(header='', sep='; ').strip()
 
                     # Attach Cookie header to request.
                     self.headers['Cookie'] = cookie_header
@@ -501,6 +503,9 @@ class Response(object):
         #: Resulting :class:`HTTPError` of request, if one occurred.
         self.error = None
 
+        #: Encoding to decode with when accessing r.content.
+        self.encoding = None
+
         #: A list of :class:`Response <Response>` objects from
         #: the history of the Request. Any redirect responses will end
         #: up here.
@@ -571,33 +576,45 @@ class Response(object):
         (if available).
         """
 
-        if self._content is not None:
-            return self._content
+        if self._content is None:
+            # Read the contents.
+            try:
+                if self._content_consumed:
+                    raise RuntimeError(
+                        'The content for this response was already consumed')
 
-        if self._content_consumed:
-            raise RuntimeError('The content for this response was '
-                               'already consumed')
+                self._content = self.raw.read()
+            except AttributeError:
+                self._content = None
 
-        # Read the contents.
-        try:
-            self._content = self.raw.read()
-        except AttributeError:
-            return None
-
+        content = self._content
 
         # Decode GZip'd content.
         if 'gzip' in self.headers.get('content-encoding', ''):
             try:
-                self._content = decode_gzip(self._content)
+                content = decode_gzip(self._content)
             except zlib.error:
                 pass
 
         # Decode unicode content.
         if self.config.get('decode_unicode'):
-            self._content = get_unicode_from_response(self)
+
+            # Try charset from content-type
+
+            if self.encoding:
+                try:
+                    content = unicode(content, self.encoding)
+                except UnicodeError:
+                    pass
+
+            # Fall back:
+            try:
+                content = unicode(content, self.encoding, errors='replace')
+            except TypeError:
+                pass
 
         self._content_consumed = True
-        return self._content
+        return content
 
 
     def raise_for_status(self):
