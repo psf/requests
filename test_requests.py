@@ -141,6 +141,25 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
 
 
+    def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self):
+
+        for service in SERVICES:
+
+            auth = ('user', 'pass')
+            url = service('basic-auth', 'user', 'pass')
+
+            r = requests.get(url, auth=auth)
+            self.assertEqual(r.status_code, 200)
+
+            r = requests.get(url)
+            self.assertEqual(r.status_code, 401)
+
+
+            s = requests.session(auth=auth)
+            r = s.get(url)
+            self.assertEqual(r.status_code, 200)
+
+
     def test_BASICAUTH_HTTP_200_OK_GET(self):
 
         for service in SERVICES:

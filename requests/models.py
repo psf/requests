@@ -17,6 +17,7 @@ from datetime import datetime
 from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
+from .auth import HTTPBasicAuth
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
@@ -97,7 +98,7 @@ class Request(object):
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
         self.response = Response()
 
-        #: Authentication tuple to attach to :class:`Request <Request>`.
+        #: Authentication tuple or object to attach to :class:`Request <Request>`.
         self.auth = auth
 
         #: CookieJar to attach to :class:`Request <Request>`.
@@ -388,8 +389,11 @@ class Request(object):
         if (content_type) and (not 'content-type' in self.headers):
             self.headers['Content-Type'] = content_type
 
-
         if self.auth:
+            if isinstance(self.auth, tuple) and len(self.auth) == 2:
+                # special-case basic HTTP auth
+                self.auth = HTTPBasicAuth(*self.auth)
+
             # Allow auth to make its changes.
             r = self.auth(self)
 

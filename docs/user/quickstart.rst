@@ -239,11 +239,15 @@ Making requests with Basic Auth is extremely simple::
     >>> requests.get('https://api.github.com/user', auth=HTTPBasicAuth('user', 'pass'))
     <Response [200]>
 
-OAuth Authentication
---------------------
+Due to the prevalence of HTTP Basic Auth, requests provides a shorthand for
+this authentication method::
 
-Miguel Araujo's `requests-oauth <http://pypi.python.org/pypi/requests-oauth>`_ project provides a simple interface for
-establishing OAuth connections. Documentation and examples can be found on the requests-oauth `git repository <https://github.com/maraujop/requests-oauth>`_.
+    >>> requests.get('https://api.github.com/user', auth=('user', 'pass'))
+    <Response [200]>
+
+Providing the credentials as a tuple in this fashion is functionally equivalent
+to the ``HTTPBasicAuth`` example above.
+
 
 Digest Authentication
 ---------------------
@@ -254,6 +258,13 @@ Another popular form of web service protection is Digest Authentication::
     >>> url = 'http://httpbin.org/digest-auth/auth/user/pass'
     >>> requests.get(url, auth=HTTPDigestAuth('user', 'pass'))
     <Response [200]>
+
+
+OAuth Authentication
+--------------------
+
+Miguel Araujo's `requests-oauth <http://pypi.python.org/pypi/requests-oauth>`_ project provides a simple interface for
+establishing OAuth connections. Documentation and examples can be found on the requests-oauth `git repository <https://github.com/maraujop/requests-oauth>`_.
 
 
 Redirection and History
