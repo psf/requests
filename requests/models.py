@@ -26,7 +26,7 @@ from .packages.urllib3.filepost import encode_multipart_formdata
 from .exceptions import (
     Timeout, URLRequired, TooManyRedirects, HTTPError, ConnectionError)
 from .utils import (
-    get_unicode_from_response, stream_decode_response_unicode,
+    get_encoding_from_headers, stream_decode_response_unicode,
     decode_gzip, stream_decode_gzip, guess_filename, requote_path)
 
 
@@ -157,6 +157,9 @@ class Request(object):
 
                 # Make headers case-insensitive.
                 response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
+
+                # Set encoding.
+                response.encoding = get_encoding_from_headers(response.headers)
 
                 # Start off with our local cookies.
                 cookies = self.cookies or dict()
@@ -500,6 +503,9 @@ class Response(object):
         #: Resulting :class:`HTTPError` of request, if one occurred.
         self.error = None
 
+        #: Encoding to decode with when accessing r.content.
+        self.encoding = None
+
         #: A list of :class:`Response <Response>` objects from
         #: the history of the Request. Any redirect responses will end
         #: up here.
@@ -570,33 +576,45 @@ class Response(object):
         (if available).
         """
 
-        if self._content is not None:
-            return self._content
+        if self._content is None:
+            # Read the contents.
+            try:
+                if self._content_consumed:
+                    raise RuntimeError(
+                        'The content for this response was already consumed')
 
-        if self._content_consumed:
-            raise RuntimeError('The content for this response was '
-                               'already consumed')
+                self._content = self.raw.read()
+            except AttributeError:
+                self._content = None
 
-        # Read the contents.
-        try:
-            self._content = self.raw.read()
-        except AttributeError:
-            return None
-
+        content = self._content
 
         # Decode GZip'd content.
         if 'gzip' in self.headers.get('content-encoding', ''):
             try:
-                self._content = decode_gzip(self._content)
+                content = decode_gzip(self._content)
             except zlib.error:
                 pass
 
         # Decode unicode content.
         if self.config.get('decode_unicode'):
-            self._content = get_unicode_from_response(self)
+
+            # Try charset from content-type
+
+            if self.encoding:
+                try:
+                    content = unicode(content, self.encoding)
+                except UnicodeError:
+                    pass
+
+            # Fall back:
+            try:
+                content = unicode(content, self.encoding, errors='replace')
+            except TypeError:
+                pass
 
         self._content_consumed = True
-        return self._content
+        return content
 
 
     def raise_for_status(self):
