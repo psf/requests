@@ -16,26 +16,32 @@ from urlparse import urlparse
 from .utils import randombytes, parse_dict_header
 
 
-def http_basic(r, username, password):
-    """Attaches HTTP Basic Authentication to the given Request object.
-    Arguments should be considered non-positional.
+class AuthBase(object):
+    """Base class that all auth implementations derive from"""
 
-    """
-    username = str(username)
-    password = str(password)
-
-    auth_s = b64encode('%s:%s' % (username, password))
-    r.headers['Authorization'] = ('Basic %s' % auth_s)
-
-    return r
+    def __call__(self, r):
+        raise NotImplementedError('Auth hooks must be callable.')
 
 
-def http_digest(r, username, password):
-    """Attaches HTTP Digest Authentication to the given Request object.
-    Arguments should be considered non-positional.
-    """
+class HTTPBasicAuth(AuthBase):
+    """Attaches HTTP Basic Authentication to the given Request object."""
+    def __init__(self, username, password):
+        self.username = str(username)
+        self.password = str(password)
 
-    def handle_401(r):
+    def __call__(self, r):
+        auth_s = b64encode('%s:%s' % (self.username, self.password))
+        r.headers['Authorization'] = ('Basic %s' % auth_s)
+        return r
+
+
+class HTTPDigestAuth(AuthBase):
+    """Attaches HTTP Digest Authentication to the given Request object."""
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+    def handle_401(self, r):
         """Takes the given response and tries digest-auth, if needed."""
 
         s_auth = r.headers.get('www-authenticate', '')
@@ -70,7 +76,7 @@ def http_digest(r, username, password):
             p_parsed = urlparse(r.request.url)
             path = p_parsed.path + p_parsed.query
 
-            A1 = "%s:%s:%s" % (username, realm, password)
+            A1 = "%s:%s:%s" % (self.username, realm, self.password)
             A2 = "%s:%s" % (r.request.method, path)
 
             if qop == 'auth':
@@ -95,7 +101,7 @@ def http_digest(r, username, password):
 
             # XXX should the partial digests be encoded too?
             base = 'username="%s", realm="%s", nonce="%s", uri="%s", ' \
-                   'response="%s"' % (username, realm, nonce, path, respdig)
+                   'response="%s"' % (self.username, realm, nonce, path, respdig)
             if opaque:
                 base += ', opaque="%s"' % opaque
             if entdig:
@@ -103,7 +109,6 @@ def http_digest(r, username, password):
             base += ', algorithm="%s"' % algorithm
             if qop:
                 base += ', qop=auth, nc=%s, cnonce="%s"' % (ncvalue, cnonce)
-
 
             r.request.headers['Authorization'] = 'Digest %s' % (base)
             r.request.send(anyway=True)
@@ -114,33 +119,6 @@ def http_digest(r, username, password):
 
         return r
 
-    r.hooks['response'] = handle_401
-    return r
-
-
-def dispatch(t):
-    """Given an auth tuple, return an expanded version."""
-
-    if not t:
-        return t
-    else:
-        t = list(t)
-
-    # Make sure they're passing in something.
-    assert len(t) >= 2
-
-    # If only two items are passed in, assume HTTPBasic.
-    if (len(t) == 2):
-        t.insert(0, 'basic')
-
-    # Allow built-in string referenced auths.
-    if isinstance(t[0], basestring):
-        if t[0] in ('basic', 'forced_basic'):
-            t[0] = http_basic
-        elif t[0] in ('digest',):
-            t[0] = http_digest
-
-    # Return a custom callable.
-    return (t[0], tuple(t[1:]))
-
-
+    def __call__(self, r):
+        r.hooks['response'] = self.handle_401
+        return r
