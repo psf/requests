@@ -45,7 +45,7 @@ use Requests internally. It has been installed over 45,000 times from PyPi.
     right level of abstraction.
 
 **Matt DeBoard**
-    I'm going to get @kennethreitz 's Python requests module tattooed
+    I'm going to get @kennethreitz's Python requests module tattooed
     on my body, somehow. The whole thing.
 
 **Daniel Greenfeld**
