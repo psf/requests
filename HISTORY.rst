@@ -4,6 +4,7 @@ History
 0.8.2 (2011-11-19)
 ++++++++++++++++++
 
+* New unicode decoding system, based on overridable `Response.encoding`.
 * Proper URL slash-quote handling.
 * Cookies with ``[``, ``]``, and ``_`` allowed.
 
