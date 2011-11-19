@@ -18,6 +18,7 @@ from .auth import dispatch as auth_dispatch
 from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
+from .packages import oreos
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
@@ -143,7 +144,6 @@ class Request(object):
         from given response.
         """
 
-
         def build(resp):
 
             response = Response()
@@ -165,12 +165,7 @@ class Request(object):
                 # Add new cookies from the server.
                 if 'set-cookie' in response.headers:
                     cookie_header = response.headers['set-cookie']
-
-                    c = SimpleCookie()
-                    c.load(cookie_header)
-
-                    for k,v in c.items():
-                        cookies.update({k: v.value})
+                    cookies = oreos.dict_from_string(cookie_header)
 
                 # Save cookies in Response.
                 response.cookies = cookies
@@ -184,7 +179,6 @@ class Request(object):
             response.url = self.full_url
 
             return response
-
 
         history = []
 
