@@ -420,7 +420,7 @@ class Request(object):
                 if 'cookie' not in self.headers:
 
                     # Simple cookie with our dict.
-                    c = SimpleCookie()
+                    c = oreos.monkeys.SimpleCookie()
                     for (k, v) in self.cookies.items():
                         c[k] = v
 
