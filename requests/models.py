@@ -10,7 +10,6 @@ This module contains the primary objects that power Requests.
 import urllib
 import zlib
 
-from Cookie import SimpleCookie
 from urlparse import urlparse, urlunparse, urljoin, urlsplit
 from datetime import datetime
 
