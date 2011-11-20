@@ -344,14 +344,14 @@ class Request(object):
         already been sent.
         """
 
+        # Build the URL
+        url = self.full_url
+
         # Logging
         if self.config.get('verbose'):
             self.config.get('verbose').write('%s   %s   %s\n' % (
-                datetime.now().isoformat(), self.method, self.url
+                datetime.now().isoformat(), self.method, url
             ))
-
-        # Build the URL
-        url = self.full_url
 
         # Nottin' on you.
         body = None
