@@ -56,6 +56,18 @@ class RequestsModelUnitTests(unittest.TestCase):
         self.assertEqual(None,r.hooks)
         self.assertEqual({},r.config)
 
+    def test_Request_encode_params(self):
+        l,e = models.Request._encode_params({"foo": "bar", "baz": "bla"})
+        self.assertEqual([("foo","bar"), ("baz", "bla")], l)
+        self.assertEqual("foo=bar&baz=bla", e)
+
+    def test_Request_encode_params_from_string(self):
+        l,e = models.Request._encode_params("foobarbazbla")
+        self.assertEqual("foobarbazbla", l)
+        self.assertEqual("foobarbazbla", e)
+
+
+
 
 
 if __name__ == '__main__':
