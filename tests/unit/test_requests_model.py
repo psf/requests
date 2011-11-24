@@ -70,8 +70,9 @@ class RequestsModelUnitTests(unittest.TestCase):
         r = models.Request(url="http://google.com/foo/bar/bla", method='get')
         self.assertEqual("http://google.com/foo/bar/bla", r.full_url)
 
-
-
+    def test_Request_path_url(self):
+        r = models.Request(url="http://google.com/foo/bar/bla", method='get')
+        self.assertEqual("/foo/bar/bla", r.path_url)
 
 
 if __name__ == '__main__':
