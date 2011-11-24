@@ -66,6 +66,10 @@ class RequestsModelUnitTests(unittest.TestCase):
         self.assertEqual("foobarbazbla", l)
         self.assertEqual("foobarbazbla", e)
 
+    def test_Request_full_url(self):
+        r = models.Request(url="http://google.com/foo/bar/bla", method='get')
+        self.assertEqual("http://google.com/foo/bar/bla", r.full_url)
+
 
 
 
