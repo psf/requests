@@ -27,6 +27,7 @@ def request(method, url,
     hooks=None,
     return_response=True,
     prefetch=False,
+    use_session=None,
     config=None):
     """Constructs and sends a :class:`Request <Request>`.
     Returns :class:`Response <Response>` object.
@@ -43,10 +44,11 @@ def request(method, url,
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     :param return_response: (optional) If False, an un-sent Request object will returned.
+    :param use_session: (optional) A :class:`Session` object to be used for the request.
     :param config: (optional) A configuration dictionary.
     """
 
-    s = session()
+    s = use_session or session()
     return s.request(
         method=method,
         url=url,
