@@ -71,6 +71,8 @@ def map(requests, prefetch=True, size=None):
     :param size: Specifies the number of requests to make at a time. If None, no throttling occurs.
     """
 
+    requests = list(requests)
+
     if size:
         pool = Pool(size)
         pool.map(send, requests)
