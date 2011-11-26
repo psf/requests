@@ -10,6 +10,7 @@ import unittest
 import requests
 import envoy
 from requests import HTTPError
+from requests.auth import HTTPBasicAuth, HTTPDigestAuth
 
 try:
     import omnijson as json
@@ -140,7 +141,7 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
 
 
-    def test_BASICAUTH_HTTP_200_OK_GET(self):
+    def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self):
 
         for service in SERVICES:
 
@@ -159,11 +160,30 @@ class RequestsTestSuite(unittest.TestCase):
             self.assertEqual(r.status_code, 200)
 
 
+    def test_BASICAUTH_HTTP_200_OK_GET(self):
+
+        for service in SERVICES:
+
+            auth = HTTPBasicAuth('user', 'pass')
+            url = service('basic-auth', 'user', 'pass')
+
+            r = requests.get(url, auth=auth)
+            self.assertEqual(r.status_code, 200)
+
+            r = requests.get(url)
+            self.assertEqual(r.status_code, 401)
+
+
+            s = requests.session(auth=auth)
+            r = s.get(url)
+            self.assertEqual(r.status_code, 200)
+
+
     def test_DIGESTAUTH_HTTP_200_OK_GET(self):
 
         for service in SERVICES:
 
-            auth = ('digest', 'user', 'pass')
+            auth = HTTPDigestAuth('user', 'pass')
             url = service('digest-auth', 'auth', 'user', 'pass')
 
             r = requests.get(url, auth=auth)
@@ -270,7 +290,7 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_httpauth_recursion(self):
 
-        http_auth = ('user', 'BADpass')
+        http_auth = HTTPBasicAuth('user', 'BADpass')
 
         for service in SERVICES:
             r = requests.get(service('basic-auth', 'user', 'pass'), auth=http_auth)
