@@ -51,7 +51,7 @@ class RequestsTestSuite(unittest.TestCase):
 
             self.httpbin = c
             _httpbin = True
-            time.sleep(1)
+            time.sleep(.01)
 
 
 
@@ -80,6 +80,11 @@ class RequestsTestSuite(unittest.TestCase):
     def test_HTTP_200_OK_GET(self):
         r = requests.get(httpbin('/get'))
         self.assertEqual(r.status_code, 200)
+
+    def test_response_sent(self):
+        r = requests.get(httpbin('/get'))
+
+        self.assertTrue(r.request.sent)
 
     def test_HTTP_302_ALLOW_REDIRECT_GET(self):
         r = requests.get(httpbin('redirect', '1'))
