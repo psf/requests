@@ -51,7 +51,7 @@ class RequestsTestSuite(unittest.TestCase):
 
             self.httpbin = c
             _httpbin = True
-            time.sleep(.01)
+            time.sleep(1)
 
 
 
