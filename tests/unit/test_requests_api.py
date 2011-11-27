@@ -21,10 +21,11 @@ class RequestsAPIUnitTests(unittest.TestCase):
         pass
 
 
-    @mock.patch('requests.api.session')
-    def test_request(self, mock_session):
-        mock_request = mock_session.return_value
-        mock_request.request.return_value = "response"
+    def test_request(self):
+        mock_session = mock.Mock()
+        mock_request = mock.Mock()
+        mock_request.return_value = "response"
+        mock_session.request = mock_request
         r = requests.request('get','http://google.com',
                              params=None,
                              data=None,
@@ -37,6 +38,8 @@ class RequestsAPIUnitTests(unittest.TestCase):
                              proxies=None,
                              hooks=None,
                              return_response=True,
+                             prefetch=False,
+                             session=mock_session,
                              config=None)
 
         mock_request.assert_called__with('get',
