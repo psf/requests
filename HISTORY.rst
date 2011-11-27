@@ -1,6 +1,13 @@
 History
 -------
 
+0.8.3 (2011-11-27)
+++++++++++++++++++
+
+* Converted auth system to use simpler callable objects.
+* New session parameter to API methods.
+* Display full URL while logging.
+
 0.8.2 (2011-11-19)
 ++++++++++++++++++
 

@@ -37,7 +37,8 @@ setup(
     packages= [
         'requests',
         'requests.packages',
-        'requests.packages.urllib3'
+        'requests.packages.urllib3',
+        'requests.packages.oreos'
     ],
     install_requires=required,
     license='ISC',

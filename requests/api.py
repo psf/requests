@@ -11,7 +11,7 @@ This module implements the Requests API.
 
 """
 
-from .sessions import session
+from . import sessions
 
 
 def request(method, url,
@@ -27,6 +27,7 @@ def request(method, url,
     hooks=None,
     return_response=True,
     prefetch=False,
+    session=None,
     config=None):
     """Constructs and sends a :class:`Request <Request>`.
     Returns :class:`Response <Response>` object.
@@ -43,10 +44,11 @@ def request(method, url,
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     :param return_response: (optional) If False, an un-sent Request object will returned.
+    :param session: (optional) A :class:`Session` object to be used for the request.
     :param config: (optional) A configuration dictionary.
     """
 
-    s = session()
+    s = session or sessions.session()
     return s.request(
         method=method,
         url=url,

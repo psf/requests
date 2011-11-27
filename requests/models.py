@@ -13,11 +13,11 @@ import zlib
 from urlparse import urlparse, urlunparse, urljoin, urlsplit
 from datetime import datetime
 
-from .auth import dispatch as auth_dispatch
 from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
 from .packages import oreos
+from .auth import HTTPBasicAuth
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
@@ -98,9 +98,8 @@ class Request(object):
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
         self.response = Response()
 
-        #: Authentication tuple to attach to :class:`Request <Request>`.
-        self._auth = auth
-        self.auth = auth_dispatch(auth)
+        #: Authentication tuple or object to attach to :class:`Request <Request>`.
+        self.auth = auth
 
         #: CookieJar to attach to :class:`Request <Request>`.
         self.cookies = dict(cookies or [])
@@ -231,7 +230,7 @@ class Request(object):
                     files=self.files,
                     method=method,
                     params=self.session.params,
-                    auth=self._auth,
+                    auth=self.auth,
                     cookies=cookies,
                     redirect=True,
                     config=self.config,
@@ -344,14 +343,14 @@ class Request(object):
         already been sent.
         """
 
+        # Build the URL
+        url = self.full_url
+
         # Logging
         if self.config.get('verbose'):
             self.config.get('verbose').write('%s   %s   %s\n' % (
-                datetime.now().isoformat(), self.method, self.url
+                datetime.now().isoformat(), self.method, url
             ))
-
-        # Build the URL
-        url = self.full_url
 
         # Nottin' on you.
         body = None
@@ -392,12 +391,13 @@ class Request(object):
         if (content_type) and (not 'content-type' in self.headers):
             self.headers['Content-Type'] = content_type
 
-
         if self.auth:
-            auth_func, auth_args = self.auth
+            if isinstance(self.auth, tuple) and len(self.auth) == 2:
+                # special-case basic HTTP auth
+                self.auth = HTTPBasicAuth(*self.auth)
 
             # Allow auth to make its changes.
-            r = auth_func(self, *auth_args)
+            r = self.auth(self)
 
             # Update self to reflect the auth changes.
             self.__dict__.update(r.__dict__)

@@ -211,32 +211,33 @@ Custom Authentication
 
 Requests allows you to use specify your own authentication mechanism.
 
-When you pass our authentication tuple to a request method, the first
-string is the type of authentication. 'basic' is inferred if none is
-provided.
+Any callable which is passed as the ``auth`` argument to a request method will
+have the opportunity to modify the request before it is dispatched.
 
-You can pass in a callable object instead of a string for the first item
-in the tuple, and it will be used in place of the built in authentication
-callbacks.
+Authentication implementations are subclasses of ``requests.auth.AuthBase``,
+and are easy to define. Requests provides two common authentication scheme
+implementations in ``requests.auth``: ``HTTPBasicAuth`` and ``HTTPDigestAuth``.
 
 Let's pretend that we have a web service that will only respond if the
 ``X-Pizza`` header is set to a password value. Unlikely, but just go with it.
 
-We simply need to define a callback function that will be used to update the
-Request object, right before it is dispatched.
-
 ::
 
-    def pizza_auth(r, username):
-        """Attaches HTTP Pizza Authentication to the given Request object.
-        """
-        r.headers['X-Pizza'] = username
-
-        return r
+    from requests.auth import AuthBase
+    class PizzaAuth(AuthBase):
+        """Attaches HTTP Pizza Authentication to the given Request object."""
+        def __init__(self, username):
+            # setup any auth-related data here
+            self.username = username
+        
+        def __call__(self, r):
+            # modify and return the request
+            r.headers['X-Pizza'] = self.username
+            return r
 
 Then, we can make a request using our Pizza Auth::
 
-    >>> requests.get('http://pizzabin.org/admin', auth=(pizza_auth, 'kenneth'))
+    >>> requests.get('http://pizzabin.org/admin', auth=PizzaAuth('kenneth'))
     <Response [200]>
 
 
