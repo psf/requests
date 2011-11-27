@@ -74,6 +74,16 @@ class RequestsModelUnitTests(unittest.TestCase):
         r = models.Request(url="http://google.com/foo/bar/bla", method='get')
         self.assertEqual("/foo/bar/bla", r.path_url)
 
+    def test_Request_send(self):
+        r = models.Request(url="http://google.com", method='get')
+        self.assertTrue(r.send())
+
+    def test_Request_send_with_prefetch(self):
+        r = models.Request(url="http://google.com", method='get')
+        res = r.send(prefetch=True)
+        self.assertTrue(res)
+        self.assertTrue(r.response._content_consumed)
+
 
 if __name__ == '__main__':
     unittest.main()
