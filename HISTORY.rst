@@ -1,7 +1,7 @@
 History
 -------
 
-0.8.3 (2011-11-26)
+0.8.3 (2011-11-27)
 ++++++++++++++++++
 
 * Converted auth system to use simpler callable objects.
