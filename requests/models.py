@@ -446,6 +446,7 @@ class Request(object):
                     retries=self.config.get('max_retries', 0),
                     timeout=self.timeout,
                 )
+                self.sent = True
 
 
             except MaxRetryError, e:
