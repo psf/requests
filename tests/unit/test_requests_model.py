@@ -6,6 +6,8 @@ import sys
 import os
 sys.path.append(os.getcwd())
 
+import StringIO
+
 from requests import models
 
 class RequestsModelUnitTests(unittest.TestCase):
@@ -74,15 +76,80 @@ class RequestsModelUnitTests(unittest.TestCase):
         r = models.Request(url="http://google.com/foo/bar/bla", method='get')
         self.assertEqual("/foo/bar/bla", r.path_url)
 
-    def test_Request_send(self):
+    @mock.patch('requests.models.connectionpool.connection_from_url')
+    def test_Request_send(self, mock_pool):
+        mock_conn = mock.Mock()
+        mock_conn.urlopen.return_value = mock.Mock()
+        mock_pool.return_value = mock_conn
         r = models.Request(url="http://google.com", method='get')
-        self.assertTrue(r.send())
+        r._build_response = mock.Mock()
 
-    def test_Request_send_with_prefetch(self):
+        self.assertTrue(r.send())
+        mock_conn.urlopen.assert_called()
+        r._build_response.assert_called()
+
+    @mock.patch('requests.models.connectionpool.connection_from_url')
+    def test_Request_send_with_prefetch(self, mock_pool):
+        mock_conn = mock.Mock()
+        mock_conn.urlopen.return_value = mock.Mock()
+        mock_pool.return_value = mock_conn
         r = models.Request(url="http://google.com", method='get')
+        r._build_response = mock.Mock()
         res = r.send(prefetch=True)
         self.assertTrue(res)
         self.assertTrue(r.response._content_consumed)
+        mock_conn.urlopen.assert_called()
+        r._build_response.assert_called()
+
+    @mock.patch('requests.models.connectionpool.connection_from_url')
+    def test_Request_send_with_files(self, mock_pool):
+        mock_conn = mock.Mock()
+        mock_conn.urlopen.return_value = mock.Mock()
+        mock_pool.return_value = mock_conn
+        afile = StringIO.StringIO()
+        afile.write('foobar\n')
+        r = models.Request(url="http://google.com", method='get',
+                           files={'foo.txt': afile})
+        r._build_response = mock.Mock()
+        self.assertTrue(r.send())
+        mock_conn.urlopen.assert_called()
+        r._build_response.assert_called()
+
+    @mock.patch('requests.models.connectionpool.connection_from_url')
+    def test_Request_send_with_data_dict(self, mock_pool):
+        mock_conn = mock.Mock()
+        mock_conn.urlopen.return_value = mock.Mock()
+        mock_pool.return_value = mock_conn
+        r = models.Request(url="http://google.com", method='get',
+                           data={'foo': 'bar'})
+        r._build_response = mock.Mock()
+        self.assertTrue(r.send())
+        mock_conn.urlopen.assert_called()
+        r._build_response.assert_called()
+
+    @mock.patch('requests.models.connectionpool.connection_from_url')
+    def test_Request_send_with_data_string(self, mock_pool):
+        mock_conn = mock.Mock()
+        mock_conn.urlopen.return_value = mock.Mock()
+        mock_pool.return_value = mock_conn
+        r = models.Request(url="http://google.com", method='get',
+                           data='foobar')
+        r._build_response = mock.Mock()
+        self.assertTrue(r.send())
+        mock_conn.urlopen.assert_called()
+        r._build_response.assert_called()
+
+    @mock.patch('requests.models.connectionpool.connection_from_url')
+    def test_Request_send_with_basic_auth(self, mock_pool):
+        mock_conn = mock.Mock()
+        mock_conn.urlopen.return_value = mock.Mock()
+        mock_pool.return_value = mock_conn
+        r = models.Request(url="http://google.com", method='get',
+                           auth=('foo','bar'))
+        r._build_response = mock.Mock()
+        self.assertTrue(r.send())
+        mock_conn.urlopen.assert_called()
+        r._build_response.assert_called()
 
 
 if __name__ == '__main__':
