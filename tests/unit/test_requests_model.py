@@ -151,6 +151,18 @@ class RequestsModelUnitTests(unittest.TestCase):
         mock_conn.urlopen.assert_called()
         r._build_response.assert_called()
 
+    @mock.patch('requests.models.Response')
+    def test_Request_build_response(self, mock_resp):
+        mm = mock.MagicMock()
+        mock_resp.return_value = mm
+        r = models.Request(url="http://google.com", method='get',
+                           redirect=False)
+        resp = mock.MagicMock()
+        r._build_response(resp)
+        self.assertEqual(mm, r.response)
+        self.assertEqual(resp, r.response.raw)
+        self.assertEqual(r, r.response.request)
+
 
 if __name__ == '__main__':
     unittest.main()
