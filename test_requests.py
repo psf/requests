@@ -170,6 +170,10 @@ class RequestsTestSuite(unittest.TestCase):
             r = requests.get(url, auth=auth)
             self.assertEqual(r.status_code, 200)
 
+            auth = ('user', 'pass')
+            r = requests.get(url, auth=auth)
+            self.assertEqual(r.status_code, 200)
+
             r = requests.get(url)
             self.assertEqual(r.status_code, 401)
 
