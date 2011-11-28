@@ -25,5 +25,22 @@ class RequestsAsyncUnitTests(unittest.TestCase):
         f()
         fun.assert_called_with(return_response=False, prefetch=True)
 
+    def test_async_send(self):
+        req = mock.Mock()
+        req.response = 'response'
+        resp = async.send(req)
+        req.send.assert_called_once()
+        self.assertEqual('response', resp)
+
+    def test_async_send_with_pools(self):
+        req = mock.Mock()
+        pools = mock.Mock()
+        req.response = 'response'
+        resp = async.send(req, pools)
+        req.send.assert_called_once()
+        self.assertEqual('response', resp)
+        self.assertEqual(pools, req._pools)
+
+
 if __name__ == '__main__':
     unittest.main()
