@@ -41,6 +41,31 @@ class RequestsAsyncUnitTests(unittest.TestCase):
         self.assertEqual('response', resp)
         self.assertEqual(pools, req._pools)
 
+    @mock.patch('requests.async.gevent')
+    def test_async_map(self, mock_gevent):
+        req = mock.MagicMock()
+        resp = async.map(req)
+        self.assertEqual([], resp)
+
+    @mock.patch('requests.async.gevent')
+    def test_async_map_without_prefetch(self, mock_gevent):
+        req = mock.MagicMock()
+        resp = async.map(req, prefetch=False)
+        self.assertEqual([], resp)
+
+    @mock.patch('requests.async.Pool')
+    def test_async_map_with_size(self, mock_pool):
+        mock_ret_pool = mock.Mock()
+        mock_pool.return_value = mock_ret_pool
+        req = mock.MagicMock()
+        resp = async.map(req, size=10)
+        self.assertEqual([], resp)
+        mock_pool.assert_called_with(10)
+        mock_ret_pool.map.assert_called__once_with(async.send, req)
+        mock_ret_pool.join.assert_called_once()
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
