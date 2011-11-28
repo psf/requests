@@ -42,20 +42,21 @@ class RequestsAPIUnitTests(unittest.TestCase):
                              session=mock_session,
                              config=None)
 
-        mock_request.assert_called__with('get',
-                                         'http://google.com',
-                                         None,
-                                         None,
-                                         None,
-                                         None,
-                                         None,
-                                         None,
-                                         None,
-                                         False,
-                                         None,
-                                         None,
-                                         True,
-                                         None)
+        mock_request.assert_called_with(method='get',
+                                        url='http://google.com',
+                                        params=None,
+                                        data=None,
+                                        headers=None,
+                                        cookies=None,
+                                        files=None,
+                                        auth=None,
+                                        timeout=None,
+                                        allow_redirects=False,
+                                        proxies=None,
+                                        hooks=None,
+                                        return_response=True,
+                                        prefetch=False,
+                                        config=None)
         self.assertEqual(r, "response")
 
 
