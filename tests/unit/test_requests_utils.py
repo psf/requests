@@ -121,7 +121,38 @@ class RequestsUtilsUnitTests(unittest.TestCase):
         self.assertTrue('foo' in res.keys())
         self.assertEqual('bar', res['foo'])
 
+    def test_utils_cookiejar_from_dict_with_cookiejar(self):
+        import cookielib
+        cd = mock.Mock(spec=cookielib.CookieJar)
+        res = utils.cookiejar_from_dict(cd)
+        self.assertEqual(cd, res)
 
+    @mock.patch('requests.utils.cookielib.Cookie')
+    def test_utils_add_dict_to_cookiejar(self, mock_cookie):
+        cj = mock.Mock()
+        mock_cookie.return_value = True
+
+        res = utils.add_dict_to_cookiejar(cj, {'foo': 'bar'})
+        cj.set_cookie.assert_called_once_with(True)
+        mock_cookie.assert_called_once_with(
+                                            version=0,
+                                            name='foo',
+                                            value='bar',
+                                            port=None,
+                                            port_specified=False,
+                                            domain='',
+                                            domain_specified=False,
+                                            domain_initial_dot=False,
+                                            path='/',
+                                            path_specified=True,
+                                            secure=False,
+                                            expires=None,
+                                            discard=True,
+                                            comment=None,
+                                            comment_url=None,
+                                            rest={'HttpOnly': None},
+                                            rfc2109=False )
+        self.assertEqual(cj, res)
 
 if __name__ == '__main__':
     unittest.main()
