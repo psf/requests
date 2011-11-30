@@ -103,9 +103,23 @@ class RequestsUtilsUnitTests(unittest.TestCase):
         finally:
             utils.os.path.exists = old_exists
 
+    def test_utils_dict_from_cookiejar(self):
+        basejar = mock.MagicMock()
+        basejar.name = "foo"
+        basejar.value = "bar"
+        superjar = mock.MagicMock()
+        superjar.values.return_value = [basejar]
+        ssuperjar = mock.MagicMock()
+        ssuperjar.items.return_value = [[None, superjar]]
+        cj = mock.MagicMock()
+        cj._cookies.items.return_value = [[None, ssuperjar]]
 
 
-
+        res = utils.dict_from_cookiejar(cj)
+        self.assertTrue(type(res) is dict)
+        self.assertEqual(1, len(res.keys()))
+        self.assertTrue('foo' in res.keys())
+        self.assertEqual('bar', res['foo'])
 
 
 
