@@ -345,7 +345,7 @@ You can tell requests to stop waiting for a response after a given number of sec
 
 .. admonition:: Note
 
-    ``timeout`` only effects the connection process itself, not the downloading of the respone body.
+    ``timeout`` only effects the connection process itself, not the downloading of the response body.
 
 
 Errors and Exceptions
