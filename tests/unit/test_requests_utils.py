@@ -154,5 +154,40 @@ class RequestsUtilsUnitTests(unittest.TestCase):
                                             rfc2109=False )
         self.assertEqual(cj, res)
 
+
+    def test_utils_get_encodings_from_content(self):
+        res = utils.get_encodings_from_content('<meta charset="foo">')
+        self.assertEqual(['foo'], res)
+
+    def test_utils_get_encodings_from_content_multi_occurence(self):
+        s = """<meta charset="foo">
+               <meta charset="bar">
+            """
+        res = utils.get_encodings_from_content(s)
+        self.assertEqual(['foo', 'bar'], res)
+
+    @mock.patch('requests.utils.cgi.parse_header')
+    def test_utils_get_encoding_from_headers(self, mock_parse):
+        mock_parse.return_value = None, {'charset': "'UTF-8'"}
+        header = {'content-type': 'pizza'}
+        res = utils.get_encoding_from_headers(header)
+
+        mock_parse.assert_called_once_with('pizza')
+        self.assertEqual('UTF-8', res)
+
+    def test_utils_get_encoding_from_headers_no_content_type(self):
+        res = utils.get_encoding_from_headers({})
+        self.assertEqual(None, res)
+
+    @mock.patch('requests.utils.cgi.parse_header')
+    def test_utils_get_encoding_from_headers_no_charset(self, mock_parse):
+        mock_parse.return_value = None, {}
+        header = {'content-type': 'pizza'}
+        res = utils.get_encoding_from_headers(header)
+
+        mock_parse.assert_called_once_with('pizza')
+        self.assertEqual(None, res)
+
+
 if __name__ == '__main__':
     unittest.main()
