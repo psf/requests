@@ -124,7 +124,7 @@ will also guarantee execution of the ``response`` hook, described below. ::
 
 .. admonition:: Throttling
 
-    The ``map`` function also takes a ``size`` parameter, that specifies the nubmer of connections to make at a time::
+    The ``map`` function also takes a ``size`` parameter, that specifies the number of connections to make at a time::
 
         async.map(rs, size=5)
 
