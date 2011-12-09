@@ -64,3 +64,4 @@ Patches and Suggestions
 - Robert Gieseke
 - Idan Gazit
 - Ed Summers
+- Chris Van Horne
