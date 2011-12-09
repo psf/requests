@@ -316,9 +316,9 @@ The :class:`Response.history` list contains a list of the
 :class:`Request` objects that were created in order to complete the request.
 
 If you're using GET, HEAD, or OPTIONS, you can disable redirection
-handling with the ``disable_redirects`` parameter::
+handling with the ``allow_redirects`` parameter::
 
-    >>> r = requests.get('http://github.com')
+    >>> r = requests.get('http://github.com', allow_redirects=False)
     >>> r.status_code
     301
     >>> r.history

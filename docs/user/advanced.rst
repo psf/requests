@@ -80,6 +80,8 @@ Keep-Alive
 
 Excellent news — thanks to urllib3, keep-alive is 100% automatic within a session! Any requests that you make within a session will automatically reuse the appropriate connection!
 
+Note that connections are only released back to the pool for reuse once all body data has been read; be sure to either set ``prefetch`` to ``True`` or read the ``content`` property of the ``Response`` object.
+
 If you'd like to disable keep-alive, you can simply set the ``keep_alive`` configuration to ``False``::
 
     s = requests.session()
@@ -122,7 +124,7 @@ will also guarantee execution of the ``response`` hook, described below. ::
 
 .. admonition:: Throttling
 
-    The ``map`` function also takes a ``size`` parameter, that specifies the nubmer of connections to make at a time::
+    The ``map`` function also takes a ``size`` parameter, that specifies the number of connections to make at a time::
 
         async.map(rs, size=5)
 

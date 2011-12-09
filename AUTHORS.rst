@@ -63,3 +63,5 @@ Patches and Suggestions
 - Rolando Espinoza La fuente
 - Robert Gieseke
 - Idan Gazit
+- Ed Summers
+- Chris Van Horne
