@@ -1,6 +1,12 @@
 History
 -------
 
+0.8.4 (2011-12-11)
+++++++++++++++++++
+
+* Prefetch bugfix.
+* Added license to installed version.
+
 0.8.3 (2011-11-27)
 ++++++++++++++++++
 

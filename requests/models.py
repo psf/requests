@@ -151,7 +151,7 @@ class Request(object):
 
             if resp:
 
-                # Fallback to None if there's no staus_code, for whatever reason.
+                # Fallback to None if there's no status_code, for whatever reason.
                 response.status_code = getattr(resp, 'status', None)
 
                 # Make headers case-insensitive.
@@ -171,7 +171,7 @@ class Request(object):
                 # Save cookies in Response.
                 response.cookies = cookies
 
-            # Save original resopnse for later.
+            # Save original response for later.
             response.raw = resp
 
             if is_error:
@@ -441,11 +441,12 @@ class Request(object):
                     headers=self.headers,
                     redirect=False,
                     assert_same_host=False,
-                    preload_content=prefetch,
+                    preload_content=False,
                     decode_content=False,
                     retries=self.config.get('max_retries', 0),
                     timeout=self.timeout,
                 )
+                self.sent = True
 
 
             except MaxRetryError, e:
@@ -469,7 +470,8 @@ class Request(object):
 
             # If prefetch is True, mark content as consumed.
             if prefetch:
-                self.response._content_consumed = True
+                # Save the response.
+                self.response.content
 
             return self.sent
 

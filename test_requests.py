@@ -81,6 +81,11 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get(httpbin('/get'))
         self.assertEqual(r.status_code, 200)
 
+    def test_response_sent(self):
+        r = requests.get(httpbin('/get'))
+
+        self.assertTrue(r.request.sent)
+
     def test_HTTP_302_ALLOW_REDIRECT_GET(self):
         r = requests.get(httpbin('redirect', '1'))
         self.assertEqual(r.status_code, 200)
@@ -577,6 +582,14 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get(hah, allow_redirects=False, config=config)
         assert r.content == None
 
+    def test_cached_response(self):
+
+        r1 = requests.get(httpbin('get'), prefetch=False)
+        assert r1.content
+        assert r1.content
+
+        r2 = requests.get(httpbin('get'), prefetch=True)
+        assert r2.content
 
 if __name__ == '__main__':
     unittest.main()

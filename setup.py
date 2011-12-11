@@ -12,12 +12,12 @@ except ImportError:
 
 
 
-if sys.argv[-1] == "publish":
-    os.system("python setup.py sdist upload")
+if sys.argv[-1] == 'publish':
+    os.system('python setup.py sdist upload')
     sys.exit()
 
-if sys.argv[-1] == "test":
-    os.system("python test_requests.py")
+if sys.argv[-1] == 'test':
+    os.system('python test_requests.py')
     sys.exit()
 
 required = []
@@ -34,12 +34,14 @@ setup(
     author='Kenneth Reitz',
     author_email='me@kennethreitz.com',
     url='http://python-requests.org',
-    packages= [
+    packages=[
         'requests',
         'requests.packages',
         'requests.packages.urllib3',
         'requests.packages.oreos'
     ],
+    package_data={'': ['LICENSE', 'NOTICE']},
+    include_package_data=True,
     install_requires=required,
     license='ISC',
     classifiers=(

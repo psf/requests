@@ -10,7 +10,7 @@ Session Objects
 ---------------
 
 The Session object allows you to persist certain parameters across
-requests. It also perstists cookies across all requests made from the
+requests. It also persists cookies across all requests made from the
 Session instance.
 
 A session object has all the methods of the main Requests API.
@@ -49,7 +49,7 @@ All values that are contained within a session are directly available to you. Se
 Body Content Workflow
 ----------------------
 
-By default, When you make a request, the body of the response isn't downloaded immediately. The response headers are downloaded when you make a request, but the content isn't downloaded until you access the :class:`Response.content` attribute.
+By default, when you make a request, the body of the response isn't downloaded immediately. The response headers are downloaded when you make a request, but the content isn't downloaded until you access the :class:`Response.content` attribute.
 
 Let's walk through it::
 
@@ -80,6 +80,8 @@ Keep-Alive
 
 Excellent news — thanks to urllib3, keep-alive is 100% automatic within a session! Any requests that you make within a session will automatically reuse the appropriate connection!
 
+Note that connections are only released back to the pool for reuse once all body data has been read; be sure to either set ``prefetch`` to ``True`` or read the ``content`` property of the ``Response`` object.
+
 If you'd like to disable keep-alive, you can simply set the ``keep_alive`` configuration to ``False``::
 
     s = requests.session()
@@ -89,8 +91,8 @@ If you'd like to disable keep-alive, you can simply set the ``keep_alive`` confi
 Asynchronous Requests
 ----------------------
 
-Requests has first-class support for concurrent requests, powered
-by gevent. This allows you to send a bunch of HTTP requests at the same
+Requests has first-class support for concurrent requests, powered by gevent.
+This allows you to send a bunch of HTTP requests at the same time.
 
 First, let's import the async module. Heads up — if you don't have
 `gevent <http://pypi.python.org/pypi/gevent>`_ this will fail::
@@ -122,7 +124,7 @@ will also guarantee execution of the ``response`` hook, described below. ::
 
 .. admonition:: Throttling
 
-    The ``map`` function also takes a ``size`` parameter, that specifies the nubmer of connections to make at a time::
+    The ``map`` function also takes a ``size`` parameter, that specifies the number of connections to make at a time::
 
         async.map(rs, size=5)
 
@@ -229,7 +231,7 @@ Let's pretend that we have a web service that will only respond if the
         def __init__(self, username):
             # setup any auth-related data here
             self.username = username
-        
+
         def __call__(self, r):
             # modify and return the request
             r.headers['X-Pizza'] = self.username

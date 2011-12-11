@@ -300,7 +300,7 @@ establishing OAuth connections. Documentation and examples can be found on the r
 Redirection and History
 -----------------------
 
-Requests will automatically perform location redirection while using impodotent methods.
+Requests will automatically perform location redirection while using idempotent methods.
 
 GitHub redirects all HTTP requests to HTTPS. Let's see what happens::
 
@@ -316,9 +316,9 @@ The :class:`Response.history` list contains a list of the
 :class:`Request` objects that were created in order to complete the request.
 
 If you're using GET, HEAD, or OPTIONS, you can disable redirection
-handling with the ``disable_redirects`` parameter::
+handling with the ``allow_redirects`` parameter::
 
-    >>> r = requests.get('http://github.com')
+    >>> r = requests.get('http://github.com', allow_redirects=False)
     >>> r.status_code
     301
     >>> r.history
@@ -345,7 +345,7 @@ You can tell requests to stop waiting for a response after a given number of sec
 
 .. admonition:: Note
 
-    ``timeout`` only effects the connection process itself, not the downloading of the respone body.
+    ``timeout`` only effects the connection process itself, not the downloading of the response body.
 
 
 Errors and Exceptions
