@@ -13,10 +13,10 @@ class RequestException(Exception):
     request."""
 
 class HTTPError(RequestException):
-    """An HTTP error occured."""
+    """An HTTP error occurred."""
 
 class ConnectionError(RequestException):
-    """A Connection error occured."""
+    """A Connection error occurred."""
 
 class Timeout(RequestException):
     """The request timed out."""
