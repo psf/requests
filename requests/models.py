@@ -441,7 +441,7 @@ class Request(object):
                     headers=self.headers,
                     redirect=False,
                     assert_same_host=False,
-                    preload_content=prefetch,
+                    preload_content=False,
                     decode_content=False,
                     retries=self.config.get('max_retries', 0),
                     timeout=self.timeout,
@@ -470,7 +470,8 @@ class Request(object):
 
             # If prefetch is True, mark content as consumed.
             if prefetch:
-                self.response._content_consumed = True
+                # Save the response.
+                self.response.content
 
             return self.sent
 
