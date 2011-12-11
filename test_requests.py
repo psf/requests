@@ -582,6 +582,14 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get(hah, allow_redirects=False, config=config)
         assert r.content == None
 
+    def test_cached_response(self):
+
+        r1 = requests.get(httpbin('get'), prefetch=False)
+        assert r1.content
+        assert r1.content
+
+        r2 = requests.get(httpbin('get'), prefetch=True)
+        assert r2.content
 
 if __name__ == '__main__':
     unittest.main()
