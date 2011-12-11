@@ -589,6 +589,7 @@ class RequestsTestSuite(unittest.TestCase):
         assert r1.content
 
         r2 = requests.get(httpbin('get'), prefetch=True)
+        assert r2._content
         assert r2.content
 
 if __name__ == '__main__':
