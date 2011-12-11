@@ -11,7 +11,7 @@ Configurations:
 :base_headers: Default HTTP headers.
 :verbose: Stream to write request logging to.
 :timeout: Seconds until request timeout.
-:max_redirects: Maximum njumber of redirects allowed within a request.
+:max_redirects: Maximum number of redirects allowed within a request.
 :decode_unicode: Decode unicode responses automatically?
 :keep_alive: Reuse HTTP Connections?
 :max_retries: The number of times a request should be retried in the event of a connection failure.
