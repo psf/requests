@@ -151,7 +151,7 @@ class Request(object):
 
             if resp:
 
-                # Fallback to None if there's no staus_code, for whatever reason.
+                # Fallback to None if there's no status_code, for whatever reason.
                 response.status_code = getattr(resp, 'status', None)
 
                 # Make headers case-insensitive.
@@ -171,7 +171,7 @@ class Request(object):
                 # Save cookies in Response.
                 response.cookies = cookies
 
-            # Save original resopnse for later.
+            # Save original response for later.
             response.raw = resp
 
             if is_error:

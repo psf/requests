@@ -4,7 +4,7 @@
 requests.utils
 ~~~~~~~~~~~~~~
 
-This module provides utlity functions that are used within Requests
+This module provides utility functions that are used within Requests
 that are also useful for external consumption.
 
 """
@@ -374,7 +374,7 @@ def requote_path(path):
     """Re-quote the given URL path component.
 
     This function passes the given path through an unquote/quote cycle to
-    ensure that it is fully and consistenty quoted.
+    ensure that it is fully and consistently quoted.
     """
     parts = path.split("/")
     parts = (urllib.quote(urllib.unquote(part), safe="") for part in parts)

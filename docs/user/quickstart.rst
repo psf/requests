@@ -300,7 +300,7 @@ establishing OAuth connections. Documentation and examples can be found on the r
 Redirection and History
 -----------------------
 
-Requests will automatically perform location redirection while using impodotent methods.
+Requests will automatically perform location redirection while using idempotent methods.
 
 GitHub redirects all HTTP requests to HTTPS. Let's see what happens::
 
