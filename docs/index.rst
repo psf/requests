@@ -98,13 +98,9 @@ This part of the documentation, which is mostly prose, details the
 Requests ecosystem and community.
 
 .. toctree::
-   :maxdepth: 2
-
-   community/faq
-
-.. toctree::
    :maxdepth: 1
 
+   community/faq
    community/out-there.rst
    community/support
    community/updates
