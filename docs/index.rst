@@ -101,6 +101,10 @@ Requests ecosystem and community.
    :maxdepth: 2
 
    community/faq
+
+.. toctree::
+   :maxdepth: 1
+
    community/out-there.rst
    community/support
    community/updates
@@ -124,7 +128,7 @@ If you want to contribute to the project, this part of the documentation is for
 you.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    dev/internals
    dev/todo
