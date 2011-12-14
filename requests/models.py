@@ -572,6 +572,52 @@ class Response(object):
         return gen
 
 
+    def iter_lines(self, newlines=None, decode_unicode=None):
+        """Iterates over the response data, one line at a time.  This
+        avoids reading the content at once into memory for large
+        responses.
+
+        :param newlines: a collection of bytes to seperate lines with.
+        """
+
+        if newlines is None:
+            newlines = ('\r', '\n', '\r\n')
+
+        if self._content_consumed:
+            raise RuntimeError(
+                'The content for this response was already consumed'
+            )
+
+        def generate():
+            chunk = []
+
+            while 1:
+                c = self.raw.read(1)
+                if not c:
+                    break
+
+                if c in newlines:
+                    yield ''.join(chunk)
+                    chunk = []
+                else:
+                    chunk.append(c)
+
+            self._content_consumed = True
+
+        gen = generate()
+
+        if 'gzip' in self.headers.get('content-encoding', ''):
+            gen = stream_decode_gzip(gen)
+
+        if decode_unicode is None:
+            decode_unicode = self.config.get('decode_unicode')
+
+        if decode_unicode:
+            gen = stream_decode_response_unicode(gen, self)
+
+        return gen
+
+
     @property
     def content(self):
         """Content of the response, in bytes or unicode
