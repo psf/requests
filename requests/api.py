@@ -13,7 +13,6 @@ This module implements the Requests API.
 
 from . import sessions
 
-
 def request(method, url,
     params=None,
     data=None,

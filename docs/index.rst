@@ -98,7 +98,7 @@ This part of the documentation, which is mostly prose, details the
 Requests ecosystem and community.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    community/faq
    community/out-there.rst
@@ -124,7 +124,7 @@ If you want to contribute to the project, this part of the documentation is for
 you.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    dev/internals
    dev/todo

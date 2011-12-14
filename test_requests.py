@@ -428,7 +428,7 @@ class RequestsTestSuite(unittest.TestCase):
             self.assertEquals(r.headers['content-type'], 'application/json')
             self.assertEquals(r.url, service('post?test=foo&test=baz'))
             rbody = json.loads(r.content)
-            self.assertEquals(rbody.get('form'), dict(test2='foobar',test3='foo'))
+            self.assertEquals(rbody.get('form'), dict(test2='foobar',test3=['foo','baz']))
             self.assertEquals(rbody.get('data'), '')
 
 
@@ -589,7 +589,19 @@ class RequestsTestSuite(unittest.TestCase):
         assert r1.content
 
         r2 = requests.get(httpbin('get'), prefetch=True)
+        assert r2._content
         assert r2.content
+
+    def test_iter_lines(self):
+
+        lines = (0, 2, 10, 100)
+
+        for i in lines:
+
+            r = requests.get(httpbin('stream', str(i)), prefetch=False)
+            len_lines = len([l for l in r.iter_lines()])
+
+            self.assertEqual(i, len_lines)
 
 if __name__ == '__main__':
     unittest.main()

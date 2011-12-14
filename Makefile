@@ -1,5 +1,5 @@
 init:
-	pip install -r reqs.txt
+	pip install -r requirements.txt
 
 test:
 	nosetests --with-color test_requests.py
