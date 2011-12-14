@@ -592,5 +592,16 @@ class RequestsTestSuite(unittest.TestCase):
         assert r2._content
         assert r2.content
 
+    def test_iter_lines(self):
+
+        lines = (0, 2, 10, 100)
+
+        for i in lines:
+
+            r = requests.get(httpbin('stream', str(i)), prefetch=False)
+            len_lines = len([l for l in r.iter_lines()])
+
+            self.assertEqual(i, len_lines)
+
 if __name__ == '__main__':
     unittest.main()
