@@ -428,7 +428,7 @@ class RequestsTestSuite(unittest.TestCase):
             self.assertEquals(r.headers['content-type'], 'application/json')
             self.assertEquals(r.url, service('post?test=foo&test=baz'))
             rbody = json.loads(r.content)
-            self.assertEquals(rbody.get('form'), dict(test2='foobar',test3='foo'))
+            self.assertEquals(rbody.get('form'), dict(test2='foobar',test3=['foo','baz']))
             self.assertEquals(rbody.get('data'), '')
 
 
