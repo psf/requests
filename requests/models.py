@@ -409,10 +409,10 @@ class Request(object):
             conn = poolmanager.proxy_from_url(proxy)
             _proxy = urlparse(proxy)
             if '@' in _proxy.netloc:
-			    auth, url = _proxy.netloc.split('@', 1)
-			    self.proxy_auth = HTTPProxyAuth(*auth.split(':', 1))
-			    r = self.proxy_auth(self)
-			    self.__dict__.update(r.__dict__)
+                auth, url = _proxy.netloc.split('@', 1)
+                self.proxy_auth = HTTPProxyAuth(*auth.split(':', 1))
+                r = self.proxy_auth(self)
+                self.__dict__.update(r.__dict__)
         else:
             # Check to see if keep_alive is allowed.
             if self.config.get('keep_alive'):
