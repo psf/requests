@@ -17,7 +17,7 @@ from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
 from .packages import oreos
-from .auth import HTTPBasicAuth
+from .auth import HTTPBasicAuth, HTTPProxyAuth
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
@@ -407,6 +407,12 @@ class Request(object):
 
         if proxy:
             conn = poolmanager.proxy_from_url(proxy)
+            _proxy = urlparse(proxy)
+            if '@' in _proxy.netloc:
+			    auth, url = _proxy.netloc.split('@', 1)
+			    self.proxy_auth = HTTPProxyAuth(*auth.split(':', 1))
+			    r = self.proxy_auth(self)
+			    self.__dict__.update(r.__dict__)
         else:
             # Check to see if keep_alive is allowed.
             if self.config.get('keep_alive'):

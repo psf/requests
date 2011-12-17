@@ -35,6 +35,14 @@ class HTTPBasicAuth(AuthBase):
         return r
 
 
+class HTTPProxyAuth(HTTPBasicAuth):
+    """Attaches HTTP Proxy Authenetication to a given Request object."""
+    def __call__(self, r):
+        auth_s = b64encode('%s:%s' % (self.username, self.password))
+        r.headers['Proxy-Authorization'] = ('Basic %s' % auth_s)
+        return r
+
+
 class HTTPDigestAuth(AuthBase):
     """Attaches HTTP Digest Authentication to the given Request object."""
     def __init__(self, username, password):
