@@ -65,3 +65,4 @@ Patches and Suggestions
 - Idan Gazit
 - Ed Summers
 - Chris Van Horne
+- Christopher Davis
