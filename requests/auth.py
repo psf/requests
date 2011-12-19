@@ -88,8 +88,8 @@ class HTTPDigestAuth(AuthBase):
             p_parsed = urlparse(r.request.url)
             path = p_parsed.path + p_parsed.query
 
-            A1 = "%s:%s:%s" % (self.username, realm, self.password)
-            A2 = "%s:%s" % (r.request.method, path)
+            A1 = '%s:%s:%s' % (self.username, realm, self.password)
+            A2 = '%s:%s' % (r.request.method, path)
 
             if qop == 'auth':
                 if nonce == last_nonce:
