@@ -1,6 +1,13 @@
 History
 -------
 
+0.8.6 (2011-12-18)
+++++++++++++++++++
+
+* Socket timeout fixes.
+* Proxy Authorization support.
+
+
 0.8.5 (2011-12-14)
 ++++++++++++++++++
 

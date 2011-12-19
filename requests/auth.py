@@ -16,6 +16,12 @@ from urlparse import urlparse
 from .utils import randombytes, parse_dict_header
 
 
+
+def _basic_auth_str(username, password):
+    """Returns a Basic Auth string."""
+    return 'Basic %s' % b64encode('%s:%s' % (username, password))
+
+
 class AuthBase(object):
     """Base class that all auth implementations derive from"""
 
@@ -30,8 +36,14 @@ class HTTPBasicAuth(AuthBase):
         self.password = str(password)
 
     def __call__(self, r):
-        auth_s = b64encode('%s:%s' % (self.username, self.password))
-        r.headers['Authorization'] = ('Basic %s' % auth_s)
+        r.headers['Authorization'] = _basic_auth_str(self.username, self.password)
+        return r
+
+
+class HTTPProxyAuth(HTTPBasicAuth):
+    """Attaches HTTP Proxy Authenetication to a given Request object."""
+    def __call__(self, r):
+        r.headers['Proxy-Authorization'] = _basic_auth_str(self.username, self.password)
         return r
 
 
@@ -76,8 +88,8 @@ class HTTPDigestAuth(AuthBase):
             p_parsed = urlparse(r.request.url)
             path = p_parsed.path + p_parsed.query
 
-            A1 = "%s:%s:%s" % (self.username, realm, self.password)
-            A2 = "%s:%s" % (r.request.method, path)
+            A1 = '%s:%s:%s' % (self.username, realm, self.password)
+            A2 = '%s:%s' % (r.request.method, path)
 
             if qop == 'auth':
                 if nonce == last_nonce:

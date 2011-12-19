@@ -210,6 +210,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         if timeout is _Default:
             timeout = self.timeout
 
+        conn.timeout = timeout # This only does anything in Py26+
+
         conn.request(method, url, **httplib_request_kw)
         conn.sock.settimeout(timeout)
         httplib_response = conn.getresponse()
@@ -243,6 +245,13 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
            More commonly, it's appropriate to use a convenience method provided
            by :class:`.RequestMethods`, such as :meth:`.request`.
+
+        .. note::
+
+           `release_conn` will only behave as expected if
+           `preload_content=False` because we want to make
+           `preload_content=False` the default behaviour someday soon without
+           breaking backwards compatibility.
 
         :param method:
             HTTP request method (such as GET, POST, PUT, etc.)
@@ -279,10 +288,12 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         :param release_conn:
             If False, then the urlopen call will not release the connection
-            back into the pool once a response is received. This is useful if
-            you're not preloading the response's content immediately. You will
-            need to call ``r.release_conn()`` on the response ``r`` to return
-            the connection back into the pool. If None, it takes the value of
+            back into the pool once a response is received (but will release if
+            you read the entire contents of the response such as when
+            `preload_content=True`). This is useful if you're not preloading
+            the response's content immediately. You will need to call
+            ``r.release_conn()`` on the response ``r`` to return the connection
+            back into the pool. If None, it takes the value of
             ``response_kw.get('preload_content', True)``.
 
         :param \**response_kw:
@@ -294,6 +305,9 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         if retries < 0:
             raise MaxRetryError("Max retries exceeded for url: %s" % url)
+
+        if timeout is _Default:
+            timeout = self.timeout
 
         if release_conn is None:
             release_conn = response_kw.get('preload_content', True)
@@ -336,10 +350,15 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             #     ``response.release_conn()`` is called (implicitly by
             #     ``response.read()``)
 
-        except (SocketTimeout, Empty), e:
-            # Timed out either by socket or queue
-            raise TimeoutError("Request timed out after %s seconds" %
-                               self.timeout)
+        except (Empty), e:
+            # Timed out by queue
+            raise TimeoutError("Request timed out. (pool_timeout=%s)" %
+                               pool_timeout)
+
+        except (SocketTimeout), e:
+            # Timed out by socket
+            raise TimeoutError("Request timed out. (timeout=%s)" %
+                               timeout)
 
         except (BaseSSLError), e:
             # SSL certificate error
@@ -488,10 +507,12 @@ def get_host(url):
     # simplified for our needs.
     port = None
     scheme = 'http'
-    if '//' in url:
+    if '://' in url:
         scheme, url = url.split('://', 1)
     if '/' in url:
         url, _path = url.split('/', 1)
+    if '@' in url:
+        _auth, url = url.split('@', 1)
     if ':' in url:
         url, port = url.split(':', 1)
         port = int(port)

@@ -13,4 +13,13 @@ stats:
 site:
 	cd docs; make dirhtml
 
+pyc:
+	find . -name "*.pyc" -exec rm '{}' ';'
+
+deps:
+	rm -fr requests/packages/urllib3
+	git clone https://github.com/shazow/urllib3.git
+	mv urllib3/urllib3 requests/packages/
+	rm -fr urllib3
+
 docs: site
