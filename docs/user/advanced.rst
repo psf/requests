@@ -243,6 +243,27 @@ Then, we can make a request using our Pizza Auth::
     <Response [200]>
 
 
+Streaming Requests
+------------------
+
+With ``requests.Response.iter_lines()`` you can easily iterate over streaming 
+APIs such as the `Twitter Streaming API <https://dev.twitter.com/docs/streaming-api>`_.
+
+To use the Twitter Streaming API to track the keyword "requests":
+
+::
+
+    import requests
+    import json
+
+    r = requests.post('https://stream.twitter.com/1/statuses/filter.json',
+        data={'track': 'requests'}, auth=('username', 'password'))
+
+    for line in r.iter_lines():
+	    if line: # filter out keep-alive new lines
+		    print json.loads(line)
+
+
 Verbose Logging
 ---------------
 
