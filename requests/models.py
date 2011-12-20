@@ -597,7 +597,7 @@ class Response(object):
         def generate():
             chunk = []
 
-            while 1:
+            while True:
                 c = self.raw.read(1)
                 if not c:
                     break
@@ -607,6 +607,11 @@ class Response(object):
                     chunk = []
                 else:
                     chunk.append(c)
+
+            # Yield the remainder, in case the response
+            # did not terminate with a newline
+            if chunk:
+                yield ''.join(chunk)
 
             self._content_consumed = True
 
