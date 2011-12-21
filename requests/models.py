@@ -420,6 +420,15 @@ class Request(object):
             else:
                 conn = connectionpool.connection_from_url(url)
 
+        # Set any SSL-related options on the connection
+        if conn.scheme == 'https':
+            if self.config.get('verify_cert'):
+                conn.cert_reqs = 'CERT_REQUIRED'
+                conn.ca_certs = self.config.get('ca_certs')
+
+            conn.cert_file = self.config.get('client_cert_file')
+            conn.key_file = self.config.get('client_key_file')
+
         if not self.sent or anyway:
 
             if self.cookies:
@@ -461,7 +470,11 @@ class Request(object):
                 else:
                     r = None
 
-            except (_SSLError, _HTTPError), e:
+            except _SSLError, e:
+                if not self.config.get('safe_mode', False):
+                    raise ConnectionError(e)
+
+            except (_HTTPError), e:
                 if not self.config.get('safe_mode', False):
                     raise Timeout('Request timed out.')
 

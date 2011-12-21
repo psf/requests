@@ -19,6 +19,14 @@ Configurations:
 :pool_maxsize: The maximium size of an HTTP connection pool.
 :pool_connections: The number of active HTTP connection pools to use.
 
+HTTPS configuration options:
+
+:verify_cert: Whether to verify server SSL certificates (default: ``False``)
+:ca_certs: A path to a concatenated certificate authority file. Required if
+	``verify_cert`` is True.
+:client_cert_file: Optional client-side certificate file.
+:client_key_file: Optional client-side private key file.
+
 """
 
 from . import __version__
@@ -40,3 +48,7 @@ defaults['pool_maxsize'] = 10
 defaults['max_retries'] = 0
 defaults['safe_mode'] = False
 defaults['keep_alive'] = True
+defaults['verify_cert'] = False
+defaults['ca_certs'] = None
+defaults['client_cert_file'] = None
+defaults['client_key_file'] = None
