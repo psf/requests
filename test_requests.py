@@ -619,17 +619,6 @@ class RequestsTestSuite(unittest.TestCase):
         lines = '\n'.join(r.iter_lines())
         self.assertEqual(lines, quote)
 
-    def test_timeout(self):
-
-        # When not in safe mode, should raise Timeout exception
-        with self.assertRaises(requests.exceptions.Timeout):
-            r = requests.get(httpbin('stream', '1000'), timeout=0.0001)
-
-        # In safe mode, should return a blank response
-        r = requests.get(httpbin('stream', '1000'), timeout=0.0001,
-                config=dict(safe_mode=True))
-        self.assertIsNone(r.content)
-
 
 if __name__ == '__main__':
     unittest.main()
