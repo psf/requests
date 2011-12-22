@@ -597,7 +597,7 @@ class Response(object):
         def generate():
             chunk = []
 
-            while True:
+            while 1:
                 c = self.raw.read(1)
                 if not c:
                     break
