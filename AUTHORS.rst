@@ -67,3 +67,4 @@ Patches and Suggestions
 - Chris Van Horne
 - Christopher Davis
 - Ori Livneh
+- Jason Emerick
