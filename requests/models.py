@@ -438,6 +438,10 @@ class Request(object):
                     # Attach Cookie header to request.
                     self.headers['Cookie'] = cookie_header
 
+            # If the request fails but exceptions are suppressed,
+            # we'll build a blank response.
+            r = None
+
             try:
                 # Send the request.
                 r = conn.urlopen(
@@ -458,8 +462,6 @@ class Request(object):
             except MaxRetryError, e:
                 if not self.config.get('safe_mode', False):
                     raise ConnectionError(e)
-                else:
-                    r = None
 
             except (_SSLError, _HTTPError), e:
                 if not self.config.get('safe_mode', False):
