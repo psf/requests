@@ -619,18 +619,19 @@ class RequestsTestSuite(unittest.TestCase):
         lines = '\n'.join(r.iter_lines())
         self.assertEqual(lines, quote)
 
-    def test_null_response(self):
+    def test_safe_mode(self):
+
+        safe = requests.session(config=dict(safe_mode=True))
 
         # Safe mode creates empty responses for failed requests.
-
         # Iterating on these responses should produce empty sequences
-        r = requests.get('http://_/', config=dict(safe_mode=True))
+        r = safe.get('http://_/')
         self.assertEquals(list(r.iter_lines()), [])
+        self.assertIsInstance(r.error, requests.exceptions.ConnectionError)
 
-        r = requests.get('http://_/', config=dict(safe_mode=True))
+        r = safe.get('http://_/')
         self.assertEquals(list(r.iter_content()), [])
-
-    def test_timeout(self):
+        self.assertIsInstance(r.error, requests.exceptions.ConnectionError)
 
         # When not in safe mode, should raise Timeout exception
         with self.assertRaises(requests.exceptions.Timeout):
@@ -640,6 +641,7 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get(httpbin('stream', '1000'), timeout=0.0001,
                 config=dict(safe_mode=True))
         self.assertIsNone(r.content)
+        self.assertIsInstance(r.error, requests.exceptions.Timeout)
 
 
 if __name__ == '__main__':
