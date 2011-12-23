@@ -18,13 +18,15 @@ from .structures import CaseInsensitiveDict
 from .status_codes import codes
 from .packages import oreos
 from .auth import HTTPBasicAuth, HTTPProxyAuth
+from .packages.urllib3.response import HTTPResponse
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .packages.urllib3 import connectionpool, poolmanager
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .exceptions import (
-    Timeout, URLRequired, TooManyRedirects, HTTPError, ConnectionError)
+    ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
+    URLRequired)
 from .utils import (
     get_encoding_from_headers, stream_decode_response_unicode,
     decode_gzip, stream_decode_gzip, guess_filename, requote_path)
@@ -170,6 +172,9 @@ class Request(object):
 
                 # Save cookies in Response.
                 response.cookies = cookies
+
+                # No exceptions were harmed in the making of this request.
+                response.error = getattr(resp, 'error', None)
 
             # Save original response for later.
             response.raw = resp
@@ -438,34 +443,40 @@ class Request(object):
                     # Attach Cookie header to request.
                     self.headers['Cookie'] = cookie_header
 
-            # If the request fails but exceptions are suppressed,
-            # we'll build a blank response.
-            r = None
-
             try:
-                # Send the request.
-                r = conn.urlopen(
-                    method=self.method,
-                    url=self.path_url,
-                    body=body,
-                    headers=self.headers,
-                    redirect=False,
-                    assert_same_host=False,
-                    preload_content=False,
-                    decode_content=False,
-                    retries=self.config.get('max_retries', 0),
-                    timeout=self.timeout,
-                )
-                self.sent = True
+                # The inner try .. except re-raises certain exceptions as
+                # internal exception types; the outer suppresses exceptions
+                # when safe mode is set.
+                try:
+                    # Send the request.
+                    r = conn.urlopen(
+                        method=self.method,
+                        url=self.path_url,
+                        body=body,
+                        headers=self.headers,
+                        redirect=False,
+                        assert_same_host=False,
+                        preload_content=False,
+                        decode_content=False,
+                        retries=self.config.get('max_retries', 0),
+                        timeout=self.timeout,
+                    )
+                    self.sent = True
 
-
-            except MaxRetryError, e:
-                if not self.config.get('safe_mode', False):
+                except MaxRetryError, e:
                     raise ConnectionError(e)
 
-            except (_SSLError, _HTTPError), e:
-                if not self.config.get('safe_mode', False):
+                except (_SSLError, _HTTPError), e:
                     raise Timeout('Request timed out.')
+
+            except RequestException, e:
+                if self.config.get('safe_mode', False):
+                    # In safe mode, catch the exception and attach it to 
+                    # a blank urllib3.HTTPResponse object.
+                    r = HTTPResponse()
+                    r.error = e
+                else:
+                    raise
 
             self._build_response(r)
 
@@ -559,13 +570,11 @@ class Response(object):
             )
 
         def generate():
-            # self.raw can be None if we're in safe_mode and the request failed
-            if self.raw is not None:
-                while 1:
-                    chunk = self.raw.read(chunk_size)
-                    if not chunk:
-                        break
-                    yield chunk
+            while 1:
+                chunk = self.raw.read(chunk_size)
+                if not chunk:
+                    break
+                yield chunk
             self._content_consumed = True
 
         gen = generate()
