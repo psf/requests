@@ -619,6 +619,17 @@ class RequestsTestSuite(unittest.TestCase):
         lines = '\n'.join(r.iter_lines())
         self.assertEqual(lines, quote)
 
+    def test_null_response(self):
+
+        # Safe mode creates empty responses for failed requests.
+
+        # Iterating on these responses should produce empty sequences
+        r = requests.get('http://_/', config=dict(safe_mode=True))
+        self.assertEquals(list(r.iter_lines()), [])
+
+        r = requests.get('http://_/', config=dict(safe_mode=True))
+        self.assertEquals(list(r.iter_content()), [])
+
     def test_timeout(self):
 
         # When not in safe mode, should raise Timeout exception
