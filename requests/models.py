@@ -559,11 +559,13 @@ class Response(object):
             )
 
         def generate():
-            while 1:
-                chunk = self.raw.read(chunk_size)
-                if not chunk:
-                    break
-                yield chunk
+            # self.raw can be None if we're in safe_mode and the request failed
+            if self.raw is not None:
+                while 1:
+                    chunk = self.raw.read(chunk_size)
+                    if not chunk:
+                        break
+                    yield chunk
             self._content_consumed = True
 
         gen = generate()
@@ -597,23 +599,24 @@ class Response(object):
             )
 
         def generate():
-            chunk = []
+            if self.raw is not None:
+                chunk = []
 
-            while 1:
-                c = self.raw.read(1)
-                if not c:
-                    break
+                while 1:
+                    c = self.raw.read(1)
+                    if not c:
+                        break
 
-                if c in newlines:
+                    if c in newlines:
+                        yield ''.join(chunk)
+                        chunk = []
+                    else:
+                        chunk.append(c)
+
+                # Yield the remainder, in case the response
+                # did not terminate with a newline
+                if chunk:
                     yield ''.join(chunk)
-                    chunk = []
-                else:
-                    chunk.append(c)
-
-            # Yield the remainder, in case the response
-            # did not terminate with a newline
-            if chunk:
-                yield ''.join(chunk)
 
             self._content_consumed = True
 
