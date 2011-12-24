@@ -1,12 +1,19 @@
 History
 -------
 
+0.8.7 (2011-12-24)
+++++++++++++++++++
+
+* iter_lines last-line truncation fix
+* Force safe_mode for async requests
+* Handle safe_mode exceptions more consistently
+* Fix iteration on null responses in safe_mode
+
 0.8.6 (2011-12-18)
 ++++++++++++++++++
 
 * Socket timeout fixes.
 * Proxy Authorization support.
-
 
 0.8.5 (2011-12-14)
 ++++++++++++++++++

@@ -18,13 +18,15 @@ from .structures import CaseInsensitiveDict
 from .status_codes import codes
 from .packages import oreos
 from .auth import HTTPBasicAuth, HTTPProxyAuth
+from .packages.urllib3.response import HTTPResponse
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .packages.urllib3 import connectionpool, poolmanager
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .exceptions import (
-    Timeout, URLRequired, TooManyRedirects, HTTPError, ConnectionError)
+    ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
+    URLRequired)
 from .utils import (
     get_encoding_from_headers, stream_decode_response_unicode,
     decode_gzip, stream_decode_gzip, guess_filename, requote_path)
@@ -170,6 +172,9 @@ class Request(object):
 
                 # Save cookies in Response.
                 response.cookies = cookies
+
+                # No exceptions were harmed in the making of this request.
+                response.error = getattr(resp, 'error', None)
 
             # Save original response for later.
             response.raw = resp
@@ -439,31 +444,39 @@ class Request(object):
                     self.headers['Cookie'] = cookie_header
 
             try:
-                # Send the request.
-                r = conn.urlopen(
-                    method=self.method,
-                    url=self.path_url,
-                    body=body,
-                    headers=self.headers,
-                    redirect=False,
-                    assert_same_host=False,
-                    preload_content=False,
-                    decode_content=False,
-                    retries=self.config.get('max_retries', 0),
-                    timeout=self.timeout,
-                )
-                self.sent = True
+                # The inner try .. except re-raises certain exceptions as
+                # internal exception types; the outer suppresses exceptions
+                # when safe mode is set.
+                try:
+                    # Send the request.
+                    r = conn.urlopen(
+                        method=self.method,
+                        url=self.path_url,
+                        body=body,
+                        headers=self.headers,
+                        redirect=False,
+                        assert_same_host=False,
+                        preload_content=False,
+                        decode_content=False,
+                        retries=self.config.get('max_retries', 0),
+                        timeout=self.timeout,
+                    )
+                    self.sent = True
 
-
-            except MaxRetryError, e:
-                if not self.config.get('safe_mode', False):
+                except MaxRetryError, e:
                     raise ConnectionError(e)
-                else:
-                    r = None
 
-            except (_SSLError, _HTTPError), e:
-                if not self.config.get('safe_mode', False):
+                except (_SSLError, _HTTPError), e:
                     raise Timeout('Request timed out.')
+
+            except RequestException, e:
+                if self.config.get('safe_mode', False):
+                    # In safe mode, catch the exception and attach it to 
+                    # a blank urllib3.HTTPResponse object.
+                    r = HTTPResponse()
+                    r.error = e
+                else:
+                    raise
 
             self._build_response(r)
 
@@ -595,18 +608,24 @@ class Response(object):
             )
 
         def generate():
-            chunk = []
+            if self.raw is not None:
+                chunk = []
 
-            while 1:
-                c = self.raw.read(1)
-                if not c:
-                    break
+                while 1:
+                    c = self.raw.read(1)
+                    if not c:
+                        break
 
-                if c in newlines:
+                    if c in newlines:
+                        yield ''.join(chunk)
+                        chunk = []
+                    else:
+                        chunk.append(c)
+
+                # Yield the remainder, in case the response
+                # did not terminate with a newline
+                if chunk:
                     yield ''.join(chunk)
-                    chunk = []
-                else:
-                    chunk.append(c)
 
             self._content_consumed = True
 

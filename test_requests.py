@@ -3,6 +3,7 @@
 
 from __future__ import with_statement
 
+import StringIO
 import time
 import os
 import unittest
@@ -602,6 +603,46 @@ class RequestsTestSuite(unittest.TestCase):
             len_lines = len([l for l in r.iter_lines()])
 
             self.assertEqual(i, len_lines)
+
+        # Test 'dangling' fragment in responses that do not terminate in
+        # a newline.
+        quote = (
+            '''Why will he not upon our fair request\n'''
+            '''Untent his person and share the air with us?'''
+        )
+
+        # Make a request and monkey-patch its contents
+        r = requests.get(httpbin('get'))
+        r.raw = StringIO.StringIO(quote)
+
+        # Make sure iter_lines doesn't chop the trailing bit
+        lines = '\n'.join(r.iter_lines())
+        self.assertEqual(lines, quote)
+
+    def test_safe_mode(self):
+
+        safe = requests.session(config=dict(safe_mode=True))
+
+        # Safe mode creates empty responses for failed requests.
+        # Iterating on these responses should produce empty sequences
+        r = safe.get('http://_/')
+        self.assertEquals(list(r.iter_lines()), [])
+        self.assertIsInstance(r.error, requests.exceptions.ConnectionError)
+
+        r = safe.get('http://_/')
+        self.assertEquals(list(r.iter_content()), [])
+        self.assertIsInstance(r.error, requests.exceptions.ConnectionError)
+
+        # When not in safe mode, should raise Timeout exception
+        with self.assertRaises(requests.exceptions.Timeout):
+            r = requests.get(httpbin('stream', '1000'), timeout=0.0001)
+
+        # In safe mode, should return a blank response
+        r = requests.get(httpbin('stream', '1000'), timeout=0.0001,
+                config=dict(safe_mode=True))
+        self.assertIsNone(r.content)
+        self.assertIsInstance(r.error, requests.exceptions.Timeout)
+
 
 if __name__ == '__main__':
     unittest.main()
