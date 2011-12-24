@@ -36,6 +36,11 @@ def patched(f):
         kwargs['return_response'] = False
         kwargs['prefetch'] = True
 
+        config = kwargs.get('config', {})
+        config.update(safe_mode=True)
+
+        kwargs['config'] = config
+
         return f(*args, **kwargs)
 
     return wrapped
