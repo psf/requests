@@ -64,7 +64,7 @@ class Session(object):
         hooks=None,
         params=None,
         config=None,
-        verify=None):
+        verify=True):
 
         self.headers = headers or {}
         self.cookies = cookies or {}
