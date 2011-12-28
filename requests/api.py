@@ -33,7 +33,7 @@ def request(method, url, **kwargs):
     :param config: (optional) A configuration dictionary.
     """
 
-    s = session or sessions.session()
+    s = kwargs.get('session') or sessions.session()
     return s.request(method=method, url=url, **kwargs)
 
 
