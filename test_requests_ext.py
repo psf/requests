@@ -28,11 +28,11 @@ class RequestsTestSuite(unittest.TestCase):
     def test_ssl_hostname_not_ok(self):
         requests.get('https://kennethreitz.com', verify=False)
 
-        self.assertRaises(requests.exceptions.SSLError, requests.get, 'https://kennethreitz.com', verify=True)
+        self.assertRaises(requests.exceptions.SSLError, requests.get, 'https://kennethreitz.com')
 
     def test_ssl_hostname_session_not_ok(self):
 
-        s = requests.session(verify=True)
+        s = requests.session()
 
         s.get('https://kennethreitz.com', verify=False)
 
