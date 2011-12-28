@@ -21,7 +21,7 @@ if sys.argv[-1] == 'test':
     sys.exit()
 
 required = [
-    'certifi>=0.0.1'
+    'certifi>=0.0.2'
 ]
 
 if sys.version_info[:2] < (2,6):
