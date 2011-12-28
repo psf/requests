@@ -145,7 +145,10 @@ class Session(object):
         headers = {} if headers is None else headers
         params = {} if params is None else params
         hooks = {} if hooks is None else hooks
-        verify = verify or self.verify
+
+        if verify is None:
+            verify = self.verify
+
         # use session's hooks as defaults
         for key, cb in self.hooks.iteritems():
             hooks.setdefault(key, cb)
