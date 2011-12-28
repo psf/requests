@@ -18,6 +18,9 @@ class HTTPError(RequestException):
 class ConnectionError(RequestException):
     """A Connection error occurred."""
 
+class SSLError(ConnectionError):
+    """An SSL error occurred."""
+
 class Timeout(RequestException):
     """The request timed out."""
 
