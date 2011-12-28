@@ -133,7 +133,7 @@ class Session(object):
         :param return_response: (optional) If False, an un-sent Request object will returned.
         :param config: (optional) A configuration dictionary.
         :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
-        :param prefetch: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
+        :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
         """
 
         method = str(method).upper()

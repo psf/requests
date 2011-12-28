@@ -34,9 +34,10 @@ all the hard work and crazy hacks for you.
 Features
 --------
 
+- Browser standard SSL verification.
 - Extremely simple HEAD, GET, POST, PUT, PATCH, DELETE Requests.
 - Gevent support for Asyncronous Requests.
-- Sessions with cookie persistience.
+- Sessions with cookie persistence.
 - Basic, Digest, and Custom Authentication support.
 - Automatic form-encoding of dictionaries
 - A simple dictionary interface for request/response cookies.

@@ -65,14 +65,13 @@ Requests is ready for today's web.
 - International Domains and URLs
 - Keep-Alive & Connection Pooling
 - Sessions with Cookie Persistence
+- Browser-style SSL Verification
 - Basic/Digest Authentication
 - Elegant Key/Value Cookies
 - Automatic Decompression
 - Unicode Response Bodies
 - Multipart File Uploads
 - Connection Timeouts
-- Zero Dependencies
-
 
 
 User Guide

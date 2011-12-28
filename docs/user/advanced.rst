@@ -45,9 +45,24 @@ Any dictionaries that you pass to a request method will be merged with the sessi
 
 All values that are contained within a session are directly available to you. See the :ref:`Session API Docs <sessionapi>` to learn more.
 
+SSL Cert Verification
+---------------------
+
+Requests can verify SSL certificates for HTTPS requests, just like a web browser. To check a host's SSL certificate, you can use the ``verify`` argument::
+
+    >>> requests.get('https://kennethreitz.com', verify=True)
+    requests.exceptions.SSLError: hostname 'kennethreitz.com' doesn't match either of '*.herokuapp.com', 'herokuapp.com'
+
+I don't have SSL setup on this domain, so it fails. Excellent. I do hate it setup for httpbin.org though::
+
+    >>> requests.get('https://httpbin.org', verify=True)
+    <Response [200]>
+
+You can also pass ``verify`` the path to a CA_BUNDLE file for private certs. You can also set the ``REQUESTS_CA_BUNDLE`` environment variable.
+
 
 Body Content Workflow
-----------------------
+---------------------
 
 By default, when you make a request, the body of the response isn't downloaded immediately. The response headers are downloaded when you make a request, but the content isn't downloaded until you access the :class:`Response.content` attribute.
 
@@ -246,7 +261,7 @@ Then, we can make a request using our Pizza Auth::
 Streaming Requests
 ------------------
 
-With ``requests.Response.iter_lines()`` you can easily iterate over streaming 
+With ``requests.Response.iter_lines()`` you can easily iterate over streaming
 APIs such as the `Twitter Streaming API <https://dev.twitter.com/docs/streaming-api>`_.
 
 To use the Twitter Streaming API to track the keyword "requests":

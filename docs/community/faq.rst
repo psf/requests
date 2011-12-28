@@ -81,3 +81,9 @@ Proxy Support?
 
 You bet!
 
+
+SSL Verification?
+-----------------
+
+Absolutely.
+

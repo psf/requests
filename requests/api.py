@@ -31,6 +31,7 @@ def request(method, url, **kwargs):
     :param return_response: (optional) If False, an un-sent Request object will returned.
     :param session: (optional) A :class:`Session` object to be used for the request.
     :param config: (optional) A configuration dictionary.
+    :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
     """
 
     s = kwargs.get('session') or sessions.session()
