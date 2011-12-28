@@ -128,6 +128,7 @@ class Request(object):
         else:
             headers = CaseInsensitiveDict()
 
+        # Add configured base headers.
         for (k, v) in self.config.get('base_headers', {}).items():
             if k not in headers:
                 headers[k] = v
