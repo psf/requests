@@ -40,6 +40,7 @@ setup(
         'requests',
         'requests.packages',
         'requests.packages.urllib3',
+        'requests.packages.urllib3.packages.ssl_match_hostname',
         'requests.packages.oreos'
     ],
     package_data={'': ['LICENSE', 'NOTICE']},
