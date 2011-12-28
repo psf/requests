@@ -20,7 +20,9 @@ if sys.argv[-1] == 'test':
     os.system('python test_requests.py')
     sys.exit()
 
-required = []
+required = [
+    'certifi>=0.0.1'
+]
 
 if sys.version_info[:2] < (2,6):
     required.append('simplejson')
