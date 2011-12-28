@@ -7,6 +7,7 @@ requests.models
 This module contains the primary objects that power Requests.
 """
 
+import os
 import urllib
 import zlib
 
@@ -26,7 +27,7 @@ from .packages.urllib3 import connectionpool, poolmanager
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .exceptions import (
     ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
-    URLRequired)
+    URLRequired, SSLError)
 from .utils import (
     get_encoding_from_headers, stream_decode_response_unicode,
     decode_gzip, stream_decode_gzip, guess_filename, requote_path)
@@ -56,7 +57,8 @@ class Request(object):
         proxies=None,
         hooks=None,
         config=None,
-        _poolmanager=None):
+        _poolmanager=None,
+        verify=None):
 
         #: Float describes the timeout of the request.
         #  (Use socket.setdefaulttimeout() as fallback)
@@ -117,6 +119,9 @@ class Request(object):
 
         #: Session.
         self.session = None
+
+        #: SSL Verification.
+        self.verify = verify
 
         if headers:
             headers = CaseInsensitiveDict(self.headers)
@@ -242,6 +247,7 @@ class Request(object):
                     timeout=self.timeout,
                     _poolmanager=self._poolmanager,
                     proxies = self.proxies,
+                    verify = self.verify
                 )
 
                 request.send()
@@ -425,6 +431,30 @@ class Request(object):
             else:
                 conn = connectionpool.connection_from_url(url)
 
+        if url.startswith('https') and self.verify:
+
+            cert_loc = None
+
+            # Allow self-specified cert location.
+            if self.verify is not True:
+                cert_loc = self.verify
+
+
+            # Look for configuration.
+            if not cert_loc:
+                cert_loc = os.environ.get('REQUESTS_CA_BUNDLE')
+
+            # Curl compatiblity.
+            if not cert_loc:
+                cert_loc = os.environ.get('CURL_CA_BUNDLE')
+
+            # Use the awesome certifi list.
+            if not cert_loc:
+                cert_loc = __import__('certifi').where()
+
+            conn.cert_reqs = 'CERT_REQUIRED'
+            conn.ca_certs = cert_loc
+
         if not self.sent or anyway:
 
             if self.cookies:
@@ -467,11 +497,14 @@ class Request(object):
                     raise ConnectionError(e)
 
                 except (_SSLError, _HTTPError), e:
+                    if self.verify and isinstance(e, _SSLError):
+                        raise SSLError(e)
+
                     raise Timeout('Request timed out.')
 
             except RequestException, e:
                 if self.config.get('safe_mode', False):
-                    # In safe mode, catch the exception and attach it to 
+                    # In safe mode, catch the exception and attach it to
                     # a blank urllib3.HTTPResponse object.
                     r = HTTPResponse()
                     r.error = e
