@@ -1,6 +1,14 @@
 History
 -------
 
+0.8.8 (2011-12-28)
+++++++++++++++++++
+
+* SSL CERT VERIFICATION!
+* Release of Cerifi: Mozilla's cert list.
+* New 'verify' argument for SSL requests.
+* Urllib3 update.
+
 0.8.7 (2011-12-24)
 ++++++++++++++++++
 
