@@ -63,7 +63,8 @@ class Session(object):
         proxies=None,
         hooks=None,
         params=None,
-        config=None):
+        config=None,
+        verify=None):
 
         self.headers = headers or {}
         self.cookies = cookies or {}
@@ -73,6 +74,7 @@ class Session(object):
         self.hooks = hooks or {}
         self.params = params or {}
         self.config = config or {}
+        self.verify = verify
 
         for (k, v) in defaults.items():
             self.config.setdefault(k, v)
@@ -111,7 +113,8 @@ class Session(object):
         hooks=None,
         return_response=True,
         config=None,
-        prefetch=False):
+        prefetch=False,
+        verify=None):
 
         """Constructs and sends a :class:`Request <Request>`.
         Returns :class:`Response <Response>` object.
@@ -130,6 +133,7 @@ class Session(object):
         :param return_response: (optional) If False, an un-sent Request object will returned.
         :param config: (optional) A configuration dictionary.
         :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
+        :param prefetch: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
         """
 
         method = str(method).upper()
@@ -141,6 +145,7 @@ class Session(object):
         headers = {} if headers is None else headers
         params = {} if params is None else params
         hooks = {} if hooks is None else hooks
+        verify = verify or self.verify
         # use session's hooks as defaults
         for key, cb in self.hooks.iteritems():
             hooks.setdefault(key, cb)
@@ -164,6 +169,7 @@ class Session(object):
             allow_redirects=allow_redirects,
             proxies=proxies,
             config=config,
+            verify=verify,
             _poolmanager=self.poolmanager
         )
 
