@@ -53,7 +53,7 @@ Requests can verify SSL certificates for HTTPS requests, just like a web browser
     >>> requests.get('https://kennethreitz.com', verify=True)
     requests.exceptions.SSLError: hostname 'kennethreitz.com' doesn't match either of '*.herokuapp.com', 'herokuapp.com'
 
-I don't have SSL setup on this domain, so it fails. Excellent. I do hate it setup for httpbin.org though::
+I don't have SSL setup on this domain, so it fails. Excellent. I do have certs for httpbin.org though::
 
     >>> requests.get('https://httpbin.org', verify=True)
     <Response [200]>
