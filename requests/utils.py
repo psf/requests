@@ -370,6 +370,21 @@ def stream_decode_gzip(iterator):
         pass
 
 
+def stream_decode_deflate(iterator):
+    """Stream decodes a deflate-encoded iterator"""
+    try:
+        dec = zlib.decompressobj(-zlib.MAX_WBITS)
+        for chunk in iterator:
+            rv = dec.decompress(chunk)
+            if rv:
+                yield rv
+        buf = dec.decompress('')
+        rv = buf + dec.flush()
+        if rv:
+            yield rv
+    except zlib.error:
+        pass
+
 def requote_path(path):
     """Re-quote the given URL path component.
 

@@ -29,8 +29,8 @@ from .exceptions import (
     ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
     URLRequired, SSLError)
 from .utils import (
-    get_encoding_from_headers, stream_decode_response_unicode,
-    decode_gzip, stream_decode_gzip, guess_filename, requote_path)
+    get_encoding_from_headers, stream_decode_response_unicode, decode_gzip,
+    stream_decode_gzip, stream_decode_deflate, guess_filename, requote_path)
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
@@ -615,6 +615,8 @@ class Response(object):
 
         if 'gzip' in self.headers.get('content-encoding', ''):
             gen = stream_decode_gzip(gen)
+        elif 'deflate' in self.headers.get('content-encoding', ''):
+            gen = stream_decode_deflate(gen)
 
         if decode_unicode is None:
             decode_unicode = self.config.get('decode_unicode')
@@ -636,45 +638,22 @@ class Response(object):
         if newlines is None:
             newlines = ('\r', '\n', '\r\n')
 
-        if self._content_consumed:
-            raise RuntimeError(
-                'The content for this response was already consumed'
-            )
+        chunk = []
 
-        def generate():
-            if self.raw is not None:
+        for c in self.iter_content(1, decode_unicode=decode_unicode):
+            if not c:
+                break
+
+            if c in newlines:
+                yield ''.join(chunk)
                 chunk = []
+            else:
+                chunk.append(c)
 
-                while 1:
-                    c = self.raw.read(1)
-                    if not c:
-                        break
-
-                    if c in newlines:
-                        yield ''.join(chunk)
-                        chunk = []
-                    else:
-                        chunk.append(c)
-
-                # Yield the remainder, in case the response
-                # did not terminate with a newline
-                if chunk:
-                    yield ''.join(chunk)
-
-            self._content_consumed = True
-
-        gen = generate()
-
-        if 'gzip' in self.headers.get('content-encoding', ''):
-            gen = stream_decode_gzip(gen)
-
-        if decode_unicode is None:
-            decode_unicode = self.config.get('decode_unicode')
-
-        if decode_unicode:
-            gen = stream_decode_response_unicode(gen, self)
-
-        return gen
+        # Yield the remainder, in case the response
+        # did not terminate with a newline
+        if chunk:
+            yield ''.join(chunk)
 
 
     @property
