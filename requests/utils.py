@@ -354,36 +354,38 @@ def decode_gzip(content):
     return zlib.decompress(content, 16 + zlib.MAX_WBITS)
 
 
-def stream_decode_gzip(iterator):
-    """Stream decodes a gzip-encoded iterator"""
+def stream_decompress(iterator, mode='gzip'):
+    """
+    Stream decodes an iterator over compressed data
+
+    :param iterator: An iterator over compressed data
+    :param mode: 'gzip' or 'deflate'
+    :return: An iterator over decompressed data
+    """
+
+    if mode not in ['gzip', 'deflate']:
+        raise ValueError('stream_decompress mode must be gzip or deflate')
+
+    zlib_mode = 16 + zlib.MAX_WBITS if mode == 'gzip' else -zlib.MAX_WBITS
+    dec = zlib.decompressobj(zlib_mode)
     try:
-        dec = zlib.decompressobj(16 + zlib.MAX_WBITS)
         for chunk in iterator:
             rv = dec.decompress(chunk)
             if rv:
                 yield rv
-        buf = dec.decompress('')
-        rv = buf + dec.flush()
-        if rv:
-            yield rv
     except zlib.error:
-        pass
-
-
-def stream_decode_deflate(iterator):
-    """Stream decodes a deflate-encoded iterator"""
-    try:
-        dec = zlib.decompressobj(-zlib.MAX_WBITS)
+        # If there was an error decompressing, just return the raw chunk
+        yield chunk
+        # Continue to return the rest of the raw data
         for chunk in iterator:
-            rv = dec.decompress(chunk)
-            if rv:
-                yield rv
+            yield chunk
+    else:
+        # Make sure everything has been returned from the decompression object
         buf = dec.decompress('')
         rv = buf + dec.flush()
         if rv:
             yield rv
-    except zlib.error:
-        pass
+
 
 def requote_path(path):
     """Re-quote the given URL path component.

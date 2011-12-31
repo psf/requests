@@ -29,8 +29,8 @@ from .exceptions import (
     ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
     URLRequired, SSLError)
 from .utils import (
-    get_encoding_from_headers, stream_decode_response_unicode, decode_gzip,
-    stream_decode_gzip, stream_decode_deflate, guess_filename, requote_path)
+    get_encoding_from_headers, stream_decode_response_unicode,
+    stream_decompress, guess_filename, requote_path)
 
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
@@ -488,7 +488,7 @@ class Request(object):
                         redirect=False,
                         assert_same_host=False,
                         preload_content=False,
-                        decode_content=False,
+                        decode_content=True,
                         retries=self.config.get('max_retries', 0),
                         timeout=self.timeout,
                     )
@@ -614,9 +614,9 @@ class Response(object):
         gen = generate()
 
         if 'gzip' in self.headers.get('content-encoding', ''):
-            gen = stream_decode_gzip(gen)
+            gen = stream_decompress(gen, mode='gzip')
         elif 'deflate' in self.headers.get('content-encoding', ''):
-            gen = stream_decode_deflate(gen)
+            gen = stream_decompress(gen, mode='deflate')
 
         if decode_unicode is None:
             decode_unicode = self.config.get('decode_unicode')
@@ -674,13 +674,6 @@ class Response(object):
                 self._content = None
 
         content = self._content
-
-        # Decode GZip'd content.
-        if 'gzip' in self.headers.get('content-encoding', ''):
-            try:
-                content = decode_gzip(self._content)
-            except zlib.error:
-                pass
 
         # Decode unicode content.
         if self.config.get('decode_unicode'):
