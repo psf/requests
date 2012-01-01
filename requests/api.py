@@ -6,7 +6,7 @@ requests.api
 
 This module implements the Requests API.
 
-:copyright: (c) 2011 by Kenneth Reitz.
+:copyright: (c) 2012 by Kenneth Reitz.
 :license: ISC, see LICENSE for more details.
 
 """

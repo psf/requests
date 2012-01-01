@@ -9,7 +9,7 @@
 requests
 ~~~~~~~~
 
-:copyright: (c) 2011 by Kenneth Reitz.
+:copyright: (c) 2012 by Kenneth Reitz.
 :license: ISC, see LICENSE for more details.
 
 """
@@ -19,7 +19,7 @@ __version__ = '0.9.0'
 __build__ = 0x000900
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
-__copyright__ = 'Copyright 2011 Kenneth Reitz'
+__copyright__ = 'Copyright 2012 Kenneth Reitz'
 
 
 
