@@ -26,9 +26,9 @@ Cheeseshop Mirror
 -----------------
 
 If the Cheeseshop is down, you can also install Requests from Kenneth Reitz's
-personal `Cheeseshop mirror <http://pip.kreitz.co/>`_::
+personal `Cheeseshop mirror <http://pip.kennethreitz.com/>`_::
 
-    $ pip install -i http://pip.kreitz.co/simple requests
+    $ pip install -i http://pip.kennethreitz.com/simple requests
 
 
 Get the Code
