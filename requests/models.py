@@ -9,7 +9,6 @@ This module contains the primary objects that power Requests.
 
 import os
 import urllib
-import zlib
 
 from urlparse import urlparse, urlunparse, urljoin, urlsplit
 from datetime import datetime
@@ -627,33 +626,25 @@ class Response(object):
         return gen
 
 
-    def iter_lines(self, newlines=None, decode_unicode=None):
+    def iter_lines(self, chunk_size=10 * 1024, decode_unicode=None):
         """Iterates over the response data, one line at a time.  This
         avoids reading the content at once into memory for large
         responses.
-
-        :param newlines: a collection of bytes to seperate lines with.
         """
 
-        if newlines is None:
-            newlines = ('\r', '\n', '\r\n')
+        pending = None
+        for chunk in self.iter_content(chunk_size, decode_unicode=decode_unicode):
+            if pending is not None:
+                chunk = pending + chunk
+            lines = chunk.splitlines()
+            for line in lines[:-1]:
+                yield line
+            # Save the last part of the chunk for next iteration, to keep full line together
+            pending = lines[-1]
 
-        chunk = []
-
-        for c in self.iter_content(1, decode_unicode=decode_unicode):
-            if not c:
-                break
-
-            if c in newlines:
-                yield ''.join(chunk)
-                chunk = []
-            else:
-                chunk.append(c)
-
-        # Yield the remainder, in case the response
-        # did not terminate with a newline
-        if chunk:
-            yield ''.join(chunk)
+        # Yield the last line
+        if pending is not None:
+            yield pending
 
 
     @property
