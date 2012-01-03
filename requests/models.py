@@ -636,15 +636,15 @@ class Response(object):
         for chunk in self.iter_content(chunk_size, decode_unicode=decode_unicode):
             if pending is not None:
                 chunk = pending + chunk
-            lines = chunk.splitlines()
+            lines = chunk.splitlines(True)
             for line in lines[:-1]:
-                yield line
+                yield line.rstrip()
             # Save the last part of the chunk for next iteration, to keep full line together
             pending = lines[-1]
 
         # Yield the last line
         if pending is not None:
-            yield pending
+            yield pending.rstrip()
 
 
     @property
