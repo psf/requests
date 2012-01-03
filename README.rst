@@ -49,7 +49,7 @@ Features
 Usage
 -----
 
-It couldn't be simpler. ::
+It couldn't be simpler::
 
     >>> import requests
     >>> r = requests.get('http://google.com')
