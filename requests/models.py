@@ -525,6 +525,9 @@ class Request(object):
             if prefetch:
                 # Save the response.
                 self.response.content
+            
+            if self.config.get('danger_mode'):
+                self.response.raise_for_status()
 
             return self.sent
 
