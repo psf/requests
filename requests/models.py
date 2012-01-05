@@ -526,7 +526,7 @@ class Request(object):
                 # Save the response.
                 self.response.content
             
-            if self.config.get('eager_mode'):
+            if self.config.get('danger_mode'):
                 self.response.raise_for_status()
 
             return self.sent

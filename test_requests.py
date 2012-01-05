@@ -280,7 +280,7 @@ class RequestsTestSuite(unittest.TestCase):
 
 
     def test_default_status_raising(self):
-        config = {'eager_mode': True}
+        config = {'danger_mode': True}
         args = [httpbin('status', '404')]
         kwargs = dict(config=config)
         self.assertRaises(HTTPError, requests.get, *args, **kwargs)
