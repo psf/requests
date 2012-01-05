@@ -15,6 +15,7 @@ Configurations:
 :decode_unicode: Decode unicode responses automatically?
 :keep_alive: Reuse HTTP Connections?
 :max_retries: The number of times a request should be retried in the event of a connection failure.
+:eager_mode: If true, Requests will raise errors immediately.
 :safe_mode: If true, Requests will catch all errors.
 :pool_maxsize: The maximium size of an HTTP connection pool.
 :pool_connections: The number of active HTTP connection pools to use.
@@ -38,5 +39,6 @@ defaults['decode_unicode'] = True
 defaults['pool_connections'] = 10
 defaults['pool_maxsize'] = 10
 defaults['max_retries'] = 0
+defaults['eager_mode'] = False
 defaults['safe_mode'] = False
 defaults['keep_alive'] = True

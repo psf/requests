@@ -279,6 +279,16 @@ class RequestsTestSuite(unittest.TestCase):
         r.raise_for_status()
 
 
+    def test_default_status_raising(self):
+        config = {'eager_mode': True}
+        args = [httpbin('status', '404')]
+        kwargs = dict(config=config)
+        self.assertRaises(HTTPError, requests.get, *args, **kwargs)
+
+        r = requests.get(httpbin('status', '200'))
+        self.assertEqual(r.status_code, 200)
+
+
     def test_decompress_gzip(self):
 
         r = requests.get(httpbin('gzip'))

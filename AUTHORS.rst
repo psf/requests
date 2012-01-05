@@ -68,3 +68,4 @@ Patches and Suggestions
 - Christopher Davis
 - Ori Livneh
 - Jason Emerick
+- Bryan Helmig
