@@ -2,6 +2,12 @@ History
 -------
 
 
+0.9.1 (2012-01-06)
+++++++++++++++++++
+
+* danger_mode for automatic Response.raise_for_status()
+* Response.iter_lines refator
+
 0.9.0 (2011-12-28)
 ++++++++++++++++++
 
