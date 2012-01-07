@@ -87,6 +87,7 @@ History
 * OPTION method
 * Async pool size throttling
 * File uploads send real names
+* Vendored in urllib3
 
 0.7.6 (2011-11-07)
 ++++++++++++++++++
