@@ -18,7 +18,9 @@ class SSLError(Exception):
 
 class MaxRetryError(HTTPError):
     "Raised when the maximum number of retries is exceeded."
-    pass
+    def __init__(self, url):
+        HTTPError.__init__(self, "Max retries exceeded for url: %s" % url)
+        self.url = url
 
 
 class TimeoutError(HTTPError):
@@ -28,7 +30,15 @@ class TimeoutError(HTTPError):
 
 class HostChangedError(HTTPError):
     "Raised when an existing pool gets a request for a foreign host."
-    pass
+    def __init__(self, original_host, new_url, retries=3):
+        HTTPError.__init__(self,
+            "Connection pool with host '%s' tried to open a foreign host: %s" %
+            (original_host, new_url))
+
+        self.original_host = original_host
+        self.new_url = new_url
+        self.retries = retries
+
 
 class EmptyPoolError(HTTPError):
     "Raised when a pool runs out of connections and no more are allowed."

@@ -306,7 +306,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             headers = self.headers
 
         if retries < 0:
-            raise MaxRetryError("Max retries exceeded for url: %s" % url)
+            raise MaxRetryError(url)
 
         if timeout is _Default:
             timeout = self.timeout
@@ -320,8 +320,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             if self.port:
                 host = "%s:%d" % (host, self.port)
 
-            raise HostChangedError("Connection pool with host '%s' tried to "
-                                   "open a foreign host: %s" % (host, url))
+            raise HostChangedError(host, url, retries - 1)
 
         conn = None
 
@@ -369,7 +368,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         except (CertificateError), e:
             # Name mismatch
             raise SSLError(e)
-            
+
         except (HTTPException, SocketError), e:
             # Connection broken, discard. It will be replaced next _get_conn().
             conn = None
@@ -385,15 +384,12 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             return self.urlopen(method, url, body, headers, retries - 1,
                                 redirect, assert_same_host)  # Try again
 
-        # Handle redirection
-        if (redirect and
-            response.status in [301, 302, 303, 307] and
-            'location' in response.headers):  # Redirect, retry
-            log.info("Redirecting %s -> %s" %
-                     (url, response.headers.get('location')))
-            return self.urlopen(method, response.headers.get('location'), body,
-                                headers, retries - 1, redirect,
-                                assert_same_host)
+        # Handle redirect?
+        redirect_location = redirect and response.get_redirect_location()
+        if redirect_location:
+            log.info("Redirecting %s -> %s" % (url, redirect_location))
+            return self.urlopen(method, redirect_location, body, headers,
+                                retries - 1, redirect, assert_same_host)
 
         return response
 

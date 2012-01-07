@@ -298,7 +298,7 @@ class Request(object):
         scheme, netloc, path, params, query, fragment = urlparse(self.url)
 
         if not scheme:
-            raise ValueError()
+            raise ValueError("Invalid URL %r: No schema supplied" %self.url)
 
         netloc = netloc.encode('idna')
 

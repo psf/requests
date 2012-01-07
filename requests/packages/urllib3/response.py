@@ -84,6 +84,19 @@ class HTTPResponse(object):
         if preload_content:
             self._body = self.read(decode_content=decode_content)
 
+    def get_redirect_location(self):
+        """
+        Should we redirect and where to?
+
+        :returns: Truthy redirect location string if we got a redirect status
+            code and valid location. ``None`` if redirect status and no
+            location. ``False`` if not a redirect status code.
+        """
+        if self.status in [301, 302, 303, 307]:
+            return self.headers.get('location')
+
+        return False
+
     def release_conn(self):
         if not self._pool or not self._connection:
             return
@@ -98,10 +111,9 @@ class HTTPResponse(object):
             return self._body
 
         if self._fp:
-            return self.read(decode_content=self._decode_content,
-                             cache_content=True)
+            return self.read(cache_content=True)
 
-    def read(self, amt=None, decode_content=True, cache_content=False):
+    def read(self, amt=None, decode_content=None, cache_content=False):
         """
         Similar to :meth:`httplib.HTTPResponse.read`, but with two additional
         parameters: ``decode_content`` and ``cache_content``.
@@ -124,6 +136,8 @@ class HTTPResponse(object):
         """
         content_encoding = self.headers.get('content-encoding')
         decoder = self.CONTENT_DECODERS.get(content_encoding)
+        if decode_content is None:
+            decode_content = self._decode_content
 
         data = self._fp and self._fp.read(amt)
 
@@ -154,8 +168,8 @@ class HTTPResponse(object):
             if self._original_response and self._original_response.isclosed():
                 self.release_conn()
 
-    @staticmethod
-    def from_httplib(r, **response_kw):
+    @classmethod
+    def from_httplib(ResponseCls, r, **response_kw):
         """
         Given an :class:`httplib.HTTPResponse` instance ``r``, return a
         corresponding :class:`urllib3.response.HTTPResponse` object.
@@ -164,14 +178,14 @@ class HTTPResponse(object):
         with ``original_response=r``.
         """
 
-        return HTTPResponse(body=r,
-                            headers=dict(r.getheaders()),
-                            status=r.status,
-                            version=r.version,
-                            reason=r.reason,
-                            strict=r.strict,
-                            original_response=r,
-                            **response_kw)
+        return ResponseCls(body=r,
+                           headers=dict(r.getheaders()),
+                           status=r.status,
+                           version=r.version,
+                           reason=r.reason,
+                           strict=r.strict,
+                           original_response=r,
+                           **response_kw)
 
     # Backwards-compatibility methods for httplib.HTTPResponse
     def getheaders(self):
