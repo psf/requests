@@ -4,18 +4,16 @@
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
+import logging
+
 from ._collections import RecentlyUsedContainer
-from .connectionpool import (
-    HTTPConnectionPool, HTTPSConnectionPool,
-    get_host, connection_from_url,
-)
+from .connectionpool import HTTPConnectionPool, HTTPSConnectionPool
+from .connectionpool import get_host, connection_from_url
+from .exceptions import HostChangedError
+from .request import RequestMethods
 
 
 __all__ = ['PoolManager', 'ProxyManager', 'proxy_from_url']
-
-
-from .request import RequestMethods
-from .connectionpool import HTTPConnectionPool, HTTPSConnectionPool
 
 
 pool_classes_by_scheme = {
@@ -27,6 +25,8 @@ port_by_scheme = {
     'http': 80,
     'https': 443,
 }
+
+log = logging.getLogger(__name__)
 
 
 class PoolManager(RequestMethods):
@@ -105,7 +105,12 @@ class PoolManager(RequestMethods):
         :class:`urllib3.connectionpool.ConnectionPool` can be chosen for it.
         """
         conn = self.connection_from_url(url)
-        return conn.urlopen(method, url, assert_same_host=False, **kw)
+        try:
+            return conn.urlopen(method, url, **kw)
+
+        except HostChangedError, e:
+            kw['retries'] = e.retries # Persist retries countdown
+            return self.urlopen(method, e.new_url, **kw)
 
 
 class ProxyManager(RequestMethods):
