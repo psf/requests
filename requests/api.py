@@ -34,7 +34,7 @@ def request(method, url, **kwargs):
     :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
     """
 
-    s = kwargs.get('session') or sessions.session()
+    s = kwargs.pop('session') if 'session' in kwargs else sessions.session()
     return s.request(method=method, url=url, **kwargs)
 
 
