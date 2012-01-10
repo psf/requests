@@ -86,7 +86,9 @@ class HTTPDigestAuth(AuthBase):
             # XXX not implemented yet
             entdig = None
             p_parsed = urlparse(r.request.url)
-            path = p_parsed.path + p_parsed.query
+            path = p_parsed.path
+            if p_parsed.query:
+                path += '?' + p_parsed.query
 
             A1 = '%s:%s:%s' % (self.username, realm, self.password)
             A2 = '%s:%s' % (r.request.method, path)
