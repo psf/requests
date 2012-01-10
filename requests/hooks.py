@@ -22,7 +22,7 @@ Available hooks:
 
 """
 
-import warnings
+import traceback
 
 
 def dispatch_hook(key, hooks, hook_data):
@@ -34,7 +34,7 @@ def dispatch_hook(key, hooks, hook_data):
         try:
             return hooks.get(key).__call__(hook_data) or hook_data
 
-        except Exception, why:
-            warnings.warn(str(why))
+        except Exception:
+            traceback.print_exc()
 
     return hook_data
