@@ -194,7 +194,7 @@ Let's print some request method arguments at runtime::
 Let's hijack some arguments this time with a new callback::
 
     def hack_headers(args):
-        if not args[headers]:
+        if args.get('headers') is None:
             args['headers'] = dict()
 
         args['headers'].update({'X-Testing': 'True'})
