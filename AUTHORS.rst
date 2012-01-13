@@ -72,3 +72,4 @@ Patches and Suggestions
 - Jonas Obrist
 - Lucian Ursu
 - Tom Moertel
+- Frank Kumro Jr
