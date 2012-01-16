@@ -7,24 +7,32 @@ import StringIO
 import time
 import os
 import unittest
+import urlparse
 
-import requests
-import envoy
-from requests import HTTPError
-from requests.auth import HTTPBasicAuth, HTTPDigestAuth
-
+if os.name != 'nt':
+    # envoy is needed to run gunicorn which is not available on Windows
+    import envoy
 try:
     import omnijson as json
 except ImportError:
     import json
 
+import requests
+from requests import HTTPError
+from requests.auth import HTTPBasicAuth, HTTPDigestAuth
 
-# TODO: Detect an open port.
-PORT = os.environ.get('HTTPBIN_PORT', '7077')
 
-HTTPBIN_URL = 'http://0.0.0.0:%s/' % (PORT)
-# HTTPBIN_URL = 'http://127.0.0.1:8000/'
+if os.name != 'nt':
+    # TODO: Detect an open port.
+    HOST = os.environ.get('HTTPBIN_HOST', 'http://0.0.0.0')
+    PORT = os.environ.get('HTTPBIN_PORT', '7077')
+    _httpbin = False
+else:
+    HOST = os.environ.get('HTTPBIN_HOST', 'http://httpbin.org')
+    PORT = os.environ.get('HTTPBIN_PORT', '80')
+    _httpbin = True
 
+HTTPBIN_URL = '%s:%s/' % (HOST, PORT)
 
 def httpbin(*suffix):
     """Returns url for HTTPBIN resource."""
@@ -34,7 +42,6 @@ def httpbin(*suffix):
 
 SERVICES = (httpbin, )
 
-_httpbin = False
 
 class RequestsTestSuite(unittest.TestCase):
     """Requests test cases."""
@@ -48,7 +55,8 @@ class RequestsTestSuite(unittest.TestCase):
 
         if not _httpbin:
 
-            c = envoy.connect('gunicorn httpbin:app --bind=0.0.0.0:%s' % (PORT))
+            host = urlparse.urlsplit(HOST)[1]
+            c = envoy.connect('gunicorn httpbin:app --bind=%s:%s' % (host, PORT))
 
             self.httpbin = c
             _httpbin = True
