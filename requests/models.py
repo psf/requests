@@ -472,6 +472,11 @@ class Request(object):
                     # Attach Cookie header to request.
                     self.headers['Cookie'] = cookie_header
 
+            # start timer for response.response_time. It would be much better
+            # to use time.time(), but I didn't wan't to do another include for
+            # the sake of tidyness. change this if you want....
+            start = float(datetime.now().strftime("%s.%f"))
+
             try:
                 # The inner try .. except re-raises certain exceptions as
                 # internal exception types; the outer suppresses exceptions
@@ -514,6 +519,13 @@ class Request(object):
 
             # Response manipulation hook.
             self.response = dispatch_hook('response', self.hooks, self.response)
+
+            # end the timer for response.response_time. I was a little bit 
+            # unsure where to stop timing. I think this should be okay...
+            time_delta = float(datetime.now().strftime("%s.%f")) - start
+
+            # add response_time to self.response.
+            self.response.response_time = time_delta
 
             # Post-request hook.
             r = dispatch_hook('post_request', self.hooks, self)
@@ -576,6 +588,9 @@ class Response(object):
         #: Dictionary of configurations for this request.
         self.config = {}
 
+        #: The amount of time required for sending the request and receiving
+        #: the whole response
+        self.response_time = None
 
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
