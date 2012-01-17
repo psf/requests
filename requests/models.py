@@ -634,12 +634,6 @@ class Response(object):
 
         if getattr(getattr(self.raw, '_original_response', None), 'chunked', False):
             gen = generate_chunked()
-
-            def hack_gen(gen=gen):
-                for item in gen:
-                    print repr(item)
-                    yield item
-            gen = hack_gen()
         else:
             gen = generate()
 
