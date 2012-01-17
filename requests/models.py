@@ -615,12 +615,12 @@ class Response(object):
         def generate_chunked():
             resp = self.raw._original_response
             fp = resp.fp
-            yield fp.read(resp.chunk_left)
+            if resp.chunk_left:
+                yield fp.read(resp.chunk_left)
+                fp.read(2) #throw away crlf
             while 1:
                 #XXX correct line size
-                pending_bytes = fp.readline(80).strip()
-                if not pending_bytes:
-                    break
+                pending_bytes = fp.readline(40).strip()
                 pending_bytes = int(pending_bytes, 16)
                 if pending_bytes == 0:
                     break
@@ -628,11 +628,18 @@ class Response(object):
                     chunk = fp.read(min(chunk_size, pending_bytes))
                     pending_bytes-=len(chunk)
                     yield chunk
+                fp.read(2) # throw away crlf
             self._content_consumed = True
 
 
-        if getattr(self.raw._original_response, 'chunked', False):
+        if getattr(getattr(self.raw, '_original_response', None), 'chunked', False):
             gen = generate_chunked()
+
+            def hack_gen(gen=gen):
+                for item in gen:
+                    print repr(item)
+                    yield item
+            gen = hack_gen()
         else:
             gen = generate()
 
