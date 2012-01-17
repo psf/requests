@@ -52,7 +52,7 @@ def send(r, pool=None):
     and can hence limit concurrency."""
 
     if pool != None:
-        print pool.full()
+
         return pool.spawn(r.send)
 
     return gevent.spawn(r.send)
