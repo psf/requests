@@ -57,7 +57,8 @@ class Request(object):
         hooks=None,
         config=None,
         _poolmanager=None,
-        verify=None):
+        verify=None,
+        session=None):
 
         #: Float describes the timeout of the request.
         #  (Use socket.setdefaulttimeout() as fallback)
@@ -116,7 +117,7 @@ class Request(object):
         self.hooks = hooks
 
         #: Session.
-        self.session = None
+        self.session = session
 
         #: SSL Verification.
         self.verify = verify
@@ -246,7 +247,8 @@ class Request(object):
                     timeout=self.timeout,
                     _poolmanager=self._poolmanager,
                     proxies = self.proxies,
-                    verify = self.verify
+                    verify = self.verify,
+                    session = self.session
                 )
 
                 request.send()
