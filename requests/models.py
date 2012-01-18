@@ -517,7 +517,7 @@ class Request(object):
             self._build_response(r)
 
             # end the timer for response.response_time.
-            time_delta = time()
+            time_delta = time() - start
 
             # Response manipulation hook.
             self.response = dispatch_hook('response', self.hooks, self.response)
