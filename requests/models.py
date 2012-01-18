@@ -12,6 +12,7 @@ import urllib
 
 from urlparse import urlparse, urlunparse, urljoin, urlsplit
 from datetime import datetime
+from time import time
 
 from .hooks import dispatch_hook
 from .structures import CaseInsensitiveDict
@@ -472,10 +473,8 @@ class Request(object):
                     # Attach Cookie header to request.
                     self.headers['Cookie'] = cookie_header
 
-            # start timer for response.response_time. It would be much better
-            # to use time.time(), but I didn't wan't to do another include for
-            # the sake of tidyness. change this if you want....
-            start = float(datetime.now().strftime("%s.%f"))
+            # start timer for response.response_time. 
+            start = time()
 
             try:
                 # The inner try .. except re-raises certain exceptions as
@@ -517,12 +516,11 @@ class Request(object):
 
             self._build_response(r)
 
+            # end the timer for response.response_time.
+            time_delta = time()
+
             # Response manipulation hook.
             self.response = dispatch_hook('response', self.hooks, self.response)
-
-            # end the timer for response.response_time. I was a little bit 
-            # unsure where to stop timing. I think this should be okay...
-            time_delta = float(datetime.now().strftime("%s.%f")) - start
 
             # add response_time to self.response.
             self.response.response_time = time_delta
