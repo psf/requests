@@ -17,8 +17,7 @@ Development dependencies
 
 You'll need to install ``gunicorn`` and ``httpbin`` in order to run requests' test suite::
 
-    $ pip install gunicorn
-    $ pip install httpbin
+    $ pip install -r requirements.txt
 
     
 
