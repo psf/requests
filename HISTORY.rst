@@ -1,6 +1,19 @@
 History
 -------
 
+0.9.2 (2012-01-18)
+++++++++++++++++++
+
+* Asyncronous async.send method.
+* SSL verify=False bugfix (apparent on windows machines).
+* Support for proper chunk streams with boundaries.
+* session argument for Session classes.
+* Print entire hook tracebacks, not just exception instance.
+* Fix response.iter_lines from pending next line.
+* Fix but in HTTP-digest auth w/ URI having query strings.
+* Fix in Event Hooks section.
+* Urllib3 update.
+
 
 0.9.1 (2012-01-06)
 ++++++++++++++++++
