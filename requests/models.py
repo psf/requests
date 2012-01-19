@@ -187,7 +187,7 @@ class Request(object):
             if is_error:
                 response.error = resp
 
-            response.url = self.full_url
+            response.url = self.full_url.decode('utf-8')
 
             return response
 

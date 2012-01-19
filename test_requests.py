@@ -294,6 +294,16 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get(httpbin('gzip'))
         r.content.decode('ascii')
 
+    def test_response_has_unicode_url(self):
+
+        for service in SERVICES:
+
+            url = service('get')
+
+            response = requests.get(url)
+
+            self.assertIsInstance(response.url, unicode)
+
 
     def test_unicode_get(self):
 
