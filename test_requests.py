@@ -608,9 +608,9 @@ class RequestsTestSuite(unittest.TestCase):
         lines = (0, 2, 10, 100)
 
         for i in lines:
-
             r = requests.get(httpbin('stream', str(i)), prefetch=False)
-            len_lines = len([l for l in r.iter_lines()])
+            lines = list(r.iter_lines())
+            len_lines = len(lines)
 
             self.assertEqual(i, len_lines)
 

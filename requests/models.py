@@ -611,8 +611,36 @@ class Response(object):
                     break
                 yield chunk
             self._content_consumed = True
+        
+        def generate_chunked():
+            resp = self.raw._original_response
+            fp = resp.fp
+            if resp.chunk_left is not None:
+                pending_bytes = resp.chunk_left
+                while pending_bytes:
+                    chunk = fp.read(min(chunk_size, pending_bytes))
+                    pending_bytes-=len(chunk)
+                    yield chunk
+                fp.read(2) # throw away crlf
+            while 1:
+                #XXX correct line size? (httplib has 64kb, seems insane)
+                pending_bytes = fp.readline(40).strip()
+                pending_bytes = int(pending_bytes, 16)
+                if pending_bytes == 0:
+                    break
+                while pending_bytes:
+                    chunk = fp.read(min(chunk_size, pending_bytes))
+                    pending_bytes-=len(chunk)
+                    yield chunk
+                fp.read(2) # throw away crlf
+            self._content_consumed = True
+            fp.close()
 
-        gen = generate()
+
+        if getattr(getattr(self.raw, '_original_response', None), 'chunked', False):
+            gen = generate_chunked()
+        else:
+            gen = generate()
 
         if 'gzip' in self.headers.get('content-encoding', ''):
             gen = stream_decompress(gen, mode='gzip')
@@ -633,7 +661,7 @@ class Response(object):
         avoids reading the content at once into memory for large
         responses.
         """
-
+        #XXX: why rstrip by default
         pending = None
         for chunk in self.iter_content(chunk_size, decode_unicode=decode_unicode):
             if pending is not None:
@@ -642,7 +670,15 @@ class Response(object):
             for line in lines[:-1]:
                 yield line.rstrip()
             # Save the last part of the chunk for next iteration, to keep full line together
-            pending = lines[-1]
+            # lines may be empty for the last chunk of a chunked response
+            if lines:
+                pending = lines[-1]
+                #if pending is a complete line, give it baack
+                if pending[-1] == '\n':
+                    yield pending.rstrip()
+                    pending = None
+            else:
+                pending = None
 
         # Yield the last line
         if pending is not None:
