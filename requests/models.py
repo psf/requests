@@ -453,6 +453,9 @@ class Request(object):
 
             conn.cert_reqs = 'CERT_REQUIRED'
             conn.ca_certs = cert_loc
+        else:
+            conn.cert_reqs = 'CERT_NONE'
+            conn.ca_certs = None
 
         if not self.sent or anyway:
 
