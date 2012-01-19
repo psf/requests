@@ -34,9 +34,9 @@ class RequestsTestSuite(unittest.TestCase):
 
         s = requests.session()
 
-        s.get('https://kennethreitz.com', verify=False)
-
         self.assertRaises(requests.exceptions.SSLError, s.get, 'https://kennethreitz.com')
+
+        s.get('https://kennethreitz.com', verify=False)
 
 
 
