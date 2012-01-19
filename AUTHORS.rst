@@ -73,3 +73,4 @@ Patches and Suggestions
 - Lucian Ursu
 - Tom Moertel
 - Frank Kumro Jr
+- Chase Sterling
