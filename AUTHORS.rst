@@ -34,7 +34,7 @@ Patches and Suggestions
 - Alberto Paro
 - Jérémy Bethmont
 - 潘旭 (Xu Pan)
-- Tamás Gulácsi
+- Gulácsi Tamás
 - Rubén Abad
 - Peter Manser
 - Jeremy Selier
@@ -73,3 +73,26 @@ Patches and Suggestions
 - Lucian Ursu
 - Tom Moertel
 - Frank Kumro Jr
+- Mike Waldner
+- Luca De Vitis
+- digitalxero
+- Ronny Pfannschmidt
+- Chase Sterling
+- Andrey Petrov
+- Michael Van Veen
+- Devin Sevilla
+- Douglas Morrison
+- jbergstroem
+- jbrendel
+- Mark Story
+- Nick Hatch
+- Pat Nakajima
+- Piotr Dobrogost
+- Raymond Penners
+- Bryan Berg
+- Shane McDonald
+- Simon Sapin
+- Clermont
+- Ben Edwards
+- verm666
+- Juarez Bochi
