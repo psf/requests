@@ -31,10 +31,15 @@ def dispatch_hook(key, hooks, hook_data):
     hooks = hooks or dict()
 
     if key in hooks:
-        try:
-            return hooks.get(key).__call__(hook_data) or hook_data
+        hooks = hooks.get(key)
 
-        except Exception:
-            traceback.print_exc()
+        if hasattr(hooks, '__call__'):
+            hooks = [hooks]
+
+        for hook in hooks:
+            try:
+                hook_data = hook(hook_data) or hook_data
+            except Exception:
+                traceback.print_exc()
 
     return hook_data
