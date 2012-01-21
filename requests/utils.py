@@ -276,6 +276,9 @@ def get_encoding_from_headers(headers):
     if 'charset' in params:
         return params['charset'].strip("'\"")
 
+    if 'text' in content_type:
+        return 'ISO-8859-1'
+
 
 def unicode_from_html(content):
     """Attempts to decode an HTML string into unicode.
