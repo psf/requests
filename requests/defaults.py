@@ -35,7 +35,6 @@ defaults['base_headers'] = {
 
 defaults['verbose'] = None
 defaults['max_redirects'] = 30
-defaults['decode_unicode'] = True
 defaults['pool_connections'] = 10
 defaults['pool_maxsize'] = 10
 defaults['max_retries'] = 0
