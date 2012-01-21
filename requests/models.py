@@ -13,7 +13,7 @@ import urllib
 from urlparse import urlparse, urlunparse, urljoin, urlsplit
 from datetime import datetime
 
-from .hooks import dispatch_hook
+from .hooks import dispatch_hook, HOOKS
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
 from .packages import oreos
@@ -114,7 +114,15 @@ class Request(object):
         self.sent = False
 
         #: Event-handling hooks.
-        self.hooks = hooks
+        self.hooks = {}
+
+        for event in HOOKS:
+            self.hooks[event] = []
+
+        hooks = hooks or {}
+
+        for (k, v) in hooks.items():
+            self.register_hook(event=k, hook=v)
 
         #: Session.
         self.session = session
@@ -343,6 +351,11 @@ class Request(object):
         return ''.join(url)
 
 
+    def register_hook(self, event, hook):
+        """Properly register a hook."""
+
+        return self.hooks[event].append(hook)
+
 
     def send(self, anyway=False, prefetch=False):
         """Sends the request. Returns True of successful, false if not.
@@ -528,7 +541,7 @@ class Request(object):
             if prefetch:
                 # Save the response.
                 self.response.content
-            
+
             if self.config.get('danger_mode'):
                 self.response.raise_for_status()
 
@@ -616,7 +629,7 @@ class Response(object):
                     break
                 yield chunk
             self._content_consumed = True
-        
+
         def generate_chunked():
             resp = self.raw._original_response
             fp = resp.fp
