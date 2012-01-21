@@ -1,6 +1,15 @@
 History
 -------
 
+0.10.0
++++++++
+
+* Default to ISO-8859-1 (Western) encoding for "text"
+* New multiple-hooks system.
+* Response.register_hook.
+
+
+
 0.9.3 (2012-01-18)
 ++++++++++++++++++
 
