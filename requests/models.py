@@ -711,19 +711,19 @@ class Response(object):
         """Content of the response, in unicode."""
 
         # Try charset from content-type
-
         content = u''
 
-        try:
-            content = unicode(self.content, self.encoding)
-        except UnicodeError:
-            pass
+        if self.encoding:
+            try:
+                content = unicode(self.content, self.encoding)
+            except UnicodeError:
+                pass
 
-        # Try to fall back:
-        try:
-            content = unicode(content, self.encoding, errors='replace')
-        except TypeError:
-            pass
+            # Try to fall back:
+            try:
+                content = unicode(content, self.encoding, errors='replace')
+            except TypeError:
+                pass
 
         return content
 
