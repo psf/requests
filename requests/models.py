@@ -720,7 +720,7 @@ class Response(object):
         """Content of the response, in unicode."""
 
         # Try charset from content-type
-        content = u''
+        content = None
 
         if self.encoding:
             try:
