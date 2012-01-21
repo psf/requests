@@ -134,5 +134,5 @@ class HTTPDigestAuth(AuthBase):
         return r
 
     def __call__(self, r):
-        r.hooks['response'] = self.handle_401
+        r.register_hook('response', self.handle_401)
         return r
