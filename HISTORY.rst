@@ -4,11 +4,12 @@ History
 0.10.0
 +++++++
 
-* Default to ISO-8859-1 (Western) encoding for "text"
+* ``Response.content`` is now bytes-only.
+* New ``Response.text`` is unicode-only.
+* Removal of `decode_unicode`
+* Default to ISO-8859-1 (Western) encoding for "text" subtypes
 * New multiple-hooks system.
-* Response.register_hook.
-
-
+* New ``Response.register_hook`` for registering hooks within the pipeline.
 
 0.9.3 (2012-01-18)
 ++++++++++++++++++
