@@ -294,7 +294,7 @@ def unicode_from_html(content):
         except (UnicodeError, TypeError):
             pass
 
-        return content
+    return content
 
 
 def stream_decode_response_unicode(iterator, r):
