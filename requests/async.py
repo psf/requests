@@ -78,12 +78,8 @@ def map(requests, prefetch=True, size=None):
 
     requests = list(requests)
 
-    if size:
-        pool = Pool(size)
-        jobs = [pool.spawn(r.send) for r in requests]
-    else:
-        jobs = [gevent.spawn(r.send) for r in requests]
-    
+    pool = Pool(size) if size else None
+    jobs = [send(r, pool) for r in requests]
     gevent.joinall(jobs)
 
     if prefetch:
