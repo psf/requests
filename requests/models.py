@@ -152,7 +152,7 @@ class Request(object):
         return '<Request [%s]>' % (self.method)
 
 
-    def _build_response(self, resp, is_error=False):
+    def _build_response(self, resp):
         """Build internal :class:`Response <Response>` object
         from given response.
         """
@@ -191,10 +191,6 @@ class Request(object):
 
             # Save original response for later.
             response.raw = resp
-
-            if is_error:
-                response.error = resp
-
             response.url = self.full_url.decode('utf-8')
 
             return response
@@ -611,7 +607,7 @@ class Response(object):
         return True
 
 
-    def iter_content(self, chunk_size=10 * 1024, decode_unicode=None):
+    def iter_content(self, chunk_size=10 * 1024, decode_unicode=False):
         """Iterates over the response data.  This avoids reading the content
         at once into memory for large responses.  The chunk size is the number
         of bytes it should read into memory.  This is not necessarily the
@@ -665,9 +661,6 @@ class Response(object):
         elif 'deflate' in self.headers.get('content-encoding', ''):
             gen = stream_decompress(gen, mode='deflate')
 
-        if decode_unicode is None:
-            decode_unicode = self.config.get('decode_unicode')
-
         if decode_unicode:
             gen = stream_decode_response_unicode(gen, self)
 
@@ -705,9 +698,7 @@ class Response(object):
 
     @property
     def content(self):
-        """Content of the response, in bytes or unicode
-        (if available).
-        """
+        """Content of the response, in bytes."""
 
         if self._content is None:
             # Read the contents.
@@ -720,26 +711,29 @@ class Response(object):
             except AttributeError:
                 self._content = None
 
-        content = self._content
+        self._content_consumed = True
+        return self._content
 
-        # Decode unicode content.
-        if self.config.get('decode_unicode'):
 
-            # Try charset from content-type
+    @property
+    def text(self):
+        """Content of the response, in unicode."""
 
-            if self.encoding:
-                try:
-                    content = unicode(content, self.encoding)
-                except UnicodeError:
-                    pass
+        # Try charset from content-type
+        content = u''
 
-            # Fall back:
+        if self.encoding:
+            try:
+                content = unicode(self.content, self.encoding)
+            except UnicodeError:
+                pass
+
+            # Try to fall back:
             try:
                 content = unicode(content, self.encoding, errors='replace')
             except TypeError:
                 pass
 
-        self._content_consumed = True
         return content
 
 
