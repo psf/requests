@@ -10,16 +10,13 @@ Configurations:
 
 :base_headers: Default HTTP headers.
 :verbose: Stream to write request logging to.
-:timeout: Seconds until request timeout.
-:max_redirects: Maximum number of redirects allowed within a request.
-:decode_unicode: Decode unicode responses automatically?
+:max_redirects: Maximum number of redirects allowed within a request.s
 :keep_alive: Reuse HTTP Connections?
 :max_retries: The number of times a request should be retried in the event of a connection failure.
 :danger_mode: If true, Requests will raise errors immediately.
 :safe_mode: If true, Requests will catch all errors.
 :pool_maxsize: The maximium size of an HTTP connection pool.
 :pool_connections: The number of active HTTP connection pools to use.
-
 """
 
 from . import __version__

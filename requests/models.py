@@ -183,7 +183,6 @@ class Request(object):
 
             # Save original response for later.
             response.raw = resp
-
             response.url = self.full_url.decode('utf-8')
 
             return response
