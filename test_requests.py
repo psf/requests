@@ -516,6 +516,65 @@ class RequestsTestSuite(unittest.TestCase):
 
         self.assertEqual(r2.status_code, 200)
 
+    def test_single_hook(self):
+
+        def add_foo_header(args):
+            if not args.get('headers'):
+                args['headers'] = {}
+
+            args['headers'].update({
+                'X-Foo': 'foo'
+            })
+
+            return args
+
+        for service in SERVICES:
+            url = service('headers')
+
+            response = requests.get(
+                url = url,
+                hooks = {
+                    'args': add_foo_header
+                }
+            )
+
+            assert 'foo' in response.content
+
+    def test_multiple_hooks(self):
+
+        def add_foo_header(args):
+            if not args.get('headers'):
+                args['headers'] = {}
+
+            args['headers'].update({
+                'X-Foo': 'foo'
+            })
+
+            return args
+
+        def add_bar_header(args):
+            if not args.get('headers'):
+                args['headers'] = {}
+
+            args['headers'].update({
+                'X-Bar': 'bar'
+            })
+
+            return args
+
+        for service in SERVICES:
+            url = service('headers')
+
+            response = requests.get(
+                url = url,
+                hooks = {
+                    'args': [add_foo_header, add_bar_header]
+                }
+            )
+
+            assert 'foo' in response.content
+            assert 'bar' in response.content
+
     def test_session_persistent_cookies(self):
 
         s = requests.session()
