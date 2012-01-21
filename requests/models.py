@@ -144,7 +144,7 @@ class Request(object):
         return '<Request [%s]>' % (self.method)
 
 
-    def _build_response(self, resp, is_error=False):
+    def _build_response(self, resp):
         """Build internal :class:`Response <Response>` object
         from given response.
         """
@@ -183,9 +183,6 @@ class Request(object):
 
             # Save original response for later.
             response.raw = resp
-
-            if is_error:
-                response.error = resp
 
             response.url = self.full_url.decode('utf-8')
 
