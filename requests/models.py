@@ -31,6 +31,11 @@ from .utils import (
     get_encoding_from_headers, stream_decode_response_unicode,
     stream_decompress, guess_filename, requote_path)
 
+# Import chardet if it is available.
+try:
+    import chardet
+except ImportError:
+    pass
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 
@@ -717,22 +722,41 @@ class Response(object):
 
     @property
     def text(self):
-        """Content of the response, in unicode."""
+        """Content of the response, in unicode.
+
+        if Response.encoding is None and chardet module is available, encoding
+        will be guessed.
+        """
 
         # Try charset from content-type
         content = None
+        encoding = self.encoding
 
-        if self.encoding:
+        # Fallback to auto-detected encoding if chardet is available.
+        if self.encoding is None:
+
             try:
-                content = unicode(self.content, self.encoding)
-            except UnicodeError:
+                detected = chardet.detect(self.content) or {}
+                encoding = detected.get('encoding')
+
+            # Trust that chardet isn't available or something went terribly wrong.
+            except Exception:
                 pass
 
-            # Try to fall back:
-            try:
-                content = unicode(content, self.encoding, errors='replace')
-            except TypeError:
-                pass
+
+        # Decode unicode from given encoding.
+        try:
+            content = unicode(self.content, encoding)
+        except UnicodeError, TypeError:
+            pass
+
+        # Try to fall back:
+        try:
+            content = unicode(content, encoding, errors='replace')
+        except UnicodeError, TypeError:
+            pass
+
+
 
         return content
 
