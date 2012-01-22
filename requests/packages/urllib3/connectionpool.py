@@ -1,5 +1,5 @@
 # urllib3/connectionpool.py
-# Copyright 2008-2011 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
+# Copyright 2008-2012 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
 #
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
@@ -7,9 +7,16 @@
 import logging
 import socket
 
+try:   # Python 3
+    from http.client import HTTPConnection, HTTPSConnection, HTTPException
+except ImportError:
+    from httplib import HTTPConnection, HTTPSConnection, HTTPException
 
-from httplib import HTTPConnection, HTTPSConnection, HTTPException
-from Queue import Queue, Empty, Full
+try:   # Python 3
+    from queue import Queue, Empty, Full
+except ImportError:
+    from Queue import Queue, Empty, Full
+    
 from select import select
 from socket import error as SocketError, timeout as SocketTimeout
 
@@ -32,6 +39,9 @@ from .exceptions import (
     HostChangedError,
     EmptyPoolError,
 )
+
+from . import six
+xrange = six.moves.xrange
 
 
 log = logging.getLogger(__name__)
@@ -351,27 +361,29 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             #     ``response.release_conn()`` is called (implicitly by
             #     ``response.read()``)
 
-        except (Empty), e:
+        except Empty as e:
             # Timed out by queue
             raise TimeoutError("Request timed out. (pool_timeout=%s)" %
                                pool_timeout)
 
-        except (SocketTimeout), e:
+        except SocketTimeout as e:
             # Timed out by socket
             raise TimeoutError("Request timed out. (timeout=%s)" %
                                timeout)
 
-        except (BaseSSLError), e:
+        except BaseSSLError as e:
             # SSL certificate error
             raise SSLError(e)
 
-        except (CertificateError), e:
+        except CertificateError as e:
             # Name mismatch
             raise SSLError(e)
 
-        except (HTTPException, SocketError), e:
+        except (HTTPException, SocketError) as e:
             # Connection broken, discard. It will be replaced next _get_conn().
             conn = None
+            # This is necessary so we can access e below
+            err = e
 
         finally:
             if conn and release_conn:
@@ -380,7 +392,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         if not conn:
             log.warn("Retrying (%d attempts remain) after connection "
-                     "broken by '%r': %s" % (retries, e, url))
+                     "broken by '%r': %s" % (retries, err, url))
             return self.urlopen(method, url, body, headers, retries - 1,
                                 redirect, assert_same_host)  # Try again
 

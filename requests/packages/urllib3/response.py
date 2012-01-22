@@ -1,5 +1,5 @@
 # urllib3/response.py
-# Copyright 2008-2011 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
+# Copyright 2008-2012 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
 #
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
@@ -8,11 +8,7 @@ import gzip
 import logging
 import zlib
 
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO # pylint: disable-msg=W0404
+from io import BytesIO
 
 
 from .exceptions import HTTPError
@@ -22,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 def decode_gzip(data):
-    gzipper = gzip.GzipFile(fileobj=StringIO(data))
+    gzipper = gzip.GzipFile(fileobj=BytesIO(data))
     return gzipper.read()
 
 
@@ -178,12 +174,15 @@ class HTTPResponse(object):
         with ``original_response=r``.
         """
 
+        # HTTPResponse objects in Python 3 don't have a .strict attribute
+        strict = getattr(r, 'strict', 0)
         return ResponseCls(body=r,
-                           headers=dict(r.getheaders()),
+                           # In Python 3, the header keys are returned capitalised
+                           headers=dict((k.lower(), v) for k,v in r.getheaders()),
                            status=r.status,
                            version=r.version,
                            reason=r.reason,
-                           strict=r.strict,
+                           strict=strict,
                            original_response=r,
                            **response_kw)
 

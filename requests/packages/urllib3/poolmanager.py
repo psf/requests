@@ -1,5 +1,5 @@
 # urllib3/poolmanager.py
-# Copyright 2008-2011 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
+# Copyright 2008-2012 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
 #
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
@@ -108,7 +108,7 @@ class PoolManager(RequestMethods):
         try:
             return conn.urlopen(method, url, **kw)
 
-        except HostChangedError, e:
+        except HostChangedError as e:
             kw['retries'] = e.retries # Persist retries countdown
             return self.urlopen(method, e.new_url, **kw)
 
