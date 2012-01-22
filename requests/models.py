@@ -734,7 +734,6 @@ class Response(object):
 
         # Fallback to auto-detected encoding if chardet is available.
         if self.encoding is None:
-
             try:
                 detected = chardet.detect(self.content) or {}
                 encoding = detected.get('encoding')
@@ -742,7 +741,6 @@ class Response(object):
             # Trust that chardet isn't available or something went terribly wrong.
             except Exception:
                 pass
-
 
         # Decode unicode from given encoding.
         try:
