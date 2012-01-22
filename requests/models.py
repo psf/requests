@@ -677,6 +677,7 @@ class Response(object):
         avoids reading the content at once into memory for large
         responses.
         """
+
         #TODO: why rstrip by default
         pending = None
 
