@@ -6,6 +6,7 @@ History
 
 * ``Response.content`` is now bytes-only.
 * New ``Response.text`` is unicode-only.
+* If no ``Response.encoding`` is specified and ``chardet`` is available, ``Respoonse.text`` will guess an encoding.
 * Removal of `decode_unicode`
 * Default to ISO-8859-1 (Western) encoding for "text" subtypes
 * New multiple-hooks system.
