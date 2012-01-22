@@ -677,16 +677,21 @@ class Response(object):
         avoids reading the content at once into memory for large
         responses.
         """
-        #XXX: why rstrip by default
+        #TODO: why rstrip by default
         pending = None
+
         for chunk in self.iter_content(chunk_size, decode_unicode=decode_unicode):
+
             if pending is not None:
                 chunk = pending + chunk
             lines = chunk.splitlines(True)
+
             for line in lines[:-1]:
                 yield line.rstrip()
+
             # Save the last part of the chunk for next iteration, to keep full line together
             # lines may be empty for the last chunk of a chunked response
+
             if lines:
                 pending = lines[-1]
                 #if pending is a complete line, give it baack
