@@ -752,7 +752,8 @@ class Response(object):
 
         # Try to fall back:
         try:
-            content = unicode(content, encoding, errors='replace')
+            if not content:
+                content = unicode(content, encoding, errors='replace')
         except UnicodeError, TypeError:
             pass
 
