@@ -751,14 +751,14 @@ class Response(object):
         # Decode unicode from given encoding.
         try:
             content = unicode(self.content, encoding)
-        except UnicodeError, TypeError:
+        except (UnicodeError, TypeError):
             pass
 
         # Try to fall back:
         if not content:
             try:
-                content = unicode(content, encoding, errors='replace')
-            except UnicodeError, TypeError:
+                content = unicode(self.content, encoding, errors='replace')
+            except (UnicodeError, TypeError):
                 pass
 
 
