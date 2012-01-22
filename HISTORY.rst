@@ -4,11 +4,11 @@ History
 0.10.0
 +++++++
 
-* ``Response.content`` is now bytes-only.
+* ``Response.content`` is now bytes-only. (*Backwards Incompatible*)
 * New ``Response.text`` is unicode-only.
 * If no ``Response.encoding`` is specified and ``chardet`` is available, ``Respoonse.text`` will guess an encoding.
-* Removal of `decode_unicode`
-* Default to ISO-8859-1 (Western) encoding for "text" subtypes
+* Default to ISO-8859-1 (Western) encoding for "text" subtypes.
+* Removal of `decode_unicode`. (*Backwards Incompatible*)
 * New multiple-hooks system.
 * New ``Response.register_hook`` for registering hooks within the pipeline.
 
