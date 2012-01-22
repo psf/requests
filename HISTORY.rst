@@ -1,8 +1,8 @@
 History
 -------
 
-0.10.0
-+++++++
+0.10.0 (2012-01-21)
++++++++++++++++++++
 
 * ``Response.content`` is now bytes-only. (*Backwards Incompatible*)
 * New ``Response.text`` is unicode-only.
