@@ -1,3 +1,4 @@
+chardet==1.0.1
 envoy==0.0.2
 httpbin==0.0.6
 gunicorn
