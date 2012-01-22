@@ -11,6 +11,7 @@ History
 * Removal of `decode_unicode`. (*Backwards Incompatible*)
 * New multiple-hooks system.
 * New ``Response.register_hook`` for registering hooks within the pipeline.
+* ``Response.url`` is now Unicode.
 
 0.9.3 (2012-01-18)
 ++++++++++++++++++
