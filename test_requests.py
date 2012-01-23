@@ -8,7 +8,7 @@ import json
 import time
 import os
 import sys
-import unittest
+import unittest2 as unittest
 
 import requests
 from requests.compat import str, bytes, StringIO
