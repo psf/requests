@@ -10,8 +10,13 @@ import zlib
 
 from io import BytesIO
 
-
 from .exceptions import HTTPError
+
+
+try:
+    basestring = basestring
+except NameError: # Python 3
+    basestring = (str, bytes)
 
 
 log = logging.getLogger(__name__)
@@ -67,7 +72,7 @@ class HTTPResponse(object):
         self.strict = strict
 
         self._decode_content = decode_content
-        self._body = body if body and isinstance(body, str) else None
+        self._body = body if body and isinstance(body, basestring) else None
         self._fp = None
         self._original_response = original_response
 

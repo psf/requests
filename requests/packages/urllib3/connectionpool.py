@@ -7,21 +7,29 @@
 import logging
 import socket
 
-from select import poll, POLLIN
+from httplib import (HTTPConnection, HTTPSConnection, HTTPException,
+                     HTTP_PORT, HTTPS_PORT)
+
+from Queue import Queue, Empty, Full
 from socket import error as SocketError, timeout as SocketTimeout
 
+try:
+    from select import poll, POLLIN
+except ImportError: # Doesn't exist on OSX and other platforms
+    from select import select
+    poll = False
 
 try:   # Python 3
     from http.client import HTTPConnection, HTTPSConnection, HTTPException
     from http.client import HTTP_PORT, HTTPS_PORT
 except ImportError:
-    from http.client import HTTPConnection, HTTPSConnection, HTTPException
-    from http.client import HTTP_PORT, HTTPS_PORT
+    from httplib import HTTPConnection, HTTPSConnection, HTTPException
+    from httplib import HTTP_PORT, HTTPS_PORT
 
 try:   # Python 3
     from queue import Queue, Empty, Full
 except ImportError:
-    from queue import Queue, Empty, Full
+    from Queue import Queue, Empty, Full
 
 try:   # Compiled with SSL?
     import ssl
@@ -31,6 +39,7 @@ except ImportError:
     BaseSSLError = None
 
 
+from .packages.ssl_match_hostname import match_hostname, CertificateError
 from .request import RequestMethods
 from .response import HTTPResponse
 from .exceptions import (SSLError,
@@ -160,7 +169,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         self.headers = headers or {}
 
         # Fill the queue up so that doing get() on it will block properly
-        for _ in range(maxsize):
+        for _ in xrange(maxsize):
             self.pool.put(None)
 
         # These are mostly for testing and debugging purposes.
@@ -587,7 +596,10 @@ def is_connection_dropped(conn):
     :param conn:
         ``HTTPConnection`` object.
     """
-    # poll-based replacement to select([conn.sock], [], [], 0.0)[0]:
+    if not poll:
+        return select([conn.sock], [], [], 0.0)[0]
+
+    # This version is better on platforms that support it.
     p = poll()
     p.register(conn.sock, POLLIN)
     for (fno, ev) in p.poll(0.0):
