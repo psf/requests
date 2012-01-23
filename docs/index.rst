@@ -23,7 +23,7 @@ Things shouldn’t be this way. Not in Python.
     204
     >>> r.headers['content-type']
     'application/json'
-    >>> r.content
+    >>> r.text
     ...
 
 See `the same code, without Requests <https://gist.github.com/973705>`_.
