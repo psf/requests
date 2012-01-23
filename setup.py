@@ -21,7 +21,7 @@ if sys.argv[-1] == 'test':
     os.system('python test_requests.py')
     sys.exit()
 
-required = ['certifi>=0.0.4',]
+required = ['certifi>=0.0.7',]
 
 if is_py3:
     required.append('chardet2')
