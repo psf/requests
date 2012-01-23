@@ -45,7 +45,6 @@ setup(
         'requests.packages.urllib3.packages',
         'requests.packages.urllib3.packages.ssl_match_hostname',
         'requests.packages.urllib3.packages.mimetools_choose_boundary',
-        'requests.packages.urllib3.packages.six',
         'requests.packages.oreos'
     ],
     package_data={'': ['LICENSE', 'NOTICE']},
