@@ -713,7 +713,7 @@ class RequestsTestSuite(unittest.TestCase):
         # In safe mode, should return a blank response
         r = requests.get(httpbin('stream', '1000'), timeout=0.0001,
                 config=dict(safe_mode=True))
-        self.assertIsNone(r.content)
+        assert r.content is None
         assert isinstance(r.error, requests.exceptions.Timeout)
 
 
