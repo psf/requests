@@ -6,7 +6,7 @@ from __future__ import with_statement
 import StringIO
 import time
 import os
-import unittest
+import unittest2 as unittest
 
 import requests
 import envoy

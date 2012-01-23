@@ -6,3 +6,4 @@ nose
 pyflakes
 omnijson
 rudolf2
+unittest2
