@@ -55,16 +55,14 @@ It's on the way. Here's a list of Python platforms that are officially
 supported:
 
 * cPython 2.5
-* cPython 2.5.5
-* cPython 2.5.6
 * cPython 2.6
-* cPython 2.6.6
-* cPython 2.6.7
 * cPython 2.7
-* cPython 2.7.1
-* cPython 2.7.2
+* cPython 3.1
+* cPython 3.2
 * PyPy-c 1.4
 * PyPy-c 1.5
+* PyPy-c 1.6
+* PyPy-c 1.7
 
 
 Support for Python 3.x is coming *very* soon.
