@@ -10,13 +10,12 @@ import mimetypes
 try:
     from mimetools import choose_boundary
 except ImportError:
-    # I don't like using an undocumented function, but I don't yet know what it does
-    from email.generator import _make_boundary as choose_boundary
+    from .packages.mimetools_choose_boundary import choose_boundary
 
 from io import BytesIO
 
-from . import six
-from .six import b
+from .packages import six
+from .packages.six import b
 
 writer = codecs.lookup('utf-8')[3]
 

@@ -8,7 +8,7 @@ import logging
 
 from ._collections import RecentlyUsedContainer
 from .connectionpool import HTTPConnectionPool, HTTPSConnectionPool
-from .connectionpool import get_host, connection_from_url
+from .connectionpool import get_host, connection_from_url, port_by_scheme
 from .exceptions import HostChangedError
 from .request import RequestMethods
 
@@ -19,11 +19,6 @@ __all__ = ['PoolManager', 'ProxyManager', 'proxy_from_url']
 pool_classes_by_scheme = {
     'http': HTTPConnectionPool,
     'https': HTTPSConnectionPool,
-}
-
-port_by_scheme = {
-    'http': 80,
-    'https': 443,
 }
 
 log = logging.getLogger(__name__)
@@ -110,7 +105,7 @@ class PoolManager(RequestMethods):
 
         except HostChangedError as e:
             kw['retries'] = e.retries # Persist retries countdown
-            return self.urlopen(method, e.new_url, **kw)
+            return self.urlopen(method, e.url, **kw)
 
 
 class ProxyManager(RequestMethods):

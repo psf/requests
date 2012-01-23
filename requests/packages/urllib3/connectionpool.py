@@ -7,22 +7,23 @@
 import logging
 import socket
 
+from select import poll, POLLIN
+from socket import error as SocketError, timeout as SocketTimeout
+
+
 try:   # Python 3
     from http.client import HTTPConnection, HTTPSConnection, HTTPException
+    from http.client import HTTP_PORT, HTTPS_PORT
 except ImportError:
     from httplib import HTTPConnection, HTTPSConnection, HTTPException
+    from httplib import HTTP_PORT, HTTPS_PORT
 
 try:   # Python 3
     from queue import Queue, Empty, Full
 except ImportError:
     from Queue import Queue, Empty, Full
-    
-from select import select
-from socket import error as SocketError, timeout as SocketTimeout
 
-from .packages.ssl_match_hostname import match_hostname, CertificateError
-
-try:
+try:   # Compiled with SSL?
     import ssl
     BaseSSLError = ssl.SSLError
 except ImportError:
@@ -32,22 +33,26 @@ except ImportError:
 
 from .request import RequestMethods
 from .response import HTTPResponse
-from .exceptions import (
-    SSLError,
+from .exceptions import (SSLError,
     MaxRetryError,
     TimeoutError,
     HostChangedError,
     EmptyPoolError,
 )
 
-from . import six
-xrange = six.moves.xrange
+from urllib3.packages.ssl_match_hostname import match_hostname, CertificateError
+from urllib3.packages import six
 
+xrange = six.moves.xrange
 
 log = logging.getLogger(__name__)
 
 _Default = object()
 
+port_by_scheme = {
+    'http': HTTP_PORT,
+    'https': HTTPS_PORT,
+}
 
 ## Connection objects (extension of httplib)
 
@@ -91,7 +96,16 @@ class ConnectionPool(object):
     Base class for all connection pools, such as
     :class:`.HTTPConnectionPool` and :class:`.HTTPSConnectionPool`.
     """
-    pass
+
+    scheme = None
+
+    def __init__(self, host, port=None):
+        self.host = host
+        self.port = port
+
+    def __str__(self):
+        return '%s(host=%r, port=%r)' % (type(self).__name__,
+                                         self.host, self.port)
 
 
 class HTTPConnectionPool(ConnectionPool, RequestMethods):
@@ -179,14 +193,14 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             conn = self.pool.get(block=self.block, timeout=timeout)
 
             # If this is a persistent connection, check if it got disconnected
-            if conn and conn.sock and select([conn.sock], [], [], 0.0)[0]:
-                # Either data is buffered (bad), or the connection is dropped.
+            if conn and conn.sock and is_connection_dropped(conn):
                 log.info("Resetting dropped connection: %s" % self.host)
                 conn.close()
 
         except Empty:
             if self.block:
-                raise EmptyPoolError("Pool reached maximum size and no more "
+                raise EmptyPoolError(self,
+                                     "Pool reached maximum size and no more "
                                      "connections are allowed.")
             pass  # Oh well, we'll create a new connection then
 
@@ -239,11 +253,17 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
     def is_same_host(self, url):
         """
         Check if the given ``url`` is a member of the same host as this
-        conncetion pool.
+        connection pool.
         """
         # TODO: Add optional support for socket.gethostbyname checking.
+        scheme, host, port = get_host(url)
+
+        if self.port and not port:
+            # Use explicit default port for comparison when none is given.
+            port = port_by_scheme.get(scheme)
+
         return (url.startswith('/') or
-                get_host(url) == (self.scheme, self.host, self.port))
+                (scheme, host, port) == (self.scheme, self.host, self.port))
 
     def urlopen(self, method, url, body=None, headers=None, retries=3,
                 redirect=True, assert_same_host=True, timeout=_Default,
@@ -316,7 +336,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             headers = self.headers
 
         if retries < 0:
-            raise MaxRetryError(url)
+            raise MaxRetryError(self, url)
 
         if timeout is _Default:
             timeout = self.timeout
@@ -330,7 +350,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             if self.port:
                 host = "%s:%d" % (host, self.port)
 
-            raise HostChangedError(host, url, retries - 1)
+            raise HostChangedError(self, url, retries - 1)
 
         conn = None
 
@@ -363,12 +383,12 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         except Empty as e:
             # Timed out by queue
-            raise TimeoutError("Request timed out. (pool_timeout=%s)" %
+            raise TimeoutError(self, "Request timed out. (pool_timeout=%s)" %
                                pool_timeout)
 
         except SocketTimeout as e:
             # Timed out by socket
-            raise TimeoutError("Request timed out. (timeout=%s)" %
+            raise TimeoutError(self, "Request timed out. (timeout=%s)" %
                                timeout)
 
         except BaseSSLError as e:
@@ -558,3 +578,19 @@ def connection_from_url(url, **kw):
         return HTTPSConnectionPool(host, port=port, **kw)
     else:
         return HTTPConnectionPool(host, port=port, **kw)
+
+
+def is_connection_dropped(conn):
+    """
+    Returns True if the connection is dropped and should be closed.
+
+    :param conn:
+        ``HTTPConnection`` object.
+    """
+    # poll-based replacement to select([conn.sock], [], [], 0.0)[0]:
+    p = poll()
+    p.register(conn.sock, POLLIN)
+    for (fno, ev) in p.poll(0.0):
+        if fno == conn.sock.fileno():
+            # Either data is buffered (bad), or the connection is dropped.
+            return True
