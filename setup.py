@@ -4,6 +4,7 @@
 import os
 import sys
 import requests
+from requests.compat import is_py3
 
 try:
     from setuptools import setup
@@ -20,13 +21,13 @@ if sys.argv[-1] == 'test':
     os.system('python test_requests.py')
     sys.exit()
 
-required = [
-    'certifi>=0.0.4',
-    'chardet>=1.0.0'
-]
+required = ['certifi>=0.0.4',]
 
-if sys.version_info[:2] < (2,6):
-    required.append('simplejson')
+if is_py3:
+    required.append('chardet2')
+else:
+    required.append('chardet>=1.0.0')
+
 
 setup(
     name='requests',
@@ -43,6 +44,8 @@ setup(
         'requests.packages.urllib3',
         'requests.packages.urllib3.packages',
         'requests.packages.urllib3.packages.ssl_match_hostname',
+        'requests.packages.urllib3.packages.mimetools_choose_boundary',
+        'requests.packages.urllib3.packages.six',
         'requests.packages.oreos'
     ],
     package_data={'': ['LICENSE', 'NOTICE']},
@@ -55,10 +58,9 @@ setup(
         'Natural Language :: English',
         'License :: OSI Approved :: ISC License (ISCL)',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        # 'Programming Language :: Python :: 3.0',
-        # 'Programming Language :: Python :: 3.1',
+        'Programming Language :: Python :: 3.0',
+        'Programming Language :: Python :: 3.1',
     ),
 )
