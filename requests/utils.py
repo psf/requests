@@ -17,9 +17,8 @@ import re
 import zlib
 
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, unquote, cookielib
+from .compat import quote, unquote, cookielib, SimpleCookie
 
-from http.cookies import SimpleCookie
 
 def dict_from_string(s):
     """Returns a MultiDict with Cookies."""
