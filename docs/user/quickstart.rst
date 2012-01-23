@@ -88,7 +88,7 @@ dictionary of data will automatically be form-encoded when the request is made::
 
     >>> payload = {'key1': 'value1', 'key2': 'value2'}
     >>> r = requests.post("http://httpbin.org/post", data=payload)
-    >>> print r.content
+    >>> print r.text
     {
       "origin": "179.13.100.4",
       "files": {},
@@ -143,7 +143,7 @@ Requests makes it simple to upload Multipart-encoded files::
     >>> files = {'report.xls': open('report.xls', 'rb')}
 
     >>> r = requests.post(url, files=files)
-    >>> r.content
+    >>> r.text
     {
       "origin": "179.13.100.4",
       "files": {
@@ -169,7 +169,7 @@ Setting filename explicitly::
     >>> files = {'file': ('report.xls', open('report.xls', 'rb'))}
 
     >>> r = requests.post(url, files=files)
-    >>> r.content
+    >>> r.text
     {
       "origin": "179.13.100.4",
       "files": {
@@ -279,7 +279,7 @@ parameter::
     >>> cookies = dict(cookies_are='working')
 
     >>> r = requests.get(url, cookies=cookies)
-    >>> r.content
+    >>> r.text
     '{"cookies": {"cookies_are": "working"}}'
 
 
