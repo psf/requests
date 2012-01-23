@@ -51,7 +51,7 @@ Chris Adams gave an excellent summary on
 Python 3 Support?
 -----------------
 
-It's on the way. Here's a list of Python platforms that are officially
+Yes! Here's a list of Python platforms that are officially
 supported:
 
 * cPython 2.5
@@ -63,9 +63,6 @@ supported:
 * PyPy-c 1.5
 * PyPy-c 1.6
 * PyPy-c 1.7
-
-
-Support for Python 3.x is coming *very* soon.
 
 
 Keep-alive Support?
