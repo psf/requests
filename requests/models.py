@@ -8,15 +8,16 @@ This module contains the primary objects that power Requests.
 """
 
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
-from urlparse import urlparse, urlunparse, urljoin, urlsplit
+# from urlparse import urlparse, urlunparse, urljoin, urlsplit
+from urllib.parse import urlparse, urlunparse, urljoin, urlsplit, urlencode
 from datetime import datetime
 
 from .hooks import dispatch_hook, HOOKS
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
-from .packages import oreos
+# from .packages import oreos
 from .auth import HTTPBasicAuth, HTTPProxyAuth
 from .packages.urllib3.response import HTTPResponse
 from .packages.urllib3.exceptions import MaxRetryError
@@ -29,7 +30,7 @@ from .exceptions import (
     URLRequired, SSLError)
 from .utils import (
     get_encoding_from_headers, stream_decode_response_unicode,
-    stream_decompress, guess_filename, requote_path)
+    stream_decompress, guess_filename, requote_path, dict_from_string)
 
 # Import chardet if it is available.
 try:
@@ -70,6 +71,11 @@ class Request(object):
         self.timeout = timeout
 
         #: Request URL.
+
+        # if isinstance(url, str):
+            # url = url.encode('utf-8')
+            # print(dir(url))
+
         self.url = url
 
         #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.
@@ -126,7 +132,7 @@ class Request(object):
 
         hooks = hooks or {}
 
-        for (k, v) in hooks.items():
+        for (k, v) in list(hooks.items()):
             self.register_hook(event=k, hook=v)
 
         #: Session.
@@ -141,7 +147,7 @@ class Request(object):
             headers = CaseInsensitiveDict()
 
         # Add configured base headers.
-        for (k, v) in self.config.get('base_headers', {}).items():
+        for (k, v) in list(self.config.get('base_headers', {}).items()):
             if k not in headers:
                 headers[k] = v
 
@@ -186,7 +192,7 @@ class Request(object):
                 # Add new cookies from the server.
                 if 'set-cookie' in response.headers:
                     cookie_header = response.headers['set-cookie']
-                    cookies = oreos.dict_from_string(cookie_header)
+                    cookies = dict_from_string(cookie_header)
 
                 # Save cookies in Response.
                 response.cookies = cookies
@@ -196,7 +202,7 @@ class Request(object):
 
             # Save original response for later.
             response.raw = resp
-            response.url = self.full_url.decode('utf-8')
+            response.url = self.full_url
 
             return response
 
@@ -284,16 +290,17 @@ class Request(object):
         returns it twice.
         """
 
-        if hasattr(data, '__iter__'):
+        if hasattr(data, '__iter__') and not isinstance(data, str):
             data = dict(data)
+
 
         if hasattr(data, 'items'):
             result = []
-            for k, vs in data.items():
+            for k, vs in list(data.items()):
                 for v in isinstance(vs, list) and vs or [vs]:
-                    result.append((k.encode('utf-8') if isinstance(k, unicode) else k,
-                                   v.encode('utf-8') if isinstance(v, unicode) else v))
-            return result, urllib.urlencode(result, doseq=True)
+                    result.append((k.encode('utf-8') if isinstance(k, str) else k,
+                                   v.encode('utf-8') if isinstance(v, str) else v))
+            return result, urlencode(result, doseq=True)
         else:
             return data, data
 
@@ -304,20 +311,26 @@ class Request(object):
         if not self.url:
             raise URLRequired()
 
+        url = self.url
+
         # Support for unicode domain names and paths.
-        scheme, netloc, path, params, query, fragment = urlparse(self.url)
+        scheme, netloc, path, params, query, fragment = urlparse(url)
+
 
         if not scheme:
-            raise ValueError("Invalid URL %r: No schema supplied" %self.url)
+            raise ValueError("Invalid URL %r: No schema supplied" % url)
 
-        netloc = netloc.encode('idna')
+        netloc = netloc.encode('idna').decode('utf-8')
 
-        if isinstance(path, unicode):
-            path = path.encode('utf-8')
+        # if isinstance(path, str):
+        #     path = path.encode('utf-8')
 
-        path = requote_path(path)
+        # path = requote_path(path)
 
-        url = str(urlunparse([ scheme, netloc, path, params, query, fragment ]))
+        # print([ scheme, netloc, path, params, query, fragment ])
+        # print('---------------------')
+
+        url = (urlunparse([ scheme, netloc, path, params, query, fragment ]))
 
         if self._enc_params:
             if urlparse(url).query:
@@ -342,12 +355,18 @@ class Request(object):
         path = p.path
         if not path:
             path = '/'
+
+        from urllib.parse import quote, unquote
+
+        path = quote(path.encode('utf-8'))
         url.append(path)
 
         query = p.query
         if query:
             url.append('?')
             url.append(query)
+
+        # print(url)
 
         return ''.join(url)
 
@@ -384,14 +403,14 @@ class Request(object):
 
         # Multi-part file uploads.
         if self.files:
-            if not isinstance(self.data, basestring):
+            if not isinstance(self.data, str):
 
                 try:
                     fields = self.data.copy()
                 except AttributeError:
                     fields = dict(self.data)
 
-                for (k, v) in self.files.items():
+                for (k, v) in list(self.files.items()):
                     # support for explicit filename
                     if isinstance(v, (tuple, list)):
                         fn, fp = v
@@ -408,7 +427,7 @@ class Request(object):
             if self.data:
 
                 body = self._enc_data
-                if isinstance(self.data, basestring):
+                if isinstance(self.data, str):
                     content_type = None
                 else:
                     content_type = 'application/x-www-form-urlencoded'
@@ -481,8 +500,10 @@ class Request(object):
                 if 'cookie' not in self.headers:
 
                     # Simple cookie with our dict.
-                    c = oreos.monkeys.SimpleCookie()
-                    for (k, v) in self.cookies.items():
+                    # c = oreos.monkeys.SimpleCookie()
+                    from http.cookies import SimpleCookie
+                    c = SimpleCookie()
+                    for (k, v) in list(self.cookies.items()):
                         c[k] = v
 
                     # Turn it into a header.
@@ -511,16 +532,16 @@ class Request(object):
                     )
                     self.sent = True
 
-                except MaxRetryError, e:
+                except MaxRetryError as e:
                     raise ConnectionError(e)
 
-                except (_SSLError, _HTTPError), e:
+                except (_SSLError, _HTTPError) as e:
                     if self.verify and isinstance(e, _SSLError):
                         raise SSLError(e)
 
                     raise Timeout('Request timed out.')
 
-            except RequestException, e:
+            except RequestException as e:
                 if self.config.get('safe_mode', False):
                     # In safe mode, catch the exception and attach it to
                     # a blank urllib3.HTTPResponse object.
@@ -599,7 +620,7 @@ class Response(object):
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
 
-    def __nonzero__(self):
+    def __bool__(self):
         """Returns true if :attr:`status_code` is 'OK'."""
         return self.ok
 
@@ -750,15 +771,15 @@ class Response(object):
 
         # Decode unicode from given encoding.
         try:
-            content = unicode(self.content, encoding)
-        except UnicodeError, TypeError:
+            content = str(self.content, encoding)
+        except (UnicodeError, TypeError):
             pass
 
         # Try to fall back:
         if not content:
             try:
-                content = unicode(content, encoding, errors='replace')
-            except UnicodeError, TypeError:
+                content = str(content, encoding, errors='replace')
+            except (UnicodeError, TypeError):
                 pass
 
 

@@ -67,7 +67,7 @@ class HTTPResponse(object):
         self.strict = strict
 
         self._decode_content = decode_content
-        self._body = body if body and isinstance(body, basestring) else None
+        self._body = body if body and isinstance(body, str) else None
         self._fp = None
         self._original_response = original_response
 

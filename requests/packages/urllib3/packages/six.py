@@ -39,10 +39,10 @@ if PY3:
 
     MAXSIZE = sys.maxsize
 else:
-    string_types = basestring,
-    integer_types = (int, long)
-    class_types = (type, types.ClassType)
-    text_type = unicode
+    string_types = str,
+    integer_types = (int, int)
+    class_types = (type, type)
+    text_type = str
     binary_type = str
 
     # It's possible to have sizeof(long) != sizeof(Py_ssize_t).
@@ -230,11 +230,11 @@ if PY3:
         return any("__call__" in klass.__dict__ for klass in type(obj).__mro__)
 else:
     def get_unbound_function(unbound):
-        return unbound.im_func
+        return unbound.__func__
 
 
     def advance_iterator(it):
-        return it.next()
+        return next(it)
 
     callable = callable
 _add_doc(get_unbound_function,
@@ -278,10 +278,10 @@ else:
     def b(s):
         return s
     def u(s):
-        return unicode(s, "unicode_escape")
+        return str(s, "unicode_escape")
     int2byte = chr
-    import StringIO
-    StringIO = BytesIO = StringIO.StringIO
+    import io
+    StringIO = BytesIO = io.StringIO
 _add_doc(b, """Byte literal""")
 _add_doc(u, """Text literal""")
 
@@ -325,19 +325,19 @@ else:
         if fp is None:
             return
         def write(data):
-            if not isinstance(data, basestring):
+            if not isinstance(data, str):
                 data = str(data)
             fp.write(data)
         want_unicode = False
         sep = kwargs.pop("sep", None)
         if sep is not None:
-            if isinstance(sep, unicode):
+            if isinstance(sep, str):
                 want_unicode = True
             elif not isinstance(sep, str):
                 raise TypeError("sep must be None or a string")
         end = kwargs.pop("end", None)
         if end is not None:
-            if isinstance(end, unicode):
+            if isinstance(end, str):
                 want_unicode = True
             elif not isinstance(end, str):
                 raise TypeError("end must be None or a string")
@@ -345,12 +345,12 @@ else:
             raise TypeError("invalid keyword arguments to print()")
         if not want_unicode:
             for arg in args:
-                if isinstance(arg, unicode):
+                if isinstance(arg, str):
                     want_unicode = True
                     break
         if want_unicode:
-            newline = unicode("\n")
-            space = unicode(" ")
+            newline = str("\n")
+            space = str(" ")
         else:
             newline = "\n"
             space = " "

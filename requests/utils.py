@@ -11,15 +11,34 @@ that are also useful for external consumption.
 
 import cgi
 import codecs
-import cookielib
+# import cookielib
+from http import cookiejar as cookielib
 import os
 import random
 import re
 import zlib
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
-from urllib2 import parse_http_list as _parse_list_header
 
+from urllib.parse import quote, unquote
+
+# from urllib2 import parse_http_list as _parse_list_header
+from urllib.request import parse_http_list as _parse_list_header
+
+from http.cookies import SimpleCookie
+
+def dict_from_string(s):
+    """Returns a MultiDict with Cookies."""
+
+    cookies = dict()
+
+    c = SimpleCookie()
+    c.load(s)
+
+    for k,v in list(c.items()):
+        cookies.update({k: v.value})
+
+    return cookies
 
 def guess_filename(obj):
     """Tries to guess the filename of the given object."""
@@ -132,16 +151,16 @@ def header_expand(headers):
     collector = []
 
     if isinstance(headers, dict):
-        headers = headers.items()
+        headers = list(headers.items())
 
-    elif isinstance(headers, basestring):
+    elif isinstance(headers, str):
         return headers
 
     for i, (value, params) in enumerate(headers):
 
         _params = []
 
-        for (p_k, p_v) in params.items():
+        for (p_k, p_v) in list(params.items()):
 
             _params.append('%s=%s' % (p_k, p_v))
 
@@ -166,17 +185,8 @@ def header_expand(headers):
 
 def randombytes(n):
     """Return n random bytes."""
-    # Use /dev/urandom if it is available.  Fall back to random module
-    # if not.  It might be worthwhile to extend this function to use
-    # other platform-specific mechanisms for getting random bytes.
-    if os.path.exists("/dev/urandom"):
-        f = open("/dev/urandom")
-        s = f.read(n)
-        f.close()
-        return s
-    else:
-        L = [chr(random.randrange(0, 256)) for i in range(n)]
-        return "".join(L)
+    L = [chr(random.randrange(0, 256)).encode('utf-8') for i in range(n)]
+    return b"".join(L)
 
 
 def dict_from_cookiejar(cj):
@@ -187,9 +197,9 @@ def dict_from_cookiejar(cj):
 
     cookie_dict = {}
 
-    for _, cookies in cj._cookies.items():
-        for _, cookies in cookies.items():
-            for cookie in cookies.values():
+    for _, cookies in list(cj._cookies.items()):
+        for _, cookies in list(cookies.items()):
+            for cookie in list(cookies.values()):
                 # print cookie
                 cookie_dict[cookie.name] = cookie.value
 
@@ -221,7 +231,7 @@ def add_dict_to_cookiejar(cj, cookie_dict):
     :param cookie_dict: Dict of key/values to insert into CookieJar.
     """
 
-    for k, v in cookie_dict.items():
+    for k, v in list(cookie_dict.items()):
 
         cookie = cookielib.Cookie(
             version=0,
@@ -290,7 +300,7 @@ def unicode_from_html(content):
     for encoding in encodings:
 
         try:
-            return unicode(content, encoding)
+            return str(content, encoding)
         except (UnicodeError, TypeError):
             pass
 
@@ -337,13 +347,13 @@ def get_unicode_from_response(r):
 
     if encoding:
         try:
-            return unicode(r.content, encoding)
+            return str(r.content, encoding)
         except UnicodeError:
             tried_encodings.append(encoding)
 
     # Fall back:
     try:
-        return unicode(r.content, encoding, errors='replace')
+        return str(r.content, encoding, errors='replace')
     except TypeError:
         return r.content
 
@@ -396,6 +406,6 @@ def requote_path(path):
     This function passes the given path through an unquote/quote cycle to
     ensure that it is fully and consistently quoted.
     """
-    parts = path.split("/")
-    parts = (urllib.quote(urllib.unquote(part), safe="") for part in parts)
-    return "/".join(parts)
+    parts = path.split(b"/")
+    parts = (quote(unquote(part), safe=b"") for part in parts)
+    return b"/".join(parts)

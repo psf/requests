@@ -13,7 +13,7 @@ Issue #10, see: http://code.google.com/p/urllib3/issues/detail?id=10
 try:
     from http.client import HTTPSConnection
 except ImportError:
-    from httplib import HTTPSConnection
+    from http.client import HTTPSConnection
 from logging import getLogger
 from ntlm import ntlm
 

@@ -15,13 +15,13 @@ try:   # Python 3
     from http.client import HTTPConnection, HTTPSConnection, HTTPException
     from http.client import HTTP_PORT, HTTPS_PORT
 except ImportError:
-    from httplib import HTTPConnection, HTTPSConnection, HTTPException
-    from httplib import HTTP_PORT, HTTPS_PORT
+    from http.client import HTTPConnection, HTTPSConnection, HTTPException
+    from http.client import HTTP_PORT, HTTPS_PORT
 
 try:   # Python 3
     from queue import Queue, Empty, Full
 except ImportError:
-    from Queue import Queue, Empty, Full
+    from queue import Queue, Empty, Full
 
 try:   # Compiled with SSL?
     import ssl
@@ -40,8 +40,8 @@ from .exceptions import (SSLError,
     EmptyPoolError,
 )
 
-from urllib3.packages.ssl_match_hostname import match_hostname, CertificateError
-from urllib3.packages import six
+from .packages.ssl_match_hostname import match_hostname, CertificateError
+from .packages import six
 
 xrange = six.moves.xrange
 
@@ -160,7 +160,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         self.headers = headers or {}
 
         # Fill the queue up so that doing get() on it will block properly
-        for _ in xrange(maxsize):
+        for _ in range(maxsize):
             self.pool.put(None)
 
         # These are mostly for testing and debugging purposes.

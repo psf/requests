@@ -79,7 +79,7 @@ _codes = {
 
 codes = LookupDict(name='status_codes')
 
-for (code, titles) in _codes.items():
+for (code, titles) in list(_codes.items()):
     for title in titles:
         setattr(codes, title, code)
         if not title.startswith('\\'):

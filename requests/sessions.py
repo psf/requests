@@ -25,7 +25,7 @@ def merge_kwargs(local_kwarg, default_kwarg):
     if default_kwarg is None:
         return local_kwarg
 
-    if isinstance(local_kwarg, basestring):
+    if isinstance(local_kwarg, str):
         return local_kwarg
 
     if local_kwarg is None:
@@ -40,7 +40,7 @@ def merge_kwargs(local_kwarg, default_kwarg):
     kwargs.update(local_kwarg)
 
     # Remove keys that are set to None.
-    for (k,v) in local_kwarg.items():
+    for (k,v) in list(local_kwarg.items()):
         if v is None:
             del kwargs[k]
 
@@ -76,7 +76,7 @@ class Session(object):
         self.config = config or {}
         self.verify = verify
 
-        for (k, v) in defaults.items():
+        for (k, v) in list(defaults.items()):
             self.config.setdefault(k, v)
 
         self.poolmanager = PoolManager(
@@ -150,12 +150,12 @@ class Session(object):
             verify = self.verify
 
         # use session's hooks as defaults
-        for key, cb in self.hooks.iteritems():
+        for key, cb in list(self.hooks.items()):
             hooks.setdefault(key, cb)
 
         # Expand header values.
         if headers:
-            for k, v in headers.items() or {}:
+            for k, v in list(headers.items()) or {}:
                 headers[k] = header_expand(v)
 
         args = dict(

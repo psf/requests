@@ -7,11 +7,14 @@ requests.auth
 This module contains the authentication handlers for Requests.
 """
 
+from __future__ import unicode_literals
+
 import time
 import hashlib
 
 from base64 import b64encode
-from urlparse import urlparse
+# from urlparse import urlparse
+from urllib.parse import urlparse
 
 from .utils import randombytes, parse_dict_header
 
@@ -19,7 +22,8 @@ from .utils import randombytes, parse_dict_header
 
 def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
-    return 'Basic %s' % b64encode('%s:%s' % (username, password))
+
+    return 'Basic ' + b64encode(("%s:%s" % (username, password)).encode('utf-8')).strip().decode('utf-8')
 
 
 class AuthBase(object):
@@ -32,8 +36,8 @@ class AuthBase(object):
 class HTTPBasicAuth(AuthBase):
     """Attaches HTTP Basic Authentication to the given Request object."""
     def __init__(self, username, password):
-        self.username = str(username)
-        self.password = str(password)
+        self.username = username
+        self.password = password
 
     def __call__(self, r):
         r.headers['Authorization'] = _basic_auth_str(self.username, self.password)
@@ -101,10 +105,12 @@ class HTTPDigestAuth(AuthBase):
                     last_nonce = nonce
 
                 ncvalue = '%08x' % nonce_count
-                cnonce = (hashlib.sha1("%s:%s:%s:%s" % (
-                    nonce_count, nonce, time.ctime(), randombytes(8)))
-                    .hexdigest()[:16]
-                )
+                s = str(nonce_count).encode('utf-8')
+                s += nonce.encode('utf-8')
+                s += time.ctime().encode('utf-8')
+                s += randombytes(8)
+
+                cnonce = (hashlib.sha1(s).hexdigest()[:16])
                 noncebit = "%s:%s:%s:%s:%s" % (nonce, ncvalue, cnonce, qop, H(A2))
                 respdig = KD(H(A1), noncebit)
             elif qop is None:
