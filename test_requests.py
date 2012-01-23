@@ -702,7 +702,7 @@ class RequestsTestSuite(unittest.TestCase):
 
         r = safe.get('http://_/')
         self.assertEqual(list(r.iter_content()), [])
-         assert isinstancer.error, requests.exceptions.ConnectionError)
+        assert isinstance(r.error, requests.exceptions.ConnectionError)
 
         # When not in safe mode, should raise Timeout exception
         with self.assertRaises(requests.exceptions.Timeout):
@@ -712,7 +712,7 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get(httpbin('stream', '1000'), timeout=0.0001,
                 config=dict(safe_mode=True))
         self.assertIsNone(r.content)
-         assert isinstance(r.error, requests.exceptions.Timeout)
+        assert isinstance(r.error, requests.exceptions.Timeout)
 
 
 if __name__ == '__main__':
