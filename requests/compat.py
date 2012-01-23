@@ -73,3 +73,19 @@ is_hpux = ('hpux' in str(sys.platform).lower())   # Complete guess.
 is_solaris = ('solar==' in str(sys.platform).lower())   # Complete guess.
 
 
+# ---------
+# Specifics
+# ---------
+
+
+if is_py2:
+    from urlparse import urlparse, urlunparse, urljoin, urlsplit, quote, unquote
+    from urllib2 import parse_http_list
+    import cookielib
+
+
+elif is_py3:
+    from urllib.parse import urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote
+    from urllib.request import parse_http_list
+    from http import cookiejar as cookielib
+

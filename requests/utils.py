@@ -11,19 +11,13 @@ that are also useful for external consumption.
 
 import cgi
 import codecs
-# import cookielib
-from http import cookiejar as cookielib
 import os
 import random
 import re
 import zlib
-import urllib.request, urllib.parse, urllib.error
 
-
-from urllib.parse import quote, unquote
-
-# from urllib2 import parse_http_list as _parse_list_header
-from urllib.request import parse_http_list as _parse_list_header
+from .compat import parse_http_list as _parse_list_header
+from .compat import quote, unquote, cookielib
 
 from http.cookies import SimpleCookie
 
