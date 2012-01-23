@@ -19,7 +19,7 @@ Things shouldn't be this way. Not in Python.
     204
     >>> r.headers['content-type']
     'application/json'
-    >>> r.content
+    >>> r.text
     ...
 
 See `the same code, without Requests <https://gist.github.com/973705>`_.
@@ -45,36 +45,6 @@ Features
 - Multipart file uploads.
 - Automatc decoding of Unicode, gzip, and deflate responses.
 - Full support for unicode URLs and domain names.
-
-
-Usage
------
-
-It couldn't be simpler::
-
-    >>> import requests
-    >>> r = requests.get('http://google.com')
-
-
-HTTPS? Basic Authentication? ::
-
-    >>> r = requests.get('https://httpbin.ep.io/basic-auth/user/pass')
-    >>> r.status_code
-    401
-
-
-Uh oh, we're not authorized! Let's add authentication. ::
-
-    >>> r = requests.get('https://httpbin.ep.io/basic-auth/user/pass', auth=('user', 'pass'))
-
-    >>> r.status_code
-    200
-
-    >>> r.headers['content-type']
-    'application/json'
-
-    >>> r.content
-    '{"authenticated": true, "user": "user"}'
 
 
 Installation
