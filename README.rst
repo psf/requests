@@ -35,16 +35,16 @@ hacks for you.
 Features
 --------
 
-- Browser standard SSL verification.
-- Extremely simple HEAD, GET, POST, PUT, PATCH, DELETE Requests.
-- Gevent support for Asyncronous Requests.
-- Sessions with cookie persistence.
-- Basic, Digest, and Custom Authentication support.
-- Automatic form-encoding of dictionaries
-- A simple dictionary interface for request/response cookies.
-- Multipart file uploads.
-- Automatc decoding of Unicode, gzip, and deflate responses.
-- Full support for unicode URLs and domain names.
+- International Domains and URLs
+- Keep-Alive & Connection Pooling
+- Sessions with Cookie Persistence
+- Browser-style SSL Verification
+- Basic/Digest Authentication
+- Elegant Key/Value Cookies
+- Automatic Decompression
+- Unicode Response Bodies
+- Multipart File Uploads
+- Connection Timeouts
 
 
 Installation
