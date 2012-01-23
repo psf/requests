@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
+
 from __future__ import with_statement
 
 import StringIO
 import time
 import os
+import sys
 import unittest
 
 import requests
@@ -18,12 +21,12 @@ try:
 except ImportError:
     import json
 
+if (sys.platform == 'win32') and ('HTTPBIN_URL' not in os.environ):
+    os.environ['HTTPBIN_URL'] = 'http://httpbin.org/'
 
 # TODO: Detect an open port.
 PORT = os.environ.get('HTTPBIN_PORT', '7077')
-
-HTTPBIN_URL = 'http://0.0.0.0:%s/' % (PORT)
-# HTTPBIN_URL = 'http://127.0.0.1:8000/'
+HTTPBIN_URL = os.environ.get('HTTPBIN_URL', 'http://0.0.0.0:%s/' % (PORT))
 
 
 def httpbin(*suffix):
@@ -46,20 +49,10 @@ class RequestsTestSuite(unittest.TestCase):
 
         global _httpbin
 
-        if not _httpbin:
-
-            c = envoy.connect('gunicorn httpbin:app --bind=0.0.0.0:%s' % (PORT))
-
-            self.httpbin = c
-            _httpbin = True
+        if (not 'HTTPBIN_URL' in os.environ) and not _httpbin:
+            c = envoy.connect('httpbin %s' % (PORT))
             time.sleep(1)
-
-
-
-    def tearDown(self):
-        """Teardown."""
-        # self.httpbin.kill()
-        pass
+            _httpbin = True
 
 
     def test_entry_points(self):
@@ -139,11 +132,6 @@ class RequestsTestSuite(unittest.TestCase):
 
     def test_HTTP_200_OK_PUT(self):
         r = requests.put(httpbin('put'))
-        self.assertEqual(r.status_code, 200)
-
-
-    def test_HTTP_200_OK_PATCH(self):
-        r = requests.patch(httpbin('patch'))
         self.assertEqual(r.status_code, 200)
 
 
