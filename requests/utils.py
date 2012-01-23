@@ -17,7 +17,7 @@ import re
 import zlib
 
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, unquote, cookielib, SimpleCookie
+from .compat import quote, unquote, cookielib, SimpleCookie, is_py2
 
 
 def dict_from_string(s):
@@ -178,7 +178,10 @@ def header_expand(headers):
 
 def randombytes(n):
     """Return n random bytes."""
-    L = [chr(random.randrange(0, 256)).encode('utf-8') for i in range(n)]
+    if is_py2:
+        L = [chr(random.randrange(0, 256)) for i in range(n)]
+    else:
+        L = [chr(random.randrange(0, 256)).encode('utf-8') for i in range(n)]
     return b"".join(L)
 
 

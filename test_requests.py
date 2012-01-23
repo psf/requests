@@ -3,23 +3,20 @@
 
 
 
-
-
 import io
+import json
 import time
 import os
 import sys
 import unittest
 
 import requests
+from requests.compat import str, bytes, StringIO
 # import envoy
 from requests import HTTPError
 from requests.auth import HTTPBasicAuth, HTTPDigestAuth
 
-try:
-    import omnijson as json
-except ImportError:
-    import json
+
 
 if (sys.platform == 'win32') and ('HTTPBIN_URL' not in os.environ):
     os.environ['HTTPBIN_URL'] = 'http://httpbin.org/'
@@ -344,7 +341,8 @@ class RequestsTestSuite(unittest.TestCase):
             rbody = json.loads(r.text)
             # Body wasn't valid url encoded data, so the server returns None as
             # "form" and the raw body as "data".
-            self.assertEqual(rbody.get('form'), {})
+
+            assert rbody.get('form') in (None, {})
             self.assertEqual(rbody.get('data'), 'fooaowpeuf')
 
 
@@ -392,7 +390,7 @@ class RequestsTestSuite(unittest.TestCase):
 
             rbody = json.loads(r.text)
 
-            self.assertEqual(rbody.get('form'), {})
+            assert rbody.get('form') in (None, {})
             self.assertEqual(rbody.get('data'), 'foobar')
 
 
@@ -686,7 +684,7 @@ class RequestsTestSuite(unittest.TestCase):
 
         # Make a request and monkey-patch its contents
         r = requests.get(httpbin('get'))
-        r.raw = io.StringIO(quote)
+        r.raw = StringIO(quote)
 
         # Make sure iter_lines doesn't chop the trailing bit
         lines = '\n'.join(r.iter_lines())

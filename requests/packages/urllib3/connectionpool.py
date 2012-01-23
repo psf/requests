@@ -7,10 +7,6 @@
 import logging
 import socket
 
-from httplib import (HTTPConnection, HTTPSConnection, HTTPException,
-                     HTTP_PORT, HTTPS_PORT)
-
-from Queue import Queue, Empty, Full
 from socket import error as SocketError, timeout as SocketTimeout
 
 try:

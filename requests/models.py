@@ -28,7 +28,7 @@ from .utils import (
     get_encoding_from_headers, stream_decode_response_unicode,
     stream_decompress, guess_filename, requote_path, dict_from_string)
 
-from .compat import urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote
+from .compat import urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote, str, bytes, SimpleCookie, is_py3, is_py2
 
 # Import chardet if it is available.
 try:
@@ -320,10 +320,11 @@ class Request(object):
 
         netloc = netloc.encode('idna').decode('utf-8')
 
-        # if isinstance(path, str):
-        #     path = path.encode('utf-8')
+        if is_py2:
+            if isinstance(path, str):
+                path = path.encode('utf-8')
 
-        # path = requote_path(path)
+            path = requote_path(path)
 
         # print([ scheme, netloc, path, params, query, fragment ])
         # print('---------------------')
@@ -354,7 +355,9 @@ class Request(object):
         if not path:
             path = '/'
 
+        # if is_py3:
         path = quote(path.encode('utf-8'))
+
         url.append(path)
 
         query = p.query
@@ -496,8 +499,6 @@ class Request(object):
                 if 'cookie' not in self.headers:
 
                     # Simple cookie with our dict.
-                    # c = oreos.monkeys.SimpleCookie()
-                    from http.cookies import SimpleCookie
                     c = SimpleCookie()
                     for (k, v) in list(self.cookies.items()):
                         c[k] = v
@@ -617,6 +618,10 @@ class Response(object):
         return '<Response [%s]>' % (self.status_code)
 
     def __bool__(self):
+        """Returns true if :attr:`status_code` is 'OK'."""
+        return self.ok
+
+    def __nonzero__(self):
         """Returns true if :attr:`status_code` is 'OK'."""
         return self.ok
 
@@ -778,8 +783,8 @@ class Response(object):
             except (UnicodeError, TypeError):
                 pass
 
-
-
+        if not content:
+            content = str(content, encoding, errors='replace')
         return content
 
 
