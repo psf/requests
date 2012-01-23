@@ -36,16 +36,42 @@ Response Content
 
 We can read the content of the server's response::
 
-    >>> r.content
+    >>> r.text
     '[{"repository":{"open_issues":0,"url":"https://github.com/...
 
-Requests does its best to decode content from the server. Most unicode
-charsets, ``gzip``, and ``deflate`` encodings are all seamlessly decoded.
+Requests will automatically decode content from the server. Most unicode
+charsets are seamlessly decoded.
 
 When you make a request, ``r.encoding`` is set, based on the HTTP headers.
-Requests will attempt to use that encoding when you access ``r.content``. You
-can manually set ``r.encoding`` to any encoding you'd like (including ``None``),
-and that charset will be used.
+Requests will use that encoding when you access ``r.text``.  If ``r.encoding``
+is ``None``, Requests will make an extremely educated guess of the encoding
+of the response body. You can manually set ``r.encoding`` to any encoding
+you'd like, and that charset will be used.
+
+
+Binary Response Content
+-----------------------
+
+You can also access the response body as bytes, for non-text requests::
+
+    >>> r.content
+    b'[{"repository":{"open_issues":0,"url":"https://github.com/...
+
+The ``gzip`` and ``deflate`` transfer-encodings are automatically decoded for you.
+
+
+Raw Response Content
+--------------------
+
+In the rare case that you'd like to get the absolute raw socket response from the server,
+you can access ``r.raw``::
+
+    >>> r.raw
+    <requests.packages.urllib3.response.HTTPResponse object at 0x101194810>
+
+    >>> r.raw.read(10)
+    '\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03'
+
 
 
 Make a POST Request
