@@ -19,6 +19,7 @@ pyc:
 deps:
 	rm -fr requests/packages/urllib3
 	git clone https://github.com/shazow/urllib3.git
+	cd urllib3 && git checkout python3 && cd ..
 	mv urllib3/urllib3 requests/packages/
 	rm -fr urllib3
 
