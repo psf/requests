@@ -9,6 +9,7 @@ This module contains the primary objects that power Requests.
 
 import os
 from datetime import datetime
+from time import time
 
 from .hooks import dispatch_hook, HOOKS
 from .structures import CaseInsensitiveDict
@@ -509,6 +510,9 @@ class Request(object):
                     # Attach Cookie header to request.
                     self.headers['Cookie'] = cookie_header
 
+            # start timer for response.response_time. 
+            start = time()
+
             try:
                 # The inner try .. except re-raises certain exceptions as
                 # internal exception types; the outer suppresses exceptions
@@ -549,8 +553,14 @@ class Request(object):
 
             self._build_response(r)
 
+            # end the timer for response.response_time.
+            time_delta = time() - start
+
             # Response manipulation hook.
             self.response = dispatch_hook('response', self.hooks, self.response)
+
+            # add response_time to self.response.
+            self.response.response_time = time_delta
 
             # Post-request hook.
             r = dispatch_hook('post_request', self.hooks, self)
@@ -613,6 +623,9 @@ class Response(object):
         #: Dictionary of configurations for this request.
         self.config = {}
 
+        #: The amount of time required for sending the request and receiving
+        #: the whole response
+        self.response_time = None
 
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)

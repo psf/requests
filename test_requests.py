@@ -713,6 +713,19 @@ class RequestsTestSuite(unittest.TestCase):
                 config=dict(safe_mode=True))
         self.assertIsNone(r.content)
         self.assertIsInstance(r.error, requests.exceptions.Timeout)
+    
+    def test_response_time(self):
+        #run get request and time for ourselves
+        start = time.time()
+        r = requests.get(httpbin('/get'))
+        delta = time.time() - start
+
+        #check that we got a float
+        self.assertIsInstance(r.response_time,float)
+
+        #check that our observed response time is within 50% of reported response time
+        #this should ensure that the reported response time is meaningful.
+        self.assertTrue((abs(delta-r.response_time)/((delta+r.response_time)/2.0)*100) < 50)
 
 
 if __name__ == '__main__':
