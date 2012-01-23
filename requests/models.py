@@ -8,16 +8,12 @@ This module contains the primary objects that power Requests.
 """
 
 import os
-import urllib.request, urllib.parse, urllib.error
-
-# from urlparse import urlparse, urlunparse, urljoin, urlsplit
-from urllib.parse import urlparse, urlunparse, urljoin, urlsplit, urlencode
 from datetime import datetime
 
 from .hooks import dispatch_hook, HOOKS
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
-# from .packages import oreos
+
 from .auth import HTTPBasicAuth, HTTPProxyAuth
 from .packages.urllib3.response import HTTPResponse
 from .packages.urllib3.exceptions import MaxRetryError
@@ -31,6 +27,8 @@ from .exceptions import (
 from .utils import (
     get_encoding_from_headers, stream_decode_response_unicode,
     stream_decompress, guess_filename, requote_path, dict_from_string)
+
+from .compat import urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote
 
 # Import chardet if it is available.
 try:
@@ -355,8 +353,6 @@ class Request(object):
         path = p.path
         if not path:
             path = '/'
-
-        from urllib.parse import quote, unquote
 
         path = quote(path.encode('utf-8'))
         url.append(path)

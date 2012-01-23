@@ -79,13 +79,16 @@ is_solaris = ('solar==' in str(sys.platform).lower())   # Complete guess.
 
 
 if is_py2:
-    from urlparse import urlparse, urlunparse, urljoin, urlsplit, quote, unquote
+    from urllib import quote, unquote
+    from urlparse import urlparse, urlunparse, urljoin, urlsplit
     from urllib2 import parse_http_list
     import cookielib
+    from .packages.oreos.monkeys import SimpleCookie
 
 
 elif is_py3:
     from urllib.parse import urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote
     from urllib.request import parse_http_list
     from http import cookiejar as cookielib
+    from http.cookies import SimpleCookie
 
