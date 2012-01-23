@@ -783,8 +783,6 @@ class Response(object):
             except (UnicodeError, TypeError):
                 pass
 
-        if not content:
-            content = str(content, encoding, errors='replace')
         return content
 
 
