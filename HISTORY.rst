@@ -1,6 +1,12 @@
 History
 -------
 
+0.10.1 (2012-01-23)
++++++++++++++++++++
+
+* PYTHON 3 SUPPORT!
+* Dropped 2.5 Support. (*Backwards Incompatible*)
+
 0.10.0 (2012-01-21)
 +++++++++++++++++++
 
