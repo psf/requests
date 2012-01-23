@@ -705,8 +705,10 @@ class RequestsTestSuite(unittest.TestCase):
         assert isinstance(r.error, requests.exceptions.ConnectionError)
 
         # When not in safe mode, should raise Timeout exception
-        with self.assertRaises(requests.exceptions.Timeout):
-            r = requests.get(httpbin('stream', '1000'), timeout=0.0001)
+        self.assertRaises(
+            requests.exceptions.Timeout,
+            requests.get,
+            httpbin('stream', '1000'), timeout=0.0001)
 
         # In safe mode, should return a blank response
         r = requests.get(httpbin('stream', '1000'), timeout=0.0001,
