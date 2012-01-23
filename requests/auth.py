@@ -78,9 +78,17 @@ class HTTPDigestAuth(AuthBase):
             algorithm = algorithm.upper()
             # lambdas assume digest modules are imported at the top level
             if algorithm == 'MD5':
-                H = lambda x: hashlib.md5(x).hexdigest()
+                def h(x):
+                    if isinstance(x, str):
+                        x = x.encode('utf-8')
+                    return hashlib.md5(x).hexdigest()
+                H = h
             elif algorithm == 'SHA':
-                H = lambda x: hashlib.sha1(x).hexdigest()
+                def h(x):
+                    if isinstance(x, str):
+                        x = x.encode('utf-8')
+                    return hashlib.sha1(x).hexdigest()
+                H = h
             # XXX MD5-sess
             KD = lambda s, d: H("%s:%s" % (s, d))
 
