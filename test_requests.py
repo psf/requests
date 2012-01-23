@@ -303,16 +303,6 @@ class RequestsTestSuite(unittest.TestCase):
             requests.get(url, params={'føø': 'føø'})
             requests.get(url, params={'føø': 'føø'})
             requests.get(url, params={'foo': 'foo'})
-            # print('\n')
-            # print('\n')
-            # print('\n')
-            # print('\n')
-            # print(service('ø'))
-            # print('\n')
-            # print('\n')
-            # print('\n')
-            # print('\n')
-            # print('\n')
             requests.get(service('ø'), params={'foo': 'foo'})
 
 
