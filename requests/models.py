@@ -152,10 +152,6 @@ class Request(object):
         self.headers = headers
         self._poolmanager = _poolmanager
 
-        # Pre-request hook.
-        r = dispatch_hook('pre_request', hooks, self)
-        self.__dict__.update(r.__dict__)
-
 
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
@@ -508,6 +504,10 @@ class Request(object):
 
                     # Attach Cookie header to request.
                     self.headers['Cookie'] = cookie_header
+            
+            # Pre-request hook.
+            r = dispatch_hook('pre_request', self.hooks, self)
+            self.__dict__.update(r.__dict__)
 
             try:
                 # The inner try .. except re-raises certain exceptions as
