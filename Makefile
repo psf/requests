@@ -1,12 +1,17 @@
+SHELL := /bin/bash
+
 init:
 	python setup.py develop
 	pip install -r requirements.txt
 
 test:
-	nosetests  test_requests.py
+	nosetests --with-color
+
+server:
+	gunicorn httpbin:app --bind=0.0.0.0:7077 &
 
 ci: init
-	nosetests test_requests.py --with-xunit --xunit-file=junit-report.xml
+	nosetests --with-xunit --xunit-file=junit-report.xml
 
 stats:
 	pyflakes requests | awk -F\: '{printf "%s:%s: [E]%s\n", $1, $2, $3}' > violations.pyflakes.txt
