@@ -351,8 +351,8 @@ class Request(object):
         if not path:
             path = '/'
 
-        # if is_py3:
-        path = quote(path.encode('utf-8'))
+        if is_py3:
+            path = quote(path.encode('utf-8'))
 
         url.append(path)
 
