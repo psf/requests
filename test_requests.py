@@ -72,6 +72,12 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
     def test_invalid_url(self):
         self.assertRaises(ValueError, get, 'hiwpefhipowhefopw')
 
+
+    def test_path_is_not_double_encoded(self):
+        request = requests.Request("http://0.0.0.0/get/~test")
+
+        assert request.path_url == "/get/%7Etest"
+
     def test_HTTP_200_OK_GET(self):
         r = get(httpbin('/get'))
         self.assertEqual(r.status_code, 200)
