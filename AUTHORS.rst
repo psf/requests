@@ -77,3 +77,4 @@ Patches and Suggestions
 - Marty Alchin
 - takluyver
 - Ben Toews (mastahyeti)
+- David Kemp
