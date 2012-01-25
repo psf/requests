@@ -2,6 +2,11 @@ SHELL := /bin/bash
 
 init:
 	python setup.py develop
+	pip install -r requirements-dev.txt
+	# install libevent first
+	# 	brew install libevent
+	# 	apt-get install libevent-dev
+	pip install -r requirements-async.txt
 	pip install -r requirements.txt
 
 test:
