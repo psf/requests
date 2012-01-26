@@ -10,7 +10,10 @@ import requests
 try:
     import omnijson as json
 except ImportError:
-    import json
+    try:
+        import json
+    except ImportError:
+        import simplejson as json
 
 
 class RequestsTestSuite(unittest.TestCase):

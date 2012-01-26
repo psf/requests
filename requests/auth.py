@@ -7,8 +7,6 @@ requests.auth
 This module contains the authentication handlers for Requests.
 """
 
-from __future__ import unicode_literals
-
 import time
 import hashlib
 

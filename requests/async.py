@@ -13,8 +13,8 @@ try:
     import gevent
     from gevent import monkey as curious_george
     from gevent.pool import Pool
-except ImportError:
-    raise RuntimeError('Gevent is required for requests.async.')
+except ImportError, e:
+    raise RuntimeError('Gevent is required for requests.async: ' + e.message)
 
 # Monkey-patch.
 curious_george.patch_all(thread=False)

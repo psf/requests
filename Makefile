@@ -12,6 +12,9 @@ init:
 test:
 	nosetests --with-color
 
+test-2.5:
+	nosetests-2.5 --with-color
+
 server:
 	gunicorn httpbin:app --bind=0.0.0.0:7077 &
 

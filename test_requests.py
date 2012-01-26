@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
+try:
+    import json
+except ImportError, e:
+    print e
+    import simplejson as json
 
-import io
-import json
 import time
 import os
 import sys
