@@ -4,8 +4,7 @@
 
 try:
     import json
-except ImportError, e:
-    print e
+except ImportError:
     import simplejson as json
 
 import time
