@@ -187,8 +187,8 @@ anything, nothing else is effected.
 
 Let's print some request method arguments at runtime::
 
-    >>> requests.get('http://httpbin', hooks=dict(args=print_url))
-    http://httpbin
+    >>> requests.get('http://httpbin.org', hooks=dict(args=print_url))
+    http://httpbin.org
     <Response [200]>
 
 Let's hijack some arguments this time with a new callback::
@@ -206,7 +206,7 @@ Let's hijack some arguments this time with a new callback::
 
 And give it a try::
 
-    >>> requests.get('http://httpbin/headers', hooks=hooks, headers=headers)
+    >>> requests.get('http://httpbin.org/headers', hooks=hooks, headers=headers)
     {
         "headers": {
             "Content-Length": "",
