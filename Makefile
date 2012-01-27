@@ -7,6 +7,9 @@ init:
 test:
 	nosetests --with-color
 
+lazy:
+	nosetests --with-color test_requests.py
+
 server:
 	gunicorn httpbin:app --bind=0.0.0.0:7077 &
 
