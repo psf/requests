@@ -15,6 +15,9 @@ test:
 test-2.5:
 	nosetests-2.5 --with-color
 
+lazy:
+	nosetests --with-color test_requests.py
+
 server:
 	gunicorn httpbin:app --bind=0.0.0.0:7077 &
 

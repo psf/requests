@@ -86,8 +86,9 @@ if is_py2:
     from .packages.oreos.monkeys import SimpleCookie
     from StringIO import StringIO
 
-    str = unicode
     bytes = str
+    str = unicode
+
 
 
 elif is_py3:
