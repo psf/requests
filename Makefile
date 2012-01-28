@@ -10,10 +10,28 @@ init:
 	pip install -r requirements.txt
 
 test:
-	nosetests --with-color
+	nosetests -s --with-color test_requests.py
+	nosetests -s --with-color test_requests_ext.py
+	nosetests -s --with-color test_requests_async.py
+
 
 test-2.5:
-	nosetests-2.5 --with-color
+	nosetests-2.5 --with-color test_requests.py
+	nosetests-2.5 --with-color test_requests_ext.py
+	nosetests-2.5 --with-color test_requests_async.py
+
+
+test-jython:
+	jython-nosetests --with-color test_requests.py
+	jython-nosetests --with-color test_requests_ext.py
+	jython-nosetests --with-color test_requests_async.py
+
+
+test-jython-debug:
+	jython-nosetests -s --with-color test_requests.py
+	jython-nosetests -s --with-color test_requests_ext.py
+	jython-nosetests -s --with-color test_requests_async.py
+
 
 lazy:
 	nosetests --with-color test_requests.py
@@ -31,7 +49,9 @@ site:
 	cd docs; make dirhtml
 
 pyc:
-	find . -name "*.pyc" -exec rm '{}' ';'
+	find . -name '*.pyc' -exec rm '{}' ';'
+	find . -name '*.class' -exec rm '{}' ';'
+
 
 deps:
 	rm -fr requests/packages/urllib3

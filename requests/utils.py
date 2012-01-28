@@ -149,6 +149,9 @@ def header_expand(headers):
     elif isinstance(headers, str):
         return headers
 
+    elif isinstance(headers, unicode):
+        return headers
+
     for i, (value, params) in enumerate(headers):
 
         _params = []
