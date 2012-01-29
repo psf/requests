@@ -4,7 +4,7 @@
 import os
 import sys
 import requests
-from requests.compat import is_py3
+from requests.compat import is_py3, is_py2
 
 try:
     from setuptools import setup
@@ -22,11 +22,20 @@ if sys.argv[-1] == 'test':
     sys.exit()
 
 required = ['certifi>=0.0.7',]
+packages = [
+    'requests',
+    'requests.packages',
+    'requests.packages.urllib3',
+    'requests.packages.urllib3.packages',
+    'requests.packages.urllib3.packages.ssl_match_hostname',
+    'requests.packages.urllib3.packages.mimetools_choose_boundary',
+]
 
 if is_py3:
     required.append('chardet2')
 else:
     required.append('chardet>=1.0.0')
+    packages.append('requests.packages.oreos')
 
 
 setup(
@@ -38,15 +47,7 @@ setup(
     author='Kenneth Reitz',
     author_email='me@kennethreitz.com',
     url='http://python-requests.org',
-    packages=[
-        'requests',
-        'requests.packages',
-        'requests.packages.urllib3',
-        'requests.packages.urllib3.packages',
-        'requests.packages.urllib3.packages.ssl_match_hostname',
-        'requests.packages.urllib3.packages.mimetools_choose_boundary',
-        'requests.packages.oreos'
-    ],
+    packages=packages,
     package_data={'': ['LICENSE', 'NOTICE']},
     include_package_data=True,
     install_requires=required,
