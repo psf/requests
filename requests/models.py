@@ -216,6 +216,9 @@ class Request(object):
                 if not len(history) < self.config.get('max_redirects'):
                     raise TooManyRedirects()
 
+                # Release the connection back into the pool.
+                r.raw.release_conn()
+
                 history.append(r)
 
                 url = r.headers['location']
@@ -504,7 +507,7 @@ class Request(object):
 
                     # Attach Cookie header to request.
                     self.headers['Cookie'] = cookie_header
-            
+
             # Pre-request hook.
             r = dispatch_hook('pre_request', self.hooks, self)
             self.__dict__.update(r.__dict__)
