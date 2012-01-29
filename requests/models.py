@@ -210,8 +210,6 @@ class Request(object):
             while (('location' in r.headers) and
                    ((r.status_code is codes.see_other) or (self.allow_redirects))):
 
-                r.content  # Consume socket so it can be released
-
                 if not len(history) < self.config.get('max_redirects'):
                     raise TooManyRedirects()
 
@@ -264,7 +262,6 @@ class Request(object):
                 self.cookies.update(r.cookies)
 
             r.history = history
-            r.content  # Consume socket so it can be released
 
         self.response = r
         self.response.request = self
