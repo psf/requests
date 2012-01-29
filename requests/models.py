@@ -203,7 +203,7 @@ class Request(object):
         history = []
 
         r = build(resp)
-        cookies = self.cookies
+
         self.cookies.update(r.cookies)
 
         if r.status_code in REDIRECT_STATI and not self.redirect:
@@ -247,7 +247,7 @@ class Request(object):
                     method=method,
                     params=self.session.params,
                     auth=self.auth,
-                    cookies=cookies,
+                    cookies=self.cookies,
                     redirect=True,
                     config=self.config,
                     timeout=self.timeout,
@@ -258,7 +258,6 @@ class Request(object):
                 )
 
                 request.send()
-                cookies.update(request.response.cookies)
                 r = request.response
                 self.cookies.update(r.cookies)
 
