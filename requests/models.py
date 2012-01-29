@@ -207,11 +207,8 @@ class Request(object):
         self.cookies.update(r.cookies)
 
         if r.status_code in REDIRECT_STATI and not self.redirect:
-
-            while (
-                ('location' in r.headers) and
-                ((r.status_code is codes.see_other) or (self.allow_redirects))
-            ):
+            while (('location' in r.headers) and
+                   ((r.status_code is codes.see_other) or (self.allow_redirects))):
 
                 if not len(history) < self.config.get('max_redirects'):
                     raise TooManyRedirects()
