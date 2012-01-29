@@ -46,15 +46,15 @@ def patched(f):
     return wrapped
 
 
-def send(r, pool=None):
-    """Sends the request object using the specified pool. If a pool isn't 
+def send(r, pool=None, prefetch=False):
+    """Sends the request object using the specified pool. If a pool isn't
     specified this method blocks. Pools are useful because you can specify size
     and can hence limit concurrency."""
 
     if pool != None:
-        return pool.spawn(r.send)
+        return pool.spawn(r.send, prefetch=prefetch)
 
-    return gevent.spawn(r.send)
+    return gevent.spawn(r.send, prefetch=prefetch)
 
 
 # Patched requests.api functions.
@@ -79,10 +79,7 @@ def map(requests, prefetch=True, size=None):
     requests = list(requests)
 
     pool = Pool(size) if size else None
-    jobs = [send(r, pool) for r in requests]
+    jobs = [send(r, pool, prefetch=prefetch) for r in requests]
     gevent.joinall(jobs)
-
-    if prefetch:
-        [r.response.content for r in requests]
 
     return [r.response for r in requests]
