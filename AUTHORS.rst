@@ -79,3 +79,4 @@ Patches and Suggestions
 - Ben Toews (mastahyeti)
 - David Kemp
 - Brendon Crawford
+- Denis (Telofy)

@@ -1,6 +1,15 @@
 History
 -------
 
+0.10.2
+++++++
+
+* Attmpted fix for "Too many open files" Error
+* Replace unicode errors on first pass, no need for second pass.
+* Append '/' to bare-domain urls before query insertion.
+* Bugfixes.
+
+
 0.10.1 (2012-01-23)
 +++++++++++++++++++
 
