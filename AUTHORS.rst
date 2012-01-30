@@ -78,3 +78,4 @@ Patches and Suggestions
 - takluyver
 - Ben Toews (mastahyeti)
 - David Kemp
+- Brendon Crawford

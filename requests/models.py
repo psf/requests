@@ -323,9 +323,6 @@ class Request(object):
 
             path = requote_path(path)
 
-        # print([ scheme, netloc, path, params, query, fragment ])
-        # print('---------------------')
-
         url = (urlunparse([ scheme, netloc, path, params, query, fragment ]))
 
         if self._enc_params:
@@ -361,8 +358,6 @@ class Request(object):
         if query:
             url.append('?')
             url.append(query)
-
-        # print(url)
 
         return ''.join(url)
 
