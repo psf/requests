@@ -317,6 +317,9 @@ class Request(object):
 
         netloc = netloc.encode('idna').decode('utf-8')
 
+        if not path:
+            path = '/'
+
         if is_py2:
             if isinstance(path, str):
                 path = path.encode('utf-8')
