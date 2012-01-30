@@ -203,18 +203,20 @@ class Request(object):
         history = []
 
         r = build(resp)
-        cookies = self.cookies
+
         self.cookies.update(r.cookies)
 
         if r.status_code in REDIRECT_STATI and not self.redirect:
+            while (('location' in r.headers) and
+                   ((r.status_code is codes.see_other) or (self.allow_redirects))):
 
-            while (
-                ('location' in r.headers) and
-                ((r.status_code is codes.see_other) or (self.allow_redirects))
-            ):
+                r.content  # Consume socket so it can be released
 
                 if not len(history) < self.config.get('max_redirects'):
                     raise TooManyRedirects()
+
+                # Release the connection back into the pool.
+                r.raw.release_conn()
 
                 history.append(r)
 
@@ -250,7 +252,7 @@ class Request(object):
                     method=method,
                     params=self.session.params,
                     auth=self.auth,
-                    cookies=cookies,
+                    cookies=self.cookies,
                     redirect=True,
                     config=self.config,
                     timeout=self.timeout,
@@ -261,7 +263,6 @@ class Request(object):
                 )
 
                 request.send()
-                cookies.update(request.response.cookies)
                 r = request.response
                 self.cookies.update(r.cookies)
 
@@ -504,7 +505,7 @@ class Request(object):
 
                     # Attach Cookie header to request.
                     self.headers['Cookie'] = cookie_header
-            
+
             # Pre-request hook.
             r = dispatch_hook('pre_request', self.hooks, self)
             self.__dict__.update(r.__dict__)
