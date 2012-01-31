@@ -34,7 +34,7 @@ Requests takes all of the work out of Python HTTP — making your integration w
 Testimonials
 ------------
 
-`The Washington Post <http://www.washingtonpost.com/>`_,
+`Native Instruments <http://www.native-instruments.com/>`_, `The Washington Post <http://www.washingtonpost.com/>`_,
 `Twitter, Inc <http://twitter.com>`_,
 `Readability <http://readability.com>`_, and
 Federal US Institutions
