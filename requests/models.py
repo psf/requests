@@ -631,7 +631,15 @@ class Request(object):
                 else:
                     raise
 
-            self._build_response(r)
+            # build_response can throw TooManyRedirects
+            try:
+                self._build_response(r)
+            except RequestException as e:
+                if self.config.get('safe_mode', False):
+                    # In safe mode, catch the exception
+                    self.response.error = e
+                else:
+                    raise
 
             # Response manipulation hook.
             self.response = dispatch_hook('response', self.hooks, self.response)
