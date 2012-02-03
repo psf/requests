@@ -1,3 +1,8 @@
+"""
+Wrapper for CookieJar allow dict-like access.
+Ideally there would be wrappers for LWPCookieJar and MozillaCookieJar as well.
+"""
+
 import urlparse
 import Cookie
 from Cookie import Morsel
@@ -18,8 +23,8 @@ class MockRequest:
         return urlparse.urlparse(self._r.full_url).netloc
     
     def get_origin_req_host(self):
-        if self._r.history:
-            r = self._r.history[0]
+        if self._r.response.history:
+            r = self._r.response.history[0]
             return urlparse.urlparse(r).netloc
         else:
             return self.get_host()
@@ -42,7 +47,7 @@ class MockRequest:
     
     def is_unverifiable(self):
         # unverifiable == redirected
-        return bool(self.history)
+        return bool(self._r.response.history)
 
 class MockResponse:
     """
@@ -57,7 +62,7 @@ class MockResponse:
     def getheaders(self, name):
         self._r.msg.getheaders(name)
 
-class CookieJar(cookielib.LWPCookieJar, collections.MutableMapping):
+class CookieJar(cookielib.CookieJar, collections.MutableMapping):
     def extract_cookies(self, response, request):
         if response.raw._original_response:
             req = MockRequest(request)

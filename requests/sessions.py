@@ -14,7 +14,7 @@ from .models import Request
 from .hooks import dispatch_hook
 from .utils import header_expand
 from .packages.urllib3.poolmanager import PoolManager
-
+from .packages.oreos.cookiejar import CookieJar
 
 def merge_kwargs(local_kwarg, default_kwarg):
     """Merges kwarg dictionaries.
@@ -69,7 +69,6 @@ class Session(object):
         cert=None):
 
         self.headers = headers or {}
-        self.cookies = cookies or {}
         self.auth = auth
         self.timeout = timeout
         self.proxies = proxies or {}
@@ -86,11 +85,14 @@ class Session(object):
         self.init_poolmanager()
 
         # Set up a CookieJar to be used by default
-        self.cookies = {}
-
-        # Add passed cookies in.
-        if cookies is not None:
-            self.cookies.update(cookies)
+        if isinstance(cookies, CookieJar):
+            self.cookies = cookies
+        else:
+            self.cookies = CookieJar()
+            
+            # Add passed cookies in.
+            if cookies is not None:
+                self.cookies.update(cookies)
 
     def init_poolmanager(self):
         self.poolmanager = PoolManager(
@@ -148,7 +150,6 @@ class Session(object):
         method = str(method).upper()
 
         # Default empty dicts for dict params.
-        cookies = {} if cookies is None else cookies
         data = {} if data is None else data
         files = {} if files is None else files
         headers = {} if headers is None else headers
