@@ -18,6 +18,7 @@ import zlib
 
 from .compat import parse_http_list as _parse_list_header
 from .compat import quote, unquote, cookielib, SimpleCookie, is_py2
+from .compat import basestring
 
 
 def dict_from_string(s):
@@ -146,7 +147,7 @@ def header_expand(headers):
     if isinstance(headers, dict):
         headers = list(headers.items())
 
-    elif isinstance(headers, str):
+    elif isinstance(headers, basestring):
         return headers
 
     for i, (value, params) in enumerate(headers):
