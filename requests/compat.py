@@ -88,6 +88,7 @@ if is_py2:
 
     bytes = str
     str = unicode
+    basestring = basestring
 
 
 
@@ -100,4 +101,5 @@ elif is_py3:
 
     str = str
     bytes = bytes
+    basestring = (str,bytes)
 
