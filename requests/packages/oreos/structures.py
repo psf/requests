@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
-oreos.sructures
-~~~~~~~~~~~~~~~
+oreos.structures
+~~~~~~~~~~~~~~~~
 
 The plastic blue packaging.
 
