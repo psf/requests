@@ -528,16 +528,16 @@ class Request(object):
                     )
                     self.sent = True
 
-                except MaxRetryError as e:
+                except MaxRetryError,e:
                     raise ConnectionError(e)
 
-                except (_SSLError, _HTTPError) as e:
+                except (_SSLError, _HTTPError),e:
                     if self.verify and isinstance(e, _SSLError):
                         raise SSLError(e)
 
                     raise Timeout('Request timed out.')
 
-            except RequestException as e:
+            except RequestException,e:
                 if self.config.get('safe_mode', False):
                     # In safe mode, catch the exception and attach it to
                     # a blank urllib3.HTTPResponse object.

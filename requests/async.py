@@ -13,8 +13,8 @@ try:
     import gevent
     from gevent import monkey as curious_george
     from gevent.pool import Pool
-except ImportError:
-    raise RuntimeError('Gevent is required for requests.async.')
+except ImportError, e:
+    raise RuntimeError('Gevent is required for requests.async: ' + e.message)
 
 # Monkey-patch.
 curious_george.patch_all(thread=False)
@@ -81,5 +81,8 @@ def map(requests, prefetch=True, size=None):
     pool = Pool(size) if size else None
     jobs = [send(r, pool, prefetch=prefetch) for r in requests]
     gevent.joinall(jobs)
+
+    if prefetch:
+        [r.response.content for r in requests]
 
     return [r.response for r in requests]

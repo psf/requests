@@ -150,6 +150,9 @@ def header_expand(headers):
     elif isinstance(headers, basestring):
         return headers
 
+    elif isinstance(headers, unicode):
+        return headers
+
     for i, (value, params) in enumerate(headers):
 
         _params = []
@@ -183,7 +186,7 @@ def randombytes(n):
         L = [chr(random.randrange(0, 256)) for i in range(n)]
     else:
         L = [chr(random.randrange(0, 256)).encode('utf-8') for i in range(n)]
-    return b"".join(L)
+    return "".join(L)
 
 
 def dict_from_cookiejar(cj):
@@ -403,6 +406,6 @@ def requote_path(path):
     This function passes the given path through an unquote/quote cycle to
     ensure that it is fully and consistently quoted.
     """
-    parts = path.split(b"/")
-    parts = (quote(unquote(part), safe=b"") for part in parts)
-    return b"/".join(parts)
+    parts = path.split("/")
+    parts = (quote(unquote(part), safe="") for part in parts)
+    return "/".join(parts)
