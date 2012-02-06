@@ -362,7 +362,7 @@ class MultiDict(TypeConversionDict):
         """
         try:
             return dict.pop(self, key)[0]
-        except KeyError, e:
+        except KeyError as e:
             if default is not _missing:
                 return default
             raise KeyError(str(e))
@@ -372,7 +372,7 @@ class MultiDict(TypeConversionDict):
         try:
             item = dict.popitem(self)
             return (item[0], item[1][0])
-        except KeyError, e:
+        except KeyError as e:
             raise KeyError(str(e))
 
     def poplist(self, key):
@@ -389,7 +389,7 @@ class MultiDict(TypeConversionDict):
         """Pop a ``(key, list)`` tuple from the dict."""
         try:
             return dict.popitem(self)
-        except KeyError, e:
+        except KeyError as e:
             raise KeyError(str(e))
 
     def __copy__(self):
