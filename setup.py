@@ -37,6 +37,8 @@ else:
     required.append('chardet>=1.0.0')
     packages.append('requests.packages.oreos')
 
+extras = {}
+extras.update(use_2to3=True)
 
 setup(
     name='requests',
@@ -64,4 +66,5 @@ setup(
         'Programming Language :: Python :: 3.0',
         'Programming Language :: Python :: 3.1',
     ),
+    **extras
 )
