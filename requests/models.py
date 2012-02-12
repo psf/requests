@@ -399,10 +399,15 @@ class Request(object):
         if self.files:
             if not isinstance(self.data, str):
 
-                try:
-                    fields = self.data.copy()
-                except AttributeError:
-                    fields = dict(self.data)
+                fields = {}
+                for (k, v) in self.data:
+                    if k not in fields:
+                        fields[k] = v
+                    else:
+                        if isinstance(fields[k], list):
+                            fields[k].append(v)
+                        else:
+                            fields[k] = [fields[k], v]
 
                 for (k, v) in list(self.files.items()):
                     # support for explicit filename
