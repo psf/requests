@@ -31,7 +31,11 @@ def decode_deflate(data):
     try:
         return zlib.decompress(data)
     except zlib.error:
-        return zlib.decompress(data, -zlib.MAX_WBITS)
+    	try:
+    		return zlib.decompress(data, -zlib.MAX_WBITS)
+    	except zlib.error:
+    		#urllib2 urllib2.urlopen(url)
+        	return zlib.decompress(data, 16+zlib.MAX_WBITS)
 
 
 class HTTPResponse(object):
