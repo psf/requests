@@ -55,7 +55,7 @@ class TestSetup(object):
 
 class RequestsTestSuite(TestSetup, unittest.TestCase):
     """Requests test cases."""
-    
+
     def test_entry_points(self):
 
         requests.session
@@ -111,11 +111,16 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         r = get(httpbin('get') + '?test=true', params={'q': 'test'}, headers=heads)
         self.assertEqual(r.status_code, 200)
 
-    def test_session_with_unicode_headers(self):
-        heads = { u'User-Agent': u'\u30cd\u30c3\u30c8\u30ef\u30fc\u30af' }
-
+    def test_unicode_headers(self):
+        # Simply calling requests with a unicode instance should simply work
+        # when the characters are all representable using latin-1:
+        heads = { u'User-Agent': u'Requests Test Suite' }
         requests.get(url=httpbin('get'), headers=heads)
 
+        # Characters outside latin-1 should raise an exception:
+        heads = { u'User-Agent': u'\u30cd\u30c3\u30c8\u30ef\u30fc\u30af' }
+        self.assertRaises(UnicodeEncodeError, requests.get,
+                          url=httpbin('get'), headers=heads)
 
     def test_user_agent_transfers(self):
         """Issue XX"""
