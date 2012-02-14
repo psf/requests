@@ -117,6 +117,28 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         requests.get(url=httpbin('get'), headers=heads)
 
 
+    def test_session_with_escaped_url(self):
+        # Test a URL that contains percent-escaped characters
+        # This URL should not be modified (double-escaped)
+        # Tests:
+        # - Quoted illegal characters ("%20" (' '), "%3C" ('<'), "%3E" ('>'))
+        # - Quoted reserved characters ("%25" ('%'), "%23" ('#'), "%2F" ('/'))
+        # - Quoted non-ASCII characters ("%C3%98", "%C3%A5")
+        path_fully_escaped = '%3Ca%25b%23c%2Fd%3E/%C3%98%20%C3%A5'
+        url = httpbin('get/' + path_fully_escaped)
+        response = get(url)
+        self.assertEqual(response.url, httpbin('get/' + path_fully_escaped))
+
+        # Test that illegal characters in a path get properly percent-escaped
+        # Tests:
+        # - Bare illegal characters (space, '<')
+        # - Bare non-ASCII characters ('\u00d8')
+        path = u'<a%25b%23c%2Fd%3E/\u00d8 %C3%A5'
+        url = httpbin('get/' + path)
+        response = get(url)
+        self.assertEqual(response.url, httpbin('get/' + path_fully_escaped))
+
+
     def test_user_agent_transfers(self):
         """Issue XX"""
 
