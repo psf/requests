@@ -324,7 +324,7 @@ class Request(object):
             if isinstance(path, str):
                 path = path.encode('utf-8')
 
-            path = requote_path(path)
+        path = requote_path(path)
 
         url = (urlunparse([ scheme, netloc, path, params, query, fragment ]))
 
@@ -351,9 +351,6 @@ class Request(object):
         path = p.path
         if not path:
             path = '/'
-
-        if is_py3:
-            path = quote(path.encode('utf-8'))
 
         url.append(path)
 
