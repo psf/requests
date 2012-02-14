@@ -403,6 +403,6 @@ def requote_path(path):
     This function passes the given path through an unquote/quote cycle to
     ensure that it is fully and consistently quoted.
     """
-    parts = path.split(b"/")
-    parts = (quote(unquote(part), safe=b"") for part in parts)
-    return b"/".join(parts)
+    parts = path.split("/")
+    parts = (quote(unquote(part), safe="") for part in parts)
+    return "/".join(parts)
