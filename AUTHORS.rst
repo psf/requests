@@ -80,3 +80,4 @@ Patches and Suggestions
 - David Kemp
 - Brendon Crawford
 - Denis (Telofy)
+- Cory Benfield (Lukasa)
