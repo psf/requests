@@ -74,9 +74,9 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
 
     def test_path_is_not_double_encoded(self):
-        request = requests.Request("http://0.0.0.0/get/~test")
+        request = requests.Request("http://0.0.0.0/get/test case")
 
-        assert request.path_url == "/get/%7Etest"
+        assert request.path_url == "/get/test%20case"
 
     def test_HTTP_200_OK_GET(self):
         r = get(httpbin('/get'))
@@ -115,6 +115,50 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         heads = { u'User-Agent': u'\u30cd\u30c3\u30c8\u30ef\u30fc\u30af' }
 
         requests.get(url=httpbin('get'), headers=heads)
+
+
+    def test_session_with_escaped_url(self):
+        # Test a URL that contains percent-escaped characters
+        # This URL should not be modified (double-escaped)
+        # Tests:
+        # - Quoted illegal characters ("%20" (' '), "%3C" ('<'), "%3E" ('>'))
+        # - Quoted reserved characters ("%25" ('%'), "%23" ('#'), "%2F" ('/'))
+        # - Quoted non-ASCII characters ("%C3%98", "%C3%A5")
+        path_fully_escaped = '%3Ca%25b%23c%2Fd%3E/%C3%98%20%C3%A5'
+        url = httpbin('get/' + path_fully_escaped)
+        response = get(url)
+        self.assertEqual(response.url, httpbin('get/' + path_fully_escaped))
+
+        # Test that illegal characters in a path get properly percent-escaped
+        # Tests:
+        # - Bare illegal characters (space, '<')
+        # - Bare non-ASCII characters ('\u00d8')
+        path = u'<a%25b%23c%2Fd%3E/\u00d8 %C3%A5'
+        url = httpbin('get/' + path)
+        response = get(url)
+        self.assertEqual(response.url, httpbin('get/' + path_fully_escaped))
+
+        # Test that reserved characters in a path do not get percent-escaped
+        # Tests:
+        # - All reserved characters (RFC 3986), except '?', '#', '[' and ']',
+        #   which are not allowed in the path, and ';' which delimits
+        #   parameters.
+        #   All such characters must be allowed bare in path, and must not be
+        #   encoded.
+        # - Special unreserved characters (RFC 3986), which should not be
+        #   encoded (even though it wouldn't hurt).
+        path_reserved = '!$&\'()*+,/:=@-._~'
+        url = httpbin('get/' + path_reserved)
+        response = get(url)
+        self.assertEqual(response.url, httpbin('get/' + path_reserved))
+
+        # Test that percent-encoded unreserved characters in a path get
+        # normalised to their un-encoded forms.
+        path_unreserved = 'ABCDwxyz1234-._~'
+        path_unreserved_escaped = '%41%42%43%44%77%78%79%7A%31%32%33%34%2D%2E%5F%7E'
+        url = httpbin('get/' + path_unreserved_escaped)
+        response = get(url)
+        self.assertEqual(response.url, httpbin('get/' + path_unreserved))
 
 
     def test_user_agent_transfers(self):
