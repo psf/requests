@@ -425,10 +425,8 @@ def requote_path(path):
     This function passes the given path through an unquote/quote cycle to
     ensure that it is fully and consistently quoted.
     """
-    parts = path.split("/")
     # Unquote only the unreserved characters
     # Then quote only illegal characters (do not quote reserved, unreserved,
     # or '%')
-    parts = (quote(unquote_unreserved(part), safe="!#$%&'()*+,/:;=?@[]~")
-             for part in parts)
+    return quote(unquote_unreserved(path), safe="!#$%&'()*+,/:;=?@[]~")
     return "/".join(parts)
