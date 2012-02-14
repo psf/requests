@@ -249,11 +249,13 @@ class CookieError(Exception):
 # quoted with a preceeding '\' slash.
 #
 # These are taken from RFC2068 and RFC2109.
+#       _RFC2068Forbidden is the list of forbidden chars we accept anyway
 #       _LegalChars       is the list of chars which don't require "'s
 #       _Translator       hash-table for fast quoting
 #
+_RFC2068Forbidden = "[]:{}"
 _LegalChars       = ( string.ascii_letters + string.digits + 
-                      "!#$%&'*+-.^_`|~_" + "[]:{}")
+                      "!#$%&'*+-.^_`|~_" + _RFC2068Forbidden )
 _Translator       = {
     '\000' : '\\000',  '\001' : '\\001',  '\002' : '\\002',
     '\003' : '\\003',  '\004' : '\\004',  '\005' : '\\005',
