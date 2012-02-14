@@ -152,6 +152,14 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         response = get(url)
         self.assertEqual(response.url, httpbin('get/' + path_reserved))
 
+        # Test that percent-encoded unreserved characters in a path get
+        # normalised to their un-encoded forms.
+        path_unreserved = 'ABCDwxyz1234-._~'
+        path_unreserved_escaped = '%41%42%43%44%77%78%79%7A%31%32%33%34%2D%2E%5F%7E'
+        url = httpbin('get/' + path_unreserved_escaped)
+        response = get(url)
+        self.assertEqual(response.url, httpbin('get/' + path_unreserved))
+
 
     def test_user_agent_transfers(self):
         """Issue XX"""
