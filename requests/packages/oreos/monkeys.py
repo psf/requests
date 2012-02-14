@@ -253,7 +253,7 @@ class CookieError(Exception):
 #       _Translator       hash-table for fast quoting
 #
 _LegalChars       = ( string.ascii_letters + string.digits + 
-                      "!#$%&'*+-.^_`|~[]_:{}" )
+                      "!#$%&'*+-.^_`|~_" + "[]:{}")
 _Translator       = {
     '\000' : '\\000',  '\001' : '\\001',  '\002' : '\\002',
     '\003' : '\\003',  '\004' : '\\004',  '\005' : '\\005',
