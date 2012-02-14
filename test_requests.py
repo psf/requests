@@ -138,6 +138,20 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         response = get(url)
         self.assertEqual(response.url, httpbin('get/' + path_fully_escaped))
 
+        # Test that reserved characters in a path do not get percent-escaped
+        # Tests:
+        # - All reserved characters (RFC 3986), except '?', '#', '[' and ']',
+        #   which are not allowed in the path, and ';' which delimits
+        #   parameters.
+        #   All such characters must be allowed bare in path, and must not be
+        #   encoded.
+        # - Special unreserved characters (RFC 3986), which should not be
+        #   encoded (even though it wouldn't hurt).
+        path_reserved = '!$&\'()*+,/:=@-._~'
+        url = httpbin('get/' + path_reserved)
+        response = get(url)
+        self.assertEqual(response.url, httpbin('get/' + path_reserved))
+
 
     def test_user_agent_transfers(self):
         """Issue XX"""
