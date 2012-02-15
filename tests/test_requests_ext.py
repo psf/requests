@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import with_statement
+# Path hack.
+import sys, os
+sys.path.insert(0, os.path.abspath('..'))
 
 import unittest
 

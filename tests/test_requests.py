@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# from __future__ import unicode_literals
+
+# Path hack.
+import sys, os
+sys.path.insert(0, os.path.abspath('..'))
+
 import io
 import json
 import time
