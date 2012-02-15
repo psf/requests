@@ -524,7 +524,7 @@ class Request(object):
                         redirect=False,
                         assert_same_host=False,
                         preload_content=False,
-                        decode_content=True,
+                        decode_content=False,
                         retries=self.config.get('max_retries', 0),
                         timeout=self.timeout,
                     )
