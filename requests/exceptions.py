@@ -8,7 +8,7 @@ This module contains the set of Requests' exceptions.
 
 """
 
-class RequestException(Exception):
+class RequestException(RuntimeError):
     """There was an ambiguous exception that occurred while handling your
     request."""
 
