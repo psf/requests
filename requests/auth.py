@@ -7,8 +7,6 @@ requests.auth
 This module contains the authentication handlers for Requests.
 """
 
-from __future__ import unicode_literals
-
 import time
 import hashlib
 
@@ -21,7 +19,7 @@ from .utils import randombytes, parse_dict_header
 def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
 
-    return 'Basic ' + b64encode(("%s:%s" % (username, password)).encode('utf-8')).strip().decode('utf-8')
+    return 'Basic ' + b64encode(('%s:%s' % (username, password)).encode('latin1')).strip().decode('latin1')
 
 
 class AuthBase(object):
