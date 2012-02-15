@@ -291,23 +291,6 @@ def get_encoding_from_headers(headers):
         return 'ISO-8859-1'
 
 
-def unicode_from_html(content):
-    """Attempts to decode an HTML string into unicode.
-    If unsuccessful, the original content is returned.
-    """
-
-    encodings = get_encodings_from_content(content)
-
-    for encoding in encodings:
-
-        try:
-            return str(content, encoding)
-        except (UnicodeError, TypeError):
-            pass
-
-        return content
-
-
 def stream_decode_response_unicode(iterator, r):
     """Stream decodes a iterator."""
 
@@ -357,16 +340,6 @@ def get_unicode_from_response(r):
         return str(r.content, encoding, errors='replace')
     except TypeError:
         return r.content
-
-
-def decode_gzip(content):
-    """Return gzip-decoded string.
-
-    :param content: bytestring to gzip-decode.
-    """
-
-    return zlib.decompress(content, 16 + zlib.MAX_WBITS)
-
 
 def stream_decompress(iterator, mode='gzip'):
     """
