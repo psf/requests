@@ -10,6 +10,7 @@ History
 * Replace unicode errors on first pass, no need for second pass.
 * Append '/' to bare-domain urls before query insertion.
 * Exceptions now inherit from RuntimeError.
+* Binary uploads + auth fix.
 * Bugfixes.
 
 
