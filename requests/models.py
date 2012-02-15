@@ -196,7 +196,7 @@ class Request(object):
 
             # Save original response for later.
             response.raw = resp
-            response.url = self.full_url
+            response.url = self.full_url.decode('utf-8')
 
             return response
 
@@ -334,7 +334,7 @@ class Request(object):
             if isinstance(fragment, str):
                 fragment = fragment.encode('utf-8')
 
-        url = (urlunparse([ scheme, netloc, path, params, query, fragment ]))
+        url = (urlunparse([scheme, netloc, path, params, query, fragment]))
 
         if self._enc_params:
             if urlparse(url).query:
