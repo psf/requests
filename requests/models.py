@@ -283,6 +283,9 @@ class Request(object):
         returns it twice.
         """
 
+        if isinstance(data, bytes):
+            return data, data
+
         if hasattr(data, '__iter__') and not isinstance(data, str):
             data = dict(data)
 
