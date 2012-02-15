@@ -5,10 +5,11 @@ History
 ++++++
 
 * Vastly improved URL quoting.
-* Additonal allowed cookie key values.
-* Attmpted fix for "Too many open files" Error
+* Additional allowed cookie key values.
+* Attempted fix for "Too many open files" Error
 * Replace unicode errors on first pass, no need for second pass.
 * Append '/' to bare-domain urls before query insertion.
+* Exceptions now inherit from RuntimeError.
 * Bugfixes.
 
 
@@ -38,7 +39,7 @@ History
 0.9.2 (2012-01-18)
 ++++++++++++++++++
 
-* Asyncronous async.send method.
+* Asynchronous async.send method.
 * Support for proper chunk streams with boundaries.
 * session argument for Session classes.
 * Print entire hook tracebacks, not just exception instance.
@@ -52,7 +53,7 @@ History
 ++++++++++++++++++
 
 * danger_mode for automatic Response.raise_for_status()
-* Response.iter_lines refator
+* Response.iter_lines refactor
 
 0.9.0 (2011-12-28)
 ++++++++++++++++++
@@ -109,7 +110,7 @@ History
 0.8.2 (2011-11-19)
 ++++++++++++++++++
 
-* New unicode decoding system, based on overridable `Response.encoding`.
+* New Unicode decoding system, based on over-ridable `Response.encoding`.
 * Proper URL slash-quote handling.
 * Cookies with ``[``, ``]``, and ``_`` allowed.
 
@@ -149,7 +150,7 @@ History
 0.7.4 (2011-10-26)
 ++++++++++++++++++
 
-* Sesion Hooks fix.
+* Session Hooks fix.
 
 0.7.3 (2011-10-23)
 ++++++++++++++++++
