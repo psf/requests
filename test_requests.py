@@ -65,8 +65,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         requests.patch
         requests.post
 
-
-
     def test_invalid_url(self):
         self.assertRaises(ValueError, get, 'hiwpefhipowhefopw')
 
@@ -800,6 +798,11 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
                 config=dict(safe_mode=True))
         assert r.content is None
         assert isinstance(r.error, requests.exceptions.Timeout)
+
+    def test_upload_binary_data(self):
+
+        r = requests.get(httpbin('post'), auth=('a', 'b'), data='\xff')
+
 
 
 if __name__ == '__main__':

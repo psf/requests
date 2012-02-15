@@ -22,13 +22,16 @@ class RequestsTestSuite(unittest.TestCase):
     def test_addition(self):
         assert (1 + 1) == 2
 
+
     def test_ssl_hostname_ok(self):
         requests.get('https://github.com', verify=True)
+
 
     def test_ssl_hostname_not_ok(self):
         requests.get('https://kennethreitz.com', verify=False)
 
         self.assertRaises(requests.exceptions.SSLError, requests.get, 'https://kennethreitz.com')
+
 
     def test_ssl_hostname_session_not_ok(self):
 
@@ -38,6 +41,10 @@ class RequestsTestSuite(unittest.TestCase):
 
         s.get('https://kennethreitz.com', verify=False)
 
+
+    def test_binary_post(self):
+        utf8_string = (u'Smörgås').encode('utf-8')
+        requests.post('http://www.google.com/', data=utf8_string)
 
 
 if __name__ == '__main__':
