@@ -18,7 +18,7 @@ import zlib
 
 from .compat import parse_http_list as _parse_list_header
 from .compat import quote, unquote, cookielib, SimpleCookie, is_py2
-from .compat import basestring
+from .compat import basestring, bytes
 
 
 def dict_from_string(s):
@@ -395,7 +395,7 @@ def stream_decompress(iterator, mode='gzip'):
             yield chunk
     else:
         # Make sure everything has been returned from the decompression object
-        buf = dec.decompress('')
+        buf = dec.decompress(bytes())
         rv = buf + dec.flush()
         if rv:
             yield rv
