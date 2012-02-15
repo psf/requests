@@ -321,20 +321,30 @@ class Request(object):
             path = '/'
 
         if is_py2:
+            if isinstance(scheme, str):
+                scheme = scheme.encode('utf-8')
+            if isinstance(netloc, str):
+                netloc = netloc.encode('utf-8')
             if isinstance(path, str):
                 path = path.encode('utf-8')
-
-        path = requote_path(path)
+            if isinstance(params, str):
+                params = params.encode('utf-8')
+            if isinstance(query, str):
+                query = query.encode('utf-8')
+            if isinstance(fragment, str):
+                fragment = fragment.encode('utf-8')
 
         url = (urlunparse([ scheme, netloc, path, params, query, fragment ]))
 
         if self._enc_params:
             if urlparse(url).query:
-                return '%s&%s' % (url, self._enc_params)
+                url = '%s&%s' % (url, self._enc_params)
             else:
-                return '%s?%s' % (url, self._enc_params)
-        else:
-            return url
+                url = '%s?%s' % (url, self._enc_params)
+
+        url = requote_path(url)
+
+        return url
 
     @property
     def path_url(self):
