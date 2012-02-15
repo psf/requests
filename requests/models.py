@@ -69,11 +69,6 @@ class Request(object):
         self.timeout = timeout
 
         #: Request URL.
-
-        # if isinstance(url, str):
-            # url = url.encode('utf-8')
-            # print(dir(url))
-
         self.url = url
 
         #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.
