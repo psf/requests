@@ -191,7 +191,10 @@ class Request(object):
 
             # Save original response for later.
             response.raw = resp
-            response.url = self.full_url.decode('utf-8')
+            if isinstance(self.full_url, bytes):
+                response.url = self.full_url.decode('utf-8')
+            else:
+                response.url = self.full_url
 
             return response
 
@@ -737,7 +740,8 @@ class Response(object):
                     raise RuntimeError(
                         'The content for this response was already consumed')
 
-                self._content = bytes('').join(self.iter_content()) or None
+                self._content = bytes().join(self.iter_content()) or None
+                # print repr(self._content)
             except AttributeError:
                 self._content = None
 
