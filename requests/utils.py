@@ -419,14 +419,14 @@ def unquote_unreserved(uri):
             parts[i] = '%' + parts[i]
     return ''.join(parts)
 
-def requote_path(path):
-    """Re-quote the given URL path component.
+def requote_uri(uri):
+    """Re-quote the given URI.
 
-    This function passes the given path through an unquote/quote cycle to
+    This function passes the given URI through an unquote/quote cycle to
     ensure that it is fully and consistently quoted.
     """
     # Unquote only the unreserved characters
     # Then quote only illegal characters (do not quote reserved, unreserved,
     # or '%')
-    return quote(unquote_unreserved(path), safe="!#$%&'()*+,/:;=?@[]~")
+    return quote(unquote_unreserved(uri), safe="!#$%&'()*+,/:;=?@[]~")
     return "/".join(parts)
