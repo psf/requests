@@ -4,6 +4,8 @@ History
 0.10.2
 ++++++
 
+* Vastly improved URL quoting.
+* Additonal allowed cookie key values.
 * Attmpted fix for "Too many open files" Error
 * Replace unicode errors on first pass, no need for second pass.
 * Append '/' to bare-domain urls before query insertion.
