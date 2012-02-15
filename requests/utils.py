@@ -146,9 +146,13 @@ def header_expand(headers):
 
     if isinstance(headers, dict):
         headers = list(headers.items())
-
     elif isinstance(headers, basestring):
         return headers
+    elif isinstance(headers, unicode):
+        # As discussed in https://github.com/kennethreitz/requests/issues/400
+        # latin-1 is the most conservative encoding used on the web. Anyone
+        # who needs more can encode to a byte-string before calling
+        return headers.encode("latin-1")
 
     for i, (value, params) in enumerate(headers):
 
