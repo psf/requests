@@ -160,6 +160,29 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         response = get(url)
         self.assertEqual(response.url, httpbin('get/' + path_unreserved))
 
+        # Re-run all of the same tests on the query part of the URI
+        query_fully_escaped = '%3Ca%25b%23c%2Fd%3E=%C3%98%20%C3%A5'
+        url = httpbin('get/?' + query_fully_escaped)
+        response = get(url)
+        self.assertEqual(response.url, httpbin('get/?' + query_fully_escaped))
+
+        query = u'<a%25b%23c%2Fd%3E=\u00d8 %C3%A5'
+        url = httpbin('get/?' + query)
+        response = get(url)
+        self.assertEqual(response.url, httpbin('get/?' + query_fully_escaped))
+
+        # The legal characters in query happens to be the same as in path
+        query_reserved = '!$&\'()*+,/:=@-._~'
+        url = httpbin('get/?' + query_reserved)
+        response = get(url)
+        self.assertEqual(response.url, httpbin('get/?' + query_reserved))
+
+        query_unreserved = 'ABCDwxyz=1234-._~'
+        query_unreserved_escaped = '%41%42%43%44%77%78%79%7A=%31%32%33%34%2D%2E%5F%7E'
+        url = httpbin('get/?' + query_unreserved_escaped)
+        response = get(url)
+        self.assertEqual(response.url, httpbin('get/?' + query_unreserved))
+
 
     def test_user_agent_transfers(self):
         """Issue XX"""
