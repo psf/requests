@@ -400,6 +400,15 @@ def stream_decompress(iterator, mode='gzip'):
         if rv:
             yield rv
 
+def stream_untransfer(gen, resp):
+    if 'gzip' in resp.headers.get('content-encoding', ''):
+        gen = stream_decompress(gen, mode='gzip')
+    elif 'deflate' in resp.headers.get('content-encoding', ''):
+        gen = stream_decompress(gen, mode='deflate')
+
+    return gen
+
+
 # The unreserved URI characters (RFC 3986)
 UNRESERVED_SET = frozenset(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"

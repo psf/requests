@@ -25,8 +25,8 @@ from .exceptions import (
     ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
     URLRequired, SSLError)
 from .utils import (
-    get_encoding_from_headers, stream_decode_response_unicode,
-    stream_decompress, guess_filename, requote_uri, dict_from_string)
+    get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
+    dict_from_string)
 
 from .compat import urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote, str, bytes, SimpleCookie, is_py3, is_py2
 
@@ -684,10 +684,7 @@ class Response(object):
         else:
             gen = generate()
 
-        if 'gzip' in self.headers.get('content-encoding', ''):
-            gen = stream_decompress(gen, mode='gzip')
-        elif 'deflate' in self.headers.get('content-encoding', ''):
-            gen = stream_decompress(gen, mode='deflate')
+        gen = stream_untransfer(gen, self)
 
         if decode_unicode:
             gen = stream_decode_response_unicode(gen, self)
@@ -729,7 +726,6 @@ class Response(object):
         if pending is not None:
             yield pending.rstrip()
 
-
     @property
     def content(self):
         """Content of the response, in bytes."""
@@ -741,7 +737,7 @@ class Response(object):
                     raise RuntimeError(
                         'The content for this response was already consumed')
 
-                self._content = self.raw.read()
+                self._content = bytes('').join(self.iter_content()) or None
             except AttributeError:
                 self._content = None
 
