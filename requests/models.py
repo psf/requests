@@ -26,7 +26,7 @@ from .exceptions import (
     URLRequired, SSLError)
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
-    dict_from_string)
+    dict_from_string, supported_schemes)
 
 from .compat import urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote, str, bytes, SimpleCookie, is_py3, is_py2
 
@@ -315,6 +315,9 @@ class Request(object):
 
         if not scheme:
             raise ValueError("Invalid URL %r: No schema supplied" % url)
+
+        if not scheme in supported_schemes():
+            raise ValueError("Invalid scheme %r" % scheme)
 
         netloc = netloc.encode('idna').decode('utf-8')
 

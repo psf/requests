@@ -815,15 +815,12 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
     def test_useful_exception_for_invalid_schema(self):
         
-        try:
-          self.assertRaises(
-              requests.exceptions.URLRequired,
+        # If we pass a legitimate URL with a schema not supported 
+        # by requests, we should fail.
+        self.assertRaises(
+              ValueError,
               get,
-              'http://http://')
-        # To make this test as minimal as possible, only catch the
-        # exception raised in issue #380.
-        except ValueError:
-          self.fail()
+              'ftp://ftp.kernel.org/pub/')
 
 
 
