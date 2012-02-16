@@ -6,6 +6,7 @@
 # Path hack.
 import sys, os
 sys.path.insert(0, os.path.abspath('..'))
+test_dir = os.path.dirname(__file__)
 
 import io
 import json
@@ -291,7 +292,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             post1 = post(url, data={'some': 'data'})
             self.assertEqual(post1.status_code, 200)
 
-            with open('test_requests.py') as f:
+            with open(os.path.join(test_dir, 'test_requests.py')) as f:
                 post2 = post(url, files={'some': f})
             self.assertEqual(post2.status_code, 200)
 
@@ -303,7 +304,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
         for service in SERVICES:
 
-            with open('test_requests.py') as f:
+            with open(os.path.join(test_dir, 'test_requests.py')) as f:
                 url = service('post')
                 post1 = post(url,
                              files={'some': f},
@@ -318,7 +319,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
             url = service('post')
 
-            with open('test_requests.py') as f:
+            with open(os.path.join(test_dir, 'test_requests.py')) as f:
 
                 post2 = post(url,
                     files={'some': f},
