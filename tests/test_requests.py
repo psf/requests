@@ -23,7 +23,8 @@ from requests.auth import HTTPBasicAuth, HTTPDigestAuth
 
 
 
-os.environ['HTTPBIN_URL'] = 'http://httpbin.org/'
+if (sys.platform == 'win32') and ('HTTPBIN_URL' not in os.environ):
+    os.environ['HTTPBIN_URL'] = 'http://httpbin.org/'
 
 # TODO: Detect an open port.
 PORT = os.environ.get('HTTPBIN_PORT', '7077')
