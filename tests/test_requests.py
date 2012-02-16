@@ -813,9 +813,9 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
         r = requests.get(httpbin('post'), auth=('a', 'b'), data='\xff')
 
-    def test_useful_exception_for_invalid_schema(self):
+    def test_useful_exception_for_invalid_scheme(self):
         
-        # If we pass a legitimate URL with a schema not supported 
+        # If we pass a legitimate URL with a scheme not supported 
         # by requests, we should fail.
         self.assertRaises(
               ValueError,
