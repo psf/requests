@@ -1,8 +1,8 @@
 History
 -------
 
-0.10.2
-++++++
+0.10.2 (2012-01-15)
++++++++++++++++++++
 
 * Vastly improved URL quoting.
 * Additional allowed cookie key values.
