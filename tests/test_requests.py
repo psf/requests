@@ -23,8 +23,7 @@ from requests.auth import HTTPBasicAuth, HTTPDigestAuth
 
 
 
-if (sys.platform == 'win32') and ('HTTPBIN_URL' not in os.environ):
-    os.environ['HTTPBIN_URL'] = 'http://httpbin.org/'
+os.environ['HTTPBIN_URL'] = 'http://httpbin.org/'
 
 # TODO: Detect an open port.
 PORT = os.environ.get('HTTPBIN_PORT', '7077')
@@ -812,6 +811,18 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
     def test_upload_binary_data(self):
 
         r = requests.get(httpbin('post'), auth=('a', 'b'), data='\xff')
+
+    def test_useful_exception_for_invalid_schema(self):
+        
+        try:
+          self.assertRaises(
+              requests.exceptions.URLRequired,
+              get,
+              'http://http://')
+        # To make this test as minimal as possible, only catch the
+        # exception raised in issue #380.
+        except ValueError:
+          self.fail()
 
 
 
