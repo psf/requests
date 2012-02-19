@@ -52,7 +52,7 @@ class Session(object):
 
     __attrs__ = [
         'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
-        'params', 'config']
+        'params', 'config', 'verify']
 
 
     def __init__(self,
@@ -79,10 +79,7 @@ class Session(object):
         for (k, v) in list(defaults.items()):
             self.config.setdefault(k, v)
 
-        self.poolmanager = PoolManager(
-            num_pools=self.config.get('pool_connections'),
-            maxsize=self.config.get('pool_maxsize')
-        )
+        self.init_poolmanager()
 
         # Set up a CookieJar to be used by default
         self.cookies = {}
@@ -90,6 +87,12 @@ class Session(object):
         # Add passed cookies in.
         if cookies is not None:
             self.cookies.update(cookies)
+
+    def init_poolmanager(self):
+        self.poolmanager = PoolManager(
+            num_pools=self.config.get('pool_connections'),
+            maxsize=self.config.get('pool_maxsize')
+        )
 
     def __repr__(self):
         return '<requests-client at 0x%x>' % (id(self))
@@ -145,9 +148,6 @@ class Session(object):
         headers = {} if headers is None else headers
         params = {} if params is None else params
         hooks = {} if hooks is None else hooks
-
-        if verify is None:
-            verify = self.verify
 
         # use session's hooks as defaults
         for key, cb in list(self.hooks.items()):
@@ -280,6 +280,15 @@ class Session(object):
         """
 
         return self.request('delete', url, **kwargs)
+
+    def __getstate__(self):
+        return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
+
+    def __setstate__(self, state):
+        for attr, value in state.items():
+            setattr(self, attr, value)
+
+        self.init_poolmanager()
 
 
 def session(**kwargs):

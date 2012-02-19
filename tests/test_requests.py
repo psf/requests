@@ -13,6 +13,7 @@ import time
 import os
 import sys
 import unittest
+import pickle
 
 import requests
 from requests.compat import str, bytes, StringIO
@@ -728,6 +729,19 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         assert not params['a'] in r3.text
         assert params3['b'] in r3.text
         assert params3['c'] in r3.text
+
+    def test_session_pickling(self):
+
+        s = requests.session(
+                headers={'header': 'value'},
+                cookies={'a-cookie': 'cookie-value'},
+                auth=('username', 'password'))
+
+        ds = pickle.loads(pickle.dumps(s))
+
+        self.assertEqual(s.headers, ds.headers)
+        self.assertEqual(s.cookies, ds.cookies)
+        self.assertEqual(s.auth, ds.auth)
 
     def test_invalid_content(self):
         # WARNING: if you're using a terrible DNS provider (comcast),
