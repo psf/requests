@@ -5,10 +5,10 @@ init:
 	pip install -r requirements.txt
 
 test:
-	nosetests --with-color ./tests/*
+	cd tests && nosetests --with-color ./*
 
 lazy:
-	nosetests --with-color tests/test_requests.py
+	cd tests && nosetests --with-color test_requests.py
 
 server:
 	gunicorn httpbin:app --bind=0.0.0.0:7077 &
