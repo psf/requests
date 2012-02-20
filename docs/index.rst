@@ -38,7 +38,7 @@ Testimonials
 `Twitter, Inc <http://twitter.com>`_,
 `Readability <http://readability.com>`_, and
 Federal US Institutions
-use Requests internally. It has been installed over 80,000 times from PyPI.
+use Requests internally. It has been installed over 100,000 times from PyPI.
 
 **Armin Ronacher**
     Requests is the perfect example how beautiful an API can be with the
