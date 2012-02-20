@@ -292,7 +292,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             post1 = post(url, data={'some': 'data'})
             self.assertEqual(post1.status_code, 200)
 
-            with open('test_requests.py') as f:
+            with open(__file__) as f:
                 post2 = post(url, files={'some': f})
             self.assertEqual(post2.status_code, 200)
 
@@ -304,7 +304,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
         for service in SERVICES:
 
-            with open('test_requests.py') as f:
+            with open(__file__) as f:
                 url = service('post')
                 post1 = post(url,
                              files={'some': f},
@@ -319,11 +319,11 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
             url = service('post')
 
-            with open('test_requests.py') as f:
+            with open(__file__) as f:
 
                 post2 = post(url,
                     files={'some': f},
-                    headers = {'User-Agent': 'requests-tests'})
+                    headers={'User-Agent': 'requests-tests'})
 
             self.assertEqual(post2.status_code, 200)
 
