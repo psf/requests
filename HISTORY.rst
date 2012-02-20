@@ -4,7 +4,8 @@ History
 0.10.3
 ++++++
 
-* Make Session objects picklable
+* Make Session objects picklable.
+* ValueError for invalid schema URLs.
 
 0.10.2 (2012-01-15)
 +++++++++++++++++++
