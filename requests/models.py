@@ -26,9 +26,10 @@ from .exceptions import (
     URLRequired, SSLError)
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
-    dict_from_string, supported_schemes)
-
-from .compat import urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote, str, bytes, SimpleCookie, is_py3, is_py2
+    dict_from_string, supported_schemes, stream_decode_response_unicode)
+from .compat import (
+    urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
+    SimpleCookie, is_py2)
 
 # Import chardet if it is available.
 try:
@@ -37,7 +38,6 @@ except ImportError:
     pass
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
-
 
 
 class Request(object):
@@ -147,10 +147,8 @@ class Request(object):
         self.headers = headers
         self._poolmanager = _poolmanager
 
-
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
-
 
     def _build_response(self, resp):
         """Build internal :class:`Response <Response>` object
@@ -255,9 +253,9 @@ class Request(object):
                     config=self.config,
                     timeout=self.timeout,
                     _poolmanager=self._poolmanager,
-                    proxies = self.proxies,
-                    verify = self.verify,
-                    session = self.session
+                    proxies=self.proxies,
+                    verify=self.verify,
+                    session=self.session
                 )
 
                 request.send()
@@ -269,7 +267,6 @@ class Request(object):
         self.response = r
         self.response.request = self
         self.response.cookies.update(self.cookies)
-
 
     @staticmethod
     def _encode_params(data):
@@ -288,7 +285,6 @@ class Request(object):
 
         if hasattr(data, '__iter__') and not isinstance(data, str):
             data = dict(data)
-
 
         if hasattr(data, 'items'):
             result = []
@@ -311,7 +307,6 @@ class Request(object):
 
         # Support for unicode domain names and paths.
         scheme, netloc, path, params, query, fragment = urlparse(url)
-
 
         if not scheme:
             raise ValueError("Invalid URL %r: No schema supplied" % url)
@@ -375,12 +370,10 @@ class Request(object):
 
         return ''.join(url)
 
-
     def register_hook(self, event, hook):
         """Properly register a hook."""
 
         return self.hooks[event].append(hook)
-
 
     def send(self, anyway=False, prefetch=False):
         """Sends the request. Returns True of successful, false if not.
@@ -477,7 +470,6 @@ class Request(object):
             # Allow self-specified cert location.
             if self.verify is not True:
                 cert_loc = self.verify
-
 
             # Look for configuration.
             if not cert_loc:
@@ -623,7 +615,6 @@ class Response(object):
         #: Dictionary of configurations for this request.
         self.config = {}
 
-
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
 
@@ -642,7 +633,6 @@ class Response(object):
         except HTTPError:
             return False
         return True
-
 
     def iter_content(self, chunk_size=10 * 1024, decode_unicode=False):
         """Iterates over the response data.  This avoids reading the content
@@ -670,9 +660,9 @@ class Response(object):
                 pending_bytes = resp.chunk_left
                 while pending_bytes:
                     chunk = fp.read(min(chunk_size, pending_bytes))
-                    pending_bytes-=len(chunk)
+                    pending_bytes -= len(chunk)
                     yield chunk
-                fp.read(2) # throw away crlf
+                fp.read(2)  # throw away crlf
             while 1:
                 #XXX correct line size? (httplib has 64kb, seems insane)
                 pending_bytes = fp.readline(40).strip()
@@ -681,12 +671,11 @@ class Response(object):
                     break
                 while pending_bytes:
                     chunk = fp.read(min(chunk_size, pending_bytes))
-                    pending_bytes-=len(chunk)
+                    pending_bytes -= len(chunk)
                     yield chunk
-                fp.read(2) # throw away crlf
+                fp.read(2)  # throw away crlf
             self._content_consumed = True
             fp.close()
-
 
         if getattr(getattr(self.raw, '_original_response', None), 'chunked', False):
             gen = generate_chunked()
@@ -699,7 +688,6 @@ class Response(object):
             gen = stream_decode_response_unicode(gen, self)
 
         return gen
-
 
     def iter_lines(self, chunk_size=10 * 1024, decode_unicode=None):
         """Iterates over the response data, one line at a time.  This
@@ -754,7 +742,6 @@ class Response(object):
         self._content_consumed = True
         return self._content
 
-
     @property
     def text(self):
         """Content of the response, in unicode.
@@ -785,7 +772,6 @@ class Response(object):
 
         return content
 
-
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occurred."""
 
@@ -800,5 +786,3 @@ class Response(object):
 
         elif (self.status_code >= 500) and (self.status_code < 600):
             raise HTTPError('%s Server Error' % self.status_code)
-
-
