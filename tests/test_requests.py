@@ -4,25 +4,22 @@
 # from __future__ import unicode_literals
 
 # Path hack.
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.abspath('..'))
 
-import io
 import json
-import time
 import os
 import sys
 import unittest
 import pickle
 
 import requests
-from requests.compat import str, bytes, StringIO
+from requests.compat import str, StringIO
 # import envoy
 from requests import HTTPError
 from requests import get, post, head, put
 from requests.auth import HTTPBasicAuth, HTTPDigestAuth
-
-
 
 if (sys.platform == 'win32') and ('HTTPBIN_URL' not in os.environ):
     os.environ['HTTPBIN_URL'] = 'http://httpbin.org/'
@@ -41,6 +38,7 @@ def httpbin(*suffix):
 SERVICES = (httpbin, )
 
 _httpbin = False
+
 
 class TestSetup(object):
     """Requests test cases."""
@@ -75,7 +73,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
     def test_invalid_url(self):
         self.assertRaises(ValueError, get, 'hiwpefhipowhefopw')
 
-
     def test_path_is_not_double_encoded(self):
         request = requests.Request("http://0.0.0.0/get/test case")
 
@@ -98,7 +95,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         r = get(httpbin('redirect', '1'), allow_redirects=False)
         self.assertEqual(r.status_code, 302)
 
-
     def test_HTTP_200_OK_GET_WITH_PARAMS(self):
         heads = {'User-agent': 'Mozilla/5.0'}
 
@@ -106,7 +102,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
         assert heads['User-agent'] in r.text
         self.assertEqual(r.status_code, 200)
-
 
     def test_HTTP_200_OK_GET_WITH_MIXED_PARAMS(self):
         heads = {'User-agent': 'Mozilla/5.0'}
@@ -191,7 +186,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
     #     response = get(url)
     #     self.assertEqual(response.url, httpbin('get/?' + query_unreserved))
 
-
     def test_user_agent_transfers(self):
         """Issue XX"""
 
@@ -200,7 +194,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
                 'Mozilla/5.0 (github.com/kennethreitz/requests)'
         }
 
-        r = get(httpbin('user-agent'), headers=heads);
+        r = get(httpbin('user-agent'), headers=heads)
         self.assertTrue(heads['User-agent'] in r.text)
 
         heads = {
@@ -208,19 +202,16 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
                 'Mozilla/5.0 (github.com/kennethreitz/requests)'
         }
 
-        r = get(httpbin('user-agent'), headers=heads);
+        r = get(httpbin('user-agent'), headers=heads)
         self.assertTrue(heads['user-agent'] in r.text)
-
 
     def test_HTTP_200_OK_HEAD(self):
         r = head(httpbin('/get'))
         self.assertEqual(r.status_code, 200)
 
-
     def test_HTTP_200_OK_PUT(self):
         r = put(httpbin('put'))
         self.assertEqual(r.status_code, 200)
-
 
     def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self):
 
@@ -235,11 +226,9 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             r = get(url)
             self.assertEqual(r.status_code, 401)
 
-
             s = requests.session(auth=auth)
             r = get(url, session=s)
             self.assertEqual(r.status_code, 200)
-
 
     def test_BASICAUTH_HTTP_200_OK_GET(self):
 
@@ -258,11 +247,9 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             r = get(url)
             self.assertEqual(r.status_code, 401)
 
-
             s = requests.session(auth=auth)
             r = get(url, session=s)
             self.assertEqual(r.status_code, 200)
-
 
     def test_DIGESTAUTH_HTTP_200_OK_GET(self):
 
@@ -276,7 +263,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
             r = get(url)
             self.assertEqual(r.status_code, 401)
-
 
             s = requests.session(auth=auth)
             r = get(url, session=s)
@@ -299,7 +285,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             post3 = post(url, data='[{"some": "json"}]')
             self.assertEqual(post3.status_code, 200)
 
-
     def test_POSTBIN_GET_POST_FILES_WITH_PARAMS(self):
 
         for service in SERVICES:
@@ -311,7 +296,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
                              data={'some': 'data'})
 
             self.assertEqual(post1.status_code, 200)
-
 
     def test_POSTBIN_GET_POST_FILES_WITH_HEADERS(self):
 
@@ -327,7 +311,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
             self.assertEqual(post2.status_code, 200)
 
-
     def test_nonzero_evaluation(self):
 
         for service in SERVICES:
@@ -338,7 +321,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             r = get(service('/get'))
             self.assertEqual(bool(r), True)
 
-
     def test_request_ok_set(self):
 
         for service in SERVICES:
@@ -348,7 +330,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             # r.raise_for_status()
             self.assertEqual(r.ok, False)
 
-
     def test_status_raising(self):
         r = get(httpbin('status', '404'))
         self.assertRaises(HTTPError, r.raise_for_status)
@@ -356,7 +337,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         r = get(httpbin('status', '200'))
         self.assertFalse(r.error)
         r.raise_for_status()
-
 
     def test_default_status_raising(self):
         config = {'danger_mode': True}
@@ -366,7 +346,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
         r = get(httpbin('status', '200'))
         self.assertEqual(r.status_code, 200)
-
 
     def test_decompress_gzip(self):
 
@@ -383,7 +362,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
             assert isinstance(response.url, str)
 
-
     def test_unicode_get(self):
 
         for service in SERVICES:
@@ -396,7 +374,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             get(url, params={'foo': 'foo'})
             get(service('ø'), params={'foo': 'foo'})
 
-
     def test_httpauth_recursion(self):
 
         http_auth = HTTPBasicAuth('user', 'BADpass')
@@ -404,7 +381,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         for service in SERVICES:
             r = get(service('basic-auth', 'user', 'pass'), auth=http_auth)
             self.assertEqual(r.status_code, 401)
-
 
     def test_urlencoded_post_data(self):
 
@@ -420,7 +396,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
             self.assertEqual(rbody.get('form'), dict(test='fooaowpeuf'))
             self.assertEqual(rbody.get('data'), '')
-
 
     def test_nonurlencoded_post_data(self):
 
@@ -439,7 +414,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             assert rbody.get('form') in (None, {})
             self.assertEqual(rbody.get('data'), 'fooaowpeuf')
 
-
     def test_urlencoded_post_querystring(self):
 
         for service in SERVICES:
@@ -451,9 +425,8 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             self.assertEqual(r.url, service('post?test=fooaowpeuf'))
 
             rbody = json.loads(r.text)
-            self.assertEqual(rbody.get('form'), {}) # No form supplied
+            self.assertEqual(rbody.get('form'), {})  # No form supplied
             self.assertEqual(rbody.get('data'), '')
-
 
     def test_urlencoded_post_query_and_data(self):
 
@@ -472,7 +445,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             self.assertEqual(rbody.get('form'), dict(test2='foobar'))
             self.assertEqual(rbody.get('data'), '')
 
-
     def test_nonurlencoded_postdata(self):
 
         for service in SERVICES:
@@ -487,34 +459,26 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             assert rbody.get('form') in (None, {})
             self.assertEqual(rbody.get('data'), 'foobar')
 
-
-    # def test_idna(self):
-    #     r = get(u'http://➡.ws/httpbin')
-    #     assert 'httpbin' in r.url
-
-
     def test_urlencoded_get_query_multivalued_param(self):
 
         for service in SERVICES:
 
-            r = get(service('get'), params=dict(test=['foo','baz']))
+            r = get(service('get'), params=dict(test=['foo', 'baz']))
             self.assertEqual(r.status_code, 200)
             self.assertEqual(r.url, service('get?test=foo&test=baz'))
-
 
     def test_urlencoded_post_querystring_multivalued(self):
 
         for service in SERVICES:
 
-            r = post(service('post'), params=dict(test=['foo','baz']))
+            r = post(service('post'), params=dict(test=['foo', 'baz']))
             self.assertEqual(r.status_code, 200)
             self.assertEqual(r.headers['content-type'], 'application/json')
             self.assertEqual(r.url, service('post?test=foo&test=baz'))
 
             rbody = json.loads(r.text)
-            self.assertEqual(rbody.get('form'), {}) # No form supplied
+            self.assertEqual(rbody.get('form'), {})  # No form supplied
             self.assertEqual(rbody.get('data'), '')
-
 
     def test_urlencoded_post_query_multivalued_and_data(self):
 
@@ -522,8 +486,8 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
             r = post(
                 service('post'),
-                params=dict(test=['foo','baz']),
-                data=dict(test2="foobar",test3=['foo','baz']))
+                params=dict(test=['foo', 'baz']),
+                data=dict(test2="foobar", test3=['foo', 'baz']))
 
             self.assertEqual(r.status_code, 200)
             self.assertEqual(r.headers['content-type'], 'application/json')
@@ -533,9 +497,8 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             # print('-----------------------')
 
             rbody = json.loads(r.text)
-            self.assertEqual(rbody.get('form'), dict(test2='foobar',test3=['foo','baz']))
+            self.assertEqual(rbody.get('form'), dict(test2='foobar', test3=['foo', 'baz']))
             self.assertEqual(rbody.get('data'), '')
-
 
     def test_GET_no_redirect(self):
 
@@ -545,7 +508,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             self.assertEqual(r.status_code, 302)
             self.assertEqual(len(r.history), 0)
 
-
     def test_HEAD_no_redirect(self):
 
         for service in SERVICES:
@@ -553,7 +515,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             r = head(service('redirect', '3'), allow_redirects=False)
             self.assertEqual(r.status_code, 302)
             self.assertEqual(len(r.history), 0)
-
 
     def test_redirect_history(self):
 
@@ -563,7 +524,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             self.assertEqual(r.status_code, 200)
             self.assertEqual(len(r.history), 3)
 
-
     def test_relative_redirect_history(self):
 
         for service in SERVICES:
@@ -572,13 +532,11 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             self.assertEqual(r.status_code, 200)
             self.assertEqual(len(r.history), 3)
 
-
     def test_session_HTTP_200_OK_GET(self):
 
         s = requests.session()
         r = get(httpbin('/get'), session=s)
         self.assertEqual(r.status_code, 200)
-
 
     def test_session_persistent_headers(self):
 
@@ -614,13 +572,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
         for service in SERVICES:
             url = service('headers')
-
-            response = get(
-                url = url,
-                hooks = {
-                    'args': add_foo_header
-                }
-            )
+            response = get(url=url, hooks={'args': add_foo_header})
 
             assert 'foo' in response.text
 
@@ -649,9 +601,8 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         for service in SERVICES:
             url = service('headers')
 
-            response = get(
-                url = url,
-                hooks = {
+            response = get(url=url,
+                hooks={
                     'args': [add_foo_header, add_bar_header]
                 }
             )
@@ -701,8 +652,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
         assert 'k' in c
 
-
-
     def test_session_persistent_params(self):
 
         params = {'a': 'a_test'}
@@ -714,13 +663,11 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         r1 = get(httpbin('get'), session=s)
         assert params['a'] in r1.text
 
-
         params2 = {'b': 'b_test'}
 
         r2 = get(httpbin('get'), params=params2, session=s)
         assert params['a'] in r2.text
         assert params2['b'] in r2.text
-
 
         params3 = {'b': 'b_test', 'a': None, 'c': 'c_test'}
 
@@ -753,7 +700,6 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             pass   # \o/
         else:
             assert False
-
 
         config = {'safe_mode': True}
         r = get(hah, allow_redirects=False, config=config)
@@ -825,18 +771,16 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
     def test_upload_binary_data(self):
 
-        r = requests.get(httpbin('post'), auth=('a', 'b'), data='\xff')
+        requests.get(httpbin('post'), auth=('a', 'b'), data='\xff')
 
     def test_useful_exception_for_invalid_scheme(self):
-        
-        # If we pass a legitimate URL with a scheme not supported 
+
+        # If we pass a legitimate URL with a scheme not supported
         # by requests, we should fail.
         self.assertRaises(
               ValueError,
               get,
               'ftp://ftp.kernel.org/pub/')
-
-
 
 if __name__ == '__main__':
     unittest.main()
