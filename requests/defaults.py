@@ -19,6 +19,8 @@ Configurations:
 :pool_connections: The number of active HTTP connection pools to use.
 """
 
+SCHEMAS = ['http', 'https']
+
 from . import __version__
 
 defaults = dict()
@@ -38,3 +40,5 @@ defaults['max_retries'] = 0
 defaults['danger_mode'] = False
 defaults['safe_mode'] = False
 defaults['keep_alive'] = True
+
+

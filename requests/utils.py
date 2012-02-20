@@ -11,13 +11,12 @@ that are also useful for external consumption.
 
 import cgi
 import codecs
-import os
 import random
 import re
 import zlib
 
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, unquote, cookielib, SimpleCookie, is_py2
+from .compat import quote, cookielib, SimpleCookie, is_py2
 from .compat import basestring, bytes
 
 
@@ -29,16 +28,18 @@ def dict_from_string(s):
     c = SimpleCookie()
     c.load(s)
 
-    for k,v in list(c.items()):
+    for k, v in list(c.items()):
         cookies.update({k: v.value})
 
     return cookies
+
 
 def guess_filename(obj):
     """Tries to guess the filename of the given object."""
     name = getattr(obj, 'name', None)
     if name and name[0] != '<' and name[-1] != '>':
         return name
+
 
 # From mitsuhiko/werkzeug (used with permission).
 def parse_list_header(value):
@@ -169,16 +170,14 @@ def header_expand(headers):
 
             collector.append('; '.join(_params))
 
-            if not len(headers) == i+1:
+            if not len(headers) == i + 1:
                 collector.append(', ')
-
 
     # Remove trailing separators.
     if collector[-1] in (', ', '; '):
         del collector[-1]
 
     return ''.join(collector)
-
 
 
 def randombytes(n):
@@ -341,6 +340,7 @@ def get_unicode_from_response(r):
     except TypeError:
         return r.content
 
+
 def stream_decompress(iterator, mode='gzip'):
     """
     Stream decodes an iterator over compressed data
@@ -373,6 +373,7 @@ def stream_decompress(iterator, mode='gzip'):
         if rv:
             yield rv
 
+
 def stream_untransfer(gen, resp):
     if 'gzip' in resp.headers.get('content-encoding', ''):
         gen = stream_decompress(gen, mode='gzip')
@@ -386,6 +387,7 @@ def stream_untransfer(gen, resp):
 UNRESERVED_SET = frozenset(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     + "0123456789-._~")
+
 
 def unquote_unreserved(uri):
     """Un-escape any percent-escape sequences in a URI that are unreserved
@@ -405,6 +407,7 @@ def unquote_unreserved(uri):
             parts[i] = '%' + parts[i]
     return ''.join(parts)
 
+
 def requote_uri(uri):
     """Re-quote the given URI.
 
@@ -415,11 +418,3 @@ def requote_uri(uri):
     # Then quote only illegal characters (do not quote reserved, unreserved,
     # or '%')
     return quote(unquote_unreserved(uri), safe="!#$%&'()*+,/:;=?@[]~")
-    return "/".join(parts)
-
-def supported_schemes():
-    """A list of schemes supported by requests.
-
-    return: a list of strings.
-    """
-    return ["http","https"]

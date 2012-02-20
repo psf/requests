@@ -21,12 +21,13 @@ from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .packages.urllib3 import connectionpool, poolmanager
 from .packages.urllib3.filepost import encode_multipart_formdata
+from .defaults import SCHEMAS
 from .exceptions import (
     ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
     URLRequired, SSLError)
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
-    dict_from_string, supported_schemes, stream_decode_response_unicode)
+    dict_from_string, stream_decode_response_unicode)
 from .compat import (
     urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
     SimpleCookie, is_py2)
@@ -311,7 +312,7 @@ class Request(object):
         if not scheme:
             raise ValueError("Invalid URL %r: No schema supplied" % url)
 
-        if not scheme in supported_schemes():
+        if not scheme in SCHEMAS:
             raise ValueError("Invalid scheme %r" % scheme)
 
         netloc = netloc.encode('idna').decode('utf-8')
