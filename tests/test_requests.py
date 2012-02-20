@@ -782,5 +782,12 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
               get,
               'ftp://ftp.kernel.org/pub/')
 
+    def test_can_have_none_in_header_values(self):
+        try:
+            # Don't choke on headers with none in the value.
+            requests.get(httpbin('headers'), headers={'Foo': None})
+        except TypeError:
+            self.fail()
+
 if __name__ == '__main__':
     unittest.main()
