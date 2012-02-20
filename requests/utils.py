@@ -11,13 +11,47 @@ that are also useful for external consumption.
 
 import cgi
 import codecs
+import os
 import random
 import re
 import zlib
+from netrc import netrc, NetrcParseError
 
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, cookielib, SimpleCookie, is_py2
+from .compat import quote, cookielib, SimpleCookie, is_py2, urlparse
 from .compat import basestring, bytes
+
+
+NETRC_FILES = ('.netrc', '_netrc')
+
+
+def get_netrc_auth(url):
+    """Returns the Requests tuple auth for a given url from netrc."""
+
+    locations = (os.path.expanduser('~/{0}'.format(f)) for f in NETRC_FILES)
+    netrc_path = None
+
+    for loc in locations:
+        if os.path.exists(loc) and not netrc_path:
+            netrc_path = loc
+
+    # Abort early if there isn't one.
+    if netrc_path is None:
+        return netrc_path
+
+    ri = urlparse(url)
+
+    # Strip port numbers from netloc
+    host = ri.netloc.split(':')[0]
+
+    try:
+        _netrc = netrc(netrc_path).authenticators(host)
+        if _netrc:
+            # Return with login / password
+            login_i = (0 if _netrc[0] else 1)
+            return (_netrc[login_i], _netrc[2])
+    except NetrcParseError:
+        pass
 
 
 def dict_from_string(s):
@@ -149,7 +183,7 @@ def header_expand(headers):
         headers = list(headers.items())
     elif isinstance(headers, basestring):
         return headers
-    elif isinstance(headers, unicode):
+    elif isinstance(headers, str):
         # As discussed in https://github.com/kennethreitz/requests/issues/400
         # latin-1 is the most conservative encoding used on the web. Anyone
         # who needs more can encode to a byte-string before calling

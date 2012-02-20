@@ -27,7 +27,7 @@ from .exceptions import (
     URLRequired, SSLError)
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
-    dict_from_string, stream_decode_response_unicode)
+    dict_from_string, stream_decode_response_unicode, get_netrc_auth)
 from .compat import (
     urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
     SimpleCookie, is_py2)
@@ -434,6 +434,10 @@ class Request(object):
         # Add content-type if it wasn't explicitly provided.
         if (content_type) and (not 'content-type' in self.headers):
             self.headers['Content-Type'] = content_type
+
+        # Use .netrc auth if none was provided.
+        if not self.auth:
+            self.auth = get_netrc_auth(url)
 
         if self.auth:
             if isinstance(self.auth, tuple) and len(self.auth) == 2:
