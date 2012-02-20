@@ -773,13 +773,13 @@ class Response(object):
 
         return content
 
-    def raise_for_status(self):
+    def raise_for_status(self, allow_redirects=True):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occurred."""
 
         if self.error:
             raise self.error
 
-        if (self.status_code >= 300) and (self.status_code < 400) and not self.rquest.allow_redirects:
+        if (self.status_code >= 300) and (self.status_code < 400) and not allow_redirects:
             raise HTTPError('%s Redirection' % self.status_code)
 
         elif (self.status_code >= 400) and (self.status_code < 500):
