@@ -4,9 +4,10 @@ History
 0.10.3 (2012-02-20)
 +++++++++++++++++++
 
+* HEAD requests don't follow redirects anymore.
+* raise_for_status() doesn't raise for 3xx anymore.
 * Make Session objects picklable.
 * ValueError for invalid schema URLs.
-* raise_for_status() doesn't raise for 3xx anymore.
 
 0.10.2 (2012-01-15)
 +++++++++++++++++++
