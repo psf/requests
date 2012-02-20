@@ -827,6 +827,14 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
         r = requests.get(httpbin('post'), auth=('a', 'b'), data='\xff')
 
+    def test_can_have_none_in_header_values(self):
+        
+        # Don't choke on headers with none in the value.
+        try:
+            r = requests.get(httpbin('headers'), headers={"Foo":None})
+        except TypeError:
+            self.fail()
+
 
 
 if __name__ == '__main__':
