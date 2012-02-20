@@ -42,21 +42,7 @@ def encode_multipart_formdata(fields, boundary=None):
     if boundary is None:
         boundary = choose_boundary()
 
-    for fieldname, value in six.iteritems(fields):
-        body.write(b('--%s\r\n' % (boundary)))
-
-        if isinstance(value, tuple):
-            filename, data = value
-            writer(body).write('Content-Disposition: form-data; name="%s"; '
-                               'filename="%s"\r\n' % (fieldname, filename))
-            body.write(b('Content-Type: %s\r\n\r\n' %
-                       (get_content_type(filename))))
-        else:
-            data = value
-            writer(body).write('Content-Disposition: form-data; name="%s"\r\n'
-                               % (fieldname))
-            body.write(b'Content-Type: text/plain\r\n\r\n')
-
+    def writeValue(data):
         if isinstance(data, int):
             data = str(data)  # Backwards compatibility
 
@@ -66,6 +52,31 @@ def encode_multipart_formdata(fields, boundary=None):
             body.write(data)
 
         body.write(b'\r\n')
+
+
+    def writeData(fn, data):
+        body.write(b('--%s\r\n' % (boundary)))
+        writer(body).write('Content-Disposition: form-data; name="%s"\r\n'
+                            % (fn))
+        body.write(b'Content-Type: text/plain\r\n\r\n')
+        writeValue(data)
+
+
+    for fieldname, value in six.iteritems(fields):
+        if isinstance(value, tuple):
+            filename, data = value
+            body.write(b('--%s\r\n' % (boundary)))
+            writer(body).write('Content-Disposition: form-data; name="%s"; '
+                               'filename="%s"\r\n' % (fieldname, filename))
+            body.write(b('Content-Type: %s\r\n\r\n' %
+                       (get_content_type(filename))))
+            writeValue(data)
+
+        elif isinstance(value, list) and value:
+            for v in value:
+                writeData(fieldname, v)
+        else:
+            writeData(fieldname, value)
 
     body.write(b('--%s--\r\n' % (boundary)))
 
