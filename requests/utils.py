@@ -416,3 +416,10 @@ def requote_uri(uri):
     # or '%')
     return quote(unquote_unreserved(uri), safe="!#$%&'()*+,/:;=?@[]~")
     return "/".join(parts)
+
+def supported_schemes():
+    """A list of schemes supported by requests.
+
+    return: a list of strings.
+    """
+    return ["http","https"]
