@@ -46,8 +46,10 @@ def get_netrc_auth(url):
 
     try:
         _netrc = netrc(netrc_path).authenticators(host)
-        # Return with login / password
-        return (_netrc[0 if _netrc[0] else 1], _netrc[2])
+        if _netrc:
+            # Return with login / password
+            login_i = (0 if _netrc[0] else 1)
+            return (_netrc[login_i], _netrc[2])
     except NetrcParseError:
         pass
 
