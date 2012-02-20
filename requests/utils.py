@@ -154,6 +154,8 @@ def header_expand(headers):
         # latin-1 is the most conservative encoding used on the web. Anyone
         # who needs more can encode to a byte-string before calling
         return headers.encode("latin-1")
+    elif headers is None:
+        return headers
 
     for i, (value, params) in enumerate(headers):
 
