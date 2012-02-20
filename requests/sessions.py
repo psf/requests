@@ -235,7 +235,7 @@ class Session(object):
         :param **kwargs: Optional arguments that ``request`` takes.
         """
 
-        kwargs.setdefault('allow_redirects', True)
+        kwargs.setdefault('allow_redirects', False)
         return self.request('head', url, **kwargs)
 
 
