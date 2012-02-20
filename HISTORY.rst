@@ -1,6 +1,11 @@
 History
 -------
 
+0.10.3
+++++++
+
+* Make Session objects picklable
+
 0.10.2 (2012-01-15)
 +++++++++++++++++++
 
