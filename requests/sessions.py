@@ -40,7 +40,7 @@ def merge_kwargs(local_kwarg, default_kwarg):
     kwargs.update(local_kwarg)
 
     # Remove keys that are set to None.
-    for (k,v) in list(local_kwarg.items()):
+    for (k, v) in list(local_kwarg.items()):
         if v is None:
             del kwargs[k]
 
