@@ -779,7 +779,7 @@ class Response(object):
         if self.error:
             raise self.error
 
-        if (self.status_code >= 300) and (self.status_code < 400):
+        if (self.status_code >= 300) and (self.status_code < 400) and not self.rquest.allow_redirects:
             raise HTTPError('%s Redirection' % self.status_code)
 
         elif (self.status_code >= 400) and (self.status_code < 500):
