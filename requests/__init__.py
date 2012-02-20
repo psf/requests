@@ -15,12 +15,11 @@ requests
 """
 
 __title__ = 'requests'
-__version__ = '0.10.2'
-__build__ = 0x001002
+__version__ = '0.10.3'
+__build__ = 0x001003
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2012 Kenneth Reitz'
-
 
 
 from . import utils
