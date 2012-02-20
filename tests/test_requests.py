@@ -789,5 +789,11 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         except TypeError:
             self.fail()
 
+    def test_danger_mode_redirects(self):
+        s = requests.session()
+        s.config['danger_mode'] = True
+        s.get(httpbin('redirect', '4'))
+
+
 if __name__ == '__main__':
     unittest.main()
