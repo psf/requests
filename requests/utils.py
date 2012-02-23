@@ -374,7 +374,7 @@ def get_unicode_from_response(r):
 
     # Fall back:
     try:
-        return str(r.content, encoding, errors='replace')
+        return unicode(r.content, encoding, errors='replace')
     except TypeError:
         return r.content
 
