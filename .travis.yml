@@ -5,3 +5,4 @@ python:
   - 3.2
 env: HTTBIN_URL=http://httpbin.org/
 script: make lazy
+install: pip install -r requirements.txt --use-mirrors
