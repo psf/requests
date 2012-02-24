@@ -8,7 +8,7 @@ test:
 	nosetests --with-color ./tests/*
 
 lazy:
-	nosetests --with-color tests/test_requests.py
+	nosetests tests/test_requests.py
 
 server:
 	gunicorn httpbin:app --bind=0.0.0.0:7077 &
