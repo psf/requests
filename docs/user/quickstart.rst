@@ -59,6 +59,13 @@ You can also access the response body as bytes, for non-text requests::
 
 The ``gzip`` and ``deflate`` transfer-encodings are automatically decoded for you.
 
+For example to create an image from binary data returned by a request, you can
+use the following code:
+
+    >>> from PIL import Image
+    >>> from StringIO import StringIO
+    >>> i = Image.open(StringIO(r.content))
+
 
 Raw Response Content
 --------------------
