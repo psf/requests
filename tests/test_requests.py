@@ -795,5 +795,11 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         s.get(httpbin('redirect', '4'))
 
 
+    def test_empty_response(self):
+        r = requests.get(httpbin('status', '404'))
+        r.text
+
+
+
 if __name__ == '__main__':
     unittest.main()
