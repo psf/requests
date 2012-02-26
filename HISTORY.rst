@@ -1,6 +1,14 @@
 History
 -------
 
+0.10.5 (2012-02-25)
++++++++++++++++++++
+
+* Response body with 0 content-length fix.
+* New async.imap.
+* Don't fail on netrc.
+
+
 0.10.4 (2012-02-20)
 +++++++++++++++++++
 
