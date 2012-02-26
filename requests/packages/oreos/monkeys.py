@@ -253,7 +253,7 @@ class CookieError(Exception):
 #       _LegalChars       is the list of chars which don't require "'s
 #       _Translator       hash-table for fast quoting
 #
-_RFC2965Forbidden = "[]:{}"
+_RFC2965Forbidden = "[]:{}="
 _LegalChars       = ( string.ascii_letters + string.digits + 
                       "!#$%&'*+-.^_`|~_" + _RFC2965Forbidden )
 _Translator       = {
