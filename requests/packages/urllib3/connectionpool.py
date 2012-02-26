@@ -7,6 +7,7 @@
 import logging
 import socket
 
+from base64 import b64encode
 from socket import error as SocketError, timeout as SocketTimeout
 
 try:
@@ -16,33 +17,45 @@ except ImportError: # Doesn't exist on OSX and other platforms
     poll = False
 
 try:   # Python 3
-    from http.client import HTTPConnection, HTTPSConnection, HTTPException
+    from http.client import HTTPConnection, HTTPException
     from http.client import HTTP_PORT, HTTPS_PORT
 except ImportError:
-    from httplib import HTTPConnection, HTTPSConnection, HTTPException
+    from httplib import HTTPConnection, HTTPException
     from httplib import HTTP_PORT, HTTPS_PORT
 
 try:   # Python 3
-    from queue import Queue, Empty, Full
+    from queue import LifoQueue, Empty, Full
 except ImportError:
-    from Queue import Queue, Empty, Full
+    from Queue import LifoQueue, Empty, Full
+
 
 try:   # Compiled with SSL?
+    HTTPSConnection = object
+    BaseSSLError = None
+    ssl = None
+
+    try:   # Python 3
+        from http.client import HTTPSConnection
+    except ImportError:
+        from httplib import HTTPSConnection
+
     import ssl
     BaseSSLError = ssl.SSLError
+
 except ImportError:
-    ssl = None
-    BaseSSLError = None
+    pass
 
 
 from .packages.ssl_match_hostname import match_hostname, CertificateError
 from .request import RequestMethods
 from .response import HTTPResponse
-from .exceptions import (SSLError,
-    MaxRetryError,
-    TimeoutError,
-    HostChangedError,
+from .exceptions import (
     EmptyPoolError,
+    HostChangedError,
+    LocationParseError,
+    MaxRetryError,
+    SSLError,
+    TimeoutError,
 )
 
 from .packages.ssl_match_hostname import match_hostname, CertificateError
@@ -103,6 +116,7 @@ class ConnectionPool(object):
     """
 
     scheme = None
+    QueueCls = LifoQueue
 
     def __init__(self, host, port=None):
         self.host = host
@@ -156,11 +170,11 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
     def __init__(self, host, port=None, strict=False, timeout=None, maxsize=1,
                  block=False, headers=None):
-        self.host = host
-        self.port = port
+        super(HTTPConnectionPool, self).__init__(host, port)
+
         self.strict = strict
         self.timeout = timeout
-        self.pool = Queue(maxsize)
+        self.pool = self.QueueCls(maxsize)
         self.block = block
         self.headers = headers or {}
 
@@ -468,7 +482,11 @@ class HTTPSConnectionPool(HTTPConnectionPool):
         log.info("Starting new HTTPS connection (%d): %s"
                  % (self.num_connections, self.host))
 
-        if not ssl:
+        if not ssl: # Platform-specific: Python compiled without +ssl
+            if not HTTPSConnection or HTTPSConnection is object:
+                raise SSLError("Can't connect to HTTPS URL because the SSL "
+                               "module is not available.")
+
             return HTTPSConnection(host=self.host, port=self.port)
 
         connection = VerifiedHTTPSConnection(host=self.host, port=self.port)
@@ -526,7 +544,7 @@ def make_headers(keep_alive=None, accept_encoding=None, user_agent=None,
 
     if basic_auth:
         headers['authorization'] = 'Basic ' + \
-            basic_auth.encode('base64').strip()
+            b64encode(six.b(basic_auth)).decode('utf-8')
 
     return headers
 
@@ -542,10 +560,12 @@ def get_host(url):
         >>> get_host('google.com:80')
         ('http', 'google.com', 80)
     """
+
     # This code is actually similar to urlparse.urlsplit, but much
     # simplified for our needs.
     port = None
     scheme = 'http'
+
     if '://' in url:
         scheme, url = url.split('://', 1)
     if '/' in url:
@@ -554,7 +574,12 @@ def get_host(url):
         _auth, url = url.split('@', 1)
     if ':' in url:
         url, port = url.split(':', 1)
+
+        if not port.isdigit():
+            raise LocationParseError("Failed to parse: %s")
+
         port = int(port)
+
     return scheme, url, port
 
 
@@ -592,7 +617,7 @@ def is_connection_dropped(conn):
     :param conn:
         ``HTTPConnection`` object.
     """
-    if not poll:
+    if not poll: # Platform-specific
         return select([conn.sock], [], [], 0.0)[0]
 
     # This version is better on platforms that support it.

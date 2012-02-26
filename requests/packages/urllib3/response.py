@@ -11,12 +11,7 @@ import zlib
 from io import BytesIO
 
 from .exceptions import HTTPError
-
-
-try:
-    basestring = basestring
-except NameError: # Python 3
-    basestring = (str, bytes)
+from .packages.six import string_types as basestring
 
 
 log = logging.getLogger(__name__)
