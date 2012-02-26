@@ -82,3 +82,4 @@ Patches and Suggestions
 - Denis (Telofy)
 - Cory Benfield (Lukasa)
 - Matt Giuca
+- Adam Tauber
