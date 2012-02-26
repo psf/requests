@@ -739,8 +739,11 @@ class Response(object):
                     raise RuntimeError(
                         'The content for this response was already consumed')
 
-                self._content = bytes().join(self.iter_content()) or bytes()
-                # print repr(self._content)
+                if self.status_code is 0:
+                    self._content = None
+                else:
+                    self._content = bytes().join(self.iter_content()) or bytes()
+
             except AttributeError:
                 self._content = None
 
