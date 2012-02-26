@@ -5,7 +5,7 @@ init:
 	pip install -r requirements.txt
 
 test:
-	nosetests --with-color ./tests/*
+	nosetests ./tests/*
 
 lazy:
 	nosetests tests/test_requests.py
