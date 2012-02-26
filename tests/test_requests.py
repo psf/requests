@@ -21,12 +21,10 @@ from requests import HTTPError
 from requests import get, post, head, put
 from requests.auth import HTTPBasicAuth, HTTPDigestAuth
 
-if (sys.platform == 'win32') and ('HTTPBIN_URL' not in os.environ):
+if 'HTTPBIN_URL' not in os.environ:
     os.environ['HTTPBIN_URL'] = 'http://httpbin.org/'
 
-# TODO: Detect an open port.
-PORT = os.environ.get('HTTPBIN_PORT', '7077')
-HTTPBIN_URL = os.environ.get('HTTPBIN_URL', 'http://0.0.0.0:%s/' % (PORT))
+HTTPBIN_URL = os.environ.get('HTTPBIN_URL')
 
 
 def httpbin(*suffix):
