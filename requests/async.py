@@ -23,7 +23,7 @@ from . import api
 
 
 __all__ = (
-    'map',
+    'map', 'imap',
     'get', 'options', 'head', 'post', 'put', 'patch', 'delete', 'request'
 )
 
@@ -83,3 +83,24 @@ def map(requests, prefetch=True, size=None):
     gevent.joinall(jobs)
 
     return [r.response for r in requests]
+
+
+def imap(requests, prefetch=True, size=2):
+    """Concurrently converts a generator object of Requests to
+    a generator of Responses.
+
+    :param requests: a generator of Request objects.
+    :param prefetch: If False, the content will not be downloaded immediately.
+    :param size: Specifies the number of requests to make at a time. default is 2
+    """
+
+    pool = Pool(size)
+
+    def send(r):
+        r.send(prefetch)
+        return r.response
+
+    for r in pool.imap_unordered(send, requests):
+        yield r
+
+    pool.join()
