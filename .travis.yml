@@ -4,7 +4,6 @@ python:
   - 2.7
   - 3.2
 env: HTTPBIN_URL=http://httpbin.org/
-script: make lazy
+script: make simpleci
 install:
   - pip install . --use-mirrors
-  - pip install -r requirements.txt --use-mirrors
