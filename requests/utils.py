@@ -19,7 +19,7 @@ from netrc import netrc, NetrcParseError
 
 from .compat import parse_http_list as _parse_list_header
 from .compat import quote, cookielib, SimpleCookie, is_py2, urlparse
-from .compat import basestring, bytes
+from .compat import basestring, bytes, str
 
 
 NETRC_FILES = ('.netrc', '_netrc')
