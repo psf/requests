@@ -83,3 +83,4 @@ Patches and Suggestions
 - Cory Benfield (Lukasa)
 - Matt Giuca
 - Adam Tauber
+- Honza Javorek
