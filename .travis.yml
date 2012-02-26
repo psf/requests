@@ -6,4 +6,5 @@ python:
 env: HTTPBIN_URL=http://httpbin.org/
 script: make simpleci
 install:
+  - pip install nose
   - pip install . --use-mirrors
