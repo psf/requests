@@ -376,26 +376,8 @@ class Request(object):
 
         return self.hooks[event].append(hook)
 
-    def send(self, anyway=False, prefetch=False):
-        """Sends the request. Returns True of successful, false if not.
-        If there was an HTTPError during transmission,
-        self.response.status_code will contain the HTTPError code.
-
-        Once a request is successfully sent, `sent` will equal True.
-
-        :param anyway: If True, request will be sent, even if it has
-        already been sent.
-        """
-
-        # Build the URL
-        url = self.full_url
-
-        # Logging
-        if self.config.get('verbose'):
-            self.config.get('verbose').write('%s   %s   %s\n' % (
-                datetime.now().isoformat(), self.method, url
-            ))
-
+    def _encode_body(self):
+        """Finds the content type and encodes the body and returns a tuple."""
         # Nottin' on you.
         body = None
         content_type = None
@@ -417,6 +399,7 @@ class Request(object):
                         fn = guess_filename(v) or k
                         fp = v
                     fields.update({k: (fn, fp.read())})
+                    fp.seek(0)
 
                 (body, content_type) = encode_multipart_formdata(fields)
             else:
@@ -424,13 +407,37 @@ class Request(object):
                 # TODO: Conflict?
         else:
             if self.data:
-
-                body = self._enc_data
+                # Recalculate _enc_data
+                body = self._encode_params(self.data)[1]
                 if isinstance(self.data, str):
                     content_type = None
                 else:
                     content_type = 'application/x-www-form-urlencoded'
 
+        return (body, content_type)
+
+
+    def send(self, anyway=False, prefetch=False):
+        """Sends the request. Returns True of successful, false if not.
+        If there was an HTTPError during transmission,
+        self.response.status_code will contain the HTTPError code.
+
+        Once a request is successfully sent, `sent` will equal True.
+
+        :param anyway: If True, request will be sent, even if it has
+        already been sent.
+        """
+
+        # Build the URL
+        url = self.full_url
+
+        # Logging
+        if self.config.get('verbose'):
+            self.config.get('verbose').write('%s   %s   %s\n' % (
+                datetime.now().isoformat(), self.method, url
+            ))
+
+        body, content_type = self._encode_body()
         # Add content-type if it wasn't explicitly provided.
         if (content_type) and (not 'content-type' in self.headers):
             self.headers['Content-Type'] = content_type
@@ -515,6 +522,10 @@ class Request(object):
             # Pre-request hook.
             r = dispatch_hook('pre_request', self.hooks, self)
             self.__dict__.update(r.__dict__)
+
+            # Recalculate body and content type after hooks
+            body, content_type = self._encode_body()
+            self.headers['Content-Type'] = content_type
 
             try:
                 # The inner try .. except re-raises certain exceptions as
