@@ -64,6 +64,7 @@ class Session(object):
         hooks=None,
         params=None,
         config=None,
+        prefetch=False,
         verify=True):
 
         self.headers = headers or {}
@@ -74,6 +75,7 @@ class Session(object):
         self.hooks = hooks or {}
         self.params = params or {}
         self.config = config or {}
+        self.prefetch = prefetch
         self.verify = verify
 
         for (k, v) in list(defaults.items()):
@@ -148,6 +150,7 @@ class Session(object):
         headers = {} if headers is None else headers
         params = {} if params is None else params
         hooks = {} if hooks is None else hooks
+        prefetch = self.prefetch or prefetch
 
         # use session's hooks as defaults
         for key, cb in list(self.hooks.items()):
