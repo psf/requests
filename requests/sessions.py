@@ -175,7 +175,6 @@ class Session(object):
             allow_redirects=allow_redirects,
             proxies=proxies,
             config=config,
-            prefetch=prefetch,
             verify=verify,
             _poolmanager=self.poolmanager
         )
