@@ -343,7 +343,7 @@ class Request(object):
             else:
                 url = '%s?%s' % (url, self._enc_params)
 
-        if self.config.get('encode_uri'):
+        if self.config.get('encode_uri', True):
             url = requote_uri(url)
 
         return url
