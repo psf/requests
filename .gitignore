@@ -7,5 +7,3 @@ docs/_build
 toy.py
 .gitignore
 junit-report.xml
-.tox
-requests.egg-info/
