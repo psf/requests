@@ -797,7 +797,10 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         r = requests.get(httpbin('status', '404'))
         r.text
 
-
+    def test_chunked_head_redirect(self):
+        u = "http://t.co/NFrx0zLG"
+        r = requests.head(u, allow_redirects=True)
+        self.assertEqual(r.status_code, 200)
 
 if __name__ == '__main__':
     unittest.main()

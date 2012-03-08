@@ -675,6 +675,9 @@ class Response(object):
             while 1:
                 #XXX correct line size? (httplib has 64kb, seems insane)
                 pending_bytes = fp.readline(40).strip()
+                if pending_bytes == '':
+                    # No content, like a HEAD request. Break out.
+                    break
                 pending_bytes = int(pending_bytes, 16)
                 if pending_bytes == 0:
                     break
