@@ -227,8 +227,6 @@ class Request(object):
                 # Facilitate non-RFC2616-compliant 'location' headers
                 # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
                 if not urlparse(url).netloc:
-                    if not isinstance(url, unicode):
-                        url = url.decode('utf-8', 'ignore')
                     url = urljoin(r.url, url)
 
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
