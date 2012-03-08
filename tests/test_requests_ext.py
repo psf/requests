@@ -49,6 +49,10 @@ class RequestsTestSuite(unittest.TestCase):
         requests.post('http://www.google.com/', data=utf8_string)
 
 
+    def test_unicode_error(self):
+        url = u'http://blip.fm/~1abvfu'
+        requests.get(url)
+
 if __name__ == '__main__':
     unittest.main()
 

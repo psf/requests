@@ -84,3 +84,4 @@ Patches and Suggestions
 - Matt Giuca
 - Adam Tauber
 - Honza Javorek
+- Brendan Maguire <maguire.brendan@gmail.com>
