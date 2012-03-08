@@ -83,7 +83,15 @@ class RequestsTestSuite(unittest.TestCase):
                          'p%C3%A4ischer-anleihe-analysten-laut-umf' +
                          'rageergebnissen-1628202.htm')
         assert r.ok
-        
+
+    def test_redirect_encoding(self):
+        '''This url redirects to
+        http://www.dealipedia.com/deal_view_investment.php?r=20012'''
+
+        r = requests.get('http://feedproxy.google.com/~r/Dealipedia' +
+                         'News/~3/BQtUJRJeZlo/deal_view_investment.' +
+                         'php')
+        assert r.ok
 
 
         
