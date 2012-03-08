@@ -291,3 +291,30 @@ To do so, just configure Requests with a stream to write to::
     >>> requests.get('http://httpbin.org/headers', config=my_config)
     2011-08-17T03:04:23.380175   GET   http://httpbin.org/headers
     <Response [200]>
+
+Proxies
+-------
+
+If you need to use a proxy, you can configure individual requests with the
+``proxies`` argument to any request method:
+
+::
+
+    import requests
+
+    proxies = {
+      "http": "10.10.1.10:3128"
+      "https": "10.10.1.10:1080"
+    }
+
+    requests.get("http://example.org", proxies=proxies)
+
+You can also configure proxies by environment variables ``HTTP_PROXY`` and ``HTTPS_PROXY``.
+
+::
+
+    $ export HTTP_PROXY="10.10.1.10:3128"
+    $ export HTTPS_PROXY="10.10.1.10:1080"
+    $ python
+    >>> import requests
+    >>> requests.get("http://example.org")

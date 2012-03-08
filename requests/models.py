@@ -102,6 +102,14 @@ class Request(object):
         # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})
         self.proxies = dict(proxies or [])
 
+        # If no proxies are given, allow configuration by environment variables
+        # HTTP_PROXY and HTTPS_PROXY.
+        if not self.proxies:
+          if 'HTTP_PROXY' in os.environ:
+            self.proxies['http'] = os.environ['HTTP_PROXY']
+          if 'HTTPS_PROXY' in os.environ:
+            self.proxies['https'] = os.environ['HTTPS_PROXY']
+
         self.data, self._enc_data = self._encode_params(data)
         self.params, self._enc_params = self._encode_params(params)
 
