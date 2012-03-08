@@ -726,20 +726,24 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
             self.assertEqual(i, len_lines)
 
-        # Test 'dangling' fragment in responses that do not terminate in
-        # a newline.
+        # Tests that trailing whitespaces within lines do not get stripped.
+        # Tests that a trailing non-terminated line does not get stripped.
         quote = (
-            '''Why will he not upon our fair request\n'''
-            '''Untent his person and share the air with us?'''
+            '''Agamemnon  \n'''
+            '''\tWhy will he not upon our fair request\r\n'''
+            '''\tUntent his person and share the air with us?'''
         )
 
         # Make a request and monkey-patch its contents
         r = get(httpbin('get'))
         r.raw = StringIO(quote)
 
-        # Make sure iter_lines doesn't chop the trailing bit
-        lines = '\n'.join(r.iter_lines())
-        self.assertEqual(lines, quote)
+        lines = list(r.iter_lines())
+        len_lines = len(lines)
+        self.assertEqual(len_lines, 3)
+
+        joined = lines[0] + '\n' + lines[1] + '\r\n' + lines[2]
+        self.assertEqual(joined, quote)
 
     def test_safe_mode(self):
 
