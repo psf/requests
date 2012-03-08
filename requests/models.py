@@ -65,6 +65,9 @@ class Request(object):
         verify=None,
         session=None):
 
+        #: Dictionary of configurations for this request.
+        self.config = dict(config or [])
+
         #: Float describes the timeout of the request.
         #  (Use socket.setdefaulttimeout() as fallback)
         self.timeout = timeout
@@ -111,9 +114,6 @@ class Request(object):
 
         #: CookieJar to attach to :class:`Request <Request>`.
         self.cookies = dict(cookies or [])
-
-        #: Dictionary of configurations for this request.
-        self.config = dict(config or [])
 
         #: True if Request has been sent.
         self.sent = False
@@ -319,6 +319,7 @@ class Request(object):
 
         if not path:
             path = '/'
+
 
         if is_py2:
             if isinstance(scheme, str):
