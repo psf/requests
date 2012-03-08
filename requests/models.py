@@ -379,7 +379,7 @@ class Request(object):
         return self.hooks[event].append(hook)
 
     def send(self, anyway=False, prefetch=False):
-        """Sends the request. Returns True of successful, false if not.
+        """Sends the request. Returns True of successful, False if not.
         If there was an HTTPError during transmission,
         self.response.status_code will contain the HTTPError code.
 
