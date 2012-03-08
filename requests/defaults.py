@@ -40,5 +40,6 @@ defaults['max_retries'] = 0
 defaults['danger_mode'] = False
 defaults['safe_mode'] = False
 defaults['keep_alive'] = True
+defaults['encode_urls'] = True
 
 
