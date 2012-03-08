@@ -17,6 +17,7 @@ Configurations:
 :safe_mode: If true, Requests will catch all errors.
 :pool_maxsize: The maximium size of an HTTP connection pool.
 :pool_connections: The number of active HTTP connection pools to use.
+:encode_uri: If true, URIs will automatically be percent-encoded.
 """
 
 SCHEMAS = ['http', 'https']
