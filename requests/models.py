@@ -29,7 +29,7 @@ from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
     dict_from_string, stream_decode_response_unicode, get_netrc_auth)
 from .compat import (
-    urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes, quote,
+    urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
     SimpleCookie, is_py2)
 
 # Import chardet if it is available.
@@ -229,8 +229,8 @@ class Request(object):
                 if not urlparse(url).netloc:
                     url = urljoin(r.url, 
                                   # Compliant with RFC3986, we percent
-                                  # encode the 
-                                  quote(url))
+                                  # encode the url.
+                                  requote_uri(url))
 
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
                 if r.status_code is codes.see_other:
