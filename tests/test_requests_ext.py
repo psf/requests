@@ -53,6 +53,12 @@ class RequestsTestSuite(unittest.TestCase):
         url = u'http://blip.fm/~1abvfu'
         requests.get(url)
 
+
+    def test_chunked_head_redirect(self):
+        url = "http://t.co/NFrx0zLG"
+        r = requests.head(url, allow_redirects=True)
+        self.assertEqual(r.status_code, 200)
+
 if __name__ == '__main__':
     unittest.main()
 
