@@ -704,39 +704,31 @@ class Response(object):
 
         return gen
 
-    def iter_lines(self, chunk_size=10 * 1024, decode_unicode=None):
+    def iter_lines(self, decode_unicode=None):
         """Iterates over the response data, one line at a time.  This
         avoids reading the content at once into memory for large
         responses.
         """
 
-        #TODO: why rstrip by default
         pending = None
 
-        for chunk in self.iter_content(chunk_size, decode_unicode=decode_unicode):
+        for chunk in self.iter_content(chunk_size=10 * 1024, decode_unicode=decode_unicode):
 
             if pending is not None:
                 chunk = pending + chunk
-            lines = chunk.splitlines(True)
+            lines = chunk.splitlines()
 
-            for line in lines[:-1]:
-                yield line.rstrip()
-
-            # Save the last part of the chunk for next iteration, to keep full line together
-            # lines may be empty for the last chunk of a chunked response
-
-            if lines:
-                pending = lines[-1]
-                #if pending is a complete line, give it baack
-                if pending[-1] == '\n':
-                    yield pending.rstrip()
-                    pending = None
+            # An incomplete line.
+            if lines[-1].endswith(chunk[-1]):
+                pending = lines.pop()
             else:
                 pending = None
 
-        # Yield the last line
+            for line in lines:
+                yield line
+
         if pending is not None:
-            yield pending.rstrip()
+            yield pending
 
     @property
     def content(self):
