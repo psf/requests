@@ -86,3 +86,4 @@ Patches and Suggestions
 - Honza Javorek
 - Brendan Maguire <maguire.brendan@gmail.com>
 - Chris Dary
+- Danver Braganza <danverbraganza@gmail.com>

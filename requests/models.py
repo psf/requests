@@ -235,7 +235,10 @@ class Request(object):
                 # Facilitate non-RFC2616-compliant 'location' headers
                 # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
                 if not urlparse(url).netloc:
-                    url = urljoin(r.url, url)
+                    url = urljoin(r.url,
+                                  # Compliant with RFC3986, we percent
+                                  # encode the url.
+                                  requote_uri(url))
 
                 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
                 if r.status_code is codes.see_other:
@@ -681,7 +684,7 @@ class Response(object):
             while 1:
                 #XXX correct line size? (httplib has 64kb, seems insane)
                 pending_bytes = fp.readline(40).strip()
-                if pending_bytes == '':
+                if not len(pending_bytes):
                     # No content, like a HEAD request. Break out.
                     break
                 pending_bytes = int(pending_bytes, 16)
