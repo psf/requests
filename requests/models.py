@@ -104,7 +104,7 @@ class Request(object):
 
         # If no proxies are given, allow configuration by environment variables
         # HTTP_PROXY and HTTPS_PROXY.
-        if not self.proxies:
+        if not self.proxies and self.config.get('trust_env'):
           if 'HTTP_PROXY' in os.environ:
             self.proxies['http'] = os.environ['HTTP_PROXY']
           if 'HTTPS_PROXY' in os.environ:
@@ -446,7 +446,7 @@ class Request(object):
             self.headers['Content-Type'] = content_type
 
         # Use .netrc auth if none was provided.
-        if not self.auth:
+        if not self.auth and self.config.get('trust_env'):
             self.auth = get_netrc_auth(url)
 
         if self.auth:
@@ -487,11 +487,11 @@ class Request(object):
                 cert_loc = self.verify
 
             # Look for configuration.
-            if not cert_loc:
+            if not cert_loc and self.config.get('trust_env'):
                 cert_loc = os.environ.get('REQUESTS_CA_BUNDLE')
 
             # Curl compatiblity.
-            if not cert_loc:
+            if not cert_loc and self.config.get('trust_env'):
                 cert_loc = os.environ.get('CURL_CA_BUNDLE')
 
             # Use the awesome certifi list.
