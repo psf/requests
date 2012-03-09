@@ -427,4 +427,4 @@ def create_connection(address, timeout=_GLOBAL_DEFAULT_TIMEOUT, **kwargs):
             if sock is not None:
                 sock.close()
 
-    raise error, msg
+    raise socket.error, msg
