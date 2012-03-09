@@ -87,3 +87,4 @@ Patches and Suggestions
 - Brendan Maguire <maguire.brendan@gmail.com>
 - Chris Dary
 - Danver Braganza <danverbraganza@gmail.com>
+- Max Countryman

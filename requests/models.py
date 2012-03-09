@@ -800,10 +800,17 @@ class Response(object):
             raise self.error
 
         if (self.status_code >= 300) and (self.status_code < 400) and not allow_redirects:
-            raise HTTPError('%s Redirection' % self.status_code)
+            http_error = HTTPError('%s Redirection' % self.status_code)
+            http_error.response = self
+            raise http_error
 
         elif (self.status_code >= 400) and (self.status_code < 500):
-            raise HTTPError('%s Client Error' % self.status_code)
+            http_error = HTTPError('%s Client Error' % self.status_code)
+            http_error.response = self
+            raise http_error
+
 
         elif (self.status_code >= 500) and (self.status_code < 600):
-            raise HTTPError('%s Server Error' % self.status_code)
+            http_error = HTTPError('%s Server Error' % self.status_code)
+            http_error.response = self
+            raise http_error

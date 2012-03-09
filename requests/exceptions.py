@@ -14,6 +14,7 @@ class RequestException(RuntimeError):
 
 class HTTPError(RequestException):
     """An HTTP error occurred."""
+    response = None
 
 class ConnectionError(RequestException):
     """A Connection error occurred."""
