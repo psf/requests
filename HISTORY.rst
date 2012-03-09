@@ -8,8 +8,7 @@ History
 * Proxy configuration by environment variables
 * Simplification of iter_lines.
 * New `trust_env` configuration for disabling system/environment hints.
-
-
+* Suppress cookie errors.
 
 0.10.7 (2012-03-07)
 +++++++++++++++++++
