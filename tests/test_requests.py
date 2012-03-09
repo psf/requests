@@ -801,7 +801,5 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         r = requests.get(httpbin('status', '404'))
         r.text
 
-
-
 if __name__ == '__main__':
     unittest.main()
