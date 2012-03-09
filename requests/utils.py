@@ -14,6 +14,7 @@ import codecs
 import os
 import random
 import re
+import traceback
 import zlib
 from netrc import netrc, NetrcParseError
 
@@ -61,11 +62,15 @@ def dict_from_string(s):
 
     cookies = dict()
 
-    c = SimpleCookie()
-    c.load(s)
+    try:
+        c = SimpleCookie()
+        c.load(s)
 
-    for k, v in list(c.items()):
-        cookies.update({k: v.value})
+        for k, v in list(c.items()):
+            cookies.update({k: v.value})
+    # This stuff is not to be trusted.
+    except Exception:
+        pass
 
     return cookies
 
