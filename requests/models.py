@@ -707,7 +707,7 @@ class Response(object):
 
         return gen
 
-    def iter_lines(self, chunk_size=10 * 1024, decode_unicode=None):
+    def iter_lines(self, chunk_size=10 * 1024, decode_unicode=True):
         """Iterates over the response data, one line at a time.  This
         avoids reading the content at once into memory for large
         responses.
@@ -723,8 +723,7 @@ class Response(object):
                 chunk = pending + chunk
             lines = chunk.splitlines()
 
-            # An incomplete line.
-            if lines[-1].endswith(chunk[-1]):
+            if lines[-1][-1] == chunk[-1]:
                 pending = lines.pop()
             else:
                 pending = None
