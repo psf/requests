@@ -18,6 +18,7 @@ Configurations:
 :pool_maxsize: The maximium size of an HTTP connection pool.
 :pool_connections: The number of active HTTP connection pools to use.
 :encode_uri: If true, URIs will automatically be percent-encoded.
+:trust_env: If true, the surrouding environment will be trusted (environ, netrc).
 """
 
 SCHEMAS = ['http', 'https']
@@ -42,5 +43,6 @@ defaults['danger_mode'] = False
 defaults['safe_mode'] = False
 defaults['keep_alive'] = True
 defaults['encode_uri'] = True
+defaults['trust_env'] = True
 
 

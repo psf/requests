@@ -1,6 +1,13 @@
 History
 -------
 
+0.10.8 (2012-03-09)
++++++++++++++++++++
+
+* Generate chunked ValueError fix
+* Proxy configuration by environment variables
+
+
 0.10.7 (2012-03-07)
 +++++++++++++++++++
 
