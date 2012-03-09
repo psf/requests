@@ -788,6 +788,9 @@ class Response(object):
         # Decode unicode from given encoding.
         try:
             content = str(self.content, encoding, errors='replace')
+        except LookupError:
+            # try blindly encoding
+            content = str(self.content, errors='replace')
         except (UnicodeError, TypeError):
             pass
 
