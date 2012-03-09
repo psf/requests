@@ -707,7 +707,7 @@ class Response(object):
 
         return gen
 
-    def iter_lines(self, chunk_size=10 * 1024, decode_unicode=True):
+    def iter_lines(self, chunk_size=10 * 1024, decode_unicode=None):
         """Iterates over the response data, one line at a time.  This
         avoids reading the content at once into memory for large
         responses.
@@ -756,6 +756,16 @@ class Response(object):
         self._content_consumed = True
         return self._content
 
+    def _detected_encoding(self):
+        try:
+            detected = chardet.detect(self.content) or {}
+            return detected.get('encoding')
+
+        # Trust that chardet isn't available or something went terribly wrong.
+        except Exception:
+            pass
+
+
     @property
     def text(self):
         """Content of the response, in unicode.
@@ -770,13 +780,7 @@ class Response(object):
 
         # Fallback to auto-detected encoding if chardet is available.
         if self.encoding is None:
-            try:
-                detected = chardet.detect(self.content) or {}
-                encoding = detected.get('encoding')
-
-            # Trust that chardet isn't available or something went terribly wrong.
-            except Exception:
-                pass
+            encoding = self._detected_encoding()
 
         # Decode unicode from given encoding.
         try:
