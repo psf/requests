@@ -85,3 +85,4 @@ Patches and Suggestions
 - Adam Tauber
 - Honza Javorek
 - Brendan Maguire <maguire.brendan@gmail.com>
+- Chris Dary
