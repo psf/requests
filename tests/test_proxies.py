@@ -23,7 +23,7 @@ print requests.get("https://ipcheckit.com/", proxies = proxiesDict).content
 # Ensure SSL proxy is working
 # This has been tested against 'Burp Proxy'
 proxiesDict = {
-    'http' : "1.2.3.41:8080",
+    'http' : "1.2.3.4:8080",
     'https' : "1.2.3.4:8080"
 }
 print requests.get("https://ipcheckit.com/", proxies = proxiesDict).content

@@ -103,9 +103,9 @@ class Request(object):
         # Modified proxies dict from urllib
         #
         # Accepts:
-        #  - socks4://192.168.56.1:8080
-        #  - socks5://192.168.56.1:8080
-        #  - http://192.168.56.1:8080
+        #  - socks4://1.2.3.4:8080
+        #  - socks5://1.2.3.4:8080
+        #  - http://1.2.3.4:8080
         #
 
         self.proxies = dict(proxies or [])
