@@ -77,6 +77,8 @@ port_by_scheme = {
 
 # Wrapped HTTPConnection object
 class HTTPConnection(_HTTPConnection):
+    _tunnel_host = None
+
     def connect(self):
         # Adds support for SOCKS wrapping
         if self._proxy_scheme in ('socks4', 'socks5'):
@@ -113,6 +115,8 @@ class VerifiedHTTPSConnection(HTTPSConnection):
     """
     cert_reqs = None
     ca_certs = None
+    
+    _tunnel_host = None
 
     def set_cert(self, key_file=None, cert_file=None,
                  cert_reqs='CERT_NONE', ca_certs=None):
