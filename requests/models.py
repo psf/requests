@@ -789,7 +789,10 @@ class Response(object):
         try:
             content = str(self.content, encoding, errors='replace')
         except LookupError:
-            # try blindly encoding
+            # A LookupError is raised if the encoding was not found which could
+            # indicate a misspelling or similar mistake.
+            #
+            # So we try blindly encoding.
             content = str(self.content, errors='replace')
         except (UnicodeError, TypeError):
             pass
