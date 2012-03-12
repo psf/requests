@@ -601,7 +601,7 @@ class Request(object):
                     raise ConnectionError(e)
 
                 except (_SSLError, _HTTPError) as e:
-                    if self.verify and isinstance(e, _SSLError):
+                    if isinstance(e, _SSLError):
                         raise SSLError(e)
 
                     raise Timeout('Request timed out.')
