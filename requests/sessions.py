@@ -16,23 +16,11 @@ from .utils import header_expand
 from .packages.urllib3.poolmanager import PoolManager
 
 
-def dict_to_sequence(d):
-    """Returns an internal sequence dictionary update."""
-
-    if hasattr(d, 'items'):
-        d = d.items()
-
-    return d
-
-
 def merge_kwargs(local_kwarg, default_kwarg):
     """Merges kwarg dictionaries.
 
     If a local key in the dictionary is set to None, it will be removed.
     """
-
-
-
 
     if default_kwarg is None:
         return local_kwarg
