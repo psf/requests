@@ -11,7 +11,7 @@ import time
 import hashlib
 
 from base64 import b64encode
-from .compat import urlparse, str, bytes
+from .compat import urlparse, str
 from .utils import randombytes, parse_dict_header
 
 
