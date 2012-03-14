@@ -14,7 +14,6 @@ import codecs
 import os
 import random
 import re
-import traceback
 import zlib
 from netrc import netrc, NetrcParseError
 
