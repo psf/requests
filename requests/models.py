@@ -63,7 +63,9 @@ class Request(object):
         config=None,
         _poolmanager=None,
         verify=None,
-        session=None):
+        session=None,
+        key_file=None,
+        cert_file=None):
 
         #: Dictionary of configurations for this request.
         self.config = dict(config or [])
@@ -142,6 +144,10 @@ class Request(object):
 
         #: SSL Verification.
         self.verify = verify
+
+        #: SSL Certificate
+        self.key_file = key_file
+        self.cert_file = cert_file
 
         if headers:
             headers = CaseInsensitiveDict(self.headers)
@@ -506,6 +512,10 @@ class Request(object):
         else:
             conn.cert_reqs = 'CERT_NONE'
             conn.ca_certs = None
+
+        if self.key_file and self.cert_file:
+            conn.key_file = self.key_file
+            conn.cert_file = self.cert_file
 
         if not self.sent or anyway:
 

@@ -77,7 +77,9 @@ class Session(object):
         params=None,
         config=None,
         prefetch=False,
-        verify=True):
+        verify=True,
+        key_file=None,
+        cert_file=None):
 
         self.headers = headers or {}
         self.cookies = cookies or {}
@@ -89,6 +91,8 @@ class Session(object):
         self.config = config or {}
         self.prefetch = prefetch
         self.verify = verify
+        self.key_file = key_file
+        self.cert_file = cert_file
 
         for (k, v) in list(defaults.items()):
             self.config.setdefault(k, v)
@@ -131,7 +135,9 @@ class Session(object):
         return_response=True,
         config=None,
         prefetch=False,
-        verify=None):
+        verify=None,
+        key_file=None,
+        cert_file=None):
 
         """Constructs and sends a :class:`Request <Request>`.
         Returns :class:`Response <Response>` object.
@@ -188,6 +194,8 @@ class Session(object):
             proxies=proxies,
             config=config,
             verify=verify,
+            key_file=key_file,
+            cert_file=cert_file,
             _poolmanager=self.poolmanager
         )
 
