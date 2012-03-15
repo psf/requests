@@ -88,3 +88,4 @@ Patches and Suggestions
 - Chris Dary
 - Danver Braganza <danverbraganza@gmail.com>
 - Max Countryman
+- Nick Chadwick
