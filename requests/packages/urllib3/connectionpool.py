@@ -17,10 +17,12 @@ except ImportError: # Doesn't exist on OSX and other platforms
     poll = False
 
 try:   # Python 3
-    from http.client import HTTPConnection, HTTPException
+    from http.client import HTTPConnection as _HTTPConnection
+    from http.client import HTTPException
     from http.client import HTTP_PORT, HTTPS_PORT
 except ImportError:
-    from httplib import HTTPConnection, HTTPException
+    from httplib import HTTPConnection as _HTTPConnection
+    from httplib import HTTPException
     from httplib import HTTP_PORT, HTTPS_PORT
 
 try:   # Python 3
@@ -60,6 +62,7 @@ from .exceptions import (
 
 from .packages.ssl_match_hostname import match_hostname, CertificateError
 from .packages import six
+from .packages import socksipy
 
 xrange = six.moves.xrange
 
@@ -72,6 +75,37 @@ port_by_scheme = {
     'https': HTTPS_PORT,
 }
 
+# Wrapped HTTPConnection object
+class HTTPConnection(_HTTPConnection):
+    _tunnel_host = None
+
+    def connect(self):
+        # Adds support for SOCKS wrapping
+        if self._proxy_scheme in ('socks4', 'socks5'):
+            # define the socks proxy type
+            if self._proxy_scheme == 'socks4':
+                _type = socksipy.socks.PROXY_TYPE_SOCKS4
+            elif self._proxy_scheme == 'socks5':
+                _type = socksipy.socks.PROXY_TYPE_SOCKS5
+            else:
+                assert False, "this should NEVER happen"
+
+            self.sock = socksipy.socks.create_connection(
+                (self.host, self.port), 
+                self.timeout,
+                proxy_type = _type, 
+                proxy_host = self._proxy_host, 
+                proxy_port = self._proxy_port
+            )
+        else:
+
+            """Connect to the host and port specified in __init__."""
+            self.sock = socket.create_connection((self.host,self.port),
+                                                 self.timeout)
+
+        if self._tunnel_host:
+            self._tunnel()
+
 ## Connection objects (extension of httplib)
 
 class VerifiedHTTPSConnection(HTTPSConnection):
@@ -81,6 +115,8 @@ class VerifiedHTTPSConnection(HTTPSConnection):
     """
     cert_reqs = None
     ca_certs = None
+    
+    _tunnel_host = None
 
     def set_cert(self, key_file=None, cert_file=None,
                  cert_reqs='CERT_NONE', ca_certs=None):
@@ -96,8 +132,31 @@ class VerifiedHTTPSConnection(HTTPSConnection):
         self.ca_certs = ca_certs
 
     def connect(self):
-        # Add certificate verification
-        sock = socket.create_connection((self.host, self.port), self.timeout)
+        # Adds support for SOCKS wrapping
+        if self._proxy_scheme in ('socks4', 'socks5'):
+            # define the socks proxy type
+            if self._proxy_scheme == 'socks4':
+                _type = socksipy.socks.PROXY_TYPE_SOCKS4
+            elif self._proxy_scheme == 'socks5':
+                _type = socksipy.socks.PROXY_TYPE_SOCKS5
+            else:
+                assert False, "this should NEVER happen"
+
+            sock = socksipy.socks.create_connection(
+                (self.host, self.port), 
+                self.timeout,
+                proxy_type = _type, 
+                proxy_host = self._proxy_host, 
+                proxy_port = self._proxy_port
+                )
+
+        else:
+            # Add certificate verification
+            sock = socket.create_connection((self.host, self.port), self.timeout)
+
+        if self._tunnel_host:
+            self.sock = sock
+            self._tunnel()
 
         # Wrap socket using verification with the root certs in
         # trusted_root_certs
@@ -168,6 +227,10 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
     scheme = 'http'
 
+    _proxy_scheme = None
+    _proxy_host = None
+    _proxy_port = None
+
     def __init__(self, host, port=None, strict=False, timeout=None, maxsize=1,
                  block=False, headers=None):
         super(HTTPConnectionPool, self).__init__(host, port)
@@ -193,7 +256,16 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         self.num_connections += 1
         log.info("Starting new HTTP connection (%d): %s" %
                  (self.num_connections, self.host))
-        return HTTPConnection(host=self.host, port=self.port)
+
+        # create new httpconnection instance
+        connection = HTTPConnection(host=self.host, port=self.port)
+
+        # store the proxy scheme for later
+        connection._proxy_scheme = self._proxy_scheme
+        connection._proxy_host = self._proxy_host
+        connection._proxy_port = self._proxy_port
+
+        return connection
 
     def _get_conn(self, timeout=None):
         """
@@ -459,6 +531,12 @@ class HTTPSConnectionPool(HTTPConnectionPool):
     """
 
     scheme = 'https'
+    _tunnel_host = None
+    _tunnel_port = None
+    _tunnel_headers = None
+    _proxy_scheme = None
+    _proxy_host = None
+    _proxy_port = None
 
     def __init__(self, host, port=None,
                  strict=False, timeout=None, maxsize=1,
@@ -489,7 +567,20 @@ class HTTPSConnectionPool(HTTPConnectionPool):
 
             return HTTPSConnection(host=self.host, port=self.port)
 
-        connection = VerifiedHTTPSConnection(host=self.host, port=self.port)
+        if self._tunnel_host:
+            connection = VerifiedHTTPSConnection(host=self._proxy_host, port=self._proxy_port)
+            connection._tunnel_host = self._tunnel_host
+            connection._tunnel_port = self._tunnel_port
+            connection._tunnel_headers = self._tunnel_headers
+
+        else:
+            connection = VerifiedHTTPSConnection(host=self.host, port=self.port)
+
+        # store the proxy scheme for later
+        connection._proxy_scheme = self._proxy_scheme
+        connection._proxy_host = self._proxy_host
+        connection._proxy_port = self._proxy_port
+
         connection.set_cert(key_file=self.key_file, cert_file=self.cert_file,
                             cert_reqs=self.cert_reqs, ca_certs=self.ca_certs)
         return connection
