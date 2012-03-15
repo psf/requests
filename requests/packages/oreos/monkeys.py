@@ -255,7 +255,7 @@ class CookieError(Exception):
 #
 _RFC2965Forbidden = "[]:{}="
 _LegalChars       = ( string.ascii_letters + string.digits + 
-                      "!#$%&'*+-.^_`|~_" + _RFC2965Forbidden )
+                      "!#$%&'*+-.^_`|~_@" + _RFC2965Forbidden )
 _Translator       = {
     '\000' : '\\000',  '\001' : '\\001',  '\002' : '\\002',
     '\003' : '\\003',  '\004' : '\\004',  '\005' : '\\005',
