@@ -64,8 +64,7 @@ class Request(object):
         _poolmanager=None,
         verify=None,
         session=None,
-        key_file=None,
-        cert_file=None):
+        cert=None):
 
         #: Dictionary of configurations for this request.
         self.config = dict(config or [])
@@ -146,8 +145,7 @@ class Request(object):
         self.verify = verify
 
         #: SSL Certificate
-        self.key_file = key_file
-        self.cert_file = cert_file
+        self.cert = cert
 
         if headers:
             headers = CaseInsensitiveDict(self.headers)
@@ -273,7 +271,8 @@ class Request(object):
                     _poolmanager=self._poolmanager,
                     proxies=self.proxies,
                     verify=self.verify,
-                    session=self.session
+                    session=self.session,
+                    cert=self.cert
                 )
 
                 request.send()
@@ -513,9 +512,12 @@ class Request(object):
             conn.cert_reqs = 'CERT_NONE'
             conn.ca_certs = None
 
-        if self.key_file and self.cert_file:
-            conn.key_file = self.key_file
-            conn.cert_file = self.cert_file
+        if self.cert:
+            if type(self.cert) is tuple:
+                conn.cert_file = self.cert[0]
+                conn.key_file = self.cert[1]
+            else:
+                conn.cert_file = self.cert
 
         if not self.sent or anyway:
 

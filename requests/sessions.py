@@ -64,7 +64,7 @@ class Session(object):
 
     __attrs__ = [
         'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
-        'params', 'config', 'verify']
+        'params', 'config', 'verify', 'cert']
 
 
     def __init__(self,
@@ -78,8 +78,7 @@ class Session(object):
         config=None,
         prefetch=False,
         verify=True,
-        key_file=None,
-        cert_file=None):
+        cert=None):
 
         self.headers = headers or {}
         self.cookies = cookies or {}
@@ -91,8 +90,7 @@ class Session(object):
         self.config = config or {}
         self.prefetch = prefetch
         self.verify = verify
-        self.key_file = key_file
-        self.cert_file = cert_file
+        self.cert = cert
 
         for (k, v) in list(defaults.items()):
             self.config.setdefault(k, v)
@@ -136,8 +134,7 @@ class Session(object):
         config=None,
         prefetch=False,
         verify=None,
-        key_file=None,
-        cert_file=None):
+        cert=None):
 
         """Constructs and sends a :class:`Request <Request>`.
         Returns :class:`Response <Response>` object.
@@ -157,6 +154,7 @@ class Session(object):
         :param config: (optional) A configuration dictionary.
         :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
         :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
+        :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
         """
 
         method = str(method).upper()
@@ -194,8 +192,7 @@ class Session(object):
             proxies=proxies,
             config=config,
             verify=verify,
-            key_file=key_file,
-            cert_file=cert_file,
+            cert=cert,
             _poolmanager=self.poolmanager
         )
 

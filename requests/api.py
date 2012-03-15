@@ -33,8 +33,7 @@ def request(method, url, **kwargs):
     :param config: (optional) A configuration dictionary.
     :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
     :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
-    :param key_file: (optional) ssl client key file.
-    :param cert_file: (optional) ssl client cert file.
+    :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
     """
 
     s = kwargs.pop('session') if 'session' in kwargs else sessions.session()
