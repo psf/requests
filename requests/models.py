@@ -512,8 +512,8 @@ class Request(object):
             conn.cert_reqs = 'CERT_NONE'
             conn.ca_certs = None
 
-        if self.cert:
-            if type(self.cert) is tuple:
+        if self.cert and self.verify:
+            if len(self.cert) == 2:
                 conn.cert_file = self.cert[0]
                 conn.key_file = self.cert[1]
             else:
