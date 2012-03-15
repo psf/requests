@@ -8,6 +8,9 @@ sys.path.insert(0, os.path.abspath('..'))
 import sys
 import unittest
 
+import select
+has_poll = hasattr(select, "poll")
+
 from requests import async
 import envoy
 
@@ -57,6 +60,9 @@ class RequestsTestSuiteUsingAsyncApi(RequestsTestSuite):
         async.map
         async.send
 
+    def test_select_poll(self):
+        """Test to make sure we don't overwrite the poll"""
+        self.assertEqual(hasattr(select, "poll"), has_poll)
 
 if __name__ == '__main__':
     unittest.main()

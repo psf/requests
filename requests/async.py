@@ -17,7 +17,7 @@ except ImportError:
     raise RuntimeError('Gevent is required for requests.async.')
 
 # Monkey-patch.
-curious_george.patch_all(thread=False)
+curious_george.patch_all(thread=False, select=False)
 
 from . import api
 
