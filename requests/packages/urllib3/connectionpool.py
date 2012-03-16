@@ -264,10 +264,16 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             conn.sock.settimeout(timeout)
         httplib_response = conn.getresponse()
 
+        if hasattr(httplib_response, "length"):
+            resp_length = httplib_response.length
+        elif hasattr(httplib_response, "len"):
+            resp_length = httplib_response.len
+        else:
+            resp_length = 0
         log.debug("\"%s %s %s\" %s %s" %
                   (method, url,
                    getattr(conn, "_http_vsn_str", ""), # pylint: disable-msg=W0212
-                   httplib_response.status, httplib_response.length))
+                   httplib_response.status, resp_length))
 
         return httplib_response
 
