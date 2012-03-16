@@ -237,7 +237,7 @@ def randombytes(n):
         L = [chr(random.randrange(0, 256)) for i in range(n)]
     else:
         L = [chr(random.randrange(0, 256)).encode('utf-8') for i in range(n)]
-    return b"".join(L)
+    return "".join(L)
 
 
 def dict_from_cookiejar(cj):
