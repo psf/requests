@@ -9,6 +9,7 @@ that are also useful for external consumption.
 
 """
 
+from __future__ import absolute_import
 import cgi
 import codecs
 import os
@@ -37,7 +38,12 @@ def dict_to_sequence(d):
 def get_netrc_auth(url):
     """Returns the Requests tuple auth for a given url from netrc."""
 
-    locations = (os.path.expanduser('~/{0}'.format(f)) for f in NETRC_FILES)
+    locations = []
+    for f in NETRC_FILES:
+        try:
+            locations.append(os.path.expanduser('~/%s' % (f,)))
+        except AttributeError:
+            pass
     netrc_path = None
 
     for loc in locations:
@@ -237,7 +243,7 @@ def randombytes(n):
         L = [chr(random.randrange(0, 256)) for i in range(n)]
     else:
         L = [chr(random.randrange(0, 256)).encode('utf-8') for i in range(n)]
-    return b"".join(L)
+    return "".join(L)
 
 
 def dict_from_cookiejar(cj):

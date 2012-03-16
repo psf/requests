@@ -2,13 +2,17 @@
 # -*- coding: utf-8 -*-
 
 # from __future__ import unicode_literals
+from __future__ import with_statement
 
 # Path hack.
 import sys
 import os
 sys.path.insert(0, os.path.abspath('..'))
 
-import json
+try:
+    import simplejson
+except ImportError:
+    import json
 import os
 import sys
 import unittest
@@ -98,7 +102,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
         r = get(httpbin('user-agent'), headers=heads)
 
-        assert heads['User-agent'] in r.text
+        assert heads['User-agent'] in r.content
         self.assertEqual(r.status_code, 200)
 
     def test_HTTP_200_OK_GET_WITH_MIXED_PARAMS(self):

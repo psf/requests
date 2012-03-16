@@ -10,12 +10,6 @@ import socket
 from base64 import b64encode
 from socket import error as SocketError, timeout as SocketTimeout
 
-try:
-    from select import poll, POLLIN
-except ImportError: # Doesn't exist on OSX and other platforms
-    from select import select
-    poll = False
-
 try:   # Python 3
     from http.client import HTTPConnection, HTTPException
     from http.client import HTTP_PORT, HTTPS_PORT
@@ -26,8 +20,22 @@ except ImportError:
 try:   # Python 3
     from queue import LifoQueue, Empty, Full
 except ImportError:
-    from Queue import LifoQueue, Empty, Full
-
+    from Queue import Empty, Full
+    try:
+        from Queue import LifoQueue
+    except ImportError: # Python 2.5
+        from Queue import Queue
+        class LifoQueue(Queue):
+            """Variant of Queue that retrieves most recently added entries first."""
+            def _init(self, maxsize):
+                self.maxsize = maxsize
+                self.queue = []
+            def _qsize(self, len=len):
+                return len(self.queue)
+            def _put(self, item):
+                self.queue.append(item)
+            def _get(self):
+                return self.queue.pop()
 
 try:   # Compiled with SSL?
     HTTPSConnection = object
@@ -42,7 +50,7 @@ try:   # Compiled with SSL?
     import ssl
     BaseSSLError = ssl.SSLError
 
-except ImportError:
+except (ImportError, AttributeError):
     pass
 
 
@@ -85,14 +93,14 @@ class VerifiedHTTPSConnection(HTTPSConnection):
     def set_cert(self, key_file=None, cert_file=None,
                  cert_reqs='CERT_NONE', ca_certs=None):
         ssl_req_scheme = {
-            'CERT_NONE': ssl.CERT_NONE,
-            'CERT_OPTIONAL': ssl.CERT_OPTIONAL,
-            'CERT_REQUIRED': ssl.CERT_REQUIRED
+            'CERT_NONE': getattr(ssl, "CERT_NONE", "CERT_NONE"),
+            'CERT_OPTIONAL': getattr(ssl, "CERT_OPTIONAL", "CERT_OPTIONAL"),
+            'CERT_REQUIRED': getattr(ssl, "CERT_REQUIRED", "CERT_REQUIRED"),
         }
 
         self.key_file = key_file
         self.cert_file = cert_file
-        self.cert_reqs = ssl_req_scheme.get(cert_reqs) or ssl.CERT_NONE
+        self.cert_reqs = ssl_req_scheme.get(cert_reqs) or getattr(ssl, "CERT_NONE", "CERT_NONE")
         self.ca_certs = ca_certs
 
     def connect(self):
@@ -210,12 +218,6 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         conn = None
         try:
             conn = self.pool.get(block=self.block, timeout=timeout)
-
-            # If this is a persistent connection, check if it got disconnected
-            if conn and conn.sock and is_connection_dropped(conn):
-                log.info("Resetting dropped connection: %s" % self.host)
-                conn.close()
-
         except Empty:
             if self.block:
                 raise EmptyPoolError(self,
@@ -258,13 +260,20 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         conn.timeout = timeout # This only does anything in Py26+
 
         conn.request(method, url, **httplib_request_kw)
-        conn.sock.settimeout(timeout)
+        if hasattr(conn, "sock"):
+            conn.sock.settimeout(timeout)
         httplib_response = conn.getresponse()
 
+        if hasattr(httplib_response, "length"):
+            resp_length = httplib_response.length
+        elif hasattr(httplib_response, "len"):
+            resp_length = httplib_response.len
+        else:
+            resp_length = 0
         log.debug("\"%s %s %s\" %s %s" %
                   (method, url,
-                   conn._http_vsn_str, # pylint: disable-msg=W0212
-                   httplib_response.status, httplib_response.length))
+                   getattr(conn, "_http_vsn_str", ""), # pylint: disable-msg=W0212
+                   httplib_response.status, resp_length))
 
         return httplib_response
 
@@ -400,25 +409,25 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             #     ``response.release_conn()`` is called (implicitly by
             #     ``response.read()``)
 
-        except Empty as e:
+        except Empty, e:
             # Timed out by queue
             raise TimeoutError(self, "Request timed out. (pool_timeout=%s)" %
                                pool_timeout)
 
-        except SocketTimeout as e:
+        except SocketTimeout, e:
             # Timed out by socket
             raise TimeoutError(self, "Request timed out. (timeout=%s)" %
                                timeout)
 
-        except BaseSSLError as e:
+        except BaseSSLError, e:
             # SSL certificate error
             raise SSLError(e)
 
-        except CertificateError as e:
+        except CertificateError, e:
             # Name mismatch
             raise SSLError(e)
 
-        except (HTTPException, SocketError) as e:
+        except (HTTPException, SocketError), e:
             # Connection broken, discard. It will be replaced next _get_conn().
             conn = None
             # This is necessary so we can access e below
@@ -609,21 +618,3 @@ def connection_from_url(url, **kw):
     else:
         return HTTPConnectionPool(host, port=port, **kw)
 
-
-def is_connection_dropped(conn):
-    """
-    Returns True if the connection is dropped and should be closed.
-
-    :param conn:
-        ``HTTPConnection`` object.
-    """
-    if not poll: # Platform-specific
-        return select([conn.sock], [], [], 0.0)[0]
-
-    # This version is better on platforms that support it.
-    p = poll()
-    p.register(conn.sock, POLLIN)
-    for (fno, ev) in p.poll(0.0):
-        if fno == conn.sock.fileno():
-            # Either data is buffered (bad), or the connection is dropped.
-            return True

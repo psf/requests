@@ -4,6 +4,7 @@ work as a replacement?).
 
 Tweaked to use lock from threading rather than thread.
 """
+from __future__ import with_statement
 import os
 from threading import Lock
 _counter_lock = Lock()
