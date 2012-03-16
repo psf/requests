@@ -9,6 +9,7 @@ that are also useful for external consumption.
 
 """
 
+from __future__ import absolute_import
 import cgi
 import codecs
 import os
