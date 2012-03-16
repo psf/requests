@@ -8,7 +8,11 @@ import gzip
 import logging
 import zlib
 
-from io import BytesIO
+try:
+    from io import BytesIO
+except ImportError:
+    # Python 2.5
+    from StringIO import StringIO as BytesIO
 
 from .exceptions import HTTPError
 from .packages.six import string_types as basestring

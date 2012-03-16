@@ -12,7 +12,11 @@ try:
 except ImportError:
     from .packages.mimetools_choose_boundary import choose_boundary
 
-from io import BytesIO
+try:
+    from io import BytesIO
+except ImportError:
+    # Python 2.5
+    from StringIO import StringIO as BytesIO
 
 from .packages import six
 from .packages.six import b
