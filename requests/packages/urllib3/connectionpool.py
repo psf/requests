@@ -260,12 +260,13 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         conn.timeout = timeout # This only does anything in Py26+
 
         conn.request(method, url, **httplib_request_kw)
-        conn.sock.settimeout(timeout)
+        if hasattr(conn, "sock"):
+            conn.sock.settimeout(timeout)
         httplib_response = conn.getresponse()
 
         log.debug("\"%s %s %s\" %s %s" %
                   (method, url,
-                   conn._http_vsn_str, # pylint: disable-msg=W0212
+                   getattr(conn, "_http_vsn_str", ""), # pylint: disable-msg=W0212
                    httplib_response.status, httplib_response.length))
 
         return httplib_response
