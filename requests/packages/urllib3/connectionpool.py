@@ -10,12 +10,6 @@ import socket
 from base64 import b64encode
 from socket import error as SocketError, timeout as SocketTimeout
 
-try:
-    from select import poll, POLLIN
-except ImportError: # Doesn't exist on OSX and other platforms
-    from select import select
-    poll = False
-
 try:   # Python 3
     from http.client import HTTPConnection, HTTPException
     from http.client import HTTP_PORT, HTTPS_PORT
@@ -210,12 +204,6 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         conn = None
         try:
             conn = self.pool.get(block=self.block, timeout=timeout)
-
-            # If this is a persistent connection, check if it got disconnected
-            if conn and conn.sock and is_connection_dropped(conn):
-                log.info("Resetting dropped connection: %s" % self.host)
-                conn.close()
-
         except Empty:
             if self.block:
                 raise EmptyPoolError(self,
@@ -609,21 +597,3 @@ def connection_from_url(url, **kw):
     else:
         return HTTPConnectionPool(host, port=port, **kw)
 
-
-def is_connection_dropped(conn):
-    """
-    Returns True if the connection is dropped and should be closed.
-
-    :param conn:
-        ``HTTPConnection`` object.
-    """
-    if not poll: # Platform-specific
-        return select([conn.sock], [], [], 0.0)[0]
-
-    # This version is better on platforms that support it.
-    p = poll()
-    p.register(conn.sock, POLLIN)
-    for (fno, ev) in p.poll(0.0):
-        if fno == conn.sock.fileno():
-            # Either data is buffered (bad), or the connection is dropped.
-            return True
