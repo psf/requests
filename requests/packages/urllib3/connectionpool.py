@@ -388,25 +388,25 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             #     ``response.release_conn()`` is called (implicitly by
             #     ``response.read()``)
 
-        except Empty as e:
+        except Empty, e:
             # Timed out by queue
             raise TimeoutError(self, "Request timed out. (pool_timeout=%s)" %
                                pool_timeout)
 
-        except SocketTimeout as e:
+        except SocketTimeout, e:
             # Timed out by socket
             raise TimeoutError(self, "Request timed out. (timeout=%s)" %
                                timeout)
 
-        except BaseSSLError as e:
+        except BaseSSLError, e:
             # SSL certificate error
             raise SSLError(e)
 
-        except CertificateError as e:
+        except CertificateError, e:
             # Name mismatch
             raise SSLError(e)
 
-        except (HTTPException, SocketError) as e:
+        except (HTTPException, SocketError), e:
             # Connection broken, discard. It will be replaced next _get_conn().
             conn = None
             # This is necessary so we can access e below
