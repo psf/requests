@@ -20,8 +20,21 @@ except ImportError:
 try:   # Python 3
     from queue import LifoQueue, Empty, Full
 except ImportError:
-    from Queue import LifoQueue, Empty, Full
-
+    from Queue import Empty, Full
+    try:
+        from Queue import LifoQueue
+    except ImportError: # Python 2.5
+        from Queue import Queue
+        class LifoQueue(Queue):
+            """Variant of Queue that retrieves most recently added entries first."""
+            def _init(self, maxsize):
+                self.queue = []
+            def _qsize(self, len=len):
+                return len(self.queue)
+            def _put(self, item):
+                self.queue.append(item)
+            def _get(self):
+                return self.queue.pop()
 
 try:   # Compiled with SSL?
     HTTPSConnection = object
