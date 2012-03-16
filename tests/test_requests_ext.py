@@ -13,7 +13,10 @@ from requests.compat import is_py2, is_py3
 try:
     import omnijson as json
 except ImportError:
-    import json
+    try:
+        import simplejson as json
+    except ImportError:
+        import json
 
 
 class RequestsTestSuite(unittest.TestCase):
