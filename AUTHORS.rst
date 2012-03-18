@@ -89,3 +89,4 @@ Patches and Suggestions
 - Danver Braganza <danverbraganza@gmail.com>
 - Max Countryman
 - Nick Chadwick
+- Jonathan Drosdeck
