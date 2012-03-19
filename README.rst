@@ -73,4 +73,4 @@ Contribute
 #. Send a pull request and bug the maintainer until it gets merged and published. :) Make sure to add yourself to AUTHORS_.
 
 .. _`the repository`: http://github.com/kennethreitz/requests
-.. _AUTHORS: http://github.com/kennethreitz/requests/blob/master/AUTHORS
+.. _AUTHORS: https://github.com/kennethreitz/requests/blob/develop/AUTHORS.rst
