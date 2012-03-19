@@ -218,7 +218,7 @@ class Session(object):
         """Sends a GET request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
-        :param **kwargs: Optional arguments that ``request`` takes.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
         kwargs.setdefault('allow_redirects', True)
@@ -229,7 +229,7 @@ class Session(object):
         """Sends a OPTIONS request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
-        :param **kwargs: Optional arguments that ``request`` takes.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
         kwargs.setdefault('allow_redirects', True)
@@ -240,7 +240,7 @@ class Session(object):
         """Sends a HEAD request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
-        :param **kwargs: Optional arguments that ``request`` takes.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
         kwargs.setdefault('allow_redirects', False)
@@ -252,7 +252,7 @@ class Session(object):
 
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
-        :param **kwargs: Optional arguments that ``request`` takes.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
         return self.request('post', url, data=data, **kwargs)
@@ -263,7 +263,7 @@ class Session(object):
 
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
-        :param **kwargs: Optional arguments that ``request`` takes.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
         return self.request('put', url, data=data, **kwargs)
@@ -274,7 +274,7 @@ class Session(object):
 
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
-        :param **kwargs: Optional arguments that ``request`` takes.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
         return self.request('patch', url,  data=data, **kwargs)
@@ -284,7 +284,7 @@ class Session(object):
         """Sends a DELETE request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
-        :param **kwargs: Optional arguments that ``request`` takes.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
         return self.request('delete', url, **kwargs)
