@@ -660,7 +660,7 @@ class Response(object):
     def ok(self):
         try:
             self.raise_for_status()
-        except HTTPError:
+        except RequestException:
             return False
         return True
 
