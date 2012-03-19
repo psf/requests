@@ -6,6 +6,8 @@ History
 
 * Private SSL Certificate support
 * Remove select.poll from Gevent monkeypatching
+* Remove redundant generator for chunked transfer encoding
+* Fix: Response.ok raises Timeout Exception in safe_mode
 
 0.10.8 (2012-03-09)
 +++++++++++++++++++
