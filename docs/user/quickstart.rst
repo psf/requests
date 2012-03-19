@@ -30,6 +30,32 @@ Let's get GitHub's public timeline ::
 Now, we have a :class:`Response` object called ``r``. We can get all the
 information we need from this.
 
+Typically, you want to send some sort of data in the urls query string.
+To do this, simply pass a dictionary to the `params` argument. Your
+dictionary of data will automatically be encoded when the request is made::
+
+    >>> payload = {'key1': 'value1', 'key2': 'value2'}
+    >>> r = requests.get("http://httpbin.org/get", params=payload)
+    >>> print r.text
+    {
+      "origin": "179.13.100.4",
+      "args": {
+        "key2": "value2",
+        "key1": "value1"
+      },
+      "url": "http://httpbin.org/get",
+      "headers": {
+        "Connections": "keep-alive",
+        "Content-Length": "",
+        "Accept-Encoding": "identity, deflate, compress, gzip",
+        "Accept": "*/*",
+        "User-Agent": "python-requests/0.11.0",
+        "Host": httpbin.org",
+        "Content-Type": ""
+      },
+    }
+
+
 
 Response Content
 ----------------
