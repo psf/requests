@@ -683,39 +683,7 @@ class Response(object):
                 yield chunk
             self._content_consumed = True
 
-        def generate_chunked():
-            resp = self.raw._original_response
-            fp = resp.fp
-            if resp.chunk_left is not None:
-                pending_bytes = resp.chunk_left
-                while pending_bytes:
-                    chunk = fp.read(min(chunk_size, pending_bytes))
-                    pending_bytes -= len(chunk)
-                    yield chunk
-                fp.read(2)  # throw away crlf
-            while 1:
-                #XXX correct line size? (httplib has 64kb, seems insane)
-                pending_bytes = fp.readline(40).strip()
-                if not len(pending_bytes):
-                    # No content, like a HEAD request. Break out.
-                    break
-                pending_bytes = int(pending_bytes, 16)
-                if pending_bytes == 0:
-                    break
-                while pending_bytes:
-                    chunk = fp.read(min(chunk_size, pending_bytes))
-                    pending_bytes -= len(chunk)
-                    yield chunk
-                fp.read(2)  # throw away crlf
-            self._content_consumed = True
-            fp.close()
-
-        if getattr(getattr(self.raw, '_original_response', None), 'chunked', False):
-            gen = generate_chunked()
-        else:
-            gen = generate()
-
-        gen = stream_untransfer(gen, self)
+        gen = stream_untransfer(generate(), self)
 
         if decode_unicode:
             gen = stream_decode_response_unicode(gen, self)
