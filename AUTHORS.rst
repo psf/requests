@@ -90,3 +90,4 @@ Patches and Suggestions
 - Max Countryman
 - Nick Chadwick
 - Jonathan Drosdeck
+- Jiri Machalek

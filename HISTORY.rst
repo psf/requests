@@ -5,7 +5,7 @@ History
 +++++++++++++++++++
 
 * Private SSL Certificate support
-*
+* Remove select.poll from Gevent monkeypatching
 
 0.10.8 (2012-03-09)
 +++++++++++++++++++
