@@ -134,7 +134,7 @@ one at a time with ``Request.send()``, but that would take a while.  Instead,
 we'll send them all at the same time with ``async.map()``.  Using ``async.map()``
 will also guarantee execution of the ``response`` hook, described below. ::
 
-    >>> async.map(rs)
+    >>> responses = async.map(rs)
     [<Response [200]>, <Response [200]>, <Response [200]>, <Response [200]>]
 
 .. admonition:: Throttling
