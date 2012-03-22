@@ -50,9 +50,6 @@ Requests is available installed as a Debian package! Debian Etch Ubuntu, since O
 
     $ apt-get install python-requests
 
-Unfortunately, the most recent version available is  v0.5.0. If you're on the
-Debian Python Package team, I'd love an update of that :)
-
 
 Fedora and RedHat
 -----------------

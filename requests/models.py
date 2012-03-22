@@ -63,7 +63,8 @@ class Request(object):
         config=None,
         _poolmanager=None,
         verify=None,
-        session=None):
+        session=None,
+        cert=None):
 
         #: Dictionary of configurations for this request.
         self.config = dict(config or [])
@@ -142,6 +143,9 @@ class Request(object):
 
         #: SSL Verification.
         self.verify = verify
+
+        #: SSL Certificate
+        self.cert = cert
 
         if headers:
             headers = CaseInsensitiveDict(self.headers)
@@ -267,7 +271,8 @@ class Request(object):
                     _poolmanager=self._poolmanager,
                     proxies=self.proxies,
                     verify=self.verify,
-                    session=self.session
+                    session=self.session,
+                    cert=self.cert
                 )
 
                 request.send()
@@ -507,6 +512,13 @@ class Request(object):
             conn.cert_reqs = 'CERT_NONE'
             conn.ca_certs = None
 
+        if self.cert and self.verify:
+            if len(self.cert) == 2:
+                conn.cert_file = self.cert[0]
+                conn.key_file = self.cert[1]
+            else:
+                conn.cert_file = self.cert
+
         if not self.sent or anyway:
 
             if self.cookies:
@@ -648,7 +660,7 @@ class Response(object):
     def ok(self):
         try:
             self.raise_for_status()
-        except HTTPError:
+        except RequestException:
             return False
         return True
 
@@ -671,39 +683,7 @@ class Response(object):
                 yield chunk
             self._content_consumed = True
 
-        def generate_chunked():
-            resp = self.raw._original_response
-            fp = resp.fp
-            if resp.chunk_left is not None:
-                pending_bytes = resp.chunk_left
-                while pending_bytes:
-                    chunk = fp.read(min(chunk_size, pending_bytes))
-                    pending_bytes -= len(chunk)
-                    yield chunk
-                fp.read(2)  # throw away crlf
-            while 1:
-                #XXX correct line size? (httplib has 64kb, seems insane)
-                pending_bytes = fp.readline(40).strip()
-                if not len(pending_bytes):
-                    # No content, like a HEAD request. Break out.
-                    break
-                pending_bytes = int(pending_bytes, 16)
-                if pending_bytes == 0:
-                    break
-                while pending_bytes:
-                    chunk = fp.read(min(chunk_size, pending_bytes))
-                    pending_bytes -= len(chunk)
-                    yield chunk
-                fp.read(2)  # throw away crlf
-            self._content_consumed = True
-            fp.close()
-
-        if getattr(getattr(self.raw, '_original_response', None), 'chunked', False):
-            gen = generate_chunked()
-        else:
-            gen = generate()
-
-        gen = stream_untransfer(gen, self)
+        gen = stream_untransfer(generate(), self)
 
         if decode_unicode:
             gen = stream_decode_response_unicode(gen, self)
@@ -788,6 +768,12 @@ class Response(object):
         # Decode unicode from given encoding.
         try:
             content = str(self.content, encoding, errors='replace')
+        except LookupError:
+            # A LookupError is raised if the encoding was not found which could
+            # indicate a misspelling or similar mistake.
+            #
+            # So we try blindly encoding.
+            content = str(self.content, errors='replace')
         except (UnicodeError, TypeError):
             pass
 
