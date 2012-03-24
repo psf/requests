@@ -576,7 +576,7 @@ def get_host(url):
         url, port = url.split(':', 1)
 
         if not port.isdigit():
-            raise LocationParseError("Failed to parse: %s")
+            raise LocationParseError("Failed to parse: %s" % url)
 
         port = int(port)
 

@@ -262,6 +262,7 @@ class Request(object):
                     headers=headers,
                     files=self.files,
                     method=method,
+                    data=self.data,
                     params=self.session.params,
                     auth=self.auth,
                     cookies=self.cookies,
