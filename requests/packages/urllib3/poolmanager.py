@@ -39,11 +39,11 @@ class PoolManager(RequestMethods):
 
     Example: ::
 
-        >>> manager = PoolManager()
+        >>> manager = PoolManager(num_pools=2)
         >>> r = manager.urlopen("http://google.com/")
         >>> r = manager.urlopen("http://google.com/mail")
         >>> r = manager.urlopen("http://yahoo.com/")
-        >>> len(r.pools)
+        >>> len(manager.pools)
         2
 
     """

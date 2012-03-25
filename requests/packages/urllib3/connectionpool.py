@@ -7,14 +7,7 @@
 import logging
 import socket
 
-from base64 import b64encode
 from socket import error as SocketError, timeout as SocketTimeout
-
-try:
-    from select import poll, POLLIN
-except ImportError: # Doesn't exist on OSX and other platforms
-    from select import select
-    poll = False
 
 try:   # Python 3
     from http.client import HTTPConnection, HTTPException
@@ -42,17 +35,16 @@ try:   # Compiled with SSL?
     import ssl
     BaseSSLError = ssl.SSLError
 
-except ImportError:
+except (ImportError, AttributeError):
     pass
 
 
-from .packages.ssl_match_hostname import match_hostname, CertificateError
 from .request import RequestMethods
 from .response import HTTPResponse
+from .util import get_host, is_connection_dropped
 from .exceptions import (
     EmptyPoolError,
     HostChangedError,
-    LocationParseError,
     MaxRetryError,
     SSLError,
     TimeoutError,
@@ -60,6 +52,7 @@ from .exceptions import (
 
 from .packages.ssl_match_hostname import match_hostname, CertificateError
 from .packages import six
+
 
 xrange = six.moves.xrange
 
@@ -71,6 +64,7 @@ port_by_scheme = {
     'http': HTTP_PORT,
     'https': HTTPS_PORT,
 }
+
 
 ## Connection objects (extension of httplib)
 
@@ -106,6 +100,7 @@ class VerifiedHTTPSConnection(HTTPSConnection):
                                     ca_certs=self.ca_certs)
         if self.ca_certs:
             match_hostname(self.sock.getpeercert(), self.host)
+
 
 ## Pool objects
 
@@ -212,7 +207,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             conn = self.pool.get(block=self.block, timeout=timeout)
 
             # If this is a persistent connection, check if it got disconnected
-            if conn and conn.sock and is_connection_dropped(conn):
+            if conn and is_connection_dropped(conn):
                 log.info("Resetting dropped connection: %s" % self.host)
                 conn.close()
 
@@ -256,9 +251,13 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             timeout = self.timeout
 
         conn.timeout = timeout # This only does anything in Py26+
-
         conn.request(method, url, **httplib_request_kw)
-        conn.sock.settimeout(timeout)
+
+        # Set timeout
+        sock = getattr(conn, 'sock', False) # AppEngine doesn't have sock attr.
+        if sock:
+            sock.settimeout(timeout)
+
         httplib_response = conn.getresponse()
 
         log.debug("\"%s %s %s\" %s %s" %
@@ -295,7 +294,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         .. note::
 
            More commonly, it's appropriate to use a convenience method provided
-           by :class:`.RequestMethods`, such as :meth:`.request`.
+           by :class:`.RequestMethods`, such as :meth:`request`.
 
         .. note::
 
@@ -495,94 +494,6 @@ class HTTPSConnectionPool(HTTPConnectionPool):
         return connection
 
 
-## Helpers
-
-def make_headers(keep_alive=None, accept_encoding=None, user_agent=None,
-                 basic_auth=None):
-    """
-    Shortcuts for generating request headers.
-
-    :param keep_alive:
-        If ``True``, adds 'connection: keep-alive' header.
-
-    :param accept_encoding:
-        Can be a boolean, list, or string.
-        ``True`` translates to 'gzip,deflate'.
-        List will get joined by comma.
-        String will be used as provided.
-
-    :param user_agent:
-        String representing the user-agent you want, such as
-        "python-urllib3/0.6"
-
-    :param basic_auth:
-        Colon-separated username:password string for 'authorization: basic ...'
-        auth header.
-
-    Example: ::
-
-        >>> make_headers(keep_alive=True, user_agent="Batman/1.0")
-        {'connection': 'keep-alive', 'user-agent': 'Batman/1.0'}
-        >>> make_headers(accept_encoding=True)
-        {'accept-encoding': 'gzip,deflate'}
-    """
-    headers = {}
-    if accept_encoding:
-        if isinstance(accept_encoding, str):
-            pass
-        elif isinstance(accept_encoding, list):
-            accept_encoding = ','.join(accept_encoding)
-        else:
-            accept_encoding = 'gzip,deflate'
-        headers['accept-encoding'] = accept_encoding
-
-    if user_agent:
-        headers['user-agent'] = user_agent
-
-    if keep_alive:
-        headers['connection'] = 'keep-alive'
-
-    if basic_auth:
-        headers['authorization'] = 'Basic ' + \
-            b64encode(six.b(basic_auth)).decode('utf-8')
-
-    return headers
-
-
-def get_host(url):
-    """
-    Given a url, return its scheme, host and port (None if it's not there).
-
-    For example: ::
-
-        >>> get_host('http://google.com/mail/')
-        ('http', 'google.com', None)
-        >>> get_host('google.com:80')
-        ('http', 'google.com', 80)
-    """
-
-    # This code is actually similar to urlparse.urlsplit, but much
-    # simplified for our needs.
-    port = None
-    scheme = 'http'
-
-    if '://' in url:
-        scheme, url = url.split('://', 1)
-    if '/' in url:
-        url, _path = url.split('/', 1)
-    if '@' in url:
-        _auth, url = url.split('@', 1)
-    if ':' in url:
-        url, port = url.split(':', 1)
-
-        if not port.isdigit():
-            raise LocationParseError("Failed to parse: %s")
-
-        port = int(port)
-
-    return scheme, url, port
-
-
 def connection_from_url(url, **kw):
     """
     Given a url, return an :class:`.ConnectionPool` instance of its host.
@@ -608,22 +519,3 @@ def connection_from_url(url, **kw):
         return HTTPSConnectionPool(host, port=port, **kw)
     else:
         return HTTPConnectionPool(host, port=port, **kw)
-
-
-def is_connection_dropped(conn):
-    """
-    Returns True if the connection is dropped and should be closed.
-
-    :param conn:
-        ``HTTPConnection`` object.
-    """
-    if not poll: # Platform-specific
-        return select([conn.sock], [], [], 0.0)[0]
-
-    # This version is better on platforms that support it.
-    p = poll()
-    p.register(conn.sock, POLLIN)
-    for (fno, ev) in p.poll(0.0):
-        if fno == conn.sock.fileno():
-            # Either data is buffered (bad), or the connection is dropped.
-            return True

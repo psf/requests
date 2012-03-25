@@ -24,15 +24,29 @@ def get_content_type(filename):
     return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
 
+def iter_fields(fields):
+    """
+    Iterate over fields.
+
+    Supports list of (k, v) tuples and dicts.
+    """
+    if isinstance(fields, dict):
+        return ((k, v) for k, v in six.iteritems(fields))
+
+    return ((k, v) for k, v in fields)
+
+
 def encode_multipart_formdata(fields, boundary=None):
     """
     Encode a dictionary of ``fields`` using the multipart/form-data mime format.
 
     :param fields:
-        Dictionary of fields. The key is treated as the field name, and the
-        value as the body of the form-data. If the value is a tuple of two
-        elements, then the first element is treated as the filename of the
-        form-data section.
+        Dictionary of fields or list of (key, value) field tuples.  The key is
+        treated as the field name, and the value as the body of the form-data
+        bytes. If the value is a tuple of two elements, then the first element
+        is treated as the filename of the form-data section.
+
+        Field names and filenames must be unicode.
 
     :param boundary:
         If not specified, then a random boundary will be generated using
@@ -42,7 +56,7 @@ def encode_multipart_formdata(fields, boundary=None):
     if boundary is None:
         boundary = choose_boundary()
 
-    for fieldname, value in six.iteritems(fields):
+    for fieldname, value in iter_fields(fields):
         body.write(b('--%s\r\n' % (boundary)))
 
         if isinstance(value, tuple):
