@@ -30,3 +30,9 @@ class URLRequired(RequestException):
 
 class TooManyRedirects(RequestException):
     """Too many redirects."""
+
+class MissingSchema(RequestException, ValueError):
+    """The URL schema (e.g. http or https) is missing."""
+
+class InvalidSchema(RequestException, ValueError):
+    """See defaults.py for valid schemas."""
