@@ -24,7 +24,7 @@ from .packages.urllib3.filepost import encode_multipart_formdata
 from .defaults import SCHEMAS
 from .exceptions import (
     ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
-    URLRequired, SSLError)
+    URLRequired, SSLError, MissingSchema, InvalidSchema)
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
     dict_from_string, stream_decode_response_unicode, get_netrc_auth)
@@ -326,10 +326,10 @@ class Request(object):
         scheme, netloc, path, params, query, fragment = urlparse(url)
 
         if not scheme:
-            raise ValueError("Invalid URL %r: No schema supplied" % url)
+            raise MissingSchema("Invalid URL %r: No schema supplied" % url)
 
         if not scheme in SCHEMAS:
-            raise ValueError("Invalid scheme %r" % scheme)
+            raise InvalidSchema("Invalid scheme %r" % scheme)
 
         netloc = netloc.encode('idna').decode('utf-8')
 
