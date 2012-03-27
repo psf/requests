@@ -17,10 +17,9 @@ import pickle
 import requests
 from requests.compat import str, StringIO
 # import envoy
-from requests import HTTPError
+from requests import HTTPError, MissingSchema, InvalidSchema
 from requests import get, post, head, put
 from requests.auth import HTTPBasicAuth, HTTPDigestAuth
-
 if 'HTTPBIN_URL' not in os.environ:
     os.environ['HTTPBIN_URL'] = 'http://httpbin.org/'
 
@@ -69,7 +68,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         requests.post
 
     def test_invalid_url(self):
-        self.assertRaises(ValueError, get, 'hiwpefhipowhefopw')
+        self.assertRaises(MissingSchema, get, 'hiwpefhipowhefopw')
 
     def test_path_is_not_double_encoded(self):
         request = requests.Request("http://0.0.0.0/get/test case")
@@ -780,7 +779,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         # If we pass a legitimate URL with a scheme not supported
         # by requests, we should fail.
         self.assertRaises(
-              ValueError,
+              InvalidSchema,
               get,
               'ftp://ftp.kernel.org/pub/')
 
