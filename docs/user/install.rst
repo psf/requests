@@ -43,11 +43,11 @@ You can either clone the public repository::
 
 Download the `tarball <https://github.com/kennethreitz/requests/tarball/master>`_::
 
-    $ curl -O https://github.com/kennethreitz/requests/tarball/master
+    $ curl -OL https://github.com/kennethreitz/requests/tarball/master
 
 Or, download the `zipball <https://github.com/kennethreitz/requests/zipball/master>`_::
 
-    $ curl -O https://github.com/kennethreitz/requests/zipball/master
+    $ curl -OL https://github.com/kennethreitz/requests/zipball/master
 
 
 Once you have a copy of the source, you can embed it in your Python package,
