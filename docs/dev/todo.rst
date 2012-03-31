@@ -11,7 +11,7 @@ Requests is under active development, and contributions are more than welcome!
 #. Write a test which shows that the bug was fixed or that the feature works as expected.
 #. Send a pull request and bug the maintainer until it gets merged and published. :)
    Make sure to add yourself to AUTHORS_.
-    
+
 Development dependencies
 ------------------------
 
@@ -19,12 +19,8 @@ You'll need to install ``gunicorn`` and ``httpbin`` in order to run requests' te
 
     $ pip install -r requirements.txt
 
-    
-
 
 What Needs to be Done
 ---------------------
 
-- HTTP Cert Checking (`#30 <https://github.com/kennethreitz/requests/issues/30>`_)
-- Python 3.x Support (`#70 <https://github.com/kennethreitz/requests/issues/70>`_)
-- Kerberos Support (`#47 <https://github.com/kennethreitz/requests/issues/47>`_)
+- Documentation needs a roadmap.
