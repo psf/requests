@@ -216,6 +216,7 @@ class Request(object):
         self.cookies.update(r.cookies)
 
         if r.status_code in REDIRECT_STATI and not self.redirect:
+
             while (('location' in r.headers) and
                    ((r.status_code is codes.see_other) or (self.allow_redirects))):
 
@@ -249,6 +250,15 @@ class Request(object):
                     method = 'GET'
                 else:
                     method = self.method
+
+                # Do what the browsers do if strict_mode is off...
+                if (not self.config.get('strict_mode')):
+
+                    if r.status_code in (codes.moved, codes.found) and self.method == 'POST':
+                        method = 'GET'
+
+                    if (r.status_code == 303) and self.method != 'HEAD':
+                        method = 'GET'
 
                 # Remove the cookie headers that were sent.
                 headers = self.headers
