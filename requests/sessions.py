@@ -115,7 +115,7 @@ class Session(object):
         files=None,
         auth=None,
         timeout=None,
-        allow_redirects=False,
+        allow_redirects=True,
         proxies=None,
         hooks=None,
         return_response=True,
@@ -136,7 +136,7 @@ class Session(object):
         :param files: (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload.
         :param auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.
         :param timeout: (optional) Float describing the timeout of the request.
-        :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
+        :param allow_redirects: (optional) Boolean. Set to True by default.
         :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
         :param return_response: (optional) If False, an un-sent Request object will returned.
         :param config: (optional) A configuration dictionary.
