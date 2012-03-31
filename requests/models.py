@@ -244,9 +244,12 @@ class Request(object):
                                   # encode the url.
                                   requote_uri(url))
 
-                # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
-                if r.status_code is codes.see_other:
-                    method = 'GET'
+                # Do the same as Google Chrome.
+                # http://stackoverflow.com/questions/8138137/http-post-request-receives-a-302-should-the-redirect-request-be-a-get/8138447#8138447
+                # http://codesearch.google.com/#OAMlx_jo-ck/src/net/url_request/url_request.cc&l=701
+                if (r.status_code == 303 and self.method != "HEAD") \
+                or (r.status_code in (301,302) and self.method == "POST"):
+                    method = "GET"
                 else:
                     method = self.method
 
