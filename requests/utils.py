@@ -37,32 +37,38 @@ def dict_to_sequence(d):
 def get_netrc_auth(url):
     """Returns the Requests tuple auth for a given url from netrc."""
 
-    locations = (os.path.expanduser('~/{0}'.format(f)) for f in NETRC_FILES)
-    netrc_path = None
-
-    for loc in locations:
-        if os.path.exists(loc) and not netrc_path:
-            netrc_path = loc
-
-    # Abort early if there isn't one.
-    if netrc_path is None:
-        return netrc_path
-
-    ri = urlparse(url)
-
-    # Strip port numbers from netloc
-    host = ri.netloc.split(':')[0]
-
     try:
-        _netrc = netrc(netrc_path).authenticators(host)
-        if _netrc:
-            # Return with login / password
-            login_i = (0 if _netrc[0] else 1)
-            return (_netrc[login_i], _netrc[2])
-    except (NetrcParseError, IOError, AttributeError):
-        # If there was a parsing error or a permissions issue reading the file,
-        # we'll just skip netrc auth
+        locations = (os.path.expanduser('~/{0}'.format(f)) for f in NETRC_FILES)
+        netrc_path = None
+
+        for loc in locations:
+            if os.path.exists(loc) and not netrc_path:
+                netrc_path = loc
+
+        # Abort early if there isn't one.
+        if netrc_path is None:
+            return netrc_path
+
+        ri = urlparse(url)
+
+        # Strip port numbers from netloc
+        host = ri.netloc.split(':')[0]
+
+        try:
+            _netrc = netrc(netrc_path).authenticators(host)
+            if _netrc:
+                # Return with login / password
+                login_i = (0 if _netrc[0] else 1)
+                return (_netrc[login_i], _netrc[2])
+        except (NetrcParseError, IOError):
+            # If there was a parsing error or a permissions issue reading the file,
+            # we'll just skip netrc auth
+            pass
+
+    # AppEngine hackiness.
+    except AttributeError:
         pass
+
 
 
 def dict_from_string(s):
