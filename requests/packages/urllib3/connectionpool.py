@@ -260,10 +260,11 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         httplib_response = conn.getresponse()
 
-        log.debug("\"%s %s %s\" %s %s" %
-                  (method, url,
-                   conn._http_vsn_str, # pylint: disable-msg=W0212
-                   httplib_response.status, httplib_response.length))
+        # AppEngine doesn't have a version attr.
+        http_version = getattr(conn, '_http_vsn_str', 'HTTP/?'),
+        log.debug("\"%s %s %s\" %s %s" % (method, url, http_version,
+                                          httplib_response.status,
+                                          httplib_response.length))
 
         return httplib_response
 
