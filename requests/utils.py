@@ -59,7 +59,7 @@ def get_netrc_auth(url):
             # Return with login / password
             login_i = (0 if _netrc[0] else 1)
             return (_netrc[login_i], _netrc[2])
-    except (NetrcParseError, IOError):
+    except (NetrcParseError, IOError, AttributeError):
         # If there was a parsing error or a permissions issue reading the file,
         # we'll just skip netrc auth
         pass
