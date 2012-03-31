@@ -1,6 +1,14 @@
 History
 -------
 
+
+0.11.1 (2012-03-30)
++++++++++++++++++++
+
+* POST redirects now break RFC to do what browsers do: Follow up with a GET.
+* New ``strict_mode`` configuration to disable new redirect behavior.
+
+
 0.11.0 (2012-03-14)
 +++++++++++++++++++
 
