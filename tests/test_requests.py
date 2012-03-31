@@ -29,7 +29,6 @@ HTTPBIN_URL = os.environ.get('HTTPBIN_URL')
 
 def httpbin(*suffix):
     """Returns url for HTTPBIN resource."""
-
     return HTTPBIN_URL + '/'.join(suffix)
 
 
@@ -77,11 +76,11 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         self.assertEqual(request.path_url, "/get/test%20case")
 
     def test_HTTP_200_OK_GET(self):
-        r = get(httpbin('/get'))
+        r = get(httpbin('get'))
         self.assertEqual(r.status_code, 200)
 
     def test_response_sent(self):
-        r = get(httpbin('/get'))
+        r = get(httpbin('get'))
 
         self.assertTrue(r.request.sent)
 
@@ -204,7 +203,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         self.assertTrue(heads['user-agent'] in r.text)
 
     def test_HTTP_200_OK_HEAD(self):
-        r = head(httpbin('/get'))
+        r = head(httpbin('get'))
         self.assertEqual(r.status_code, 200)
 
     def test_HTTP_200_OK_PUT(self):
@@ -533,7 +532,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
     def test_session_HTTP_200_OK_GET(self):
 
         s = requests.session()
-        r = get(httpbin('/get'), session=s)
+        r = get(httpbin('get'), session=s)
         self.assertEqual(r.status_code, 200)
 
     def test_session_persistent_headers(self):
