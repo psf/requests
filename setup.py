@@ -51,7 +51,7 @@ setup(
     package_data={'': ['LICENSE', 'NOTICE']},
     include_package_data=True,
     install_requires=required,
-    license=open("LICENSE").read(
+    license=open("LICENSE").read(),
     classifiers=(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
