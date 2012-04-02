@@ -92,3 +92,4 @@ Patches and Suggestions
 - Jonathan Drosdeck
 - Jiri Machalek
 - Steve Pulec
+- Michael Kelly
