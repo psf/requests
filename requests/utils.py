@@ -14,7 +14,6 @@ import codecs
 import os
 import random
 import re
-import traceback
 import zlib
 from netrc import netrc, NetrcParseError
 
@@ -24,6 +23,15 @@ from .compat import basestring, bytes, str
 
 
 NETRC_FILES = ('.netrc', '_netrc')
+
+
+def dict_to_sequence(d):
+    """Returns an internal sequence dictionary update."""
+
+    if hasattr(d, 'items'):
+        d = d.items()
+
+    return d
 
 
 def get_netrc_auth(url):
@@ -51,7 +59,7 @@ def get_netrc_auth(url):
             # Return with login / password
             login_i = (0 if _netrc[0] else 1)
             return (_netrc[login_i], _netrc[2])
-    except (NetrcParseError, IOError):
+    except (NetrcParseError, IOError, AttributeError):
         # If there was a parsing error or a permissions issue reading the file,
         # we'll just skip netrc auth
         pass

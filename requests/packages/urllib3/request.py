@@ -44,7 +44,7 @@ class RequestMethods(object):
 
     def urlopen(self, method, url, body=None, headers=None,
                 encode_multipart=True, multipart_boundary=None,
-                **kw):
+                **kw): # Abstract
         raise NotImplemented("Classes extending RequestMethods must implement "
                              "their own ``urlopen`` method.")
 
@@ -126,22 +126,3 @@ class RequestMethods(object):
 
         return self.urlopen(method, url, body=body, headers=headers,
                             **urlopen_kw)
-
-    # Deprecated:
-
-    def get_url(self, url, fields=None, **urlopen_kw):
-        """
-        .. deprecated:: 1.0
-           Use :meth:`request` instead.
-        """
-        return self.request_encode_url('GET', url, fields=fields,
-                                       **urlopen_kw)
-
-    def post_url(self, url, fields=None, headers=None, **urlopen_kw):
-        """
-        .. deprecated:: 1.0
-           Use :meth:`request` instead.
-        """
-        return self.request_encode_body('POST', url, fields=fields,
-                                        headers=headers,
-                                        **urlopen_kw)

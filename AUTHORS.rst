@@ -88,4 +88,7 @@ Patches and Suggestions
 - Chris Dary
 - Danver Braganza <danverbraganza@gmail.com>
 - Max Countryman
-- Adam McKerlie (silent1mezzo)
+- Nick Chadwick
+- Jonathan Drosdeck
+- Jiri Machalek
+- Steve Pulec

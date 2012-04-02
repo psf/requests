@@ -1,6 +1,22 @@
 History
 -------
 
+
+0.11.1 (2012-03-30)
++++++++++++++++++++
+
+* POST redirects now break RFC to do what browsers do: Follow up with a GET.
+* New ``strict_mode`` configuration to disable new redirect behavior.
+
+
+0.11.0 (2012-03-14)
++++++++++++++++++++
+
+* Private SSL Certificate support
+* Remove select.poll from Gevent monkeypatching
+* Remove redundant generator for chunked transfer encoding
+* Fix: Response.ok raises Timeout Exception in safe_mode
+
 0.10.8 (2012-03-09)
 +++++++++++++++++++
 

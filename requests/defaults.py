@@ -15,10 +15,12 @@ Configurations:
 :max_retries: The number of times a request should be retried in the event of a connection failure.
 :danger_mode: If true, Requests will raise errors immediately.
 :safe_mode: If true, Requests will catch all errors.
+:strict_mode: If true, Requests will do its best to follow RFCs (e.g. POST redirects).
 :pool_maxsize: The maximium size of an HTTP connection pool.
 :pool_connections: The number of active HTTP connection pools to use.
 :encode_uri: If true, URIs will automatically be percent-encoded.
 :trust_env: If true, the surrouding environment will be trusted (environ, netrc).
+
 """
 
 SCHEMAS = ['http', 'https']
@@ -41,6 +43,7 @@ defaults['pool_maxsize'] = 10
 defaults['max_retries'] = 0
 defaults['danger_mode'] = False
 defaults['safe_mode'] = False
+defaults['strict_mode'] = False
 defaults['keep_alive'] = True
 defaults['encode_uri'] = True
 defaults['trust_env'] = True

@@ -171,11 +171,22 @@ class HTTPResponse(object):
         with ``original_response=r``.
         """
 
+        # Normalize headers between different versions of Python
+        headers = {}
+        for k, v in r.getheaders():
+            # Python 3: Header keys are returned capitalised
+            k = k.lower()
+
+            has_value = headers.get(k)
+            if has_value: # Python 3: Repeating header keys are unmerged.
+                v = ', '.join([has_value, v])
+
+            headers[k] = v
+
         # HTTPResponse objects in Python 3 don't have a .strict attribute
         strict = getattr(r, 'strict', 0)
         return ResponseCls(body=r,
-                           # In Python 3, the header keys are returned capitalised
-                           headers=dict((k.lower(), v) for k,v in r.getheaders()),
+                           headers=headers,
                            status=r.status,
                            version=r.version,
                            reason=r.reason,
