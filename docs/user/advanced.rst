@@ -135,7 +135,7 @@ we'll send them all at the same time with ``async.map()``.  Using ``async.map()`
 will also guarantee execution of the ``response`` hook, described below. ::
 
     >>> responses = async.map(rs)
-    >>> repsonses
+    >>> responses
     [<Response [200]>, <Response [200]>, <Response [200]>, <Response [200]>]
 
 .. admonition:: Throttling
