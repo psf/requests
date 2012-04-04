@@ -441,28 +441,25 @@ def stream_untransfer(gen, resp):
 
 
 # The unreserved URI characters (RFC 3986)
-UNRESERVED_SET = frozenset(
+_unreserved_set = frozenset(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     + "0123456789-._~")
 
+_unreserved_hextochr = dict((c.encode('hex'), c) for c in _unreserved_set)
 
 def unquote_unreserved(uri):
     """Un-escape any percent-escape sequences in a URI that are unreserved
     characters.
     This leaves all reserved, illegal and non-ASCII bytes encoded.
     """
-    parts = uri.split('%')
-    for i in range(1, len(parts)):
-        h = parts[i][0:2]
-        if len(h) == 2:
-            c = chr(int(h, 16))
-            if c in UNRESERVED_SET:
-                parts[i] = c + parts[i][2:]
-            else:
-                parts[i] = '%' + parts[i]
-        else:
-            parts[i] = '%' + parts[i]
-    return ''.join(parts)
+    res = uri.split('%')
+    s = res[0]
+    for item in res[1:]:
+        try:
+            s += _unreserved_hextochr[item[:2].lower()] + item[2:]
+        except (KeyError, UnicodeDecodeError):
+            s += '%' + item
+    return s
 
 
 def requote_uri(uri):

@@ -94,3 +94,4 @@ Patches and Suggestions
 - Steve Pulec
 - Michael Kelly
 - Michael Newman <newmaniese@gmail.com>
+- Jonty Wareing <jonty@jonty.co.uk>
