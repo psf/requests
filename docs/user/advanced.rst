@@ -276,8 +276,8 @@ To use the Twitter Streaming API to track the keyword "requests":
         data={'track': 'requests'}, auth=('username', 'password'))
 
     for line in r.iter_lines():
-	    if line: # filter out keep-alive new lines
-		    print json.loads(line)
+        if line: # filter out keep-alive new lines
+            print json.loads(line)
 
 
 Verbose Logging
