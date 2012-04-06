@@ -18,7 +18,7 @@ if sys.argv[-1] == 'publish':
     sys.exit()
 
 if sys.argv[-1] == 'test':
-    os.system('python test_requests.py')
+    os.system('python tests/test_requests.py')
     sys.exit()
 
 required = ['certifi>=0.0.7',]
