@@ -93,3 +93,4 @@ Patches and Suggestions
 - Jiri Machalek
 - Steve Pulec
 - Michael Kelly
+- Adam McKerlie (silent1mezzo)

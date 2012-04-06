@@ -29,5 +29,6 @@ from .sessions import session, Session
 from .status_codes import codes
 from .exceptions import (
     RequestException, Timeout, URLRequired,
-    TooManyRedirects, HTTPError, ConnectionError
+    TooManyRedirects, HTTPError, ConnectionError,
+    MissingSchema, InvalidSchema
 )
