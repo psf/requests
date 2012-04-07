@@ -92,6 +92,10 @@ class Request(object):
         #: :class:`Request <Request>`.
         self.params = None
 
+        #: The content of a :class:`Request <Request>`.
+        self._content = None  # unmodified
+        self.content = None  # modified
+
         #: True if :class:`Request <Request>` is part of a redirect chain (disables history
         #: and HTTPError storage).
         self.redirect = redirect
@@ -410,7 +414,8 @@ class Request(object):
             ))
 
         # Nottin' on you.
-        body = None
+        self._content = None
+        self.content = None
         content_type = None
 
         # Multi-part file uploads.
@@ -431,14 +436,14 @@ class Request(object):
                         fp = v
                     fields.update({k: (fn, fp.read())})
 
-                (body, content_type) = encode_multipart_formdata(fields)
+                (self._content, content_type) = encode_multipart_formdata(fields)
             else:
                 pass
                 # TODO: Conflict?
         else:
             if self.data:
 
-                body = self._enc_data
+                self._content = self._enc_data
                 if isinstance(self.data, str):
                     content_type = None
                 else:
@@ -538,7 +543,7 @@ class Request(object):
                     r = conn.urlopen(
                         method=self.method,
                         url=self.path_url,
-                        body=body,
+                        body=self.content or self._content,
                         headers=self.headers,
                         redirect=False,
                         assert_same_host=False,
