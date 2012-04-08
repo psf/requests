@@ -623,7 +623,7 @@ class Response(object):
 
     def __init__(self):
 
-        self._content = None
+        self._content = False
         self._content_consumed = False
 
         #: Integer Code of responded HTTP Status.
@@ -736,7 +736,7 @@ class Response(object):
     def content(self):
         """Content of the response, in bytes."""
 
-        if self._content is None:
+        if self._content is False:
             # Read the contents.
             try:
                 if self._content_consumed:
@@ -751,7 +751,7 @@ class Response(object):
             except AttributeError:
                 self._content = None
 
-        self._content_consumed = True
+        self._content_consumed = True        
         return self._content
 
     def _detected_encoding(self):
