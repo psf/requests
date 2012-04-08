@@ -800,7 +800,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         r = requests.get(httpbin('status', '404'))
         r.text
 
-    def test_no_conent(self):
+    def test_no_content(self):
         r = requests.get(httpbin('status', "0"), config={"safe_mode":True})
         r.content
         r.content
