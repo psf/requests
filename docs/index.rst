@@ -34,7 +34,8 @@ Requests takes all of the work out of Python HTTP/1.1 — making your integrati
 Testimonials
 ------------
 
-`PayPal <https://www.paypal.com/>`_,
+`Heroku <http://heroku.com>`_, `PayPal <https://www.paypal.com/>`_,
+`Transifex <https://www.transifex.net/>`_,
 `Native Instruments <http://www.native-instruments.com/>`_, `The Washington Post <http://www.washingtonpost.com/>`_,
 `Twitter, Inc <http://twitter.com>`_,
 `Readability <http://readability.com>`_, and
