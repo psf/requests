@@ -90,7 +90,8 @@ class Request(object):
         self.data = None
 
         #: Dictionary or byte of querystring data to attach to the
-        #: :class:`Request <Request>`.
+        #: :class:`Request <Request>`. The dictionary values can be lists for representing
+        #: multivalued query parameters.
         self.params = None
 
         #: True if :class:`Request <Request>` is part of a redirect chain (disables history
