@@ -74,21 +74,21 @@ class HTTPDigestAuth(AuthBase):
             algorithm = algorithm.upper()
             # lambdas assume digest modules are imported at the top level
             if algorithm == 'MD5':
-                def h(x):
+                def md5_utf8(x):
                     if isinstance(x, str):
                         x = x.encode('utf-8')
                     return hashlib.md5(x).hexdigest()
-                H = h
+                hash_utf8 = md5_utf8
             elif algorithm == 'SHA':
-                def h(x):
+                def sha_utf8(x):
                     if isinstance(x, str):
                         x = x.encode('utf-8')
                     return hashlib.sha1(x).hexdigest()
-                H = h
+                hash_utf8 = sha_utf8
             # XXX MD5-sess
-            KD = lambda s, d: H("%s:%s" % (s, d))
+            KD = lambda s, d: hash_utf8("%s:%s" % (s, d))
 
-            if H is None:
+            if hash_utf8 is None:
                 return None
 
             # XXX not implemented yet
@@ -115,10 +115,10 @@ class HTTPDigestAuth(AuthBase):
                 s += randombytes(8)
 
                 cnonce = (hashlib.sha1(s).hexdigest()[:16])
-                noncebit = "%s:%s:%s:%s:%s" % (nonce, ncvalue, cnonce, qop, H(A2))
-                respdig = KD(H(A1), noncebit)
+                noncebit = "%s:%s:%s:%s:%s" % (nonce, ncvalue, cnonce, qop, hash_utf8(A2))
+                respdig = KD(hash_utf8(A1), noncebit)
             elif qop is None:
-                respdig = KD(H(A1), "%s:%s" % (nonce, H(A2)))
+                respdig = KD(hash_utf8(A1), "%s:%s" % (nonce, hash_utf8(A2)))
             else:
                 # XXX handle auth-int.
                 return None
