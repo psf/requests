@@ -1,2 +1,5 @@
 nose
 rudolf2
+
+# equivalent to "setup.py develop"
+-e .
