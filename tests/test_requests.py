@@ -781,6 +781,13 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
         requests.get(httpbin('post'), auth=('a', 'b'), data='\xff')
 
+    def test_useful_exception_for_invalid_port(self):
+        # If we pass a legitimate URL with an invalid port, we should fail.
+        self.assertRaises(
+              ValueError,
+              get,
+              'http://google.com:banana')
+
     def test_useful_exception_for_invalid_scheme(self):
 
         # If we pass a legitimate URL with a scheme not supported
