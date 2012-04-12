@@ -11,9 +11,11 @@ import time
 import hashlib
 
 from base64 import b64encode
+from oauthlib.oauth1.rfc5849 import (Client, SIGNATURE_HMAC, SIGNATURE_RSA,
+    SIGNATURE_PLAINTEXT, SIGNATURE_TYPE_AUTH_HEADER, SIGNATURE_TYPE_QUERY,
+    SIGNATURE_TYPE_BODY)
 from .compat import urlparse, str
 from .utils import randombytes, parse_dict_header
-
 
 
 def _basic_auth_str(username, password):
@@ -27,6 +29,47 @@ class AuthBase(object):
 
     def __call__(self, r):
         raise NotImplementedError('Auth hooks must be callable.')
+
+
+class OAuth1(AuthBase):
+    """Signs the request using OAuth 1 (RFC5849)"""
+    def __init__(self, client_key,
+            client_secret=None,
+            resource_owner_key=None,
+            resource_owner_secret=None,
+            callback_uri=None,
+            signature_method=SIGNATURE_HMAC,
+            signature_type=SIGNATURE_TYPE_AUTH_HEADER,
+            rsa_key=None, verifier=None):
+        self.client = Client(client_key, client_secret, resource_owner_key,
+            resource_owner_secret, callback_uri, signature_method,
+            signature_type, rsa_key, verifier)
+
+    def __call__(self, r):
+        if (r.files or
+            r.headers['Content-Type'] != 'application/x-www-form-urlencoded'):
+
+            # XXX TODO can we use body signatures with a non formencoded body?
+            if self.client.signature_type == SIGNATURE_TYPE_BODY:
+                raise ValueError('Body signatures may not be used with non-form-urlencoded content')
+
+            # Spec only specifies signing of application/x-www-form-urlencoded
+            # params. Files don't get signed either.
+            body = u''
+            alter_body = False  # we shouldn't touch the body
+        else:
+            body = r.data  # OAuthLib is cool with both strings and dicts.
+            if isinstance(str, body):
+                # XXX gross hack. We must pass unicode...
+                body = unicode(body, 'utf-8')
+            alter_body = True
+
+        full_url, new_body, headers = self.client.sign(r.url, unicode(r.method), body, r.headers)
+        r.url = full_url
+        if alter_body:
+            r.data = new_body
+        r.headers = headers
+        return r
 
 
 class HTTPBasicAuth(AuthBase):
