@@ -272,6 +272,20 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
             r = get(url, session=s)
             self.assertEqual(r.status_code, 200)
 
+    def test_DIGESTAUTH_WRONG_HTTP_401_GET(self):
+
+        for service in SERVICES:
+
+            auth = HTTPDigestAuth('user', 'wrongpass')
+            url = service('digest-auth', 'auth', 'user', 'pass')
+
+            r = get(url, auth=auth)
+            self.assertEqual(r.status_code, 401)
+
+            s = requests.session(auth=auth)
+            r = get(url, session=s)
+            self.assertEqual(r.status_code, 401)
+
     def test_POSTBIN_GET_POST_FILES(self):
 
         for service in SERVICES:
