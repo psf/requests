@@ -408,7 +408,18 @@ class Request(object):
     def register_hook(self, event, hook):
         """Properly register a hook."""
 
-        return self.hooks[event].append(hook)
+        self.hooks[event].append(hook)
+
+    def deregister_hook(self,event,hook):
+        """Deregister a previously registered hook.
+        Returns True if the hook existed, False if not.
+        """
+
+        try:
+            self.hooks[event].remove(hook)
+            return True
+        except ValueError:
+            return False
 
     def send(self, anyway=False, prefetch=False):
         """Sends the request. Returns True of successful, False if not.
