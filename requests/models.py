@@ -16,7 +16,7 @@ from .status_codes import codes
 
 from .auth import HTTPBasicAuth, HTTPProxyAuth
 from .packages.urllib3.response import HTTPResponse
-from .packages.urllib3.exceptions import MaxRetryError
+from .packages.urllib3.exceptions import MaxRetryError, LocationParseError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .packages.urllib3 import connectionpool, poolmanager
@@ -24,7 +24,7 @@ from .packages.urllib3.filepost import encode_multipart_formdata
 from .defaults import SCHEMAS
 from .exceptions import (
     ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
-    URLRequired, SSLError, MissingSchema, InvalidSchema)
+    URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
     dict_from_string, stream_decode_response_unicode, get_netrc_auth)
@@ -497,11 +497,14 @@ class Request(object):
                 self.__dict__.update(r.__dict__)
         else:
             # Check to see if keep_alive is allowed.
-            if self.config.get('keep_alive'):
-                conn = self._poolmanager.connection_from_url(url)
-            else:
-                conn = connectionpool.connection_from_url(url)
-
+            try:
+                if self.config.get('keep_alive'):
+                    conn = self._poolmanager.connection_from_url(url)
+                else:
+                    conn = connectionpool.connection_from_url(url)
+            except LocationParseError as e:
+                raise InvalidURL(e)
+                
         if url.startswith('https') and self.verify:
 
             cert_loc = None
