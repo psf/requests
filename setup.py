@@ -21,7 +21,7 @@ if sys.argv[-1] == 'test':
     os.system('python tests/test_requests.py')
     sys.exit()
 
-required = ['certifi>=0.0.7',]
+required = ['certifi>=0.0.7','oauthlib']
 packages = [
     'requests',
     'requests.packages',
