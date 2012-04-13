@@ -52,7 +52,7 @@ class Session(object):
 
     __attrs__ = [
         'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
-        'params', 'config', 'verify', 'cert']
+        'params', 'config', 'verify', 'cert', 'prefetch']
 
 
     def __init__(self,
@@ -179,6 +179,7 @@ class Session(object):
             allow_redirects=allow_redirects,
             proxies=proxies,
             config=config,
+            prefetch=prefetch,
             verify=verify,
             cert=cert,
             _poolmanager=self.poolmanager
