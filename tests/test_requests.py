@@ -708,6 +708,22 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         self.assertEqual(s.cookies, ds.cookies)
         self.assertEqual(s.auth, ds.auth)
 
+    def test_unpickled_session_requests(self):
+        s = requests.session()
+        r = get(httpbin('cookies', 'set', 'k', 'v'), allow_redirects=True, session=s)
+        c = json.loads(r.text).get('cookies')
+        assert 'k' in c
+
+        ds = pickle.loads(pickle.dumps(s))
+        r = get(httpbin('cookies'), session=ds)
+        c = json.loads(r.text).get('cookies')
+        assert 'k' in c
+
+        ds1 = pickle.loads(pickle.dumps(requests.session()))
+        ds2 = pickle.loads(pickle.dumps(requests.session(prefetch=True)))
+        assert not ds1.prefetch
+        assert ds2.prefetch
+
     def test_invalid_content(self):
         # WARNING: if you're using a terrible DNS provider (comcast),
         # this will fail.
