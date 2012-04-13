@@ -80,7 +80,7 @@ class Request(object):
         self.headers = dict(headers or [])
 
         #: Dictionary of files to multipart upload (``{filename: content}``).
-        self.files = files
+        self.files = None
 
         #: HTTP Method to use.
         self.method = method
@@ -114,6 +114,7 @@ class Request(object):
 
         self.data, self._enc_data = self._encode_params(data)
         self.params, self._enc_params = self._encode_params(params)
+        self.files, self._enc_files = self._encode_files(files)
 
         #: :class:`Response <Response>` instance, containing
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
@@ -329,6 +330,29 @@ class Request(object):
         else:
             return data, data
 
+    def _encode_files(self,files):
+
+        if (not files) or isinstance(self.data, str):
+            return None, None
+
+        try:
+            fields = self.data.copy()
+        except AttributeError:
+            fields = dict(self.data)
+
+        for (k, v) in list(files.items()):
+            # support for explicit filename
+            if isinstance(v, (tuple, list)):
+                fn, fp = v
+            else:
+                fn = guess_filename(v) or k
+                fp = v
+            fields.update({k: (fn, fp.read())})
+
+        (body, content_type) = encode_multipart_formdata(fields)
+
+        return files, (body, content_type)
+
     @property
     def full_url(self):
         """Build the actual URL to use."""
@@ -408,7 +432,18 @@ class Request(object):
     def register_hook(self, event, hook):
         """Properly register a hook."""
 
-        return self.hooks[event].append(hook)
+        self.hooks[event].append(hook)
+
+    def deregister_hook(self,event,hook):
+        """Deregister a previously registered hook.
+        Returns True if the hook existed, False if not.
+        """
+
+        try:
+            self.hooks[event].remove(hook)
+            return True
+        except ValueError:
+            return False
 
     def send(self, anyway=False, prefetch=False):
         """Sends the request. Returns True of successful, False if not.
@@ -436,26 +471,7 @@ class Request(object):
 
         # Multi-part file uploads.
         if self.files:
-            if not isinstance(self.data, str):
-
-                try:
-                    fields = self.data.copy()
-                except AttributeError:
-                    fields = dict(self.data)
-
-                for (k, v) in list(self.files.items()):
-                    # support for explicit filename
-                    if isinstance(v, (tuple, list)):
-                        fn, fp = v
-                    else:
-                        fn = guess_filename(v) or k
-                        fp = v
-                    fields.update({k: (fn, fp.read())})
-
-                (body, content_type) = encode_multipart_formdata(fields)
-            else:
-                pass
-                # TODO: Conflict?
+            (body, content_type) = self._enc_files
         else:
             if self.data:
 
@@ -755,7 +771,7 @@ class Response(object):
             except AttributeError:
                 self._content = None
 
-        self._content_consumed = True        
+        self._content_consumed = True
         return self._content
 
     def _detected_encoding(self):
