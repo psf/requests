@@ -61,6 +61,7 @@ class Request(object):
         proxies=None,
         hooks=None,
         config=None,
+        prefetch=False,
         _poolmanager=None,
         verify=None,
         session=None,
@@ -148,6 +149,9 @@ class Request(object):
 
         #: SSL Certificate
         self.cert = cert
+
+        #: Prefetch response content
+        self.prefetch = prefetch
 
         if headers:
             headers = CaseInsensitiveDict(self.headers)
@@ -624,7 +628,7 @@ class Request(object):
             self.__dict__.update(r.__dict__)
 
             # If prefetch is True, mark content as consumed.
-            if prefetch:
+            if prefetch or self.prefetch:
                 # Save the response.
                 self.response.content
 
