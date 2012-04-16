@@ -27,7 +27,7 @@ from .exceptions import (
     URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
-    dict_from_string, stream_decode_response_unicode, get_netrc_auth)
+    dict_from_string, stream_decode_response_unicode, get_netrc_auth, CA_BUNDLE_PATH)
 from .compat import (
     urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
     SimpleCookie, is_py2)
@@ -524,7 +524,7 @@ class Request(object):
                     conn = connectionpool.connection_from_url(url)
             except LocationParseError as e:
                 raise InvalidURL(e)
-                
+
         if url.startswith('https') and self.verify:
 
             cert_loc = None
@@ -537,9 +537,13 @@ class Request(object):
             if not cert_loc and self.config.get('trust_env'):
                 cert_loc = os.environ.get('REQUESTS_CA_BUNDLE')
 
-            # Curl compatiblity.
+            # Curl compatibility.
             if not cert_loc and self.config.get('trust_env'):
                 cert_loc = os.environ.get('CURL_CA_BUNDLE')
+
+            # Use the operating system's bundle, if it can be found.
+            if not cert_loc:
+                cert_loc = CA_BUNDLE_PATH
 
             # Use the awesome certifi list.
             if not cert_loc:

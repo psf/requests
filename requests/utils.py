@@ -24,6 +24,21 @@ from .compat import basestring, bytes, str
 
 NETRC_FILES = ('.netrc', '_netrc')
 
+# common paths for the OS's CA certificate bundle
+POSSIBLE_CA_BUNDLE_PATHS = [
+        # Red Hat, CentOS, Fedora and friends:
+        '/etc/pki/tls/certs/ca-bundle.crt',
+        # Ubuntu and friends:
+        '/etc/ssl/certs/ca-certificates.crt',
+]
+
+def get_ca_bundle_path():
+    """Try to pick an available CA certificate bundle provided by the OS."""
+    for path in POSSIBLE_CA_BUNDLE_PATHS:
+        if os.path.exists(path):
+            return path
+
+CA_BUNDLE_PATH = get_ca_bundle_path()
 
 def dict_to_sequence(d):
     """Returns an internal sequence dictionary update."""
