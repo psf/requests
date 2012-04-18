@@ -133,7 +133,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         # Tests:
         # - Bare illegal characters (space, '<')
         # - Bare non-ASCII characters ('\u00d8')
-        path = u'<a%25b%23c%2Fd%3E/\u00d8 %C3%A5'
+        path = '<a%25b%23c%2Fd%3E/\u00d8 %C3%A5'
         url = httpbin('get/' + path)
         response = get(url)
         self.assertEqual(response.url, httpbin('get/' + path_fully_escaped))
@@ -166,7 +166,7 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         response = get(url)
         self.assertEqual(response.url, httpbin('get/?' + query_fully_escaped))
 
-        query = u'<a%25b%23c%2Fd%3E=\u00d8 %C3%A5'
+        query = '<a%25b%23c%2Fd%3E=\u00d8 %C3%A5'
         url = httpbin('get/?' + query)
         response = get(url)
         self.assertEqual(response.url, httpbin('get/?' + query_fully_escaped))
