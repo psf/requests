@@ -37,14 +37,12 @@ else:
     required.append('chardet>=1.0.0')
     packages.append('requests.packages.oreos')
 
-def get_file_contents(file_path, curfile=__file__ or ''):
+package_directory = os.path.realpath(os.path.dirname(__file__))
+
+def get_file_contents(file_path):
   """Get the context of the file using full path name"""
-  try:
-    full_path = os.path.join(os.path.realpath(os.path.dirname(curfile)), 
-                             file_path)
-    return open(full_path, 'r').read()
-  except (IOError, NameError, TypeError):
-    return ""
+  full_path = os.path.join(package_directory, file_path)
+  return open(full_path, 'r').read()
 
 
 setup(
@@ -60,7 +58,7 @@ setup(
     package_data={'': ['LICENSE', 'NOTICE']},
     include_package_data=True,
     install_requires=required,
-    license=get_file_contents('README'),
+    license=get_file_contents('LICENSE'),
     classifiers=(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
