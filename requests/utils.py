@@ -30,6 +30,8 @@ POSSIBLE_CA_BUNDLE_PATHS = [
         '/etc/pki/tls/certs/ca-bundle.crt',
         # Ubuntu and friends:
         '/etc/ssl/certs/ca-certificates.crt',
+        # FreeBSD (provided by the ca_root_nss package):
+        '/usr/local/share/certs/ca-root-nss.crt',
 ]
 
 def get_ca_bundle_path():
