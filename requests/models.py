@@ -348,7 +348,7 @@ class Request(object):
             else:
                 fn = guess_filename(v) or k
                 fp = v
-            if isinstance(fp, bytes):
+            if isinstance(fp, (bytes, str)):
                 fp = StringIO(fp)
             fields.update({k: (fn, fp.read())})
 
