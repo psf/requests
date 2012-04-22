@@ -65,7 +65,8 @@ class OAuth1(AuthBase):
                 body = unicode(body, 'utf-8')
             alter_body = True
 
-        full_url, new_body, headers = self.client.sign(r.url, unicode(r.method), body, r.headers)
+        full_url, headers, new_body = self.client.sign(r.url, unicode(r.method), body, r.headers)
+
         r.url = full_url
         if alter_body:
             r.data = new_body
