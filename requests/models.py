@@ -312,9 +312,13 @@ class Request(object):
     def _encode_params(data):
         """Encode parameters in a piece of data.
 
-        If the data supplied is a dictionary, encodes each parameter in it, and
-        returns a list of tuples containing the encoded parameters, and a urlencoded
-        version of that.
+        Will successfully encode parameters when passed as a dict or a list of
+        2-tuples. Order is retained if data is a list of 2-tuples but abritrary
+        if parameters are supplied as a dict.
+
+        If the data supplied contains parameters, encodes each parameter in it,
+        and returns a list of tuples containing the encoded parameters, and a
+        urlencoded version of that.
 
         Otherwise, assumes the data is already encoded appropriately, and
         returns it twice.
@@ -322,13 +326,15 @@ class Request(object):
 
         if isinstance(data, bytes):
             return data, data
+        elif hasattr(data, '__iter__'):
+            try:
+                dict(data)
+            except ValueError:
+                raise ValueError('Unable to encode lists with elements that are not 2-tuples.')
 
-        if hasattr(data, '__iter__') and not isinstance(data, str):
-            data = dict(data)
-
-        if hasattr(data, 'items'):
+            params = list(data.items() if isinstance(data, dict) else data)
             result = []
-            for k, vs in list(data.items()):
+            for k, vs in params:
                 for v in isinstance(vs, list) and vs or [vs]:
                     result.append(
                         (k.encode('utf-8') if isinstance(k, types.StringType) else k,
