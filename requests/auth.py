@@ -46,8 +46,9 @@ class OAuth1(AuthBase):
             signature_type, rsa_key, verifier)
 
     def __call__(self, r):
+        contenttype = r.headers.get('Content-Type')
         if (r.files or
-            r.headers['Content-Type'] != 'application/x-www-form-urlencoded'):
+            (contenttype and contenttype != 'application/x-www-form-urlencoded')):
 
             # XXX TODO can we use body signatures with a non formencoded body?
             if self.client.signature_type == SIGNATURE_TYPE_BODY:
@@ -59,7 +60,7 @@ class OAuth1(AuthBase):
             alter_body = False  # we shouldn't touch the body
         else:
             body = r.data  # OAuthLib is cool with both strings and dicts.
-            if isinstance(str, body):
+            if isinstance(body, str):
                 # XXX gross hack. We must pass unicode...
                 body = unicode(body, 'utf-8')
             alter_body = True
