@@ -183,6 +183,13 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         response = get(url)
         self.assertEqual(response.url, httpbin('get/?' + query_unreserved))
 
+        # We should ignore invalid %encodings
+        request = requests.Request("http://0.0.0.0/get/%TEST")
+        self.assertEqual(request.path_url, "/get/%TEST")
+
+        request = requests.Request("http://0.0.0.0/get/%%TEST%%")
+        self.assertEqual(request.path_url, "/get/%%TEST%%")
+
     def test_user_agent_transfers(self):
         """Issue XX"""
 
