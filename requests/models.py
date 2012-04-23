@@ -27,7 +27,8 @@ from .exceptions import (
     URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
-    dict_from_string, stream_decode_response_unicode, get_netrc_auth, CA_BUNDLE_PATH)
+    dict_from_string, stream_decode_response_unicode, get_netrc_auth,
+    DEFAULT_CA_BUNDLE_PATH)
 from .compat import (
     urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
     SimpleCookie, is_py2)
@@ -541,13 +542,11 @@ class Request(object):
             if not cert_loc and self.config.get('trust_env'):
                 cert_loc = os.environ.get('CURL_CA_BUNDLE')
 
-            # Use the operating system's bundle, if it can be found.
             if not cert_loc:
-                cert_loc = CA_BUNDLE_PATH
+                cert_loc = DEFAULT_CA_BUNDLE_PATH
 
-            # Use the awesome certifi list.
             if not cert_loc:
-                cert_loc = __import__('certifi').where()
+                raise Exception("Could not find a suitable SSL CA certificate bundle.")
 
             conn.cert_reqs = 'CERT_REQUIRED'
             conn.ca_certs = cert_loc

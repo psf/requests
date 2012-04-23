@@ -21,26 +21,36 @@ from .compat import parse_http_list as _parse_list_header
 from .compat import quote, cookielib, SimpleCookie, is_py2, urlparse
 from .compat import basestring, bytes, str
 
+CERTIFI_BUNDLE_PATH = None
+try:
+    # see if requests's own CA certificate bundle is installed
+    import certifi
+    CERTIFI_BUNDLE_PATH = certifi.where()
+except ImportError:
+    pass
 
 NETRC_FILES = ('.netrc', '_netrc')
 
 # common paths for the OS's CA certificate bundle
 POSSIBLE_CA_BUNDLE_PATHS = [
-        # Red Hat, CentOS, Fedora and friends:
+        # Red Hat, CentOS, Fedora and friends (provided by the ca-certificates package):
         '/etc/pki/tls/certs/ca-bundle.crt',
-        # Ubuntu and friends:
+        # Ubuntu, Debian, and friends (provided by the ca-certificates package):
         '/etc/ssl/certs/ca-certificates.crt',
         # FreeBSD (provided by the ca_root_nss package):
         '/usr/local/share/certs/ca-root-nss.crt',
 ]
 
-def get_ca_bundle_path():
+def get_os_ca_bundle_path():
     """Try to pick an available CA certificate bundle provided by the OS."""
     for path in POSSIBLE_CA_BUNDLE_PATHS:
         if os.path.exists(path):
             return path
+    return None
 
-CA_BUNDLE_PATH = get_ca_bundle_path()
+# if certifi is installed, use its CA bundle;
+# otherwise, try and use the OS bundle
+DEFAULT_CA_BUNDLE_PATH = CERTIFI_BUNDLE_PATH or get_os_ca_bundle_path()
 
 def dict_to_sequence(d):
     """Returns an internal sequence dictionary update."""
