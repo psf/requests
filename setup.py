@@ -37,13 +37,20 @@ else:
     required.append('chardet>=1.0.0')
     packages.append('requests.packages.oreos')
 
+package_directory = os.path.realpath(os.path.dirname(__file__))
+
+def get_file_contents(file_path):
+  """Get the context of the file using full path name"""
+  full_path = os.path.join(package_directory, file_path)
+  return open(full_path, 'r').read()
+
 
 setup(
     name='requests',
     version=requests.__version__,
     description='Python HTTP for Humans.',
-    long_description=open('README.rst').read() + '\n\n' +
-                     open('HISTORY.rst').read(),
+    long_description=get_file_contents('README.rst') + '\n\n' +
+                     get_file_contents('HISTORY.rst'),
     author='Kenneth Reitz',
     author_email='me@kennethreitz.com',
     url='http://python-requests.org',
@@ -51,7 +58,7 @@ setup(
     package_data={'': ['LICENSE', 'NOTICE']},
     include_package_data=True,
     install_requires=required,
-    license=open("LICENSE").read(),
+    license=get_file_contents('LICENSE'),
     classifiers=(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
