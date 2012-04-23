@@ -10,7 +10,6 @@ History
 - Infinite digest auth redirect fix
 - Multi-part file upload improvements
 - Fix decoding of invalid %encodings in URLs
-- Rewrite unquote_unreserved based on urllib.unquote
 - If there is no content in a response don't throw an error the second time that content is attempted to be read.
 - Upload data on redirects.
 
