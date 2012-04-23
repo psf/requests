@@ -3,7 +3,7 @@
 History
 -------
 
-0.11.2 (2012-04-??)
+0.11.2 (2012-04-22)
 +++++++++++++++++++
 
 - Attempt to use the OS's certificate bundle if ``certifi`` isn't available.
