@@ -15,6 +15,7 @@ import os
 import random
 import re
 import zlib
+import binascii
 from netrc import netrc, NetrcParseError
 
 from .compat import parse_http_list as _parse_list_header
@@ -472,7 +473,7 @@ _unreserved_set = frozenset(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     + "0123456789-._~")
 
-_unreserved_hextochr = dict((c.encode('hex'), c) for c in _unreserved_set)
+_unreserved_hextochr = dict((binascii.b2a_hex(c), c) for c in _unreserved_set)
 
 def unquote_unreserved(uri):
     """Un-escape any percent-escape sequences in a URI that are unreserved
