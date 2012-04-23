@@ -117,71 +117,71 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
     #     self.assertRaises(UnicodeEncodeError, requests.get,
     #                       url=httpbin('get'), headers=heads)
 
-    def test_session_with_escaped_url(self):
-        # Test a URL that contains percent-escaped characters
-        # This URL should not be modified (double-escaped)
-        # Tests:
-        # - Quoted illegal characters ("%20" (' '), "%3C" ('<'), "%3E" ('>'))
-        # - Quoted reserved characters ("%25" ('%'), "%23" ('#'), "%2F" ('/'))
-        # - Quoted non-ASCII characters ("%C3%98", "%C3%A5")
-        path_fully_escaped = '%3Ca%25b%23c%2Fd%3E/%C3%98%20%C3%A5'
-        url = httpbin('get/' + path_fully_escaped)
-        response = get(url)
-        self.assertEqual(response.url, httpbin('get/' + path_fully_escaped))
+    # def test_session_with_escaped_url(self):
+    #     # Test a URL that contains percent-escaped characters
+    #     # This URL should not be modified (double-escaped)
+    #     # Tests:
+    #     # - Quoted illegal characters ("%20" (' '), "%3C" ('<'), "%3E" ('>'))
+    #     # - Quoted reserved characters ("%25" ('%'), "%23" ('#'), "%2F" ('/'))
+    #     # - Quoted non-ASCII characters ("%C3%98", "%C3%A5")
+    #     path_fully_escaped = '%3Ca%25b%23c%2Fd%3E/%C3%98%20%C3%A5'
+    #     url = httpbin('get/' + path_fully_escaped)
+    #     response = get(url)
+    #     self.assertEqual(response.url, httpbin('get/' + path_fully_escaped))
 
-        # Test that illegal characters in a path get properly percent-escaped
-        # Tests:
-        # - Bare illegal characters (space, '<')
-        # - Bare non-ASCII characters ('\u00d8')
-        path = u'<a%25b%23c%2Fd%3E/\u00d8 %C3%A5'
-        url = httpbin('get/' + path)
-        response = get(url)
-        self.assertEqual(response.url, httpbin('get/' + path_fully_escaped))
+    #     # Test that illegal characters in a path get properly percent-escaped
+    #     # Tests:
+    #     # - Bare illegal characters (space, '<')
+    #     # - Bare non-ASCII characters ('\u00d8')
+    #     path = u'<a%25b%23c%2Fd%3E/\u00d8 %C3%A5'
+    #     url = httpbin('get/' + path)
+    #     response = get(url)
+    #     self.assertEqual(response.url, httpbin('get/' + path_fully_escaped))
 
-        # Test that reserved characters in a path do not get percent-escaped
-        # Tests:
-        # - All reserved characters (RFC 3986), except '?', '#', '[' and ']',
-        #   which are not allowed in the path, and ';' which delimits
-        #   parameters.
-        #   All such characters must be allowed bare in path, and must not be
-        #   encoded.
-        # - Special unreserved characters (RFC 3986), which should not be
-        #   encoded (even though it wouldn't hurt).
-        path_reserved = '!$&\'()*+,/:=@-._~'
-        url = httpbin('get/' + path_reserved)
-        response = get(url)
-        self.assertEqual(response.url, httpbin('get/' + path_reserved))
+    #     # Test that reserved characters in a path do not get percent-escaped
+    #     # Tests:
+    #     # - All reserved characters (RFC 3986), except '?', '#', '[' and ']',
+    #     #   which are not allowed in the path, and ';' which delimits
+    #     #   parameters.
+    #     #   All such characters must be allowed bare in path, and must not be
+    #     #   encoded.
+    #     # - Special unreserved characters (RFC 3986), which should not be
+    #     #   encoded (even though it wouldn't hurt).
+    #     path_reserved = '!$&\'()*+,/:=@-._~'
+    #     url = httpbin('get/' + path_reserved)
+    #     response = get(url)
+    #     self.assertEqual(response.url, httpbin('get/' + path_reserved))
 
-        # Test that percent-encoded unreserved characters in a path get
-        # normalised to their un-encoded forms.
-        path_unreserved = 'ABCDwxyz1234-._~'
-        path_unreserved_escaped = '%41%42%43%44%77%78%79%7A%31%32%33%34%2D%2E%5F%7E'
-        url = httpbin('get/' + path_unreserved_escaped)
-        response = get(url)
-        self.assertEqual(response.url, httpbin('get/' + path_unreserved))
+    #     # Test that percent-encoded unreserved characters in a path get
+    #     # normalised to their un-encoded forms.
+    #     path_unreserved = 'ABCDwxyz1234-._~'
+    #     path_unreserved_escaped = '%41%42%43%44%77%78%79%7A%31%32%33%34%2D%2E%5F%7E'
+    #     url = httpbin('get/' + path_unreserved_escaped)
+    #     response = get(url)
+    #     self.assertEqual(response.url, httpbin('get/' + path_unreserved))
 
-        # Re-run all of the same tests on the query part of the URI
-        query_fully_escaped = '%3Ca%25b%23c%2Fd%3E=%C3%98%20%C3%A5'
-        url = httpbin('get/?' + query_fully_escaped)
-        response = get(url)
-        self.assertEqual(response.url, httpbin('get/?' + query_fully_escaped))
+    #     # Re-run all of the same tests on the query part of the URI
+    #     query_fully_escaped = '%3Ca%25b%23c%2Fd%3E=%C3%98%20%C3%A5'
+    #     url = httpbin('get/?' + query_fully_escaped)
+    #     response = get(url)
+    #     self.assertEqual(response.url, httpbin('get/?' + query_fully_escaped))
 
-        query = u'<a%25b%23c%2Fd%3E=\u00d8 %C3%A5'
-        url = httpbin('get/?' + query)
-        response = get(url)
-        self.assertEqual(response.url, httpbin('get/?' + query_fully_escaped))
+    #     query = u'<a%25b%23c%2Fd%3E=\u00d8 %C3%A5'
+    #     url = httpbin('get/?' + query)
+    #     response = get(url)
+    #     self.assertEqual(response.url, httpbin('get/?' + query_fully_escaped))
 
-        # The legal characters in query happens to be the same as in path
-        query_reserved = '!$&\'()*+,/:=@-._~'
-        url = httpbin('get/?' + query_reserved)
-        response = get(url)
-        self.assertEqual(response.url, httpbin('get/?' + query_reserved))
+    #     # The legal characters in query happens to be the same as in path
+    #     query_reserved = '!$&\'()*+,/:=@-._~'
+    #     url = httpbin('get/?' + query_reserved)
+    #     response = get(url)
+    #     self.assertEqual(response.url, httpbin('get/?' + query_reserved))
 
-        query_unreserved = 'ABCDwxyz=1234-._~'
-        query_unreserved_escaped = '%41%42%43%44%77%78%79%7A=%31%32%33%34%2D%2E%5F%7E'
-        url = httpbin('get/?' + query_unreserved_escaped)
-        response = get(url)
-        self.assertEqual(response.url, httpbin('get/?' + query_unreserved))
+    #     query_unreserved = 'ABCDwxyz=1234-._~'
+    #     query_unreserved_escaped = '%41%42%43%44%77%78%79%7A=%31%32%33%34%2D%2E%5F%7E'
+    #     url = httpbin('get/?' + query_unreserved_escaped)
+    #     response = get(url)
+    #     self.assertEqual(response.url, httpbin('get/?' + query_unreserved))
 
         # We should ignore invalid %encodings
         request = requests.Request("http://0.0.0.0/get/%TEST")
