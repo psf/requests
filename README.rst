@@ -4,12 +4,13 @@ Requests: HTTP for Humans
 
 .. image:: https://secure.travis-ci.org/kennethreitz/requests.png?branch=develop
 
-Requests is an ISC Licensed HTTP library, written in Python, for human
+Requests is an `ISC Licensed <http://en.wikipedia.org/wiki/ISC_license>`_ HTTP library, written in Python, for human
 beings.
 
 Most existing Python modules for sending HTTP requests are extremely
-verbose and cumbersome. Python's builtin urllib2 module provides most of
-the HTTP capabilities you should need, but the api is thoroughly broken.
+verbose and cumbersome. Python's built-in 
+`urllib2 <http://docs.python.org/library/urllib2.html>`_ module provides most of
+the HTTP capabilities you should need, but the API is thoroughly broken.
 It requires an enormous amount of work (even method overrides) to
 perform the simplest of tasks.
 
@@ -29,7 +30,8 @@ See `the same code, without Requests <https://gist.github.com/973705>`_.
 
 Requests allow you to send HTTP/1.1 requests. You can add headers, form data,
 multipart files, and parameters with simple Python dictionaries, and access the
-response data in the same way. It's powered by httplib and `urllib3
+response data in the same way. It's powered by 
+`httplib <http://docs.python.org/library/httplib.html>`_ and `urllib3
 <https://github.com/shazow/urllib3>`_, but it does all the hard work and crazy
 hacks for you.
 
@@ -67,10 +69,12 @@ But, you really shouldn't do that.
 Contribute
 ----------
 
-#. Check for open issues or open a fresh issue to start a discussion around a feature idea or a bug. There is a Contributor Friendly tag for issues that should be ideal for people who are not very familiar with the codebase yet.
+#. Check for open issues or open a fresh issue to start a discussion around a feature idea or a bug. 
+There is a `Contributor Friendly tag <https://github.com/kennethreitz/requests/issues?direction=desc&labels=Contributor+Friendly&page=1&sort=created&state=open>`_ for issues that should be ideal for people who are not very familiar with the codebase yet.
 #. Fork `the repository`_ on Github to start making your changes to the **develop** branch (or branch off of it).
 #. Write a test which shows that the bug was fixed or that the feature works as expected.
-#. Send a pull request and bug the maintainer until it gets merged and published. :) Make sure to add yourself to AUTHORS_.
+#. Send a pull request and bug the maintainer until it gets merged and published. :) 
+Make sure to add yourself to AUTHORS_.
 
 .. _`the repository`: http://github.com/kennethreitz/requests
 .. _AUTHORS: https://github.com/kennethreitz/requests/blob/develop/AUTHORS.rst
