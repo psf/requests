@@ -69,6 +69,18 @@ class CookieTests(TestBaseMixin, unittest.TestCase):
         self.assertEqual(json.loads(r.text)['cookies'],
                 {'shimon': 'gamaliel', 'elazar': 'shimon'})
 
+    def test_redirects(self):
+        """Test that cookies set by a 302 page are correctly processed."""
+        r = requests.get(httpbin('cookies', 'set', 'redirects', 'work'))
+        self.assertEqual(r.history[0].status_code, 302)
+        expected_cookies = {'redirects': 'work'}
+        self.assertEqual(json.loads(r.text)['cookies'], expected_cookies)
+
+        r2 = requests.get(httpbin('cookies', 'set', 'very', 'well'), cookies=r.cookies)
+        expected_cookies = {'redirects': 'work', 'very': 'well'}
+        self.assertEqual(json.loads(r2.text)['cookies'], expected_cookies)
+        self.assertIs(r.cookies, r2.cookies)
+
 class LWPCookieJarTest(TestBaseMixin, unittest.TestCase):
     """Check store/load of cookies to FileCookieJar's, specifically LWPCookieJar's."""
 
