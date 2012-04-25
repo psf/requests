@@ -87,14 +87,20 @@ class MockResponse(object):
         self._headers.getheaders(name)
 
 def extract_cookies_to_jar(jar, request, response):
-    """Extract the cookies from the headers of `response`, into `jar`."""
-    if response._original_response is None:
-        # TODO why would this happen?
-        return
-    req = MockRequest(request)
-    # pull out the HTTPMessage with the headers and put it in the mock:
-    res = MockResponse(response._original_response.msg)
-    jar.extract_cookies(res, req)
+    """Extract the cookies from the response into a CookieJar.
+
+    :param jar: cookielib.CookieJar (not necessarily a RequestsCookieJar)
+    :param request: our own requests.Request object
+    :param response: urllib3.HTTPResponse object
+    """
+    # the _original_response field is the wrapped httplib.HTTPResponse object,
+    # and in safe mode, it may be None if the request didn't actually complete.
+    # in that case, just skip the cookie extraction.
+    if response._original_response is not None:
+        req = MockRequest(request)
+        # pull out the HTTPMessage with the headers and put it in the mock:
+        res = MockResponse(response._original_response.msg)
+        jar.extract_cookies(res, req)
 
 def get_cookie_header(jar, request):
     """Produce an appropriate Cookie header string to be sent with `request`, or None."""
