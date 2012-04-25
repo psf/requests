@@ -18,8 +18,11 @@ import zlib
 from netrc import netrc, NetrcParseError
 
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, cookielib, SimpleCookie, is_py2, urlparse
+from .compat import quote, is_py2, urlparse
 from .compat import basestring, bytes, str
+from .cookies import RequestsCookieJar, cookiejar_from_dict
+
+_hush_pyflakes = (RequestsCookieJar,)
 
 CERTIFI_BUNDLE_PATH = None
 try:
@@ -95,25 +98,6 @@ def get_netrc_auth(url):
     # AppEngine hackiness.
     except AttributeError:
         pass
-
-
-
-def dict_from_string(s):
-    """Returns a MultiDict with Cookies."""
-
-    cookies = dict()
-
-    try:
-        c = SimpleCookie()
-        c.load(s)
-
-        for k, v in list(c.items()):
-            cookies.update({k: v.value})
-    # This stuff is not to be trusted.
-    except Exception:
-        pass
-
-    return cookies
 
 
 def guess_filename(obj):
@@ -290,24 +274,6 @@ def dict_from_cookiejar(cj):
     return cookie_dict
 
 
-def cookiejar_from_dict(cookie_dict):
-    """Returns a CookieJar from a key/value dictionary.
-
-    :param cookie_dict: Dict of key/values to insert into CookieJar.
-    """
-
-    # return cookiejar if one was passed in
-    if isinstance(cookie_dict, cookielib.CookieJar):
-        return cookie_dict
-
-    # create cookiejar
-    cj = cookielib.CookieJar()
-
-    cj = add_dict_to_cookiejar(cj, cookie_dict)
-
-    return cj
-
-
 def add_dict_to_cookiejar(cj, cookie_dict):
     """Returns a CookieJar from a key/value dictionary.
 
@@ -315,31 +281,9 @@ def add_dict_to_cookiejar(cj, cookie_dict):
     :param cookie_dict: Dict of key/values to insert into CookieJar.
     """
 
-    for k, v in list(cookie_dict.items()):
-
-        cookie = cookielib.Cookie(
-            version=0,
-            name=k,
-            value=v,
-            port=None,
-            port_specified=False,
-            domain='',
-            domain_specified=False,
-            domain_initial_dot=False,
-            path='/',
-            path_specified=True,
-            secure=False,
-            expires=None,
-            discard=True,
-            comment=None,
-            comment_url=None,
-            rest={'HttpOnly': None},
-            rfc2109=False
-        )
-
-        # add cookie to cookiejar
+    cj2 = cookiejar_from_dict(cookie_dict)
+    for cookie in cj2:
         cj.set_cookie(cookie)
-
     return cj
 
 

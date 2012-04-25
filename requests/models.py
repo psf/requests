@@ -15,7 +15,7 @@ from .structures import CaseInsensitiveDict
 from .status_codes import codes
 
 from .auth import HTTPBasicAuth, HTTPProxyAuth
-from .packages.oreos.cookiejar import CookieJar
+from .cookies import cookiejar_from_dict, extract_cookies_to_jar, get_cookie_header
 from .packages.urllib3.response import HTTPResponse
 from .packages.urllib3.exceptions import MaxRetryError, LocationParseError
 from .packages.urllib3.exceptions import SSLError as _SSLError
@@ -28,11 +28,11 @@ from .exceptions import (
     URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
-    dict_from_string, stream_decode_response_unicode, get_netrc_auth,
+    stream_decode_response_unicode, get_netrc_auth,
     DEFAULT_CA_BUNDLE_PATH)
 from .compat import (
-    urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    SimpleCookie, is_py2)
+    cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
+    is_py2)
 
 # Import chardet if it is available.
 try:
@@ -127,14 +127,10 @@ class Request(object):
         self.auth = auth
 
         #: CookieJar to attach to :class:`Request <Request>`.
-        if isinstance(cookies, CookieJar):
+        if isinstance(cookies, cookielib.CookieJar):
             self.cookies = cookies
         else:
-            self.cookies = CookieJar()
-            
-            # Add passed cookies in.
-            if cookies is not None:
-                self.cookies.update(cookies)
+            self.cookies = cookiejar_from_dict(cookies)
 
         #: True if Request has been sent.
         self.sent = False
@@ -190,15 +186,11 @@ class Request(object):
             # Pass settings over.
             response.config = self.config
 
-            # Save original response for later.
-            response.raw = resp
-            response.url = self.full_url
-
             if resp:
 
                 # Fallback to None if there's no status_code, for whatever reason.
                 response.status_code = getattr(resp, 'status', None)
-                
+
                 # Make headers case-insensitive.
                 response.headers = CaseInsensitiveDict(getattr(resp, 'headers', None))
 
@@ -206,7 +198,7 @@ class Request(object):
                 response.encoding = get_encoding_from_headers(response.headers)
 
                 # Add new cookies from the server.
-                self.cookies.extract_cookies(response, self)
+                extract_cookies_to_jar(self.cookies, self, resp)
 
                 # Save cookies in Response.
                 response.cookies = self.cookies
@@ -578,13 +570,7 @@ class Request(object):
 
             # Skip if 'cookie' header is explicitly set.
             if 'cookie' not in self.headers:
-
-                # Turn it into a header.
-                cookie_header = self.cookies.get_header(self)
-                
-                if cookie_header:
-                    # Attach Cookie header to request.
-                    self.headers['Cookie'] = cookie_header
+                self.headers['Cookie'] = get_cookie_header(self.cookies, self)
 
             # Pre-request hook.
             r = dispatch_hook('pre_request', self.hooks, self)
@@ -696,8 +682,8 @@ class Response(object):
         #: The :class:`Request <Request>` that created the Response.
         self.request = None
 
-        #: A dictionary of Cookies the server sent back.
-        self.cookies = {}
+        #: A CookieJar of Cookies the server sent back.
+        self.cookies = None
 
         #: Dictionary of configurations for this request.
         self.config = {}
