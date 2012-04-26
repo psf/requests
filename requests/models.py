@@ -570,7 +570,9 @@ class Request(object):
 
             # Skip if 'cookie' header is explicitly set.
             if 'cookie' not in self.headers:
-                self.headers['Cookie'] = get_cookie_header(self.cookies, self)
+                cookie_header = get_cookie_header(self.cookies, self)
+                if cookie_header is not None:
+                    self.headers['Cookie'] = cookie_header
 
             # Pre-request hook.
             r = dispatch_hook('pre_request', self.hooks, self)

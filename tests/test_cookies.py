@@ -81,6 +81,11 @@ class CookieTests(TestBaseMixin, unittest.TestCase):
         self.assertEqual(json.loads(r2.text)['cookies'], expected_cookies)
         self.assertIs(r.cookies, r2.cookies)
 
+    def test_none_cookie(self):
+        """Regression test: don't send a Cookie header with a string value of 'None'!"""
+        page = json.loads(requests.get(httpbin('headers')).text)
+        self.assertNotIn('Cookie', page['headers'])
+
 class LWPCookieJarTest(TestBaseMixin, unittest.TestCase):
     """Check store/load of cookies to FileCookieJar's, specifically LWPCookieJar's."""
 
