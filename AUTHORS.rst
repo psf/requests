@@ -4,7 +4,7 @@ various contributors:
 Development Lead
 ````````````````
 
-- Kenneth Reitz <me@kennethreitz.com>
+- Superman <redbull@redbull.com>
 
 
 Urllib3
