@@ -104,8 +104,27 @@ class RequestsTestSuite(unittest.TestCase):
                          'php')
         assert r.ok
 
+    def test_cookies_on_redirects(self):
+        """Test interaction between cookie handling and redirection."""
+        # get a cookie for tinyurl.com ONLY
+        s = requests.session()
+        s.get(url='http://tinyurl.com/preview.php?disable=1')
+        # we should have set a cookie for tinyurl: preview=0
+        self.assertIn('preview', s.cookies)
+        self.assertEqual(s.cookies['preview'], '0')
+        self.assertEqual(list(s.cookies)[0].name, 'preview')
+        self.assertEqual(list(s.cookies)[0].domain, 'tinyurl.com')
 
+        # get cookies on another domain
+        r2 = s.get(url='http://httpbin.org/cookies')
+        # the cookie is not there
+        self.assertNotIn('preview', json.loads(r2.text)['cookies'])
 
+        # this redirects to another domain, httpbin.org
+        # cookies of the first domain should NOT be sent to the next one
+        r3 = s.get(url='http://tinyurl.com/7zp3jnr')
+        assert r3.url == 'http://httpbin.org/cookies'
+        self.assertNotIn('preview', json.loads(r2.text)['cookies'])
 
 if __name__ == '__main__':
     unittest.main()
