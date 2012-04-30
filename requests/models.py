@@ -8,6 +8,7 @@ This module contains the primary objects that power Requests.
 """
 
 import os
+import types
 from datetime import datetime
 
 from .hooks import dispatch_hook, HOOKS
@@ -311,9 +312,13 @@ class Request(object):
     def _encode_params(data):
         """Encode parameters in a piece of data.
 
-        If the data supplied is a dictionary, encodes each parameter in it, and
-        returns a list of tuples containing the encoded parameters, and a urlencoded
-        version of that.
+        Will successfully encode parameters when passed as a dict or a list of
+        2-tuples. Order is retained if data is a list of 2-tuples but abritrary
+        if parameters are supplied as a dict.
+
+        If the data supplied contains parameters, encodes each parameter in it,
+        and returns a list of tuples containing the encoded parameters, and a
+        urlencoded version of that.
 
         Otherwise, assumes the data is already encoded appropriately, and
         returns it twice.
@@ -321,16 +326,19 @@ class Request(object):
 
         if isinstance(data, bytes):
             return data, data
+        elif hasattr(data, '__iter__'):
+            try:
+                dict(data)
+            except ValueError:
+                raise ValueError('Unable to encode lists with elements that are not 2-tuples.')
 
-        if hasattr(data, '__iter__') and not isinstance(data, str):
-            data = dict(data)
-
-        if hasattr(data, 'items'):
+            params = list(data.items() if isinstance(data, dict) else data)
             result = []
-            for k, vs in list(data.items()):
+            for k, vs in params:
                 for v in isinstance(vs, list) and vs or [vs]:
-                    result.append((k.encode('utf-8') if isinstance(k, str) else k,
-                                   v.encode('utf-8') if isinstance(v, str) else v))
+                    result.append(
+                        (k.encode('utf-8') if isinstance(k, types.StringType) else k,
+                         v.encode('utf-8') if isinstance(v, types.StringType) else v))
             return result, urlencode(result, doseq=True)
         else:
             return data, data
@@ -474,22 +482,6 @@ class Request(object):
         body = None
         content_type = None
 
-        # Multi-part file uploads.
-        if self.files:
-            (body, content_type) = self._enc_files
-        else:
-            if self.data:
-
-                body = self._enc_data
-                if isinstance(self.data, str):
-                    content_type = None
-                else:
-                    content_type = 'application/x-www-form-urlencoded'
-
-        # Add content-type if it wasn't explicitly provided.
-        if (content_type) and (not 'content-type' in self.headers):
-            self.headers['Content-Type'] = content_type
-
         # Use .netrc auth if none was provided.
         if not self.auth and self.config.get('trust_env'):
             self.auth = get_netrc_auth(url)
@@ -504,6 +496,21 @@ class Request(object):
 
             # Update self to reflect the auth changes.
             self.__dict__.update(r.__dict__)
+
+        # Multi-part file uploads.
+        if self.files:
+            (body, content_type) = self._enc_files
+        else:
+            if self.data:
+                body_params, body = self._encode_params(self.data)
+                if isinstance(body_params, list) and isinstance(body, str):
+                    content_type = 'application/x-www-form-urlencoded'
+                else:
+                    content_type = None
+
+        # Add content-type if it wasn't explicitly provided.
+        if (content_type) and (not 'content-type' in self.headers):
+            self.headers['Content-Type'] = content_type
 
         _p = urlparse(url)
         proxy = self.proxies.get(_p.scheme)
