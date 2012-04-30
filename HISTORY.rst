@@ -3,6 +3,15 @@
 History
 -------
 
+0.11.2 (2012-04-22)
++++++++++++++++++++
+
+- Attempt to use the OS's certificate bundle if ``certifi`` isn't available.
+- Infinite digest auth redirect fix
+- Multi-part file upload improvements
+- Fix decoding of invalid %encodings in URLs
+- If there is no content in a response don't throw an error the second time that content is attempted to be read.
+- Upload data on redirects.
 
 0.11.1 (2012-03-30)
 +++++++++++++++++++
