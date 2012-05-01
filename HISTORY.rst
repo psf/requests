@@ -6,7 +6,7 @@ History
 0.11.3 (2012-05-01)
 +++++++++++++++++++
 
-- EXPERIMENTAL OAUTH2 SUPPORT
+- EXPERIMENTAL OAUTH1 SUPPORT
 
 0.11.2 (2012-04-22)
 +++++++++++++++++++
