@@ -15,14 +15,14 @@ from base64 import b64encode
 from .compat import urlparse, str, is_py2
 from .utils import randombytes, parse_dict_header
 
-CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
-
-if is_py2:
+try:
     from oauthlib.oauth1.rfc5849 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
     from oauthlib.common import extract_params
-else:
+except (ImportError, SyntaxError):
     SIGNATURE_HMAC = None
     SIGNATURE_TYPE_AUTH_HEADER = None
+
+CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 
 def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
