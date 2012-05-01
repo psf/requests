@@ -481,6 +481,21 @@ class Request(object):
         body = None
         content_type = None
 
+        # Use .netrc auth if none was provided.
+        if not self.auth and self.config.get('trust_env'):
+            self.auth = get_netrc_auth(url)
+
+        if self.auth:
+            if isinstance(self.auth, tuple) and len(self.auth) == 2:
+                # special-case basic HTTP auth
+                self.auth = HTTPBasicAuth(*self.auth)
+
+            # Allow auth to make its changes.
+            r = self.auth(self)
+
+            # Update self to reflect the auth changes.
+            self.__dict__.update(r.__dict__)
+
         # Multi-part file uploads.
         if self.files:
             (body, content_type) = self._enc_files
@@ -497,20 +512,6 @@ class Request(object):
         if (content_type) and (not 'content-type' in self.headers):
             self.headers['Content-Type'] = content_type
 
-        # Use .netrc auth if none was provided.
-        if not self.auth and self.config.get('trust_env'):
-            self.auth = get_netrc_auth(url)
-
-        if self.auth:
-            if isinstance(self.auth, tuple) and len(self.auth) == 2:
-                # special-case basic HTTP auth
-                self.auth = HTTPBasicAuth(*self.auth)
-
-            # Allow auth to make its changes.
-            r = self.auth(self)
-
-            # Update self to reflect the auth changes.
-            self.__dict__.update(r.__dict__)
 
         _p = urlparse(url)
         proxy = self.proxies.get(_p.scheme)
