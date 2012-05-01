@@ -2,9 +2,8 @@ MANIFEST
 coverage.xml
 nosetests.xml
 pylint.txt
-*.pyc
-docs/_build
 toy.py
-.gitignore
 junit-report.xml
 requests.egg-info/
+*.pyc
+*.swp
