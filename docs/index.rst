@@ -28,7 +28,7 @@ Things shouldn’t be this way. Not in Python.
 
 See `the same code, without Requests <https://gist.github.com/973705>`_.
 
-Requests takes all of the work out of Python HTTP/1.1 — making your integration with web services seamless. There's no need to manually add query strings to your URLs, or to form-encode your POST data. Keep-alive and HTTP connection pooling are 100%  automatic, powered by `urllib3 <https://github.com/shazow/urllib3>`_, which is embedded within Requests.
+Requests takes all of the work out of Python HTTP/1.1 — making your `integration with web services <http://www.amazon.com/gp/product/B0043D2ED6/ref=as_li_ss_tl?ie=UTF8&tag=bookforkind-20&linkCode=as2&camp=1789&creative=390957&creativeASIN=B0043D2ED6>`_ seamless. There's no need to manually add query strings to your URLs, or to form-encode your POST data. Keep-alive and HTTP connection pooling are 100%  automatic, powered by `urllib3 <https://github.com/shazow/urllib3>`_, which is embedded within Requests.
 
 
 Testimonials
@@ -40,7 +40,7 @@ Testimonials
 `Twitter, Inc <http://twitter.com>`_,
 `Readability <http://readability.com>`_, and
 Federal US Institutions
-use Requests internally. It has been installed over 100,000 times from PyPI.
+use Requests internally. It has been installed over 200,000 times from PyPI.
 
 **Armin Ronacher**
     Requests is the perfect example how beautiful an API can be with the
