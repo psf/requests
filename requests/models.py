@@ -481,6 +481,22 @@ class Request(object):
         body = None
         content_type = None
 
+        # Multi-part file uploads.
+        if self.files:
+            (body, content_type) = self._enc_files
+        else:
+            if self.data:
+
+                body = self._enc_data
+                if isinstance(self.data, str):
+                    content_type = None
+                else:
+                    content_type = 'application/x-www-form-urlencoded'
+
+        # Add content-type if it wasn't explicitly provided.
+        if (content_type) and (not 'content-type' in self.headers):
+            self.headers['Content-Type'] = content_type
+
         # Use .netrc auth if none was provided.
         if not self.auth and self.config.get('trust_env'):
             self.auth = get_netrc_auth(url)
@@ -495,21 +511,6 @@ class Request(object):
 
             # Update self to reflect the auth changes.
             self.__dict__.update(r.__dict__)
-
-        # Multi-part file uploads.
-        if self.files:
-            (body, content_type) = self._enc_files
-        else:
-            if self.data:
-                body_params, body = self._encode_params(self.data)
-                if isinstance(body_params, list) and isinstance(body, str):
-                    content_type = 'application/x-www-form-urlencoded'
-                else:
-                    content_type = None
-
-        # Add content-type if it wasn't explicitly provided.
-        if (content_type) and (not 'content-type' in self.headers):
-            self.headers['Content-Type'] = content_type
 
         _p = urlparse(url)
         proxy = self.proxies.get(_p.scheme)
