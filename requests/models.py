@@ -325,6 +325,8 @@ class Request(object):
 
         if isinstance(data, bytes):
             return data, data
+        if isinstance(data, str):
+            return data, data
         elif hasattr(data, '__iter__'):
             try:
                 dict(data)
