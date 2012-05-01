@@ -55,7 +55,7 @@ class TestBaseMixin(object):
 
     def assertCookieHas(self, cookie, **kwargs):
         """Assert that a cookie has various specified properties."""
-        for attr, expected_value in kwargs.iteritems():
+        for attr, expected_value in kwargs.items():
             message = 'Failed comparison for %s' % (attr,)
             self.assertEqual(getattr(cookie, attr), expected_value, message)
 

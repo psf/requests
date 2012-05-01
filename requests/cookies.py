@@ -259,6 +259,6 @@ def cookiejar_from_dict(cookie_dict, cookiejar=None):
         cookiejar = RequestsCookieJar()
 
     if cookie_dict is not None:
-        for name, value in cookie_dict.iteritems():
-            cookiejar.set_cookie(create_cookie(name, value))
+        for name in cookie_dict:
+            cookiejar.set_cookie(create_cookie(name, cookie_dict[name]))
     return cookiejar
