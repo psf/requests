@@ -8,7 +8,6 @@ This module contains the primary objects that power Requests.
 """
 
 import os
-import types
 from datetime import datetime
 
 from .hooks import dispatch_hook, HOOKS
@@ -337,8 +336,8 @@ class Request(object):
             for k, vs in params:
                 for v in isinstance(vs, list) and vs or [vs]:
                     result.append(
-                        (k.encode('utf-8') if isinstance(k, types.StringType) else k,
-                         v.encode('utf-8') if isinstance(v, types.StringType) else v))
+                        (k.encode('utf-8') if isinstance(k, str) else k,
+                         v.encode('utf-8') if isinstance(v, str) else v))
             return result, urlencode(result, doseq=True)
         else:
             return data, data
