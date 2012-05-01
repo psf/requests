@@ -11,12 +11,13 @@ import time
 import hashlib
 
 from base64 import b64encode
-from oauthlib.oauth1.rfc5849 import (Client, SIGNATURE_HMAC, SIGNATURE_RSA,
-    SIGNATURE_PLAINTEXT, SIGNATURE_TYPE_AUTH_HEADER, SIGNATURE_TYPE_QUERY,
-    SIGNATURE_TYPE_BODY)
+from oauthlib.oauth1.rfc5849 import (Client,
+                                     SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
+from oauthlib.common import extract_params
 from .compat import urlparse, str
 from .utils import randombytes, parse_dict_header
 
+CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 
 def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
@@ -46,31 +47,13 @@ class OAuth1(AuthBase):
             signature_type, rsa_key, verifier)
 
     def __call__(self, r):
-        contenttype = r.headers.get('Content-Type')
-        if (r.files or
-            (contenttype and contenttype != 'application/x-www-form-urlencoded')):
+        contenttype = r.headers.get('Content-Type', None)
+        decoded_body = extract_params(r.data)
+        if contenttype == None and decoded_body != None:
+            r.headers['Content-Type'] = 'application/x-www-form-urlencoded'
 
-            # XXX TODO can we use body signatures with a non formencoded body?
-            if self.client.signature_type == SIGNATURE_TYPE_BODY:
-                raise ValueError('Body signatures may not be used with non-form-urlencoded content')
-
-            # Spec only specifies signing of application/x-www-form-urlencoded
-            # params. Files don't get signed either.
-            body = u''
-            alter_body = False  # we shouldn't touch the body
-        else:
-            body = r.data  # OAuthLib is cool with both strings and dicts.
-            if isinstance(body, str):
-                # XXX gross hack. We must pass unicode...
-                body = unicode(body, 'utf-8')
-            alter_body = True
-
-        full_url, headers, new_body = self.client.sign(r.url, unicode(r.method), body, r.headers)
-
-        r.url = full_url
-        if alter_body:
-            r.data = new_body
-        r.headers = headers
+        r.url, r.headers, r.data = self.client.sign(
+            unicode(r.url), unicode(r.method), r.data, r.headers)
         return r
 
 
