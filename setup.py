@@ -21,7 +21,7 @@ if sys.argv[-1] == 'test':
     os.system('python tests/test_requests.py')
     sys.exit()
 
-required = ['certifi>=0.0.7','oauthlib']
+required = ['certifi>=0.0.7']
 packages = [
     'requests',
     'requests.packages',
@@ -35,8 +35,8 @@ if is_py3:
     required.append('chardet2')
 else:
     required.append('chardet>=1.0.0')
+    required.append('oauthlib')
     packages.append('requests.packages.oreos')
-
 
 setup(
     name='requests',
