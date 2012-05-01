@@ -20,6 +20,9 @@ CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 if is_py2:
     from oauthlib.oauth1.rfc5849 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
     from oauthlib.common import extract_params
+else:
+    SIGNATURE_HMAC = None
+    SIGNATURE_TYPE_AUTH_HEADER = None
 
 def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
