@@ -1,5 +1,6 @@
 nose
 rudolf2
+git+git://github.com/idangazit/oauthlib.git
 
 # equivalent to "setup.py develop"
 -e .
