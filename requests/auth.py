@@ -12,7 +12,6 @@ import hashlib
 
 from base64 import b64encode
 
-from oauthlib.common import extract_params
 from .compat import urlparse, str, is_py2
 from .utils import randombytes, parse_dict_header
 
@@ -20,6 +19,7 @@ CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 
 if is_py2:
     from oauthlib.oauth1.rfc5849 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
+    from oauthlib.common import extract_params
 
 def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
