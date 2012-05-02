@@ -41,7 +41,7 @@ except ImportError:
     pass
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
-
+CONTENT_CHUNK_SIZE = 10 * 1024
 
 class Request(object):
     """The :class:`Request <Request>` object. It carries out all functionality of
@@ -776,7 +776,7 @@ class Response(object):
                 if self.status_code is 0:
                     self._content = None
                 else:
-                    self._content = bytes().join(self.iter_content()) or bytes()
+                    self._content = bytes().join(self.iter_content(CONTENT_CHUNK_SIZE)) or bytes()
 
             except AttributeError:
                 self._content = None
