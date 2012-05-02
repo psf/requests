@@ -794,7 +794,7 @@ class Response(object):
 
         # Trust that chardet isn't available or something went terribly wrong.
         except Exception:
-            return 'utf-8'
+            pass
 
     @property
     def text(self):
