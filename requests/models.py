@@ -791,7 +791,7 @@ class Response(object):
 
         # Trust that chardet isn't available or something went terribly wrong.
         except Exception:
-            pass
+            return 'utf-8'
 
 
     @property
