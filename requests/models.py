@@ -110,14 +110,14 @@ class Request(object):
         # If no proxies are given, allow configuration by environment variables
         # HTTP_PROXY and HTTPS_PROXY.
         if not self.proxies and self.config.get('trust_env'):
-          if 'HTTP_PROXY' in os.environ:
-            self.proxies['http'] = os.environ['HTTP_PROXY']
-          if 'HTTPS_PROXY' in os.environ:
-            self.proxies['https'] = os.environ['HTTPS_PROXY']
+            if 'HTTP_PROXY' in os.environ:
+                self.proxies['http'] = os.environ['HTTP_PROXY']
+            if 'HTTPS_PROXY' in os.environ:
+                self.proxies['https'] = os.environ['HTTPS_PROXY']
 
-        self.data, self._enc_data = self._encode_params(data)
-        self.params, self._enc_params = self._encode_params(params)
-        self.files, self._enc_files = self._encode_files(files)
+        self.data = data
+        self.params = params
+        self.files = files
 
         #: :class:`Response <Response>` instance, containing
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
@@ -309,19 +309,12 @@ class Request(object):
         Will successfully encode parameters when passed as a dict or a list of
         2-tuples. Order is retained if data is a list of 2-tuples but abritrary
         if parameters are supplied as a dict.
-
-        If the data supplied contains parameters, encodes each parameter in it,
-        and returns a list of tuples containing the encoded parameters, and a
-        urlencoded version of that.
-
-        Otherwise, assumes the data is already encoded appropriately, and
-        returns it twice.
         """
 
         if isinstance(data, bytes):
-            return data, data
+            return data
         if isinstance(data, str):
-            return data, data
+            return data
         elif hasattr(data, '__iter__'):
             try:
                 dict(data)
@@ -335,14 +328,14 @@ class Request(object):
                     result.append(
                         (k.encode('utf-8') if isinstance(k, str) else k,
                          v.encode('utf-8') if isinstance(v, str) else v))
-            return result, urlencode(result, doseq=True)
+            return urlencode(result, doseq=True)
         else:
-            return data, data
+            return data
 
-    def _encode_files(self,files):
+    def _encode_files(self, files):
 
         if (not files) or isinstance(self.data, str):
-            return None, None
+            return None
 
         try:
             fields = self.data.copy()
@@ -360,7 +353,7 @@ class Request(object):
 
         (body, content_type) = encode_multipart_formdata(fields)
 
-        return files, (body, content_type)
+        return (body, content_type)
 
     @property
     def full_url(self):
@@ -385,7 +378,6 @@ class Request(object):
         if not path:
             path = '/'
 
-
         if is_py2:
             if isinstance(scheme, str):
                 scheme = scheme.encode('utf-8')
@@ -402,11 +394,12 @@ class Request(object):
 
         url = (urlunparse([scheme, netloc, path, params, query, fragment]))
 
-        if self._enc_params:
+        enc_params = self._encode_params(self.params)
+        if enc_params:
             if urlparse(url).query:
-                url = '%s&%s' % (url, self._enc_params)
+                url = '%s&%s' % (url, enc_params)
             else:
-                url = '%s?%s' % (url, self._enc_params)
+                url = '%s?%s' % (url, enc_params)
 
         if self.config.get('encode_uri', True):
             url = requote_uri(url)
@@ -443,7 +436,7 @@ class Request(object):
 
         self.hooks[event].append(hook)
 
-    def deregister_hook(self,event,hook):
+    def deregister_hook(self, event, hook):
         """Deregister a previously registered hook.
         Returns True if the hook existed, False if not.
         """
@@ -495,11 +488,11 @@ class Request(object):
 
         # Multi-part file uploads.
         if self.files:
-            (body, content_type) = self._enc_files
+            (body, content_type) = self._encode_files(self.files)
         else:
             if self.data:
 
-                body = self._enc_data
+                body = self._encode_params(self.data)
                 if isinstance(self.data, str):
                     content_type = None
                 else:
@@ -508,7 +501,6 @@ class Request(object):
         # Add content-type if it wasn't explicitly provided.
         if (content_type) and (not 'content-type' in self.headers):
             self.headers['Content-Type'] = content_type
-
 
         _p = urlparse(url)
         proxy = self.proxies.get(_p.scheme)
@@ -793,7 +785,6 @@ class Response(object):
         except Exception:
             pass
 
-
     @property
     def text(self):
         """Content of the response, in unicode.
@@ -839,7 +830,6 @@ class Response(object):
             http_error = HTTPError('%s Client Error' % self.status_code)
             http_error.response = self
             raise http_error
-
 
         elif (self.status_code >= 500) and (self.status_code < 600):
             http_error = HTTPError('%s Server Error' % self.status_code)
