@@ -40,6 +40,8 @@ if is_py3:
     chardet_package = 'chardet2'
 else:
     chardet_package = 'chardet>=1.0.0'
+    requires.append('oauthlib>=0.1.0,<0.2.0')
+
 requires.append(chardet_package)
 
 # The async API in requests.async requires the gevent package.
