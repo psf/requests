@@ -3,13 +3,17 @@
 History
 -------
 
-0.11.3 (2012-05-01)
+0.12.0 (2012-05-01)
 +++++++++++++++++++
 
 - EXPERIMENTAL OAUTH SUPPORT!
-- Speed fix for non-iterated content chunks
-- Move pre_request to a more usable place
-- Cleanups, fixes
+- Proper CookieJar-backed cookies interface with awesome dict-like interface.
+- Speed fix for non-iterated content chunks.
+- Move ``pre_request`` to a more usable place.
+- New ``pre_send`` hook.
+- Lazily encode data, params, files
+- Load system Certificate Bundle if ``certify`` isn't available.
+- Cleanups, fixes.
 
 0.11.2 (2012-04-22)
 +++++++++++++++++++
