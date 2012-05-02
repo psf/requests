@@ -37,8 +37,10 @@ from .compat import (
 # Import chardet if it is available.
 try:
     import chardet
+    # hush pyflakes
+    chardet
 except ImportError:
-    pass
+    chardet = None
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
@@ -780,15 +782,6 @@ class Response(object):
         self._content_consumed = True
         return self._content
 
-    def _detected_encoding(self):
-        try:
-            detected = chardet.detect(self.content) or {}
-            return detected.get('encoding')
-
-        # Trust that chardet isn't available or something went terribly wrong.
-        except Exception:
-            pass
-
     @property
     def text(self):
         """Content of the response, in unicode.
@@ -801,9 +794,12 @@ class Response(object):
         content = None
         encoding = self.encoding
 
-        # Fallback to auto-detected encoding if chardet is available.
+        # Fallback to auto-detected encoding.
         if self.encoding is None:
-            encoding = self._detected_encoding()
+            if chardet is not None:
+                encoding = chardet.detect(self.content)['encoding']
+            else:
+                raise ValueError("Can't detect page encoding.")
 
         # Decode unicode from given encoding.
         try:
