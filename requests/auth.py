@@ -47,6 +47,12 @@ class OAuth1(AuthBase):
             signature_method=SIGNATURE_HMAC,
             signature_type=SIGNATURE_TYPE_AUTH_HEADER,
             rsa_key=None, verifier=None):
+
+        try:
+            signature_type = signature_type.upper()
+        except AttributeError:
+            pass
+
         self.client = Client(client_key, client_secret, resource_owner_key,
             resource_owner_secret, callback_uri, signature_method,
             signature_type, rsa_key, verifier)
