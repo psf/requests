@@ -10,7 +10,6 @@ sys.path.insert(0, os.path.abspath('..'))
 
 import json
 import os
-import sys
 import unittest
 import pickle
 
@@ -52,8 +51,15 @@ class TestSetup(object):
             # time.sleep(1)
             _httpbin = True
 
+class TestBaseMixin(object):
 
-class RequestsTestSuite(TestSetup, unittest.TestCase):
+    def assertCookieHas(self, cookie, **kwargs):
+        """Assert that a cookie has various specified properties."""
+        for attr, expected_value in kwargs.items():
+            message = 'Failed comparison for %s' % (attr,)
+            self.assertEqual(getattr(cookie, attr), expected_value, message)
+
+class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
     """Requests test cases."""
 
     def test_entry_points(self):
@@ -632,24 +638,24 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
 
         # Those cookies persist transparently.
         c = json.loads(r.text).get('cookies')
-        assert c == _c
+        self.assertEqual(c, _c)
 
         # Double check.
         r = get(httpbin('cookies'), cookies={}, session=s)
         c = json.loads(r.text).get('cookies')
-        assert c == _c
+        self.assertEqual(c, _c)
 
         # Remove a cookie by setting it's value to None.
         r = get(httpbin('cookies'), cookies={'bessie': None}, session=s)
         c = json.loads(r.text).get('cookies')
         del _c['bessie']
-        assert c == _c
+        self.assertEqual(c, _c)
 
         # Test session-level cookies.
         s = requests.session(cookies=_c)
         r = get(httpbin('cookies'), session=s)
         c = json.loads(r.text).get('cookies')
-        assert c == _c
+        self.assertEqual(c, _c)
 
         # Have the server set a cookie.
         r = get(httpbin('cookies', 'set', 'k', 'v'), allow_redirects=True, session=s)
@@ -698,8 +704,12 @@ class RequestsTestSuite(TestSetup, unittest.TestCase):
         ds = pickle.loads(pickle.dumps(s))
 
         self.assertEqual(s.headers, ds.headers)
-        self.assertEqual(s.cookies, ds.cookies)
         self.assertEqual(s.auth, ds.auth)
+
+        # Cookie doesn't have a good __eq__, so verify manually:
+        self.assertEqual(len(ds.cookies), 1)
+        for cookie in ds.cookies:
+            self.assertCookieHas(cookie, name='a-cookie', value='cookie-value')
 
     def test_unpickled_session_requests(self):
         s = requests.session()

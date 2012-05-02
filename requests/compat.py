@@ -83,7 +83,7 @@ if is_py2:
     from urlparse import urlparse, urlunparse, urljoin, urlsplit
     from urllib2 import parse_http_list
     import cookielib
-    from .packages.oreos.monkeys import SimpleCookie
+    from Cookie import Morsel
     from StringIO import StringIO
 
     bytes = str
@@ -96,7 +96,7 @@ elif is_py3:
     from urllib.parse import urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote
     from urllib.request import parse_http_list
     from http import cookiejar as cookielib
-    from http.cookies import SimpleCookie
+    from http.cookies import Morsel
     from io import StringIO
 
     str = str
