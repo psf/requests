@@ -4,8 +4,7 @@ python:
   - 2.7
   - 3.2
 env: HTTPBIN_URL=http://httpbin.org/
-script: make ci
+script: make simpleci
 install:
   - pip install nose
-  - pip install gevent
   - pip install . --use-mirrors
