@@ -15,6 +15,7 @@ from .structures import CaseInsensitiveDict
 from .status_codes import codes
 
 from .auth import HTTPBasicAuth, HTTPProxyAuth
+from .cookies import cookiejar_from_dict, extract_cookies_to_jar, get_cookie_header
 from .packages.urllib3.response import HTTPResponse
 from .packages.urllib3.exceptions import MaxRetryError, LocationParseError
 from .packages.urllib3.exceptions import SSLError as _SSLError
@@ -27,11 +28,11 @@ from .exceptions import (
     URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
-    dict_from_string, stream_decode_response_unicode, get_netrc_auth,
+    stream_decode_response_unicode, get_netrc_auth,
     DEFAULT_CA_BUNDLE_PATH)
 from .compat import (
-    urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    SimpleCookie, is_py2)
+    cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
+    is_py2)
 
 # Import chardet if it is available.
 try:
@@ -126,7 +127,10 @@ class Request(object):
         self.auth = auth
 
         #: CookieJar to attach to :class:`Request <Request>`.
-        self.cookies = dict(cookies or [])
+        if isinstance(cookies, cookielib.CookieJar):
+            self.cookies = cookies
+        else:
+            self.cookies = cookiejar_from_dict(cookies)
 
         #: True if Request has been sent.
         self.sent = False
@@ -193,16 +197,11 @@ class Request(object):
                 # Set encoding.
                 response.encoding = get_encoding_from_headers(response.headers)
 
-                # Start off with our local cookies.
-                cookies = self.cookies or dict()
-
                 # Add new cookies from the server.
-                if 'set-cookie' in response.headers:
-                    cookie_header = response.headers['set-cookie']
-                    cookies = dict_from_string(cookie_header)
+                extract_cookies_to_jar(self.cookies, self, resp)
 
                 # Save cookies in Response.
-                response.cookies = cookies
+                response.cookies = self.cookies
 
                 # No exceptions were harmed in the making of this request.
                 response.error = getattr(resp, 'error', None)
@@ -219,8 +218,6 @@ class Request(object):
         history = []
 
         r = build(resp)
-
-        self.cookies.update(r.cookies)
 
         if r.status_code in REDIRECT_STATI and not self.redirect:
 
@@ -299,13 +296,11 @@ class Request(object):
 
                 request.send()
                 r = request.response
-                self.cookies.update(r.cookies)
 
             r.history = history
 
         self.response = r
         self.response.request = self
-        self.response.cookies.update(self.cookies)
 
     @staticmethod
     def _encode_params(data):
@@ -565,20 +560,10 @@ class Request(object):
 
         if not self.sent or anyway:
 
-            if self.cookies:
-
-                # Skip if 'cookie' header is explicitly set.
-                if 'cookie' not in self.headers:
-
-                    # Simple cookie with our dict.
-                    c = SimpleCookie()
-                    for (k, v) in list(self.cookies.items()):
-                        c[k] = v
-
-                    # Turn it into a header.
-                    cookie_header = c.output(header='', sep='; ').strip()
-
-                    # Attach Cookie header to request.
+            # Skip if 'cookie' header is explicitly set.
+            if 'cookie' not in self.headers:
+                cookie_header = get_cookie_header(self.cookies, self)
+                if cookie_header is not None:
                     self.headers['Cookie'] = cookie_header
 
             # Pre-request hook.
@@ -623,7 +608,15 @@ class Request(object):
                 else:
                     raise
 
-            self._build_response(r)
+            # build_response can throw TooManyRedirects
+            try:
+                self._build_response(r)
+            except RequestException as e:
+                if self.config.get('safe_mode', False):
+                    # In safe mode, catch the exception
+                    self.response.error = e
+                else:
+                    raise
 
             # Response manipulation hook.
             self.response = dispatch_hook('response', self.hooks, self.response)
@@ -683,8 +676,8 @@ class Response(object):
         #: The :class:`Request <Request>` that created the Response.
         self.request = None
 
-        #: A dictionary of Cookies the server sent back.
-        self.cookies = {}
+        #: A CookieJar of Cookies the server sent back.
+        self.cookies = None
 
         #: Dictionary of configurations for this request.
         self.config = {}

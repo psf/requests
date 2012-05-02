@@ -302,8 +302,8 @@ If a response contains some Cookies, you can get quick access to them::
     >>> url = 'http://httpbin.org/cookies/set/requests-is/awesome'
     >>> r = requests.get(url)
 
-    >>> print r.cookies
-    {'requests-is': 'awesome'}
+    >>> r.cookies['requests-is']
+    'awesome'
 
 To send your own cookies to the server, you can use the ``cookies``
 parameter::

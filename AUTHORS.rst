@@ -96,3 +96,4 @@ Patches and Suggestions
 - Michael Newman <newmaniese@gmail.com>
 - Jonty Wareing <jonty@jonty.co.uk>
 - Shivaram Lingamneni
+- Miguel Turner

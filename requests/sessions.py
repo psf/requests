@@ -9,12 +9,13 @@ requests (cookies, auth, proxies).
 
 """
 
+from .compat import cookielib
+from .cookies import cookiejar_from_dict, remove_cookie_by_name
 from .defaults import defaults
 from .models import Request
 from .hooks import dispatch_hook
 from .utils import header_expand
 from .packages.urllib3.poolmanager import PoolManager
-
 
 def merge_kwargs(local_kwarg, default_kwarg):
     """Merges kwarg dictionaries.
@@ -69,7 +70,6 @@ class Session(object):
         cert=None):
 
         self.headers = headers or {}
-        self.cookies = cookies or {}
         self.auth = auth
         self.timeout = timeout
         self.proxies = proxies or {}
@@ -86,11 +86,10 @@ class Session(object):
         self.init_poolmanager()
 
         # Set up a CookieJar to be used by default
-        self.cookies = {}
-
-        # Add passed cookies in.
-        if cookies is not None:
-            self.cookies.update(cookies)
+        if isinstance(cookies, cookielib.CookieJar):
+            self.cookies = cookies
+        else:
+            self.cookies = cookiejar_from_dict(cookies)
 
     def init_poolmanager(self):
         self.poolmanager = PoolManager(
@@ -148,7 +147,6 @@ class Session(object):
         method = str(method).upper()
 
         # Default empty dicts for dict params.
-        cookies = {} if cookies is None else cookies
         data = {} if data is None else data
         files = {} if files is None else files
         headers = {} if headers is None else headers
@@ -185,11 +183,33 @@ class Session(object):
             _poolmanager=self.poolmanager
         )
 
+        # merge session cookies into passed-in ones
+        dead_cookies = None
+        # passed-in cookies must become a CookieJar:
+        if not isinstance(cookies, cookielib.CookieJar):
+            args['cookies'] = cookiejar_from_dict(cookies)
+            # support unsetting cookies that have been passed in with None values
+            # this is only meaningful when `cookies` is a dict ---
+            # for a real CookieJar, the client should use session.cookies.clear()
+            if cookies is not None:
+                dead_cookies = [name for name in cookies if cookies[name] is None]
+        # merge the session's cookies into the passed-in cookies:
+        for cookie in self.cookies:
+            args['cookies'].set_cookie(cookie)
+        # remove the unset cookies from the jar we'll be using with the current request
+        # (but not from the session's own store of cookies):
+        if dead_cookies is not None:
+            for name in dead_cookies:
+                remove_cookie_by_name(args['cookies'], name)
+
         # Merge local kwargs with session kwargs.
         for attr in self.__attrs__:
+            # we already merged cookies:
+            if attr == 'cookies':
+                continue
+
             session_val = getattr(self, attr, None)
             local_val = args.get(attr)
-
             args[attr] = merge_kwargs(local_val, session_val)
 
         # Arguments manipulation hook.
@@ -209,7 +229,8 @@ class Session(object):
         r.send(prefetch=prefetch)
 
         # Send any cookies back up the to the session.
-        self.cookies.update(r.response.cookies)
+        for cookie in r.response.cookies:
+            self.cookies.set_cookie(cookie)
 
         # Return the response.
         return r.response

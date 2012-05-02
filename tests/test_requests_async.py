@@ -12,7 +12,6 @@ import select
 has_poll = hasattr(select, "poll")
 
 from requests import async
-import envoy
 
 sys.path.append('.')
 from test_requests import httpbin, RequestsTestSuite, SERVICES
