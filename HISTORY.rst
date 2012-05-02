@@ -6,7 +6,10 @@ History
 0.11.3 (2012-05-01)
 +++++++++++++++++++
 
-- EXPERIMENTAL OAUTH1 SUPPORT
+- EXPERIMENTAL OAUTH SUPPORT!
+- Speed fix for non-iterated content chunks
+- Move pre_request to a more usable place
+- Cleanups, fixes
 
 0.11.2 (2012-04-22)
 +++++++++++++++++++
