@@ -109,10 +109,10 @@ class Request(object):
         # If no proxies are given, allow configuration by environment variables
         # HTTP_PROXY and HTTPS_PROXY.
         if not self.proxies and self.config.get('trust_env'):
-          if 'HTTP_PROXY' in os.environ:
-            self.proxies['http'] = os.environ['HTTP_PROXY']
-          if 'HTTPS_PROXY' in os.environ:
-            self.proxies['https'] = os.environ['HTTPS_PROXY']
+            if 'HTTP_PROXY' in os.environ:
+                self.proxies['http'] = os.environ['HTTP_PROXY']
+            if 'HTTPS_PROXY' in os.environ:
+                self.proxies['https'] = os.environ['HTTPS_PROXY']
 
         self.data, self._enc_data = self._encode_params(data)
         self.params, self._enc_params = self._encode_params(params)
@@ -344,7 +344,7 @@ class Request(object):
         else:
             return data, data
 
-    def _encode_files(self,files):
+    def _encode_files(self, files):
 
         if (not files) or isinstance(self.data, str):
             return None, None
@@ -389,7 +389,6 @@ class Request(object):
 
         if not path:
             path = '/'
-
 
         if is_py2:
             if isinstance(scheme, str):
@@ -448,7 +447,7 @@ class Request(object):
 
         self.hooks[event].append(hook)
 
-    def deregister_hook(self,event,hook):
+    def deregister_hook(self, event, hook):
         """Deregister a previously registered hook.
         Returns True if the hook existed, False if not.
         """
@@ -513,7 +512,6 @@ class Request(object):
         # Add content-type if it wasn't explicitly provided.
         if (content_type) and (not 'content-type' in self.headers):
             self.headers['Content-Type'] = content_type
-
 
         _p = urlparse(url)
         proxy = self.proxies.get(_p.scheme)
@@ -800,7 +798,6 @@ class Response(object):
         except Exception:
             pass
 
-
     @property
     def text(self):
         """Content of the response, in unicode.
@@ -846,7 +843,6 @@ class Response(object):
             http_error = HTTPError('%s Client Error' % self.status_code)
             http_error.response = self
             raise http_error
-
 
         elif (self.status_code >= 500) and (self.status_code < 600):
             http_error = HTTPError('%s Server Error' % self.status_code)
