@@ -13,14 +13,11 @@ lazy:
 simple:
 	nosetests tests/test_requests.py
 
+ci:
+	find tests/ -name "*.py" ! -name "test_requests_ext.py" ! -name "test_requests_async.py" | xargs nosetests --with-xunit --xunit-file=junit-report.xml
+
 server:
 	gunicorn httpbin:app --bind=0.0.0.0:7077 &
-
-ci: init
-	nosetests tests/test_requests.py --with-xunit --xunit-file=junit-report.xml
-
-simpleci:
-	nosetests tests/test_requests.py --with-xunit --xunit-file=junit-report.xml
 
 stats:
 	pyflakes requests | awk -F\: '{printf "%s:%s: [E]%s\n", $1, $2, $3}' > violations.pyflakes.txt
