@@ -653,8 +653,11 @@ class Response(object):
 
     def __init__(self):
 
+        # bytes of the page:
         self._content = False
         self._content_consumed = False
+        # unicode of the page:
+        self._text = None
 
         #: Integer Code of responded HTTP Status.
         self.status_code = None
@@ -793,7 +796,6 @@ class Response(object):
         except Exception:
             return 'utf-8'
 
-
     @property
     def text(self):
         """Content of the response, in unicode.
@@ -801,6 +803,9 @@ class Response(object):
         if Response.encoding is None and chardet module is available, encoding
         will be guessed.
         """
+
+        if self._text is not None:
+            return self._text
 
         # Try charset from content-type
         content = None
@@ -822,6 +827,7 @@ class Response(object):
         except (UnicodeError, TypeError):
             pass
 
+        self._text = content
         return content
 
     def raise_for_status(self, allow_redirects=True):
