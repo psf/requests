@@ -12,14 +12,12 @@ that are also useful for external consumption.
 import cgi
 import codecs
 import os
-import random
 import re
 import zlib
 from netrc import netrc, NetrcParseError
 
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, is_py2, urlparse
-from .compat import basestring, bytes, str
+from .compat import quote, urlparse, basestring, bytes, str
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 
 _hush_pyflakes = (RequestsCookieJar,)
@@ -246,15 +244,6 @@ def header_expand(headers):
         del collector[-1]
 
     return ''.join(collector)
-
-
-def randombytes(n):
-    """Return n random bytes."""
-    if is_py2:
-        L = [chr(random.randrange(0, 256)) for i in range(n)]
-    else:
-        L = [chr(random.randrange(0, 256)).encode('utf-8') for i in range(n)]
-    return b"".join(L)
 
 
 def dict_from_cookiejar(cj):
