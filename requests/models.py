@@ -570,6 +570,10 @@ class Request(object):
                 if cookie_header is not None:
                     self.headers['Cookie'] = cookie_header
 
+            # Pre-send hook.
+            r = dispatch_hook('pre_send', self.hooks, self)
+            self.__dict__.update(r.__dict__)
+
             try:
                 # The inner try .. except re-raises certain exceptions as
                 # internal exception types; the outer suppresses exceptions
