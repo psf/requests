@@ -461,6 +461,10 @@ class Request(object):
         # Build the URL
         url = self.full_url
 
+        # Pre-request hook.
+        r = dispatch_hook('pre_request', self.hooks, self)
+        self.__dict__.update(r.__dict__)
+
         # Logging
         if self.config.get('verbose'):
             self.config.get('verbose').write('%s   %s   %s\n' % (
@@ -565,10 +569,6 @@ class Request(object):
                 cookie_header = get_cookie_header(self.cookies, self)
                 if cookie_header is not None:
                     self.headers['Cookie'] = cookie_header
-
-            # Pre-request hook.
-            r = dispatch_hook('pre_request', self.hooks, self)
-            self.__dict__.update(r.__dict__)
 
             try:
                 # The inner try .. except re-raises certain exceptions as
