@@ -1,27 +1,23 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
-import os
+"""
+distutils/setuptools install script. See inline comments for packaging documentation.
+"""
+
 import sys
+
 import requests
-from requests.compat import is_py3, is_py2
+from requests.compat import is_py3
 
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
-
-
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
-if sys.argv[-1] == 'test':
-    os.system('python tests/test_requests.py')
-    sys.exit()
-
-required = ['certifi>=0.0.7']
 packages = [
     'requests',
     'requests.packages',
@@ -31,12 +27,26 @@ packages = [
     'requests.packages.urllib3.packages.mimetools_choose_boundary',
 ]
 
+# certifi is a Python package containing a CA certificate bundle for SSL verification.
+# On certain supported platforms (e.g., Red Hat / Debian / FreeBSD), Requests can
+# use the system CA bundle instead; see `requests.utils` for details.
+# If your platform is supported, set `requires` to [] instead:
+requires = ['certifi>=0.0.7']
+
+# chardet is used to optimally guess the encodings of pages that don't declare one.
+# At this time, chardet is not a required dependency. However, it's sufficiently
+# important that pip/setuptools should install it when it's unavailable.
 if is_py3:
-    required.append('chardet2')
+    chardet_package = 'chardet2'
 else:
-    required.append('chardet>=1.0.0')
-    required.append('oauthlib')
-    packages.append('requests.packages.oreos')
+    chardet_package = 'chardet>=1.0.0'
+requires.append(chardet_package)
+
+# The async API in requests.async requires the gevent package.
+# This is also not a required dependency.
+extras_require = {
+        'async': ['gevent'],
+}
 
 setup(
     name='requests',
@@ -50,7 +60,8 @@ setup(
     packages=packages,
     package_data={'': ['LICENSE', 'NOTICE']},
     include_package_data=True,
-    install_requires=required,
+    install_requires=requires,
+    extras_require=extras_require,
     license=open("LICENSE").read(),
     classifiers=(
         'Development Status :: 5 - Production/Stable',
