@@ -810,8 +810,6 @@ class Response(object):
             #
             # So we try blindly encoding.
             content = str(self.content, errors='replace')
-        except (UnicodeError, TypeError):
-            pass
 
         return content
 
