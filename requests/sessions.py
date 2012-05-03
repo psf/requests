@@ -229,8 +229,10 @@ class Session(object):
         r.send(prefetch=prefetch)
 
         # Send any cookies back up the to the session.
-        for cookie in r.response.cookies:
-            self.cookies.set_cookie(cookie)
+        # (in safe mode, cookies may be None if the request didn't succeed)
+        if r.response.cookies is not None:
+            for cookie in r.response.cookies:
+                self.cookies.set_cookie(cookie)
 
         # Return the response.
         return r.response

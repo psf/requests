@@ -847,5 +847,15 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         r = requests.get(httpbin('status', '404'))
         r.text
 
+    def test_max_redirects(self):
+        def unsafe_callable():
+            requests.get("http://httpbin.org/redirect/3", config=dict(max_redirects=2))
+        self.assertRaises(requests.exceptions.TooManyRedirects, unsafe_callable)
+
+        # add safe mode
+        response = requests.get("http://httpbin.org/redirect/3", config=dict(safe_mode=True, max_redirects=2))
+        self.assertTrue(response.content is None)
+        self.assertTrue(isinstance(response.error, requests.exceptions.TooManyRedirects))
+
 if __name__ == '__main__':
     unittest.main()
