@@ -4,6 +4,7 @@
 distutils/setuptools install script. See inline comments for packaging documentation.
 """
 
+import os
 import sys
 
 import requests

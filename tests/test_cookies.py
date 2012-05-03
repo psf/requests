@@ -38,7 +38,7 @@ class CookieTests(TestBaseMixin, unittest.TestCase):
         r = requests.get("http://github.com")
         c = r.cookies
         # github should send us cookies
-        self.assertGreaterEqual(len(c), 1)
+        self.assertTrue(len(c) >= 1)
 
         # github cookies should not be sent to httpbin.org:
         r2 = requests.get(httpbin('cookies'), cookies=c)
@@ -47,7 +47,7 @@ class CookieTests(TestBaseMixin, unittest.TestCase):
         # let's do this again using the session object
         s = requests.session()
         s.get("http://github.com")
-        self.assertGreaterEqual(len(s.cookies), 1)
+        self.assertTrue(len(s.cookies) >= 1)
         r = s.get(httpbin('cookies'))
         self.assertEqual(json.loads(r.text)['cookies'], {})
         # we can set a cookie and get exactly that same-domain cookie back:
@@ -79,12 +79,12 @@ class CookieTests(TestBaseMixin, unittest.TestCase):
         r2 = requests.get(httpbin('cookies', 'set', 'very', 'well'), cookies=r.cookies)
         expected_cookies = {'redirects': 'work', 'very': 'well'}
         self.assertEqual(json.loads(r2.text)['cookies'], expected_cookies)
-        self.assertIs(r.cookies, r2.cookies)
+        self.assertTrue(r.cookies is r2.cookies)
 
     def test_none_cookie(self):
         """Regression test: don't send a Cookie header with a string value of 'None'!"""
         page = json.loads(requests.get(httpbin('headers')).text)
-        self.assertNotIn('Cookie', page['headers'])
+        self.assertTrue('Cookie' not in page['headers'])
 
 class LWPCookieJarTest(TestBaseMixin, unittest.TestCase):
     """Check store/load of cookies to FileCookieJar's, specifically LWPCookieJar's."""
@@ -142,12 +142,12 @@ class LWPCookieJarTest(TestBaseMixin, unittest.TestCase):
         # github sets a cookie
         requests.get("http://github.com", cookies=cookiejar)
         num_github_cookies = len(cookiejar)
-        self.assertGreaterEqual(num_github_cookies, 1)
+        self.assertTrue(num_github_cookies >= 1)
         # httpbin sets another
         requests.get(httpbin('cookies', 'set', 'key', 'value'), cookies=cookiejar)
         num_total_cookies = len(cookiejar)
-        self.assertGreaterEqual(num_total_cookies, 2)
-        self.assertGreater(num_total_cookies, num_github_cookies)
+        self.assertTrue(num_total_cookies >= 2)
+        self.assertTrue(num_total_cookies > num_github_cookies)
 
         # save and load
         cookiejar.save(ignore_discard=True)
