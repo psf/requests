@@ -12,6 +12,8 @@ from requests.compat import is_py3
 
 try:
     from setuptools import setup
+    # hush pyflakes
+    setup
 except ImportError:
     from distutils.core import setup
 

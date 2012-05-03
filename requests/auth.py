@@ -12,12 +12,14 @@ import hashlib
 
 from base64 import b64encode
 
-from .compat import urlparse, str, is_py2
+from .compat import urlparse, str
 from .utils import randombytes, parse_dict_header
 
 try:
     from oauthlib.oauth1.rfc5849 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
     from oauthlib.common import extract_params
+    # hush pyflakes:
+    SIGNATURE_HMAC; SIGNATURE_TYPE_AUTH_HEADER
 except (ImportError, SyntaxError):
     SIGNATURE_HMAC = None
     SIGNATURE_TYPE_AUTH_HEADER = None
