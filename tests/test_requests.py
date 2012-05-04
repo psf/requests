@@ -848,14 +848,28 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         r.text
 
     def test_max_redirects(self):
+        """Test the max_redirects config variable, normally and under safe_mode."""
         def unsafe_callable():
-            requests.get("http://httpbin.org/redirect/3", config=dict(max_redirects=2))
+            requests.get(httpbin('redirect', '3'), config=dict(max_redirects=2))
         self.assertRaises(requests.exceptions.TooManyRedirects, unsafe_callable)
 
         # add safe mode
-        response = requests.get("http://httpbin.org/redirect/3", config=dict(safe_mode=True, max_redirects=2))
+        response = requests.get(httpbin('redirect', '3'), config=dict(safe_mode=True, max_redirects=2))
         self.assertTrue(response.content is None)
         self.assertTrue(isinstance(response.error, requests.exceptions.TooManyRedirects))
+
+    def test_connection_keepalive_and_close(self):
+        """Test that we send 'Connection: close' when keep_alive is disabled."""
+        # keep-alive should be on by default
+        r1 = requests.get(httpbin('get'))
+        # XXX due to proxying issues, test the header sent back by httpbin, rather than
+        # the header reported in its message body. See kennethreitz/httpbin#46
+        self.assertEqual(r1.headers['Connection'].lower(), 'keep-alive')
+
+        # but when we disable it, we should send a 'Connection: close'
+        # and get the same back:
+        r2 = requests.get(httpbin('get'), config=dict(keep_alive=False))
+        self.assertEqual(r2.headers['Connection'].lower(), 'close')
 
 if __name__ == '__main__':
     unittest.main()
