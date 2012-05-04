@@ -1,5 +1,13 @@
 SHELL := /bin/bash
 
+# these files should pass pyflakes
+PYFLAKES_WHITELIST=$(shell find . -name "*.py" ! -path "./docs/*" ! -path "./tests/*" ! -path "./requests/packages/*" \
+	! -path "./requests/__init__.py" ! -path "./requests/compat.py")
+
+# test_requests_ext.py depends on external services, and async doesn't work under Python 3
+# Travis/Jenkins should be ensuring that all other tests pass on all supported versions
+CI_TESTS=$(shell find tests/ -name "*.py" ! -name "test_requests_ext.py" ! -name "test_requests_async.py")
+
 init:
 	python setup.py develop
 	pip install -r requirements.txt
@@ -13,20 +21,30 @@ lazy:
 simple:
 	nosetests tests/test_requests.py
 
-ci:
-	find tests/ -name "*.py" ! -name "test_requests_ext.py" ! -name "test_requests_async.py" | xargs nosetests --with-xunit --xunit-file=junit-report.xml
+pyflakes:
+	pyflakes ${PYFLAKES_WHITELIST}
+
+citests:
+	nosetests ${CI_TESTS} --with-xunit --xunit-file=junit-report.xml
+
+ci: citests pyflakes
+
+travis: citests
 
 server:
 	gunicorn httpbin:app --bind=0.0.0.0:7077 &
 
-stats:
-	pyflakes requests | awk -F\: '{printf "%s:%s: [E]%s\n", $1, $2, $3}' > violations.pyflakes.txt
+# compute statistics of various kinds
+lemonade:
+	-pyflakes requests > violations.pyflakes.txt
+	# HTML output will be available in the default location, ./cover/
+	nosetests --with-coverage --cover-html --cover-package=requests ${CI_TESTS} ./tests/test_requests_async.py
 
 site:
 	cd docs; make dirhtml
 
-pyc:
-	find . -name "*.pyc" -exec rm '{}' ';'
+clean:
+	git clean -Xfd
 
 deps:
 	rm -fr requests/packages/urllib3

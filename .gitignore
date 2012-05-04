@@ -1,10 +1,13 @@
+.coverage
 MANIFEST
 coverage.xml
 nosetests.xml
+junit-report.xml
 pylint.txt
 toy.py
-junit-report.xml
-requests.egg-info/
+violations.pyflakes.txt
+cover/
 docs/_build
+requests.egg-info/
 *.pyc
 *.swp
