@@ -526,6 +526,7 @@ class Request(object):
                     conn = self._poolmanager.connection_from_url(url)
                 else:
                     conn = connectionpool.connection_from_url(url)
+                    self.headers['Connection'] = 'close'
             except LocationParseError as e:
                 raise InvalidURL(e)
 
