@@ -56,8 +56,9 @@ class TestBaseMixin(object):
     def assertCookieHas(self, cookie, **kwargs):
         """Assert that a cookie has various specified properties."""
         for attr, expected_value in kwargs.items():
-            message = 'Failed comparison for %s' % (attr,)
-            self.assertEqual(getattr(cookie, attr), expected_value, message)
+            cookie_attr = getattr(cookie, attr)
+            message = 'Failed comparison for %s: %s != %s' % (attr, cookie_attr, expected_value)
+            self.assertEqual(cookie_attr, expected_value, message)
 
 class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
     """Requests test cases."""
