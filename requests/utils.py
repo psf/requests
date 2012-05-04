@@ -446,3 +446,19 @@ def requote_uri(uri):
     # Then quote only illegal characters (do not quote reserved, unreserved,
     # or '%')
     return quote(unquote_unreserved(uri), safe="!#$%&'()*+,/:;=?@[]~")
+
+def get_environ_proxies():
+    """Return a dict of environment proxies."""
+
+    proxy_keys = [
+        'all',
+        'http',
+        'https',
+        'ftp',
+        'socks',
+        'no'
+    ]
+
+    get_proxy = lambda k: os.environ.get(k) or os.environ.get(k.upper())
+    proxies = [(key, get_proxy(key + '_proxy')) for key in proxy_keys]
+    return dict([(key, val) for (key, val) in proxies if val])
