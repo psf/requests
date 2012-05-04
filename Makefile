@@ -1,7 +1,9 @@
 SHELL := /bin/bash
 
 # these files should pass pyflakes
-PYFLAKES_WHITELIST=$(shell find . -name "*.py" ! -path "./docs/*" ! -path "./tests/*" ! -path "./requests/packages/*" \
+# exclude ./env/, which may contain virtualenv packages
+PYFLAKES_WHITELIST=$(shell find . -name "*.py" ! -path "./docs/*" ! -path "./tests/*" \
+	! -path "./requests/packages/*" ! -path "./env/*" \
 	! -path "./requests/__init__.py" ! -path "./requests/compat.py")
 
 # test_requests_ext.py depends on external services, and async doesn't work under Python 3
