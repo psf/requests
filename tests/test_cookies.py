@@ -86,6 +86,22 @@ class CookieTests(TestBaseMixin, unittest.TestCase):
         page = json.loads(requests.get(httpbin('headers')).text)
         self.assertTrue('Cookie' not in page['headers'])
 
+    def test_secure_cookies(self):
+        """Test that secure cookies can only be sent via https."""
+        header = "Set-Cookie: ThisIsA=SecureCookie; Path=/; Secure; HttpOnly"
+        url = 'https://httpbin.org/response-headers?%s' % (requests.utils.quote(header),)
+        cookies = requests.get(url, verify=False).cookies
+        self.assertEqual(len(cookies), 1)
+        self.assertEqual(list(cookies)[0].secure, True)
+
+        secure_resp = requests.get('https://httpbin.org/cookies', cookies=cookies, verify=False)
+        secure_cookies_sent = json.loads(secure_resp.text)['cookies']
+        self.assertEqual(secure_cookies_sent, {'ThisIsA': 'SecureCookie'})
+
+        insecure_resp = requests.get('http://httpbin.org/cookies', cookies=cookies)
+        insecure_cookies_sent = json.loads(insecure_resp.text)['cookies']
+        self.assertEqual(insecure_cookies_sent, {})
+
 class LWPCookieJarTest(TestBaseMixin, unittest.TestCase):
     """Check store/load of cookies to FileCookieJar's, specifically LWPCookieJar's."""
 
@@ -156,6 +172,31 @@ class LWPCookieJarTest(TestBaseMixin, unittest.TestCase):
         self.assertEqual(len(cookiejar_2), num_total_cookies)
         r = requests.get(httpbin('cookies'), cookies=cookiejar_2)
         self.assertEqual(json.loads(r.text)['cookies'], {'key': 'value'})
+
+    def test_persistent_cookies(self):
+        """Test that we correctly interpret persistent cookies."""
+        # httpbin's normal cookie methods don't send persistent cookies,
+        # so cook up the appropriate header and force it to send
+        header = "Set-Cookie: Persistent=CookiesAreScary; expires=Sun, 04-May-2032 04:56:50 GMT; path=/"
+        url = httpbin('response-headers?%s' % (requests.utils.quote(header),))
+        cookiejar = self.COOKIEJAR_CLASS(self.cookiejar_filename)
+
+        requests.get(url, cookies=cookiejar)
+        self.assertEqual(len(cookiejar), 1)
+        self.assertCookieHas(list(cookiejar)[0], name='Persistent', value='CookiesAreScary')
+
+        requests.get(httpbin('cookies', 'set', 'ThisCookieIs', 'SessionOnly'), cookies=cookiejar)
+        self.assertEqual(len(cookiejar), 2)
+        self.assertEqual(len([c for c in cookiejar if c.name == 'Persistent']), 1)
+        self.assertEqual(len([c for c in cookiejar if c.name == 'ThisCookieIs']), 1)
+
+        # save and load
+        cookiejar.save()
+        cookiejar_2 = self.COOKIEJAR_CLASS(self.cookiejar_filename)
+        cookiejar_2.load()
+        # we should only load the persistent cookie
+        self.assertEqual(len(cookiejar_2), 1)
+        self.assertCookieHas(list(cookiejar_2)[0], name='Persistent', value='CookiesAreScary')
 
 class MozCookieJarTest(LWPCookieJarTest):
     """Same test, but substitute MozillaCookieJar."""
