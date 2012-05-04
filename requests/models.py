@@ -28,7 +28,7 @@ from .exceptions import (
     URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
-    stream_decode_response_unicode, get_netrc_auth,
+    stream_decode_response_unicode, get_netrc_auth, get_environ_proxies,
     DEFAULT_CA_BUNDLE_PATH)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
@@ -112,10 +112,7 @@ class Request(object):
         # If no proxies are given, allow configuration by environment variables
         # HTTP_PROXY and HTTPS_PROXY.
         if not self.proxies and self.config.get('trust_env'):
-            if 'HTTP_PROXY' in os.environ:
-                self.proxies['http'] = os.environ['HTTP_PROXY']
-            if 'HTTPS_PROXY' in os.environ:
-                self.proxies['https'] = os.environ['HTTPS_PROXY']
+            self.proxies = get_environ_proxies()
 
         self.data = data
         self.params = params
