@@ -97,3 +97,4 @@ Patches and Suggestions
 - Jonty Wareing <jonty@jonty.co.uk>
 - Shivaram Lingamneni
 - Miguel Turner
+- Rohan Jain (crodjer)
