@@ -731,7 +731,7 @@ class Response(object):
 
         return gen
 
-    def iter_lines(self, chunk_size=1, decode_unicode=None):
+    def iter_lines(self, chunk_size=1, decode_unicode=False):
         """Iterates over the response data, one line at a time.  This
         avoids reading the content at once into memory for large
         responses.
