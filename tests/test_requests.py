@@ -344,13 +344,13 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             post3 = post(url, files={'fname.txt': 'fdata', 'fname2.txt':open(__file__,'rb')})
             self.assertEqual(post3.status_code, 200)
 
-            post4 = post(url, files={'fname.txt': u'fdata'})
+            post4 = post(url, files={'fname.txt': 'fdata'})
             self.assertEqual(post4.status_code, 200)
 
             post5 = post(url, files={'file': ('file.txt', 'more fdata')})
             self.assertEqual(post5.status_code, 200)
 
-            post6 = post(url, files={'fname.txt': u'\xe9'})
+            post6 = post(url, files={'fname.txt': '\xe9'})
             self.assertEqual(post6.status_code, 200)
 
     def test_nonzero_evaluation(self):
