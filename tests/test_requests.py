@@ -353,6 +353,13 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             post6 = post(url, files={'fname.txt': '\xe9'})
             self.assertEqual(post6.status_code, 200)
 
+            post7 = post(url, files={'fname.txt': 'fdata to verify'})
+            rbody = json.loads(post7.text)
+            self.assertTrue(rbody.get('files', None))
+            self.assertTrue(rbody['files'].get('fname.txt'), None)
+            self.assertEqual(rbody['files']['fname.txt'], 'fdata to verify')
+
+
     def test_nonzero_evaluation(self):
 
         for service in SERVICES:
