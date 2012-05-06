@@ -329,6 +329,37 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
             self.assertEqual(post2.status_code, 200)
 
+    def test_POSTBIN_GET_POST_FILES_STRINGS(self):
+
+        for service in SERVICES:
+
+            url = service('post')
+
+            post1 = post(url, files={'fname.txt': 'fdata'})
+            self.assertEqual(post1.status_code, 200)
+
+            post2 = post(url, files={'fname.txt': 'fdata', 'fname2.txt':'more fdata'})
+            self.assertEqual(post2.status_code, 200)
+
+            post3 = post(url, files={'fname.txt': 'fdata', 'fname2.txt':open(__file__,'rb')})
+            self.assertEqual(post3.status_code, 200)
+
+            post4 = post(url, files={'fname.txt': 'fdata'})
+            self.assertEqual(post4.status_code, 200)
+
+            post5 = post(url, files={'file': ('file.txt', 'more fdata')})
+            self.assertEqual(post5.status_code, 200)
+
+            post6 = post(url, files={'fname.txt': '\xe9'})
+            self.assertEqual(post6.status_code, 200)
+
+            post7 = post(url, files={'fname.txt': 'fdata to verify'})
+            rbody = json.loads(post7.text)
+            self.assertTrue(rbody.get('files', None))
+            self.assertTrue(rbody['files'].get('fname.txt'), None)
+            self.assertEqual(rbody['files']['fname.txt'], 'fdata to verify')
+
+
     def test_nonzero_evaluation(self):
 
         for service in SERVICES:
