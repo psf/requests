@@ -7,6 +7,7 @@ requests.models
 This module contains the primary objects that power Requests.
 """
 
+import json
 import os
 from datetime import datetime
 
@@ -796,8 +797,6 @@ class Response(object):
         if self.encoding is None:
             if chardet is not None:
                 encoding = chardet.detect(self.content)['encoding']
-            else:
-                raise ValueError("Can't detect page encoding.")
 
         # Decode unicode from given encoding.
         try:
@@ -810,6 +809,14 @@ class Response(object):
             content = str(self.content, errors='replace')
 
         return content
+
+    @property
+    def json(self):
+        """Returns the json-encoded content of a request, if any."""
+        try:
+            return json.loads(self.text or self.content)
+        except ValueError:
+            return None
 
     def raise_for_status(self, allow_redirects=True):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occurred."""
