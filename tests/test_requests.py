@@ -726,6 +726,16 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         assert params3['b'] in r3.text
         assert params3['c'] in r3.text
 
+    def test_session_cookies_with_return_response_false(self):
+        s = requests.session()
+        # return_response=False as it does requests.async.get
+        rq = get(httpbin('cookies', 'set', 'k', 'v'), return_response=False,
+                 allow_redirects=True, session=s)
+        rq.send(prefetch=True)
+        c = rq.response.json.get('cookies')
+        assert 'k' in c
+        assert 'k' in s.cookies
+
     def test_session_pickling(self):
 
         s = requests.session(
