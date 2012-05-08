@@ -3,6 +3,15 @@
 History
 -------
 
+0.12.1 (2012-05-08)
++++++++++++++++++++
+
+- New ``Response.json`` property
+- Ability to add string file uploads
+- Fix out-of-range issue with iter_lines
+- Fix iter_content default size
+- Fix POST redirects containing files
+
 0.12.0 (2012-05-02)
 +++++++++++++++++++
 
