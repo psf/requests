@@ -33,7 +33,7 @@ from .utils import (
     DEFAULT_CA_BUNDLE_PATH)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    is_py2)
+    StringIO, is_py2)
 
 # Import chardet if it is available.
 try:
@@ -349,6 +349,8 @@ class Request(object):
             else:
                 fn = guess_filename(v) or k
                 fp = v
+            if isinstance(fp, (bytes, str)):
+                fp = StringIO(fp)
             fields.update({k: (fn, fp.read())})
 
         (body, content_type) = encode_multipart_formdata(fields)

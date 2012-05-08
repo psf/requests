@@ -222,6 +222,34 @@ Setting filename explicitly::
       "data": ""
     }
 
+Sending strings to be received as files::
+
+    >>> url = 'http://httpbin.org/post'
+    >>> files = {'file': ('report.csv', 'some,data,to,send\nanother,row,to,send\n')} 
+
+    >>> r = requests.post(url, files=files)
+    >>> r.text
+    {
+      "origin": "179.13.100.4",
+      "files": {
+        "file": "some,data,to,send\\nanother,row,to,send\\n"
+      },
+      "form": {},
+      "url": "http://httpbin.org/post",
+      "args": {},
+      "headers": {
+         "Content-Length": "216",
+         "Accept-Encoding": "identity, deflate, compress, gzip",
+         "Connection": "keep-alive",
+         "Accept": "*/*",
+         "User-Agent": "python-requests/0.11.1",
+         "Host": "httpbin.org", 
+         "Content-Type": "multipart/form-data; boundary=127.0.0.1.502.41433.1335385481.788.1"
+      }, 
+      "json": null,
+      "data": ""
+    }
+
 
 Response Status Codes
 ---------------------

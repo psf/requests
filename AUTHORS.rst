@@ -98,3 +98,4 @@ Patches and Suggestions
 - Shivaram Lingamneni
 - Miguel Turner
 - Rohan Jain (crodjer)
+- Justin Barber <barber.justin@gmail.com>
