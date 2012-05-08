@@ -99,3 +99,4 @@ Patches and Suggestions
 - Miguel Turner
 - Rohan Jain (crodjer)
 - Justin Barber <barber.justin@gmail.com>
+- Roman Haritonov <@reclosedev>
