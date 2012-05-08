@@ -6,6 +6,13 @@ PYFLAKES_WHITELIST=$(shell find . -name "*.py" ! -path "./docs/*" ! -path "./tes
 	! -path "./requests/packages/*" ! -path "./env/*" \
 	! -path "./requests/__init__.py" ! -path "./requests/compat.py")
 
+# hack: if pyflakes is available, set this to the location of pyflakes
+# if it's not, e.g., in the Python 3 or PyPy Jenkins environments, set it to
+# the location of the no-op `true` command.
+PYFLAKES_IF_AVAILABLE=$(shell if which pyflakes > /dev/null ; \
+	then which pyflakes; \
+	else which true; fi )
+
 # test_requests_ext.py depends on external services, and async doesn't work under Python 3
 # Travis/Jenkins should be ensuring that all other tests pass on all supported versions
 CI_TESTS=$(shell find tests/ -name "*.py" ! -name "test_requests_ext.py" ! -name "test_requests_async.py")
@@ -26,10 +33,13 @@ simple:
 pyflakes:
 	pyflakes ${PYFLAKES_WHITELIST}
 
+cipyflakes:
+	${PYFLAKES_IF_AVAILABLE} ${PYFLAKES_WHITELIST}
+
 citests:
 	nosetests ${CI_TESTS} --with-xunit --xunit-file=junit-report.xml
 
-ci: citests pyflakes
+ci: citests cipyflakes
 
 travis: citests
 
