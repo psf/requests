@@ -47,6 +47,7 @@ Features
 - Unicode Response Bodies
 - Multipart File Uploads
 - Connection Timeouts
+- Thread-safety
 
 
 Installation

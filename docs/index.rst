@@ -75,6 +75,7 @@ Requests is ready for today's web.
 - Multipart File Uploads
 - Connection Timeouts
 - ``.netrc`` support
+- Thread-safe.
 
 
 User Guide
