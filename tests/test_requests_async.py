@@ -12,6 +12,7 @@ import select
 has_poll = hasattr(select, "poll")
 
 from requests import async
+import requests
 
 sys.path.append('.')
 from test_requests import httpbin, RequestsTestSuite, SERVICES
@@ -62,6 +63,15 @@ class RequestsTestSuiteUsingAsyncApi(RequestsTestSuite):
     def test_select_poll(self):
         """Test to make sure we don't overwrite the poll"""
         self.assertEqual(hasattr(select, "poll"), has_poll)
+
+    def test_async_with_session_cookies(self):
+        s = requests.Session(cookies={'initial': '42'})
+        r1 = get(httpbin('cookies/set/async/yes'), session=s)
+        r2 = get(httpbin('cookies/set/no_session/yes'))
+        assert 'initial' in r1.cookies
+        assert 'initial' not in r2.cookies and 'async' not in r2.cookies
+        assert 'async' in s.cookies
+        assert 'no_session' not in s.cookies
 
 if __name__ == '__main__':
     unittest.main()

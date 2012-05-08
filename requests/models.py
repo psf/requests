@@ -203,6 +203,12 @@ class Request(object):
                 # Save cookies in Response.
                 response.cookies = self.cookies
 
+                # Save cookies in Session.
+                # (in safe mode, cookies may be None if the request didn't succeed)
+                if self.cookies is not None:
+                    for cookie in self.cookies:
+                        self.session.cookies.set_cookie(cookie)
+
                 # No exceptions were harmed in the making of this request.
                 response.error = getattr(resp, 'error', None)
 
