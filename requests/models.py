@@ -236,6 +236,7 @@ class Request(object):
 
                 url = r.headers['location']
                 data = self.data
+                files = self.files
 
                 # Handle redirection without scheme (see: RFC 1808 Section 4)
                 if url.startswith('//'):
@@ -254,6 +255,7 @@ class Request(object):
                 if r.status_code is codes.see_other:
                     method = 'GET'
                     data = None
+                    files = None
                 else:
                     method = self.method
 
@@ -263,10 +265,12 @@ class Request(object):
                     if r.status_code in (codes.moved, codes.found) and self.method == 'POST':
                         method = 'GET'
                         data = None
+                        files = None
 
                     if (r.status_code == 303) and self.method != 'HEAD':
                         method = 'GET'
                         data = None
+                        files = None
 
                 # Remove the cookie headers that were sent.
                 headers = self.headers
@@ -278,7 +282,7 @@ class Request(object):
                 request = Request(
                     url=url,
                     headers=headers,
-                    files=self.files,
+                    files=files,
                     method=method,
                     params=self.session.params,
                     auth=self.auth,
