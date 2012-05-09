@@ -12,8 +12,9 @@ This module contains a decorator that implements safe_mode.
 """
 
 from .models import Response
-from .exceptions import RequestException, ConnectionError, HTTPError
 from .packages.urllib3.response import HTTPResponse
+from .exceptions import RequestException, ConnectionError, HTTPError
+import socket
 
 def catch_exceptions_if_in_safe_mode(function):
     """New implementation of safe_mode. We catch all exceptions at the API level
@@ -27,7 +28,7 @@ def catch_exceptions_if_in_safe_mode(function):
                                             and kwargs.get('session').config.get('safe_mode')):
             try:
                 return function(method, url, **kwargs)
-            except (RequestException, ConnectionError, HTTPError) as e:
+            except (RequestException, ConnectionError, HTTPError, socket.timeout) as e:
                 r = Response()
                 r.error = e
                 r.raw = HTTPResponse() # otherwise, tests fail
