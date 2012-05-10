@@ -17,7 +17,6 @@ from .status_codes import codes
 
 from .auth import HTTPBasicAuth, HTTPProxyAuth
 from .cookies import cookiejar_from_dict, extract_cookies_to_jar, get_cookie_header
-from .packages.urllib3.response import HTTPResponse
 from .packages.urllib3.exceptions import MaxRetryError, LocationParseError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
