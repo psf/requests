@@ -140,7 +140,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     Unlike a regular CookieJar, this class is pickleable.
     """
 
-    def get(self, name, domain=None, path=None, default=None):
+    def get(self, name, default=None, domain=None, path=None):
         try:
             return self._find(name, domain, path)
         except KeyError:
