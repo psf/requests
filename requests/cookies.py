@@ -94,13 +94,10 @@ def extract_cookies_to_jar(jar, request, response):
     :param response: urllib3.HTTPResponse object
     """
     # the _original_response field is the wrapped httplib.HTTPResponse object,
-    # and in safe mode, it may be None if the request didn't actually complete.
-    # in that case, just skip the cookie extraction.
-    if response._original_response is not None:
-        req = MockRequest(request)
-        # pull out the HTTPMessage with the headers and put it in the mock:
-        res = MockResponse(response._original_response.msg)
-        jar.extract_cookies(res, req)
+    req = MockRequest(request)
+    # pull out the HTTPMessage with the headers and put it in the mock:
+    res = MockResponse(response._original_response.msg)
+    jar.extract_cookies(res, req)
 
 def get_cookie_header(jar, request):
     """Produce an appropriate Cookie header string to be sent with `request`, or None."""

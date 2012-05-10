@@ -204,10 +204,8 @@ class Request(object):
                 response.cookies = self.cookies
 
                 # Save cookies in Session.
-                # (in safe mode, cookies may be None if the request didn't succeed)
-                if self.cookies is not None:
-                    for cookie in self.cookies:
-                        self.session.cookies.set_cookie(cookie)
+                for cookie in self.cookies:
+                    self.session.cookies.set_cookie(cookie)
 
                 # No exceptions were harmed in the making of this request.
                 response.error = getattr(resp, 'error', None)
@@ -587,53 +585,34 @@ class Request(object):
             r = dispatch_hook('pre_send', self.hooks, self)
             self.__dict__.update(r.__dict__)
 
+            # catch urllib3 exceptions and throw Requests exceptions
             try:
-                # The inner try .. except re-raises certain exceptions as
-                # internal exception types; the outer suppresses exceptions
-                # when safe mode is set.
-                try:
-                    # Send the request.
-                    r = conn.urlopen(
-                        method=self.method,
-                        url=self.path_url,
-                        body=body,
-                        headers=self.headers,
-                        redirect=False,
-                        assert_same_host=False,
-                        preload_content=False,
-                        decode_content=False,
-                        retries=self.config.get('max_retries', 0),
-                        timeout=self.timeout,
-                    )
-                    self.sent = True
+                # Send the request.
+                r = conn.urlopen(
+                    method=self.method,
+                    url=self.path_url,
+                    body=body,
+                    headers=self.headers,
+                    redirect=False,
+                    assert_same_host=False,
+                    preload_content=False,
+                    decode_content=False,
+                    retries=self.config.get('max_retries', 0),
+                    timeout=self.timeout,
+                )
+                self.sent = True
 
-                except MaxRetryError as e:
-                    raise ConnectionError(e)
+            except MaxRetryError as e:
+                raise ConnectionError(e)
 
-                except (_SSLError, _HTTPError) as e:
-                    if self.verify and isinstance(e, _SSLError):
-                        raise SSLError(e)
+            except (_SSLError, _HTTPError) as e:
+                if self.verify and isinstance(e, _SSLError):
+                    raise SSLError(e)
 
-                    raise Timeout('Request timed out.')
-
-            except RequestException as e:
-                if self.config.get('safe_mode', False):
-                    # In safe mode, catch the exception and attach it to
-                    # a blank urllib3.HTTPResponse object.
-                    r = HTTPResponse()
-                    r.error = e
-                else:
-                    raise
+                raise Timeout('Request timed out.')
 
             # build_response can throw TooManyRedirects
-            try:
-                self._build_response(r)
-            except RequestException as e:
-                if self.config.get('safe_mode', False):
-                    # In safe mode, catch the exception
-                    self.response.error = e
-                else:
-                    raise
+            self._build_response(r)
 
             # Response manipulation hook.
             self.response = dispatch_hook('response', self.hooks, self.response)
