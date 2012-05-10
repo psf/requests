@@ -47,12 +47,6 @@ else:
 
 requires.append(chardet_package)
 
-# The async API in requests.async requires the gevent package.
-# This is also not a required dependency.
-extras_require = {
-        'async': ['gevent'],
-}
-
 setup(
     name='requests',
     version=requests.__version__,
@@ -66,7 +60,6 @@ setup(
     package_data={'': ['LICENSE', 'NOTICE']},
     include_package_data=True,
     install_requires=requires,
-    extras_require=extras_require,
     license=open("LICENSE").read(),
     classifiers=(
         'Development Status :: 5 - Production/Stable',
