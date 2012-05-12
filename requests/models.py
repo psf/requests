@@ -457,7 +457,7 @@ class Request(object):
             return False
 
     def send(self, anyway=False, prefetch=False):
-        """Sends the request. Returns True of successful, False if not.
+        """Sends the request. Returns True if successful, False if not.
         If there was an HTTPError during transmission,
         self.response.status_code will contain the HTTPError code.
 
