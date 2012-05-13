@@ -15,10 +15,15 @@ Requests is under active development, and contributions are more than welcome!
 Development dependencies
 ------------------------
 
-You'll need to install ``gunicorn`` and ``httpbin`` in order to run requests' test suite::
+You'll need to install ``gunicorn`` and ``httpbin`` and various other dependencies in
+order to run requests' test suite::
 
-    $ pip install -r requirements.txt
+    $ virtualenv env
+    $ . env/bin/activate
+    $ make
+    $ make test
 
+The ``Makefile`` has various useful targets for testing.
 
 What Needs to be Done
 ---------------------

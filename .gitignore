@@ -11,3 +11,4 @@ docs/_build
 requests.egg-info/
 *.pyc
 *.swp
+env/
