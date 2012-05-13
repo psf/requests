@@ -36,6 +36,6 @@ class MissingSchema(RequestException, ValueError):
 
 class InvalidSchema(RequestException, ValueError):
     """See defaults.py for valid schemas."""
-    
+
 class InvalidURL(RequestException, ValueError):
     """ The URL provided was somehow invalid. """
