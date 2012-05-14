@@ -10,7 +10,6 @@ from threading import RLock
 
 __all__ = ['RecentlyUsedContainer']
 
-
 class AccessEntry(object):
     __slots__ = ('key', 'is_valid')
 
@@ -30,10 +29,9 @@ class RecentlyUsedContainer(dict):
     # datastructure during the next 'get' operation.
     CLEANUP_FACTOR = 10
 
-    def __init__(self, maxsize=10):
+    def __init__(self, maxsize=10, dispose_func=None):
         self._maxsize = maxsize
-
-        self._container = {}
+        self.dispose_func = dispose_func
 
         # We use a deque to to store our keys ordered by the last access.
         self.access_log = deque()
@@ -46,6 +44,13 @@ class RecentlyUsedContainer(dict):
 
         # Trigger a heap cleanup when we get past this size
         self.access_log_limit = maxsize * self.CLEANUP_FACTOR
+
+    def clear(self):
+        with self.access_log_lock:
+            if self.dispose_func is not None:
+                for value in self.values():
+                    self.dispose_func(value)
+            dict.clear(self)
 
     def _invalidate_entry(self, key):
         "If exists: Invalidate old entry and return it."
@@ -76,7 +81,10 @@ class RecentlyUsedContainer(dict):
             if not p.is_valid:
                 continue # Invalidated entry, skip
 
-            dict.pop(self, p.key, None)
+            pruned_value = dict.pop(self, p.key, None)
+            # XXX this isn't eager enough
+            if pruned_value is not None and self.dispose_func is not None:
+                self.dispose_func(pruned_value)
             self.access_lookup.pop(p.key, None)
             num -= 1
 

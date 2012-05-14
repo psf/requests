@@ -52,7 +52,12 @@ class PoolManager(RequestMethods):
 
     def __init__(self, num_pools=10, **connection_pool_kw):
         self.connection_pool_kw = connection_pool_kw
-        self.pools = RecentlyUsedContainer(num_pools)
+        self.pools = RecentlyUsedContainer(num_pools, dispose_func=lambda p: p.close())
+        self.closed = False
+
+    def close(self):
+        self.closed = True
+        self.pools.clear()
 
     def connection_from_host(self, host, port=80, scheme='http'):
         """
@@ -61,6 +66,9 @@ class PoolManager(RequestMethods):
         Note that an appropriate ``port`` value is required here to normalize
         connection pools in our container most effectively.
         """
+        if self.closed:
+            raise Exception
+
         pool_key = (scheme, host, port)
 
         # If the scheme, host, or port doesn't match existing open connections,

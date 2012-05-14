@@ -181,6 +181,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         self.num_connections = 0
         self.num_requests = 0
 
+        self.closed = False
+
     def _new_conn(self):
         """
         Return a fresh :class:`httplib.HTTPConnection`.
@@ -189,6 +191,18 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         log.info("Starting new HTTP connection (%d): %s" %
                  (self.num_connections, self.host))
         return HTTPConnection(host=self.host, port=self.port)
+
+    def close(self):
+        self.closed = True
+
+        while True:
+            try:
+                conn = self.pool.get(block=False)
+            except Empty:
+                break
+            # XXX why?
+            if conn is not None:
+                conn.close()
 
     def _get_conn(self, timeout=None):
         """
@@ -202,6 +216,9 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             :class:`urllib3.exceptions.EmptyPoolError` if the pool is empty and
             :prop:`.block` is ``True``.
         """
+        if self.closed:
+            raise Exception
+
         conn = None
         try:
             conn = self.pool.get(block=self.block, timeout=timeout)
@@ -232,6 +249,10 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         exceeded maxsize. If connections are discarded frequently, then maxsize
         should be increased.
         """
+        if self.closed:
+            conn.close()
+            return
+
         try:
             self.pool.put(conn, block=False)
         except Full:

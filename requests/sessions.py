@@ -105,7 +105,10 @@ class Session(object):
         return self
 
     def __exit__(self, *args):
-        pass
+        self.close()
+
+    def close(self):
+        self.poolmanager.close()
 
     def request(self, method, url,
         params=None,

@@ -769,6 +769,8 @@ class Response(object):
                 self._content = None
 
         self._content_consumed = True
+        # don't need to release the connection; that's been handled by urllib3
+        # since we exhausted the data.
         return self._content
 
     @property
