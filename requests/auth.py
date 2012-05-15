@@ -98,11 +98,11 @@ class OAuth1(AuthBase):
             # >>> d['a'] = 'foo'
             # >>> d
             # { u'a' : 'foo' }
-            if u'Authorization' in r.headers:
-                auth_header = r.headers[u'Authorization'].encode('utf-8')
-                del r.headers[u'Authorization']
+            u_header = unicode('Authorization')
+            if u_header in r.headers:               
+                auth_header = r.headers[u_header].encode('utf-8')
+                del r.headers[u_header]
                 r.headers['Authorization'] = auth_header
-                print r.headers
 
             return r
 
