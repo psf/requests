@@ -9,6 +9,7 @@ requests (cookies, auth, proxies).
 
 """
 
+from copy import deepcopy
 from .compat import cookielib
 from .cookies import cookiejar_from_dict, remove_cookie_by_name
 from .defaults import defaults
@@ -81,7 +82,7 @@ class Session(object):
         self.cert = cert
 
         for (k, v) in list(defaults.items()):
-            self.config.setdefault(k, v)
+            self.config.setdefault(k, deepcopy(v))
 
         self.init_poolmanager()
 
