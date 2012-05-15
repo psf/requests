@@ -65,7 +65,7 @@ class Request(object):
         proxies=None,
         hooks=None,
         config=None,
-        prefetch=False,
+        prefetch=True,
         _poolmanager=None,
         verify=None,
         session=None,
@@ -456,7 +456,7 @@ class Request(object):
         except ValueError:
             return False
 
-    def send(self, anyway=False, prefetch=False):
+    def send(self, anyway=False, prefetch=True):
         """Sends the request. Returns True if successful, False if not.
         If there was an HTTPError during transmission,
         self.response.status_code will contain the HTTPError code.
