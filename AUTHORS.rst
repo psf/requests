@@ -100,3 +100,4 @@ Patches and Suggestions
 - Rohan Jain (crodjer)
 - Justin Barber <barber.justin@gmail.com>
 - Roman Haritonov <@reclosedev>
+- Arup Malakar <amalakar@gmail.com>

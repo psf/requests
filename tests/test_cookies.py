@@ -102,6 +102,27 @@ class CookieTests(TestBaseMixin, unittest.TestCase):
         insecure_cookies_sent = json.loads(insecure_resp.text)['cookies']
         self.assertEqual(insecure_cookies_sent, {})
 
+    def test_disabled_cookie_persistence(self):
+        """Test that cookies are not persisted when configured accordingly."""
+
+        # Check the case when no cookie is passed as part of the request and the one in response is ignored
+        cookies = requests.get(httpbin('cookies', 'set', 'key', 'value'), store_cookies = False).cookies
+        self.assertIsNone(cookies.get("key"))
+
+        # Test that the cookies passed while making the request still gets used and is available in response object.
+        # only the ones received from server is not saved
+        cookies_2 = requests.get(httpbin('cookies', 'set', 'key', 'value'), store_cookies = False,\
+                                                cookies = {"key_2" : "value_2"}).cookies
+        self.assertEqual(len(cookies_2), 1)
+        self.assertEqual(cookies_2.get("key_2"), "value_2")
+
+        # Use the session and make sure that the received cookie is not used in subsequent calls
+        s = requests.session()
+        s.get(httpbin('cookies', 'set', 'key', 'value'), store_cookies = False)
+        r = s.get(httpbin('cookies'))
+        self.assertEqual(json.loads(r.text)['cookies'], {})
+
+
 class LWPCookieJarTest(TestBaseMixin, unittest.TestCase):
     """Check store/load of cookies to FileCookieJar's, specifically LWPCookieJar's."""
 
