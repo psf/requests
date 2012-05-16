@@ -7,13 +7,14 @@ requests.auth
 This module contains the authentication handlers for Requests.
 """
 
+import os
 import time
 import hashlib
 
 from base64 import b64encode
 
 from .compat import urlparse, str
-from .utils import randombytes, parse_dict_header
+from .utils import parse_dict_header
 
 try:
     from oauthlib.oauth1.rfc5849 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
@@ -192,7 +193,7 @@ class HTTPDigestAuth(AuthBase):
                 s = str(nonce_count).encode('utf-8')
                 s += nonce.encode('utf-8')
                 s += time.ctime().encode('utf-8')
-                s += randombytes(8)
+                s += os.urandom(8)
 
                 cnonce = (hashlib.sha1(s).hexdigest()[:16])
                 noncebit = "%s:%s:%s:%s:%s" % (nonce, ncvalue, cnonce, qop, hash_utf8(A2))
