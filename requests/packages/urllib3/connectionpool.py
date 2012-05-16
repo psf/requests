@@ -6,6 +6,7 @@
 
 import logging
 import socket
+import threading
 
 from socket import error as SocketError, timeout as SocketTimeout
 
@@ -181,7 +182,10 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         self.num_connections = 0
         self.num_requests = 0
 
-        self.closed = False
+        # this is annoying: wrap the Queue with an additional lock,
+        # so there's no race between closing the pool and trying to return
+        # a connection to the already-closed pool (which would leak the connection)
+        self.closure_lock = threading.Lock()
 
     def _new_conn(self):
         """
@@ -193,16 +197,20 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         return HTTPConnection(host=self.host, port=self.port)
 
     def close(self):
-        self.closed = True
-
-        while True:
-            try:
-                conn = self.pool.get(block=False)
-            except Empty:
-                break
-            # XXX why?
-            if conn is not None:
-                conn.close()
+        """Close all pooled connections; refuse further requests."""
+        with self.closure_lock:
+            # acquire all available connections and close them
+            # connections can't be checked back in to the pool while we're working;
+            # after we're done working, instead of getting checked back in,
+            # they'll be closed.
+            while True:
+                try:
+                    conn = self.pool.get(block=False)
+                except Empty:
+                    break
+                if conn is not None:
+                    conn.close()
+            self.pool = None
 
     def _get_conn(self, timeout=None):
         """
@@ -216,8 +224,11 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             :class:`urllib3.exceptions.EmptyPoolError` if the pool is empty and
             :prop:`.block` is ``True``.
         """
-        if self.closed:
-            raise Exception
+        # this doesn't need to acquire the lock; it's fine if
+        # this code competes with close() to acquire a pooled connection
+        # (it's like a going-out-of-business sale)
+        if self.pool is None:
+            raise Exception("Pool has been closed.")
 
         conn = None
         try:
@@ -249,16 +260,19 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         exceeded maxsize. If connections are discarded frequently, then maxsize
         should be increased.
         """
-        if self.closed:
-            conn.close()
-            return
+        with self.closure_lock:
+            # if the pool has been closed, simply dispose of the connection
+            if self.pool is None:
+                conn.close()
+                return
 
-        try:
-            self.pool.put(conn, block=False)
-        except Full:
-            # This should never happen if self.block == True
-            log.warning("HttpConnectionPool is full, discarding connection: %s"
-                        % self.host)
+            try:
+                self.pool.put(conn, block=False)
+            except Full:
+                # This should never happen if self.block == True
+                log.warning("HttpConnectionPool is full, discarding connection: %s"
+                            % self.host)
+                conn.close()
 
     def _make_request(self, conn, method, url, timeout=_Default,
                       **httplib_request_kw):
