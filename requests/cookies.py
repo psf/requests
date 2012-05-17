@@ -254,6 +254,7 @@ def cookiejar_from_dict(cookie_dict, cookiejar=None):
     """
     if cookiejar is None:
         cookiejar = RequestsCookieJar()
+        cookiejar.set_policy(cookielib.DefaultCookiePolicy())
 
     if cookie_dict is not None:
         for name in cookie_dict:
