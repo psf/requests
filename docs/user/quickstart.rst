@@ -15,53 +15,71 @@ First, make sure that:
 * Requests is :ref:`up-to-date <updates>`
 
 
-Lets gets started with some simple use cases and examples.
+Let's get started with some simple examples.
 
 
-Make a GET Request
+Make a Request
 ------------------
 
-Making a standard request with Requests is very simple.
+Making a request with Requests is very simple.
 
-Let's get GitHub's public timeline ::
+Begin by importing the Requests module::
+    
+    >>> import requests
 
-    r = requests.get('https://github.com/timeline.json')
+Now, let's try to get a webpage. For this example, let's get GitHub's public
+timeline ::
+
+    >>> r = requests.get('https://github.com/timeline.json')
 
 Now, we have a :class:`Response` object called ``r``. We can get all the
-information we need from this.
+information we need from this object.
 
-Typically, you want to send some sort of data in the urls query string.
-To do this, simply pass a dictionary to the `params` argument. Your
-dictionary of data will automatically be encoded when the request is made::
+Requests' simple API means that all forms of HTTP request are as obvious. For
+example, this is how you make an HTTP POST request::
+    
+    >>> r = requests.post("http://httpbin.org/post")
+
+Nice, right? What about the other HTTP request types: PUT, DELETE, HEAD and
+OPTIONS? These are all just as simple::
+    
+    >>> r = requests.put("http://httpbin.org/put")
+    >>> r = requests.delete("http://httpbin.org/delete")
+    >>> r = requests.head("http://httpbin.org/get")
+    >>> r = requests.options("http://httpbin.org/get")
+
+That's all well and good, but it's also only the start of what Requests can
+do.
+
+
+Passing Parameters In URLs
+--------------------------
+
+You often want to send some sort of data in the URL's query string. If
+you were constructing the URL by hand, this data would be given as key/value
+pairs in the URL after a question mark, e.g. ``httpbin.org/get?key=val``.
+Requests allows you to provide these arguments as a dictionary, using the
+``params`` keyword argument. As an example, if you wanted to pass
+``key1=value1`` and ``key2=value2`` to ``httpbin.org/get``, you would use the
+following code::
 
     >>> payload = {'key1': 'value1', 'key2': 'value2'}
     >>> r = requests.get("http://httpbin.org/get", params=payload)
-    >>> print r.text
-    {
-      "origin": "179.13.100.4",
-      "args": {
-        "key2": "value2",
-        "key1": "value1"
-      },
-      "url": "http://httpbin.org/get",
-      "headers": {
-        "Connections": "keep-alive",
-        "Content-Length": "",
-        "Accept-Encoding": "identity, deflate, compress, gzip",
-        "Accept": "*/*",
-        "User-Agent": "python-requests/0.11.0",
-        "Host": httpbin.org",
-        "Content-Type": ""
-      },
-    }
 
+You can see that the URL has been correctly encoded by printing the URL::
 
+    >>> print r.url
+    u'http://httpbin.org/get?key2=value2&key1=value1'
+    
 
 Response Content
 ----------------
 
-We can read the content of the server's response::
+We can read the content of the server's response. Consider the GitHub timeline
+again::
 
+    >>> import requests
+    >>> r = requests.get('https://github.com/timeline.json')
     >>> r.text
     '[{"repository":{"open_issues":0,"url":"https://github.com/...
 
@@ -85,7 +103,7 @@ You can also access the response body as bytes, for non-text requests::
 
 The ``gzip`` and ``deflate`` transfer-encodings are automatically decoded for you.
 
-For example to create an image from binary data returned by a request, you can
+For example, to create an image from binary data returned by a request, you can
 use the following code:
 
     >>> from PIL import Image
@@ -106,14 +124,24 @@ you can access ``r.raw``::
     '\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03'
 
 
+Custom Headers
+--------------
 
-Make a POST Request
--------------------
+If you'd like to add HTTP headers to a request, simply pass in a ``dict`` to the
+``headers`` parameter.
 
-POST requests are equally simple::
+For example, we didn't specify our content-type in the previous example::
 
-    r = requests.post("http://httpbin.org/post")
+    >>> import json
+    >>> url = 'https://api.github.com/some/endpoint'
+    >>> payload = {'some': 'data'}
+    >>> headers = {'content-type': 'application/json'}
 
+    >>> r = requests.post(url, data=json.dumps(payload), headers=headers)
+
+
+More complicated POST requests
+------------------------------
 
 Typically, you want to send some form-encoded data — much like an HTML form.
 To do this, simply pass a dictionary to the `data` argument. Your
@@ -123,48 +151,23 @@ dictionary of data will automatically be form-encoded when the request is made::
     >>> r = requests.post("http://httpbin.org/post", data=payload)
     >>> print r.text
     {
-      "origin": "179.13.100.4",
-      "files": {},
+      // ...snip... //
       "form": {
         "key2": "value2",
         "key1": "value1"
       },
-      "url": "http://httpbin.org/post",
-      "args": {},
-      "headers": {
-        "Content-Length": "23",
-        "Accept-Encoding": "identity, deflate, compress, gzip",
-        "Accept": "*/*",
-        "User-Agent": "python-requests/0.8.0",
-        "Host": "127.0.0.1:7077",
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      "data": ""
+      // ...snip... //
     }
 
 There are many times that you want to send data that is not form-encoded. If you pass in a ``string`` instead of a ``dict``, that data will be posted directly.
 
 For example, the GitHub API v3 accepts JSON-Encoded POST/PATCH data::
 
-    url = 'https://api.github.com/some/endpoint'
-    payload = {'some': 'data'}
+    >>> import json
+    >>> url = 'https://api.github.com/some/endpoint'
+    >>> payload = {'some': 'data'}
 
-    r = requests.post(url, data=json.dumps(payload))
-
-
-Custom Headers
---------------
-
-If you'd like to add HTTP headers to a request, simply pass in a ``dict`` to the
-``headers`` parameter.
-
-For example, we didn't specify our content-type in the previous example::
-
-    url = 'https://api.github.com/some/endpoint'
-    payload = {'some': 'data'}
-    headers = {'content-type': 'application/json'}
-
-    r = requests.post(url, data=json.dumps(payload), headers=headers)
+    >>> r = requests.post(url, data=json.dumps(payload))
 
 
 POST a Multipart-Encoded File
@@ -178,25 +181,14 @@ Requests makes it simple to upload Multipart-encoded files::
     >>> r = requests.post(url, files=files)
     >>> r.text
     {
-      "origin": "179.13.100.4",
+      // ...snip... //
       "files": {
         "report.xls": "<censored...binary...data>"
       },
-      "form": {},
-      "url": "http://httpbin.org/post",
-      "args": {},
-      "headers": {
-        "Content-Length": "3196",
-        "Accept-Encoding": "identity, deflate, compress, gzip",
-        "Accept": "*/*",
-        "User-Agent": "python-requests/0.8.0",
-        "Host": "httpbin.org:80",
-        "Content-Type": "multipart/form-data; boundary=127.0.0.1.502.21746.1321131593.786.1"
-      },
-      "data": ""
+      // ...snip... //
     }
 
-Setting filename explicitly::
+You can set the filename explicitly::
 
     >>> url = 'http://httpbin.org/post'
     >>> files = {'file': ('report.xls', open('report.xls', 'rb'))}
@@ -204,25 +196,14 @@ Setting filename explicitly::
     >>> r = requests.post(url, files=files)
     >>> r.text
     {
-      "origin": "179.13.100.4",
+      // ...snip... //
       "files": {
         "file": "<censored...binary...data>"
       },
-      "form": {},
-      "url": "http://httpbin.org/post",
-      "args": {},
-      "headers": {
-        "Content-Length": "3196",
-        "Accept-Encoding": "identity, deflate, compress, gzip",
-        "Accept": "*/*",
-        "User-Agent": "python-requests/0.8.0",
-        "Host": "httpbin.org:80",
-        "Content-Type": "multipart/form-data; boundary=127.0.0.1.502.21746.1321131593.786.1"
-      },
-      "data": ""
+      // ...snip... //
     }
 
-Sending strings to be received as files::
+If you want, you can send strings to be received as files::
 
     >>> url = 'http://httpbin.org/post'
     >>> files = {'file': ('report.csv', 'some,data,to,send\nanother,row,to,send\n')} 
@@ -230,24 +211,11 @@ Sending strings to be received as files::
     >>> r = requests.post(url, files=files)
     >>> r.text
     {
-      "origin": "179.13.100.4",
+      // ...snip... //
       "files": {
         "file": "some,data,to,send\\nanother,row,to,send\\n"
       },
-      "form": {},
-      "url": "http://httpbin.org/post",
-      "args": {},
-      "headers": {
-         "Content-Length": "216",
-         "Accept-Encoding": "identity, deflate, compress, gzip",
-         "Connection": "keep-alive",
-         "Accept": "*/*",
-         "User-Agent": "python-requests/0.11.1",
-         "Host": "httpbin.org", 
-         "Content-Type": "multipart/form-data; boundary=127.0.0.1.502.41433.1335385481.788.1"
-      }, 
-      "json": null,
-      "data": ""
+      // ...snip... //
     }
 
 
@@ -256,6 +224,7 @@ Response Status Codes
 
 We can check the response status code::
 
+    >>> r = requests.get("http://httpbin.org/get')
     >>> r.status_code
     200
 
@@ -278,7 +247,8 @@ If we made a bad request (non-200 response), we can raise it with
         raise self.error
     urllib2.HTTPError: HTTP Error 404: NOT FOUND
 
-But, since our ``status_code`` was ``200``, when we call it::
+But, since our ``status_code`` for ``r`` was ``200``, when we call
+``raise_for_status()`` we get::
 
     >>> r.raise_for_status()
     None
@@ -289,8 +259,7 @@ All is well.
 Response Headers
 ----------------
 
-We can view the server's response headers with a simple Python dictionary
-interface::
+We can view the server's response headers using a Python dictionary::
 
     >>> r.headers
     {
@@ -347,7 +316,7 @@ parameter::
 Basic Authentication
 --------------------
 
-Most web services require authentication. There many different types of
+Many web services require authentication. There many different types of
 authentication, but the most common is HTTP Basic Auth.
 
 Making requests with Basic Auth is extremely simple::
@@ -380,16 +349,20 @@ Another popular form of web service protection is Digest Authentication::
 OAuth Authentication
 --------------------
 
-Miguel Araujo's `requests-oauth <http://pypi.python.org/pypi/requests-oauth>`_ project provides a simple interface for
-establishing OAuth connections. Documentation and examples can be found on the requests-oauth `git repository <https://github.com/maraujop/requests-oauth>`_.
+Miguel Araujo's `requests-oauth <http://pypi.python.org/pypi/requests-oauth>`_
+project provides a simple interface for establishing OAuth connections.
+Documentation and examples can be found on the requests-oauth
+`git repository <https://github.com/maraujop/requests-oauth>`_.
 
 
 Redirection and History
 -----------------------
 
-Requests will automatically perform location redirection while using idempotent methods.
+Requests will automatically perform location redirection while using
+idempotent methods, such as GET.
 
-GitHub redirects all HTTP requests to HTTPS. Let's see what happens::
+GitHub redirects all HTTP requests to HTTPS. We can use the ``history`` method
+of the Response object to track redirection. Let's see what Github does::
 
     >>> r = requests.get('http://github.com')
     >>> r.url
@@ -411,7 +384,8 @@ handling with the ``allow_redirects`` parameter::
     >>> r.history
     []
 
-If you're using POST, PUT, PATCH, *&c*, you can also explicitly enable redirection as well::
+If you're using POST, PUT, PATCH, *&c*, you can also explicitly enable
+redirection as well::
 
     >>> r = requests.post('http://github.com', allow_redirects=True)
     >>> r.url
@@ -423,16 +397,18 @@ If you're using POST, PUT, PATCH, *&c*, you can also explicitly enable redirecti
 Timeouts
 --------
 
-You can tell requests to stop waiting for a response after a given number of seconds with the ``timeout`` parameter::
+You can tell requests to stop waiting for a response after a given number of
+seconds with the ``timeout`` parameter::
 
     >>> requests.get('http://github.com', timeout=0.001)
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
     requests.exceptions.Timeout: Request timed out.
 
-.. admonition:: Note
+.. admonition:: Note:
 
-    ``timeout`` only effects the connection process itself, not the downloading of the response body.
+    ``timeout`` only effects the connection process itself, not the
+    downloading of the response body.
 
 
 Errors and Exceptions
@@ -446,14 +422,17 @@ an  :class:`HTTPError` exception.
 
 If a request times out, a :class:`Timeout` exception is raised.
 
-If a request exceeds the configured number of maximum redirections, a :class:`TooManyRedirects` exception is raised.
+If a request exceeds the configured number of maximum redirections, a
+:class:`TooManyRedirects` exception is raised.
 
 All exceptions that Requests explicitly raises inherit from
 :class:`requests.exceptions.RequestException`.
 
-You can refer to :ref:`Configuration API Docs <configurations>` for immediate raising of :class:`HTTPError` exceptions
-via the ``danger_mode`` option or have Requests catch the majority of :class:`requests.exceptions.RequestException` exceptions
-with the ``safe_mode`` option.
+You can refer to :ref:`Configuration API Docs <configurations>` for immediate
+raising of :class:`HTTPError` exceptions via the ``danger_mode`` option or
+have Requests catch the majority of
+:class:`requests.exceptions.RequestException` exceptions with the ``safe_mode``
+option.
 
 -----------------------
 
