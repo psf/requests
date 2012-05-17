@@ -358,8 +358,8 @@ Documentation and examples can be found on the requests-oauth
 Redirection and History
 -----------------------
 
-Requests will automatically perform location redirection while using
-idempotent methods, such as GET.
+Requests will automatically perform location redirection while using the GET
+and OPTIONS verbs.
 
 GitHub redirects all HTTP requests to HTTPS. We can use the ``history`` method
 of the Response object to track redirection. Let's see what Github does::
@@ -375,8 +375,8 @@ of the Response object to track redirection. Let's see what Github does::
 The :class:`Response.history` list contains a list of the
 :class:`Request` objects that were created in order to complete the request.
 
-If you're using GET, HEAD, or OPTIONS, you can disable redirection
-handling with the ``allow_redirects`` parameter::
+If you're using GET or OPTIONS, you can disable redirection handling with the
+``allow_redirects`` parameter::
 
     >>> r = requests.get('http://github.com', allow_redirects=False)
     >>> r.status_code
@@ -384,7 +384,7 @@ handling with the ``allow_redirects`` parameter::
     >>> r.history
     []
 
-If you're using POST, PUT, PATCH, *&c*, you can also explicitly enable
+If you're using POST, PUT, PATCH, DELETE or HEAD, you can enable
 redirection as well::
 
     >>> r = requests.post('http://github.com', allow_redirects=True)
