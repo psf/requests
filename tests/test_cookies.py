@@ -107,7 +107,7 @@ class CookieTests(TestBaseMixin, unittest.TestCase):
 
         # Check the case when no cookie is passed as part of the request and the one in response is ignored
         cookies = requests.get(httpbin('cookies', 'set', 'key', 'value'), store_cookies = False).cookies
-        self.assertIsNone(cookies.get("key"))
+        self.assertEqual(cookies.get("key"), None)
 
         # Test that the cookies passed while making the request still gets used and is available in response object.
         # only the ones received from server is not saved
