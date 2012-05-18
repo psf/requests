@@ -156,13 +156,59 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         self.set_cookie(c)
         return c
 
+    def keys():
+        keys = []
+        for cookie in iter(self):
+            keys.append(cookie.name)
+        return keys
+
+    def values():
+        values = []
+        for cookie in iter(self):
+            values.append(cookie.values)
+        return values
+    
+    def items():
+        items = []
+        for cookie in iter(self):
+            items.append((cookies.name, cookie.values))
+        return items
+
+    def list_domains(self):
+        domains = []
+        for cookie in iter(self):
+            if cookie.domain not in domains:
+                domains.append(cookie.domain)
+        return domains
+
+    def list_paths(self):
+        paths = []
+        for cookie in iter(self):
+            if cookie.path not in paths:
+                paths.append(cookie.path)
+        return paths
+
+    def get_dict(self, domain, path):
+        dictionary = {}
+        for cookie in iter(self):
+            # TODO double check this logic
+            if (domain == None or cookie.domain == domain) and (path == None 
+                                                or cookie.path == path):
+                dictionary[cookie.name] = cookie.value
+        return dictionary
+
     def __getitem__(self, name):
+        if self._multipleDomainsOrPaths():
+            raise KeyError('Multiple domains/paths in jar. Use .get instead.')
         return self._find(name)
 
     def __setitem__(self, name, value):
+        if self._multipleDomainsOrPaths():
+            raise KeyError('Multiple domains/paths in jar. Use .set instead.')
         self.set(name, value)
 
     def __delitem__(self, name):
+        # consider testing for multiple domains
         remove_cookie_by_name(self, name)
 
     def _find(self, name, domain=None, path=None):
@@ -173,6 +219,18 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
                         return cookie.value
 
         raise KeyError('name=%r, domain=%r, path=%r' % (name, domain, path))
+
+    def _multipleDomainsOrPaths(self):
+        domains = []
+        paths = []
+        for cookie in iter(self):
+            if cookie.domain is not None and cookie.domain in domains:
+                return True
+            domains.append(cookie.domain)
+            if cookie.path is not None and cookie.path in paths:
+                return True
+            paths.append(cookie.path)
+        return False # there is only one domains and one path in jar
 
     def __getstate__(self):
         state = self.__dict__.copy()
