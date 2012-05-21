@@ -137,13 +137,21 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     Unlike a regular CookieJar, this class is pickleable.
     """
 
+    # TODO test, test, test
+    # TODO should get and set require domain and/or path?
     def get(self, name, default=None, domain=None, path=None):
+        """Dict-like get() that also supports optional domain and path args in
+        order to resolve naming collisions from using one cookie jar over
+        multiple domains. Caution: operation is O(n), not O(1)."""
         try:
             return self._find(name, domain, path)
         except KeyError:
             return default
 
     def set(self, name, value, **kwargs):
+        """Dict-like set() that also supports optional domain and path args in
+        order to resolve naming collisions from using one cookie jar over
+        multiple domains."""
         # support client code that unsets cookies by assignment of a None value:
         if value is None:
             remove_cookie_by_name(self, name, domain=kwargs.get('domain'), path=kwargs.get('path'))
@@ -157,24 +165,32 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         return c
 
     def keys():
+        """Dict-like keys() that returns a list of names of cookies from the jar.
+        See values() and items()."""
         keys = []
         for cookie in iter(self):
             keys.append(cookie.name)
         return keys
 
     def values():
+        """Dict-like values() that returns a list of values of cookies from the jar.
+        See keys() and items()."""
         values = []
         for cookie in iter(self):
             values.append(cookie.values)
         return values
     
     def items():
+        """Dict-like items() that returns a list of name-value tuples from the jar.
+        See keys() and values(). Allows client-code to call "dict(RequestsCookieJar)
+        and get a vanilla python dict of key value pairs."""
         items = []
         for cookie in iter(self):
             items.append((cookies.name, cookie.values))
         return items
 
     def list_domains(self):
+        """Utility method to list all the domains in the jar."""
         domains = []
         for cookie in iter(self):
             if cookie.domain not in domains:
@@ -182,36 +198,48 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         return domains
 
     def list_paths(self):
+        """Utility method to list all the paths in the jar."""
         paths = []
         for cookie in iter(self):
             if cookie.path not in paths:
                 paths.append(cookie.path)
         return paths
 
-    def get_dict(self, domain, path):
+    def get_dict(self, domain=None, path=None):
+        """Takes as an argument an optional domain and path and returns a plain old
+        Python dict of name-value pairs of cookies that meet the requirements."""
         dictionary = {}
         for cookie in iter(self):
-            # TODO double check this logic
             if (domain == None or cookie.domain == domain) and (path == None 
                                                 or cookie.path == path):
                 dictionary[cookie.name] = cookie.value
         return dictionary
 
     def __getitem__(self, name):
+        """Dict-like __getitem__() for compatibility with client code. Throws exception
+        if there are multiple domains or paths in the jar. In that case, use the more
+        explicit get() method instead. Caution: operation is O(n), not O(1)."""
         if self._multipleDomainsOrPaths():
             raise KeyError('Multiple domains/paths in jar. Use .get instead.')
         return self._find(name)
 
     def __setitem__(self, name, value):
+        """Dict-like __setitem__ for compatibility with client code. Throws exception
+        if there are multiple domains or paths in the jar. In that case, use the more
+        explicit set() method instead."""
+        # TODO is this check nesc?
         if self._multipleDomainsOrPaths():
             raise KeyError('Multiple domains/paths in jar. Use .set instead.')
         self.set(name, value)
 
     def __delitem__(self, name):
-        # consider testing for multiple domains
+        """Deletes a cookie given a name. Wraps cookielib.CookieJar's remove_cookie_by_name()."""
         remove_cookie_by_name(self, name)
 
     def _find(self, name, domain=None, path=None):
+        """Requests uses this method internally to find cookies. Takes as args name 
+        and optional domain and path. Returns a cookie.value. Throws KeyError
+        if cookie is not found."""
         for cookie in iter(self):
             if cookie.name == name:
                 if domain is None or cookie.domain == domain:
@@ -221,6 +249,9 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         raise KeyError('name=%r, domain=%r, path=%r' % (name, domain, path))
 
     def _multipleDomainsOrPaths(self):
+        """Returns True if there are multiple domains or paths in the jar.
+        Returns False otherwise."""
+        # TODO: possible bug -- always multiple paths, right?
         domains = []
         paths = []
         for cookie in iter(self):
@@ -232,6 +263,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
             paths.append(cookie.path)
         return False # there is only one domains and one path in jar
 
+    # TODO docstrings
     def __getstate__(self):
         state = self.__dict__.copy()
         # remove the unpickleable RLock object
@@ -244,7 +276,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
             self._cookies_lock = threading.RLock()
 
     def copy(self):
-        """We're probably better off forbidding this."""
+        """This is not currently implemented. Calling copy() will throw an exception."""
         raise NotImplementedError
 
 def create_cookie(name, value, **kwargs):
