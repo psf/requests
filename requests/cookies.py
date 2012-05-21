@@ -120,6 +120,10 @@ def remove_cookie_by_name(cookiejar, name, domain=None, path=None):
     for domain, path, name in clearables:
         cookiejar.clear(domain, path, name)
 
+class CookieConflictError(RuntimeError):
+    """There are two cookies that meet the criteria specified in the cookie jar. 
+    Use .get and .set and include domain and path args in order to be more specific."""
+
 class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     """Compatibility class; is a cookielib.CookieJar, but exposes a dict interface.
 
@@ -138,7 +142,6 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     """
 
     # TODO test, test, test
-    # TODO should get and set require domain and/or path?
     def get(self, name, default=None, domain=None, path=None):
         """Dict-like get() that also supports optional domain and path args in
         order to resolve naming collisions from using one cookie jar over
@@ -217,19 +220,14 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
 
     def __getitem__(self, name):
         """Dict-like __getitem__() for compatibility with client code. Throws exception
-        if there are multiple domains or paths in the jar. In that case, use the more
+        if there are more than one cookie with name. In that case, use the more
         explicit get() method instead. Caution: operation is O(n), not O(1)."""
-        if self._multipleDomainsOrPaths():
-            raise KeyError('Multiple domains/paths in jar. Use .get instead.')
         return self._find(name)
 
     def __setitem__(self, name, value):
         """Dict-like __setitem__ for compatibility with client code. Throws exception
-        if there are multiple domains or paths in the jar. In that case, use the more
+        if there is already a cookie of that name in the jar. In that case, use the more
         explicit set() method instead."""
-        # TODO is this check nesc?
-        if self._multipleDomainsOrPaths():
-            raise KeyError('Multiple domains/paths in jar. Use .set instead.')
         self.set(name, value)
 
     def __delitem__(self, name):
@@ -239,29 +237,30 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     def _find(self, name, domain=None, path=None):
         """Requests uses this method internally to find cookies. Takes as args name 
         and optional domain and path. Returns a cookie.value. Throws KeyError
-        if cookie is not found."""
+        if cookie is not found and CookieConflictError if there are multiple cookies
+        that match name and optionally domain and path."""
+        toReturn = None
         for cookie in iter(self):
             if cookie.name == name:
                 if domain is None or cookie.domain == domain:
                     if path is None or cookie.path == path:
-                        return cookie.value
+                        if toReturn != None: # if there are multiple cookies that meet passed in criteria
+                            raise CookieConflictError('There are multiple cookies with name, %r' % (name))
+                        toReturn = cookie.value # we will eventually return this as long as no cookie conflict
 
+        if toReturn:
+            return toReturn
         raise KeyError('name=%r, domain=%r, path=%r' % (name, domain, path))
 
-    def _multipleDomainsOrPaths(self):
-        """Returns True if there are multiple domains or paths in the jar.
+    def _multipleDomains(self):
+        """Returns True if there are multiple domains in the jar.
         Returns False otherwise."""
-        # TODO: possible bug -- always multiple paths, right?
         domains = []
-        paths = []
         for cookie in iter(self):
             if cookie.domain is not None and cookie.domain in domains:
                 return True
             domains.append(cookie.domain)
-            if cookie.path is not None and cookie.path in paths:
-                return True
-            paths.append(cookie.path)
-        return False # there is only one domains and one path in jar
+        return False # there is only one domain in jar
 
     # TODO docstrings
     def __getstate__(self):
@@ -276,7 +275,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
             self._cookies_lock = threading.RLock()
 
     def copy(self):
-        """This is not currently implemented. Calling copy() will throw an exception."""
+        """This is not implemented. Calling this will throw an exception."""
         raise NotImplementedError
 
 def create_cookie(name, value, **kwargs):
