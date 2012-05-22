@@ -24,6 +24,7 @@ class CookieTests(TestBaseMixin, unittest.TestCase):
 
         # test deprecated dictionary interface
         self.assertEqual(r.cookies['myname'], 'myvalue')
+        self.assertEqual(r.cookies.get('myname'), 'myvalue')
         # test CookieJar interface
         jar = r.cookies
         self.assertEqual(len(jar), 1)
@@ -122,6 +123,38 @@ class CookieTests(TestBaseMixin, unittest.TestCase):
         r = s.get(httpbin('cookies'))
         self.assertEqual(json.loads(r.text)['cookies'], {})
 
+    def test_jar_utility_functions(self):
+        """Test utility functions such as list_domains, list_paths, multiple_domains."""
+        r = requests.get("http://github.com")
+        c = r.cookies
+        # github should send us cookies
+        self.assertTrue(len(c) >= 1)
+        self.assertEqual(len(c), len(r.cookies.keys()))
+        self.assertEqual(len(c), len(r.cookies.values()))
+        self.assertEqual(len(c), len(r.cookies.items()))
+        
+        # domain and path utility functions
+        domain = r.cookies.list_domains()[0]
+        path = r.cookies.list_paths()[0]
+        self.assertEqual(dict(r.cookies), r.cookies.get_dict(domain=domain, path=path))
+        self.assertEqual(len(r.cookies.list_domains()), 1)
+        self.assertEqual(len(r.cookies.list_paths()), 1)
+        self.assertFalse(r.cookies.multiple_domains())
+
+    def test_convert_jar_to_dict(self):
+        """Test that keys, values, and items are defined and that we can convert
+        cookie jars to plain old Python dicts."""
+        r = requests.get(httpbin('cookies', 'set', 'myname', 'myvalue'))
+
+        # test keys, values, and items
+        self.assertEqual(r.cookies.keys(), ['myname'])
+        self.assertEqual(r.cookies.values(), ['myvalue'])
+        self.assertEqual(r.cookies.items(), [('myname','myvalue')])
+        
+        # test if we can convert jar to dict
+        dictOfCookies = dict(r.cookies)
+        self.assertEqual(dictOfCookies, {'myname':'myvalue'})
+        self.assertEqual(dictOfCookies, r.cookies.get_dict())
 
 class LWPCookieJarTest(TestBaseMixin, unittest.TestCase):
     """Check store/load of cookies to FileCookieJar's, specifically LWPCookieJar's."""

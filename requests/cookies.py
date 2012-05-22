@@ -120,6 +120,10 @@ def remove_cookie_by_name(cookiejar, name, domain=None, path=None):
     for domain, path, name in clearables:
         cookiejar.clear(domain, path, name)
 
+class CookieConflictError(RuntimeError):
+    """There are two cookies that meet the criteria specified in the cookie jar. 
+    Use .get and .set and include domain and path args in order to be more specific."""
+
 class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     """Compatibility class; is a cookielib.CookieJar, but exposes a dict interface.
 
@@ -138,12 +142,18 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     """
 
     def get(self, name, default=None, domain=None, path=None):
+        """Dict-like get() that also supports optional domain and path args in
+        order to resolve naming collisions from using one cookie jar over
+        multiple domains. Caution: operation is O(n), not O(1)."""
         try:
-            return self._find(name, domain, path)
+            return self._find_no_duplicates(name, domain, path)
         except KeyError:
             return default
 
     def set(self, name, value, **kwargs):
+        """Dict-like set() that also supports optional domain and path args in
+        order to resolve naming collisions from using one cookie jar over
+        multiple domains."""
         # support client code that unsets cookies by assignment of a None value:
         if value is None:
             remove_cookie_by_name(self, name, domain=kwargs.get('domain'), path=kwargs.get('path'))
@@ -156,16 +166,88 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         self.set_cookie(c)
         return c
 
+    def keys(self):
+        """Dict-like keys() that returns a list of names of cookies from the jar.
+        See values() and items()."""
+        keys = []
+        for cookie in iter(self):
+            keys.append(cookie.name)
+        return keys
+
+    def values(self):
+        """Dict-like values() that returns a list of values of cookies from the jar.
+        See keys() and items()."""
+        values = []
+        for cookie in iter(self):
+            values.append(cookie.value)
+        return values
+    
+    def items(self):
+        """Dict-like items() that returns a list of name-value tuples from the jar.
+        See keys() and values(). Allows client-code to call "dict(RequestsCookieJar)
+        and get a vanilla python dict of key value pairs."""
+        items = []
+        for cookie in iter(self):
+            items.append((cookie.name, cookie.value))
+        return items
+
+    def list_domains(self):
+        """Utility method to list all the domains in the jar."""
+        domains = []
+        for cookie in iter(self):
+            if cookie.domain not in domains:
+                domains.append(cookie.domain)
+        return domains
+
+    def list_paths(self):
+        """Utility method to list all the paths in the jar."""
+        paths = []
+        for cookie in iter(self):
+            if cookie.path not in paths:
+                paths.append(cookie.path)
+        return paths
+
+    def multiple_domains(self):
+        """Returns True if there are multiple domains in the jar.
+        Returns False otherwise."""
+        domains = []
+        for cookie in iter(self):
+            if cookie.domain is not None and cookie.domain in domains:
+                return True
+            domains.append(cookie.domain)
+        return False # there is only one domain in jar
+
+    def get_dict(self, domain=None, path=None):
+        """Takes as an argument an optional domain and path and returns a plain old
+        Python dict of name-value pairs of cookies that meet the requirements."""
+        dictionary = {}
+        for cookie in iter(self):
+            if (domain == None or cookie.domain == domain) and (path == None 
+                                                or cookie.path == path):
+                dictionary[cookie.name] = cookie.value
+        return dictionary
+
     def __getitem__(self, name):
-        return self._find(name)
+        """Dict-like __getitem__() for compatibility with client code. Throws exception
+        if there are more than one cookie with name. In that case, use the more
+        explicit get() method instead. Caution: operation is O(n), not O(1)."""
+        return self._find_no_duplicates(name)
 
     def __setitem__(self, name, value):
+        """Dict-like __setitem__ for compatibility with client code. Throws exception
+        if there is already a cookie of that name in the jar. In that case, use the more
+        explicit set() method instead."""
         self.set(name, value)
 
     def __delitem__(self, name):
+        """Deletes a cookie given a name. Wraps cookielib.CookieJar's remove_cookie_by_name()."""
         remove_cookie_by_name(self, name)
 
     def _find(self, name, domain=None, path=None):
+        """Requests uses this method internally to get cookie values. Takes as args name 
+        and optional domain and path. Returns a cookie.value. If there are conflicting cookies,
+        _find arbitrarily chooses one. See _find_no_duplicates if you want an exception thrown
+        if there are conflicting cookies."""
         for cookie in iter(self):
             if cookie.name == name:
                 if domain is None or cookie.domain == domain:
@@ -174,19 +256,39 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
 
         raise KeyError('name=%r, domain=%r, path=%r' % (name, domain, path))
 
+    def _find_no_duplicates(self, name, domain=None, path=None):
+        """__get_item__ and get call _find_no_duplicates -- never used in Requests internally. 
+        Takes as args name and optional domain and path. Returns a cookie.value. 
+        Throws KeyError if cookie is not found and CookieConflictError if there are 
+        multiple cookies that match name and optionally domain and path."""
+        toReturn = None
+        for cookie in iter(self):
+            if cookie.name == name:
+                if domain is None or cookie.domain == domain:
+                    if path is None or cookie.path == path:
+                        if toReturn != None: # if there are multiple cookies that meet passed in criteria
+                            raise CookieConflictError('There are multiple cookies with name, %r' % (name))
+                        toReturn = cookie.value # we will eventually return this as long as no cookie conflict
+
+        if toReturn:
+            return toReturn
+        raise KeyError('name=%r, domain=%r, path=%r' % (name, domain, path))
+
     def __getstate__(self):
+        """Unlike a normal CookieJar, this class is pickleable."""
         state = self.__dict__.copy()
         # remove the unpickleable RLock object
         state.pop('_cookies_lock')
         return state
 
     def __setstate__(self, state):
+        """Unlike a normal CookieJar, this class is pickleable."""
         self.__dict__.update(state)
         if '_cookies_lock' not in self.__dict__:
             self._cookies_lock = threading.RLock()
 
     def copy(self):
-        """We're probably better off forbidding this."""
+        """This is not implemented. Calling this will throw an exception."""
         raise NotImplementedError
 
 def create_cookie(name, value, **kwargs):
