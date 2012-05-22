@@ -222,8 +222,6 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         Python dict of name-value pairs of cookies that meet the requirements."""
         dictionary = {}
         for cookie in iter(self):
-            print path
-            print cookie.path
             if (domain == None or cookie.domain == domain) and (path == None 
                                                 or cookie.path == path):
                 dictionary[cookie.name] = cookie.value
