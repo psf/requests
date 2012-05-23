@@ -25,7 +25,6 @@ def request(method, url, **kwargs):
     :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
     :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
-    :param store_cookies: (optional) if ``False``, the received cookies as part of the HTTP response would be ignored.
     :param files: (optional) Dictionary of 'name': file-like-objects (or {'name': ('filename', fileobj)}) for multipart encoding upload.
     :param auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.
     :param timeout: (optional) Float describing the timeout of the request.
@@ -33,7 +32,7 @@ def request(method, url, **kwargs):
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     :param return_response: (optional) If False, an un-sent Request object will returned.
     :param session: (optional) A :class:`Session` object to be used for the request.
-    :param config: (optional) A configuration dictionary.
+    :param config: (optional) A configuration dictionary. See ``request.defaults`` for allowed keys and their default values.
     :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
     :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
