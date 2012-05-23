@@ -13,6 +13,9 @@ import cgi
 import codecs
 import os
 import re
+import socket
+import ssl
+import _ssl
 import zlib
 from netrc import netrc, NetrcParseError
 
@@ -40,13 +43,26 @@ POSSIBLE_CA_BUNDLE_PATHS = [
         '/etc/ssl/certs/ca-certificates.crt',
         # FreeBSD (provided by the ca_root_nss package):
         '/usr/local/share/certs/ca-root-nss.crt',
+        # openSUSE (provided by the ca-certificates package), the 'certs' directory is the
+        # preferred way but may not be supported by the SSL module, thus it has 'ca-bundle.pem'
+        # as a fallback (which is generated from pem files in the 'certs' directory):
+        '/etc/ssl/certs',
+        '/etc/ssl/ca-bundle.pem',
 ]
 
 def get_os_ca_bundle_path():
     """Try to pick an available CA certificate bundle provided by the OS."""
     for path in POSSIBLE_CA_BUNDLE_PATHS:
         if os.path.exists(path):
-            return path
+            if os.path.isdir(path):
+                try:
+                    # Current candidate is a directory, check if SSL module supports that
+                    _ssl.sslwrap(socket.socket()._sock, False, None, None, ssl.CERT_REQUIRED, ssl.PROTOCOL_SSLv23, path, None)
+                    return path
+                except:
+                    pass # No support, let's check the next candidate
+            else:
+                return path
     return None
 
 # if certifi is installed, use its CA bundle;
