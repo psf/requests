@@ -106,20 +106,22 @@ class CookieTests(TestBaseMixin, unittest.TestCase):
     def test_disabled_cookie_persistence(self):
         """Test that cookies are not persisted when configured accordingly."""
 
+        config = {'store_cookies' : False}
+
         # Check the case when no cookie is passed as part of the request and the one in response is ignored
-        cookies = requests.get(httpbin('cookies', 'set', 'key', 'value'), store_cookies = False).cookies
-        self.assertEqual(cookies.get("key"), None)
+        cookies = requests.get(httpbin('cookies', 'set', 'key', 'value'), config = config).cookies
+        self.assertTrue(cookies.get("key") is None)
 
         # Test that the cookies passed while making the request still gets used and is available in response object.
         # only the ones received from server is not saved
-        cookies_2 = requests.get(httpbin('cookies', 'set', 'key', 'value'), store_cookies = False,\
+        cookies_2 = requests.get(httpbin('cookies', 'set', 'key', 'value'), config = config,\
                                                 cookies = {"key_2" : "value_2"}).cookies
         self.assertEqual(len(cookies_2), 1)
         self.assertEqual(cookies_2.get("key_2"), "value_2")
 
         # Use the session and make sure that the received cookie is not used in subsequent calls
         s = requests.session()
-        s.get(httpbin('cookies', 'set', 'key', 'value'), store_cookies = False)
+        s.get(httpbin('cookies', 'set', 'key', 'value'), config = config)
         r = s.get(httpbin('cookies'))
         self.assertEqual(json.loads(r.text)['cookies'], {})
 
