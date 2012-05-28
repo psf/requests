@@ -9,7 +9,6 @@ This module contains the primary objects that power Requests.
 
 import json
 import os
-import string
 from datetime import datetime
 
 from .hooks import dispatch_hook, HOOKS
@@ -522,7 +521,7 @@ class Request(object):
             self.headers['Content-Type'] = content_type
 
         _p = urlparse(url)
-        no_proxy = filter(string.strip, self.proxies.get('no', '').split(','))
+        no_proxy = filter(lambda x:x.strip(), self.proxies.get('no', '').split(','))
         proxy = self.proxies.get(_p.scheme)
 
         if proxy and not any(map(_p.netloc.endswith, no_proxy)):
