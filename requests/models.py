@@ -662,7 +662,7 @@ class Response(object):
         #: Resulting :class:`HTTPError` of request, if one occurred.
         self.error = None
 
-        #: Encoding to decode with when accessing r.content.
+        #: Encoding to decode with when accessing r.text.
         self.encoding = None
 
         #: A list of :class:`Response <Response>` objects from
