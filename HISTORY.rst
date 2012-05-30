@@ -6,18 +6,22 @@ History
 0.13.0 (2012-05-??)
 +++++++++++++++++++
 - Removal of Requests.async in favor of `grequests <https://github.com/kennethreitz/grequests>`_
+- Allow disabling of cookie persistiance.
 - New implimentation of safe_mode
 - cookies.get now supports default argument
 - Session cookies not saved when Session.request is called with return_response=False
+- Env: no_proxy support.
+- RequestsCookieJar improvements.
+- Various bug fixes.
 
 0.12.1 (2012-05-08)
 +++++++++++++++++++
 
-- New ``Response.json`` property
-- Ability to add string file uploads
-- Fix out-of-range issue with iter_lines
-- Fix iter_content default size
-- Fix POST redirects containing files
+- New ``Response.json`` property.
+- Ability to add string file uploads.
+- Fix out-of-range issue with iter_lines.
+- Fix iter_content default size.
+- Fix POST redirects containing files.
 
 0.12.0 (2012-05-02)
 +++++++++++++++++++
@@ -27,7 +31,7 @@ History
 - Speed fix for non-iterated content chunks.
 - Move ``pre_request`` to a more usable place.
 - New ``pre_send`` hook.
-- Lazily encode data, params, files
+- Lazily encode data, params, files.
 - Load system Certificate Bundle if ``certify`` isn't available.
 - Cleanups, fixes.
 
@@ -35,9 +39,9 @@ History
 +++++++++++++++++++
 
 - Attempt to use the OS's certificate bundle if ``certifi`` isn't available.
-- Infinite digest auth redirect fix
-- Multi-part file upload improvements
-- Fix decoding of invalid %encodings in URLs
+- Infinite digest auth redirect fix.
+- Multi-part file upload improvements.
+- Fix decoding of invalid %encodings in URLs.
 - If there is no content in a response don't throw an error the second time that content is attempted to be read.
 - Upload data on redirects.
 
