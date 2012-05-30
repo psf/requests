@@ -102,3 +102,4 @@ Patches and Suggestions
 - Roman Haritonov <@reclosedev>
 - Josh Imhoff <joshimhoff13@gmail.com>
 - Arup Malakar <amalakar@gmail.com>
+- Danilo Bargen (gwrtheyrn)
