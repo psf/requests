@@ -3,8 +3,9 @@
 History
 -------
 
-0.13.0 (2012-05-??)
+0.13.0 (2012-05-29)
 +++++++++++++++++++
+
 - Removal of Requests.async in favor of `grequests <https://github.com/kennethreitz/grequests>`_
 - Allow disabling of cookie persistiance.
 - New implimentation of safe_mode
