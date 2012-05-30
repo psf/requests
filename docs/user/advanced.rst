@@ -45,6 +45,7 @@ Any dictionaries that you pass to a request method will be merged with the sessi
 
 All values that are contained within a session are directly available to you. See the :ref:`Session API Docs <sessionapi>` to learn more.
 
+
 SSL Cert Verification
 ---------------------
 
@@ -293,6 +294,7 @@ To do so, just configure Requests with a stream to write to::
     2011-08-17T03:04:23.380175   GET   http://httpbin.org/headers
     <Response [200]>
 
+
 Proxies
 -------
 
@@ -304,8 +306,8 @@ If you need to use a proxy, you can configure individual requests with the
     import requests
 
     proxies = {
-      "http": "10.10.1.10:3128"
-      "https": "10.10.1.10:1080"
+      "http": "10.10.1.10:3128",
+      "https": "10.10.1.10:1080",
     }
 
     requests.get("http://example.org", proxies=proxies)
@@ -319,6 +321,15 @@ You can also configure proxies by environment variables ``HTTP_PROXY`` and ``HTT
     $ python
     >>> import requests
     >>> requests.get("http://example.org")
+
+To use HTTP Basic Auth with your proxy, use the `http://user:password@host/` syntax:
+
+::
+
+    proxies = {
+        "http": "http://user:pass@10.10.1.10:3128/",
+    }
+
 
 HTTP Verbs
 ----------
