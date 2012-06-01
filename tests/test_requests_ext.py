@@ -5,7 +5,10 @@
 import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 import requests
 from requests.compat import is_py2, is_py3
