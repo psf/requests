@@ -186,7 +186,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         Return a fresh :class:`httplib.HTTPConnection`.
         """
         self.num_connections += 1
-        log.info("Starting new HTTP connection (%d): %s" %
+        log.debug("Starting new HTTP connection (%d): %s" %
                  (self.num_connections, self.host))
         return HTTPConnection(host=self.host, port=self.port)
 
@@ -208,7 +208,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
             # If this is a persistent connection, check if it got disconnected
             if conn and is_connection_dropped(conn):
-                log.info("Resetting dropped connection: %s" % self.host)
+                log.debug("Resetting dropped connection: %s" % self.host)
                 conn.close()
 
         except Empty:
@@ -438,7 +438,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         # Handle redirect?
         redirect_location = redirect and response.get_redirect_location()
         if redirect_location:
-            log.info("Redirecting %s -> %s" % (url, redirect_location))
+            log.debug("Redirecting %s -> %s" % (url, redirect_location))
             return self.urlopen(method, redirect_location, body, headers,
                                 retries - 1, redirect, assert_same_host)
 
@@ -479,7 +479,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
         Return a fresh :class:`httplib.HTTPSConnection`.
         """
         self.num_connections += 1
-        log.info("Starting new HTTPS connection (%d): %s"
+        log.debug("Starting new HTTPS connection (%d): %s"
                  % (self.num_connections, self.host))
 
         if not ssl: # Platform-specific: Python compiled without +ssl
