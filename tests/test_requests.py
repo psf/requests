@@ -463,6 +463,25 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             assert rbody.get('form') in (None, {})
             self.assertEqual(rbody.get('data'), 'fooaowpeuf')
 
+    def test_urlencoded_post_data_content_type_none(self):
+
+        for service in SERVICES:
+
+            r = post(service('post'),
+                     data={'foo': 'bar'},
+                     headers={'content-type': None})
+
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r.headers['content-type'], 'application/json')
+
+            rbody = json.loads(r.text)
+            # The default request header is application/x-www-form-urlencoded,
+            # but here content-type is explicity being set to None.
+            # The server returns blank "form" and the urlencoded data as "data"
+
+            assert rbody.get('form') in (None, {})
+            self.assertEqual(rbody.get('data'), 'foo=bar')
+
     def test_urlencoded_post_querystring(self):
 
         for service in SERVICES:
