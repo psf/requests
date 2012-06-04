@@ -912,6 +912,12 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             r = post(service('post'), data={'foo': 'bar'}, headers=heads)
             self.assertEqual(None, r.request.headers['content-type'])
 
+            #should preserve case-insensitive headers (RFC2616)
+            heads = {'Content-Type': None}
+            r = post(service('post'), data={'foo': 'bar'}, headers=heads)
+            self.assertEqual(None, r.request.headers['content-type'])
+            self.assertEqual(None, r.request.headers['Content-Type'])
+
 
     def test_danger_mode_redirects(self):
         s = requests.session()
