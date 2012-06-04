@@ -42,8 +42,9 @@ def merge_kwargs(local_kwarg, default_kwarg):
     kwargs.update(local_kwarg)
 
     # Remove keys that are set to None.
+    # Keep content-type even if it is set to None
     for (k, v) in list(local_kwarg.items()):
-        if v is None:
+        if v is None and k != 'content-type':
             del kwargs[k]
 
     return kwargs
