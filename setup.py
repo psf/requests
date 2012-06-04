@@ -30,11 +30,14 @@ packages = [
     'requests.packages.urllib3.packages.mimetools_choose_boundary',
 ]
 
-# certifi is a Python package containing a CA certificate bundle for SSL verification.
-# On certain supported platforms (e.g., Red Hat / Debian / FreeBSD), Requests can
-# use the system CA bundle instead; see `requests.utils` for details.
-# If your platform is supported, set `requires` to [] instead:
-requires = ['certifi>=0.0.7']
+requires = []
+
+# certifi is a Python package containing a CA certificate bundle for SSL
+# verification.  On certain supported platforms (e.g., Red Hat / Debian /
+# FreeBSD), Requests can use the system CA bundle instead; see `requests.utils`
+# for details.
+if not requests.utils.get_os_ca_bundle_path():
+    requires.append('certifi>=0.0.7')
 
 # chardet is used to optimally guess the encodings of pages that don't declare one.
 # At this time, chardet is not a required dependency. However, it's sufficiently
