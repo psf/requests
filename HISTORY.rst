@@ -3,6 +3,12 @@
 History
 -------
 
+0.13.1 (2012-06-??)
++++++++++++++++++++
+
+- Allow hooks to return responses that indicate errors
+-
+
 0.13.0 (2012-05-29)
 +++++++++++++++++++
 
