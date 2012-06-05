@@ -12,3 +12,4 @@ requests.egg-info/
 *.pyc
 *.swp
 env/
+.tox
