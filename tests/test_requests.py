@@ -463,6 +463,25 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             assert rbody.get('form') in (None, {})
             self.assertEqual(rbody.get('data'), 'fooaowpeuf')
 
+    def test_urlencoded_post_data_content_type_none(self):
+
+        for service in SERVICES:
+
+            r = post(service('post'),
+                     data={'foo': 'bar'},
+                     headers={'content-type': None})
+
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r.headers['content-type'], 'application/json')
+
+            rbody = json.loads(r.text)
+            # The default request header is application/x-www-form-urlencoded,
+            # but here content-type is explicity being set to None.
+            # The server returns blank "form" and the urlencoded data as "data"
+
+            assert rbody.get('form') in (None, {})
+            self.assertEqual(rbody.get('data'), 'foo=bar')
+
     def test_urlencoded_post_querystring(self):
 
         for service in SERVICES:
@@ -878,6 +897,27 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             requests.get(httpbin('headers'), headers={'Foo': None})
         except TypeError:
             self.fail()
+
+    def test_can_accept_and_keep_none_in_content_type(self):
+        heads = {'content-type': None}
+
+        for service in SERVICES:
+
+            r = get(service('get'), headers=heads)
+            self.assertEqual(None, r.request.headers['content-type'])
+
+            r = post(service('post'), data={}, headers=heads)
+            self.assertEqual(None, r.request.headers['content-type'])
+
+            r = post(service('post'), data={'foo': 'bar'}, headers=heads)
+            self.assertEqual(None, r.request.headers['content-type'])
+
+            #should preserve case-insensitive headers (RFC2616)
+            heads = {'Content-Type': None}
+            r = post(service('post'), data={'foo': 'bar'}, headers=heads)
+            self.assertEqual(None, r.request.headers['content-type'])
+            self.assertEqual(None, r.request.headers['Content-Type'])
+
 
     def test_danger_mode_redirects(self):
         s = requests.session()

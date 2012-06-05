@@ -21,7 +21,8 @@ from .packages.urllib3.poolmanager import PoolManager
 def merge_kwargs(local_kwarg, default_kwarg):
     """Merges kwarg dictionaries.
 
-    If a local key in the dictionary is set to None, it will be removed.
+    If a local key in the dictionary is set to None, it will be removed,
+    except content-type, which should be allowed to be None
     """
 
     if default_kwarg is None:
@@ -42,8 +43,9 @@ def merge_kwargs(local_kwarg, default_kwarg):
     kwargs.update(local_kwarg)
 
     # Remove keys that are set to None.
+    # Keep content-type even if it is set to None
     for (k, v) in list(local_kwarg.items()):
-        if v is None:
+        if v is None and k.lower() != 'content-type':
             del kwargs[k]
 
     return kwargs
