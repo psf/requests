@@ -18,15 +18,13 @@ Things shouldn’t be this way. Not in Python.
 
 ::
 
-    >>> r = requests.get('http://httpbin.org/get', auth=('user', 'passwd'))
+    >>> r = requests.get('https://api.github.com', auth=('user', 'pass'))
     >>> r.status_code
-    200
+    204
     >>> r.headers['content-type']
     'application/json'
     >>> r.text
-    u'{\n  "url": "http://httpbin.org/get", \n  "headers": {...
-    >>> r.json
-    {u'url': u'http://httpbin.org/get', u'headers': {...
+    ...
 
 See `the same code, without Requests <https://gist.github.com/973705>`_.
 
