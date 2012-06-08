@@ -913,5 +913,12 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         r2 = requests.get(httpbin('get'), config=dict(keep_alive=False))
         self.assertEqual(r2.headers['Connection'].lower(), 'close')
 
+    def test_head_content(self):
+        """Test that empty bodies are properly supported."""
+
+        r = requests.head(httpbin('headers'))
+        r.content
+        r.text
+
 if __name__ == '__main__':
     unittest.main()
