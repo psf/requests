@@ -786,7 +786,7 @@ class Response(object):
         encoding = self.encoding
 
         if not self.content:
-            return u''
+            return str('')
 
         # Fallback to auto-detected encoding.
         if self.encoding is None:
