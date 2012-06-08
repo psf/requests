@@ -39,7 +39,7 @@ class MockRequest(object):
     def get_origin_req_host(self):
         if self._r.response.history:
             r = self._r.response.history[0]
-            return urlparse(r).netloc
+            return urlparse(r.url).netloc
         else:
             return self.get_host()
 
