@@ -466,7 +466,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
     def test_file_post_data(self):
 
-        filecontent = "fooaowpeufbarasjhf"
+        filecontent = b"fooaowpeufbarasjhf"
         testfile = tempfile.NamedTemporaryFile()
         testfile.write(filecontent)
         testfile.flush()
@@ -482,7 +482,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
             rbody = json.loads(r.text)
             assert rbody.get('form') in (None, {})
-            self.assertEqual(rbody.get('data'), filecontent)
+            self.assertEqual(rbody.get('data'), filecontent.decode('ascii'))
 
     def test_urlencoded_post_querystring(self):
 
