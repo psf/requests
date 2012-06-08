@@ -785,6 +785,9 @@ class Response(object):
         content = None
         encoding = self.encoding
 
+        if not self.content:
+            return u''
+
         # Fallback to auto-detected encoding.
         if self.encoding is None:
             if chardet is not None:
