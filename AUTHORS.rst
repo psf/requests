@@ -103,3 +103,4 @@ Patches and Suggestions
 - Josh Imhoff <joshimhoff13@gmail.com>
 - Arup Malakar <amalakar@gmail.com>
 - Danilo Bargen (gwrtheyrn)
+- Torsten Landschoff
