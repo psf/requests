@@ -107,43 +107,8 @@ If you'd like to disable keep-alive, you can simply set the ``keep_alive`` confi
 Asynchronous Requests
 ----------------------
 
-Requests has first-class support for concurrent requests, powered by gevent.
-This allows you to send a bunch of HTTP requests at the same time.
 
-First, let's import the async module. Heads up — if you don't have
-`gevent <http://pypi.python.org/pypi/gevent>`_ this will fail::
-
-    from requests import async
-
-The ``async`` module has the exact same api as ``requests``, except it
-doesn't send the request immediately. Instead, it returns the ``Request``
-object.
-
-We can build a list of ``Request`` objects easily::
-
-    urls = [
-        'http://python-requests.org',
-        'http://httpbin.org',
-        'http://python-guide.org',
-        'http://kennethreitz.com'
-    ]
-
-    rs = [async.get(u) for u in urls]
-
-Now we have a list of ``Request`` objects, ready to be sent. We could send them
-one at a time with ``Request.send()``, but that would take a while.  Instead,
-we'll send them all at the same time with ``async.map()``.  Using ``async.map()``
-will also guarantee execution of the ``response`` hook, described below. ::
-
-    >>> responses = async.map(rs)
-    >>> responses
-    [<Response [200]>, <Response [200]>, <Response [200]>, <Response [200]>]
-
-.. admonition:: Throttling
-
-    The ``map`` function also takes a ``size`` parameter, that specifies the number of connections to make at a time::
-
-        async.map(rs, size=5)
+``requests.async`` has been removed from requests and is now its own repository named `GRequests <https://github.com/kennethreitz/grequests>`_.
 
 
 Event Hooks
