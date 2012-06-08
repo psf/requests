@@ -3,11 +3,12 @@
 History
 -------
 
-0.13.1 (2012-06-??)
+0.13.1 (2012-06-07)
 +++++++++++++++++++
 
-- Allow hooks to return responses that indicate errors
--
+- Allow passing a file or file-like object as data.
+- Allow hooks to return responses that indicate errors.
+- Fix Response.text and Response.json for body-less responses.
 
 0.13.0 (2012-05-29)
 +++++++++++++++++++
