@@ -12,6 +12,7 @@ import json
 import os
 import unittest
 import pickle
+import tempfile
 
 import requests
 from requests.compat import str, StringIO
@@ -462,6 +463,26 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
             assert rbody.get('form') in (None, {})
             self.assertEqual(rbody.get('data'), 'fooaowpeuf')
+
+    def test_file_post_data(self):
+
+        filecontent = "fooaowpeufbarasjhf"
+        testfile = tempfile.NamedTemporaryFile()
+        testfile.write(filecontent)
+        testfile.flush()
+
+        for service in SERVICES:
+
+            r = post(service('post'), data=open(testfile.name, "rb"),
+                    headers={"content-type": "application/octet-stream"})
+
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r.headers['content-type'], 'application/json')
+            self.assertEqual(r.url, service('post'))
+
+            rbody = json.loads(r.text)
+            assert rbody.get('form') in (None, {})
+            self.assertEqual(rbody.get('data'), filecontent)
 
     def test_urlencoded_post_querystring(self):
 
