@@ -467,15 +467,18 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
     def test_file_post_data(self):
 
         filecontent = b"fooaowpeufbarasjhf"
-        testfile = tempfile.NamedTemporaryFile()
+        testfile = tempfile.NamedTemporaryFile(delete=False)
         testfile.write(filecontent)
         testfile.flush()
+        testfile.close()
 
         for service in SERVICES:
 
-            r = post(service('post'), data=open(testfile.name, "rb"),
+            data = open(testfile.name, "rb")
+            r = post(service('post'), data=data,
                     headers={"content-type": "application/octet-stream"})
 
+            data.close()
             self.assertEqual(r.status_code, 200)
             self.assertEqual(r.headers['content-type'], 'application/json')
             self.assertEqual(r.url, service('post'))
@@ -483,6 +486,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             rbody = json.loads(r.text)
             assert rbody.get('form') in (None, {})
             self.assertEqual(rbody.get('data'), filecontent.decode('ascii'))
+        os.remove(testfile.name)
 
     def test_urlencoded_post_querystring(self):
 
