@@ -7,32 +7,34 @@ requests.models
 This module contains the primary objects that power Requests.
 """
 
+import functools
 import json
 import os
+import socket
 from datetime import datetime
 
-from .hooks import dispatch_hook, HOOKS
-from .structures import CaseInsensitiveDict
-from .status_codes import codes
-
 from .auth import HTTPBasicAuth, HTTPProxyAuth
+from .compat import (
+    cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
+    StringIO, is_py2)
 from .cookies import cookiejar_from_dict, extract_cookies_to_jar, get_cookie_header
-from .packages.urllib3.exceptions import MaxRetryError, LocationParseError
-from .packages.urllib3.exceptions import SSLError as _SSLError
-from .packages.urllib3.exceptions import HTTPError as _HTTPError
-from .packages.urllib3 import connectionpool, poolmanager
-from .packages.urllib3.filepost import encode_multipart_formdata
 from .defaults import SCHEMAS
 from .exceptions import (
     ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
     URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
+from .hooks import dispatch_hook, HOOKS
+from .packages.urllib3 import connectionpool, poolmanager
+from .packages.urllib3.exceptions import MaxRetryError, LocationParseError
+from .packages.urllib3.exceptions import SSLError as _SSLError
+from .packages.urllib3.exceptions import HTTPError as _HTTPError
+from .packages.urllib3.filepost import encode_multipart_formdata
+from .packages.urllib3.response import HTTPResponse
+from .status_codes import codes
+from .structures import CaseInsensitiveDict
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
     stream_decode_response_unicode, get_netrc_auth, get_environ_proxies,
     DEFAULT_CA_BUNDLE_PATH)
-from .compat import (
-    cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    StringIO, is_py2)
 
 # Import chardet if it is available.
 try:
@@ -44,6 +46,7 @@ except ImportError:
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
+
 
 class Request(object):
     """The :class:`Request <Request>` object. It carries out all functionality of
@@ -459,6 +462,39 @@ class Request(object):
         except ValueError:
             return False
 
+    def catch_exceptions_if_in_safe_mode(f):
+        """We catch all exceptions we know deeper layers can throw and then
+        return a blank Response object with the error field filled.
+        This decorator wraps Request.send() method.
+        """
+    
+        def erroneous_response(exc):
+            res = Response() 
+            res.error = exc
+            res.raw = HTTPResponse() # otherwise, tests fail
+            res.status_code = 0 # with this status_code, content returns None
+            return res
+            
+        def in_safe_mode(req):
+            return ((getattr(req, 'config') and
+                     getattr(req, 'config').get('safe_mode')) or
+                    (getattr(req, 'session') and
+                     getattr(req, 'session').config.get('safe_mode')))
+            
+        
+        @functools.wraps(f)
+        def wrapped(self, *args, **kwargs):
+            # if save_mode, we catch exceptions and fill error field
+            if in_safe_mode(self):
+                try:
+                    return f(self, *args, **kwargs)
+                except (RequestException, ConnectionError, HTTPError, socket.timeout) as e:
+                    self.response = erroneous_response(e)
+            else:
+                return f(self, *args, **kwargs)
+        return wrapped
+
+    @catch_exceptions_if_in_safe_mode
     def send(self, anyway=False, prefetch=False):
         """Sends the request. Returns True if successful, False if not.
         If there was an HTTPError during transmission,

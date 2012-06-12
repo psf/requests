@@ -851,31 +851,82 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         joined = lines[0] + '\n' + lines[1] + '\r\n' + lines[2]
         self.assertEqual(joined, quote)
 
-    def test_safe_mode(self):
-
-        safe = requests.session(config=dict(safe_mode=True))
-
         # Safe mode creates empty responses for failed requests.
         # Iterating on these responses should produce empty sequences
-        r = get('http://_/', session=safe)
-        self.assertEqual(list(r.iter_lines()), [])
-        assert isinstance(r.error, requests.exceptions.ConnectionError)
 
-        r = get('http://_/', session=safe)
-        self.assertEqual(list(r.iter_content()), [])
-        assert isinstance(r.error, requests.exceptions.ConnectionError)
+    def test_safe_mode(self):
 
-        # When not in safe mode, should raise Timeout exception
+        invalid_url = 'http://_/'
+        timeout = 0.0001
+        slow_url = httpbin('delay', '1')
+
+        # Without safe mode, should raise
+
         self.assertRaises(
             requests.exceptions.Timeout,
             get,
-            httpbin('stream', '1000'), timeout=0.0001)
+            slow_url,
+            timeout=timeout,
+            config=dict(safe_mode=False))
 
-        # In safe mode, should return a blank response
-        r = get(httpbin('stream', '1000'), timeout=0.0001,
-                config=dict(safe_mode=True))
-        assert r.content is None
-        assert isinstance(r.error, requests.exceptions.Timeout)
+        self.assertRaises(
+            requests.exceptions.ConnectionError,
+            get,
+            invalid_url,
+            config=dict(safe_mode=False))
+
+        # ...also if not being sent at once
+
+        req = get(slow_url,
+                  timeout=timeout,
+                  config=dict(safe_mode=False),
+                  return_response=False)
+        self.assertRaises(
+            requests.exceptions.Timeout,
+            req.send)
+
+        req = get(invalid_url,
+                  config=dict(safe_mode=False),
+                  return_response=False)
+        self.assertRaises(
+            requests.exceptions.ConnectionError,
+            req.send)
+
+        # In safe mode, instead of raising
+        # should return a blank response and set error attribute
+
+        res = get(slow_url,
+                  timeout=timeout,
+                  config=dict(safe_mode=True))
+        assert req.sent == False
+        assert res.content is None
+        assert isinstance(res.error, requests.exceptions.Timeout)
+
+        res = get(invalid_url,
+                  config=dict(safe_mode=True))
+        assert req.sent == False
+        assert res.content is None
+        assert isinstance(res.error, requests.exceptions.ConnectionError)
+
+        # ...also if not being sent at once
+
+        req = get(slow_url,
+                  timeout=timeout,
+                  config=dict(safe_mode=True),
+                  return_response=False)
+        req.send()
+        assert req.sent == False
+        assert req.response.content is None
+        assert isinstance(req.response.error, requests.exceptions.Timeout)
+
+        req = get(invalid_url,
+                  config=dict(safe_mode=True),
+                  return_response=False)
+        req.send()
+        assert req.sent == False
+        assert req.response.content is None
+        assert isinstance(req.response.error,
+                          requests.exceptions.ConnectionError)
 
     def test_upload_binary_data(self):
 
