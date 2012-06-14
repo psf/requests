@@ -268,23 +268,41 @@ We can also do this for POSTs, and any other request for that matter::
 ``Request`` objects have the following attributes:
 
     * allow_redirects
+        * True enables full redirects
     * auth
+        * Basic authentication tuple or object
     * cert
+        * SSL certificate
     * config
+        * Dictionary of configurations for the request
     * data
+        * Dictionary, bytes or file stream to attach to request body
     * files
+        * Dictionary of files for multipart upload
     * headers
+        * Dictionary of HTTP headers sent with request
     * hooks
+        * Event handling hooks
     * method
+        * All CAPs string for request method type (e.x. 'GET')
     * params
+        * Dictionary or bytes of query to attach to the end of the url
     * prefetch
+        * Setting this to True downloads the reponse's content body as soon as
+          the request is made
     * proxies
+        * Dictionary of protocol to proxy
     * redirect
+        * True if request is part of a redirect chain
     * sent
+        * True if the request has been sent
     * session
     * timeout
+        * Float representing length of time to wait for response
     * url
     * verify
+        * Set to true if you want to ``requests`` to verify ``url``'s SSL
+          certificate
 
     
         
