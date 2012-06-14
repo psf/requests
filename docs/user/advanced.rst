@@ -224,6 +224,71 @@ Then, we can make a request using our Pizza Auth::
     >>> requests.get('http://pizzabin.org/admin', auth=PizzaAuth('kenneth'))
     <Response [200]>
 
+Accessing Request Information
+-----------------------------
+
+Every request has two main parts, the ``request`` and the ``response``. It's
+probably obvious why you'd want to access the response, but there might also be
+times where accessing the request's data members might prove useful, especially
+when creating a custom authentication implementation. In this case, as in
+others, you may want to access or change a part of the request.
+
+Consider a situation where you create make a request in one method, but use the
+``Requests`` object returned by your request in another.
+
+::
+
+    def mystery_request():
+        return requests.get('http://en.wikipedia.org/wiki/Monty_Python')
+
+    def serious_code():
+        r = mystery_request()
+
+Now, we have this object ``r``, but how do we tell what's in it? We can't do
+much until we know what kind of request returned this content, so let's figure
+that out::
+
+    >>> r.request.method
+    'GET'
+
+Every ``Requests`` object contains the full request object. Now that we know
+it's a ``GET``, we might want to know what headers we sent with it::
+
+    >>> r.request.headers
+    {'Accept-Encoding': 'identity, deflate, compress, gzip',
+    'Accept': '*/*', 'User-Agent': 'python-requests/0.13.1'}
+
+We can also do this for POSTs, and any other request for that matter::
+
+    >>> r = requests.post('http://api.somedomain.org', data=some_data, 
+        headers=some_headers)
+    >>> r.request.data == some_data
+    True
+
+``Request`` objects have the following attributes:
+
+    * allow_redirects
+    * auth
+    * cert
+    * config
+    * data
+    * files
+    * headers
+    * hooks
+    * method
+    * params
+    * prefetch
+    * proxies
+    * redirect
+    * sent
+    * session
+    * timeout
+    * url
+    * verify
+
+    
+        
+
 
 Streaming Requests
 ------------------
