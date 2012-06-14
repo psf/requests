@@ -105,7 +105,7 @@ class OAuth1(AuthBase):
                 del r.headers[u_header]
                 r.headers['Authorization'] = auth_header
 
-            return r
+        return r
 
 
 class HTTPBasicAuth(AuthBase):
