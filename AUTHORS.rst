@@ -104,3 +104,4 @@ Patches and Suggestions
 - Arup Malakar <amalakar@gmail.com>
 - Danilo Bargen (gwrtheyrn)
 - Torsten Landschoff
+- Michael Holler (apotheos)

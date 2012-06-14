@@ -45,6 +45,85 @@ Any dictionaries that you pass to a request method will be merged with the sessi
 
 All values that are contained within a session are directly available to you. See the :ref:`Session API Docs <sessionapi>` to learn more.
 
+Request and Response Objects
+----------------------------
+
+Whenever a call is made to requests.*() you are doing two major things. First,
+you are constructing a ``Request`` object which will be sent of to a server
+to request or query some resource. Second, a ``Response`` object is generated
+once ``requests`` gets a response back from the server. The response object 
+contains all of the information returned by the server and also contains the
+``Request`` object you created originally. Here is a simple request to get some
+very important information from Wikipedia's servers::
+    
+    >>> response = requests.get('http://en.wikipedia.org/wiki/Monty_Python')
+
+If we want to access the headers the server sent back to us, we do this::
+    
+    >>> response.headers
+    {'content-length': '56170', 'x-content-type-options': 'nosniff', 'x-cache':
+    'HIT from cp1006.eqiad.wmnet, MISS from cp1010.eqiad.wmnet', 'content-encoding': 
+    'gzip', 'age': '3080', 'content-language': 'en', 'vary': 'Accept-Encoding,Cookie',
+    'server': 'Apache', 'last-modified': 'Wed, 13 Jun 2012 01:33:50 GMT',
+    'connection': 'close', 'cache-control': 'private, s-maxage=0, max-age=0,
+    must-revalidate', 'date': 'Thu, 14 Jun 2012 12:59:39 GMT', 'content-type':
+    'text/html; charset=UTF-8', 'x-cache-lookup': 'HIT from cp1006.eqiad.wmnet:3128,
+    MISS from cp1010.eqiad.wmnet:80'}
+
+However, if we want to get the headers we sent the server, we simply access the
+request, and then the request's headers::
+
+    >>> response.request.headers
+    {'Accept-Encoding': 'identity, deflate, compress, gzip',
+    'Accept': '*/*', 'User-Agent': 'python-requests/0.13.1'}
+
+Requests have these attributes:
+
+    * Variable Attributes
+        * allow_redirects
+        * auth
+        * cert
+        * config
+        * cookies
+        * data
+        * files
+        * headers
+        * hooks
+        * method
+        * params
+        * prefetch
+        * proxies
+        * redirect
+        * response
+        * sent
+        * session
+        * timeout
+        * url
+    * Class Methods
+        * deregister_hook
+        * full_url
+        * path_url
+        * register_hook
+        * send
+
+Responses have the following attributes:
+
+    * Variable Attributes
+        * config
+        * cookies
+        * encoding
+        * error
+        * headers
+        * history
+        * raw
+        * request
+        * status_code
+        * url
+    * Class Methods
+        * content
+        * json
+        * raise_for_status
+        * text
 
 SSL Cert Verification
 ---------------------
@@ -223,7 +302,6 @@ Then, we can make a request using our Pizza Auth::
 
     >>> requests.get('http://pizzabin.org/admin', auth=PizzaAuth('kenneth'))
     <Response [200]>
-
 
 Streaming Requests
 ------------------
