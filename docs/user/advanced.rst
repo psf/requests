@@ -45,6 +45,85 @@ Any dictionaries that you pass to a request method will be merged with the sessi
 
 All values that are contained within a session are directly available to you. See the :ref:`Session API Docs <sessionapi>` to learn more.
 
+Request and Response Objects
+----------------------------
+
+Whenever a call is made to requests.*() you are doing two major things. First,
+you are constructing a ``Request`` object which will be sent of to a server
+to request or query some resource. Second, a ``Response`` object is generated
+once ``requests`` gets a response back from the server. The response object 
+contains all of the information returned by the server and also contains the
+``Request`` object you created originally. Here is a simple request to get some
+very important information from Wikipedia's servers::
+    
+    >>> response = requests.get('http://en.wikipedia.org/wiki/Monty_Python')
+
+If we want to access the headers the server sent back to us, we do this::
+    
+    >>> response.headers
+    {'content-length': '56170', 'x-content-type-options': 'nosniff', 'x-cache':
+    'HIT from cp1006.eqiad.wmnet, MISS from cp1010.eqiad.wmnet', 'content-encoding': 
+    'gzip', 'age': '3080', 'content-language': 'en', 'vary': 'Accept-Encoding,Cookie',
+    'server': 'Apache', 'last-modified': 'Wed, 13 Jun 2012 01:33:50 GMT',
+    'connection': 'close', 'cache-control': 'private, s-maxage=0, max-age=0,
+    must-revalidate', 'date': 'Thu, 14 Jun 2012 12:59:39 GMT', 'content-type':
+    'text/html; charset=UTF-8', 'x-cache-lookup': 'HIT from cp1006.eqiad.wmnet:3128,
+    MISS from cp1010.eqiad.wmnet:80'}
+
+However, if we want to get the headers we sent the server, we simply access the
+request, and then the request's headers::
+
+    >>> response.request.headers
+    {'Accept-Encoding': 'identity, deflate, compress, gzip',
+    'Accept': '*/*', 'User-Agent': 'python-requests/0.13.1'}
+
+Requests have these attributes:
+
+    * Variable Attributes
+        * allow_redirects
+        * auth
+        * cert
+        * config
+        * cookies
+        * data
+        * files
+        * headers
+        * hooks
+        * method
+        * params
+        * prefetch
+        * proxies
+        * redirect
+        * response
+        * sent
+        * session
+        * timeout
+        * url
+    * Class Methods
+        * deregister_hook
+        * full_url
+        * path_url
+        * register_hook
+        * send
+
+Responses have the following attributes:
+
+    * Variable Attributes
+        * config
+        * cookies
+        * encoding
+        * error
+        * headers
+        * history
+        * raw
+        * request
+        * status_code
+        * url
+    * Class Methods
+        * content
+        * json
+        * raise_for_status
+        * text
 
 SSL Cert Verification
 ---------------------
@@ -223,89 +302,6 @@ Then, we can make a request using our Pizza Auth::
 
     >>> requests.get('http://pizzabin.org/admin', auth=PizzaAuth('kenneth'))
     <Response [200]>
-
-Accessing Request Information
------------------------------
-
-Every request has two main parts, the ``request`` and the ``response``. It's
-probably obvious why you'd want to access the response, but there might also be
-times where accessing the request's data members might prove useful, especially
-when creating a custom authentication implementation. In this case, as in
-others, you may want to access or change a part of the request.
-
-Consider a situation where you create make a request in one method, but use the
-``Requests`` object returned by your request in another.
-
-::
-
-    def mystery_request():
-        return requests.get('http://en.wikipedia.org/wiki/Monty_Python')
-
-    def serious_code():
-        r = mystery_request()
-
-Now, we have this object ``r``, but how do we tell what's in it? We can't do
-much until we know what kind of request returned this content, so let's figure
-that out::
-
-    >>> r.request.method
-    'GET'
-
-Every ``Requests`` object contains the full request object. Now that we know
-it's a ``GET``, we might want to know what headers we sent with it::
-
-    >>> r.request.headers
-    {'Accept-Encoding': 'identity, deflate, compress, gzip',
-    'Accept': '*/*', 'User-Agent': 'python-requests/0.13.1'}
-
-We can also do this for POSTs, and any other request for that matter::
-
-    >>> r = requests.post('http://api.somedomain.org', data=some_data, 
-        headers=some_headers)
-    >>> r.request.data == some_data
-    True
-
-Request Object Attributes
--------------------------
-
-``Request`` objects have the following attributes:
-
-    * allow_redirects
-        * True enables full redirects
-    * auth
-        * Basic authentication tuple or object
-    * cert
-        * SSL certificate
-    * config
-        * Dictionary of configurations for the request
-    * data
-        * Dictionary, bytes or file stream to attach to request body
-    * files
-        * Dictionary of files for multipart upload
-    * headers
-        * Dictionary of HTTP headers sent with request
-    * hooks
-        * Event handling hooks
-    * method
-        * All CAPs string for request method type (e.x. 'GET')
-    * params
-        * Dictionary or bytes of query to attach to the end of the url
-    * prefetch
-        * Setting this to True downloads the reponse's content body as soon as
-          the request is made
-    * proxies
-        * Dictionary of protocol to proxy
-    * redirect
-        * True if request is part of a redirect chain
-    * sent
-        * True if the request has been sent
-    * session
-    * timeout
-        * Float representing length of time to wait for response
-    * url
-    * verify
-        * Set to true if you want to ``requests`` to verify ``url``'s SSL
-          certificate
 
 Streaming Requests
 ------------------
