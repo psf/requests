@@ -265,6 +265,9 @@ We can also do this for POSTs, and any other request for that matter::
     >>> r.request.data == some_data
     True
 
+Request Object Attributes
+-------------------------
+
 ``Request`` objects have the following attributes:
 
     * allow_redirects
@@ -303,10 +306,6 @@ We can also do this for POSTs, and any other request for that matter::
     * verify
         * Set to true if you want to ``requests`` to verify ``url``'s SSL
           certificate
-
-    
-        
-
 
 Streaming Requests
 ------------------
