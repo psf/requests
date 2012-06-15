@@ -15,6 +15,12 @@ class CaseInsensitiveDict(dict):
     For example, ``headers['content-encoding']`` will return the
     value of a ``'Content-Encoding'`` response header."""
 
+    def __init__(self, data=None, **kwargs):
+        if data is not None:
+            self.update(data)
+        if len(kwargs):
+            self.update(**kwargs)
+
     @property
     def lower_keys(self):
         if not hasattr(self, '_lower_keys') or not self._lower_keys:
@@ -26,7 +32,7 @@ class CaseInsensitiveDict(dict):
             self._lower_keys.clear()
 
     def __setitem__(self, key, value):
-        dict.__setitem__(self, key, value)
+        dict.__setitem__(self, key.lower(), value)
         self._clear_lower_keys()
 
     def __delitem__(self, key):
@@ -46,6 +52,15 @@ class CaseInsensitiveDict(dict):
             return self[key]
         else:
             return default
+
+    def update(self, data=None, **kwargs):
+        if data is not None and hasattr(data, 'items'):
+            for key, value in data.items():
+                self.__setitem__(key, value)
+
+        if len(kwargs):
+            for key, value in kwargs.items():
+                self.__setitem__(key, value)
 
 class LookupDict(dict):
     """Dictionary lookup object."""
