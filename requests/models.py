@@ -815,6 +815,11 @@ class Response(object):
         except ValueError:
             return None
 
+    @property
+    def reason(self):
+        """The HTTP Reason for the response."""
+        return self.raw.reason
+
     def raise_for_status(self, allow_redirects=True):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occurred."""
 
