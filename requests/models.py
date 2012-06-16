@@ -219,6 +219,7 @@ class Request(object):
 
             return response
 
+
         history = []
 
         r = build(resp)
