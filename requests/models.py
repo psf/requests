@@ -373,10 +373,7 @@ class Request(object):
 
         if not self.url:
             raise URLRequired()
-        #print self.url
-        #print type(self.url)
-        #print type(self.url).__name__ == 'str'
-        #print '\n'
+
         if type(self.url).__name__ == 'str':
             url = self.url
         else:
