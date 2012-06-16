@@ -374,7 +374,7 @@ class Request(object):
         if not self.url:
             raise URLRequired()
 
-        url = self.url
+        url = unicode(self.url)
 
         # Support for unicode domain names and paths.
         scheme, netloc, path, params, query, fragment = urlparse(url)
