@@ -79,7 +79,7 @@ class Request(object):
         self.timeout = timeout
 
         #: Request URL.
-        self.url = unicode(url)
+        self.url = url
 
         #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.
         self.headers = dict(headers or [])
@@ -373,8 +373,14 @@ class Request(object):
 
         if not self.url:
             raise URLRequired()
-
-        url = self.url
+        #print self.url
+        #print type(self.url)
+        #print type(self.url).__name__ == 'str'
+        #print '\n'
+        if type(self.url).__name__ == 'str':
+            url = self.url
+        else:
+            url = unicode(self.url)
 
         # Support for unicode domain names and paths.
         scheme, netloc, path, params, query, fragment = urlparse(url)
