@@ -256,9 +256,9 @@ If we made a bad request (non-200 response), we can raise it with
 
     >>> _r.raise_for_status()
     Traceback (most recent call last):
-      File "requests/models.py", line 394, in raise_for_status
-        raise self.error
-    urllib2.HTTPError: HTTP Error 404: NOT FOUND
+      File "requests/models.py", line 832, in raise_for_status
+        raise http_error
+    requests.exceptions.HTTPError: 404 Client Error
 
 But, since our ``status_code`` for ``r`` was ``200``, when we call
 ``raise_for_status()`` we get::
