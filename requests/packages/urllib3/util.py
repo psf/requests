@@ -72,6 +72,32 @@ def make_headers(keep_alive=None, accept_encoding=None, user_agent=None,
     return headers
 
 
+def split_first(s, delims):
+    """
+    Given a string and an iterable of delimiters, split on the first found
+    delimiter. Return two split parts.
+
+    If not found, then the first part is the full input string.
+
+    Scales linearly with number of delims. Not ideal for large number of delims.
+    """
+    min_idx = None
+    for d in delims:
+        idx = s.find(d)
+        if idx < 0:
+            continue
+
+        if not min_idx:
+            min_idx = idx
+        else:
+            min_idx = min(idx, min_idx)
+
+    if min_idx < 0:
+        return s, ''
+
+    return s[:min_idx], s[min_idx+1:]
+
+
 def get_host(url):
     """
     Given a url, return its scheme, host and port (None if it's not there).
@@ -91,8 +117,11 @@ def get_host(url):
 
     if '://' in url:
         scheme, url = url.split('://', 1)
-    if '/' in url:
-        url, _path = url.split('/', 1)
+
+    # Find the earliest Authority Terminator
+    # http://tools.ietf.org/html/rfc3986#section-3.2
+    url, _path = split_first(url, ['/', '?', '#'])
+
     if '@' in url:
         _auth, url = url.split('@', 1)
     if ':' in url:
@@ -118,11 +147,11 @@ def is_connection_dropped(conn):
     let the platform handle connection recycling transparently for us.
     """
     sock = getattr(conn, 'sock', False)
-    if not sock: #Platform-specific: AppEngine
+    if not sock: # Platform-specific: AppEngine
         return False
 
     if not poll: # Platform-specific
-        if not select: #Platform-specific: AppEngine
+        if not select: # Platform-specific: AppEngine
             return False
 
         return select([sock], [], [], 0.0)[0]
