@@ -237,7 +237,7 @@ Response Status Codes
 
 We can check the response status code::
 
-    >>> r = requests.get("http://httpbin.org/get')
+    >>> r = requests.get('http://httpbin.org/get')
     >>> r.status_code
     200
 
