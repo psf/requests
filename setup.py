@@ -27,7 +27,6 @@ packages = [
     'requests.packages.urllib3',
     'requests.packages.urllib3.packages',
     'requests.packages.urllib3.packages.ssl_match_hostname',
-    'requests.packages.urllib3.packages.mimetools_choose_boundary',
 ]
 
 # certifi is a Python package containing a CA certificate bundle for SSL verification.
