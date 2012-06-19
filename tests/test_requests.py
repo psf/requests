@@ -351,7 +351,14 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             post5 = post(url, files={'file': ('file.txt', 'more fdata')})
             self.assertEqual(post5.status_code, 200)
 
-            post6 = post(url, files={'fname.txt': '\xe9'})
+            # Dirty hack to tide us over until 3.3.
+            # TODO: Remove this hack when Python 3.3 is released.
+            if (sys.version_info[0] == 2):
+                fdata = '\xc3\xa9'.decode('utf-8')
+            else:
+                fdata = '\xe9'
+
+            post6 = post(url, files={'fname.txt': fdata})
             self.assertEqual(post6.status_code, 200)
 
             post7 = post(url, files={'fname.txt': 'fdata to verify'})
