@@ -810,10 +810,7 @@ class Response(object):
     @property
     def json(self):
         """Returns the json-encoded content of a request, if any."""
-        try:
-            return json.loads(self.text or self.content)
-        except ValueError:
-            return None
+        return json.loads(self.text or self.content)
 
     @property
     def reason(self):
