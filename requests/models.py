@@ -319,13 +319,7 @@ class Request(object):
         if parameters are supplied as a dict.
         """
 
-        if isinstance(data, bytes):
-            return data
-        if isinstance(data, str):
-            return data
-        elif hasattr(data, 'read'):
-            return data
-        elif hasattr(data, '__iter__'):
+        if hasattr(data, '__iter__') and not hasattr(data, 'read'):
             try:
                 dict(data)
             except ValueError:
@@ -339,8 +333,7 @@ class Request(object):
                         (k.encode('utf-8') if isinstance(k, str) else k,
                          v.encode('utf-8') if isinstance(v, str) else v))
             return urlencode(result, doseq=True)
-        else:
-            return data
+        return data
 
     def _encode_files(self, files):
 
