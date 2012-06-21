@@ -19,12 +19,12 @@ Let's get started with some simple examples.
 
 
 Make a Request
-------------------
+--------------
 
 Making a request with Requests is very simple.
 
 Begin by importing the Requests module::
-    
+
     >>> import requests
 
 Now, let's try to get a webpage. For this example, let's get GitHub's public
@@ -37,12 +37,12 @@ information we need from this object.
 
 Requests' simple API means that all forms of HTTP request are as obvious. For
 example, this is how you make an HTTP POST request::
-    
+
     >>> r = requests.post("http://httpbin.org/post")
 
 Nice, right? What about the other HTTP request types: PUT, DELETE, HEAD and
 OPTIONS? These are all just as simple::
-    
+
     >>> r = requests.put("http://httpbin.org/put")
     >>> r = requests.delete("http://httpbin.org/delete")
     >>> r = requests.head("http://httpbin.org/get")
@@ -70,7 +70,7 @@ You can see that the URL has been correctly encoded by printing the URL::
 
     >>> print r.url
     u'http://httpbin.org/get?key2=value2&key1=value1'
-    
+
 
 Response Content
 ----------------
@@ -121,7 +121,7 @@ There's also a builtin JSON decoder, in case you're dealing with JSON data::
     >>> r.json
     [{u'repository': {u'open_issues': 0, u'url': 'https://github.com/...
 
-In case the JSON decoding fails, ``r.json`` simply returns ``None``.
+In case the JSON decoding fails, ``ValueError`` exception is thrown.
 
 
 Raw Response Content
@@ -219,7 +219,7 @@ You can set the filename explicitly::
 If you want, you can send strings to be received as files::
 
     >>> url = 'http://httpbin.org/post'
-    >>> files = {'file': ('report.csv', 'some,data,to,send\nanother,row,to,send\n')} 
+    >>> files = {'file': ('report.csv', 'some,data,to,send\nanother,row,to,send\n')}
 
     >>> r = requests.post(url, files=files)
     >>> r.text
