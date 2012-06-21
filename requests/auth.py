@@ -83,12 +83,12 @@ class OAuth1(AuthBase):
                 # to preserve body. 
                 r.headers['Content-Type'] = 'multipart/form-encoded'
                 r.url, r.headers, _ = self.client.sign(
-                    unicode(r.url), unicode(r.method), None, r.headers)
+                    unicode(r.full_url), unicode(r.method), None, r.headers)
             else:
                 # Normal signing
                 r.headers['Content-Type'] = 'application/x-www-form-urlencoded'
                 r.url, r.headers, r.data = self.client.sign(
-                    unicode(r.url), unicode(r.method), r.data, r.headers)
+                    unicode(r.full_url), unicode(r.method), r.data, r.headers)
 
             # Having the authorization header, key or value, in unicode will
             # result in UnicodeDecodeErrors when the request is concatenated
