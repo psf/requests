@@ -110,30 +110,47 @@ def get_host(url):
         ('http', 'google.com', 80)
     """
 
-    # This code is actually similar to urlparse.urlsplit, but much
-    # simplified for our needs.
-    port = None
-    scheme = 'http'
+    # While this code has overlap with stdlib's urlparse, it is much
+    # simplified for our needs and less annoying.
+    # Additionally, this imeplementations does silly things to be optimal
+    # on CPython.
 
+    scheme = 'http'
+    host = None
+    port = None
+
+    # Scheme
     if '://' in url:
         scheme, url = url.split('://', 1)
 
     # Find the earliest Authority Terminator
-    # http://tools.ietf.org/html/rfc3986#section-3.2
+    # (http://tools.ietf.org/html/rfc3986#section-3.2)
     url, _path = split_first(url, ['/', '?', '#'])
 
+    # Auth
     if '@' in url:
         _auth, url = url.split('@', 1)
+
+    # IPv6
+    if url and url[0] == '[':
+        host, url = url[1:].split(']', 1)
+
+    # Port
     if ':' in url:
-        url, port = url.split(':', 1)
+        _host, port = url.split(':', 1)
+
+        if not host:
+            host = _host
 
         if not port.isdigit():
             raise LocationParseError("Failed to parse: %s" % url)
 
         port = int(port)
 
-    return scheme, url, port
+    elif not host:
+        host = url
 
+    return scheme, host, port
 
 
 def is_connection_dropped(conn):
