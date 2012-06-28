@@ -58,14 +58,23 @@ site:
 clean:
 	git clean -Xfd
 
-deps:
+deps: urllib3 certs
+
+urllib3:
 	rm -fr requests/packages/urllib3
 	git clone https://github.com/shazow/urllib3.git
 	cd urllib3 && git checkout master && cd ..
 	mv urllib3/urllib3 requests/packages/
 	rm -fr urllib3
 
+oauthlib:
+	rm -fr requests/packages/oauthlib
+	git clone https://github.com/idan/oauthlib.git
+	cd oauthlib && git checkout master && cd ..
+	mv oauthlib/oauthlib requests/packages/
+	rm -fr oauthlib
+
 certs:
-	cd requests && curl -O http://curl.haxx.se/ca/cacert.pem
+	cd requests && curl -O https://raw.github.com/kennethreitz/certifi/master/certifi/cacert.pem
 
 docs: site

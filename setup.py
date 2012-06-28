@@ -8,7 +8,6 @@ import os
 import sys
 
 import requests
-from requests.compat import is_py2
 
 try:
     from setuptools import setup
@@ -28,13 +27,10 @@ packages = [
     'requests.packages.chardet2',
     'requests.packages.urllib3',
     'requests.packages.urllib3.packages',
-    'requests.packages.urllib3.packages.ssl_match_hostname',
+    'requests.packages.urllib3.packages.ssl_match_hostname'
 ]
 
 requires = []
-
-if is_py2:
-    requires.append('oauthlib>=0.1.0,<0.2.0')
 
 setup(
     name='requests',
