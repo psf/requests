@@ -561,7 +561,7 @@ class Request(object):
             conn.cert_reqs = 'CERT_NONE'
             conn.ca_certs = None
 
-        if self.cert and self.verify:
+        if self.cert:
             if len(self.cert) == 2:
                 conn.cert_file = self.cert[0]
                 conn.key_file = self.cert[1]
