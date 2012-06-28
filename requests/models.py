@@ -32,15 +32,7 @@ from .utils import (
     DEFAULT_CA_BUNDLE_PATH)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    StringIO, is_py2)
-
-# Import chardet if it is available.
-try:
-    import chardet
-    # hush pyflakes
-    chardet
-except ImportError:
-    chardet = None
+    StringIO, is_py2, chardet)
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
