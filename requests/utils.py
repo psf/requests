@@ -25,8 +25,8 @@ _hush_pyflakes = (RequestsCookieJar,)
 CERTIFI_BUNDLE_PATH = None
 try:
     # see if requests's own CA certificate bundle is installed
-    import certifi
-    CERTIFI_BUNDLE_PATH = certifi.where()
+    from . import certs
+    CERTIFI_BUNDLE_PATH = certs.where()
 except ImportError:
     pass
 

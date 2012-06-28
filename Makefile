@@ -65,4 +65,7 @@ deps:
 	mv urllib3/urllib3 requests/packages/
 	rm -fr urllib3
 
+certs:
+	cd requests && curl -O http://curl.haxx.se/ca/cacert.pem
+
 docs: site
