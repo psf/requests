@@ -8,7 +8,7 @@ import os
 import sys
 
 import requests
-from requests.compat import is_py3
+from requests.compat import is_py2
 
 try:
     from setuptools import setup
@@ -24,27 +24,17 @@ if sys.argv[-1] == 'publish':
 packages = [
     'requests',
     'requests.packages',
+    'requests.packages.chardet',
+    'requests.packages.chardet2',
     'requests.packages.urllib3',
     'requests.packages.urllib3.packages',
     'requests.packages.urllib3.packages.ssl_match_hostname',
 ]
 
-# certifi is a Python package containing a CA certificate bundle for SSL verification.
-# On certain supported platforms (e.g., Red Hat / Debian / FreeBSD), Requests can
-# use the system CA bundle instead; see `requests.utils` for details.
-# If your platform is supported, set `requires` to [] instead:
-requires = ['certifi>=0.0.7']
+requires = []
 
-# chardet is used to optimally guess the encodings of pages that don't declare one.
-# At this time, chardet is not a required dependency. However, it's sufficiently
-# important that pip/setuptools should install it when it's unavailable.
-if is_py3:
-    chardet_package = 'chardet2'
-else:
-    chardet_package = 'chardet>=1.0.0'
+if is_py2:
     requires.append('oauthlib>=0.1.0,<0.2.0')
-
-requires.append(chardet_package)
 
 setup(
     name='requests',
@@ -56,7 +46,8 @@ setup(
     author_email='me@kennethreitz.com',
     url='http://python-requests.org',
     packages=packages,
-    package_data={'': ['LICENSE', 'NOTICE']},
+    package_data={'': ['LICENSE', 'NOTICE'], 'requests': ['*.pem']},
+    package_dir={'requests': 'requests'},
     include_package_data=True,
     install_requires=requires,
     license=open("LICENSE").read(),
