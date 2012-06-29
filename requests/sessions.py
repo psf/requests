@@ -68,7 +68,8 @@ class Session(object):
         config=None,
         prefetch=False,
         verify=True,
-        cert=None):
+        cert=None,
+        cache=None):
 
         self.headers = headers or {}
         self.auth = auth
@@ -80,6 +81,7 @@ class Session(object):
         self.prefetch = prefetch
         self.verify = verify
         self.cert = cert
+        self.cache = cache
 
         for (k, v) in list(defaults.items()):
             self.config.setdefault(k, deepcopy(v))
