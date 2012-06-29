@@ -10,7 +10,11 @@ sys.path.insert(0, os.path.abspath('..'))
 
 import json
 import os
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 import pickle
 import tempfile
 
