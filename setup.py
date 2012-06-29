@@ -4,6 +4,7 @@ import os
 import sys
 
 import requests
+import requests.compat import is_py2
 
 try:
     from setuptools import setup
@@ -17,17 +18,22 @@ if sys.argv[-1] == 'publish':
 packages = [
     'requests',
     'requests.packages',
-    'requests.packages.oauthlib',
-    'requests.packages.oauthlib.oauth1',
-    'requests.packages.oauthlib.oauth1.rfc5849',
-    'requests.packages.oauthlib.oauth2',
-    'requests.packages.oauthlib.oauth2.draft25',
-    'requests.packages.chardet',
-    'requests.packages.chardet2',
     'requests.packages.urllib3',
     'requests.packages.urllib3.packages',
     'requests.packages.urllib3.packages.ssl_match_hostname'
 ]
+
+if is_py2:
+    packages.extend([
+        'requests.packages.oauthlib',
+        'requests.packages.oauthlib.oauth1',
+        'requests.packages.oauthlib.oauth1.rfc5849',
+        'requests.packages.oauthlib.oauth2',
+        'requests.packages.oauthlib.oauth2.draft25',
+        'requests.packages.chardet',
+    ])
+else:
+    packages.append('requests.packages.chardet2')
 
 requires = []
 
