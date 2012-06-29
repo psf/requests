@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-"""
-distutils/setuptools install script. See inline comments for packaging documentation.
-"""
-
 import os
 import sys
 
@@ -11,8 +7,6 @@ import requests
 
 try:
     from setuptools import setup
-    # hush pyflakes
-    setup
 except ImportError:
     from distutils.core import setup
 
@@ -23,6 +17,11 @@ if sys.argv[-1] == 'publish':
 packages = [
     'requests',
     'requests.packages',
+    'requests.packages.oauthlib',
+    'requests.packages.oauthlib.oauth1',
+    'requests.packages.oauthlib.oauth1.rfc5849',
+    'requests.packages.oauthlib.oauth2',
+    'requests.packages.oauthlib.oauth2.draft25',
     'requests.packages.chardet',
     'requests.packages.chardet2',
     'requests.packages.urllib3',
@@ -46,7 +45,7 @@ setup(
     package_dir={'requests': 'requests'},
     include_package_data=True,
     install_requires=requires,
-    license=open("LICENSE").read(),
+    license=open('LICENSE').read(),
     classifiers=(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

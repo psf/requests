@@ -3,7 +3,14 @@
 History
 -------
 
-- Response.reason
+0.13.2 (2012-06-28)
++++++++++++++++++++
+
+- Zero dependencies (once again)!
+- New: Response.reason
+- Sign querystring parameters in OAuth 1.0
+- Client certificates no longer ignored when verify=False
+- Add openSUSE certificate support
 
 0.13.1 (2012-06-07)
 +++++++++++++++++++

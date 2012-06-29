@@ -15,8 +15,8 @@ requests
 """
 
 __title__ = 'requests'
-__version__ = '0.13.1'
-__build__ = 0x001301
+__version__ = '0.13.2'
+__build__ = 0x001302
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2012 Kenneth Reitz'
