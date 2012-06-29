@@ -83,6 +83,9 @@ class Session(object):
         self.cert = cert
         self.cache = cache
 
+        from .cache import ReqCache
+        self.cache = ReqCache("test", "memory")
+
         for (k, v) in list(defaults.items()):
             self.config.setdefault(k, deepcopy(v))
 

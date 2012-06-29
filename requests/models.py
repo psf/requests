@@ -465,6 +465,15 @@ class Request(object):
         # Build the URL
         url = self.full_url
 
+
+        # print r.session.cache
+        # print r.session.cache.hooks
+
+        for k, v in self.session.cache.hooks.items():
+            self.register_hook(k, v)
+
+            # print r.hooks
+
         # Pre-request hook.
         r = dispatch_hook('pre_request', self.hooks, self)
         self.__dict__.update(r.__dict__)
