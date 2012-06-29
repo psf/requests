@@ -17,10 +17,8 @@ from .compat import urlparse, str
 from .utils import parse_dict_header
 
 try:
-    from oauthlib.oauth1.rfc5849 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
-    from oauthlib.common import extract_params
-    # hush pyflakes:
-    SIGNATURE_HMAC; SIGNATURE_TYPE_AUTH_HEADER
+    from ._oauth import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER, extract_params)
+
 except (ImportError, SyntaxError):
     SIGNATURE_HMAC = None
     SIGNATURE_TYPE_AUTH_HEADER = None
@@ -69,18 +67,18 @@ class OAuth1(AuthBase):
         contenttype = r.headers.get('Content-Type', None)
         # extract_params will not give params unless the body is a properly
         # formatted string, a dictionary or a list of 2-tuples.
-        decoded_body = extract_params(r.data)     
+        decoded_body = extract_params(r.data)
         if contenttype == None and decoded_body != None:
             # extract_params can only check the present r.data and does not know
-            # of r.files, thus an extra check is performed. We know that 
-            # if files are present the request will not have 
+            # of r.files, thus an extra check is performed. We know that
+            # if files are present the request will not have
             # Content-type: x-www-form-urlencoded. We guess it will have
             # a mimetype of multipart/form-encoded and if this is not the case
             # we assume the correct header will be set later.
             if r.files:
                 # Omit body data in the signing and since it will always
                 # be empty (cant add paras to body if multipart) and we wish
-                # to preserve body. 
+                # to preserve body.
                 r.headers['Content-Type'] = 'multipart/form-encoded'
                 r.url, r.headers, _ = self.client.sign(
                     unicode(r.full_url), unicode(r.method), None, r.headers)
@@ -100,7 +98,7 @@ class OAuth1(AuthBase):
             # >>> d
             # { u'a' : 'foo' }
             u_header = unicode('Authorization')
-            if u_header in r.headers:               
+            if u_header in r.headers:
                 auth_header = r.headers[u_header].encode('utf-8')
                 del r.headers[u_header]
                 r.headers['Authorization'] = auth_header
