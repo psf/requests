@@ -4,7 +4,7 @@ import os
 import sys
 
 import requests
-import requests.compat import is_py2
+from requests.compat import is_py2
 
 try:
     from setuptools import setup
