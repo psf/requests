@@ -469,8 +469,8 @@ class Request(object):
         # print r.session.cache
         # print r.session.cache.hooks
 
-        for k, v in self.session.cache.hooks.items():
-            self.register_hook(k, v)
+        # for k, v in self.session.cache.hooks.items():
+            # self.register_hook(k, v)
 
             # print r.hooks
 
