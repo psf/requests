@@ -8,6 +8,22 @@ requests.cache
 Requests caching layer.
 """
 
+from .packages.cachecore import SimpleCache
+
+DEFAULT_CACHE = SimpleCache
+
+
+def expand_cache(c):
+    if isinstance(c, Cache):
+        return c
+
+    if c is True:
+        return Cache(backend=DEFAULT_CACHE())
+
+    if c is False:
+        return Cache(backend=False)
+
+
 class Cache(object):
     """A Cache session."""
     def __init__(self, backend=None, conditional=None, content=True):
