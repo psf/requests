@@ -339,6 +339,9 @@ pre {
     padding: 7px 30px;
     margin: 15px -30px;
     line-height: 1.3em;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    border-radius: 12px;
 }
 
 dl pre, blockquote pre, li pre {
