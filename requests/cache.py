@@ -14,6 +14,8 @@ DEFAULT_CACHE = SimpleCache
 
 
 def expand_cache(c):
+    """Expands the default Cache object for Requests.session."""
+
     if isinstance(c, Cache):
         return c
 
