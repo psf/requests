@@ -25,7 +25,7 @@ def expand_cache(c):
     if c is False:
         return Cache(backend=False)
 
-def request_hash(r, type):
+def request_hash(r, type=''):
     """Returns a SHA256(type-method-url) for cache keys."""
 
     s = '{0}-{1}-{2}'.format(type, r.request.method, r.request.full_url)
@@ -123,9 +123,8 @@ class CacheControl(object):
             return getattr(self.session, key)
         raise AttributeError('%s not found' % key)
 
-    def cache_url(self, url):
-        scheme, authority, request_uri, defrag_uri = urlnorm(url)
-        return defrag_uri
+    def cache_url(self, r):
+        return request_hash(r)
 
     def cached_request(self, *args, **kw):
         """See if we should use a cached response. We are looking for
@@ -135,7 +134,7 @@ class CacheControl(object):
         This is taken almost directly from httplib2._entry_disposition
         """
         req = requests.Request(*args, **kw)
-        cache_url = self.cache_url(req.full_url)
+        cache_url = self.cache_url(req)
 
         cc = _parse_cache_control(req.headers)
 
@@ -145,13 +144,13 @@ class CacheControl(object):
         if 'max-age' in cc and cc['max-age'] == 0: no_cache = True
 
         # see if it is in the cache anyways
-        in_cache = self.cache.get(cache_url)
+        in_cache = self.cache.get(req)
         if no_cache or not in_cache:
             return False
 
         # It is in the cache, so lets see if it is going to be
         # fresh enough
-        resp = self.cache.get(cache_url)
+        resp = self.cache.get(req)
         now = time.time()
         date = calendar.timegm(
             email.Utils.parsedate_tz(resp.headers['date']))
@@ -212,7 +211,7 @@ class CacheControl(object):
         cc_req = _parse_cache_control(resp.request.headers)
         cc = _parse_cache_control(resp.headers)
 
-        cache_url = self.cache_url(resp.request.full_url)
+        cache_url = self.cache_url(resp)
 
         # Delete it from the cache if we happen to have it stored there
         no_store = cc.get('no-store') or cc_req.get('no-store')
@@ -253,7 +252,7 @@ class CacheControl(object):
         def invalidating_handler(self, *args, **kw):
             resp = f(self, *args, **kw)
             if resp.ok:
-                cache_url = self.cache_url(resp.request.full_url)
+                cache_url = self.cache_url(resp)
                 self.cache.delete(cache_url)
             return resp
         return invalidating_handler
