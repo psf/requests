@@ -26,14 +26,41 @@ Configurations:
 
 SCHEMAS = ['http', 'https']
 
+import platform
+import sys
+
 from . import __version__
 
 defaults = dict()
 
 
+_implementation = platform.python_implementation()
+
+if _implementation == 'CPython':
+    _implementation_version = platform.python_version()
+elif _implementation == 'PyPy':
+    _implementation_version = '%s.%s.%s' % (
+                                                sys.pypy_version_info.major,
+                                                sys.pypy_version_info.minor,
+                                                sys.pypy_version_info.micro
+                                            )
+    if sys.pypy_version_info.releaselevel != 'final':
+        _implementation_version = ''.join([_implementation_version, sys.pypy_version_info.releaselevel])
+elif _implementation == 'Jython':
+    # @@@ Is there a better way of getting this?
+    _implementation_version = platform.python_version()
+elif _implementation == 'IronPython':
+    # @@@ Is there a better way of getting this?
+    _implementation_version = platform.python_version()
+else:
+    _implementation_version = 'Unknown'
+
+
 defaults['base_headers'] = {
-    'User-Agent': 'python-requests/%s' % __version__,
-    'Accept-Encoding': ', '.join(('identity', 'deflate', 'compress', 'gzip')),
+    'User-Agent': " ".join([
+            'python-requests/%s' % __version__,
+            '%s/%s' % (_implementation, _implementation_version),
+        ]),
     'Accept': '*/*'
 }
 
@@ -49,5 +76,3 @@ defaults['keep_alive'] = True
 defaults['encode_uri'] = True
 defaults['trust_env'] = True
 defaults['store_cookies'] = True
-
-
