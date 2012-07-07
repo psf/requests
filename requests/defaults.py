@@ -60,6 +60,7 @@ defaults['base_headers'] = {
     'User-Agent': " ".join([
             'python-requests/%s' % __version__,
             '%s/%s' % (_implementation, _implementation_version),
+            '%s/%s' % (platform.system(), platform.release()),
         ]),
     'Accept': '*/*'
 }
