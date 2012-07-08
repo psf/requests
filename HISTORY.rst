@@ -3,6 +3,8 @@
 History
 -------
 
+- Use simplejson if available.
+
 0.13.2 (2012-06-28)
 +++++++++++++++++++
 
