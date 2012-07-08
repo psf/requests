@@ -10,11 +10,6 @@ This module contains the primary objects that power Requests.
 import os
 from datetime import datetime
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 from .hooks import dispatch_hook, HOOKS
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
@@ -36,7 +31,7 @@ from .utils import (
     DEFAULT_CA_BUNDLE_PATH)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    StringIO, is_py2, chardet)
+    StringIO, is_py2, chardet, json)
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
