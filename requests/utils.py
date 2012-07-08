@@ -12,10 +12,13 @@ that are also useful for external consumption.
 import cgi
 import codecs
 import os
+import platform
 import re
+import sys
 import zlib
 from netrc import netrc, NetrcParseError
 
+from . import __version__
 from .compat import parse_http_list as _parse_list_header
 from .compat import quote, urlparse, basestring, bytes, str
 from .cookies import RequestsCookieJar, cookiejar_from_dict
@@ -457,3 +460,31 @@ def get_environ_proxies():
     get_proxy = lambda k: os.environ.get(k) or os.environ.get(k.upper())
     proxies = [(key, get_proxy(key + '_proxy')) for key in proxy_keys]
     return dict([(key, val) for (key, val) in proxies if val])
+
+
+def default_user_agent():
+    """Return a string representing the default user agent."""
+    _implementation = platform.python_implementation()
+
+    if _implementation == 'CPython':
+        _implementation_version = platform.python_version()
+    elif _implementation == 'PyPy':
+        _implementation_version = '%s.%s.%s' % (
+                                                sys.pypy_version_info.major,
+                                                sys.pypy_version_info.minor,
+                                                sys.pypy_version_info.micro
+                                            )
+        if sys.pypy_version_info.releaselevel != 'final':
+            _implementation_version = ''.join([_implementation_version, sys.pypy_version_info.releaselevel])
+    elif _implementation == 'Jython':
+        _implementation_version = platform.python_version()  # Complete Guess
+    elif _implementation == 'IronPython':
+        _implementation_version = platform.python_version()  # Complete Guess
+    else:
+        _implementation_version = 'Unknown'
+
+    return " ".join([
+            'python-requests/%s' % __version__,
+            '%s/%s' % (_implementation, _implementation_version),
+            '%s/%s' % (platform.system(), platform.release()),
+        ])
