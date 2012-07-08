@@ -62,6 +62,7 @@ defaults['base_headers'] = {
             '%s/%s' % (_implementation, _implementation_version),
             '%s/%s' % (platform.system(), platform.release()),
         ]),
+    'Accept-Encoding': ', '.join(('identity', 'deflate', 'compress', 'gzip')),
     'Accept': '*/*'
 }
 
