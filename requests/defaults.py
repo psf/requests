@@ -26,13 +26,12 @@ Configurations:
 
 SCHEMAS = ['http', 'https']
 
-from . import __version__
+from .utils import default_user_agent
 
 defaults = dict()
 
-
 defaults['base_headers'] = {
-    'User-Agent': 'python-requests/%s' % __version__,
+    'User-Agent': default_user_agent(),
     'Accept-Encoding': ', '.join(('identity', 'deflate', 'compress', 'gzip')),
     'Accept': '*/*'
 }
@@ -49,5 +48,3 @@ defaults['keep_alive'] = True
 defaults['encode_uri'] = True
 defaults['trust_env'] = True
 defaults['store_cookies'] = True
-
-
