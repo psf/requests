@@ -26,42 +26,12 @@ Configurations:
 
 SCHEMAS = ['http', 'https']
 
-import platform
-import sys
-
-from . import __version__
+from .utils import default_user_agent
 
 defaults = dict()
 
-
-_implementation = platform.python_implementation()
-
-if _implementation == 'CPython':
-    _implementation_version = platform.python_version()
-elif _implementation == 'PyPy':
-    _implementation_version = '%s.%s.%s' % (
-                                                sys.pypy_version_info.major,
-                                                sys.pypy_version_info.minor,
-                                                sys.pypy_version_info.micro
-                                            )
-    if sys.pypy_version_info.releaselevel != 'final':
-        _implementation_version = ''.join([_implementation_version, sys.pypy_version_info.releaselevel])
-elif _implementation == 'Jython':
-    # @@@ Is there a better way of getting this?
-    _implementation_version = platform.python_version()
-elif _implementation == 'IronPython':
-    # @@@ Is there a better way of getting this?
-    _implementation_version = platform.python_version()
-else:
-    _implementation_version = 'Unknown'
-
-
 defaults['base_headers'] = {
-    'User-Agent': " ".join([
-            'python-requests/%s' % __version__,
-            '%s/%s' % (_implementation, _implementation_version),
-            '%s/%s' % (platform.system(), platform.release()),
-        ]),
+    'User-Agent': default_user_agent(),
     'Accept-Encoding': ', '.join(('identity', 'deflate', 'compress', 'gzip')),
     'Accept': '*/*'
 }
