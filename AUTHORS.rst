@@ -105,3 +105,4 @@ Patches and Suggestions
 - Danilo Bargen (gwrtheyrn)
 - Torsten Landschoff
 - Michael Holler (apotheos)
+- Matthias Rahlf <matthias@webding.de>

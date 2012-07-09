@@ -83,6 +83,16 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
         self.assertEqual(request.path_url, "/get/test%20case")
 
+    def test_params_are_added_before_fragment(self):
+        request = requests.Request(
+            "http://example.com/path#fragment", params={"a": "b"})
+        self.assertEqual(request.full_url,
+            "http://example.com/path?a=b#fragment")
+        request = requests.Request(
+            "http://example.com/path?key=value#fragment", params={"a": "b"})
+        self.assertEqual(request.full_url,
+            "http://example.com/path?key=value&a=b#fragment")
+
     def test_HTTP_200_OK_GET(self):
         r = get(httpbin('get'))
         self.assertEqual(r.status_code, 200)

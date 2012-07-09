@@ -395,14 +395,14 @@ class Request(object):
             if isinstance(fragment, str):
                 fragment = fragment.encode('utf-8')
 
-        url = (urlunparse([scheme, netloc, path, params, query, fragment]))
-
         enc_params = self._encode_params(self.params)
         if enc_params:
-            if urlparse(url).query:
-                url = '%s&%s' % (url, enc_params)
+            if query:
+                query = '%s&%s' % (query, enc_params)
             else:
-                url = '%s?%s' % (url, enc_params)
+                query = enc_params
+
+        url = (urlunparse([scheme, netloc, path, params, query, fragment]))
 
         if self.config.get('encode_uri', True):
             url = requote_uri(url)
