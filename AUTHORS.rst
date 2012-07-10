@@ -105,3 +105,7 @@ Patches and Suggestions
 - Danilo Bargen (gwrtheyrn)
 - Torsten Landschoff
 - Michael Holler (apotheos)
+- Timnit Gebru
+- Sarah Gonzalez
+- Victoria Mo
+- Leila Muhtasib

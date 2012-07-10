@@ -93,6 +93,23 @@ I don't have SSL setup on this domain, so it fails. Excellent. Github does thoug
 
 You can also pass ``verify`` the path to a CA_BUNDLE file for private certs. You can also set the ``REQUESTS_CA_BUNDLE`` environment variable.
 
+Requests can also ignore verifying the SSL certficate if you set ``verify`` to False. ::
+
+    >>> requests.get('https://kennethreitz.com', verify=False)
+    <Response [200]>
+
+By default, ``verify`` is set to True. Option ``verify`` only applies to host certs.
+
+You can also specify the local cert file either as a path or key value pair::
+
+    >>> requests.get('https://kennethreitz.com', cert=('/path/server.crt', '/path/key'))
+    <Response [200]>
+
+If you specify a wrong path or an invalid cert::
+
+    >>> requests.get('https://kennethreitz.com', cert='/wrong_path/server.pem')
+    SSLError: [Errno 336265225] _ssl.c:347: error:140B0009:SSL routines:SSL_CTX_use_PrivateKey_file:PEM lib
+
 
 Body Content Workflow
 ---------------------
