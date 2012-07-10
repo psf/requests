@@ -93,7 +93,7 @@ I don't have SSL setup on this domain, so it fails. Excellent. Github does thoug
 
 You can also pass ``verify`` the path to a CA_BUNDLE file for private certs. You can also set the ``REQUESTS_CA_BUNDLE`` environment variable.
 
-Requests can also ignore verifying the SSL certficate if you set ``verify`` to False.
+Requests can also ignore verifying the SSL certficate if you set ``verify`` to False. ::
 
     >>> requests.get('https://kennethreitz.com', verify=False)
     <Response [200]>
