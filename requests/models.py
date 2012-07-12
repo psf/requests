@@ -210,6 +210,7 @@ class Request(object):
 
             return response
 
+
         history = []
 
         r = build(resp)
@@ -365,7 +366,10 @@ class Request(object):
         if not self.url:
             raise URLRequired()
 
-        url = self.url
+        if type(self.url).__name__ == 'str':
+            url = self.url
+        else:
+            url = unicode(self.url)
 
         # Support for unicode domain names and paths.
         scheme, netloc, path, params, query, fragment = urlparse(url)
