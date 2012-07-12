@@ -103,7 +103,8 @@ def get_netrc_auth(url):
     # AppEngine hackiness.
     except AttributeError:
         pass
-
+    except ImportError:
+        pass
 
 def guess_filename(obj):
     """Tries to guess the filename of the given object."""
