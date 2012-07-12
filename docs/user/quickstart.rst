@@ -386,7 +386,7 @@ of the Response object to track redirection. Let's see what Github does::
     [<Response [301]>]
 
 The :class:`Response.history` list contains a list of the
-:class:`Request` objects that were created in order to complete the request.
+:class:`Request` objects that were created in order to complete the request. The list is sorted from the oldest to the most recent request.
 
 If you're using GET or OPTIONS, you can disable redirection handling with the
 ``allow_redirects`` parameter::
