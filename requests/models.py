@@ -600,10 +600,10 @@ class Request(object):
                 raise ConnectionError(e)
 
             except (_SSLError, _HTTPError) as e:
-                if self.verify and isinstance(e, _SSLError):
+                if isinstance(e, _SSLError):
                     raise SSLError(e)
-
-                raise Timeout('Request timed out.')
+                else:
+                    raise Timeout('Request timed out.')
 
             # build_response can throw TooManyRedirects
             self._build_response(r)
