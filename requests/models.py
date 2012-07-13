@@ -17,6 +17,7 @@ from .status_codes import codes
 from .auth import HTTPBasicAuth, HTTPProxyAuth
 from .cookies import cookiejar_from_dict, extract_cookies_to_jar, get_cookie_header
 from .packages.urllib3.exceptions import MaxRetryError, LocationParseError
+from .packages.urllib3.exceptions import TimeoutError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .packages.urllib3 import connectionpool, poolmanager
@@ -602,6 +603,8 @@ class Request(object):
             except (_SSLError, _HTTPError) as e:
                 if isinstance(e, _SSLError):
                     raise SSLError(e)
+                elif isinstance(e, TimeoutError):
+                    raise Timeout(e)
                 else:
                     raise Timeout('Request timed out.')
 
