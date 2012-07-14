@@ -133,11 +133,11 @@ class HTTPDigestAuth(AuthBase):
     def handle_401(self, r):
         """Takes the given response and tries digest-auth, if needed."""
 
-        r.request.deregister_hook('response', self.handle_401)
-
+        num_401_calls = r.request.hooks['response'].count(self.handle_401)
+	
         s_auth = r.headers.get('www-authenticate', '')
 
-        if 'digest' in s_auth.lower():
+        if 'digest' in s_auth.lower() and num_401_calls < 2:
 
             last_nonce = ''
             nonce_count = 0
