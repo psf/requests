@@ -66,7 +66,7 @@ class Session(object):
         hooks=None,
         params=None,
         config=None,
-        prefetch=False,
+        prefetch=True,
         verify=True,
         cert=None):
 
@@ -105,7 +105,10 @@ class Session(object):
         return self
 
     def __exit__(self, *args):
-        pass
+        self.close()
+
+    def close(self):
+        self.poolmanager.close()
 
     def request(self, method, url,
         params=None,
@@ -120,7 +123,7 @@ class Session(object):
         hooks=None,
         return_response=True,
         config=None,
-        prefetch=False,
+        prefetch=None,
         verify=None,
         cert=None):
 
@@ -153,7 +156,7 @@ class Session(object):
         headers = {} if headers is None else headers
         params = {} if params is None else params
         hooks = {} if hooks is None else hooks
-        prefetch = self.prefetch or prefetch
+        prefetch = prefetch if prefetch is not None else self.prefetch
 
         # use session's hooks as defaults
         for key, cb in list(self.hooks.items()):
