@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys, glob
 sys.path.insert(0, '..')
 from chardet.universaldetector import UniversalDetector
