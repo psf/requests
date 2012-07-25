@@ -4,8 +4,8 @@
 requests._oauth
 ~~~~~~~~~~~~~~~
 
-This module comtains the path hack neccesary for oauthlib to be vendored into requests
-while allowing upstream changes.
+This module contains the path hack necessary for oauthlib to be vendored into
+requests while allowing upstream changes.
 """
 
 import os
