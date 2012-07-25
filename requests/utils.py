@@ -101,7 +101,7 @@ def get_netrc_auth(url):
             pass
 
     # AppEngine hackiness.
-    except AttributeError:
+    except (ImportError, AttributeError):
         pass
 
 
