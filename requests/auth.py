@@ -78,9 +78,11 @@ class OAuth1(AuthBase):
             if r.files:
                 # Omit body data in the signing and since it will always
                 # be empty (cant add paras to body if multipart) and we wish
-                # to preserve body.
+                # to preserve body. Omit the URL as it should not differ from
+                # the original request URL, and will contain parameters which
+                # will be doubled-up so will just be a pain to deal with.
                 r.headers['Content-Type'] = 'multipart/form-encoded'
-                r.url, r.headers, _ = self.client.sign(
+                _, r.headers, _ = self.client.sign(
                     unicode(r.full_url), unicode(r.method), None, r.headers)
             else:
                 # Normal signing
@@ -134,7 +136,7 @@ class HTTPDigestAuth(AuthBase):
         """Takes the given response and tries digest-auth, if needed."""
 
         num_401_calls = r.request.hooks['response'].count(self.handle_401)
-	
+
         s_auth = r.headers.get('www-authenticate', '')
 
         if 'digest' in s_auth.lower() and num_401_calls < 2:
