@@ -10,7 +10,7 @@ import zlib
 
 from io import BytesIO
 
-from .exceptions import HTTPError
+from .exceptions import DecodeError
 from .packages.six import string_types as basestring
 
 
@@ -148,9 +148,9 @@ class HTTPResponse(object):
             try:
                 if decode_content and decoder:
                     data = decoder(data)
-            except IOError:
-                raise HTTPError("Received response with content-encoding: %s, but "
-                                "failed to decode it." % content_encoding)
+            except (IOError, zlib.error):
+                raise DecodeError("Received response with content-encoding: %s, but "
+                                  "failed to decode it." % content_encoding)
 
             if cache_content:
                 self._body = data

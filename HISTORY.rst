@@ -3,6 +3,14 @@
 History
 -------
 
+0.13.4 (2012-xx-xx)
++++++++++++++++++++
+
+- Fix leaking connections (from urllib3 update)
+- OAuthlib path hack fi
+- App Engine 2.7 Fixes!
+
+
 0.13.3 (2012-07-12)
 +++++++++++++++++++
 

@@ -24,6 +24,11 @@ class SSLError(HTTPError):
     pass
 
 
+class DecodeError(HTTPError):
+    "Raised when automatic decoding based on Content-Type fails."
+    pass
+
+
 ## Leaf Exceptions
 
 class MaxRetryError(PoolError):
@@ -54,6 +59,11 @@ class TimeoutError(PoolError):
 
 class EmptyPoolError(PoolError):
     "Raised when a pool runs out of connections and no more are allowed."
+    pass
+
+
+class ClosedPoolError(PoolError):
+    "Raised when a request enters a pool after the pool has been closed."
     pass
 
 
