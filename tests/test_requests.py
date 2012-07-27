@@ -962,5 +962,16 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         r.content
         r.text
 
+    def test_post_fields_with_multiple_values_and_files(self):
+        """Test that it is possible to POST using the files argument and a
+        list for a value in the data argument."""
+
+        data = {'field': ['a', 'b']}
+        files = {'file': 'Garbled data'}
+        r = post(httpbin('post'), data=data, files=files)
+        t = json.loads(r.text)
+        self.assertEqual(t.get('form'), {'field': 'a, b'})
+        self.assertEqual(t.get('files'), files)
+
 if __name__ == '__main__':
     unittest.main()
