@@ -981,10 +981,10 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         list for a value in the data argument."""
 
         data = {'field': ['a', 'b']}
-        files = {'file': 'Garbled data'}
+        files = {'field': 'Garbled data'}
         r = post(httpbin('post'), data=data, files=files)
         t = json.loads(r.text)
-        self.assertEqual(t.get('form'), {'field': 'a, b'})
+        self.assertEqual(t.get('form'), {'field': ['a', 'b']})
         self.assertEqual(t.get('files'), files)
 
     def test_str_data_content_type(self):
@@ -1027,6 +1027,40 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
         r = get(URL())
         self.assertEqual(r.status_code, 200)
+
+    def test_post_fields_with_multiple_values_and_files_as_tuples(self):
+        """Test that it is possible to POST multiple data and file fields
+        with the same name."""
+
+        data = [
+            ('__field__', '__value__'),
+            ('__field__', '__value__'),
+        ]
+        files = [
+            ('__field__', '__value__'),
+            ('__field__', '__value__'),
+        ]
+
+        r = post(httpbin('post'), data=data, files=files)
+        t = json.loads(r.text)
+
+        self.assertEqual(t.get('form'), {
+            '__field__': [
+                '__value__',
+                '__value__',
+            ]
+        })
+
+        # It's not currently possible to test for multiple file fields with
+        # the same name against httpbin so we need to inspect the encoded
+        # body manually.
+        request = r.request
+        body, content_type = request._encode_files(request.files)
+        file_field = ('Content-Disposition: form-data;'
+                      ' name="__field__"; filename="__field__"')
+        self.assertEqual(body.count('__value__'), 4)
+        self.assertEqual(body.count(file_field), 2)
+
 
 if __name__ == '__main__':
     unittest.main()
