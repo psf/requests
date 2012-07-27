@@ -308,6 +308,37 @@ To do so, just configure Requests with a stream to write to::
     <Response [200]>
 
 
+Logging with Python
+-------------------
+
+Requests works with the logging facility for python.
+
+``getLogger()`` instantiates logger and returns a reference to the logger object.
+
+``setLevel()`` sets the threshold for this logger to specified level.
+
+Levels Options:
+
+``DEBUG``:
+    detailed info
+``INFO``:
+    confirmation that things are working as expected
+``WARNING``:
+    indication that something unexpected happened or is coming
+``ERROR``:
+    problem occurred, program may not have been able to perform some function
+``CRITICAL``:
+    serious error, program itself may not be able to continue running
+
+Example::
+
+    import logging
+    requests_log = logging.getLogger("requests")
+    requests_log.setLevel(logging.WARNING)
+
+For more information, see the python library `documentation <http://docs.python.org/library/logging.html>`_.
+
+
 Proxies
 -------
 
