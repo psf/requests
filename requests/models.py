@@ -355,6 +355,13 @@ class Request(object):
                 fp = StringIO(fp)
             fields.update({k: (fn, fp.read())})
 
+        for field in fields:
+            if isinstance(fields[field], float):
+                fields[field] = str(fields[field])
+            if isinstance(fields[field], list):
+                newvalue = ', '.join(fields[field])
+                fields[field] = newvalue
+                
         (body, content_type) = encode_multipart_formdata(fields)
 
         return (body, content_type)
