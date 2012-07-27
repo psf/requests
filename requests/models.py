@@ -701,7 +701,7 @@ class Response(object):
             return False
         return True
 
-    def iter_content(self, chunk_size=1, decode_unicode=False):
+    def iter_content(self, chunk_size=10 * 1024, decode_unicode=False):
         """Iterates over the response data.  This avoids reading the content
         at once into memory for large responses.  The chunk size is the number
         of bytes it should read into memory.  This is not necessarily the
@@ -727,7 +727,7 @@ class Response(object):
 
         return gen
 
-    def iter_lines(self, chunk_size=10 * 1024, decode_unicode=None):
+    def iter_lines(self, chunk_size=1, decode_unicode=None):
         """Iterates over the response data, one line at a time.  This
         avoids reading the content at once into memory for large
         responses.
