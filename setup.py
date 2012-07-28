@@ -15,6 +15,8 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
+os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
+
 packages = [
     'requests',
     'requests.packages',
