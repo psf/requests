@@ -10,6 +10,7 @@ This module contains the primary objects that power Requests.
 import os
 import socket
 from datetime import datetime
+from io import BytesIO
 
 from .hooks import dispatch_hook, HOOKS
 from .structures import CaseInsensitiveDict
@@ -377,8 +378,10 @@ class Request(object):
             else:
                 fn = guess_filename(v) or k
                 fp = v
-            if isinstance(fp, (bytes, str)):
+            if isinstance(fp, str):
                 fp = StringIO(fp)
+            if isinstance(fp, bytes):
+                fp = BytesIO(fp)
             fields.append((k, (fn, fp.read())))
 
         for k, vs in tuples(self.data):

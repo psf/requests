@@ -7,7 +7,6 @@
 import sys
 import os
 sys.path.insert(0, os.path.abspath('..'))
-
 import json
 import os
 import unittest
@@ -1030,7 +1029,9 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
     def test_post_fields_with_multiple_values_and_files_as_tuples(self):
         """Test that it is possible to POST multiple data and file fields
-        with the same name."""
+        with the same name.
+        https://github.com/kennethreitz/requests/pull/746
+        """
 
         data = [
             ('__field__', '__value__'),
@@ -1060,6 +1061,10 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
                       ' name="__field__"; filename="__field__"')
         self.assertEqual(body.count('__value__'), 4)
         self.assertEqual(body.count(file_field), 2)
+
+    def test_bytes_files(self):
+        """Test that `bytes` can be used as the values of `files`."""
+        post(httpbin('post'), files={'test': b'test'})
 
 
 if __name__ == '__main__':
