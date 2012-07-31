@@ -37,9 +37,10 @@ from .compat import (
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
 
+
 class Request(object):
-    """The :class:`Request <Request>` object. It carries out all functionality of
-    Requests. Recommended interface is with the Requests functions.
+    """The :class:`Request <Request>` object. It carries out all functionality
+    of Requests. Recommended interface is with the Requests functions.
     """
 
     def __init__(self,
@@ -311,9 +312,7 @@ class Request(object):
         if parameters are supplied as a dict.
         """
 
-        if isinstance(data, bytes):
-            return data
-        if isinstance(data, str):
+        if isinstance(data, (str, bytes)):
             return data
         elif hasattr(data, 'read'):
             return data
@@ -321,7 +320,8 @@ class Request(object):
             try:
                 dict(data)
             except ValueError:
-                raise ValueError('Unable to encode lists with elements that are not 2-tuples.')
+                raise ValueError('Unable to encode lists with elements that '
+                        'are not 2-tuples.')
 
             params = list(data.items() if isinstance(data, dict) else data)
             result = []
@@ -340,11 +340,14 @@ class Request(object):
             return None
 
         try:
-            fields = self.data.copy()
+            fields = self.data.items()
         except AttributeError:
-            fields = dict(self.data)
+            fields = dict(self.data).items()
 
-        for (k, v) in list(files.items()):
+        if isinstance(files, dict):
+            files = files.items()
+
+        for (k, v) in files:
             # support for explicit filename
             if isinstance(v, (tuple, list)):
                 fn, fp = v
@@ -353,15 +356,19 @@ class Request(object):
                 fp = v
             if isinstance(fp, (bytes, str)):
                 fp = StringIO(fp)
-            fields.update({k: (fn, fp.read())})
+            fields.append((k, (fn, fp.read())))
 
-        for field in fields:
-            if isinstance(fields[field], float):
-                fields[field] = str(fields[field])
-            if isinstance(fields[field], list):
-                newvalue = ', '.join(fields[field])
-                fields[field] = newvalue
-                
+        new_fields = []
+        for field, val in fields:
+            if isinstance(val, float):
+                new_fields.append((field, str(val)))
+            elif isinstance(val, list):
+                newvalue = ', '.join(val)
+                new_fields.append((field, newvalue))
+            else:
+                new_fields.append((field, val))
+        fields = new_fields
+
         (body, content_type) = encode_multipart_formdata(fields)
 
         return (body, content_type)
