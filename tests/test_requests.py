@@ -320,6 +320,11 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             post4 = post(url, data='[{"some": "json"}]')
             self.assertEqual(post4.status_code, 200)
 
+            try:
+                post(url, files=['bad file data'])
+            except ValueError:
+                pass
+
     def test_POSTBIN_GET_POST_FILES_WITH_PARAMS(self):
 
         for service in SERVICES:

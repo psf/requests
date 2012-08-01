@@ -342,7 +342,14 @@ class Request(object):
         try:
             fields = list(self.data.items())
         except AttributeError:
+            dict(self.data)
             fields = list(self.data)
+
+        try:
+            dict(files)
+        except ValueError:
+            raise ValueError('Unable to encode lists with elements that '
+                    'are not 2-tuples.')
 
         if isinstance(files, dict):
             files = files.items()
