@@ -37,7 +37,7 @@ cipyflakes:
 	${PYFLAKES_IF_AVAILABLE} ${PYFLAKES_WHITELIST}
 
 citests:
-	nosetests ${CI_TESTS} --with-xunit --xunit-file=junit-report.xml
+	nosetests ${CI_TESTS} -v --with-xunit --xunit-file=junit-report.xml
 
 ci: citests cipyflakes
 
