@@ -342,7 +342,7 @@ class Request(object):
         try:
             fields = list(self.data.items())
         except AttributeError:
-            fields = list(dict(self.data).items())
+            fields = list(self.data)
 
         if isinstance(files, dict):
             files = files.items()
