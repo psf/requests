@@ -340,9 +340,9 @@ class Request(object):
             return None
 
         try:
-            fields = self.data.items()
+            fields = list(self.data.items())
         except AttributeError:
-            fields = dict(self.data).items()
+            fields = list(dict(self.data).items())
 
         if isinstance(files, dict):
             files = files.items()
