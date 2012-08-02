@@ -189,14 +189,14 @@ POST a Multipart-Encoded File
 Requests makes it simple to upload Multipart-encoded files::
 
     >>> url = 'http://httpbin.org/post'
-    >>> files = {'report.xls': open('report.xls', 'rb')}
+    >>> files = {'file': open('report.xls', 'rb')}
 
     >>> r = requests.post(url, files=files)
     >>> r.text
     {
       // ...snip... //
       "files": {
-        "report.xls": "<censored...binary...data>"
+        "file": "<censored...binary...data>"
       },
       // ...snip... //
     }
