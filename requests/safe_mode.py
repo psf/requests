@@ -28,7 +28,8 @@ def catch_exceptions_if_in_safe_mode(function):
                                             and kwargs.get('session').config.get('safe_mode')):
             try:
                 return function(method, url, **kwargs)
-            except (RequestException, ConnectionError, HTTPError, socket.timeout) as e:
+            except (RequestException, ConnectionError, HTTPError,
+                    socket.timeout, socket.gaierror) as e:
                 r = Response()
                 r.error = e
                 r.raw = HTTPResponse() # otherwise, tests fail
