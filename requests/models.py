@@ -349,11 +349,11 @@ class Request(object):
             if isinstance(v, (tuple, list)):
                 fn, fp = v
             else:
-                fn = guess_filename(v) or k
-                fp = v
+                fn, fp = (None, v)
             if isinstance(fp, (bytes, str)):
                 fp = StringIO(fp)
-            fields.update({k: (fn, fp.read())})
+            fbody = fp.read()
+            fields[k] = (fn, fbody) if fn else (fbody)
 
         for field in fields:
             if isinstance(fields[field], float):
