@@ -61,7 +61,8 @@ class Request(object):
         _poolmanager=None,
         verify=None,
         session=None,
-        cert=None):
+        cert=None,
+        quote_plus=False):
 
         #: Dictionary of configurations for this request.
         self.config = dict(config or [])
@@ -145,6 +146,9 @@ class Request(object):
 
         #: SSL Certificate
         self.cert = cert
+
+        #: Qoute Pluses (use %20 instead of + for spaces)
+        self.quote_plus = quote_plus
 
         #: Prefetch response content
         self.prefetch = prefetch
@@ -291,7 +295,8 @@ class Request(object):
                     proxies=self.proxies,
                     verify=self.verify,
                     session=self.session,
-                    cert=self.cert
+                    cert=self.cert,
+                    quote_plus=self.quote_plus
                 )
 
                 request.send()
@@ -302,8 +307,8 @@ class Request(object):
         self.response = r
         self.response.request = self
 
-    @staticmethod
-    def _encode_params(data):
+    @classmethod
+    def _encode_params(cls, data, quote_plus):
         """Encode parameters in a piece of data.
 
         Will successfully encode parameters when passed as a dict or a list of
@@ -330,9 +335,15 @@ class Request(object):
                     result.append(
                         (k.encode('utf-8') if isinstance(k, str) else k,
                          v.encode('utf-8') if isinstance(v, str) else v))
-            return urlencode(result, doseq=True)
+            return cls.urlencode(result, doseq=True, quote_plus=quote_plus)
         else:
             return data
+
+    @classmethod
+    def urlencode(cls, data, doseq=False, quote_plus=False):
+        if quote_plus:
+            return urlencode(data, doseq=doseq).replace('+', '%20')
+        return urlencode(data, doseq=doseq)
 
     def _encode_files(self, files):
 
@@ -403,7 +414,7 @@ class Request(object):
             if isinstance(fragment, str):
                 fragment = fragment.encode('utf-8')
 
-        enc_params = self._encode_params(self.params)
+        enc_params = self._encode_params(self.params, self.quote_plus)
         if enc_params:
             if query:
                 query = '%s&%s' % (query, enc_params)
@@ -492,7 +503,7 @@ class Request(object):
         else:
             if self.data:
 
-                body = self._encode_params(self.data)
+                body = self._encode_params(self.data, self.quote_plus)
                 if isinstance(self.data, str) or hasattr(self.data, 'read'):
                     content_type = None
                 else:

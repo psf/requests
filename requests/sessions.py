@@ -122,7 +122,8 @@ class Session(object):
         config=None,
         prefetch=False,
         verify=None,
-        cert=None):
+        cert=None,
+        quote_plus=False):
 
         """Constructs and sends a :class:`Request <Request>`.
         Returns :class:`Response <Response>` object.
@@ -143,6 +144,7 @@ class Session(object):
         :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
         :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
         :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+        :param quote_plus: (optional) if ``True``, uses %20 instead of + for quoting spaces.
         """
 
         method = str(method).upper()
@@ -181,6 +183,7 @@ class Session(object):
             prefetch=prefetch,
             verify=verify,
             cert=cert,
+            quote_plus=quote_plus,
             _poolmanager=self.poolmanager
         )
 
