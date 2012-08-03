@@ -64,6 +64,12 @@ class TestBaseMixin(object):
 class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
     """Requests test cases."""
 
+    def _get_request_body(self, response):
+        return response.request._encode_params(
+          response.request.data,
+          response.request.quote_plus
+        )
+
     def test_entry_points(self):
 
         requests.session
@@ -972,6 +978,32 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         t = json.loads(r.text)
         self.assertEqual(t.get('form'), {'field': 'a, b'})
         self.assertEqual(t.get('files'), files)
+
+    def test_url_params_are_default_encoded_if_no_encode_method_arg_is_passed(self):
+        params = {'hello': 'world is awesome'}
+        r = get(httpbin('get'), params=params)
+        self.assertEqual(
+          '%s?hello=world+is+awesome' % (httpbin('get'),),
+
+          r.url
+        )
+
+    def test_url_params_can_be_quoted_with_a_different_quoting_method(self):
+        params = {'hello': 'world is awesome'}
+        r = get(httpbin('get'), params=params, quote_plus=True)
+        self.assertEqual(
+          '%s?hello=world%%20is%%20awesome' % (httpbin('get'),),
+          r.url
+        )
+
+    def test_request_body_can_be_quoted_using_quote_plus(self):
+        data = {'hello': 'world is awesome'}
+        r = post(httpbin('post'), data=data, quote_plus=True)
+        self.assertEqual(
+          'hello=world%20is%20awesome',
+          self._get_request_body(r)
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
