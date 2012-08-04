@@ -974,10 +974,10 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         self.assertEqual(t.get('files'), files)
 
     def test_str_data_content_type(self):
-        data = "test string data"
+        data = 'test string data'
         r = post(httpbin('post'), data=data)
         t = json.loads(r.text)
-        self.assertEqual(t.get('headers').get('Content-Type'), 'text/plain')
+        self.assertEqual(t.get('headers').get('Content-Type'), '')
 
 
 if __name__ == '__main__':
