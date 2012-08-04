@@ -91,6 +91,7 @@ if is_py2:
     from StringIO import StringIO
     from .packages import chardet
 
+    builtin_str = str
     bytes = str
     str = unicode
     basestring = basestring
@@ -105,6 +106,7 @@ elif is_py3:
     from io import StringIO
     from .packages import chardet2 as chardet
 
+    builtin_str = str
     str = str
     bytes = bytes
     basestring = (str,bytes)

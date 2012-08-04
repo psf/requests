@@ -32,7 +32,7 @@ from .utils import (
     DEFAULT_CA_BUNDLE_PATH)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    StringIO, is_py2, chardet, json)
+    StringIO, is_py2, chardet, json, builtin_str)
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
@@ -493,7 +493,7 @@ class Request(object):
             if self.data:
 
                 body = self._encode_params(self.data)
-                if isinstance(self.data, str) or hasattr(self.data, 'read'):
+                if isinstance(self.data, str) or isinstance(self.data, builtin_str) or hasattr(self.data, 'read'):
                     content_type = None
                 else:
                     content_type = 'application/x-www-form-urlencoded'
