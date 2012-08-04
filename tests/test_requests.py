@@ -977,7 +977,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         data = "test string data"
         r = post(httpbin('post'), data=data)
         t = json.loads(r.text)
-        self.assertEqual(t.get('headers').get('Content-Type'), 'text/plain')
+        self.assertEqual(t.get('headers').get('Content-Type'), '')
 
 
 if __name__ == '__main__':
