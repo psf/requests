@@ -96,6 +96,11 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         self.assertEqual(request.full_url,
             "http://example.com/path?key=value&a=b#fragment")
 
+    def test_params_accepts_kv_list(self):
+        request = requests.Request('http://example.com/path',
+                params=[('a', 'b')])
+        self.assertEqual(request.full_url, 'http://example.com/path?a=b')
+
     def test_HTTP_200_OK_GET(self):
         r = get(httpbin('get'))
         self.assertEqual(r.status_code, 200)

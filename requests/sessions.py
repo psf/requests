@@ -18,6 +18,7 @@ from .hooks import dispatch_hook
 from .utils import header_expand
 from .packages.urllib3.poolmanager import PoolManager
 
+
 def merge_kwargs(local_kwarg, default_kwarg):
     """Merges kwarg dictionaries.
 
@@ -37,12 +38,21 @@ def merge_kwargs(local_kwarg, default_kwarg):
     if not hasattr(default_kwarg, 'items'):
         return local_kwarg
 
+    try:
+        dict(local_kwarg)
+    except ValueError:
+        raise ValueError('Unable to encode lists with elements that are not '
+                '2-tuples.')
+
+    if hasattr(local_kwarg, 'items'):
+        local_kwarg = list(local_kwarg.items())
+
     # Update new values.
     kwargs = default_kwarg.copy()
     kwargs.update(local_kwarg)
 
     # Remove keys that are set to None.
-    for (k, v) in list(local_kwarg.items()):
+    for (k, v) in local_kwarg:
         if v is None:
             del kwargs[k]
 
@@ -55,7 +65,6 @@ class Session(object):
     __attrs__ = [
         'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
         'params', 'config', 'verify', 'cert', 'prefetch']
-
 
     def __init__(self,
         headers=None,
