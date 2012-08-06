@@ -95,6 +95,7 @@ if is_py2:
     bytes = str
     str = unicode
     basestring = basestring
+    numeric_types = (int, long, float)
 
 
 
@@ -110,4 +111,5 @@ elif is_py3:
     str = str
     bytes = bytes
     basestring = (str,bytes)
+    numeric_types = (int, float)
 
