@@ -458,7 +458,7 @@ class Request(object):
         except ValueError:
             return False
 
-    def send(self, anyway=False, prefetch=True):
+    def send(self, anyway=False, prefetch=None):
         """Sends the request. Returns True if successful, False if not.
         If there was an HTTPError during transmission,
         self.response.status_code will contain the HTTPError code.
@@ -467,6 +467,9 @@ class Request(object):
 
         :param anyway: If True, request will be sent, even if it has
         already been sent.
+
+        :param prefetch: If not None, will override the request's own setting
+        for prefetch.
         """
 
         # Build the URL
@@ -626,7 +629,9 @@ class Request(object):
             self.__dict__.update(r.__dict__)
 
             # If prefetch is True, mark content as consumed.
-            if prefetch or self.prefetch:
+            if prefetch is None:
+                prefetch = self.prefetch
+            if prefetch:
                 # Save the response.
                 self.response.content
 
