@@ -979,6 +979,22 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         t = json.loads(r.text)
         self.assertEqual(t.get('headers').get('Content-Type'), '')
 
+    def test_prefetch_redirect_bug(self):
+        """Test that prefetch persists across redirections."""
+        res = get(httpbin('redirect/2'), prefetch=False)
+        # prefetch should persist across the redirect; if it doesn't,
+        # this attempt to iterate will crash because the content has already
+        # been read.
+        first_line = next(res.iter_lines())
+        self.assertTrue(first_line.strip().startswith('{'))
+
+    def test_prefetch_return_response_interaction(self):
+        """Test that prefetch can be overridden as a kwarg to `send`."""
+        req = requests.get(httpbin('get'), return_response=False)
+        req.send(prefetch=False)
+        # content should not have been prefetched, and iter_lines should succeed
+        first_line = next(req.response.iter_lines())
+        self.assertTrue(first_line.strip().startswith('{'))
 
 if __name__ == '__main__':
     unittest.main()
