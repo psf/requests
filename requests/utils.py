@@ -112,6 +112,33 @@ def guess_filename(obj):
         return name
 
 
+def to_key_val_list(value):
+    """Take an object and test to see if it can be represented as a
+    dictionary. Unless it can not be represented as such, return a list of
+    tuples, e.g.,:
+
+    >>> to_key_val_list([('key', 'val')])
+    [('key', 'val')]
+    >>> to_key_val_list('string')
+    ValueError: ...
+    >>> to_key_val_list({'key': 'val'})
+    [('key', 'val')]
+    """
+    if value is None:
+        return None
+
+    try:
+        dict(value)
+    except ValueError:
+        raise ValueError('Unable to encode lists with elements that are not '
+                '2-tuples.')
+
+    if isinstance(value, dict) or hasattr(value, 'items'):
+        value = value.items()
+
+    return list(value)
+
+
 # From mitsuhiko/werkzeug (used with permission).
 def parse_list_header(value):
     """Parse lists as described by RFC 2068 Section 2.

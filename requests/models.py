@@ -29,7 +29,7 @@ from .exceptions import (
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
     stream_decode_response_unicode, get_netrc_auth, get_environ_proxies,
-    DEFAULT_CA_BUNDLE_PATH)
+    to_key_val_list, DEFAULT_CA_BUNDLE_PATH)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
     StringIO, is_py2, chardet, json, builtin_str)
@@ -317,15 +317,8 @@ class Request(object):
         elif hasattr(data, 'read'):
             return data
         elif hasattr(data, '__iter__'):
-            try:
-                dict(data)
-            except ValueError:
-                raise ValueError('Unable to encode lists with elements that '
-                        'are not 2-tuples.')
-
-            params = list(data.items() if isinstance(data, dict) else data)
             result = []
-            for k, vs in params:
+            for k, vs in to_key_val_list(data):
                 for v in isinstance(vs, list) and vs or [vs]:
                     result.append(
                         (k.encode('utf-8') if isinstance(k, str) else k,
@@ -339,20 +332,8 @@ class Request(object):
         if (not files) or isinstance(self.data, str):
             return None
 
-        try:
-            fields = list(self.data.items())
-        except AttributeError:
-            dict(self.data)
-            fields = list(self.data)
-
-        try:
-            dict(files)
-        except ValueError:
-            raise ValueError('Unable to encode lists with elements that '
-                    'are not 2-tuples.')
-
-        if isinstance(files, dict):
-            files = files.items()
+        fields = to_key_val_list(self.data)
+        files = to_key_val_list(files)
 
         for (k, v) in files:
             # support for explicit filename
