@@ -986,7 +986,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         # this attempt to iterate will crash because the content has already
         # been read.
         first_line = next(res.iter_lines())
-        self.assertTrue(first_line.strip().startswith('{'))
+        self.assertTrue(first_line.strip().decode('utf-8').startswith('{'))
 
     def test_prefetch_return_response_interaction(self):
         """Test that prefetch can be overridden as a kwarg to `send`."""
@@ -994,7 +994,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         req.send(prefetch=False)
         # content should not have been prefetched, and iter_lines should succeed
         first_line = next(req.response.iter_lines())
-        self.assertTrue(first_line.strip().startswith('{'))
+        self.assertTrue(first_line.strip().decode('utf-8').startswith('{'))
 
 if __name__ == '__main__':
     unittest.main()
