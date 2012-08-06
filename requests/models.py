@@ -32,7 +32,7 @@ from .utils import (
     DEFAULT_CA_BUNDLE_PATH)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    StringIO, is_py2, chardet, json, builtin_str)
+    StringIO, is_py2, chardet, json, builtin_str, numeric_types)
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
@@ -356,7 +356,7 @@ class Request(object):
             fields.update({k: (fn, fp.read())})
 
         for field in fields:
-            if isinstance(fields[field], float):
+            if isinstance(fields[field], numeric_types):
                 fields[field] = str(fields[field])
             if isinstance(fields[field], list):
                 newvalue = ', '.join(fields[field])
