@@ -291,7 +291,8 @@ class Request(object):
                     proxies=self.proxies,
                     verify=self.verify,
                     session=self.session,
-                    cert=self.cert
+                    cert=self.cert,
+                    prefetch=self.prefetch,
                 )
 
                 request.send()
