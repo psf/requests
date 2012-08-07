@@ -32,7 +32,7 @@ from .utils import (
     to_key_val_list, DEFAULT_CA_BUNDLE_PATH)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    StringIO, is_py2, chardet, json, builtin_str)
+    StringIO, is_py2, chardet, json, builtin_str, numeric_types)
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
@@ -58,7 +58,7 @@ class Request(object):
         proxies=None,
         hooks=None,
         config=None,
-        prefetch=False,
+        prefetch=True,
         _poolmanager=None,
         verify=None,
         session=None,
@@ -356,7 +356,6 @@ class Request(object):
             else:
                 new_fields.append((field, val))
         fields = new_fields
-
         (body, content_type) = encode_multipart_formdata(fields)
 
         return (body, content_type)
@@ -453,7 +452,7 @@ class Request(object):
         except ValueError:
             return False
 
-    def send(self, anyway=False, prefetch=False):
+    def send(self, anyway=False, prefetch=True):
         """Sends the request. Returns True if successful, False if not.
         If there was an HTTPError during transmission,
         self.response.status_code will contain the HTTPError code.
@@ -769,6 +768,8 @@ class Response(object):
                 self._content = None
 
         self._content_consumed = True
+        # don't need to release the connection; that's been handled by urllib3
+        # since we exhausted the data.
         return self._content
 
     @property

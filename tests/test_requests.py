@@ -852,9 +852,9 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         assert 'k' in c
 
         ds1 = pickle.loads(pickle.dumps(requests.session()))
-        ds2 = pickle.loads(pickle.dumps(requests.session(prefetch=True)))
-        assert not ds1.prefetch
-        assert ds2.prefetch
+        ds2 = pickle.loads(pickle.dumps(requests.session(prefetch=False)))
+        assert ds1.prefetch
+        assert not ds2.prefetch
 
     # def test_invalid_content(self):
     #     # WARNING: if you're using a terrible DNS provider (comcast),
@@ -903,7 +903,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         )
 
         # Make a request and monkey-patch its contents
-        r = get(httpbin('get'))
+        r = get(httpbin('get'), prefetch=False)
         r.raw = StringIO(quote)
 
         lines = list(r.iter_lines())

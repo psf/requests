@@ -68,7 +68,7 @@ class Session(object):
         hooks=None,
         params=None,
         config=None,
-        prefetch=False,
+        prefetch=True,
         verify=True,
         cert=None):
 
@@ -107,7 +107,15 @@ class Session(object):
         return self
 
     def __exit__(self, *args):
-        pass
+        self.close()
+
+    def close(self):
+        """Dispose of any internal state.
+
+        Currently, this just closes the PoolManager, which closes pooled
+        connections.
+        """
+        self.poolmanager.clear()
 
     def request(self, method, url,
         params=None,
@@ -122,7 +130,7 @@ class Session(object):
         hooks=None,
         return_response=True,
         config=None,
-        prefetch=False,
+        prefetch=None,
         verify=None,
         cert=None):
 
@@ -142,7 +150,7 @@ class Session(object):
         :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
         :param return_response: (optional) If False, an un-sent Request object will returned.
         :param config: (optional) A configuration dictionary. See ``request.defaults`` for allowed keys and their default values.
-        :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
+        :param prefetch: (optional) whether to immediately download the response content. Defaults to ``True``.
         :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
         :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
         """
@@ -155,7 +163,7 @@ class Session(object):
         headers = [] if headers is None else headers
         params = [] if params is None else params
         hooks = {} if hooks is None else hooks
-        prefetch = self.prefetch or prefetch
+        prefetch = prefetch if prefetch is not None else self.prefetch
 
         # use session's hooks as defaults
         for key, cb in list(self.hooks.items()):
