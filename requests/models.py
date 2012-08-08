@@ -71,7 +71,14 @@ class Request(object):
         self.timeout = timeout
 
         #: Request URL.
-        self.url = url
+        #: Accept objects that have string representations.
+        try:
+            self.url = unicode(url)
+        except NameError:
+            # We're on Python 3.
+            self.url = str(url)
+        except UnicodeDecodeError:
+            self.url = url
 
         #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.
         self.headers = dict(headers or [])
