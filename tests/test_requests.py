@@ -811,6 +811,20 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         assert ds1.prefetch
         assert not ds2.prefetch
 
+    def test_connection_error(self):
+        try:
+            get('http://localhost:1/nope')
+        except requests.ConnectionError:
+            pass
+        else:
+            assert False
+
+    def test_connection_error_with_safe_mode(self):
+        config = {'safe_mode': True}
+        r = get('http://localhost:1/nope', allow_redirects=False, config=config)
+        assert r.content == None
+
+
     # def test_invalid_content(self):
     #     # WARNING: if you're using a terrible DNS provider (comcast),
     #     # this will fail.
