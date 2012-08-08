@@ -8,6 +8,7 @@ This module contains the primary objects that power Requests.
 """
 
 import os
+import socket
 from datetime import datetime
 
 from .hooks import dispatch_hook, HOOKS
@@ -607,6 +608,9 @@ class Request(object):
                     timeout=self.timeout,
                 )
                 self.sent = True
+
+            except socket.error as sockerr:
+                raise ConnectionError(sockerr)
 
             except MaxRetryError as e:
                 raise ConnectionError(e)
