@@ -996,5 +996,23 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         first_line = next(req.response.iter_lines())
         self.assertTrue(first_line.strip().decode('utf-8').startswith('{'))
 
+    def test_accept_objects_with_string_representations_as_urls(self):
+        """Test that URLs can be set to objects with string representations,
+        e.g. for use with furl."""
+        class URL():
+            def __unicode__(self):
+                # Can't have unicode literals in Python3, so avoid them.
+                # TODO: fixup when moving to Python 3.3
+                if (sys.version_info[0] == 2):
+                    return 'http://httpbin.org/get'.decode('utf-8')
+                else:
+                    return 'http://httpbin.org/get'
+
+            def __str__(self):
+                return 'http://httpbin.org/get'
+
+        r = get(URL())
+        self.assertEqual(r.status_code, 200)
+
 if __name__ == '__main__':
     unittest.main()
