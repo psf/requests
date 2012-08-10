@@ -413,7 +413,10 @@ class Request(object):
         if not scheme in SCHEMAS:
             raise InvalidSchema("Invalid scheme %r" % scheme)
 
-        netloc = netloc.encode('idna').decode('utf-8')
+        try:
+            netloc = netloc.encode('idna').decode('utf-8')
+        except UnicodeError:
+            raise InvalidURL('URL has an invalid label.')
 
         if not path:
             path = '/'
