@@ -1033,16 +1033,12 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         https://github.com/kennethreitz/requests/pull/746
         """
 
-        data = [
-            ('__field__', '__value__'),
-            ('__field__', '__value__'),
-        ]
-        files = [
+        fields = [
             ('__field__', '__value__'),
             ('__field__', '__value__'),
         ]
 
-        r = post(httpbin('post'), data=data, files=files)
+        r = post(httpbin('post'), data=fields, files=fields)
         t = json.loads(r.text)
 
         self.assertEqual(t.get('form'), {
@@ -1057,9 +1053,9 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         # body manually.
         request = r.request
         body, content_type = request._encode_files(request.files)
-        file_field = ('Content-Disposition: form-data;'
-                      ' name="__field__"; filename="__field__"')
-        self.assertEqual(body.count('__value__'), 4)
+        file_field = (b'Content-Disposition: form-data;'
+                      b' name="__field__"; filename="__field__"')
+        self.assertEqual(body.count(b'__value__'), 4)
         self.assertEqual(body.count(file_field), 2)
 
     def test_bytes_files(self):
