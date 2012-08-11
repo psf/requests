@@ -110,3 +110,4 @@ Patches and Suggestions
 - Victoria Mo
 - Leila Muhtasib
 - Matthias Rahlf <matthias@webding.de>
+- Jakub Roztocil <jakub@roztocil.name>
