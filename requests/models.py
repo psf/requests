@@ -10,6 +10,7 @@ This module contains the primary objects that power Requests.
 import os
 import socket
 from datetime import datetime
+from io import BytesIO
 
 from .hooks import dispatch_hook, HOOKS
 from .structures import CaseInsensitiveDict
@@ -344,36 +345,55 @@ class Request(object):
             return data
 
     def _encode_files(self, files):
+        """Build the body for a multipart/form-data request.
 
+        Will successfully encode files when passed as a dict or a list of
+        2-tuples. Order is retained if data is a list of 2-tuples but abritrary
+        if parameters are supplied as a dict.
+
+        """
         if (not files) or isinstance(self.data, str):
             return None
 
-        try:
-            fields = self.data.copy()
-        except AttributeError:
-            fields = dict(self.data)
+        def tuples(obj):
+            """Ensure 2-tuples. A dict or a 2-tuples list can be supplied."""
+            if isinstance(obj, dict):
+                return list(obj.items())
+            elif hasattr(obj, '__iter__'):
+                try:
+                    dict(obj)
+                except ValueError:
+                    pass
+                else:
+                    return obj
+            raise ValueError('A dict or a list of 2-tuples required.')
 
-        for (k, v) in list(files.items()):
+        # 2-tuples containing both file and data fields.
+        fields = []
+
+        for k, v in tuples(files):
             # support for explicit filename
             if isinstance(v, (tuple, list)):
                 fn, fp = v
             else:
                 fn = guess_filename(v) or k
                 fp = v
-            if isinstance(fp, (bytes, str)):
+            if isinstance(fp, str):
                 fp = StringIO(fp)
-            fields.update({k: (fn, fp.read())})
+            if isinstance(fp, bytes):
+                fp = BytesIO(fp)
+            fields.append((k, (fn, fp.read())))
 
-        for field in fields:
-            if isinstance(fields[field], numeric_types):
-                fields[field] = str(fields[field])
-            if isinstance(fields[field], list):
-                newvalue = ', '.join(fields[field])
-                fields[field] = newvalue
-                
-        (body, content_type) = encode_multipart_formdata(fields)
+        for k, vs in tuples(self.data):
+            if isinstance(vs, list):
+                for v in vs:
+                    fields.append((k, str(v)))
+            else:
+                fields.append((k, str(vs)))
 
-        return (body, content_type)
+        body, content_type = encode_multipart_formdata(fields)
+
+        return body, content_type
 
     @property
     def full_url(self):
