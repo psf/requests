@@ -19,6 +19,7 @@ from requests.compat import str, StringIO
 from requests import HTTPError
 from requests import get, post, head, put
 from requests.auth import HTTPBasicAuth, HTTPDigestAuth
+from requests.exceptions import InvalidURL
 
 if 'HTTPBIN_URL' not in os.environ:
     os.environ['HTTPBIN_URL'] = 'http://httpbin.org/'
@@ -1062,6 +1063,10 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         """Test that `bytes` can be used as the values of `files`."""
         post(httpbin('post'), files={'test': b'test'})
 
+    def test_invalid_urls_throw_requests_exception(self):
+        """Test that URLs with invalid labels throw
+        Requests.exceptions.InvalidURL instead of UnicodeError."""
+        self.assertRaises(InvalidURL, get, 'http://.google.com/')
 
 if __name__ == '__main__':
     unittest.main()
