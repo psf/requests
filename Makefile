@@ -22,7 +22,7 @@ init:
 	pip install -r requirements.txt
 
 test:
-	nosetests ./tests/*
+	nosetests ./tests/*.py
 
 lazy:
 	nosetests --with-color tests/test_requests.py
