@@ -87,19 +87,19 @@ class Request(object):
         self.headers = dict(headers or [])
 
         #: Dictionary of files to multipart upload (``{filename: content}``).
-        self.files = None
+        self.files = files
 
         #: HTTP Method to use.
         self.method = method
 
         #: Dictionary, bytes or file stream of request body data to attach to the
         #: :class:`Request <Request>`.
-        self.data = None
+        self.data = data
 
         #: Dictionary or byte of querystring data to attach to the
         #: :class:`Request <Request>`. The dictionary values can be lists for representing
         #: multivalued query parameters.
-        self.params = None
+        self.params = params
 
         #: True if :class:`Request <Request>` is part of a redirect chain (disables history
         #: and HTTPError storage).
@@ -115,10 +115,6 @@ class Request(object):
         # HTTP_PROXY and HTTPS_PROXY.
         if not self.proxies and self.config.get('trust_env'):
             self.proxies = get_environ_proxies()
-
-        self.data = data
-        self.params = params
-        self.files = files
 
         #: :class:`Response <Response>` instance, containing
         #: content and metadata of HTTP Response, once :attr:`sent <send>`.
