@@ -556,7 +556,7 @@ class Request(object):
         no_proxy = filter(lambda x:x.strip(), self.proxies.get('no', '').split(','))
         proxy = self.proxies.get(_p.scheme)
 
-        if proxy and not any(map(_p.netloc.endswith, no_proxy)):
+        if proxy and not any(map(_p.hostname.endswith, no_proxy)):
             conn = poolmanager.proxy_from_url(proxy)
             _proxy = urlparse(proxy)
             if '@' in _proxy.netloc:
