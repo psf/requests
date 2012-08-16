@@ -1,7 +1,7 @@
 krTheme Sphinx Style
 ====================
 
-This repository contains sphinx styles Kenneth Reitz uses in most of 
+This repository contains sphinx styles Kenneth Reitz uses in most of
 his projects. It is a derivative of Mitsuhiko's themes for Flask and Flask related
 projects.  To use this style in your Sphinx documentation, follow
 this guide:
