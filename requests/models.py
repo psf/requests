@@ -748,9 +748,8 @@ class Response(object):
         length of each item returned as decoding can take place.
         """
         if self._content_consumed:
-            raise RuntimeError(
-                'The content for this response was already consumed'
-            )
+            # return a single-item iterator containing the entire content
+            return iter([self._content])
 
         def generate():
             while 1:
