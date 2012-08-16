@@ -260,11 +260,11 @@ reference::
 If we made a bad request (non-200 response), we can raise it with
 :class:`Response.raise_for_status()`::
 
-    >>> _r = requests.get('http://httpbin.org/status/404')
-    >>> _r.status_code
+    >>> r = requests.get('http://httpbin.org/status/404')
+    >>> r.status_code
     404
 
-    >>> _r.raise_for_status()
+    >>> r.raise_for_status()
     Traceback (most recent call last):
       File "requests/models.py", line 832, in raise_for_status
         raise http_error
