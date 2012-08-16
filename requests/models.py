@@ -9,6 +9,8 @@ This module contains the primary objects that power Requests.
 
 import os
 from datetime import datetime
+from tempfile import NamedTemporaryFile
+import webbrowser
 
 from .hooks import dispatch_hook, HOOKS
 from .structures import CaseInsensitiveDict
@@ -831,3 +833,9 @@ class Response(object):
             http_error = HTTPError('%s Server Error' % self.status_code)
             http_error.response = self
             raise http_error
+
+    def show(self):
+        """Show the Response in a webbrowser"""
+        temp = NamedTemporaryFile(delete=False)
+        temp.write(self.content)
+        webbrowser.open(temp.name)
