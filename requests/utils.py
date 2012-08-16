@@ -49,6 +49,7 @@ POSSIBLE_CA_BUNDLE_PATHS = [
         '/etc/ssl/ca-bundle.pem',
 ]
 
+
 def get_os_ca_bundle_path():
     """Try to pick an available CA certificate bundle provided by the OS."""
     for path in POSSIBLE_CA_BUNDLE_PATHS:
@@ -59,6 +60,7 @@ def get_os_ca_bundle_path():
 # if certifi is installed, use its CA bundle;
 # otherwise, try and use the OS bundle
 DEFAULT_CA_BUNDLE_PATH = CERTIFI_BUNDLE_PATH or get_os_ca_bundle_path()
+
 
 def dict_to_sequence(d):
     """Returns an internal sequence dictionary update."""
@@ -444,6 +446,7 @@ def requote_uri(uri):
     # Then quote only illegal characters (do not quote reserved, unreserved,
     # or '%')
     return quote(unquote_unreserved(uri), safe="!#$%&'()*+,/:;=?@[]~")
+
 
 def get_environ_proxies():
     """Return a dict of environment proxies."""

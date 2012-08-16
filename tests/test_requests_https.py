@@ -9,6 +9,7 @@ import unittest
 sys.path.insert(0, os.path.abspath('..'))
 import requests
 
+
 class HTTPSTest(unittest.TestCase):
     """Smoke test for https functionality."""
 

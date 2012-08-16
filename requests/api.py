@@ -14,6 +14,7 @@ This module implements the Requests API.
 from . import sessions
 from .safe_mode import catch_exceptions_if_in_safe_mode
 
+
 @catch_exceptions_if_in_safe_mode
 def request(method, url, **kwargs):
     """Constructs and sends a :class:`Request <Request>`.
@@ -51,6 +52,7 @@ def request(method, url, **kwargs):
     finally:
         if adhoc_session:
             session.close()
+
 
 def get(url, **kwargs):
     """Sends a GET request. Returns :class:`Response` object.
