@@ -112,4 +112,3 @@ elif is_py3:
     bytes = bytes
     basestring = (str,bytes)
     numeric_types = (int, float)
-

@@ -25,16 +25,13 @@ class RequestsTestSuite(unittest.TestCase):
     def test_addition(self):
         assert (1 + 1) == 2
 
-
     def test_ssl_hostname_ok(self):
         requests.get('https://github.com', verify=True)
-
 
     def test_ssl_hostname_not_ok(self):
         requests.get('https://kennethreitz.com', verify=False)
 
         self.assertRaises(requests.exceptions.SSLError, requests.get, 'https://kennethreitz.com')
-
 
     def test_ssl_hostname_session_not_ok(self):
 
@@ -43,7 +40,6 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertRaises(requests.exceptions.SSLError, s.get, 'https://kennethreitz.com')
 
         s.get('https://kennethreitz.com', verify=False)
-
 
     def test_binary_post(self):
         '''We need to be careful how we build the utf-8 string since
@@ -59,12 +55,9 @@ class RequestsTestSuite(unittest.TestCase):
             raise EnvironmentError('Flesh out this test for your environment.')
         requests.post('http://www.google.com/', data=utf8_string)
 
-
-
     def test_unicode_error(self):
         url = 'http://blip.fm/~1abvfu'
         requests.get(url)
-
 
     def test_chunked_head_redirect(self):
         url = "http://t.co/NFrx0zLG"
@@ -128,4 +121,3 @@ class RequestsTestSuite(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
