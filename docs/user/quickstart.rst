@@ -339,7 +339,7 @@ parameter::
 Basic Authentication
 --------------------
 
-Many web services require authentication. There many different types of
+Many web services require authentication. There are many different types of
 authentication, but the most common is HTTP Basic Auth.
 
 Making requests with Basic Auth is extremely simple::
