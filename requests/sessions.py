@@ -18,6 +18,7 @@ from .hooks import dispatch_hook
 from .utils import header_expand
 from .packages.urllib3.poolmanager import PoolManager
 
+
 def merge_kwargs(local_kwarg, default_kwarg):
     """Merges kwarg dictionaries.
 
@@ -55,7 +56,6 @@ class Session(object):
     __attrs__ = [
         'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
         'params', 'config', 'verify', 'cert', 'prefetch']
-
 
     def __init__(self,
         headers=None,
@@ -240,7 +240,6 @@ class Session(object):
         # Return the response.
         return r.response
 
-
     def get(self, url, **kwargs):
         """Sends a GET request. Returns :class:`Response` object.
 
@@ -250,7 +249,6 @@ class Session(object):
 
         kwargs.setdefault('allow_redirects', True)
         return self.request('get', url, **kwargs)
-
 
     def options(self, url, **kwargs):
         """Sends a OPTIONS request. Returns :class:`Response` object.
@@ -262,7 +260,6 @@ class Session(object):
         kwargs.setdefault('allow_redirects', True)
         return self.request('options', url, **kwargs)
 
-
     def head(self, url, **kwargs):
         """Sends a HEAD request. Returns :class:`Response` object.
 
@@ -272,7 +269,6 @@ class Session(object):
 
         kwargs.setdefault('allow_redirects', False)
         return self.request('head', url, **kwargs)
-
 
     def post(self, url, data=None, **kwargs):
         """Sends a POST request. Returns :class:`Response` object.
@@ -284,7 +280,6 @@ class Session(object):
 
         return self.request('post', url, data=data, **kwargs)
 
-
     def put(self, url, data=None, **kwargs):
         """Sends a PUT request. Returns :class:`Response` object.
 
@@ -295,7 +290,6 @@ class Session(object):
 
         return self.request('put', url, data=data, **kwargs)
 
-
     def patch(self, url, data=None, **kwargs):
         """Sends a PATCH request. Returns :class:`Response` object.
 
@@ -305,7 +299,6 @@ class Session(object):
         """
 
         return self.request('patch', url,  data=data, **kwargs)
-
 
     def delete(self, url, **kwargs):
         """Sends a DELETE request. Returns :class:`Response` object.

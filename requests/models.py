@@ -39,6 +39,7 @@ from .compat import (
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
 
+
 class Request(object):
     """The :class:`Request <Request>` object. It carries out all functionality of
     Requests. Recommended interface is with the Requests functions.
@@ -553,7 +554,7 @@ class Request(object):
             self.__dict__.update(r.__dict__)
 
         _p = urlparse(url)
-        no_proxy = filter(lambda x:x.strip(), self.proxies.get('no', '').split(','))
+        no_proxy = filter(lambda x: x.strip(), self.proxies.get('no', '').split(','))
         proxy = self.proxies.get(_p.scheme)
 
         if proxy and not any(map(_p.netloc.endswith, no_proxy)):

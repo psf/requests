@@ -47,6 +47,7 @@ class CaseInsensitiveDict(dict):
         else:
             return default
 
+
 class LookupDict(dict):
     """Dictionary lookup object."""
 

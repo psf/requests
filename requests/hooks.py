@@ -30,6 +30,7 @@ import traceback
 
 HOOKS = ('args', 'pre_request', 'pre_send', 'post_request', 'response')
 
+
 def dispatch_hook(key, hooks, hook_data):
     """Dispatches a hook dictionary on a given piece of data."""
 
