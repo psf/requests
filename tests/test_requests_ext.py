@@ -117,7 +117,7 @@ class RequestsTestSuite(unittest.TestCase):
         # cookies of the first domain should NOT be sent to the next one
         r3 = s.get(url='http://tinyurl.com/7zp3jnr')
         assert r3.url == 'http://httpbin.org/cookies'
-        self.assertTrue('preview' not in json.loads(r2.text)['cookies'])
+        self.assertTrue('preview' not in json.loads(r3.text)['cookies'])
 
 if __name__ == '__main__':
     unittest.main()
