@@ -52,17 +52,14 @@ class TestSetup(object):
             # time.sleep(1)
             _httpbin = True
 
-
 class TestBaseMixin(object):
 
     def assertCookieHas(self, cookie, **kwargs):
         """Assert that a cookie has various specified properties."""
         for attr, expected_value in kwargs.items():
             cookie_attr = getattr(cookie, attr)
-            message = 'Failed comparison for %s: %s != %s' % (attr,
-                    cookie_attr, expected_value)
+            message = 'Failed comparison for %s: %s != %s' % (attr, cookie_attr, expected_value)
             self.assertEqual(cookie_attr, expected_value, message)
-
 
 class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
     """Requests test cases."""
@@ -129,8 +126,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
     def test_HTTP_200_OK_GET_WITH_MIXED_PARAMS(self):
         heads = {'User-agent': 'Mozilla/5.0'}
 
-        r = get(httpbin('get') + '?test=true', params={'q': 'test'},
-                headers=heads)
+        r = get(httpbin('get') + '?test=true', params={'q': 'test'}, headers=heads)
         self.assertEqual(r.status_code, 200)
 
     # def test_unicode_headers(self):
@@ -775,8 +771,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         self.assertEqual(c, _c)
 
         # Have the server set a cookie.
-        r = get(httpbin('cookies', 'set', 'k', 'v'), allow_redirects=True,
-                session=s)
+        r = get(httpbin('cookies', 'set', 'k', 'v'), allow_redirects=True, session=s)
         c = json.loads(r.text).get('cookies')
 
         assert 'k' in c
@@ -841,8 +836,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
     def test_unpickled_session_requests(self):
         s = requests.session()
-        r = get(httpbin('cookies', 'set', 'k', 'v'), allow_redirects=True,
-                session=s)
+        r = get(httpbin('cookies', 'set', 'k', 'v'), allow_redirects=True, session=s)
         c = json.loads(r.text).get('cookies')
         assert 'k' in c
 
@@ -984,31 +978,24 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         s.config['danger_mode'] = True
         s.get(httpbin('redirect', '4'))
 
+
     def test_empty_response(self):
         r = requests.get(httpbin('status', '404'))
         r.text
 
     def test_max_redirects(self):
-        """Test the max_redirects config variable, normally and under
-        safe_mode.
-        """
+        """Test the max_redirects config variable, normally and under safe_mode."""
         def unsafe_callable():
-            requests.get(httpbin('redirect', '3'),
-                    config=dict(max_redirects=2))
-        self.assertRaises(requests.exceptions.TooManyRedirects,
-                unsafe_callable)
+            requests.get(httpbin('redirect', '3'), config=dict(max_redirects=2))
+        self.assertRaises(requests.exceptions.TooManyRedirects, unsafe_callable)
 
         # add safe mode
-        response = requests.get(httpbin('redirect', '3'),
-                config=dict(safe_mode=True, max_redirects=2))
+        response = requests.get(httpbin('redirect', '3'), config=dict(safe_mode=True, max_redirects=2))
         self.assertTrue(response.content is None)
-        self.assertTrue(isinstance(response.error,
-                requests.exceptions.TooManyRedirects))
+        self.assertTrue(isinstance(response.error, requests.exceptions.TooManyRedirects))
 
     def test_connection_keepalive_and_close(self):
-        """Test that we send 'Connection: close' when keep_alive is
-        disabled.
-        """
+        """Test that we send 'Connection: close' when keep_alive is disabled."""
         # keep-alive should be on by default
         r1 = requests.get(httpbin('get'))
         # XXX due to proxying issues, test the header sent back by httpbin, rather than
