@@ -8,7 +8,9 @@ This module contains the primary objects that power Requests.
 """
 
 import os
+import socket
 from datetime import datetime
+from io import BytesIO
 
 from .hooks import dispatch_hook, HOOKS
 from .structures import CaseInsensitiveDict
@@ -72,7 +74,14 @@ class Request(object):
         self.timeout = timeout
 
         #: Request URL.
-        self.url = url
+        #: Accept objects that have string representations.
+        try:
+            self.url = unicode(url)
+        except NameError:
+            # We're on Python 3.
+            self.url = str(url)
+        except UnicodeDecodeError:
+            self.url = url
 
         #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.
         self.headers = dict(headers or [])
@@ -292,7 +301,8 @@ class Request(object):
                     proxies=self.proxies,
                     verify=self.verify,
                     session=self.session,
-                    cert=self.cert
+                    cert=self.cert,
+                    prefetch=self.prefetch,
                 )
 
                 request.send()
@@ -328,7 +338,13 @@ class Request(object):
             return data
 
     def _encode_files(self, files):
+        """Build the body for a multipart/form-data request.
 
+        Will successfully encode files when passed as a dict or a list of
+        2-tuples. Order is retained if data is a list of 2-tuples but abritrary
+        if parameters are supplied as a dict.
+
+        """
         if (not files) or isinstance(self.data, str):
             return None
 
@@ -342,23 +358,22 @@ class Request(object):
             else:
                 fn = guess_filename(v) or k
                 fp = v
-            if isinstance(fp, (bytes, str)):
+            if isinstance(fp, str):
                 fp = StringIO(fp)
+            if isinstance(fp, bytes):
+                fp = BytesIO(fp)
             fields.append((k, (fn, fp.read())))
 
         new_fields = []
         for field, val in fields:
-            if isinstance(val, float):
-                new_fields.append((field, str(val)))
-            elif isinstance(val, list):
-                newvalue = ', '.join(val)
-                new_fields.append((field, newvalue))
+            if isinstance(val, list):
+                for v in val:
+                    new_fields.append((k, str(v)))
             else:
-                new_fields.append((field, val))
-        fields = new_fields
-        (body, content_type) = encode_multipart_formdata(fields)
+                new_fields.append((field, str(val)))
+        body, content_type = encode_multipart_formdata(new_fields)
 
-        return (body, content_type)
+        return body, content_type
 
     @property
     def full_url(self):
@@ -378,7 +393,10 @@ class Request(object):
         if not scheme in SCHEMAS:
             raise InvalidSchema("Invalid scheme %r" % scheme)
 
-        netloc = netloc.encode('idna').decode('utf-8')
+        try:
+            netloc = netloc.encode('idna').decode('utf-8')
+        except UnicodeError:
+            raise InvalidURL('URL has an invalid label.')
 
         if not path:
             path = '/'
@@ -452,7 +470,7 @@ class Request(object):
         except ValueError:
             return False
 
-    def send(self, anyway=False, prefetch=True):
+    def send(self, anyway=False, prefetch=None):
         """Sends the request. Returns True if successful, False if not.
         If there was an HTTPError during transmission,
         self.response.status_code will contain the HTTPError code.
@@ -461,6 +479,9 @@ class Request(object):
 
         :param anyway: If True, request will be sent, even if it has
         already been sent.
+
+        :param prefetch: If not None, will override the request's own setting
+        for prefetch.
         """
 
         # Build the URL
@@ -512,7 +533,7 @@ class Request(object):
             self.__dict__.update(r.__dict__)
 
         _p = urlparse(url)
-        no_proxy = filter(lambda x:x.strip(), self.proxies.get('no', '').split(','))
+        no_proxy = filter(lambda x: x.strip(), self.proxies.get('no', '').split(','))
         proxy = self.proxies.get(_p.scheme)
 
         if proxy and not any(map(_p.netloc.endswith, no_proxy)):
@@ -598,6 +619,9 @@ class Request(object):
                 )
                 self.sent = True
 
+            except socket.error as sockerr:
+                raise ConnectionError(sockerr)
+
             except MaxRetryError as e:
                 raise ConnectionError(e)
 
@@ -620,7 +644,9 @@ class Request(object):
             self.__dict__.update(r.__dict__)
 
             # If prefetch is True, mark content as consumed.
-            if prefetch or self.prefetch:
+            if prefetch is None:
+                prefetch = self.prefetch
+            if prefetch:
                 # Save the response.
                 self.response.content
 

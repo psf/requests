@@ -25,16 +25,13 @@ class RequestsTestSuite(unittest.TestCase):
     def test_addition(self):
         assert (1 + 1) == 2
 
-
     def test_ssl_hostname_ok(self):
         requests.get('https://github.com', verify=True)
-
 
     def test_ssl_hostname_not_ok(self):
         requests.get('https://kennethreitz.com', verify=False)
 
         self.assertRaises(requests.exceptions.SSLError, requests.get, 'https://kennethreitz.com')
-
 
     def test_ssl_hostname_session_not_ok(self):
 
@@ -43,7 +40,6 @@ class RequestsTestSuite(unittest.TestCase):
         self.assertRaises(requests.exceptions.SSLError, s.get, 'https://kennethreitz.com')
 
         s.get('https://kennethreitz.com', verify=False)
-
 
     def test_binary_post(self):
         '''We need to be careful how we build the utf-8 string since
@@ -59,12 +55,9 @@ class RequestsTestSuite(unittest.TestCase):
             raise EnvironmentError('Flesh out this test for your environment.')
         requests.post('http://www.google.com/', data=utf8_string)
 
-
-
     def test_unicode_error(self):
         url = 'http://blip.fm/~1abvfu'
         requests.get(url)
-
 
     def test_chunked_head_redirect(self):
         url = "http://t.co/NFrx0zLG"
@@ -110,7 +103,7 @@ class RequestsTestSuite(unittest.TestCase):
         s = requests.session()
         s.get(url='http://tinyurl.com/preview.php?disable=1')
         # we should have set a cookie for tinyurl: preview=0
-        self.assertIn('preview', s.cookies)
+        self.assertTrue('preview' in s.cookies)
         self.assertEqual(s.cookies['preview'], '0')
         self.assertEqual(list(s.cookies)[0].name, 'preview')
         self.assertEqual(list(s.cookies)[0].domain, 'tinyurl.com')
@@ -118,14 +111,13 @@ class RequestsTestSuite(unittest.TestCase):
         # get cookies on another domain
         r2 = s.get(url='http://httpbin.org/cookies')
         # the cookie is not there
-        self.assertNotIn('preview', json.loads(r2.text)['cookies'])
+        self.assertTrue('preview' not in json.loads(r2.text)['cookies'])
 
         # this redirects to another domain, httpbin.org
         # cookies of the first domain should NOT be sent to the next one
         r3 = s.get(url='http://tinyurl.com/7zp3jnr')
         assert r3.url == 'http://httpbin.org/cookies'
-        self.assertNotIn('preview', json.loads(r2.text)['cookies'])
+        self.assertTrue('preview' not in json.loads(r2.text)['cookies'])
 
 if __name__ == '__main__':
     unittest.main()
-

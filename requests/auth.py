@@ -34,6 +34,7 @@ log = logging.getLogger(__name__)
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 
+
 def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
 
@@ -239,6 +240,7 @@ class HTTPDigestAuth(AuthBase):
         r.register_hook('response', self.handle_401)
         return r
 
+
 def _negotiate_value(r):
     """Extracts the gssapi authentication token from the appropriate header"""
 
@@ -251,6 +253,7 @@ def _negotiate_value(r):
             return mo.group(1)
 
     return None
+
 
 class HTTPKerberosAuth(AuthBase):
     """Attaches HTTP GSSAPI/Kerberos Authentication to the given Request object."""

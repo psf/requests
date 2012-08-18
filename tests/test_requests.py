@@ -7,7 +7,6 @@
 import sys
 import os
 sys.path.insert(0, os.path.abspath('..'))
-
 import json
 import os
 import unittest
@@ -20,6 +19,7 @@ from requests.compat import str, StringIO
 from requests import HTTPError
 from requests import get, post, head, put
 from requests.auth import HTTPBasicAuth, HTTPDigestAuth
+from requests.exceptions import InvalidURL
 
 if 'HTTPBIN_URL' not in os.environ:
     os.environ['HTTPBIN_URL'] = 'http://httpbin.org/'
@@ -856,6 +856,19 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         assert ds1.prefetch
         assert not ds2.prefetch
 
+    def test_connection_error(self):
+        try:
+            get('http://localhost:1/nope')
+        except requests.ConnectionError:
+            pass
+        else:
+            assert False
+
+    def test_connection_error_with_safe_mode(self):
+        config = {'safe_mode': True}
+        r = get('http://localhost:1/nope', allow_redirects=False, config=config)
+        assert r.content == None
+
     # def test_invalid_content(self):
     #     # WARNING: if you're using a terrible DNS provider (comcast),
     #     # this will fail.
@@ -1019,10 +1032,10 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         list for a value in the data argument."""
 
         data = {'field': ['a', 'b']}
-        files = {'file': 'Garbled data'}
+        files = {'field': 'Garbled data'}
         r = post(httpbin('post'), data=data, files=files)
         t = json.loads(r.text)
-        self.assertEqual(t.get('form'), {'field': 'a, b'})
+        self.assertEqual(t.get('form'), {'field': ['a', 'b']})
         self.assertEqual(t.get('files'), files)
         r = post(httpbin('post'), data=data, files=files.items())
         t = r.json
@@ -1035,6 +1048,80 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         t = json.loads(r.text)
         self.assertEqual(t.get('headers').get('Content-Type'), '')
 
+    def test_prefetch_redirect_bug(self):
+        """Test that prefetch persists across redirections."""
+        res = get(httpbin('redirect/2'), prefetch=False)
+        # prefetch should persist across the redirect; if it doesn't,
+        # this attempt to iterate will crash because the content has already
+        # been read.
+        first_line = next(res.iter_lines())
+        self.assertTrue(first_line.strip().decode('utf-8').startswith('{'))
+
+    def test_prefetch_return_response_interaction(self):
+        """Test that prefetch can be overridden as a kwarg to `send`."""
+        req = requests.get(httpbin('get'), return_response=False)
+        req.send(prefetch=False)
+        # content should not have been prefetched, and iter_lines should succeed
+        first_line = next(req.response.iter_lines())
+        self.assertTrue(first_line.strip().decode('utf-8').startswith('{'))
+
+    def test_accept_objects_with_string_representations_as_urls(self):
+        """Test that URLs can be set to objects with string representations,
+        e.g. for use with furl."""
+        class URL():
+            def __unicode__(self):
+                # Can't have unicode literals in Python3, so avoid them.
+                # TODO: fixup when moving to Python 3.3
+                if (sys.version_info[0] == 2):
+                    return 'http://httpbin.org/get'.decode('utf-8')
+                else:
+                    return 'http://httpbin.org/get'
+
+            def __str__(self):
+                return 'http://httpbin.org/get'
+
+        r = get(URL())
+        self.assertEqual(r.status_code, 200)
+
+    def test_post_fields_with_multiple_values_and_files_as_tuples(self):
+        """Test that it is possible to POST multiple data and file fields
+        with the same name.
+        https://github.com/kennethreitz/requests/pull/746
+        """
+
+        fields = [
+            ('__field__', '__value__'),
+            ('__field__', '__value__'),
+        ]
+
+        r = post(httpbin('post'), data=fields, files=fields)
+        t = json.loads(r.text)
+
+        self.assertEqual(t.get('form'), {
+            '__field__': [
+                '__value__',
+                '__value__',
+            ]
+        })
+
+        # It's not currently possible to test for multiple file fields with
+        # the same name against httpbin so we need to inspect the encoded
+        # body manually.
+        request = r.request
+        body, content_type = request._encode_files(request.files)
+        file_field = (b'Content-Disposition: form-data;'
+                      b' name="__field__"; filename="__field__"')
+        self.assertEqual(body.count(b'__value__'), 4)
+        self.assertEqual(body.count(file_field), 2)
+
+    def test_bytes_files(self):
+        """Test that `bytes` can be used as the values of `files`."""
+        post(httpbin('post'), files={'test': b'test'})
+
+    def test_invalid_urls_throw_requests_exception(self):
+        """Test that URLs with invalid labels throw
+        Requests.exceptions.InvalidURL instead of UnicodeError."""
+        self.assertRaises(InvalidURL, get, 'http://.google.com/')
 
 if __name__ == '__main__':
     unittest.main()
