@@ -348,6 +348,7 @@ class Request(object):
         if (not files) or isinstance(self.data, str):
             return None
 
+        new_fields = []
         fields = to_key_val_list(self.data)
         files = to_key_val_list(files)
 
@@ -362,9 +363,8 @@ class Request(object):
                 fp = StringIO(fp)
             if isinstance(fp, bytes):
                 fp = BytesIO(fp)
-            fields.append((k, (fn, fp.read())))
+            new_fields.append((k, (fn, fp.read())))
 
-        new_fields = []
         for field, val in fields:
             if isinstance(val, list):
                 for v in val:
