@@ -143,6 +143,83 @@ class HTTPDigestAuth(AuthBase):
     def __init__(self, username, password):
         self.username = username
         self.password = password
+        self.last_nonce = ''
+        self.nonce_count = 0
+        self.chal = {}
+
+    def build_digest_header(self, method, url):
+
+        realm = self.chal['realm']
+        nonce = self.chal['nonce']
+        qop = self.chal.get('qop')
+        algorithm = self.chal.get('algorithm', 'MD5')
+        opaque = self.chal.get('opaque', None)
+    
+        algorithm = algorithm.upper()
+        # lambdas assume digest modules are imported at the top level
+        if algorithm == 'MD5':
+            def md5_utf8(x):
+                if isinstance(x, str):
+                    x = x.encode('utf-8')
+                return hashlib.md5(x).hexdigest()
+            hash_utf8 = md5_utf8
+        elif algorithm == 'SHA':
+            def sha_utf8(x):
+                if isinstance(x, str):
+                    x = x.encode('utf-8')
+                return hashlib.sha1(x).hexdigest()
+            hash_utf8 = sha_utf8
+        # XXX MD5-sess
+        KD = lambda s, d: hash_utf8("%s:%s" % (s, d))
+    
+        if hash_utf8 is None:
+            return None
+    
+        # XXX not implemented yet
+        entdig = None
+        p_parsed = urlparse(url)
+        path = p_parsed.path
+        if p_parsed.query:
+            path += '?' + p_parsed.query
+    
+        A1 = '%s:%s:%s' % (self.username, realm, self.password)
+        A2 = '%s:%s' % (method, path)
+    
+        if qop == 'auth':
+            if nonce == self.last_nonce:
+                self.nonce_count += 1
+            else:
+                self.nonce_count = 1
+    
+            ncvalue = '%08x' % self.nonce_count
+            s = str(self.nonce_count).encode('utf-8')
+            s += nonce.encode('utf-8')
+            s += time.ctime().encode('utf-8')
+            s += os.urandom(8)
+        
+            cnonce = (hashlib.sha1(s).hexdigest()[:16])
+            noncebit = "%s:%s:%s:%s:%s" % (nonce, ncvalue, cnonce, qop, hash_utf8(A2))
+            respdig = KD(hash_utf8(A1), noncebit)
+        elif qop is None:
+            respdig = KD(hash_utf8(A1), "%s:%s" % (nonce, hash_utf8(A2)))
+        else:
+            # XXX handle auth-int.
+            return None
+    
+        self.last_nonce = nonce
+    
+        # XXX should the partial digests be encoded too?
+        base = 'username="%s", realm="%s", nonce="%s", uri="%s", ' \
+           'response="%s"' % (self.username, realm, nonce, path, respdig)
+        if opaque:
+            base += ', opaque="%s"' % opaque
+        if entdig:
+            base += ', digest="%s"' % entdig
+            base += ', algorithm="%s"' % algorithm
+        if qop:
+            base += ', qop=auth, nc=%s, cnonce="%s"' % (ncvalue, cnonce)
+    
+        return 'Digest %s' % (base)
 
     def handle_401(self, r):
         """Takes the given response and tries digest-auth, if needed."""
@@ -153,86 +230,14 @@ class HTTPDigestAuth(AuthBase):
 
         if 'digest' in s_auth.lower() and num_401_calls < 2:
 
-            last_nonce = ''
-            nonce_count = 0
-
-            chal = parse_dict_header(s_auth.replace('Digest ', ''))
-
-            realm = chal['realm']
-            nonce = chal['nonce']
-            qop = chal.get('qop')
-            algorithm = chal.get('algorithm', 'MD5')
-            opaque = chal.get('opaque', None)
-
-            algorithm = algorithm.upper()
-            # lambdas assume digest modules are imported at the top level
-            if algorithm == 'MD5':
-                def md5_utf8(x):
-                    if isinstance(x, str):
-                        x = x.encode('utf-8')
-                    return hashlib.md5(x).hexdigest()
-                hash_utf8 = md5_utf8
-            elif algorithm == 'SHA':
-                def sha_utf8(x):
-                    if isinstance(x, str):
-                        x = x.encode('utf-8')
-                    return hashlib.sha1(x).hexdigest()
-                hash_utf8 = sha_utf8
-            # XXX MD5-sess
-            KD = lambda s, d: hash_utf8("%s:%s" % (s, d))
-
-            if hash_utf8 is None:
-                return None
-
-            # XXX not implemented yet
-            entdig = None
-            p_parsed = urlparse(r.request.url)
-            path = p_parsed.path
-            if p_parsed.query:
-                path += '?' + p_parsed.query
-
-            A1 = '%s:%s:%s' % (self.username, realm, self.password)
-            A2 = '%s:%s' % (r.request.method, path)
-
-            if qop == 'auth':
-                if nonce == last_nonce:
-                    nonce_count += 1
-                else:
-                    nonce_count = 1
-                    last_nonce = nonce
-
-                ncvalue = '%08x' % nonce_count
-                s = str(nonce_count).encode('utf-8')
-                s += nonce.encode('utf-8')
-                s += time.ctime().encode('utf-8')
-                s += os.urandom(8)
-
-                cnonce = (hashlib.sha1(s).hexdigest()[:16])
-                noncebit = "%s:%s:%s:%s:%s" % (nonce, ncvalue, cnonce, qop, hash_utf8(A2))
-                respdig = KD(hash_utf8(A1), noncebit)
-            elif qop is None:
-                respdig = KD(hash_utf8(A1), "%s:%s" % (nonce, hash_utf8(A2)))
-            else:
-                # XXX handle auth-int.
-                return None
-
-            # XXX should the partial digests be encoded too?
-            base = 'username="%s", realm="%s", nonce="%s", uri="%s", ' \
-                   'response="%s"' % (self.username, realm, nonce, path, respdig)
-            if opaque:
-                base += ', opaque="%s"' % opaque
-            if entdig:
-                base += ', digest="%s"' % entdig
-            base += ', algorithm="%s"' % algorithm
-            if qop:
-                base += ', qop=auth, nc=%s, cnonce="%s"' % (ncvalue, cnonce)
+            self.chal = parse_dict_header(s_auth.replace('Digest ', ''))
 
             # Consume content and release the original connection 
             # to allow our new request to reuse the same one.
             r.content
             r.raw.release_conn()
 
-            r.request.headers['Authorization'] = 'Digest %s' % (base)
+            r.request.headers['Authorization'] = self.build_digest_header(r.request.method, r.request.url)
             r.request.send(anyway=True)
             _r = r.request.response
             _r.history.append(r)
@@ -242,6 +247,9 @@ class HTTPDigestAuth(AuthBase):
         return r
 
     def __call__(self, r):
+        # If we have a saved nonce, skip the 401
+        if self.last_nonce:
+            r.headers['Authorization'] = self.build_digest_header(r.method, r.url)    
         r.register_hook('response', self.handle_401)
         return r
 
