@@ -227,6 +227,11 @@ class HTTPDigestAuth(AuthBase):
             if qop:
                 base += ', qop=auth, nc=%s, cnonce="%s"' % (ncvalue, cnonce)
 
+            # Consume content and release the original connection 
+            # to allow our new request to reuse the same one.
+            r.content
+            r.raw.release_conn()
+
             r.request.headers['Authorization'] = 'Digest %s' % (base)
             r.request.send(anyway=True)
             _r = r.request.response
