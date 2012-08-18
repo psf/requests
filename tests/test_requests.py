@@ -52,7 +52,6 @@ class TestSetup(object):
             # time.sleep(1)
             _httpbin = True
 
-
 class TestBaseMixin(object):
 
     def assertCookieHas(self, cookie, **kwargs):
@@ -61,7 +60,6 @@ class TestBaseMixin(object):
             cookie_attr = getattr(cookie, attr)
             message = 'Failed comparison for %s: %s != %s' % (attr, cookie_attr, expected_value)
             self.assertEqual(cookie_attr, expected_value, message)
-
 
 class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
     """Requests test cases."""
@@ -94,6 +92,11 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             "http://example.com/path?key=value#fragment", params={"a": "b"})
         self.assertEqual(request.full_url,
             "http://example.com/path?key=value&a=b#fragment")
+
+    def test_params_accepts_kv_list(self):
+        request = requests.Request('http://example.com/path',
+                params=[('a', 'b')])
+        self.assertEqual(request.full_url, 'http://example.com/path?a=b')
 
     def test_HTTP_200_OK_GET(self):
         r = get(httpbin('get'))
@@ -311,10 +314,17 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
             with open(__file__) as f:
                 post2 = post(url, files={'some': f})
+                post3 = post(url, files=[('some', f)])
             self.assertEqual(post2.status_code, 200)
-
-            post3 = post(url, data='[{"some": "json"}]')
             self.assertEqual(post3.status_code, 200)
+
+            post4 = post(url, data='[{"some": "json"}]')
+            self.assertEqual(post4.status_code, 200)
+
+            try:
+                post(url, files=['bad file data'])
+            except ValueError:
+                pass
 
     def test_POSTBIN_GET_POST_FILES_WITH_PARAMS(self):
 
@@ -325,8 +335,13 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
                 post1 = post(url,
                              files={'some': f},
                              data={'some': 'data'})
+                post2 = post(url, data={'some': 'data'}, files=[('some', f)])
+                post3 = post(url, data=[('some', 'data')],
+                        files=[('some', f)])
 
             self.assertEqual(post1.status_code, 200)
+            self.assertEqual(post2.status_code, 200)
+            self.assertEqual(post3.status_code, 200)
 
     def test_POSTBIN_GET_POST_FILES_WITH_HEADERS(self):
 
@@ -351,10 +366,12 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             post1 = post(url, files={'fname.txt': 'fdata'})
             self.assertEqual(post1.status_code, 200)
 
-            post2 = post(url, files={'fname.txt': 'fdata', 'fname2.txt': 'more fdata'})
+            post2 = post(url, files={'fname.txt': 'fdata',
+                    'fname2.txt': 'more fdata'})
             self.assertEqual(post2.status_code, 200)
 
-            post3 = post(url, files={'fname.txt': 'fdata', 'fname2.txt': open(__file__, 'rb')})
+            post3 = post(url, files={'fname.txt': 'fdata',
+                    'fname2.txt': open(__file__, 'rb')})
             self.assertEqual(post3.status_code, 200)
 
             post4 = post(url, files={'fname.txt': 'fdata'})
@@ -376,8 +393,29 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             post7 = post(url, files={'fname.txt': 'fdata to verify'})
             rbody = json.loads(post7.text)
             self.assertTrue(rbody.get('files', None))
-            self.assertTrue(rbody['files'].get('fname.txt'), None)
+            self.assertTrue(rbody['files'].get('fname.txt', None))
             self.assertEqual(rbody['files']['fname.txt'], 'fdata to verify')
+
+            post8 = post(url, files=[('fname.txt', 'fdata')])
+            self.assertEqual(post8.status_code, 200)
+            resp_body = post8.json
+            self.assertTrue(resp_body.get('files', None))
+            self.assertTrue(resp_body['files'].get('fname.txt', None))
+            self.assertEqual(resp_body['files']['fname.txt'], 'fdata')
+
+            post9 = post(url, files=[('fname.txt', fdata)])
+            self.assertEqual(post9.status_code, 200)
+
+            post10 = post(url, files=[('file',
+                        ('file.txt', 'more file data'))])
+            self.assertEqual(post10.status_code, 200)
+
+            post11 = post(url, files=[('fname.txt', 'fdata'),
+                    ('fname2.txt', 'more fdata')])
+            post12 = post(url, files=[('fname.txt', 'fdata'),
+                    ('fname2.txt', open(__file__, 'rb'))])
+            self.assertEqual(post11.status_code, 200)
+            self.assertEqual(post12.status_code, 200)
 
     def test_nonzero_evaluation(self):
 
@@ -933,12 +971,13 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             # Don't choke on headers with none in the value.
             requests.get(httpbin('headers'), headers={'Foo': None})
         except TypeError:
-            self.fail()
+            self.fail('Not able to have none in header values')
 
     def test_danger_mode_redirects(self):
         s = requests.session()
         s.config['danger_mode'] = True
         s.get(httpbin('redirect', '4'))
+
 
     def test_empty_response(self):
         r = requests.get(httpbin('status', '404'))
@@ -984,6 +1023,8 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         r = post(httpbin('post'), data=data, files=files)
         t = json.loads(r.text)
         self.assertEqual(t.get('form'), {'field': ['a', 'b']})
+        self.assertEqual(t.get('files'), files)
+        r = post(httpbin('post'), data=data, files=files.items())
         self.assertEqual(t.get('files'), files)
 
     def test_str_data_content_type(self):
