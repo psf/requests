@@ -277,6 +277,11 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
             r = get(url, auth=auth)
             self.assertEqual(r.status_code, 200)
+            self.assertEqual(len(r.history), 1)
+
+            r = get(url, auth=auth)
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(len(r.history), 0)
 
             r = get(url)
             self.assertEqual(r.status_code, 401)
