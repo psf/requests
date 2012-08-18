@@ -72,7 +72,8 @@ class Session(object):
         verify=True,
         cert=None):
 
-        self.headers = to_key_val_list(headers or [])
+        #self.headers = to_key_val_list(headers or [])
+        self.headers = headers or {}
         self.auth = auth
         self.timeout = timeout
         self.proxies = to_key_val_list(proxies or [])
@@ -160,7 +161,7 @@ class Session(object):
         # Default empty dicts for dict params.
         data = [] if data is None else data
         files = [] if files is None else files
-        headers = [] if headers is None else headers
+        headers = {} if headers is None else headers
         params = [] if params is None else params
         hooks = {} if hooks is None else hooks
         prefetch = prefetch if prefetch is not None else self.prefetch
@@ -171,10 +172,10 @@ class Session(object):
 
         # Expand header values.
         if headers:
-            expanded = []
-            for k, v in to_key_val_list(headers):
-                expanded.append((k, header_expand(v)))
-            headers = expanded
+            #e = [(k, header_expand(v)) for k, v in to_key_val_list(headers)]
+            #headers = e
+            for k, v in list(headers.items()) or {}:
+                headers[k] = header_expand(v)
 
         args = dict(
             method=method,

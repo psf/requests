@@ -977,7 +977,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             # Don't choke on headers with none in the value.
             requests.get(httpbin('headers'), headers={'Foo': None})
         except TypeError:
-            self.fail()
+            self.fail('Not able to have none in header values')
 
     def test_danger_mode_redirects(self):
         s = requests.session()
