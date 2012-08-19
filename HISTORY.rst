@@ -3,6 +3,16 @@
 History
 -------
 
+0.13.7 (2012-08-19)
++++++++++++++++++++
+
+- Support for (key, value) lists everywhere.
+- Digest Authentication improvements.
+- Ensure proxy exclusions work properly.
+- Clearer UnicodeError exceptions.
+- Automatic casting of URLs to tsrings (fURL and such)
+- Bugfixes.
+
 0.13.6 (2012-08-06)
 +++++++++++++++++++
 

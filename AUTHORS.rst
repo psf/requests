@@ -111,3 +111,4 @@ Patches and Suggestions
 - Leila Muhtasib
 - Matthias Rahlf <matthias@webding.de>
 - Jakub Roztocil <jakub@roztocil.name>
+- Ian Cordasco <graffatcolmingov@gmail.com> @sigmavirus24
