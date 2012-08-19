@@ -355,7 +355,7 @@ class Request(object):
         for field, val in fields:
             if isinstance(val, list):
                 for v in val:
-                    new_fields.append((k, str(v)))
+                    new_fields.append((field, str(v)))
             else:
                 new_fields.append((field, str(val)))
 
