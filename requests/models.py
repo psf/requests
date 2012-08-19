@@ -352,6 +352,13 @@ class Request(object):
         fields = to_key_val_list(self.data)
         files = to_key_val_list(files)
 
+        for field, val in fields:
+            if isinstance(val, list):
+                for v in val:
+                    new_fields.append((k, str(v)))
+            else:
+                new_fields.append((field, str(val)))
+
         for (k, v) in files:
             # support for explicit filename
             if isinstance(v, (tuple, list)):
@@ -365,12 +372,6 @@ class Request(object):
                 fp = BytesIO(fp)
             new_fields.append((k, (fn, fp.read())))
 
-        for field, val in fields:
-            if isinstance(val, list):
-                for v in val:
-                    new_fields.append((k, str(v)))
-            else:
-                new_fields.append((field, str(val)))
         body, content_type = encode_multipart_formdata(new_fields)
 
         return body, content_type
