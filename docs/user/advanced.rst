@@ -93,7 +93,9 @@ I don't have SSL setup on this domain, so it fails. Excellent. Github does thoug
 
 You can also pass ``verify`` the path to a CA_BUNDLE file for private certs. You can also set the ``REQUESTS_CA_BUNDLE`` environment variable.
 
-Requests can also ignore verifying the SSL certficate if you set ``verify`` to False. ::
+Requests can also ignore verifying the SSL certficate if you set ``verify`` to False.
+
+::
 
     >>> requests.get('https://kennethreitz.com', verify=False)
     <Response [200]>
@@ -121,7 +123,9 @@ Let's walk through it::
     tarball_url = 'https://github.com/kennethreitz/requests/tarball/master'
     r = requests.get(tarball_url)
 
-The request has been made, but the connection is still open. The response body has not been downloaded yet. ::
+The request has been made, but the connection is still open. The response body has not been downloaded yet.
+
+::
 
     r.content
 
@@ -279,9 +283,7 @@ Streaming Requests
 With ``requests.Response.iter_lines()`` you can easily iterate over streaming
 APIs such as the `Twitter Streaming API <https://dev.twitter.com/docs/streaming-api>`_.
 
-To use the Twitter Streaming API to track the keyword "requests":
-
-::
+To use the Twitter Streaming API to track the keyword "requests"::
 
     import requests
     import json
@@ -312,9 +314,7 @@ Proxies
 -------
 
 If you need to use a proxy, you can configure individual requests with the
-``proxies`` argument to any request method:
-
-::
+``proxies`` argument to any request method::
 
     import requests
 
@@ -335,9 +335,7 @@ You can also configure proxies by environment variables ``HTTP_PROXY`` and ``HTT
     >>> import requests
     >>> requests.get("http://example.org")
 
-To use HTTP Basic Auth with your proxy, use the `http://user:password@host/` syntax:
-
-::
+To use HTTP Basic Auth with your proxy, use the `http://user:password@host/` syntax::
 
     proxies = {
         "http": "http://user:pass@10.10.1.10:3128/",
@@ -399,7 +397,9 @@ into Python objects. Because GitHub returned UTF-8, we should use the
 ``r.text`` method, not the ``r.content`` method. ``r.content`` returns a
 bytestring, while ``r.text`` returns a Unicode-encoded string. I have no plans
 to perform byte-manipulation on this response, so I want any Unicode code
-points encoded.::
+points encoded.
+
+::
 
     >>> import json
     >>> commit_data = json.loads(r.text)
@@ -413,7 +413,9 @@ points encoded.::
 So far, so simple. Well, let's investigate the GitHub API a little bit. Now,
 we could look at the documentation, but we might have a little more fun if we
 use Requests instead. We can take advantage of the Requests OPTIONS verb to
-see what kinds of HTTP methods are supported on the url we just used.::
+see what kinds of HTTP methods are supported on the url we just used.
+
+::
 
     >>> verbs = requests.options(r.url)
     >>> verbs.status_code
@@ -423,7 +425,9 @@ Uh, what? That's unhelpful! Turns out GitHub, like many API providers, don't
 actually implement the OPTIONS method. This is an annoying oversight, but it's
 OK, we can just use the boring documentation. If GitHub had correctly
 implemented OPTIONS, however, they should return the allowed methods in the
-headers, e.g.::
+headers, e.g.
+
+::
 
     >>> verbs = requests.options('http://a-good-website.com/api/cats')
     >>> print verbs.headers['allow']
@@ -435,7 +439,9 @@ we should probably avoid making ham-handed POSTS to it. Instead, let's play
 with the Issues feature of GitHub.
 
 This documentation was added in response to Issue #482. Given that this issue
-already exists, we will use it as an example. Let's start by getting it.::
+already exists, we will use it as an example. Let's start by getting it.
+
+::
 
     >>> r = requests.get('https://api.github.com/repos/kennethreitz/requests/issues/482')
     >>> r.status_code
@@ -446,7 +452,9 @@ already exists, we will use it as an example. Let's start by getting it.::
     >>> print issue[u'comments']
     3
 
-Cool, we have three comments. Let's take a look at the last of them.::
+Cool, we have three comments. Let's take a look at the last of them.
+
+::
 
     >>> r = requests.get(r.url + u'/comments')
     >>> r.status_code
@@ -458,14 +466,18 @@ Cool, we have three comments. Let's take a look at the last of them.::
     Probably in the "advanced" section
 
 Well, that seems like a silly place. Let's post a comment telling the poster
-that he's silly. Who is the poster, anyway?::
+that he's silly. Who is the poster, anyway?
+
+::
 
     >>> print comments[2][u'user'][u'login']
     kennethreitz
 
 OK, so let's tell this Kenneth guy that we think this example should go in the
 quickstart guide instead. According to the GitHub API doc, the way to do this
-is to POST to the thread. Let's do it.::
+is to POST to the thread. Let's do it.
+
+::
 
     >>> body = json.dumps({u"body": u"Sounds great! I'll get right on it!"})
     >>> url = u"https://api.github.com/repos/kennethreitz/requests/issues/482/comments"
@@ -475,7 +487,9 @@ is to POST to the thread. Let's do it.::
 
 Huh, that's weird. We probably need to authenticate. That'll be a pain, right?
 Wrong. Requests makes it easy to use many forms of authentication, including
-the very common Basic Auth.::
+the very common Basic Auth.
+
+::
 
     >>> from requests.auth import HTTPBasicAuth
     >>> auth = HTTPBasicAuth('fake@example.com', 'not_a_real_password')
@@ -489,7 +503,9 @@ the very common Basic Auth.::
 Brilliant. Oh, wait, no! I meant to add that it would take me a while, because
 I had to go feed my cat. If only I could edit this comment! Happily, GitHub
 allows us to use another HTTP verb, PATCH, to edit this comment. Let's do
-that.::
+that.
+
+::
 
     >>> print content[u"id"]
     5804413
@@ -502,7 +518,9 @@ that.::
 Excellent. Now, just to torture this Kenneth guy, I've decided to let him
 sweat and not tell him that I'm working on this. That means I want to delete
 this comment. GitHub lets us delete comments using the incredibly aptly named
-DELETE method. Let's get rid of it.::
+DELETE method. Let's get rid of it.
+
+::
 
     >>> r = requests.delete(url=url, auth=auth)
     >>> r.status_code
@@ -513,7 +531,9 @@ DELETE method. Let's get rid of it.::
 Excellent. All gone. The last thing I want to know is how much of my ratelimit
 I've used. Let's find out. GitHub sends that information in the headers, so
 rather than download the whole page I'll send a HEAD request to get the
-headers.::
+headers.
+
+::
 
     >>> r = requests.head(url=url, auth=auth)
     >>> print r.headers
