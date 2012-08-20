@@ -518,3 +518,36 @@ def default_user_agent():
             '%s/%s' % (_implementation, _implementation_version),
             '%s/%s' % (platform.system(), platform.release()),
         ])
+
+def parse_header_links(value):
+    """Return a dict of parsed link headers proxies.
+
+    i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
+
+    """
+    
+    links = []
+
+    replace_chars = " '\""
+
+    for val in value.split(","):
+        try:
+            url, params = val.split(";", 1)
+        except ValueError:
+            url, params = val, ''
+
+        link = {}
+
+        link["url"] = url.strip("<> '\"")
+
+        for param in params.split(";"):
+            try:
+                key,value = param.split("=")
+            except ValueError:
+                break
+            
+            link[key.strip(replace_chars)] = value.strip(replace_chars)
+
+        links.append(link)
+
+    return links
