@@ -517,10 +517,30 @@ headers.::
 
     >>> r = requests.head(url=url, auth=auth)
     >>> print r.headers
-    // ...snip... //
+    ...
     'x-ratelimit-remaining': '4995'
     'x-ratelimit-limit': '5000'
-    // ...snip... //
+    ...
 
 Excellent. Time to write a Python program that abuses the GitHub API in all
 kinds of exciting ways, 4995 more times.
+
+Link Headers
+------------
+
+Many HTTP APIs feature Link headers. They make APIs more self describing and discoverable.
+
+GitHub uses these for `pagination <http://developer.github.com/v3/#pagination>`_ in their API, for example::
+
+    >>> url = 'https://api.github.com/users/kennethreitz/repos?page=1&per_page=10'
+    >>> r = requests.head(url=url)
+    >>> print r.headers['link']
+    ...
+    'x-ratelimit-remaining': '4995'
+    'x-ratelimit-limit': '5000'
+    ...
+
+Requests will automatically parse these link headers and make them easily consumable:
+
+
+
