@@ -13,7 +13,7 @@ from datetime import datetime
 from io import BytesIO
 
 from .hooks import dispatch_hook, HOOKS
-from .structures import CaseInsensitiveDict, MultiDict
+from .structures import CaseInsensitiveDict
 from .status_codes import codes
 
 from .auth import HTTPBasicAuth, HTTPProxyAuth
