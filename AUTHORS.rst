@@ -112,3 +112,4 @@ Patches and Suggestions
 - Matthias Rahlf <matthias@webding.de>
 - Jakub Roztocil <jakub@roztocil.name>
 - Ian Cordasco <graffatcolmingov@gmail.com> @sigmavirus24
+- Rhys Elsmore
