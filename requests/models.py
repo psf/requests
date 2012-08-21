@@ -362,7 +362,11 @@ class Request(object):
         for (k, v) in files:
             # support for explicit filename
             if isinstance(v, (tuple, list)):
-                fn, fp = v
+                if len(v) == 2:
+                    fn, fp = v
+                    fct = None
+                else:
+                    fn, fp, fct = v
             else:
                 fn = guess_filename(v) or k
                 fp = v
@@ -370,7 +374,7 @@ class Request(object):
                 fp = StringIO(fp)
             if isinstance(fp, bytes):
                 fp = BytesIO(fp)
-            new_fields.append((k, (fn, fp.read())))
+            new_fields.append((k, (fn, fp.read(), fct)))
 
         body, content_type = encode_multipart_formdata(new_fields)
 
