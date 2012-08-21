@@ -360,11 +360,11 @@ class Request(object):
                 new_fields.append((field, str(val)))
 
         for (k, v) in files:
+            fct = None
             # support for explicit filename
             if isinstance(v, (tuple, list)):
                 if len(v) == 2:
                     fn, fp = v
-                    fct = None
                 else:
                     fn, fp, fct = v
             else:
