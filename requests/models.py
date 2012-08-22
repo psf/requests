@@ -330,9 +330,10 @@ class Request(object):
             result = []
             for k, vs in to_key_val_list(data):
                 for v in isinstance(vs, list) and vs or [vs]:
-                    result.append(
-                        (k.encode('utf-8') if isinstance(k, str) else k,
-                         v.encode('utf-8') if isinstance(v, str) else v))
+                    if v is not None:
+                        result.append(
+                            (k.encode('utf-8') if isinstance(k, str) else k,
+                             v.encode('utf-8') if isinstance(v, str) else v))
             return urlencode(result, doseq=True)
         else:
             return data
