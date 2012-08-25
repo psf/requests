@@ -34,14 +34,23 @@ def merge_kwargs(local_kwarg, default_kwarg):
     if local_kwarg is None:
         return default_kwarg
 
+    kwargs = default_kwarg
+    # If default_kwargs is a list rather than a dictionary attempt to convert
+    # to dictionary.  If the check fails, return local_kwargs.
+    if isinstance(default_kwarg, list):
+        try:
+            kwargs = dict(kwargs)
+        except ValueError:
+            return local_kwarg
+
     # Bypass if not a dictionary (e.g. timeout)
-    if not hasattr(default_kwarg, 'items'):
+    if not hasattr(kwargs, 'items'):
         return local_kwarg
 
     local_kwarg = to_key_val_list(local_kwarg)
 
     # Update new values.
-    kwargs = default_kwarg.copy()
+    kwargs = kwargs.copy()
     kwargs.update(local_kwarg)
 
     # Remove keys that are set to None.
