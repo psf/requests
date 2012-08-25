@@ -1112,5 +1112,15 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         Requests.exceptions.InvalidURL instead of UnicodeError."""
         self.assertRaises(InvalidURL, get, 'http://.google.com/')
 
+    def test_none_vals_in_data_are_deleted(self):
+        """Test that keys with None as the value are removed instead of
+        being posted."""
+        data = {'key1': 'value1', 'key2': None}
+        r = post(httpbin('post'), data=data)
+        vals = r.json['form']
+        self.assertEqual(vals['key1'], 'value1')
+        # The 'key2' key should not have been sent.
+        self.assertTrue(vals.get('key2') is None)
+
 if __name__ == '__main__':
     unittest.main()
