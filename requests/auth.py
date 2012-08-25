@@ -78,8 +78,11 @@ class OAuth1(AuthBase):
         # extract_params will not give params unless the body is a properly
         # formatted string, a dictionary or a list of 2-tuples.
         decoded_body = extract_params(r.data)
-        if (contenttype is None or contenttype.lower() == "application/x-www-form-urlencoded")\
-            and decoded_body != None:
+
+        _ct = (contenttype is None)
+        _ct = _ct or contenttype.lower() == CONTENT_TYPE_FORM_URLENCODED
+
+        if _ct and decoded_body != None:
             # extract_params can only check the present r.data and does not know
             # of r.files, thus an extra check is performed. We know that
             # if files are present the request will not have
@@ -155,7 +158,7 @@ class HTTPDigestAuth(AuthBase):
         qop = self.chal.get('qop')
         algorithm = self.chal.get('algorithm', 'MD5')
         opaque = self.chal.get('opaque', None)
-    
+
         algorithm = algorithm.upper()
         # lambdas assume digest modules are imported at the top level
         if algorithm == 'MD5':
@@ -172,32 +175,32 @@ class HTTPDigestAuth(AuthBase):
             hash_utf8 = sha_utf8
         # XXX MD5-sess
         KD = lambda s, d: hash_utf8("%s:%s" % (s, d))
-    
+
         if hash_utf8 is None:
             return None
-    
+
         # XXX not implemented yet
         entdig = None
         p_parsed = urlparse(url)
         path = p_parsed.path
         if p_parsed.query:
             path += '?' + p_parsed.query
-    
+
         A1 = '%s:%s:%s' % (self.username, realm, self.password)
         A2 = '%s:%s' % (method, path)
-    
+
         if qop == 'auth':
             if nonce == self.last_nonce:
                 self.nonce_count += 1
             else:
                 self.nonce_count = 1
-    
+
             ncvalue = '%08x' % self.nonce_count
             s = str(self.nonce_count).encode('utf-8')
             s += nonce.encode('utf-8')
             s += time.ctime().encode('utf-8')
             s += os.urandom(8)
-        
+
             cnonce = (hashlib.sha1(s).hexdigest()[:16])
             noncebit = "%s:%s:%s:%s:%s" % (nonce, ncvalue, cnonce, qop, hash_utf8(A2))
             respdig = KD(hash_utf8(A1), noncebit)
@@ -206,9 +209,9 @@ class HTTPDigestAuth(AuthBase):
         else:
             # XXX handle auth-int.
             return None
-    
+
         self.last_nonce = nonce
-    
+
         # XXX should the partial digests be encoded too?
         base = 'username="%s", realm="%s", nonce="%s", uri="%s", ' \
            'response="%s"' % (self.username, realm, nonce, path, respdig)
@@ -219,7 +222,7 @@ class HTTPDigestAuth(AuthBase):
             base += ', algorithm="%s"' % algorithm
         if qop:
             base += ', qop=auth, nc=%s, cnonce="%s"' % (ncvalue, cnonce)
-    
+
         return 'Digest %s' % (base)
 
     def handle_401(self, r):
@@ -233,7 +236,7 @@ class HTTPDigestAuth(AuthBase):
 
             self.chal = parse_dict_header(s_auth.replace('Digest ', ''))
 
-            # Consume content and release the original connection 
+            # Consume content and release the original connection
             # to allow our new request to reuse the same one.
             r.content
             r.raw.release_conn()
@@ -250,7 +253,7 @@ class HTTPDigestAuth(AuthBase):
     def __call__(self, r):
         # If we have a saved nonce, skip the 401
         if self.last_nonce:
-            r.headers['Authorization'] = self.build_digest_header(r.method, r.url)    
+            r.headers['Authorization'] = self.build_digest_header(r.method, r.url)
         r.register_hook('response', self.handle_401)
         return r
 
