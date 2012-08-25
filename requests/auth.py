@@ -78,7 +78,8 @@ class OAuth1(AuthBase):
         # extract_params will not give params unless the body is a properly
         # formatted string, a dictionary or a list of 2-tuples.
         decoded_body = extract_params(r.data)
-        if contenttype == None and decoded_body != None:
+        if (contenttype is None or contenttype.lower() == "application/x-www-form-urlencoded")\
+            and decoded_body != None:
             # extract_params can only check the present r.data and does not know
             # of r.files, thus an extra check is performed. We know that
             # if files are present the request will not have
