@@ -7,6 +7,7 @@ History
 +++++++++++++++++++
 
 - Fix for OAuth + POSTs
+- Remove exception eating from dispatch_hook.
 - General bugfixes
 
 0.13.8 (2012-08-21)
