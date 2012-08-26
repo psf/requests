@@ -365,7 +365,7 @@ this situation,
 specifies that the default charset must be ``ISO-8859-1``. Requests follows
 the specification in this case. If you require a different encoding, you can
 manually set the ``Response.encoding`` property, or use the raw
-``Request.content``.
+``Response.content``.
 
 HTTP Verbs
 ----------
