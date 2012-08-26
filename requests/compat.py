@@ -89,7 +89,10 @@ if is_py2:
     import cookielib
     from Cookie import Morsel
     from StringIO import StringIO
-    from .packages import chardet
+    try:
+        import cchardet as chardet
+    except ImportError:
+        from .packages import chardet
 
     builtin_str = str
     bytes = str
