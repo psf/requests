@@ -34,6 +34,6 @@ def escape(u):
     TODO: verify whether this can in fact be used for OAuth 2
 
     """
-    if not isinstance(u, unicode):
-        raise ValueError('Only unicode objects are escapable.')
-    return urllib.quote(u.encode('utf-8'), safe='~')
+    if isinstance(u, unicode):
+        u = u.encode('utf-8')
+    return urllib.quote(u, safe='~')

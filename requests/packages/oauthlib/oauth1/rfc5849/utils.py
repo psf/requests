@@ -9,9 +9,9 @@ spec.
 """
 
 import string
+import urllib
 import urllib2
 
-from oauthlib.common import quote, unquote
 
 UNICODE_ASCII_CHARACTER_SET = (string.ascii_letters.decode('ascii') +
     string.digits.decode('ascii'))
@@ -48,17 +48,17 @@ def escape(u):
     .. _`section 3.6`: http://tools.ietf.org/html/rfc5849#section-3.6
 
     """
-    if not isinstance(u, unicode):
-        raise ValueError('Only unicode objects are escapable.')
+    if isinstance(u, unicode):
+        u = u.encode("utf-8")
     # Letters, digits, and the characters '_.-' are already treated as safe
     # by urllib.quote(). We need to add '~' to fully support rfc5849.
-    return quote(u, safe='~')
+    return urllib.quote(u, safe='~')
 
 
 def unescape(u):
-    if not isinstance(u, unicode):
-        raise ValueError('Only unicode objects are unescapable.')
-    return unquote(u)
+    if isinstance(u, unicode):
+        u = u.encode("utf-8")
+    return urllib.unquote(u)
 
 
 def urlencode(query):
