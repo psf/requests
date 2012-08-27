@@ -104,6 +104,9 @@ class Session(object):
         else:
             self.cookies = cookiejar_from_dict(cookies)
 
+    def add_params(self, params_dict):
+        self.params.extend(to_key_val_list(params_dict))
+
     def init_poolmanager(self):
         self.poolmanager = PoolManager(
             num_pools=self.config.get('pool_connections'),
