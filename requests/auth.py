@@ -85,14 +85,13 @@ class OAuth1(AuthBase):
         # of r.files, thus an extra check is performed. We know that
         # if files are present the request will not have
         # Content-type: x-www-form-urlencoded. We guess it will have
-        # a mimetype of multipart/form-encoded and if this is not the case
+        # a mimetype of multipart/form-data and if this is not the case
         # we assume the correct header will be set later.
         _cond = True
         if r.files and contenttype == CONTENT_TYPE_MULTI_PART:
             # Omit body data in the signing and since it will always
             # be empty (cant add paras to body if multipart) and we wish
             # to preserve body.
-            r.headers['Content-Type'] = CONTENT_TYPE_MULTI_PART
             r.url, r.headers, _ = self.client.sign(
                 unicode(r.full_url), unicode(r.method), None, r.headers)
         elif decoded_body != None and contenttype in (CONTENT_TYPE_FORM_URLENCODED, ''):
