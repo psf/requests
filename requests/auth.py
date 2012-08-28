@@ -87,7 +87,7 @@ class OAuth1(AuthBase):
         # Content-type: x-www-form-urlencoded. We guess it will have
         # a mimetype of multipart/form-data and if this is not the case
         # we assume the correct header will be set later.
-        _cond = True
+        _oauth_signed = True
         if r.files and contenttype == CONTENT_TYPE_MULTI_PART:
             # Omit body data in the signing and since it will always
             # be empty (cant add paras to body if multipart) and we wish
@@ -101,8 +101,8 @@ class OAuth1(AuthBase):
             r.url, r.headers, r.data = self.client.sign(
                 unicode(r.full_url), unicode(r.method), r.data, r.headers)
         else:
-            _cond = False
-        if _cond:
+            _oauth_signed = False
+        if _oauth_signed:
             # Both flows add params to the URL by using r.full_url,
             # so this prevents adding it again later
             r.params = {}
