@@ -96,7 +96,8 @@ class OAuth1(AuthBase):
                 unicode(r.full_url), unicode(r.method), None, r.headers)
         elif decoded_body != None and contenttype in (CONTENT_TYPE_FORM_URLENCODED, ''):
             # Normal signing
-            r.headers['Content-Type'] = CONTENT_TYPE_FORM_URLENCODED
+            if not contenttype:
+                r.headers['Content-Type'] = CONTENT_TYPE_FORM_URLENCODED
             r.url, r.headers, r.data = self.client.sign(
                 unicode(r.full_url), unicode(r.method), r.data, r.headers)
         else:
