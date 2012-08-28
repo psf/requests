@@ -811,6 +811,22 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         assert params3['b'] in r3.text
         assert params3['c'] in r3.text
 
+    def test_session_add_params(self):
+
+        params = {'a': 'a_test'}
+
+        s = requests.session(params=params)
+
+        # Make 2 requests from Session object, should send header both times
+        r1 = get(httpbin('get'), session=s)
+        assert params['a'] in r1.text
+
+        s.add_params({'b': 'b_test'})
+
+        r2 = get(httpbin('get'), session=s)
+        assert params['a'] in r2.text
+        assert 'b_test' in r2.text
+
     def test_session_cookies_with_return_response_false(self):
         s = requests.session()
         # return_response=False as it does requests.async.get
