@@ -33,6 +33,7 @@ except ImportError as exc:
 log = logging.getLogger(__name__)
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
+CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
 
 
 def _basic_auth_str(username, password):
@@ -74,34 +75,34 @@ class OAuth1(AuthBase):
         Parameters may be included from the body if the content-type is
         urlencoded, if no content type is set an educated guess is made.
         """
-        contenttype = r.headers.get('Content-Type', None)
+        # split(";") because Content-Type may be "multipart/form-data; boundary=xxxxx"
+        contenttype = r.headers.get('Content-Type', '').split(";")[0].lower()
         # extract_params will not give params unless the body is a properly
         # formatted string, a dictionary or a list of 2-tuples.
         decoded_body = extract_params(r.data)
 
-        _ct = (contenttype is None)
-        _ct = _ct or contenttype.lower() == CONTENT_TYPE_FORM_URLENCODED
-
-        if _ct and decoded_body != None:
-            # extract_params can only check the present r.data and does not know
-            # of r.files, thus an extra check is performed. We know that
-            # if files are present the request will not have
-            # Content-type: x-www-form-urlencoded. We guess it will have
-            # a mimetype of multipart/form-encoded and if this is not the case
-            # we assume the correct header will be set later.
-            if r.files:
-                # Omit body data in the signing and since it will always
-                # be empty (cant add paras to body if multipart) and we wish
-                # to preserve body.
-                r.headers['Content-Type'] = 'multipart/form-encoded'
-                r.url, r.headers, _ = self.client.sign(
-                    unicode(r.full_url), unicode(r.method), None, r.headers)
-            else:
-                # Normal signing
-                r.headers['Content-Type'] = 'application/x-www-form-urlencoded'
-                r.url, r.headers, r.data = self.client.sign(
-                    unicode(r.full_url), unicode(r.method), r.data, r.headers)
-
+        # extract_params can only check the present r.data and does not know
+        # of r.files, thus an extra check is performed. We know that
+        # if files are present the request will not have
+        # Content-type: x-www-form-urlencoded. We guess it will have
+        # a mimetype of multipart/form-data and if this is not the case
+        # we assume the correct header will be set later.
+        _oauth_signed = True
+        if r.files and contenttype == CONTENT_TYPE_MULTI_PART:
+            # Omit body data in the signing and since it will always
+            # be empty (cant add paras to body if multipart) and we wish
+            # to preserve body.
+            r.url, r.headers, _ = self.client.sign(
+                unicode(r.full_url), unicode(r.method), None, r.headers)
+        elif decoded_body != None and contenttype in (CONTENT_TYPE_FORM_URLENCODED, ''):
+            # Normal signing
+            if not contenttype:
+                r.headers['Content-Type'] = CONTENT_TYPE_FORM_URLENCODED
+            r.url, r.headers, r.data = self.client.sign(
+                unicode(r.full_url), unicode(r.method), r.data, r.headers)
+        else:
+            _oauth_signed = False
+        if _oauth_signed:
             # Both flows add params to the URL by using r.full_url,
             # so this prevents adding it again later
             r.params = {}
