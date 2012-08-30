@@ -841,6 +841,17 @@ class Response(object):
         except ValueError:
             return None
 
+    def save_as(self, filename):
+        """ Save the request as the named file. The directory must exists.
+        For big files use a request with prefetch=False.
+        """
+        with open(filename, "w") as fh:
+            if self.request.prefetch:
+                fh.write(self.content)
+                return
+            for chunk in self.iter_content(chunk_size=4 * 1024):
+                fh.write(chunk)
+
     @property
     def links(self):
         """Returns the parsed header links of the response, if any."""

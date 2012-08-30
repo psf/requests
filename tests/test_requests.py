@@ -935,6 +935,23 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
                 get(httpbin('get'), prefetch=False).raw.read()
             )
 
+    def test_save_as(self):
+        """ Test for save_as() """
+        tmp = tempfile.NamedTemporaryFile(delete=True)
+        filename = tmp.name
+
+        ## Without prefetch
+        r = get(httpbin('get'), prefetch=False)
+        r.save_as(filename)
+        with open(filename, "r") as fh:
+            self.assertEqual(fh.read(), get(httpbin('get')).content)
+
+        ## With prefetc
+        r = get(httpbin('get'), prefetch=True)
+        r.save_as(filename)
+        with open(filename, "r") as fh:
+            self.assertEqual(fh.read(), get(httpbin('get')).content)
+
     # def test_safe_mode(self):
 
     #     safe = requests.session(config=dict(safe_mode=True))
