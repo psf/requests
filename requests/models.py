@@ -728,6 +728,7 @@ class Response(object):
         at once into memory for large responses.  The chunk size is the number
         of bytes it should read into memory.  This is not necessarily the
         length of each item returned as decoding can take place.
+        If you want to use this method use a request with prefetch=False.
         """
         if self._content_consumed:
             raise RuntimeError(

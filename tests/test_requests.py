@@ -924,6 +924,17 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         joined = lines[0] + '\n' + lines[1] + '\r\n' + lines[2]
         self.assertEqual(joined, quote)
 
+    def test_iter_content(self):
+        """ Test for iter_content() """
+        # Request a page in chunks and see if it matches the non-chunked page
+        for chunk_size in (1, 10, 42, 1024, 100*1024):
+            r = get(httpbin('get'), prefetch=False)
+            content = "".join(r.iter_content(chunk_size=chunk_size))
+            self.assertEqual(
+                content,
+                get(httpbin('get'), prefetch=False).raw.read()
+            )
+
     # def test_safe_mode(self):
 
     #     safe = requests.session(config=dict(safe_mode=True))
