@@ -60,7 +60,7 @@ class Request(object):
         proxies=None,
         hooks=None,
         config=None,
-        prefetch=True,
+        prefetch=False,
         _poolmanager=None,
         verify=None,
         session=None,
