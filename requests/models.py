@@ -728,6 +728,7 @@ class Response(object):
         at once into memory for large responses.  The chunk size is the number
         of bytes it should read into memory.  This is not necessarily the
         length of each item returned as decoding can take place.
+        If you want to use this method use a request with prefetch=False.
         """
         if self._content_consumed:
             raise RuntimeError(
@@ -839,6 +840,17 @@ class Response(object):
             return json.loads(self.text or self.content)
         except ValueError:
             return None
+
+    def save_as(self, filename):
+        """ Save the request as the named file. The directory must exists.
+        For big files use a request with prefetch=False.
+        """
+        with open(filename, "w") as fh:
+            if self.request.prefetch:
+                fh.write(self.content)
+                return
+            for chunk in self.iter_content(chunk_size=4 * 1024):
+                fh.write(chunk)
 
     @property
     def links(self):
