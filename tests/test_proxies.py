@@ -15,7 +15,7 @@ class HTTPSProxyTest(unittest.TestCase):
 
     def test_empty_https_proxy(self):
         proxy = {"https" : "" }
-        result = requests.get(self.smoke_url, verify=False, proxies = proxy)
+        result = requests.get(self.smoke_url, verify = False, proxies = proxy)
         self.assertEqual(result.status_code, 200)
 
 if __name__ == '__main__':
