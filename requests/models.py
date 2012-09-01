@@ -60,7 +60,7 @@ class Request(object):
         proxies=None,
         hooks=None,
         config=None,
-        prefetch=True,
+        prefetch=False,
         _poolmanager=None,
         verify=None,
         session=None,
@@ -111,6 +111,10 @@ class Request(object):
         # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})
         self.proxies = dict(proxies or [])
 
+        for type,uri in self.proxies.items():
+            if not uri:
+                del self.proxies[type]
+        
         # If no proxies are given, allow configuration by environment variables
         # HTTP_PROXY and HTTPS_PROXY.
         if not self.proxies and self.config.get('trust_env'):
