@@ -3,6 +3,11 @@
 History
 -------
 
+0.14.0 (2012-09-02)
+++++++++++++++++++++
+
+- No more iter_content errors if already downloaded.
+
 0.13.9 (2012-08-25)
 +++++++++++++++++++
 

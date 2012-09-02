@@ -25,16 +25,16 @@ usage:
    >>> r = requests.post("http://httpbin.org/post", data=payload)
    >>> print r.text
    {
-     // ...snip... //
+     ...
      "form": {
        "key2": "value2",
        "key1": "value1"
      },
-     // ...snip... //
+     ...
    }
 
 The other HTTP methods are supported - see `requests.api`. Full documentation
-is at <http://requests.rtfd.org/>.
+is at <http://python-requests.org>.
 
 :copyright: (c) 2012 by Kenneth Reitz.
 :license: ISC, see LICENSE for more details.
@@ -42,8 +42,8 @@ is at <http://requests.rtfd.org/>.
 """
 
 __title__ = 'requests'
-__version__ = '0.13.9'
-__build__ = 0x001309
+__version__ = '0.14.0'
+__build__ = 0x001400
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2012 Kenneth Reitz'
