@@ -116,26 +116,20 @@ If you specify a wrong path or an invalid cert::
 Body Content Workflow
 ---------------------
 
-By default, when you make a request, the body of the response isn't downloaded immediately. The response headers are downloaded when you make a request, but the content isn't downloaded until you access the :class:`Response.content` attribute.
-
-Let's walk through it::
+By default, when you make a request, the body of the response is downloaded immediately. You can override this behavior and defer downloading the response body until you access the :class:`Response.content` attribute with the ``prefetch`` parameter::
 
     tarball_url = 'https://github.com/kennethreitz/requests/tarball/master'
-    r = requests.get(tarball_url)
+    r = requests.get(tarball_url, prefetch=False)
 
-The request has been made, but the connection is still open. The response body has not been downloaded yet.
+At this point only the response headers have been downloaded and the connection remains open, hence allowing us to make content retrieval conditional::
 
-::
+    if int(r.headers['content-length']) < TOO_LONG:
+      content = r.content
+      ...
 
-    r.content
+You can further control the workflow by use of the :class:`Response.iter_content` and :class:`Response.iter_lines` methods, or reading from the underlying urllib3 :class:`urllib3.HTTPResponse` at :class:`Response.raw`.
 
-The content has been downloaded and cached.
-
-You can override this default behavior with the ``prefetch`` parameter::
-
-    r = requests.get(tarball_url, prefetch=True)
-    # Blocks until all of request body has been downloaded.
-
+Note that in versions prior to 0.13.6 the ``prefetch`` default was set to ``False``.
 
 Configuring Requests
 --------------------
