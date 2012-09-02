@@ -360,6 +360,12 @@ def stream_decode_response_unicode(iterator, r):
     if rv:
         yield rv
 
+def iter_slices(string, slice_length):
+    """Iterate over slices of a string."""
+    pos = 0
+    while pos < len(string):
+        yield string[pos:pos+slice_length]
+        pos += slice_length
 
 def get_unicode_from_response(r):
     """Returns the requested content back in unicode.

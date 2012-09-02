@@ -924,6 +924,24 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         joined = lines[0] + '\n' + lines[1] + '\r\n' + lines[2]
         self.assertEqual(joined, quote)
 
+    def test_permissive_iter_content(self):
+        """Test that iter_content and iter_lines work even after the body has been fetched."""
+        r = get(httpbin('stream', '10'), prefetch=True)
+        assert r._content_consumed
+        # iter_lines should still work without crashing
+        self.assertEqual(len(list(r.iter_lines())), 10)
+
+        # iter_content should return a one-item iterator over the whole content
+        iter_content_list = list(r.iter_content(chunk_size=1))
+        self.assertTrue(all(len(item) == 1 for item in iter_content_list))
+        # when joined, it should be exactly the original content
+        self.assertEqual(bytes().join(iter_content_list), r.content)
+
+        # test different chunk sizes:
+        for chunk_size in range(2, 20):
+            self.assertEqual(bytes().join(r.iter_content(chunk_size=chunk_size)), r.content)
+
+
     # def test_safe_mode(self):
 
     #     safe = requests.session(config=dict(safe_mode=True))
