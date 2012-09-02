@@ -31,7 +31,7 @@ from .exceptions import (
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
     stream_decode_response_unicode, get_netrc_auth, get_environ_proxies,
-    to_key_val_list, DEFAULT_CA_BUNDLE_PATH, parse_header_links)
+    to_key_val_list, DEFAULT_CA_BUNDLE_PATH, parse_header_links, iter_slices)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
     StringIO, is_py2, chardet, json, builtin_str, numeric_types)
@@ -730,9 +730,8 @@ class Response(object):
         length of each item returned as decoding can take place.
         """
         if self._content_consumed:
-            raise RuntimeError(
-                'The content for this response was already consumed'
-            )
+            # simulate reading small chunks of the content
+            return iter_slices(self._content, chunk_size)
 
         def generate():
             while 1:
