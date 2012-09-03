@@ -15,7 +15,7 @@ from .cookies import cookiejar_from_dict, remove_cookie_by_name
 from .defaults import defaults
 from .models import Request
 from .hooks import dispatch_hook
-from .utils import header_expand, to_key_val_list
+from .utils import header_expand, from_key_val_list
 from .packages.urllib3.poolmanager import PoolManager
 
 
@@ -34,27 +34,19 @@ def merge_kwargs(local_kwarg, default_kwarg):
     if local_kwarg is None:
         return default_kwarg
 
-    kwargs = default_kwarg
-    # If default_kwargs is a list rather than a dictionary attempt to convert
-    # to dictionary.  If the check fails, return local_kwargs.
-    if isinstance(default_kwarg, list):
-        try:
-            kwargs = dict(kwargs)
-        except ValueError:
-            return local_kwarg
-
     # Bypass if not a dictionary (e.g. timeout)
-    if not hasattr(kwargs, 'items'):
+    if not hasattr(default_kwarg, 'items'):
         return local_kwarg
 
-    local_kwarg = to_key_val_list(local_kwarg)
+    default_kwarg = from_key_val_list(default_kwarg)
+    local_kwarg = from_key_val_list(local_kwarg)
 
     # Update new values.
-    kwargs = kwargs.copy()
+    kwargs = default_kwarg.copy()
     kwargs.update(local_kwarg)
 
     # Remove keys that are set to None.
-    for (k, v) in local_kwarg:
+    for (k, v) in local_kwarg.items():
         if v is None:
             del kwargs[k]
 
@@ -81,14 +73,13 @@ class Session(object):
         verify=True,
         cert=None):
 
-        #self.headers = to_key_val_list(headers or [])
-        self.headers = headers or {}
+        self.headers = from_key_val_list(headers or [])
         self.auth = auth
         self.timeout = timeout
-        self.proxies = to_key_val_list(proxies or [])
-        self.hooks = hooks or {}
-        self.params = to_key_val_list(params or [])
-        self.config = config or {}
+        self.proxies = from_key_val_list(proxies or [])
+        self.hooks = from_key_val_list(hooks or {})
+        self.params = from_key_val_list(params or [])
+        self.config = from_key_val_list(config or {})
         self.prefetch = prefetch
         self.verify = verify
         self.cert = cert
@@ -171,7 +162,7 @@ class Session(object):
         data = [] if data is None else data
         files = [] if files is None else files
         headers = {} if headers is None else headers
-        params = [] if params is None else params
+        params = {} if params is None else params
         hooks = {} if hooks is None else hooks
         prefetch = prefetch if prefetch is not None else self.prefetch
 
@@ -181,25 +172,23 @@ class Session(object):
 
         # Expand header values.
         if headers:
-            #e = [(k, header_expand(v)) for k, v in to_key_val_list(headers)]
-            #headers = e
-            for k, v in list(headers.items()) or {}:
+            for k, v in list(headers.items() or {}):
                 headers[k] = header_expand(v)
 
         args = dict(
             method=method,
             url=url,
             data=data,
-            params=params,
-            headers=headers,
+            params=from_key_val_list(params),
+            headers=from_key_val_list(headers),
             cookies=cookies,
             files=files,
             auth=auth,
-            hooks=hooks,
+            hooks=from_key_val_list(hooks),
             timeout=timeout,
             allow_redirects=allow_redirects,
-            proxies=to_key_val_list(proxies),
-            config=config,
+            proxies=from_key_val_list(proxies),
+            config=from_key_val_list(config),
             prefetch=prefetch,
             verify=verify,
             cert=cert,
