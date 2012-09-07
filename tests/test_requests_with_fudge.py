@@ -22,7 +22,7 @@ class TestRequestsWithFudge(unittest.TestCase):
         try:
             requests.get('http://httpbin.org')
             assert False, 'Failed to raise exception'
-        except Exception, e:
+        except Exception as e:
             assert e.message == "'NoneType' object is not iterable"
 
         # and now returning a dictionary
