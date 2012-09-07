@@ -17,10 +17,15 @@ class TestRequestsWithFudge(unittest.TestCase):
 
         TypeError is raised.
         """
-        fake_pm.is_callable().returns_fake().is_a_stub().\
+        fake_r = fake_pm.is_callable().returns_fake().is_a_stub().\
             expects('connection_from_url').returns_fake().\
             expects('urlopen').returns_fake().has_attr(status=200, headers=None)
+        assert 'headers' in fake_r._attributes
+        assert fake_r._attributes['headers'] is None,\
+            "Fake Response headers value is incorrect"
 
+        # fudge extract_cookies_to_jar so i don't have
+        # to worry bout _original_msg attr
         fake_c.is_callable()
         try:
             requests.get('http://httpbin.org')
@@ -34,11 +39,11 @@ class TestRequestsWithFudge(unittest.TestCase):
         Fake HTTPResponse lacks headers attr
         so default {} will be returned.
         """
-        fake_pm.is_callable().returns_fake().is_a_stub().\
+        fake_r = fake_pm.is_callable().returns_fake().is_a_stub().\
             expects('connection_from_url').returns_fake().\
             expects('urlopen').returns_fake().has_attr(status=200)
+        assert 'headers' not in fake_r._attributes, "Fake Response had headers"
 
-        fake_c.is_callable()
         requests.get('http://httpbin.org')
 
 if __name__ == '__main__':
