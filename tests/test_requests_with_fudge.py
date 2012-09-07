@@ -13,7 +13,7 @@ class TestRequestsWithFudge(unittest.TestCase):
     def test_requests_build_response(self, fake_pm, fake_c):
         """
         Fake HTTPResponse has a header attr set to None.
-        This was equivalent to the getattr(resp, 'headers', None).
+        This is equivalent to the getattr(resp, 'headers', None).
 
         TypeError is raised.
         """
@@ -31,7 +31,7 @@ class TestRequestsWithFudge(unittest.TestCase):
             assert False, "Unexpected exception"
 
         """
-        Fake HTTPResponse has lacks headers attr
+        Fake HTTPResponse lacks headers attr
         so default {} will be returned.
         """
         fake_pm.is_callable().returns_fake().is_a_stub().\
