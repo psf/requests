@@ -1058,9 +1058,9 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
     def test_prefetch_redirect_bug(self):
         """Test that prefetch persists across redirections."""
         res = get(httpbin('redirect/2'), prefetch=False)
-        # prefetch should persist across the redirect; if it doesn't,
-        # this attempt to iterate will crash because the content has already
-        # been read.
+        # prefetch should persist across the redirect;
+        # the content should not have been consumed
+        self.assertFalse(res._content_consumed)
         first_line = next(res.iter_lines())
         self.assertTrue(first_line.strip().decode('utf-8').startswith('{'))
 
@@ -1068,7 +1068,8 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         """Test that prefetch can be overridden as a kwarg to `send`."""
         req = requests.get(httpbin('get'), return_response=False)
         req.send(prefetch=False)
-        # content should not have been prefetched, and iter_lines should succeed
+        # content should not have been prefetched
+        self.assertFalse(req.response._content_consumed)
         first_line = next(req.response.iter_lines())
         self.assertTrue(first_line.strip().decode('utf-8').startswith('{'))
 
