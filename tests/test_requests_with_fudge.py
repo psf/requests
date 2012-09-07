@@ -23,7 +23,7 @@ class TestRequestsWithFudge(unittest.TestCase):
             requests.get('http://httpbin.org')
             assert False, 'Failed to raise exception'
         except Exception, e:
-            e.message == "'NoneType' object is not iterable"
+            assert e.message == "'NoneType' object is not iterable"
 
         # and now returning a dictionary
         fake_pm.is_callable().returns_fake().is_a_stub().\
