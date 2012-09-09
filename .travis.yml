@@ -7,4 +7,5 @@ env: HTTPBIN_URL=http://httpbin.org/
 script: make travis
 install:
   - pip install nose
+  - pip install fudge
   - pip install . --use-mirrors
