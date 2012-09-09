@@ -285,6 +285,14 @@ class Request(object):
                 except KeyError:
                     pass
 
+                # Remove the authorization header
+                # to avoid leaking credentials
+                self.auth = None
+                try:
+                    del headers['Authorization']
+                except KeyError:
+                    pass
+
                 request = Request(
                     url=url,
                     headers=headers,

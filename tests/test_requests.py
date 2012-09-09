@@ -1141,5 +1141,14 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         # The 'key2' key should not have been sent.
         self.assertTrue(vals.get('key2') is None)
 
+    def test_strip_sensitive_headers_in_redurect(self):
+        """Test that the Cookie and Authorization headers are stripped
+        when following a redirect"""
+        r = requests.get(httpbin('redirect','1'),cookies={"key":"value"},auth=('user','password'))
+        self.assertEquals(r.status_code, 200)
+        self.assertTrue("authorization" not in r.json)
+        self.assertTrue("cookie" not in r.json)
+
+
 if __name__ == '__main__':
     unittest.main()
