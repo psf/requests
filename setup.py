@@ -15,7 +15,6 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
-bytecode = os.getenv('PYTHONDONTWRITEBYTECODE', '0')
 os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 
 packages = [
@@ -69,4 +68,4 @@ setup(
     ),
 )
 
-os.environ['PYTHONDONTWRITEBYTECODE'] = bytecode
+del os.environ['PYTHONDONTWRITEBYTECODE']
