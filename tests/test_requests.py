@@ -924,6 +924,17 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         joined = lines[0] + '\n' + lines[1] + '\r\n' + lines[2]
         self.assertEqual(joined, quote)
 
+    def test_iter_content(self):
+        """ Test for iter_content() """
+        # Request a page in chunks and see if it matches the non-chunked page
+        for chunk_size in (1, 10, 42, 1024, 100*1024):
+            r = get(httpbin('get'), prefetch=False)
+            content = "".join(r.iter_content(chunk_size=chunk_size))
+            self.assertEqual(
+                content,
+                get(httpbin('get'), prefetch=False).raw.read()
+            )
+
     def test_permissive_iter_content(self):
         """Test that iter_content and iter_lines work even after the body has been fetched."""
         r = get(httpbin('stream', '10'), prefetch=True)
@@ -940,7 +951,6 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         # test different chunk sizes:
         for chunk_size in range(2, 20):
             self.assertEqual(bytes().join(r.iter_content(chunk_size=chunk_size)), r.content)
-
 
     # def test_safe_mode(self):
 
