@@ -67,3 +67,5 @@ setup(
         'Programming Language :: Python :: 3.1',
     ),
 )
+
+del os.environ['PYTHONDONTWRITEBYTECODE']
