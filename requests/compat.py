@@ -93,6 +93,7 @@ if is_py2:
         import cchardet as chardet
     except ImportError:
         from .packages import chardet
+    from .packages.urllib3.packages.ordered_dict import OrderedDict
 
     builtin_str = str
     bytes = str
@@ -109,6 +110,7 @@ elif is_py3:
     from http.cookies import Morsel
     from io import StringIO
     from .packages import chardet2 as chardet
+    from collections import OrderedDict
 
     builtin_str = str
     str = str

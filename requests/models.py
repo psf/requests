@@ -34,7 +34,7 @@ from .utils import (
     to_key_val_list, DEFAULT_CA_BUNDLE_PATH, parse_header_links, iter_slices)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    StringIO, is_py2, chardet, json, builtin_str, numeric_types)
+    StringIO, is_py2, chardet, json, builtin_str)
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
