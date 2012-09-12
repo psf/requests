@@ -111,7 +111,7 @@ class Request(object):
         # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})
         self.proxies = dict(proxies or [])
 
-        for proxy_type,uri_ref in self.proxies.items():
+        for proxy_type,uri_ref in list(self.proxies.items()):
             if not uri_ref:
                 del self.proxies[proxy_type]
 
