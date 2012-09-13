@@ -17,6 +17,7 @@ Requests was developed with a few :pep:`20` idioms in mind.
 
 All contributions to Requests should keep these important rules in mind.
 
+.. _`isc`:
 
 ISC License
 -----------
