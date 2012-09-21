@@ -20,7 +20,7 @@ from netrc import netrc, NetrcParseError
 
 from . import __version__
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, urlparse, basestring, bytes, str
+from .compat import quote, urlparse, basestring, bytes, str, OrderedDict
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 
 _hush_pyflakes = (RequestsCookieJar,)
@@ -114,28 +114,49 @@ def guess_filename(obj):
         return name
 
 
-def to_key_val_list(value):
+def from_key_val_list(value):
     """Take an object and test to see if it can be represented as a
-    dictionary. Unless it can not be represented as such, return a list of
-    tuples, e.g.,:
+    dictionary. Unless it can not be represented as such, return an
+    OrderedDict, e.g.,
 
-    >>> to_key_val_list([('key', 'val')])
-    [('key', 'val')]
-    >>> to_key_val_list('string')
-    ValueError: ...
-    >>> to_key_val_list({'key': 'val'})
-    [('key', 'val')]
+    ::
+
+        >>> from_key_val_list([('key', 'val')])
+        OrderedDict([('key', 'val')])
+        >>> from_key_val_list('string')
+        ValueError: need more than 1 value to unpack
+        >>> from_key_val_list({'key': 'val'})
+        OrderedDict([('key', 'val')])
     """
     if value is None:
         return None
 
-    try:
-        dict(value)
-    except ValueError:
-        raise ValueError('Unable to encode lists with elements that are not '
-                '2-tuples.')
+    if isinstance(value, (str, bytes, bool, int)):
+        raise ValueError('cannot encode objects that are not 2-tuples')
 
-    if isinstance(value, dict) or hasattr(value, 'items'):
+    return OrderedDict(value)
+
+
+def to_key_val_list(value):
+    """Take an object and test to see if it can be represented as a
+    dictionary. If it can be, return a list of tuples, e.g.,
+
+    ::
+
+        >>> to_key_val_list([('key', 'val')])
+        [('key', 'val')]
+        >>> to_key_val_list({'key': 'val'})
+        [('key', 'val')]
+        >>> to_key_val_list('string')
+        ValueError: cannot encode objects that are not 2-tuples.
+    """
+    if value is None:
+        return None
+
+    if isinstance(value, (str, bytes, bool, int)):
+        raise ValueError('cannot encode objects that are not 2-tuples')
+
+    if isinstance(value, dict):
         value = value.items()
 
     return list(value)
@@ -531,7 +552,7 @@ def parse_header_links(value):
     i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
 
     """
-    
+
     links = []
 
     replace_chars = " '\""
@@ -551,7 +572,7 @@ def parse_header_links(value):
                 key,value = param.split("=")
             except ValueError:
                 break
-            
+
             link[key.strip(replace_chars)] = value.strip(replace_chars)
 
         links.append(link)
