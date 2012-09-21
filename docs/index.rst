@@ -38,13 +38,7 @@ Requests takes all of the work out of Python HTTP/1.1 — making your integrati
 Testimonials
 ------------
 
-`Kippt <http://kippt.com>`_, `Heroku <http://heroku.com>`_, `PayPal <https://www.paypal.com/>`_,
-`Transifex <https://www.transifex.net/>`_,
-`Native Instruments <http://www.native-instruments.com/>`_, `The Washington Post <http://www.washingtonpost.com/>`_,
-`Twitter, Inc <http://twitter.com>`_,
-`Readability <http://readability.com>`_, and
-Federal US Institutions
-use Requests internally. It has been installed over 100,000 times from PyPI.
+Google, Mozilla, Kippt, Heroku, PayPal, Transifex, Native Instruments, The Washington Post, Twitter, Readability, and Federal US Institutions use Requests internally. It has been downloaded nearly 1,000,000 times from PyPI.
 
 **Armin Ronacher**
     Requests is the perfect example how beautiful an API can be with the
