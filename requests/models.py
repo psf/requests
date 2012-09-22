@@ -462,8 +462,10 @@ class Request(object):
 
     def register_hook(self, event, hook):
         """Properly register a hook."""
-
-        self.hooks[event].append(hook)
+        if isinstance(hook, (list, tuple, set)):
+            self.hooks[event].extend(hook)
+        else:
+            self.hooks[event].append(hook)
 
     def deregister_hook(self, event, hook):
         """Deregister a previously registered hook.
