@@ -744,6 +744,40 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             assert 'foo' in response.text
             assert 'bar' in response.text
 
+    def test_allow_list_of_hooks_to_register_hook(self):
+        """Issue 785: https://github.com/kennethreitz/requests/issues/785"""
+        def add_foo_header(args):
+            if not args.get('headers'):
+                args['headers'] = {}
+
+            args['headers'].update({
+                'X-Foo': 'foo'
+            })
+
+            return args
+
+        def add_bar_header(args):
+            if not args.get('headers'):
+                args['headers'] = {}
+
+            args['headers'].update({
+                'X-Bar': 'bar'
+            })
+
+            return args
+
+        def assert_hooks_are_callable(hooks):
+            for h in hooks['args']:
+                assert callable(h) is True
+
+        hooks = [add_foo_header, add_bar_header]
+        r = requests.models.Request()
+        r.register_hook('args', hooks)
+        assert_hooks_are_callable(r.hooks)
+
+        r = requests.models.Request(hooks={'args': hooks})
+        assert_hooks_are_callable(r.hooks)
+
     def test_session_persistent_cookies(self):
 
         s = requests.session()
