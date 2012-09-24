@@ -1029,6 +1029,12 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         except TypeError:
             self.fail('Not able to have none in header values')
 
+    def test_header_values_can_be_integers(self):
+        try:
+            requests.get(httpbin('headers'), headers={'Content-Length': 0})
+        except TypeError:
+            self.fail('Not able to have integers in header values')
+
     def test_danger_mode_redirects(self):
         s = requests.session()
         s.config['danger_mode'] = True
