@@ -834,6 +834,11 @@ class Response(object):
             #
             # So we try blindly encoding.
             content = str(self.content, errors='replace')
+        except TypeError:
+            # A TypeError can be raised if encoding is None
+            #
+            # So we try blindly encoding.
+            content = str(self.content, errors='replace')
 
         return content
 
