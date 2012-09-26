@@ -828,13 +828,10 @@ class Response(object):
         # Decode unicode from given encoding.
         try:
             content = str(self.content, encoding, errors='replace')
-        except LookupError:
+        except (LookupError, TypeError):
             # A LookupError is raised if the encoding was not found which could
             # indicate a misspelling or similar mistake.
             #
-            # So we try blindly encoding.
-            content = str(self.content, errors='replace')
-        except TypeError:
             # A TypeError can be raised if encoding is None
             #
             # So we try blindly encoding.
