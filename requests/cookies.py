@@ -67,6 +67,10 @@ class MockRequest(object):
     def get_new_headers(self):
         return self._new_headers
 
+    @property
+    def unverifiable(self):
+        return self.is_unverifiable()
+
 
 class MockResponse(object):
     """Wraps a `httplib.HTTPMessage` to mimic a `urllib.addinfourl`.
