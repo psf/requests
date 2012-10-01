@@ -67,9 +67,9 @@ class MockRequest(object):
     def get_new_headers(self):
         return self._new_headers
 
-    def __getattr__(self, name):
-        if name == 'unverifiable':
-            return self.is_unverifiable()
+    @property
+    def unverifiable(self):
+        return self.is_unverifiable()
 
 
 class MockResponse(object):
