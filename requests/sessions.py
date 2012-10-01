@@ -312,6 +312,13 @@ class Session(object):
 
         return self.request('delete', url, **kwargs)
 
+    def clear_cookies(self, cookies=None):
+        """Removes the session's current cookies and creates new cookies .
+
+        :param cookies: (optional) New cookies for the session
+        """
+        self.cookies = cookiejar_from_dict(cookies)
+
     def __getstate__(self):
         return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
 
