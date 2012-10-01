@@ -263,6 +263,7 @@ class Session(object):
         kwargs.setdefault('allow_redirects', True)
         return self.request('options', url, **kwargs)
 
+	#test
     def head(self, url, **kwargs):
         """Sends a HEAD request. Returns :class:`Response` object.
 
