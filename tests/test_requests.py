@@ -778,6 +778,10 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         r = requests.models.Request(hooks={'args': hooks})
         assert_hooks_are_callable(r.hooks)
 
+        hooks.append('string that should not be registered')
+        r = requests.models.Request(hooks={'args': hooks})
+        assert_hooks_are_callable(r.hooks)
+
     def test_session_persistent_cookies(self):
 
         s = requests.session()
