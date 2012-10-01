@@ -159,6 +159,17 @@ class CookieTests(TestBaseMixin, unittest.TestCase):
         self.assertEqual(dictOfCookies, {'myname': 'myvalue'})
         self.assertEqual(dictOfCookies, r.cookies.get_dict())
 
+    def test_clear_cookies(self):
+        """Test that cookies are cleared from a session after being created."""
+        s = requests.session(cookies = {'myname': 'myvalue', 'anothername': 'anothervalue'})
+        
+        #has the cookies?
+        self.assertEqual(len(s.cookies), 2)
+        
+        #get rid of the cookies and check
+        s.clear_cookies()
+        self.assertEqual(len(s.cookies), 0)
+
 
 class LWPCookieJarTest(TestBaseMixin, unittest.TestCase):
     """Check store/load of cookies to FileCookieJar's, specifically LWPCookieJar's."""
