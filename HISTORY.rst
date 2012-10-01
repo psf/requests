@@ -3,6 +3,14 @@
 History
 -------
 
+0.14.1 (2012-10-01)
++++++++++++++++++++
+
+- Python 3.3 Compatibility
+- Simply default accept-encoding
+- Bugfixes
+
+
 0.14.0 (2012-09-02)
 ++++++++++++++++++++
 
