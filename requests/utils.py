@@ -311,11 +311,8 @@ def dict_from_cookiejar(cj):
 
     cookie_dict = {}
 
-    for _, cookies in list(cj._cookies.items()):
-        for _, cookies in list(cookies.items()):
-            for cookie in list(cookies.values()):
-                # print cookie
-                cookie_dict[cookie.name] = cookie.value
+    for cookie in cj:
+        cookie_dict[cookie.name] = cookie.value
 
     return cookie_dict
 
