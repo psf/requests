@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Compatibility code to be able to use `cookielib.CookieJar` with requests.
 
