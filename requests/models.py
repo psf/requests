@@ -462,10 +462,10 @@ class Request(object):
 
     def register_hook(self, event, hook):
         """Properly register a hook."""
-        if isinstance(hook, (list, tuple, set)):
-            self.hooks[event].extend(hook)
-        else:
+        if callable(hook):
             self.hooks[event].append(hook)
+        elif hasattr(hook, '__iter__'):
+            self.hooks[event].extend(h for h in hook if callable(h))
 
     def deregister_hook(self, event, hook):
         """Deregister a previously registered hook.
