@@ -347,6 +347,23 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             self.assertEqual(post2.status_code, 200)
             self.assertEqual(post3.status_code, 200)
 
+    def test_POSTBIN_GET_POST_FILES_WITH_CJK_PARAMS(self):
+
+        for service in SERVICES:
+
+            with open(__file__) as f:
+                url = service('post')
+                post1 = post(url,
+                             files={'some': f},
+                             data={'some': '中文'})
+                post2 = post(url, data={'some': '日本語'}, files=[('some', f)])
+                post3 = post(url, data=[('some', '한국의')],
+                        files=[('some', f)])
+
+            self.assertEqual(post1.status_code, 200)
+            self.assertEqual(post2.status_code, 200)
+            self.assertEqual(post3.status_code, 200)
+
     def test_POSTBIN_GET_POST_FILES_WITH_HEADERS(self):
 
         for service in SERVICES:
