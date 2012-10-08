@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys, os
-import json
+import os
+import sys
 import unittest
 
 # Path hack.

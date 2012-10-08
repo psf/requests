@@ -235,7 +235,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         Python dict of name-value pairs of cookies that meet the requirements."""
         dictionary = {}
         for cookie in iter(self):
-            if (domain == None or cookie.domain == domain) and (path == None
+            if (domain is None or cookie.domain == domain) and (path is None
                                                 or cookie.path == path):
                 dictionary[cookie.name] = cookie.value
         return dictionary
@@ -279,7 +279,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
             if cookie.name == name:
                 if domain is None or cookie.domain == domain:
                     if path is None or cookie.path == path:
-                        if toReturn != None:  # if there are multiple cookies that meet passed in criteria
+                        if toReturn is not None:  # if there are multiple cookies that meet passed in criteria
                             raise CookieConflictError('There are multiple cookies with name, %r' % (name))
                         toReturn = cookie.value  # we will eventually return this as long as no cookie conflict
 
@@ -324,8 +324,7 @@ def create_cookie(name, value, **kwargs):
         comment=None,
         comment_url=None,
         rest={'HttpOnly': None},
-        rfc2109=False,
-        )
+        rfc2109=False,)
 
     badargs = set(kwargs) - set(result)
     if badargs:
@@ -360,8 +359,7 @@ def morsel_to_cookie(morsel):
         comment=morsel['comment'],
         comment_url=bool(morsel['comment']),
         rest={'HttpOnly': morsel['httponly']},
-        rfc2109=False,
-        )
+        rfc2109=False,)
     return c
 
 
