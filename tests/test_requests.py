@@ -336,12 +336,9 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
             with open(__file__) as f:
                 url = service('post')
-                post1 = post(url,
-                             files={'some': f},
-                             data={'some': 'data'})
+                post1 = post(url, data={'some': 'data'}, files={'some': f})
                 post2 = post(url, data={'some': 'data'}, files=[('some', f)])
-                post3 = post(url, data=[('some', 'data')],
-                        files=[('some', f)])
+                post3 = post(url, data=[('some', 'data')], files=[('some', f)])
 
             self.assertEqual(post1.status_code, 200)
             self.assertEqual(post2.status_code, 200)
@@ -353,12 +350,9 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
             with open(__file__) as f:
                 url = service('post')
-                post1 = post(url,
-                             files={'some': f},
-                             data={'some': '中文'})
+                post1 = post(url, data={'some': '中文'}, files={'some': f})
                 post2 = post(url, data={'some': '日本語'}, files=[('some', f)])
-                post3 = post(url, data=[('some', '한국의')],
-                        files=[('some', f)])
+                post3 = post(url, data=[('some', '한국의')], files=[('some', f)])
 
             self.assertEqual(post1.status_code, 200)
             self.assertEqual(post2.status_code, 200)
