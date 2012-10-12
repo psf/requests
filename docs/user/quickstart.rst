@@ -372,10 +372,44 @@ Another popular form of web service protection is Digest Authentication::
 OAuth Authentication
 --------------------
 
-Miguel Araujo's `requests-oauth <http://pypi.python.org/pypi/requests-oauth>`_
-project provides a simple interface for establishing OAuth connections.
-Documentation and examples can be found on the requests-oauth
-`git repository <https://github.com/maraujop/requests-oauth>`_.
+Requests features robust, built-in OAuth support!
+
+OAuth takes many forms, so let's take a look at a few
+
+::
+
+    import requests
+    from requests.auth import OAuth1
+
+    url = u'https://api.twitter.com/1/account/settings.json'
+
+    client_key = u'...'
+    client_secret = u'...'
+    resource_owner_key = u'...'
+    resource_owner_secret = u'...'
+
+
+Query signing::
+
+    queryoauth = OAuth1(client_key, client_secret,
+                        resource_owner_key, resource_owner_secret,
+                        signature_type='query')
+    r = requests.get(url, auth=queryoauth)
+
+Header signing::
+
+    headeroauth = OAuth1(client_key, client_secret,
+                         resource_owner_key, resource_owner_secret,
+                         signature_type='auth_header')
+    r = requests.get(url, auth=headeroauth)
+
+Body signing::
+
+    bodyoauth = OAuth1(client_key, client_secret,
+                       resource_owner_key, resource_owner_secret,
+                       signature_type='body')
+
+    r = requests.post(url, auth=bodyoauth)
 
 
 Redirection and History
