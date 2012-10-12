@@ -374,9 +374,7 @@ OAuth Authentication
 
 Requests features robust, built-in OAuth support!
 
-OAuth takes many forms, so let's take a look at a few
-
-::
+OAuth takes many forms, so let's take a look at a few different forms::
 
     import requests
     from requests.auth import OAuth1
