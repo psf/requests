@@ -1,0 +1,26 @@
+; http://editorconfig.org
+
+; Python files
+
+[*.py]
+indent_style = space
+indent_size = 4
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[requests/packages/chardet*/**.py]
+end_of_line = varies
+trim_trailing_whitespace = false
+
+
+; reStructured Text files
+
+[*.rst]
+indent_style = space
+indent_size = 4
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
