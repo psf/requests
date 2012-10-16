@@ -11,6 +11,7 @@ requests (cookies, auth, proxies).
 
 from copy import deepcopy
 from .compat import cookielib
+from .cache import expand_cache
 from .cookies import cookiejar_from_dict, remove_cookie_by_name
 from .defaults import defaults
 from .models import Request
@@ -81,10 +82,11 @@ class Session(object):
         self.prefetch = prefetch
         self.verify = verify
         self.cert = cert
-        self.cache = cache
+        self.cache = expand_cache(cache)
 
-        from .cache import ReqCache
-        self.cache = ReqCache("test", "memory")
+
+        # from .cache import ReqCache
+        # self.cache = ReqCache("test", "memory")
 
         for (k, v) in list(defaults.items()):
             self.config.setdefault(k, deepcopy(v))
