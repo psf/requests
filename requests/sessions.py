@@ -83,6 +83,7 @@ class Session(object):
         self.prefetch = prefetch
         self.verify = verify
         self.cert = cert
+        self.adapters = {}
 
         for (k, v) in list(defaults.items()):
             self.config.setdefault(k, deepcopy(v))
