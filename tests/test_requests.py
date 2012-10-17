@@ -51,6 +51,7 @@ class TestSetup(object):
             # time.sleep(1)
             _httpbin = True
 
+
 class TestBaseMixin(object):
 
     def assertCookieHas(self, cookie, **kwargs):
@@ -59,6 +60,7 @@ class TestBaseMixin(object):
             cookie_attr = getattr(cookie, attr)
             message = 'Failed comparison for %s: %s != %s' % (attr, cookie_attr, expected_value)
             self.assertEqual(cookie_attr, expected_value, message)
+
 
 class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
     """Requests test cases."""
@@ -903,7 +905,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
     def test_connection_error_with_safe_mode(self):
         config = {'safe_mode': True}
         r = get('http://localhost:1/nope', allow_redirects=False, config=config)
-        assert r.content == None
+        assert r.content is None
 
     # def test_invalid_content(self):
     #     # WARNING: if you're using a terrible DNS provider (comcast),
@@ -1037,7 +1039,6 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         s = requests.session()
         s.config['danger_mode'] = True
         s.get(httpbin('redirect', '4'))
-
 
     def test_empty_response(self):
         r = requests.get(httpbin('status', '404'))
