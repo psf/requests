@@ -60,8 +60,8 @@ class Request(object):
         proxies=None,
         hooks=None,
         config=None,
-        prefetch=True,
-        _poolmanager=None,
+        stream=False,
+        # _poolmanager=None,
         verify=None,
         session=None,
         cert=None):
@@ -160,8 +160,8 @@ class Request(object):
         #: SSL Certificate
         self.cert = cert
 
-        #: Prefetch response content
-        self.prefetch = prefetch
+        #: Stream response content
+        self.stream = stream
 
         if headers:
             headers = CaseInsensitiveDict(self.headers)
@@ -174,7 +174,7 @@ class Request(object):
                 headers[k] = v
 
         self.headers = headers
-        self._poolmanager = _poolmanager
+        # self._poolmanager = _poolmanager
 
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
@@ -306,7 +306,7 @@ class Request(object):
                     verify=self.verify,
                     session=self.session,
                     cert=self.cert,
-                    prefetch=self.prefetch,
+                    stream=self.stream,
                 )
 
                 request.send()
@@ -478,7 +478,7 @@ class Request(object):
         except ValueError:
             return False
 
-    def send(self, anyway=False, prefetch=None):
+    def send(self, anyway=False, stream=None):
         """Sends the request. Returns True if successful, False if not.
         If there was an HTTPError during transmission,
         self.response.status_code will contain the HTTPError code.
@@ -488,8 +488,8 @@ class Request(object):
         :param anyway: If True, request will be sent, even if it has
         already been sent.
 
-        :param prefetch: If not None, will override the request's own setting
-        for prefetch.
+        :param stream: If not None, will override the request's own setting
+        for stream.
         """
 
         # Build the URL
@@ -651,10 +651,10 @@ class Request(object):
             r = dispatch_hook('post_request', self.hooks, self)
             self.__dict__.update(r.__dict__)
 
-            # If prefetch is True, mark content as consumed.
-            if prefetch is None:
-                prefetch = self.prefetch
-            if prefetch:
+            # If stream is False, mark content as consumed.
+            stream = self.stream if stream is None else stream
+
+            if stream:
                 # Save the response.
                 self.response.content
 

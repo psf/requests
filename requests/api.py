@@ -35,7 +35,7 @@ def request(method, url, **kwargs):
     :param session: (optional) A :class:`Session` object to be used for the request.
     :param config: (optional) A configuration dictionary. See ``request.defaults`` for allowed keys and their default values.
     :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
-    :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
+    :param stream: (optional) if ``False``, the response content will be immediately downloaded.
     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
     """
 

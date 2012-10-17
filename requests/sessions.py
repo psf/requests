@@ -56,68 +56,22 @@ def merge_kwargs(local_kwarg, default_kwarg):
 class Session(object):
     """A Requests session."""
 
-    __attrs__ = [
-        'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
-        'params', 'config', 'verify', 'cert', 'prefetch']
-
     def __init__(self,
-        headers=None,
-        cookies=None,
-        auth=None,
-        timeout=None,
         proxies=None,
-        hooks=None,
-        params=None,
-        config=None,
-        prefetch=True,
-        verify=True,
-        cert=None):
+        config=None):
 
-        self.headers = from_key_val_list(headers or [])
-        self.auth = auth
-        self.timeout = timeout
-        self.proxies = from_key_val_list(proxies or [])
-        self.hooks = from_key_val_list(hooks or {})
-        self.params = from_key_val_list(params or [])
-        self.config = from_key_val_list(config or {})
-        self.prefetch = prefetch
-        self.verify = verify
-        self.cert = cert
         self.adapters = {}
-
-        for (k, v) in list(defaults.items()):
-            self.config.setdefault(k, deepcopy(v))
-
-        self.init_poolmanager()
-
-        # Set up a CookieJar to be used by default
-        if isinstance(cookies, cookielib.CookieJar):
-            self.cookies = cookies
-        else:
-            self.cookies = cookiejar_from_dict(cookies)
-
-    def init_poolmanager(self):
-        self.poolmanager = PoolManager(
-            num_pools=self.config.get('pool_connections'),
-            maxsize=self.config.get('pool_maxsize')
-        )
+        self.defaults = {}   # TODO: update defaults from defaults module.
+        self.cookies = cookiejar_from_dict({})
 
     def __repr__(self):
-        return '<requests-client at 0x%x>' % (id(self))
+        return '<http-session at 0x%x>' % (id(self))
 
     def __enter__(self):
         return self
 
     def __exit__(self, *args):
         self.close()
-
-    def close(self):
-        """Dispose of any internal state.
-
-        Currently, this just closes the PoolManager, which closes pooled
-        connections.
-        """
-        self.poolmanager.clear()
 
     def request(self, method, url,
         params=None,
