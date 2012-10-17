@@ -36,7 +36,7 @@ defaults['base_headers'] = {
     'Accept': '*/*'
 }
 
-defaults['verbose'] = None
+# defaults['verbose'] = None
 defaults['max_redirects'] = 30
 defaults['pool_connections'] = 10
 defaults['pool_maxsize'] = 10

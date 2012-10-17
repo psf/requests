@@ -52,6 +52,7 @@ class HTTPAdapter(BaseAdapter):
 
     def send(self, request):
         """Sends request object. Returns Response object."""
+        pass
 
 
 

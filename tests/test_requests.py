@@ -7,6 +7,7 @@
 import sys
 import os
 sys.path.insert(0, os.path.abspath('..'))
+
 import json
 import unittest
 import pickle
@@ -14,7 +15,6 @@ import tempfile
 
 import requests
 from requests.compat import str, StringIO
-# import envoy
 from requests import HTTPError
 from requests import get, post, head, put
 from requests.auth import HTTPBasicAuth, HTTPDigestAuth
