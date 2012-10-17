@@ -40,7 +40,22 @@ REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
 
 
-class Request(object):
+
+class BaseRequest(object):
+    def __init__(self):
+        super(BaseRequest, self).__init__()
+
+        self.url = None
+        self.headers = None
+        self.files = None
+        self.method = None
+        self.data = {}
+        self.params = {}
+        self.auth = None
+
+
+
+class Request(BaseRequest):
     """The :class:`Request <Request>` object. It carries out all functionality
     of Requests. Recommended interface is with the Requests functions.
     """
@@ -160,7 +175,7 @@ class Request(object):
         #: SSL Certificate
         self.cert = cert
 
-        #: Stream response content
+        #: Stream response content?
         self.stream = stream
 
         if headers:
@@ -500,10 +515,10 @@ class Request(object):
         self.__dict__.update(r.__dict__)
 
         # Logging
-        if self.config.get('verbose'):
-            self.config.get('verbose').write('%s   %s   %s\n' % (
-                datetime.now().isoformat(), self.method, url
-            ))
+        # if self.config.get('verbose'):
+            # self.config.get('verbose').write('%s   %s   %s\n' % (
+                # datetime.now().isoformat(), self.method, url
+            # ))
 
         # Use .netrc auth if none was provided.
         if not self.auth and self.config.get('trust_env'):
@@ -842,10 +857,7 @@ class Response(object):
     @property
     def json(self):
         """Returns the json-encoded content of a response, if any."""
-        try:
-            return json.loads(self.text or self.content)
-        except ValueError:
-            return None
+        return json.loads(self.text or self.content)
 
     @property
     def links(self):

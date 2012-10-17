@@ -54,4 +54,3 @@ defaults['store_cookies'] = True
 # }
 
 
-}
