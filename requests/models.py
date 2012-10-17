@@ -360,9 +360,9 @@ class Request(object):
         for field, val in fields:
             if isinstance(val, list):
                 for v in val:
-                    new_fields.append((field, str(v)))
+                    new_fields.append((field, builtin_str(v)))
             else:
-                new_fields.append((field, str(val)))
+                new_fields.append((field, builtin_str(val)))
 
         for (k, v) in files:
             # support for explicit filename
