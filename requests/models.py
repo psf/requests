@@ -735,24 +735,37 @@ class Response(object):
         of bytes it should read into memory.  This is not necessarily the
         length of each item returned as decoding can take place.
         """
-        if self._content_consumed:
-            # simulate reading small chunks of the content
-            return iter_slices(self._content, chunk_size)
+        class IterContent(object):
+            def __init__(self, response, chunk_size, decode_unicode):
+                self.response = response
+                self.chunk_size = chunk_size
+                self.decode_unicode = decode_unicode
+                self._content_consumed = False
 
-        def generate():
-            while 1:
-                chunk = self.raw.read(chunk_size)
-                if not chunk:
-                    break
-                yield chunk
-            self._content_consumed = True
+            def __len__(self):
+                return int(self.response.headers['content-length']) / self.chunk_size
 
-        gen = stream_untransfer(generate(), self)
+            def __iter__(self):
+                if self._content_consumed:
+                    # simulate reading small chunks of the content
+                    return iter_slices(self.response._content, self.chunk_size)
 
-        if decode_unicode:
-            gen = stream_decode_response_unicode(gen, self)
+                def generate():
+                    while 1:
+                        chunk = self.response.raw.read(self.chunk_size)
+                        if not chunk:
+                            break
+                        yield chunk
+                    self._content_consumed = True
 
-        return gen
+                gen = stream_untransfer(generate(), self.response)
+
+                if self.decode_unicode:
+                    gen = stream_decode_response_unicode(gen, self)
+
+                return gen
+
+        return IterContent(self, chunk_size, decode_unicode)
 
     def iter_lines(self, chunk_size=10 * 1024, decode_unicode=None):
         """Iterates over the response data, one line at a time.  This
