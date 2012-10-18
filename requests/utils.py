@@ -378,12 +378,14 @@ def stream_decode_response_unicode(iterator, r):
     if rv:
         yield rv
 
+
 def iter_slices(string, slice_length):
     """Iterate over slices of a string."""
     pos = 0
     while pos < len(string):
-        yield string[pos:pos+slice_length]
+        yield string[pos:pos + slice_length]
         pos += slice_length
+
 
 def get_unicode_from_response(r):
     """Returns the requested content back in unicode.
@@ -542,6 +544,7 @@ def default_user_agent():
             '%s/%s' % (_implementation, _implementation_version),
             '%s/%s' % (platform.system(), platform.release()),
         ])
+
 
 def parse_header_links(value):
     """Return a dict of parsed link headers proxies.

@@ -4,7 +4,11 @@ it verifies that Requests does not leak connections when
 the body of the request is not read.
 """
 
-import gc, os, subprocess, requests, sys
+import gc
+import os
+import requests
+import subprocess
+import sys
 
 
 def main():

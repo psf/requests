@@ -111,7 +111,7 @@ class Request(object):
         # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})
         self.proxies = dict(proxies or [])
 
-        for proxy_type,uri_ref in list(self.proxies.items()):
+        for proxy_type, uri_ref in list(self.proxies.items()):
             if not uri_ref:
                 del self.proxies[proxy_type]
 
@@ -360,9 +360,9 @@ class Request(object):
         for field, val in fields:
             if isinstance(val, list):
                 for v in val:
-                    new_fields.append((field, str(v)))
+                    new_fields.append((field, builtin_str(v)))
             else:
-                new_fields.append((field, str(val)))
+                new_fields.append((field, builtin_str(val)))
 
         for (k, v) in files:
             # support for explicit filename

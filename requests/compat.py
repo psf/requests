@@ -115,5 +115,5 @@ elif is_py3:
     builtin_str = str
     str = str
     bytes = bytes
-    basestring = (str,bytes)
+    basestring = (str, bytes)
     numeric_types = (int, float)
