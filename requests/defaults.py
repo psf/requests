@@ -36,7 +36,7 @@ defaults['base_headers'] = {
     'Accept': '*/*'
 }
 
-defaults['verbose'] = None
+# defaults['verbose'] = None
 defaults['max_redirects'] = 30
 defaults['pool_connections'] = 10
 defaults['pool_maxsize'] = 10
@@ -48,3 +48,9 @@ defaults['keep_alive'] = True
 defaults['encode_uri'] = True
 defaults['trust_env'] = True
 defaults['store_cookies'] = True
+# defaults['adapters'] = {
+#     'http': HTTPAdapter(),
+#     'https' HTTPAdapter()
+# }
+
+

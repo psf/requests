@@ -7,6 +7,7 @@
 import sys
 import os
 sys.path.insert(0, os.path.abspath('..'))
+
 import json
 import unittest
 import pickle
@@ -14,7 +15,6 @@ import tempfile
 
 import requests
 from requests.compat import str, StringIO
-# import envoy
 from requests import HTTPError
 from requests import get, post, head, put
 from requests.auth import HTTPBasicAuth, HTTPDigestAuth
@@ -867,7 +867,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         # return_response=False as it does requests.async.get
         rq = get(httpbin('cookies', 'set', 'k', 'v'), return_response=False,
                  allow_redirects=True, session=s)
-        rq.send(prefetch=True)
+        rq.send(stream=False)
         c = rq.response.json.get('cookies')
         assert 'k' in c
         assert 'k' in s.cookies
@@ -901,7 +901,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         assert 'k' in c
 
         ds1 = pickle.loads(pickle.dumps(requests.session()))
-        ds2 = pickle.loads(pickle.dumps(requests.session(prefetch=False)))
+        ds2 = pickle.loads(pickle.dumps(requests.session(stream=True)))
         assert ds1.prefetch
         assert not ds2.prefetch
 
@@ -935,12 +935,12 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
     def test_cached_response(self):
 
-        r1 = get(httpbin('get'), prefetch=False)
+        r1 = get(httpbin('get'), stream=True)
         assert not r1._content
         assert r1.content
         assert r1.text
 
-        r2 = get(httpbin('get'), prefetch=True)
+        r2 = get(httpbin('get'), stream=False)
         assert r2._content
         assert r2.content
         assert r2.text
@@ -950,7 +950,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         lines = (0, 2, 10, 100)
 
         for i in lines:
-            r = get(httpbin('stream', str(i)), prefetch=False)
+            r = get(httpbin('stream', str(i)), stream=True)
             lines = list(r.iter_lines())
             len_lines = len(lines)
 
@@ -965,7 +965,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         )
 
         # Make a request and monkey-patch its contents
-        r = get(httpbin('get'), prefetch=False)
+        r = get(httpbin('get'), stream=True)
         r.raw = StringIO(quote)
 
         lines = list(r.iter_lines())
@@ -977,7 +977,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
     def test_permissive_iter_content(self):
         """Test that iter_content and iter_lines work even after the body has been fetched."""
-        r = get(httpbin('stream', '10'), prefetch=True)
+        r = get(httpbin('stream', '10'), stream=False)
         assert r._content_consumed
         # iter_lines should still work without crashing
         self.assertEqual(len(list(r.iter_lines())), 10)
@@ -1107,7 +1107,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
     def test_prefetch_redirect_bug(self):
         """Test that prefetch persists across redirections."""
-        res = get(httpbin('redirect/2'), prefetch=False)
+        res = get(httpbin('redirect/2'), stream=True)
         # prefetch should persist across the redirect;
         # the content should not have been consumed
         self.assertFalse(res._content_consumed)
@@ -1117,7 +1117,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
     def test_prefetch_return_response_interaction(self):
         """Test that prefetch can be overridden as a kwarg to `send`."""
         req = requests.get(httpbin('get'), return_response=False)
-        req.send(prefetch=False)
+        req.send(stream=True)
         # content should not have been prefetched
         self.assertFalse(req.response._content_consumed)
         first_line = next(req.response.iter_lines())

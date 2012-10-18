@@ -357,8 +357,13 @@ def get_encoding_from_headers(headers):
     if 'charset' in params:
         return params['charset'].strip("'\"")
 
+    # http://www.ietf.org/rfc/rfc2616.txt
     if 'text' in content_type:
         return 'ISO-8859-1'
+
+    # http://www.ietf.org/rfc/rfc4627.txt
+    if 'application/json' in content_type:
+        return 'UTF-8'
 
 
 def stream_decode_response_unicode(iterator, r):
