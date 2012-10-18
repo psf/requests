@@ -24,7 +24,7 @@ class RequestsTestSuite(unittest.TestCase):
     _multiprocess_can_split_ = True
 
     def test_addition(self):
-        assert (1 + 1) == 2
+        self.assertEqual(2, 1 + 1)
 
     def test_ssl_hostname_ok(self):
         requests.get('https://github.com', verify=True)
@@ -79,7 +79,7 @@ class RequestsTestSuite(unittest.TestCase):
         '''
         r = requests.get('http://www.marketwire.com/mw/release.' +
                          'do?id=1628202&sourceType=3')
-        assert r.ok
+        self.assertTrue(r.ok)
 
     def test_unicode_url_outright(self):
         '''This url visits in my browser'''
@@ -87,7 +87,7 @@ class RequestsTestSuite(unittest.TestCase):
                          'jp-morgan-behauptet-sich-der-spitze-euro' +
                          'p%C3%A4ischer-anleihe-analysten-laut-umf' +
                          'rageergebnissen-1628202.htm')
-        assert r.ok
+        self.assertTrue(r.ok)
 
     def test_redirect_encoding(self):
         '''This url redirects to
@@ -96,7 +96,7 @@ class RequestsTestSuite(unittest.TestCase):
         r = requests.get('http://feedproxy.google.com/~r/Dealipedia' +
                          'News/~3/BQtUJRJeZlo/deal_view_investment.' +
                          'php')
-        assert r.ok
+        self.assertTrue(r.ok)
 
     def test_cookies_on_redirects(self):
         """Test interaction between cookie handling and redirection."""
@@ -117,7 +117,7 @@ class RequestsTestSuite(unittest.TestCase):
         # this redirects to another domain, httpbin.org
         # cookies of the first domain should NOT be sent to the next one
         r3 = s.get(url='http://tinyurl.com/7zp3jnr')
-        assert r3.url == 'http://httpbin.org/cookies'
+        self.assertEqual(r3.url, 'http://httpbin.org/cookies')
         self.assertTrue('preview' not in json.loads(r3.text)['cookies'])
 
 if __name__ == '__main__':
