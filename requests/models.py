@@ -41,9 +41,10 @@ CONTENT_CHUNK_SIZE = 10 * 1024
 
 
 
-class BaseRequest(object):
+class Request(object):
+    """The User-Created Request object"""
     def __init__(self):
-        super(BaseRequest, self).__init__()
+        super(Request, self).__init__()
 
         self.url = None
         self.headers = None
@@ -52,10 +53,25 @@ class BaseRequest(object):
         self.data = {}
         self.params = {}
         self.auth = None
+        self.cookies = None
+        self.timeout = None
+        self.allow_redirects = False
+        self.hooks = None
+        self.config = None
+        self.stream = None
+        self.verify = None
+        self.cert = None
 
 
 
-class Request(BaseRequest):
+class PreparedRequest(object):
+    """docstring for PreparedRequest"""
+    def __init__(self):
+        super(PreparedRequest, self).__init__()
+
+
+
+class OldRequest(BaseRequest):
     """The :class:`Request <Request>` object. It carries out all functionality
     of Requests. Recommended interface is with the Requests functions.
     """
