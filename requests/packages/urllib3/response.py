@@ -131,6 +131,8 @@ class HTTPResponse(object):
             set.)
         """
         content_encoding = self.headers.get('content-encoding')
+        if content_encoding is not None:
+            content_encoding = content_encoding.lower()
         decoder = self.CONTENT_DECODERS.get(content_encoding)
         if decode_content is None:
             decode_content = self._decode_content
