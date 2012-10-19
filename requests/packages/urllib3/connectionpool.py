@@ -91,9 +91,6 @@ class VerifiedHTTPSConnection(HTTPSConnection):
         self.cert_reqs = ssl_req_scheme.get(cert_reqs) or ssl.CERT_NONE
         self.ca_certs = ca_certs
 
-    def set_ssl_version(self, ssl_version):
-        self.ssl_version = ssl_version
-
     def connect(self):
         # Add certificate verification
         sock = socket.create_connection((self.host, self.port), self.timeout)
