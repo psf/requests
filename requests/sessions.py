@@ -58,7 +58,7 @@ class Session(object):
 
     __attrs__ = [
         'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
-        'params', 'config', 'verify', 'cert', 'prefetch']
+        'params', 'config', 'verify', 'cert', 'prefetch', 'ssl_version']
 
     def __init__(self,
         headers=None,
@@ -71,7 +71,8 @@ class Session(object):
         config=None,
         prefetch=True,
         verify=True,
-        cert=None):
+        cert=None,
+        ssl_version=None):
 
         self.headers = from_key_val_list(headers or [])
         self.auth = auth
@@ -83,6 +84,7 @@ class Session(object):
         self.prefetch = prefetch
         self.verify = verify
         self.cert = cert
+        self.ssl_version = ssl_version
 
         for (k, v) in list(defaults.items()):
             self.config.setdefault(k, deepcopy(v))
@@ -133,7 +135,8 @@ class Session(object):
         config=None,
         prefetch=None,
         verify=None,
-        cert=None):
+        cert=None,
+        ssl_version=None):
 
         """Constructs and sends a :class:`Request <Request>`.
         Returns :class:`Response <Response>` object.
@@ -154,6 +157,7 @@ class Session(object):
         :param prefetch: (optional) whether to immediately download the response content. Defaults to ``True``.
         :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
         :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+        :param ssl_version: (optional) The SSL protocol version to use.
         """
 
         method = str(method).upper()
@@ -192,7 +196,8 @@ class Session(object):
             prefetch=prefetch,
             verify=verify,
             cert=cert,
-            _poolmanager=self.poolmanager
+            _poolmanager=self.poolmanager,
+            ssl_version=ssl_version
         )
 
         # merge session cookies into passed-in ones
