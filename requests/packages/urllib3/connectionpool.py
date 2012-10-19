@@ -536,7 +536,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
         connection.set_cert(key_file=self.key_file, cert_file=self.cert_file,
                             cert_reqs=self.cert_reqs, ca_certs=self.ca_certs)
 
-        connection.set_ssl_version(self.ssl_version)
+        connection.ssl_version = self.ssl_version
 
         return connection
 
