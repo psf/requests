@@ -454,9 +454,10 @@ def stream_decompress(iterator, mode='gzip'):
 
 
 def stream_untransfer(gen, resp):
-    if 'gzip' in resp.headers.get('content-encoding', ''):
+    ce = resp.headers.get('content-encoding', '').lower()
+    if 'gzip' in ce:
         gen = stream_decompress(gen, mode='gzip')
-    elif 'deflate' in resp.headers.get('content-encoding', ''):
+    elif 'deflate' in ce:
         gen = stream_decompress(gen, mode='deflate')
 
     return gen
