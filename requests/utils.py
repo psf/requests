@@ -20,7 +20,7 @@ from netrc import netrc, NetrcParseError
 
 from . import __version__
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, urlparse, basestring, bytes, str, OrderedDict
+from .compat import quote, quote_plus, urlparse, basestring, bytes, str, OrderedDict
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 
 _hush_pyflakes = (RequestsCookieJar,)
