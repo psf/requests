@@ -64,7 +64,8 @@ class Request(object):
         _poolmanager=None,
         verify=None,
         session=None,
-        cert=None):
+        cert=None,
+        ssl_version=None):
 
         #: Dictionary of configurations for this request.
         self.config = dict(config or [])
@@ -156,6 +157,9 @@ class Request(object):
 
         #: SSL Verification.
         self.verify = verify
+
+        #: SSL Version
+        self.ssl_version = ssl_version
 
         #: SSL Certificate
         self.cert = cert
@@ -597,6 +601,10 @@ class Request(object):
                 conn.key_file = self.cert[1]
             else:
                 conn.cert_file = self.cert
+
+        if self.ssl_version:
+            if self.ssl_version is not None:
+                conn.ssl_version = self.ssl_version
 
         if not self.sent or anyway:
 
