@@ -12,6 +12,11 @@ import requests.utils
 from requests.compat import is_py3, bytes
 
 
+if is_py3:
+    unichr = chr
+    chr = lambda c: bytes([c])
+
+
 class GuessJSONUTFTests(unittest.TestCase):
     """Tests for the JSON UTF encoding guessing code."""
 
@@ -24,7 +29,6 @@ class GuessJSONUTFTests(unittest.TestCase):
     def test_guess_encoding(self):
         # Throw 4-character ASCII strings (encoded to a UTF encoding)
         # at the guess routine; it should correctly guess all codecs.
-        unichr = chr if is_py3 else __builtins__.unichr
         guess = requests.utils.guess_json_utf
         for c in range(33, 127):  # printable only
             sample = unichr(c) * 4
@@ -36,7 +40,6 @@ class GuessJSONUTFTests(unittest.TestCase):
         # Throw random 4-byte strings at the guess function.
         # Any guess for a UTF encoding is verified, a decode exception
         # is a test failure.
-        chr = (lambda c: bytes([c])) if is_py3 else __builtins__.chr
         guess = requests.utils.guess_json_utf
         for i in range(1000):
             sample = bytes().join(
