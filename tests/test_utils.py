@@ -14,7 +14,9 @@ from requests.compat import is_py3, bytes
 
 if is_py3:
     unichr = chr
-    chr = lambda c: bytes([c])
+    byteschr = lambda c: bytes([c])
+else:
+    byteschr = chr
 
 
 class GuessJSONUTFTests(unittest.TestCase):
@@ -43,7 +45,7 @@ class GuessJSONUTFTests(unittest.TestCase):
         guess = requests.utils.guess_json_utf
         for i in range(1000):
             sample = bytes().join(
-                [chr(random.randrange(256)) for _ in range(4)])
+                [byteschr(random.randrange(256)) for _ in range(4)])
             res = guess(sample)
             if res is not None and res != 'utf-8':
                 # This should decode without errors if this is *really*
