@@ -13,7 +13,7 @@ from requests.compat import is_py3, bytes
 
 
 class GuessJSONUTFTests(unittest.TestCase):
-    """Smoke test for https functionality."""
+    """Tests for the JSON UTF encoding guessing code."""
 
     codecs = (
         'utf-8', 'utf-8-sig',
