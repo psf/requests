@@ -31,7 +31,8 @@ from .exceptions import (
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
     stream_decode_response_unicode, get_netrc_auth, get_environ_proxies,
-    to_key_val_list, DEFAULT_CA_BUNDLE_PATH, parse_header_links, iter_slices)
+    to_key_val_list, DEFAULT_CA_BUNDLE_PATH, parse_header_links, iter_slices,
+    guess_json_utf)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
     StringIO, is_py2, chardet, json, builtin_str)
@@ -842,6 +843,18 @@ class Response(object):
     @property
     def json(self):
         """Returns the json-encoded content of a response, if any."""
+
+        if not self.encoding and len(self.content) > 3:
+            # No encoding set. JSON RFC 4627 section 3 states we should expect
+            # UTF-8, -16 or -32. Detect which one to use; If the detection or
+            # decoding fails, fall back to `self.text` (using chardet to make
+            # a best guess).
+            encoding = guess_json_utf(self.content)
+            if encoding is not None:
+                try:
+                    return json.loads(self.content.decode(encoding))
+                except (ValueError, UnicodeDecodeError):
+                    pass
         try:
             return json.loads(self.text or self.content)
         except ValueError:
