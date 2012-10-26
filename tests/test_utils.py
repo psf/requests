@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import codecs
 import os
 import sys
 import unittest
@@ -47,12 +48,30 @@ class GuessJSONUTFTests(unittest.TestCase):
             sample = bytes().join(
                 [byteschr(random.randrange(256)) for _ in range(4)])
             res = guess(sample)
-            if res is not None and res != 'utf-8':
+            if res is not None:
                 # This should decode without errors if this is *really*
-                # something in this encoding. Skip UTF-8, it is more
-                # picky about valid data.
-                sample.decode(res)
-
+                # something in this encoding. However, UTF-8 is a lot
+                # more picky, so we expect errors there. UTF-16 surrogate
+                # pairs also fail
+                try:
+                    sample.decode(res)
+                except UnicodeDecodeError as e:
+                    self.assertEqual(e.args[0].replace('-', '').lower(),
+                                     res.replace('-', '').lower())
+                    if res == 'utf-8':
+                        self.assertTrue(e.args[-1], (
+                            'invalid continuation byte',
+                            'invalid start byte'))
+                        continue
+                    if res == 'utf-16':
+                        self.assertEqual(e.args[-1], 'unexpected end of data')
+                        self.assertTrue(sample[:2] in (
+                            codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE))
+                        # the second two bytes are in the range \ud800-\udfff
+                        # if someone wants to add tests for that as well. I don't
+                        # see the need; we are not testing UTF decoding here.
+                        continue
+                    raise
 
 if __name__ == '__main__':
     unittest.main()
