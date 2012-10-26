@@ -1192,5 +1192,24 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         # The 'key2' key should not have been sent.
         self.assertTrue(vals.get('key2') is None)
 
+
+    def test_handling_of_percent_encoded_domains(self):
+        """Tests that IRIs encoded to URIs [RFC 3987] are handled correctly.
+
+        IRIs can be convert to URIs via percent encoding, instead of using
+        IDNA on the domain name.
+
+        RFC 3987: http://tools.ietf.org/html/rfc3987.html
+        """
+
+        iri = u"http://испытаниепроверка.рф"
+
+        # Corresponding URI.
+        uri = 'http://%D0%B8%D1%81%D0%BF%D1%8B%D1%82%D0%B0%D0%BD%D0%B8%D0%B5%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B0.%D1%80%D1%84'
+
+        r = requests.Request(url=uri)
+        self.assertEqual(r.full_url, 'http://xn--80aaflbobtwmgender6m.xn--p1ai/')
+
+
 if __name__ == '__main__':
     unittest.main()
