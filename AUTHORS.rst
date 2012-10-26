@@ -115,3 +115,4 @@ Patches and Suggestions
 - Rhys Elsmore
 - André Graf (dergraf)
 - Stephen Zhuang (everbird)
+- Ryan Daw <ryan@mobify.com> @rrjamie
