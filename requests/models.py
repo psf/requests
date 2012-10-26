@@ -33,8 +33,8 @@ from .utils import (
     stream_decode_response_unicode, get_netrc_auth, get_environ_proxies,
     to_key_val_list, DEFAULT_CA_BUNDLE_PATH, parse_header_links, iter_slices)
 from .compat import (
-    cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    StringIO, is_py2, chardet, json, builtin_str)
+    cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, unquote,
+    str, bytes, StringIO, is_py2, chardet, json, builtin_str)
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
@@ -398,6 +398,17 @@ class Request(object):
 
         if not scheme in SCHEMAS:
             raise InvalidSchema("Invalid scheme %r" % scheme)
+
+        try:
+            # If the URL is completely ASCII, we convert any percent-quote
+            # encoded characters. If it contains Unicode, it would not have been
+            # percent-quote encoded, and this will fail appropriately.
+            if is_py2:
+                netloc = unquote(netloc.encode('ascii')).decode('utf-8')
+            else:
+                netloc = unquote(netloc, encoding="utf-8")
+        except UnicodeError:
+            pass
 
         try:
             netloc = netloc.encode('idna').decode('utf-8')
