@@ -3,6 +3,16 @@
 History
 -------
 
+0.14.2 (2012-10-27)
++++++++++++++++++++
+
+- Improved mime-compatible JSON handling
+- Proxy fixes
+- Path hack fixes
+- Case-Insensistive Content-Encoding headers
+- Support for CJK parameters in form posts
+
+
 0.14.1 (2012-10-01)
 +++++++++++++++++++
 
