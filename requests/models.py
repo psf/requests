@@ -34,7 +34,7 @@ from .utils import (
     to_key_val_list, DEFAULT_CA_BUNDLE_PATH, parse_header_links, iter_slices)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    StringIO, is_py2, chardet, json, builtin_str)
+    StringIO, is_py2, chardet, json, builtin_str, urldefrag)
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
@@ -445,7 +445,9 @@ class Request(object):
 
         # Proxies use full URLs.
         if p.scheme in self.proxies:
-            return self.full_url
+            url_base, frag = urldefrag(self.full_url)
+            return url_base
+
 
         path = p.path
         if not path:
