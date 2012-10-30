@@ -901,6 +901,9 @@ class Response(object):
         elif 500 <= self.status_code < 600:
             http_error_msg = '%s Server Error: %s' % (self.status_code, self.reason)
 
+        elif not self.status_code:
+            http_error_msg = 'unknown status code: %r' % (self.status_code)
+
         if http_error_msg:
             http_error = HTTPError(http_error_msg)
             http_error.response = self
