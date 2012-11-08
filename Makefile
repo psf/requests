@@ -19,7 +19,7 @@ CI_TESTS=$(shell find tests/ -name "*.py" ! -name "test_requests_ext.py" ! -name
 
 init:
 	python setup.py develop
-	pip install -r requirements.txt
+	pip install -r requirements/tests.txt
 
 test:
 	nosetests ./tests/*
@@ -58,21 +58,7 @@ site:
 clean:
 	git clean -Xfd
 
-deps: urllib3 certs
-
-urllib3:
-	rm -fr requests/packages/urllib3
-	git clone https://github.com/shazow/urllib3.git
-	cd urllib3 && git checkout master && cd ..
-	mv urllib3/urllib3 requests/packages/
-	rm -fr urllib3
-
-oauthlib:
-	rm -fr requests/packages/oauthlib
-	git clone https://github.com/idan/oauthlib.git
-	cd oauthlib && git checkout master && cd ..
-	mv oauthlib/oauthlib requests/packages/
-	rm -fr oauthlib
+deps: certs
 
 certs:
 	cd requests && curl -O https://raw.github.com/kennethreitz/certifi/master/certifi/cacert.pem

@@ -141,7 +141,7 @@ In the rare case that you'd like to get the absolute raw socket response from th
 you can access ``r.raw``::
 
     >>> r.raw
-    <requests.packages.urllib3.response.HTTPResponse object at 0x101194810>
+    <urllib3.response.HTTPResponse object at 0x101194810>
 
     >>> r.raw.read(10)
     '\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03'

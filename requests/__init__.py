@@ -42,7 +42,7 @@ is at <http://python-requests.org>.
 """
 
 __title__ = 'requests'
-__version__ = '0.14.1'
+__version__ = '0.14.2'
 __build__ = 0x001401
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
