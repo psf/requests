@@ -30,7 +30,6 @@ lib
 lib64
 MANIFEST
 nosetests.xml
-nosetests.xml
 parts
 pip-log.txt
 pylint.txt
