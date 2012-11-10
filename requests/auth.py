@@ -31,7 +31,7 @@ except ImportError as exc:
     k = None
 
 try:
-    import ntlm
+    from ntlm import ntlm
 except ImportError as exc:
     ntlm = None
 
