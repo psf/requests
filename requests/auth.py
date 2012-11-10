@@ -424,7 +424,7 @@ class HttpNtlmAuth(AuthBase):
 
         # this is important for some web applications that store authentication-related info in cookies (it took a long time to figure out)        
         if response2.headers.get('set-cookie'):
-            headers['Cookie'] = response2.headers.get('set-cookie')
+            response2.headers['Cookie'] = response2.headers.get('set-cookie')
 
         # get the challenge
         auth_header_value = response2.headers[auth_header_field]
