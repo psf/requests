@@ -419,7 +419,6 @@ class HttpNtlmAuth(AuthBase):
         # we must keep the connection because NTLM authenticates the connection, not single requests
         request.headers["Connection"] = "Keep-Alive"
 
-        print request.headers
         request.send(anyway=True)
         response2 = request.response
 
@@ -435,8 +434,6 @@ class HttpNtlmAuth(AuthBase):
         auth = 'NTLM %s' % ntlm.create_NTLM_AUTHENTICATE_MESSAGE(ServerChallenge, self.username, self.domain, self.password, NegotiateFlags)
         request.headers[auth_header] = auth
         request.headers["Connection"] = "Close"
-
-        print request.headers
 
         request.send(anyway=True)
 
