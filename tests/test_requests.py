@@ -1192,5 +1192,10 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         # The 'key2' key should not have been sent.
         self.assertTrue(vals.get('key2') is None)
 
+    def test_response_len(self):
+        """Test that response.__len__ == len(response.content)"""
+        r = get(httpbin('get'))
+        self.assertEqual(len(r),len(r.content))
+
 if __name__ == '__main__':
     unittest.main()

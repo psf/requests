@@ -724,6 +724,14 @@ class Response(object):
         """Returns true if :attr:`status_code` is 'OK'."""
         return self.ok
 
+    def __len__(self):
+        # try to avoid downloading the content
+        if 'content-length' in self.headers:
+            return int(self.headers['content-length'])
+
+        # but fall back on it if necessary
+        return len(self.content)
+
     @property
     def ok(self):
         try:
