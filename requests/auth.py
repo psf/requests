@@ -30,6 +30,11 @@ try:
 except ImportError as exc:
     k = None
 
+try:
+    import ntlm
+except ImportError as exc:
+    ntlm = None
+
 log = logging.getLogger(__name__)
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
@@ -390,6 +395,8 @@ class HttpNtlmAuth(AuthBase):
             :username   - Username in 'domain\\username' format
             :password   - Password or hash in "ABCDABCDABCDABCD:ABCDABCDABCDABCD" format.
         """
+        if ntlm is None:
+            raise Exception("NTLM libraries unavailable")        
         #parse the username
         user_parts = username.split('\\', 1)
         self.domain = user_parts[0].upper()
