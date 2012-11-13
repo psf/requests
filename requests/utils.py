@@ -539,11 +539,18 @@ def default_user_agent():
         _implementation_version = platform.python_version()  # Complete Guess
     else:
         _implementation_version = 'Unknown'
+        
+    try:
+        p_system = platform.system()
+        p_release = platform.release()
+    except IOError:
+        p_system = 'Unknown'
+        p_release = 'Unknown'
 
     return " ".join([
             'python-requests/%s' % __version__,
             '%s/%s' % (_implementation, _implementation_version),
-            '%s/%s' % (platform.system(), platform.release()),
+            '%s/%s' % (p_system, p_release),
         ])
 
 
