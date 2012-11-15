@@ -1,1 +1,8 @@
-include README.rst LICENSE NOTICE HISTORY.rst tests/* requests/cacert.pem
+include HISTORY.rst
+include LICENSE
+include MANIFEST.in
+include NOTICE
+include README.rst
+include requests/cacert.pem
+recursive-include requirements *
+recursive-include tests *

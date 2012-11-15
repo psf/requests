@@ -12,7 +12,7 @@ This module contains a decorator that implements safe_mode.
 """
 
 from .models import Response
-from .packages.urllib3.response import HTTPResponse
+from urllib3.response import HTTPResponse
 from .exceptions import RequestException, ConnectionError, HTTPError
 import socket
 

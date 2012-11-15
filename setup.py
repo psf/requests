@@ -3,9 +3,6 @@
 import os
 import sys
 
-import requests
-from requests.compat import is_py2
-
 try:
     from setuptools import setup
 except ImportError:
@@ -19,29 +16,13 @@ os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 
 packages = [
     'requests',
-    'requests.packages',
-    'requests.packages.urllib3',
-    'requests.packages.urllib3.packages',
-    'requests.packages.urllib3.packages.ssl_match_hostname'
 ]
 
-if is_py2:
-    packages.extend([
-        'requests.packages.oauthlib',
-        'requests.packages.oauthlib.oauth1',
-        'requests.packages.oauthlib.oauth1.rfc5849',
-        'requests.packages.oauthlib.oauth2',
-        'requests.packages.oauthlib.oauth2.draft25',
-        'requests.packages.chardet',
-    ])
-else:
-    packages.append('requests.packages.chardet2')
-
-requires = []
+install_requires = 'requirements/install.py{0}.txt'.format(sys.version_info[0])
 
 setup(
     name='requests',
-    version=requests.__version__,
+    version='0.14.2',
     description='Python HTTP for Humans.',
     long_description=open('README.rst').read() + '\n\n' +
                      open('HISTORY.rst').read(),
@@ -52,7 +33,7 @@ setup(
     package_data={'': ['LICENSE', 'NOTICE'], 'requests': ['*.pem']},
     package_dir={'requests': 'requests'},
     include_package_data=True,
-    install_requires=requires,
+    install_requires=open(install_requires).read().splitlines(),
     license=open('LICENSE').read(),
     zip_safe=False,
     classifiers=(
