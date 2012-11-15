@@ -647,6 +647,30 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             self.assertEqual(rbody.get('form'), dict(test2='foobar', test3=['foo', 'baz']))
             self.assertEqual(rbody.get('data'), '')
 
+    def test_multivalued_data_encoding(self):
+        """
+        Make sure data encoding works on a value that is an iterable but not
+        a list
+        """
+        for service in SERVICES:
+            # Can't have unicode literals in Python3, so avoid them.
+            # TODO: fixup when moving to Python 3.3
+            if (sys.version_info[0] == 2):
+                nonascii = '\xc3\xa9'.decode('utf-8')
+            else:
+                nonascii = '\xe9'
+
+            r = post(
+                service('post'),
+                data=dict(test=('foo', nonascii)))
+
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r.headers['content-type'], 'application/json')
+
+            rbody = json.loads(r.text)
+            self.assertEqual(rbody.get('form'),
+                             dict(test=['foo', nonascii]))
+
     def test_GET_no_redirect(self):
 
         for service in SERVICES:

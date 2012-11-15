@@ -35,7 +35,7 @@ from .utils import (
     guess_json_utf)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    StringIO, is_py2, chardet, json, builtin_str, urldefrag)
+    StringIO, is_py2, chardet, json, builtin_str, urldefrag, basestring)
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
@@ -334,7 +334,9 @@ class Request(object):
         elif hasattr(data, '__iter__'):
             result = []
             for k, vs in to_key_val_list(data):
-                for v in isinstance(vs, list) and vs or [vs]:
+                if isinstance(vs, basestring) or not hasattr(vs, '__iter__'):
+                    vs = [vs]
+                for v in vs:
                     if v is not None:
                         result.append(
                             (k.encode('utf-8') if isinstance(k, str) else k,
