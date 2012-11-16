@@ -97,7 +97,7 @@ class Request(object):
         #: :class:`Request <Request>`.
         self.data = None
 
-        #: Dictionary or byte of querystring data to attach to the
+        #: Dictionary of querystring data to attach to the
         #: :class:`Request <Request>`. The dictionary values can be lists for representing
         #: multivalued query parameters.
         self.params = None
