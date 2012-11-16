@@ -3,9 +3,6 @@
 import os
 import sys
 
-import requests
-from requests.compat import is_py2
-
 try:
     from setuptools import setup
 except ImportError:
@@ -20,28 +17,43 @@ os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 packages = [
     'requests',
     'requests.packages',
-    'requests.packages.urllib3',
-    'requests.packages.urllib3.packages',
-    'requests.packages.urllib3.packages.ssl_match_hostname'
+    'requests.packages.common',
+    'requests.packages.common.urllib3',
+    'requests.packages.common.urllib3.packages',
+    'requests.packages.common.urllib3.packages.ssl_match_hostname',
+    'requests.packages.environment',
 ]
 
-if is_py2:
-    packages.extend([
-        'requests.packages.oauthlib',
-        'requests.packages.oauthlib.oauth1',
-        'requests.packages.oauthlib.oauth1.rfc5849',
-        'requests.packages.oauthlib.oauth2',
-        'requests.packages.oauthlib.oauth2.draft25',
-        'requests.packages.chardet',
-    ])
+py2packages = [
+    'requests.packages.environment.oauthlib',
+    'requests.packages.environment.oauthlib.oauth1',
+    'requests.packages.environment.oauthlib.oauth1.rfc5849',
+    'requests.packages.environment.oauthlib.oauth2',
+    'requests.packages.environment.oauthlib.oauth2.draft25',
+    'requests.packages.environment.chardet',
+]
+
+py3packages = [
+    'requests.packages.environment.chardet2',
+]
+
+package_dir = {
+    'requests': 'source/requests',
+    'requests.packages.common': 'dependencies/common',
+}
+
+if sys.version_info[0] == 2:
+    packages += py2packages
+    package_dir.update({'requests.packages.environment': 'dependencies/python2'})
 else:
-    packages.append('requests.packages.chardet2')
+    packages += py3packages
+    package_dir.update({'requests.packages.environment': 'dependencies/python3'})
 
 requires = []
 
 setup(
     name='requests',
-    version=requests.__version__,
+    version='0.14.2.dev20121116',
     description='Python HTTP for Humans.',
     long_description=open('README.rst').read() + '\n\n' +
                      open('HISTORY.rst').read(),
@@ -50,7 +62,7 @@ setup(
     url='http://python-requests.org',
     packages=packages,
     package_data={'': ['LICENSE', 'NOTICE'], 'requests': ['*.pem']},
-    package_dir={'requests': 'requests'},
+    package_dir=package_dir,
     include_package_data=True,
     install_requires=requires,
     license=open('LICENSE').read(),
@@ -61,6 +73,7 @@ setup(
         'Natural Language :: English',
         'License :: OSI Approved :: ISC License (ISCL)',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',

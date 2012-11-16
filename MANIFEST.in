@@ -1,1 +1,8 @@
-include README.rst LICENSE NOTICE HISTORY.rst tests/* requests/cacert.pem
+include HISTORY.rst
+include LICENSE
+include NOTICE
+include README.rst
+recursive-include dependencies *
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[cod]

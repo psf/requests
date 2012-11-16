@@ -116,3 +116,4 @@ Patches and Suggestions
 - André Graf (dergraf)
 - Stephen Zhuang (everbird)
 - Martijn Pieters
+- Bruno Miguel Custódio <bruno@brunomcustodio.com>

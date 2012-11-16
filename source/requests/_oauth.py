@@ -16,7 +16,7 @@ try:
     from oauthlib.common import extract_params
     from oauthlib.oauth1.rfc5849 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
 except ImportError:
-    from .packages import oauthlib
+    from .packages.environment import oauthlib
     sys.modules['oauthlib'] = oauthlib
     from oauthlib.oauth1 import rfc5849
     from oauthlib.common import extract_params
