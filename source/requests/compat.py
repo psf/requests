@@ -92,8 +92,8 @@ if is_py2:
     try:
         import cchardet as chardet
     except ImportError:
-        from .packages import chardet
-    from .packages.urllib3.packages.ordered_dict import OrderedDict
+        from .packages.environment import chardet
+    from .packages.common.urllib3.packages.ordered_dict import OrderedDict
 
     builtin_str = str
     bytes = str
@@ -109,7 +109,7 @@ elif is_py3:
     from http import cookiejar as cookielib
     from http.cookies import Morsel
     from io import StringIO
-    from .packages import chardet2 as chardet
+    from .packages.environment import chardet2 as chardet
     from collections import OrderedDict
 
     builtin_str = str

@@ -3,8 +3,7 @@ SHELL := /bin/bash
 # these files should pass pyflakes
 # exclude ./env/, which may contain virtualenv packages
 PYFLAKES_WHITELIST=$(shell find . -name "*.py" ! -path "./docs/*" ! -path "./tests/*" \
-	! -path "./requests/packages/*" ! -path "./env/*" \
-	! -path "./requests/__init__.py" ! -path "./requests/compat.py")
+	! -path "./env/*" ! -path "./requests/__init__.py" ! -path "./requests/compat.py")
 
 # hack: if pyflakes is available, set this to the location of pyflakes
 # if it's not, e.g., in the Python 3 or PyPy Jenkins environments, set it to
@@ -41,7 +40,11 @@ citests:
 
 ci: citests cipyflakes
 
-travis: citests
+travis-tests: citests
+
+travis-setup:
+	pip install --quiet --requirement=requirements.txt --use-mirrors
+	python setup.py install
 
 server:
 	gunicorn httpbin:app --bind=0.0.0.0:7077 &
@@ -61,17 +64,17 @@ clean:
 deps: urllib3 certs
 
 urllib3:
-	rm -fr requests/packages/urllib3
+	rm -fr dependencies/common/urllib3
 	git clone https://github.com/shazow/urllib3.git
 	cd urllib3 && git checkout master && cd ..
-	mv urllib3/urllib3 requests/packages/
+	mvr urllib3/urllib3 dependencies/common
 	rm -fr urllib3
 
 oauthlib:
-	rm -fr requests/packages/oauthlib
+	rm -fr dependencies/python2/oauthlib
 	git clone https://github.com/idan/oauthlib.git
 	cd oauthlib && git checkout master && cd ..
-	mv oauthlib/oauthlib requests/packages/
+	mv oauthlib/oauthlib dependencies/python2/
 	rm -fr oauthlib
 
 certs:
