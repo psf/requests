@@ -73,15 +73,42 @@ class Session(object):
         verify=True,
         cert=None):
 
+        #: A case-insensitive dictionary of headers to be sent on each
+        #: :class:`Request <Request>` sent from this
+        #: :class:`Session <Session>`.
         self.headers = from_key_val_list(headers or [])
+
+        #: Authentication tuple or object to attach to
+        #: :class:`Request <Request>`.
         self.auth = auth
+
+        #: Float describing the timeout of the each :class:`Request <Request>`.
         self.timeout = timeout
+
+        #: Dictionary mapping protocol to the URL of the proxy (e.g.
+        #: {'http': 'foo.bar:3128'}) to be used on each
+        #: :class:`Request <Request>`.
         self.proxies = from_key_val_list(proxies or [])
+
+        #: Event-handling hooks.
         self.hooks = from_key_val_list(hooks or {})
+
+        #: Dictionary of querystring data to attach to each
+        #: :class:`Request <Request>`. The dictionary values may be lists for
+        #: representing multivalued query parameters.
         self.params = from_key_val_list(params or [])
+
+        #: Dictionary of configuration parameters for this
+        #: :class:`Session <Session>`.
         self.config = from_key_val_list(config or {})
+
+        #: Prefetch response content.
         self.prefetch = prefetch
+
+        #: SSL Verification.
         self.verify = verify
+
+        #: SSL certificate.
         self.cert = cert
 
         for (k, v) in list(defaults.items()):
