@@ -78,6 +78,17 @@ class UtilityTests(unittest.TestCase):
         '''This test confirms that the no_proxy environment setting is
         respected by get_environ_proxies().'''
 
+        # Store the current environment settings.
+        try:
+            old_http_proxy = os.environ['http_proxy']
+        except KeyError:
+            old_http_proxy = None
+
+        try:
+            old_no_proxy = os.environ['no_proxy']
+        except KeyError:
+            old_no_proxy = None
+
         # Set up some example environment settings.
         os.environ['http_proxy'] = 'http://www.example.com/'
         os.environ['no_proxy'] = r'localhost,.0.0.1:8080'
@@ -96,6 +107,16 @@ class UtilityTests(unittest.TestCase):
         self.assertEqual(proxy_yes,
                          get_environ_proxies('http://127.0.0.1:8081/'))
 
+        # Return the settings to what they were.
+        if old_http_proxy:
+            os.environ['http_proxy'] = old_http_proxy
+        else:
+            del os.environ['http_proxy']
+
+        if old_no_proxy:
+            os.environ['no_proxy'] = old_no_proxy
+        else:
+            del os.environ['no_proxy']
 
 if __name__ == '__main__':
     unittest.main()
