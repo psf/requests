@@ -11,6 +11,7 @@ requests (cookies, auth, proxies).
 
 from copy import deepcopy
 from .compat import cookielib
+from .cache import expand_cache
 from .cookies import cookiejar_from_dict, remove_cookie_by_name
 from .defaults import defaults
 from .models import Request
@@ -71,7 +72,8 @@ class Session(object):
         config=None,
         prefetch=True,
         verify=True,
-        cert=None):
+        cert=None,
+        cache=None):
 
         #: A case-insensitive dictionary of headers to be sent on each
         #: :class:`Request <Request>` sent from this
@@ -110,6 +112,11 @@ class Session(object):
 
         #: SSL certificate.
         self.cert = cert
+        self.cache = expand_cache(cache)
+
+
+        # from .cache import ReqCache
+        # self.cache = ReqCache("test", "memory")
 
         for (k, v) in list(defaults.items()):
             self.config.setdefault(k, deepcopy(v))

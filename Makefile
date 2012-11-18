@@ -58,7 +58,7 @@ site:
 clean:
 	git clean -Xfd
 
-deps: urllib3 certs
+deps: urllib3 certs oauthlib cachecore
 
 urllib3:
 	rm -fr requests/packages/urllib3
@@ -73,6 +73,12 @@ oauthlib:
 	cd oauthlib && git checkout master && cd ..
 	mv oauthlib/oauthlib requests/packages/
 	rm -fr oauthlib
+
+cachecore:
+	rm -fr requests/packages/cachecore
+	git clone https://github.com/core/cachecore.git
+	mv cachecore/cachecore requests/packages/
+	rm -fr cachecore
 
 certs:
 	cd requests && curl -O https://raw.github.com/kennethreitz/certifi/master/certifi/cacert.pem
