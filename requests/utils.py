@@ -502,7 +502,7 @@ def requote_uri(uri):
     return quote(unquote_unreserved(uri), safe="!#$%&'()*+,/:;=?@[]~")
 
 
-def get_environ_proxies():
+def get_environ_proxies(url):
     """Return a dict of environment proxies."""
 
     proxy_keys = [
@@ -510,11 +510,29 @@ def get_environ_proxies():
         'http',
         'https',
         'ftp',
-        'socks',
-        'no'
+        'socks'
     ]
 
     get_proxy = lambda k: os.environ.get(k) or os.environ.get(k.upper())
+
+    # First check whether no_proxy is defined. If it is, check that the URL
+    # we're getting isn't in the no_proxy list.
+    no_proxy = get_proxy('no_proxy')
+
+    if no_proxy:
+        # We need to check whether we match here. We need to see if we match
+        # the end of the netloc, both with and without the port.
+        no_proxy = no_proxy.split(',')
+        netloc = urlparse(url).netloc
+
+        for host in no_proxy:
+            if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
+                # The URL does match something in no_proxy, so we don't want
+                # to apply the proxies on this URL.
+                return {}
+
+    # If we get here, we either didn't have no_proxy set or we're not going
+    # anywhere that no_proxy applies to.
     proxies = [(key, get_proxy(key + '_proxy')) for key in proxy_keys]
     return dict([(key, val) for (key, val) in proxies if val])
 
