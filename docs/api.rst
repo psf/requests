@@ -38,6 +38,9 @@ They all return an instance of the :class:`Response <Response>` object.
 
 .. autofunction:: session
 
+.. autoclass:: Session
+   :inherited-members:
+
 
 
 Exceptions
