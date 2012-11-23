@@ -461,6 +461,13 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         self.assertFalse(r.error)
         r.raise_for_status()
 
+        r = get(httpbin('status', '200'))
+        # simulate what grequests returns for greenlet failure (timeout, etc.)
+        r.status_code = None
+        r.error = None
+        self.assertRaises(HTTPError, r.raise_for_status)
+        self.assertEquals(False, r.ok)
+
     def test_default_status_raising(self):
         config = {'danger_mode': True}
         args = [httpbin('status', '404')]
