@@ -29,7 +29,9 @@ CERTIFI_BUNDLE_PATH = None
 try:
     # see if requests's own CA certificate bundle is installed
     from . import certs
-    CERTIFI_BUNDLE_PATH = certs.where()
+    path = certs.where()
+    if os.path.exists(path):
+        CERTIFI_BUNDLE_PATH = certs.where()
 except ImportError:
     pass
 
