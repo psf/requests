@@ -9,6 +9,7 @@ import random
 
 # Path hack.
 sys.path.insert(0, os.path.abspath('..'))
+from requests.utils import get_environ_proxies
 import requests.utils
 from requests.compat import is_py3, bytes
 
@@ -20,7 +21,7 @@ else:
     byteschr = chr
 
 
-class GuessJSONUTFTests(unittest.TestCase):
+class UtilityTests(unittest.TestCase):
     """Tests for the JSON UTF encoding guessing code."""
 
     codecs = (
@@ -72,6 +73,50 @@ class GuessJSONUTFTests(unittest.TestCase):
                         # see the need; we are not testing UTF decoding here.
                         continue
                     raise
+
+    def test_get_environ_proxies_respects_no_proxy(self):
+        '''This test confirms that the no_proxy environment setting is
+        respected by get_environ_proxies().'''
+
+        # Store the current environment settings.
+        try:
+            old_http_proxy = os.environ['http_proxy']
+        except KeyError:
+            old_http_proxy = None
+
+        try:
+            old_no_proxy = os.environ['no_proxy']
+        except KeyError:
+            old_no_proxy = None
+
+        # Set up some example environment settings.
+        os.environ['http_proxy'] = 'http://www.example.com/'
+        os.environ['no_proxy'] = r'localhost,.0.0.1:8080'
+
+        # Set up expected proxy return values.
+        proxy_yes = {'http': 'http://www.example.com/'}
+        proxy_no = {}
+
+        # Check that we get the right things back.
+        self.assertEqual(proxy_yes,
+                         get_environ_proxies('http://www.google.com/'))
+        self.assertEqual(proxy_no,
+                         get_environ_proxies('http://localhost/test'))
+        self.assertEqual(proxy_no,
+                         get_environ_proxies('http://127.0.0.1:8080/'))
+        self.assertEqual(proxy_yes,
+                         get_environ_proxies('http://127.0.0.1:8081/'))
+
+        # Return the settings to what they were.
+        if old_http_proxy:
+            os.environ['http_proxy'] = old_http_proxy
+        else:
+            del os.environ['http_proxy']
+
+        if old_no_proxy:
+            os.environ['no_proxy'] = old_no_proxy
+        else:
+            del os.environ['no_proxy']
 
 if __name__ == '__main__':
     unittest.main()
