@@ -119,7 +119,7 @@ class Request(object):
         # If no proxies are given, allow configuration by environment variables
         # HTTP_PROXY and HTTPS_PROXY.
         if not self.proxies and self.config.get('trust_env'):
-            self.proxies = get_environ_proxies()
+            self.proxies = get_environ_proxies(self.url)
 
         self.data = data
         self.params = params
