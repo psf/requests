@@ -92,14 +92,28 @@ class OAuth1(AuthBase):
             # Omit body data in the signing and since it will always
             # be empty (cant add paras to body if multipart) and we wish
             # to preserve body.
-            r.url, r.headers, _ = self.client.sign(
-                unicode(r.full_url), unicode(r.method), None, r.headers)
-        elif decoded_body is not None and contenttype in (CONTENT_TYPE_FORM_URLENCODED, ''):
-            # Normal signing
-            if not contenttype:
-                r.headers['Content-Type'] = CONTENT_TYPE_FORM_URLENCODED
-            r.url, r.headers, r.data = self.client.sign(
-                unicode(r.full_url), unicode(r.method), r.data, r.headers)
+            r.url, r.headers, _ = self.client.sign(unicode(r.full_url),
+                                                   unicode(r.method),
+                                                   None,
+                                                   r.headers)
+        elif (decoded_body is not None and 
+                                  contenttype == CONTENT_TYPE_FORM_URLENCODED):
+            # If the Content-Type header is urlencoded and there are no
+            # illegal characters in the body, assume that the content actually
+            # is urlencoded, and so should be part of the signature.
+            r.url, r.headers, r.data = self.client.sign(unicode(r.full_url),
+                                                        unicode(r.method),
+                                                        r.data,
+                                                        r.headers)
+        elif r.data:
+            # The data we passed was either definitely not urlencoded
+            # (because extract_params returned nothing) or doesn't have a
+            # content header that assures us that it is. Assume then that the
+            # data shouldn't be part of the signature.
+            r.url, r.headers, _ = self.client.sign(unicode(r.full_url),
+                                                   unicode(r.method),
+                                                   None,
+                                                   r.headers)
         else:
             _oauth_signed = False
         if _oauth_signed:
