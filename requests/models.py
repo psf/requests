@@ -9,6 +9,7 @@ This module contains the primary objects that power Requests.
 
 import os
 import socket
+import collections
 from datetime import datetime
 from io import BytesIO
 
@@ -467,10 +468,10 @@ class Request(object):
 
     def register_hook(self, event, hook):
         """Properly register a hook."""
-        if callable(hook):
+        if isinstance(hook, collections.Callable):
             self.hooks[event].append(hook)
         elif hasattr(hook, '__iter__'):
-            self.hooks[event].extend(h for h in hook if callable(h))
+            self.hooks[event].extend(h for h in hook if isinstance(h, collections.Callable))
 
     def deregister_hook(self, event, hook):
         """Deregister a previously registered hook.

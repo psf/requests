@@ -11,6 +11,7 @@ import json
 import unittest
 import pickle
 import tempfile
+import collections
 
 import requests
 from requests.compat import str, StringIO
@@ -805,7 +806,7 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
 
         def assert_hooks_are_callable(hooks):
             for h in hooks['args']:
-                self.assertTrue(callable(h))
+                self.assertTrue(isinstance(h, collections.Callable))
 
         hooks = [add_foo_header, add_bar_header]
         r = requests.models.Request()
