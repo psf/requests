@@ -542,7 +542,11 @@ class Request(object):
                     content_type = 'application/x-www-form-urlencoded'
 
         self.headers['Content-Length'] = '0'
-        if body is not None:
+        if isinstance(body, file):
+            body.seek(0, 2)
+            self.headers['Content-Length'] = str(body.tell())
+            body.seek(0, 0)
+        elif body is not None:
             self.headers['Content-Length'] = str(len(body))
 
         # Add content-type if it wasn't explicitly provided.
