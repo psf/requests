@@ -541,6 +541,14 @@ class Request(object):
                 else:
                     content_type = 'application/x-www-form-urlencoded'
 
+        self.headers['Content-Length'] = '0'
+        if hasattr(body, 'seek') and hasattr(body, 'tell'):
+            body.seek(0, 2)
+            self.headers['Content-Length'] = str(body.tell())
+            body.seek(0, 0)
+        elif body is not None:
+            self.headers['Content-Length'] = str(len(body))
+
         # Add content-type if it wasn't explicitly provided.
         if (content_type) and (not 'content-type' in self.headers):
             self.headers['Content-Type'] = content_type
