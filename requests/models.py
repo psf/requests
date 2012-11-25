@@ -742,7 +742,7 @@ class Response(object):
             return False
         return True
 
-    def iter_content(self, chunk_size=1, decode_unicode=False):
+    def iter_content(self, chunk_size=1, decode_unicode=False, decode_content=True):
         """Iterates over the response data.  This avoids reading the content
         at once into memory for large responses.  The chunk size is the number
         of bytes it should read into memory.  This is not necessarily the
@@ -760,7 +760,8 @@ class Response(object):
                 yield chunk
             self._content_consumed = True
 
-        gen = stream_untransfer(generate(), self)
+        if decode_content:
+            gen = stream_untransfer(generate(), self)
 
         if decode_unicode:
             gen = stream_decode_response_unicode(gen, self)
