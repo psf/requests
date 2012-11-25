@@ -542,7 +542,7 @@ class Request(object):
                     content_type = 'application/x-www-form-urlencoded'
 
         self.headers['Content-Length'] = '0'
-        if isinstance(body, file):
+        if hasattr(body, 'seek') and hasattr(body, 'tell'):
             body.seek(0, 2)
             self.headers['Content-Length'] = str(body.tell())
             body.seek(0, 0)
