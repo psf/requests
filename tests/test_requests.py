@@ -930,6 +930,19 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         ds2 = pickle.loads(pickle.dumps(requests.session(prefetch=False)))
         self.assertTrue(ds1.prefetch)
         self.assertFalse(ds2.prefetch)
+    
+    def test_session_connection_error_with_safe_mode(self):
+        config = {"safe_mode":True}
+
+        s = requests.session()
+        r = s.get("http://localhost:1/nope", timeout=0.1, config=config)
+        self.assertFalse(r.ok)
+        self.assertTrue(r.content is None)
+
+        s2 = requests.session(config=config)
+        r2 = s2.get("http://localhost:1/nope", timeout=0.1)
+        self.assertFalse(r2.ok)
+        self.assertTrue(r2.content is None)
 
     def test_connection_error(self):
         try:
