@@ -25,7 +25,7 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-from constants import eStart, eError, eItsMe
+from .constants import eStart, eError, eItsMe
 
 HZ_cls = ( \
 1,0,0,0,0,0,0,0,  # 00 - 07 

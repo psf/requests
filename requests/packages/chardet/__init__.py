@@ -15,10 +15,10 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-__version__ = "1.0.1"
+__version__ = "2.0.1"
 
 def detect(aBuf):
-    import universaldetector
+    from . import universaldetector
     u = universaldetector.UniversalDetector()
     u.reset()
     u.feed(aBuf)

@@ -25,13 +25,14 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-import constants, sys
-from constants import eStart, eError, eItsMe
-from mbcharsetprober import MultiByteCharSetProber
-from codingstatemachine import CodingStateMachine
-from chardistribution import EUCJPDistributionAnalysis
-from jpcntx import EUCJPContextAnalysis
-from mbcssm import EUCJPSMModel
+from . import constants
+import sys
+from .constants import eStart, eError, eItsMe
+from .mbcharsetprober import MultiByteCharSetProber
+from .codingstatemachine import CodingStateMachine
+from .chardistribution import EUCJPDistributionAnalysis
+from .jpcntx import EUCJPContextAnalysis
+from .mbcssm import EUCJPSMModel
 
 class EUCJPProber(MultiByteCharSetProber):
     def __init__(self):
@@ -51,6 +52,7 @@ class EUCJPProber(MultiByteCharSetProber):
     def feed(self, aBuf):
         aLen = len(aBuf)
         for i in range(0, aLen):
+            # PY3K: aBuf is a byte array, so aBuf[i] is an int, not a byte
             codingState = self._mCodingSM.next_state(aBuf[i])
             if codingState == eError:
                 if constants._debug:

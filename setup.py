@@ -4,7 +4,6 @@ import os
 import sys
 
 import requests
-from requests.compat import is_py3
 
 try:
     from setuptools import setup
@@ -20,13 +19,11 @@ os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 packages = [
     'requests',
     'requests.packages',
+    'requests.packages.chardet'
     'requests.packages.urllib3',
     'requests.packages.urllib3.packages',
     'requests.packages.urllib3.packages.ssl_match_hostname'
 ]
-
-if is_py3:
-    packages.append('requests.packages.chardet2')
 
 requires = []
 

@@ -26,9 +26,8 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-from charsetprober import CharSetProber
-import constants
-import operator
+from .charsetprober import CharSetProber
+from . import constants
 
 FREQ_CAT_NUM = 4
 
@@ -109,7 +108,7 @@ class Latin1Prober(CharSetProber):
     def feed(self, aBuf):
         aBuf = self.filter_with_english_letters(aBuf)
         for c in aBuf:
-            charClass = Latin1_CharToClass[ord(c)]
+            charClass = Latin1_CharToClass[c]
             freq = Latin1ClassModel[(self._mLastCharClass * CLASS_NUM) + charClass]
             if freq == 0:
                 self._mState = constants.eNotMe
@@ -123,7 +122,7 @@ class Latin1Prober(CharSetProber):
         if self.get_state() == constants.eNotMe:
             return 0.01
   
-        total = reduce(operator.add, self._mFreqCounter)
+        total = sum(self._mFreqCounter)
         if total < 0.01:
             confidence = 0.0
         else:

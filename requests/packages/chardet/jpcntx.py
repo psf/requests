@@ -25,7 +25,7 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-import constants
+from . import constants
 
 NUM_OF_CATEGORY = 6
 DONT_KNOW = -1
@@ -129,7 +129,7 @@ class JapaneseContextAnalysis:
         self._mRelSample = [0] * NUM_OF_CATEGORY # category counters, each interger counts sequence in its category
         self._mNeedToSkipCharNum = 0 # if last byte in current buffer is not the last byte of a character, we need to know how many bytes to skip in next buffer
         self._mLastCharOrder = -1 # The order of previous char
-        self._mDone = constants.False # If this flag is set to constants.True, detection is done and conclusion has been made
+        self._mDone = False # If this flag is set to True, detection is done and conclusion has been made
 
     def feed(self, aBuf, aLen):
         if self._mDone: return
@@ -151,7 +151,7 @@ class JapaneseContextAnalysis:
                 if (order != -1) and (self._mLastCharOrder != -1):
                     self._mTotalRel += 1
                     if self._mTotalRel > MAX_REL_THRESHOLD:
-                        self._mDone = constants.True
+                        self._mDone = True
                         break
                     self._mRelSample[jp2CharContext[self._mLastCharOrder][order]] += 1
                 self._mLastCharOrder = order
@@ -166,45 +166,45 @@ class JapaneseContextAnalysis:
         else:
             return DONT_KNOW
 
-    def get_order(self, aStr):
+    def get_order(self, aBuf):
         return -1, 1
         
 class SJISContextAnalysis(JapaneseContextAnalysis):
-    def get_order(self, aStr):
-        if not aStr: return -1, 1
+    def get_order(self, aBuf):
+        if not aBuf: return -1, 1
         # find out current char's byte length
-        if ((aStr[0] >= '\x81') and (aStr[0] <= '\x9F')) or \
-           ((aStr[0] >= '\xE0') and (aStr[0] <= '\xFC')):
+        if ((aBuf[0] >= 0x81) and (aBuf[0] <= 0x9F)) or \
+           ((aBuf[0] >= 0xE0) and (aBuf[0] <= 0xFC)):
             charLen = 2
         else:
             charLen = 1
 
         # return its order if it is hiragana
-        if len(aStr) > 1:
-            if (aStr[0] == '\202') and \
-               (aStr[1] >= '\x9F') and \
-               (aStr[1] <= '\xF1'):
-                return ord(aStr[1]) - 0x9F, charLen
+        if len(aBuf) > 1:
+            if (aBuf[0] == 202) and \
+               (aBuf[1] >= 0x9F) and \
+               (aBuf[1] <= 0xF1):
+                return aBuf[1] - 0x9F, charLen
 
         return -1, charLen
 
 class EUCJPContextAnalysis(JapaneseContextAnalysis):
-    def get_order(self, aStr):
-        if not aStr: return -1, 1
+    def get_order(self, aBuf):
+        if not aBuf: return -1, 1
         # find out current char's byte length
-        if (aStr[0] == '\x8E') or \
-           ((aStr[0] >= '\xA1') and (aStr[0] <= '\xFE')):
+        if (aBuf[0] == 0x8E) or \
+           ((aBuf[0] >= 0xA1) and (aBuf[0] <= 0xFE)):
             charLen = 2
-        elif aStr[0] == '\x8F':
+        elif aBuf[0] == 0x8F:
             charLen = 3
         else:
             charLen = 1
 
         # return its order if it is hiragana
-        if len(aStr) > 1:
-            if (aStr[0] == '\xA4') and \
-               (aStr[1] >= '\xA1') and \
-               (aStr[1] <= '\xF3'):
-                return ord(aStr[1]) - 0xA1, charLen
+        if len(aBuf) > 1:
+            if (aBuf[0] == 0xA4) and \
+               (aBuf[1] >= 0xA1) and \
+               (aBuf[1] <= 0xF3):
+                return aBuf[1] - 0xA1, charLen
 
         return -1, charLen
