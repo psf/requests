@@ -9,6 +9,7 @@ This module contains the primary objects that power Requests.
 
 import os
 import socket
+import collections
 from datetime import datetime
 from io import BytesIO
 
@@ -119,7 +120,7 @@ class Request(object):
         # If no proxies are given, allow configuration by environment variables
         # HTTP_PROXY and HTTPS_PROXY.
         if not self.proxies and self.config.get('trust_env'):
-            self.proxies = get_environ_proxies()
+            self.proxies = get_environ_proxies(self.url)
 
         self.data = data
         self.params = params
@@ -467,10 +468,10 @@ class Request(object):
 
     def register_hook(self, event, hook):
         """Properly register a hook."""
-        if callable(hook):
+        if isinstance(hook, collections.Callable):
             self.hooks[event].append(hook)
         elif hasattr(hook, '__iter__'):
-            self.hooks[event].extend(h for h in hook if callable(h))
+            self.hooks[event].extend(h for h in hook if isinstance(h, collections.Callable))
 
     def deregister_hook(self, event, hook):
         """Deregister a previously registered hook.
@@ -540,6 +541,14 @@ class Request(object):
                     content_type = None
                 else:
                     content_type = 'application/x-www-form-urlencoded'
+
+        self.headers['Content-Length'] = '0'
+        if hasattr(body, 'seek') and hasattr(body, 'tell'):
+            body.seek(0, 2)
+            self.headers['Content-Length'] = str(body.tell())
+            body.seek(0, 0)
+        elif body is not None:
+            self.headers['Content-Length'] = str(len(body))
 
         # Add content-type if it wasn't explicitly provided.
         if (content_type) and (not 'content-type' in self.headers):
