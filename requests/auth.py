@@ -105,7 +105,7 @@ class OAuth1(AuthBase):
                                                         unicode(r.method),
                                                         r.data,
                                                         r.headers)
-        elif r.data:
+        else:
             # The data we passed was either definitely not urlencoded
             # (because extract_params returned nothing) or doesn't have a
             # content header that assures us that it is. Assume then that the
@@ -114,8 +114,6 @@ class OAuth1(AuthBase):
                                                    unicode(r.method),
                                                    None,
                                                    r.headers)
-        else:
-            _oauth_signed = False
         if _oauth_signed:
             # Both flows add params to the URL by using r.full_url,
             # so this prevents adding it again later
