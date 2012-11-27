@@ -4,7 +4,7 @@ import os
 import sys
 
 import requests
-from requests.compat import is_py2
+from requests.compat import is_py3
 
 try:
     from setuptools import setup
@@ -25,16 +25,7 @@ packages = [
     'requests.packages.urllib3.packages.ssl_match_hostname'
 ]
 
-if is_py2:
-    packages.extend([
-        'requests.packages.oauthlib',
-        'requests.packages.oauthlib.oauth1',
-        'requests.packages.oauthlib.oauth1.rfc5849',
-        'requests.packages.oauthlib.oauth2',
-        'requests.packages.oauthlib.oauth2.draft25',
-        'requests.packages.chardet',
-    ])
-else:
+if is_py3:
     packages.append('requests.packages.chardet2')
 
 requires = []
