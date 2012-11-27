@@ -271,18 +271,16 @@ class Request(object):
                 else:
                     method = self.method
 
-                # Do what the browsers do if strict_mode is off...
-                if (not self.config.get('strict_mode')):
+                # Do what the browsers do, despite standards...
+                if r.status_code in (codes.moved, codes.found) and self.method == 'POST':
+                    method = 'GET'
+                    data = None
+                    files = None
 
-                    if r.status_code in (codes.moved, codes.found) and self.method == 'POST':
-                        method = 'GET'
-                        data = None
-                        files = None
-
-                    if (r.status_code == 303) and self.method != 'HEAD':
-                        method = 'GET'
-                        data = None
-                        files = None
+                if (r.status_code == 303) and self.method != 'HEAD':
+                    method = 'GET'
+                    data = None
+                    files = None
 
                 # Remove the cookie headers that were sent.
                 headers = self.headers
