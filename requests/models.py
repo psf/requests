@@ -309,6 +309,7 @@ class Request(object):
                     session=self.session,
                     cert=self.cert,
                     prefetch=self.prefetch,
+                    hooks=self.hooks,
                 )
 
                 request.send()
