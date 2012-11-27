@@ -17,7 +17,6 @@ from .models import Request
 from .hooks import dispatch_hook
 from .utils import header_expand, from_key_val_list
 from .packages.urllib3.poolmanager import PoolManager
-from .safe_mode import catch_exceptions_if_in_safe_mode
 
 
 def merge_kwargs(local_kwarg, default_kwarg):
@@ -268,7 +267,6 @@ class Session(object):
         # Send the HTTP Request.
         return self._send_request(r, **args)
 
-    @catch_exceptions_if_in_safe_mode
     def _send_request(self, r, **kwargs):
         # Send the request.
         r.send(prefetch=kwargs.get("prefetch"))
