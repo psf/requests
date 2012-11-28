@@ -109,7 +109,7 @@ elif is_py3:
     from http import cookiejar as cookielib
     from http.cookies import Morsel
     from io import StringIO
-    from .packages import chardet2 as chardet
+    from .packages import chardet
     from collections import OrderedDict
 
     builtin_str = str
