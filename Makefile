@@ -58,7 +58,7 @@ site:
 clean:
 	git clean -Xfd
 
-deps: urllib3 certs
+deps: urllib3 certs charade
 
 urllib3:
 	rm -fr requests/packages/urllib3
@@ -67,12 +67,12 @@ urllib3:
 	mv urllib3/urllib3 requests/packages/
 	rm -fr urllib3
 
-oauthlib:
-	rm -fr requests/packages/oauthlib
-	git clone https://github.com/idan/oauthlib.git
-	cd oauthlib && git checkout master && cd ..
-	mv oauthlib/oauthlib requests/packages/
-	rm -fr oauthlib
+charade:
+	rm -fr requests/packages/charade
+	git clone https://github.com/sigmavirus24/charade.git
+	cd charade && git checkout master && cd ..
+	mv charade/charade requests/packages/
+	rm -fr charade
 
 certs:
 	cd requests && curl -O https://raw.github.com/kennethreitz/certifi/master/certifi/cacert.pem
