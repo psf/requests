@@ -81,12 +81,6 @@ except ImportError:
 # Specifics
 # ---------
 
-try:
-    import cchardet as chardet
-except ImportError:
-    from .packages import chardet
-
-
 if is_py2:
     from urllib import quote, unquote, quote_plus, unquote_plus, urlencode
     from urlparse import urlparse, urlunparse, urljoin, urlsplit, urldefrag
