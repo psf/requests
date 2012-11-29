@@ -281,49 +281,49 @@ RussianLangModel = ( \
 )
 
 Koi8rModel = { \
-  'charToOrderMap': KOI8R_CharToOrderMap,
-  'precedenceMatrix': RussianLangModel,
-  'mTypicalPositiveRatio': 0.976601,
-  'keepEnglishLetter': False,
-  'charsetName': "KOI8-R"
+  u'charToOrderMap': KOI8R_CharToOrderMap,
+  u'precedenceMatrix': RussianLangModel,
+  u'mTypicalPositiveRatio': 0.976601,
+  u'keepEnglishLetter': False,
+  u'charsetName': u"KOI8-R"
 }
 
 Win1251CyrillicModel = { \
-  'charToOrderMap': win1251_CharToOrderMap,
-  'precedenceMatrix': RussianLangModel,
-  'mTypicalPositiveRatio': 0.976601,
-  'keepEnglishLetter': False,
-  'charsetName': "windows-1251"
+  u'charToOrderMap': win1251_CharToOrderMap,
+  u'precedenceMatrix': RussianLangModel,
+  u'mTypicalPositiveRatio': 0.976601,
+  u'keepEnglishLetter': False,
+  u'charsetName': u"windows-1251"
 }
 
 Latin5CyrillicModel = { \
-  'charToOrderMap': latin5_CharToOrderMap,
-  'precedenceMatrix': RussianLangModel,
-  'mTypicalPositiveRatio': 0.976601,
-  'keepEnglishLetter': False,
-  'charsetName': "ISO-8859-5"
+  u'charToOrderMap': latin5_CharToOrderMap,
+  u'precedenceMatrix': RussianLangModel,
+  u'mTypicalPositiveRatio': 0.976601,
+  u'keepEnglishLetter': False,
+  u'charsetName': u"ISO-8859-5"
 }
 
 MacCyrillicModel = { \
-  'charToOrderMap': macCyrillic_CharToOrderMap,
-  'precedenceMatrix': RussianLangModel,
-  'mTypicalPositiveRatio': 0.976601,
-  'keepEnglishLetter': False,
-  'charsetName': "MacCyrillic"
+  u'charToOrderMap': macCyrillic_CharToOrderMap,
+  u'precedenceMatrix': RussianLangModel,
+  u'mTypicalPositiveRatio': 0.976601,
+  u'keepEnglishLetter': False,
+  u'charsetName': u"MacCyrillic"
 };
 
 Ibm866Model = { \
-  'charToOrderMap': IBM866_CharToOrderMap,
-  'precedenceMatrix': RussianLangModel,
-  'mTypicalPositiveRatio': 0.976601,
-  'keepEnglishLetter': False,
-  'charsetName': "IBM866"
+  u'charToOrderMap': IBM866_CharToOrderMap,
+  u'precedenceMatrix': RussianLangModel,
+  u'mTypicalPositiveRatio': 0.976601,
+  u'keepEnglishLetter': False,
+  u'charsetName': u"IBM866"
 }
 
 Ibm855Model = { \
-  'charToOrderMap': IBM855_CharToOrderMap,
-  'precedenceMatrix': RussianLangModel,
-  'mTypicalPositiveRatio': 0.976601,
-  'keepEnglishLetter': False,
-  'charsetName': "IBM855"
+  u'charToOrderMap': IBM855_CharToOrderMap,
+  u'precedenceMatrix': RussianLangModel,
+  u'mTypicalPositiveRatio': 0.976601,
+  u'keepEnglishLetter': False,
+  u'charsetName': u"IBM855"
 }

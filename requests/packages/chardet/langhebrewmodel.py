@@ -193,9 +193,9 @@ HebrewLangModel = ( \
 )
 
 Win1255HebrewModel = { \
-  'charToOrderMap': win1255_CharToOrderMap,
-  'precedenceMatrix': HebrewLangModel,
-  'mTypicalPositiveRatio': 0.984004,
-  'keepEnglishLetter': False,
-  'charsetName': "windows-1255"
+  u'charToOrderMap': win1255_CharToOrderMap,
+  u'precedenceMatrix': HebrewLangModel,
+  u'mTypicalPositiveRatio': 0.984004,
+  u'keepEnglishLetter': False,
+  u'charsetName': u"windows-1255"
 }

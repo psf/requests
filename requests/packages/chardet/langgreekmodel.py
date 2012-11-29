@@ -209,17 +209,17 @@ GreekLangModel = ( \
 )
 
 Latin7GreekModel = { \
-  'charToOrderMap': Latin7_CharToOrderMap,
-  'precedenceMatrix': GreekLangModel,
-  'mTypicalPositiveRatio': 0.982851,
-  'keepEnglishLetter': False,
-  'charsetName': "ISO-8859-7"
+  u'charToOrderMap': Latin7_CharToOrderMap,
+  u'precedenceMatrix': GreekLangModel,
+  u'mTypicalPositiveRatio': 0.982851,
+  u'keepEnglishLetter': False,
+  u'charsetName': u"ISO-8859-7"
 }
 
 Win1253GreekModel = { \
-  'charToOrderMap': win1253_CharToOrderMap,
-  'precedenceMatrix': GreekLangModel,
-  'mTypicalPositiveRatio': 0.982851,
-  'keepEnglishLetter': False,
-  'charsetName': "windows-1253"
+  u'charToOrderMap': win1253_CharToOrderMap,
+  u'precedenceMatrix': GreekLangModel,
+  u'mTypicalPositiveRatio': 0.982851,
+  u'keepEnglishLetter': False,
+  u'charsetName': u"windows-1253"
 }

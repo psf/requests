@@ -82,11 +82,11 @@ class CharSetGroupProber(CharSetProber):
             if not prober: continue
             if not prober.active:
                 if constants._debug:
-                    sys.stderr.write(prober.get_charset_name() + ' not active\n')
+                    sys.stderr.write(prober.get_charset_name() + u' not active\n')
                 continue
             cf = prober.get_confidence()
             if constants._debug:
-                sys.stderr.write('%s confidence = %s\n' % (prober.get_charset_name(), cf))
+                sys.stderr.write(u'%s confidence = %s\n' % (prober.get_charset_name(), cf))
             if bestConf < cf:
                 bestConf = cf
                 self._mBestGuessProber = prober

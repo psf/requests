@@ -26,6 +26,7 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
+from __future__ import division
 from .charsetprober import CharSetProber
 from . import constants
 
@@ -103,13 +104,13 @@ class Latin1Prober(CharSetProber):
         CharSetProber.reset(self)
 
     def get_charset_name(self):
-        return "windows-1252"
+        return u"windows-1252"
 
     def feed(self, aBuf):
         aBuf = self.filter_with_english_letters(aBuf)
         for c in aBuf:
-            if hasattr(c, 'encode'):
-                c = int(c.encode('hex'), 16)
+            if hasattr(c, u'encode'):
+                c = int(c.encode(u'hex'), 16)
             charClass = Latin1_CharToClass[c]
             freq = Latin1ClassModel[(self._mLastCharClass * CLASS_NUM) + charClass]
             if freq == 0:

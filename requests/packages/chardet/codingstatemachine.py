@@ -27,7 +27,7 @@
 
 from .constants import eStart, eError, eItsMe
 
-class CodingStateMachine:
+class CodingStateMachine(object):
     def __init__(self, sm):
         self._mModel = sm
         self._mCurrentBytePos = 0
@@ -41,15 +41,15 @@ class CodingStateMachine:
         # for each byte we get its class
         # if it is first byte, we also get byte length
         # PY3K: aBuf is a byte stream, so c is an int, not a byte
-        if hasattr(c, 'encode'):
-            c = int(c.encode('hex'), 16)
+        if hasattr(c, u'encode'):
+            c = int(c.encode(u'hex'), 16)
 
-        byteCls = self._mModel['classTable'][c]
+        byteCls = self._mModel[u'classTable'][c]
         if self._mCurrentState == eStart:
             self._mCurrentBytePos = 0
-            self._mCurrentCharLen = self._mModel['charLenTable'][byteCls]
+            self._mCurrentCharLen = self._mModel[u'charLenTable'][byteCls]
         # from byte's class and stateTable, we get its next state
-        self._mCurrentState = self._mModel['stateTable'][self._mCurrentState * self._mModel['classFactor'] + byteCls]
+        self._mCurrentState = self._mModel[u'stateTable'][self._mCurrentState * self._mModel[u'classFactor'] + byteCls]
         self._mCurrentBytePos += 1
         return self._mCurrentState
 
@@ -57,4 +57,4 @@ class CodingStateMachine:
         return self._mCurrentCharLen
 
     def get_coding_state_machine(self):
-        return self._mModel['name']
+        return self._mModel[u'name']

@@ -52,11 +52,11 @@ class MultiByteCharSetProber(CharSetProber):
 
     def feed(self, aBuf):
         aLen = len(aBuf)
-        for i in range(0, aLen):
+        for i in xrange(0, aLen):
             codingState = self._mCodingSM.next_state(aBuf[i])
             if codingState == eError:
                 if constants._debug:
-                    sys.stderr.write(self.get_charset_name() + ' prober hit error at byte ' + str(i) + '\n')
+                    sys.stderr.write(self.get_charset_name() + u' prober hit error at byte ' + unicode(i) + u'\n')
                 self._mState = constants.eNotMe
                 break
             elif codingState == eItsMe:

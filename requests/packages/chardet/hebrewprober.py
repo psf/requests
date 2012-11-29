@@ -126,16 +126,16 @@ from . import constants
 # charset identified, either "windows-1255" or "ISO-8859-8".
 
 # windows-1255 / ISO-8859-8 code points of interest
-FINAL_KAF = '\xea'
-NORMAL_KAF = '\xeb'
-FINAL_MEM = '\xed'
-NORMAL_MEM = '\xee'
-FINAL_NUN = '\xef'
-NORMAL_NUN = '\xf0'
-FINAL_PE = '\xf3'
-NORMAL_PE = '\xf4'
-FINAL_TSADI = '\xf5'
-NORMAL_TSADI = '\xf6'
+FINAL_KAF = u'\xea'
+NORMAL_KAF = u'\xeb'
+FINAL_MEM = u'\xed'
+NORMAL_MEM = u'\xee'
+FINAL_NUN = u'\xef'
+NORMAL_NUN = u'\xf0'
+FINAL_PE = u'\xf3'
+NORMAL_PE = u'\xf4'
+FINAL_TSADI = u'\xf5'
+NORMAL_TSADI = u'\xf6'
 
 # Minimum Visual vs Logical final letter score difference.
 # If the difference is below this, don't rely solely on the final letter score distance.
@@ -145,8 +145,8 @@ MIN_FINAL_CHAR_DISTANCE = 5
 # If the difference is below this, don't rely at all on the model score distance.
 MIN_MODEL_DISTANCE = 0.01
 
-VISUAL_HEBREW_NAME = "ISO-8859-8"
-LOGICAL_HEBREW_NAME = "windows-1255"
+VISUAL_HEBREW_NAME = u"ISO-8859-8"
+LOGICAL_HEBREW_NAME = u"windows-1255"
 
 class HebrewProber(CharSetProber):
     def __init__(self):
@@ -161,8 +161,8 @@ class HebrewProber(CharSetProber):
         # The two last characters seen in the previous buffer,
         # mPrev and mBeforePrev are initialized to space in order to simulate a word 
         # delimiter at the beginning of the data
-        self._mPrev = ' '
-        self._mBeforePrev = ' '
+        self._mPrev = u' '
+        self._mBeforePrev = u' '
         # These probers are owned by the group prober.
         
     def set_model_probers(self, logicalProber, visualProber):
@@ -217,9 +217,9 @@ class HebrewProber(CharSetProber):
         aBuf = self.filter_high_bit_only(aBuf)
         
         for cur in aBuf:
-            if cur == ' ':
+            if cur == u' ':
                 # We stand on a space - a word just ended
-                if self._mBeforePrev != ' ':
+                if self._mBeforePrev != u' ':
                     # next-to-last char was not a space so self._mPrev is not a 1 letter word
                     if self.is_final(self._mPrev):
                         # case (1) [-2:not space][-1:final letter][cur:space]
@@ -229,7 +229,7 @@ class HebrewProber(CharSetProber):
                         self._mFinalCharVisualScore += 1
             else:
                 # Not standing on a space
-                if (self._mBeforePrev == ' ') and (self.is_final(self._mPrev)) and (cur != ' '):
+                if (self._mBeforePrev == u' ') and (self.is_final(self._mPrev)) and (cur != u' '):
                     # case (3) [-2:space][-1:final letter][cur:not space]
                     self._mFinalCharVisualScore += 1
             self._mBeforePrev = self._mPrev

@@ -70,11 +70,11 @@ BIG5_st = ( \
 
 Big5CharLenTable = (0, 1, 1, 2, 0)
 
-Big5SMModel = {'classTable': BIG5_cls,
-               'classFactor': 5,
-               'stateTable': BIG5_st,
-               'charLenTable': Big5CharLenTable,
-               'name': 'Big5'}
+Big5SMModel = {u'classTable': BIG5_cls,
+               u'classFactor': 5,
+               u'stateTable': BIG5_st,
+               u'charLenTable': Big5CharLenTable,
+               u'name': u'Big5'}
 
 # EUC-JP
 
@@ -121,11 +121,11 @@ EUCJP_st = ( \
 
 EUCJPCharLenTable = (2, 2, 2, 3, 1, 0)
 
-EUCJPSMModel = {'classTable': EUCJP_cls,
-                'classFactor': 6,
-                'stateTable': EUCJP_st,
-                'charLenTable': EUCJPCharLenTable,
-                'name': 'EUC-JP'}
+EUCJPSMModel = {u'classTable': EUCJP_cls,
+                u'classFactor': 6,
+                u'stateTable': EUCJP_st,
+                u'charLenTable': EUCJPCharLenTable,
+                u'name': u'EUC-JP'}
 
 # EUC-KR
 
@@ -169,11 +169,11 @@ EUCKR_st = (
 
 EUCKRCharLenTable = (0, 1, 2, 0)
 
-EUCKRSMModel = {'classTable': EUCKR_cls,
-                'classFactor': 4,
-                'stateTable': EUCKR_st,
-                'charLenTable': EUCKRCharLenTable,
-                'name': 'EUC-KR'}
+EUCKRSMModel = {u'classTable': EUCKR_cls,
+                u'classFactor': 4,
+                u'stateTable': EUCKR_st,
+                u'charLenTable': EUCKRCharLenTable,
+                u'name': u'EUC-KR'}
 
 # EUC-TW
 
@@ -221,11 +221,11 @@ EUCTW_st = ( \
 
 EUCTWCharLenTable = (0, 0, 1, 2, 2, 2, 3)
 
-EUCTWSMModel = {'classTable': EUCTW_cls,
-                'classFactor': 7,
-                'stateTable': EUCTW_st,
-                'charLenTable': EUCTWCharLenTable,
-                'name': 'x-euc-tw'}
+EUCTWSMModel = {u'classTable': EUCTW_cls,
+                u'classFactor': 7,
+                u'stateTable': EUCTW_st,
+                u'charLenTable': EUCTWCharLenTable,
+                u'name': u'x-euc-tw'}
 
 # GB2312
 
@@ -278,11 +278,11 @@ GB2312_st = ( \
 # 2 here. 
 GB2312CharLenTable = (0, 1, 1, 1, 1, 1, 2)
 
-GB2312SMModel = {'classTable': GB2312_cls,
-                  'classFactor': 7,
-                  'stateTable': GB2312_st,
-                  'charLenTable': GB2312CharLenTable,
-                  'name': 'GB2312'}
+GB2312SMModel = {u'classTable': GB2312_cls,
+                  u'classFactor': 7,
+                  u'stateTable': GB2312_st,
+                  u'charLenTable': GB2312CharLenTable,
+                  u'name': u'GB2312'}
 
 # Shift_JIS
 
@@ -329,11 +329,11 @@ SJIS_st = ( \
 
 SJISCharLenTable = (0, 1, 1, 2, 0, 0)
 
-SJISSMModel = {'classTable': SJIS_cls,
-               'classFactor': 6,
-               'stateTable': SJIS_st,
-               'charLenTable': SJISCharLenTable,
-               'name': 'Shift_JIS'}
+SJISSMModel = {u'classTable': SJIS_cls,
+               u'classFactor': 6,
+               u'stateTable': SJIS_st,
+               u'charLenTable': SJISCharLenTable,
+               u'name': u'Shift_JIS'}
 
 # UCS2-BE
 
@@ -382,11 +382,11 @@ UCS2BE_st  = ( \
 
 UCS2BECharLenTable = (2, 2, 2, 0, 2, 2)
 
-UCS2BESMModel = {'classTable': UCS2BE_cls,
-                 'classFactor': 6,
-                 'stateTable': UCS2BE_st,
-                 'charLenTable': UCS2BECharLenTable,
-                 'name': 'UTF-16BE'}
+UCS2BESMModel = {u'classTable': UCS2BE_cls,
+                 u'classFactor': 6,
+                 u'stateTable': UCS2BE_st,
+                 u'charLenTable': UCS2BECharLenTable,
+                 u'name': u'UTF-16BE'}
 
 # UCS2-LE
 
@@ -435,11 +435,11 @@ UCS2LE_st = ( \
 
 UCS2LECharLenTable = (2, 2, 2, 2, 2, 2)
 
-UCS2LESMModel = {'classTable': UCS2LE_cls,
-                 'classFactor': 6,
-                 'stateTable': UCS2LE_st,
-                 'charLenTable': UCS2LECharLenTable,
-                 'name': 'UTF-16LE'}
+UCS2LESMModel = {u'classTable': UCS2LE_cls,
+                 u'classFactor': 6,
+                 u'stateTable': UCS2LE_st,
+                 u'charLenTable': UCS2LECharLenTable,
+                 u'name': u'UTF-16LE'}
 
 # UTF-8
 
@@ -507,8 +507,8 @@ UTF8_st = ( \
 
 UTF8CharLenTable = (0, 1, 0, 0, 0, 0, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6)
 
-UTF8SMModel = {'classTable': UTF8_cls,
-               'classFactor': 16,
-               'stateTable': UTF8_st,
-               'charLenTable': UTF8CharLenTable,
-               'name': 'UTF-8'}
+UTF8SMModel = {u'classTable': UTF8_cls,
+               u'classFactor': 16,
+               u'stateTable': UTF8_st,
+               u'charLenTable': UTF8CharLenTable,
+               u'name': u'UTF-8'}

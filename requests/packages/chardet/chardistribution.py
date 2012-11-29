@@ -25,6 +25,7 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
+from __future__ import division
 from . import constants
 from .euctwfreq import EUCTWCharToFreqOrder, EUCTW_TABLE_SIZE, EUCTW_TYPICAL_DISTRIBUTION_RATIO
 from .euckrfreq import EUCKRCharToFreqOrder, EUCKR_TABLE_SIZE, EUCKR_TYPICAL_DISTRIBUTION_RATIO
@@ -36,7 +37,7 @@ ENOUGH_DATA_THRESHOLD = 1024
 SURE_YES = 0.99
 SURE_NO = 0.01
 
-class CharDistributionAnalysis:
+class CharDistributionAnalysis(object):
     def __init__(self):
         self._mCharToFreqOrder = None # Mapping table to get frequency order from char order (get from GetOrder())
         self._mTableSize = None # Size of above table
@@ -44,13 +45,13 @@ class CharDistributionAnalysis:
         self.reset()
         
     def reset(self):
-        """reset analyser, clear any state"""
+        u"""reset analyser, clear any state"""
         self._mDone = False # If this flag is set to True, detection is done and conclusion has been made
         self._mTotalChars = 0 # Total characters encountered
         self._mFreqChars = 0 # The number of characters whose frequency order is less than 512
 
     def feed(self, aBuf, aCharLen):
-        """feed a character with known length"""
+        u"""feed a character with known length"""
         if aCharLen == 2:
             # we only care about 2-bytes character in our distribution analysis
             order = self.get_order(aBuf)
@@ -64,7 +65,7 @@ class CharDistributionAnalysis:
                     self._mFreqChars += 1
 
     def get_confidence(self):
-        """return confidence based on existing data"""
+        u"""return confidence based on existing data"""
         # if we didn't receive any character in our consideration range, return negative answer
         if self._mTotalChars <= 0:
             return SURE_NO

@@ -73,11 +73,11 @@ eItsMe,eItsMe,eError,eError,eStart,eStart,     4,eError,# 10-17
 
 HZCharLenTable = (0, 0, 0, 0, 0, 0)
 
-HZSMModel = {'classTable': HZ_cls,
-             'classFactor': 6,
-             'stateTable': HZ_st,
-             'charLenTable': HZCharLenTable,
-             'name': "HZ-GB-2312"}
+HZSMModel = {u'classTable': HZ_cls,
+             u'classFactor': 6,
+             u'stateTable': HZ_st,
+             u'charLenTable': HZCharLenTable,
+             u'name': u"HZ-GB-2312"}
 
 ISO2022CN_cls = ( \
 2,0,0,0,0,0,0,0,  # 00 - 07 
@@ -127,11 +127,11 @@ eError,eError,eError,eError,eError,eItsMe,eError,eStart,# 38-3f
 
 ISO2022CNCharLenTable = (0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-ISO2022CNSMModel = {'classTable': ISO2022CN_cls,
-                    'classFactor': 9,
-                    'stateTable': ISO2022CN_st,
-                    'charLenTable': ISO2022CNCharLenTable,
-                    'name': "ISO-2022-CN"}
+ISO2022CNSMModel = {u'classTable': ISO2022CN_cls,
+                    u'classFactor': 9,
+                    u'stateTable': ISO2022CN_st,
+                    u'charLenTable': ISO2022CNCharLenTable,
+                    u'name': u"ISO-2022-CN"}
 
 ISO2022JP_cls = ( \
 2,0,0,0,0,0,0,0,  # 00 - 07 
@@ -182,11 +182,11 @@ eError,eError,eError,eError,eItsMe,eError,eStart,eStart,# 40-47
 
 ISO2022JPCharLenTable = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-ISO2022JPSMModel = {'classTable': ISO2022JP_cls,
-                    'classFactor': 10,
-                    'stateTable': ISO2022JP_st,
-                    'charLenTable': ISO2022JPCharLenTable,
-                    'name': "ISO-2022-JP"}
+ISO2022JPSMModel = {u'classTable': ISO2022JP_cls,
+                    u'classFactor': 10,
+                    u'stateTable': ISO2022JP_st,
+                    u'charLenTable': ISO2022JPCharLenTable,
+                    u'name': u"ISO-2022-JP"}
 
 ISO2022KR_cls = ( \
 2,0,0,0,0,0,0,0,  # 00 - 07 
@@ -233,8 +233,8 @@ eError,eError,eError,eItsMe,eStart,eStart,eStart,eStart,# 20-27
 
 ISO2022KRCharLenTable = (0, 0, 0, 0, 0, 0)
 
-ISO2022KRSMModel = {'classTable': ISO2022KR_cls,
-                    'classFactor': 6,
-                    'stateTable': ISO2022KR_st,
-                    'charLenTable': ISO2022KRCharLenTable,
-                    'name': "ISO-2022-KR"}
+ISO2022KRSMModel = {u'classTable': ISO2022KR_cls,
+                    u'classFactor': 6,
+                    u'stateTable': ISO2022KR_st,
+                    u'charLenTable': ISO2022KRCharLenTable,
+                    u'name': u"ISO-2022-KR"}

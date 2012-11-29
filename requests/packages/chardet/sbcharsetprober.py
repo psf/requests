@@ -26,6 +26,7 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
+from __future__ import division
 from . import constants
 import sys
 from .charsetprober import CharSetProber
@@ -59,18 +60,18 @@ class SingleByteCharSetProber(CharSetProber):
         if self._mNameProber:
             return self._mNameProber.get_charset_name()
         else:
-            return self._mModel['charsetName']
+            return self._mModel[u'charsetName']
 
     def feed(self, aBuf):
-        if not self._mModel['keepEnglishLetter']:
+        if not self._mModel[u'keepEnglishLetter']:
             aBuf = self.filter_without_english_letters(aBuf)
         aLen = len(aBuf)
         if not aLen:
             return self.get_state()
         for c in aBuf:
-            if hasattr(c, 'encode'):
-                c = int(c.encode('hex'), 16)
-            order = self._mModel['charToOrderMap'][c]
+            if hasattr(c, u'encode'):
+                c = int(c.encode(u'hex'), 16)
+            order = self._mModel[u'charToOrderMap'][c]
             if order < SYMBOL_CAT_ORDER:
                 self._mTotalChar += 1
             if order < SAMPLE_SIZE:
@@ -78,9 +79,9 @@ class SingleByteCharSetProber(CharSetProber):
                 if self._mLastOrder < SAMPLE_SIZE:
                     self._mTotalSeqs += 1
                     if not self._mReversed:
-                        self._mSeqCounters[self._mModel['precedenceMatrix'][(self._mLastOrder * SAMPLE_SIZE) + order]] += 1
+                        self._mSeqCounters[self._mModel[u'precedenceMatrix'][(self._mLastOrder * SAMPLE_SIZE) + order]] += 1
                     else: # reverse the order of the letters in the lookup
-                        self._mSeqCounters[self._mModel['precedenceMatrix'][(order * SAMPLE_SIZE) + self._mLastOrder]] += 1
+                        self._mSeqCounters[self._mModel[u'precedenceMatrix'][(order * SAMPLE_SIZE) + self._mLastOrder]] += 1
             self._mLastOrder = order
 
         if self.get_state() == constants.eDetecting:
@@ -88,11 +89,11 @@ class SingleByteCharSetProber(CharSetProber):
                 cf = self.get_confidence()
                 if cf > POSITIVE_SHORTCUT_THRESHOLD:
                     if constants._debug:
-                        sys.stderr.write('%s confidence = %s, we have a winner\n' % (self._mModel['charsetName'], cf))
+                        sys.stderr.write(u'%s confidence = %s, we have a winner\n' % (self._mModel[u'charsetName'], cf))
                     self._mState = constants.eFoundIt
                 elif cf < NEGATIVE_SHORTCUT_THRESHOLD:
                     if constants._debug:
-                        sys.stderr.write('%s confidence = %s, below negative shortcut threshhold %s\n' % (self._mModel['charsetName'], cf, NEGATIVE_SHORTCUT_THRESHOLD))
+                        sys.stderr.write(u'%s confidence = %s, below negative shortcut threshhold %s\n' % (self._mModel[u'charsetName'], cf, NEGATIVE_SHORTCUT_THRESHOLD))
                     self._mState = constants.eNotMe
 
         return self.get_state()
@@ -101,7 +102,7 @@ class SingleByteCharSetProber(CharSetProber):
         r = 0.01
         if self._mTotalSeqs > 0:
 #            print self._mSeqCounters[POSITIVE_CAT], self._mTotalSeqs, self._mModel['mTypicalPositiveRatio']
-            r = (1.0 * self._mSeqCounters[POSITIVE_CAT]) / self._mTotalSeqs / self._mModel['mTypicalPositiveRatio']
+            r = (1.0 * self._mSeqCounters[POSITIVE_CAT]) / self._mTotalSeqs / self._mModel[u'mTypicalPositiveRatio']
 #            print r, self._mFreqChar, self._mTotalChar
             r = r * self._mFreqChar / self._mTotalChar
             if r >= 1.0:

@@ -46,7 +46,7 @@ class UTF8Prober(CharSetProber):
         self._mNumOfMBChar = 0
 
     def get_charset_name(self):
-        return "utf-8"
+        return u"utf-8"
 
     def feed(self, aBuf):
         for c in aBuf:
@@ -70,7 +70,7 @@ class UTF8Prober(CharSetProber):
     def get_confidence(self):
         unlike = 0.99
         if self._mNumOfMBChar < 6:
-            for i in range(0, self._mNumOfMBChar):
+            for i in xrange(0, self._mNumOfMBChar):
                 unlike = unlike * ONE_CHAR_PROB
             return 1.0 - unlike
         else:
