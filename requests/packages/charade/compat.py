@@ -19,20 +19,11 @@
 ######################### END LICENSE BLOCK #########################
 
 
-from sys import verion_info
+from sys import version_info
 
 
 def wrap_ord(a):
-    if isinstance(a, 'str') and version_info < (3, 0):
+    if isinstance(a, str) and version_info < (3, 0):
         return ord(a)
     elif isinstance(a, int) and version_info >= (3, 0):
         return a
-
-
-def cmp_corrector(s):
-    if version_info >= (3, 0):
-        if s.startswith('\x'):
-            return ord(s)
-        elif s.startswith('\\'):
-            return int(s[1:])
-    return s

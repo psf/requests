@@ -25,7 +25,6 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-from . import constants
 from .compat import wrap_ord
 
 NUM_OF_CATEGORY = 6
@@ -494,7 +493,7 @@ class JapaneseContextAnalysis:
                 if (order != -1) and (self._mLastCharOrder != -1):
                     self._mTotalRel += 1
                     if self._mTotalRel > MAX_REL_THRESHOLD:
-                        self._mDone = constants.True
+                        self._mDone = True
                         break
                     self._mRelSample[
                         jp2CharContext[self._mLastCharOrder][order]

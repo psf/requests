@@ -86,7 +86,8 @@ class SingleByteCharSetProber(CharSetProber):
                         i = (self._mLastOrder * SAMPLE_SIZE) + order
                     else:  # reverse the order of the letters in the lookup
                         i = (order * SAMPLE_SIZE) + self._mLastOrder
-                    self._mSeqCounters[self.mModel['precedenceMatrix'][i]] += 1
+                    model = self._mModel['precedenceMatrix'][i]
+                    self._mSeqCounters[model] += 1
             self._mLastOrder = order
 
         if self.get_state() == constants.eDetecting:
