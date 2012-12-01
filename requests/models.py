@@ -53,6 +53,7 @@ class Request(object):
         files=None,
         method=None,
         data=dict(),
+        json=None,
         params=dict(),
         auth=None,
         cookies=None,
@@ -97,6 +98,8 @@ class Request(object):
         #: Dictionary, bytes or file stream of request body data to attach to the
         #: :class:`Request <Request>`.
         self.data = None
+
+        self.json = json
 
         #: Dictionary of querystring data to attach to the
         #: :class:`Request <Request>`. The dictionary values can be lists for representing
@@ -249,6 +252,7 @@ class Request(object):
                 url = r.headers['location']
                 data = self.data
                 files = self.files
+                json = self.json
 
                 # Handle redirection without scheme (see: RFC 1808 Section 4)
                 if url.startswith('//'):
@@ -268,6 +272,7 @@ class Request(object):
                     method = 'GET'
                     data = None
                     files = None
+                    json = None
                 else:
                     method = self.method
 
@@ -276,11 +281,13 @@ class Request(object):
                     method = 'GET'
                     data = None
                     files = None
+                    json = None
 
                 if (r.status_code == 303) and self.method != 'HEAD':
                     method = 'GET'
                     data = None
                     files = None
+                    json = None
 
                 # Remove the cookie headers that were sent.
                 headers = self.headers
@@ -299,6 +306,7 @@ class Request(object):
                     cookies=self.cookies,
                     redirect=True,
                     data=data,
+                    json=json,
                     config=self.config,
                     timeout=self.timeout,
                     _poolmanager=self._poolmanager,
@@ -531,6 +539,9 @@ class Request(object):
         # Multi-part file uploads.
         if self.files:
             (body, content_type) = self._encode_files(self.files)
+        elif self.json is not None:
+            body = json.dumps(self.json)
+            content_type = 'application/json'
         else:
             if self.data:
 
