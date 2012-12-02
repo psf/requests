@@ -570,40 +570,43 @@ def default_user_agent():
             '%s/%s' % (p_system, p_release),
         ])
 
-
 def parse_header_links(value):
-    """Return a dict of parsed link headers proxies.
-
-    i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
-
-    """
-
+    # Header parameter regexes pulled from those in mnot/redbot:
+    # https://github.com/mnot/redbot/blob/master/redbot/headers/link.py
+    TOKEN = r'(?:[!#\$%&\'\*\+\-\.\^_`|~A-Za-z0-9]+)'
+    QUOTED_STRING = r'(?:"(?P<qs>(?:[ \t\x21\x23-\x5B\x5D-\x7E]|\\[ \t\x21-\x7E])*)")'
+    PARAMETER = r'(?:(?P<key>{TOKEN})(?:\s*=\s*(?:(?P<tok>{TOKEN})|{QUOTED_STRING}))?)'\
+        .format(TOKEN=TOKEN, QUOTED_STRING=QUOTED_STRING)
+    URI_reference = r"(?P<href>[^>]+)" #easier than a full parse
+    LINK_HEADER = r'(?:<{URI_reference}>(?P<args>(?:\s*;\s*{PARAMETER})*))'\
+        .format(URI_reference=URI_reference, PARAMETER=PARAMETER)
+    
     links = []
+    for val in re.finditer(r'({0})\s*,?\s*'.format(LINK_HEADER),value):
+        groups = val.groupdict()
 
-    replace_chars = " '\""
-
-    for val in value.split(","):
-        try:
-            url, params = val.split(";", 1)
-        except ValueError:
-            url, params = val, ''
-
-        link = {}
-
-        link["url"] = url.strip("<> '\"")
-
-        for param in params.split(";"):
-            try:
-                key,value = param.split("=")
-            except ValueError:
-                break
-
-            link[key.strip(replace_chars)] = value.strip(replace_chars)
-
-        links.append(link)
-
-    return links
-
+        tmplink = {'href' : groups['href']}
+        for parm in re.finditer(PARAMETER, groups['args']):
+            attr = parm.groupdict()
+            if attr['key'] not in tmplink:
+                #occurrences after the first must be ignored
+                tmplink[attr['key']] = attr['tok'] or attr['qs']
+        links.append(tmplink)
+    #make a second pass through to create the dict structure
+    linkdict = {}
+    for link in links:
+        if 'rel' in link:
+            rels = link['rel'].split()
+            for rel in rels:
+                cp = link.copy()
+                cp['rel'] = rel
+                try:
+                    linkdict[rel].append(cp)
+                except KeyError:
+                    linkdict[rel] = [cp]
+        else:
+            linkdict[link['href']] = link
+    return linkdict
 
 # Null bytes; no need to recreate these on each call to guess_json_utf
 _null = '\x00'.encode('ascii')  # encoding to ASCII for Python 3
