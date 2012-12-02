@@ -1,11 +1,11 @@
 ######################## BEGIN LICENSE BLOCK ########################
 # The Original Code is Mozilla Communicator client code.
-# 
+#
 # The Initial Developer of the Original Code is
 # Netscape Communications Corporation.
 # Portions created by the Initial Developer are Copyright (C) 1998
 # the Initial Developer. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   Mark Pilgrim - port to Python
 #
@@ -13,12 +13,12 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -26,18 +26,18 @@
 ######################### END LICENSE BLOCK #########################
 
 # Big5 frequency table
-# by Taiwan's Mandarin Promotion Council 
+# by Taiwan's Mandarin Promotion Council
 # <http://www.edu.tw:81/mandr/>
-# 
+#
 # 128  --> 0.42261
 # 256  --> 0.57851
 # 512  --> 0.74851
 # 1024 --> 0.89384
 # 2048 --> 0.97583
-# 
+#
 # Ideal Distribution Ratio = 0.74851/(1-0.74851) =2.98
 # Random Distribution Ration = 512/(5401-512)=0.105
-# 
+#
 # Typical Distribution Ratio about 25% of Ideal one, still much higher than RDR
 
 BIG5_TYPICAL_DISTRIBUTION_RATIO = 0.75
@@ -45,7 +45,7 @@ BIG5_TYPICAL_DISTRIBUTION_RATIO = 0.75
 #Char to FreqOrder table
 BIG5_TABLE_SIZE = 5376
 
-Big5CharToFreqOrder = ( \
+Big5CharToFreqOrder = (
    1,1801,1506, 255,1431, 198,   9,  82,   6,5008, 177, 202,3681,1256,2821, 110, #   16
 3814,  33,3274, 261,  76,  44,2114,  16,2946,2187,1176, 659,3971,  26,3451,2653, #   32
 1198,3972,3350,4202, 410,2215, 302, 590, 361,1964,   8, 204,  58,4510,5009,1932, #   48
@@ -921,3 +921,5 @@ Big5CharToFreqOrder = ( \
 13936,13937,13938,13939,13940,13941,13942,13943,13944,13945,13946,13947,13948,13949,13950,13951, #13952
 13952,13953,13954,13955,13956,13957,13958,13959,13960,13961,13962,13963,13964,13965,13966,13967, #13968
 13968,13969,13970,13971,13972) #13973
+
+# flake8: noqa

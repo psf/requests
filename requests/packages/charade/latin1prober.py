@@ -27,7 +27,7 @@
 ######################### END LICENSE BLOCK #########################
 
 from .charsetprober import CharSetProber
-from .constants import eError, eNotMe
+from .constants import eNotMe
 from .compat import wrap_ord
 
 FREQ_CAT_NUM = 4
@@ -82,7 +82,7 @@ Latin1_CharToClass = (
 # 2 : normal
 # 3 : very likely
 Latin1ClassModel = (
-  # UDF OTH ASC ASS ACV ACO ASV ASO
+    # UDF OTH ASC ASS ACV ACO ASV ASO
     0,  0,  0,  0,  0,  0,  0,  0,  # UDF
     0,  3,  3,  3,  3,  3,  3,  3,  # OTH
     0,  3,  3,  3,  3,  3,  3,  3,  # ASC
@@ -110,10 +110,7 @@ class Latin1Prober(CharSetProber):
     def feed(self, aBuf):
         aBuf = self.filter_with_english_letters(aBuf)
         for c in aBuf:
-            try:
-                charClass = Latin1_CharToClass[wrap_ord(c)]
-            except IndexError:
-                return eError
+            charClass = Latin1_CharToClass[wrap_ord(c)]
             freq = Latin1ClassModel[(self._mLastCharClass * CLASS_NUM)
                                     + charClass]
             if freq == 0:
@@ -136,7 +133,7 @@ class Latin1Prober(CharSetProber):
                           - (self._mFreqCounter[1] * 20.0 / total))
         if confidence < 0.0:
             confidence = 0.0
-        # lower the confidence of latin1 so that other more accurate detector
-        # can take priority.
+        # lower the confidence of latin1 so that other more accurate
+        # detector can take priority.
         confidence = confidence * 0.5
         return confidence

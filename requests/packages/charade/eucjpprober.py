@@ -52,12 +52,13 @@ class EUCJPProber(MultiByteCharSetProber):
     def feed(self, aBuf):
         aLen = len(aBuf)
         for i in range(0, aLen):
+            # PY3K: aBuf is a byte array, so aBuf[i] is an int, not a byte
             codingState = self._mCodingSM.next_state(aBuf[i])
             if codingState == constants.eError:
                 if constants._debug:
-                    sys.stderr.write(self.get_charset_name() +
-                                     ' prober hit error at byte ' + str(i) +
-                                     '\n')
+                    sys.stderr.write(self.get_charset_name()
+                                     + ' prober hit error at byte ' + str(i)
+                                     + '\n')
                 self._mState = constants.eNotMe
                 break
             elif codingState == constants.eItsMe:
@@ -78,7 +79,7 @@ class EUCJPProber(MultiByteCharSetProber):
 
         if self.get_state() == constants.eDetecting:
             if (self._mContextAnalyzer.got_enough_data() and
-                    (self.get_confidence() > constants.SHORTCUT_THRESHOLD)):
+               (self.get_confidence() > constants.SHORTCUT_THRESHOLD)):
                 self._mState = constants.eFoundIt
 
         return self.get_state()

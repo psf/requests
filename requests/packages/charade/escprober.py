@@ -30,6 +30,7 @@ from .escsm import (HZSMModel, ISO2022CNSMModel, ISO2022JPSMModel,
                     ISO2022KRSMModel)
 from .charsetprober import CharSetProber
 from .codingstatemachine import CodingStateMachine
+from .compat import wrap_ord
 
 
 class EscCharSetProber(CharSetProber):
@@ -64,12 +65,13 @@ class EscCharSetProber(CharSetProber):
 
     def feed(self, aBuf):
         for c in aBuf:
+            # PY3K: aBuf is a byte array, so c is an int, not a byte
             for codingSM in self._mCodingSM:
                 if not codingSM:
                     continue
                 if not codingSM.active:
                     continue
-                codingState = codingSM.next_state(c)
+                codingState = codingSM.next_state(wrap_ord(c))
                 if codingState == constants.eError:
                     codingSM.active = False
                     self._mActiveSM -= 1
@@ -78,7 +80,7 @@ class EscCharSetProber(CharSetProber):
                         return self.get_state()
                 elif codingState == constants.eItsMe:
                     self._mState = constants.eFoundIt
-                    self._mDetectedCharset = codingSM.get_coding_state_machine()
+                    self._mDetectedCharset = codingSM.get_coding_state_machine()  # nopep8
                     return self.get_state()
 
         return self.get_state()

@@ -47,8 +47,7 @@ class CharDistributionAnalysis:
         # Mapping table to get frequency order from char order (get from
         # GetOrder())
         self._mCharToFreqOrder = None
-        # Size of above table
-        self._mTableSize = None
+        self._mTableSize = None  # Size of above table
         # This is a constant value which varies from language to language,
         # used in calculating confidence.  See
         # http://www.mozilla.org/projects/intl/UniversalCharsetDetection.html
@@ -58,19 +57,18 @@ class CharDistributionAnalysis:
 
     def reset(self):
         """reset analyser, clear any state"""
-        # If this flag is set to constants.True, detection is done and
-        # conclusion has been made
+        # If this flag is set to True, detection is done and conclusion has
+        # been made
         self._mDone = False
-        # Total characters encountered
-        self._mTotalChars = 0
+        self._mTotalChars = 0  # Total characters encountered
         # The number of characters whose frequency order is less than 512
         self._mFreqChars = 0
 
-    def feed(self, aStr, aCharLen):
+    def feed(self, aBuf, aCharLen):
         """feed a character with known length"""
         if aCharLen == 2:
             # we only care about 2-bytes character in our distribution analysis
-            order = self.get_order(aStr)
+            order = self.get_order(aBuf)
         else:
             order = -1
         if order >= 0:
@@ -82,14 +80,14 @@ class CharDistributionAnalysis:
 
     def get_confidence(self):
         """return confidence based on existing data"""
-        # if we didn't receive any character in our consideration range, return
-        # negative answer
+        # if we didn't receive any character in our consideration range,
+        # return negative answer
         if self._mTotalChars <= 0:
             return SURE_NO
 
         if self._mTotalChars != self._mFreqChars:
-            r = self._mFreqChars / ((self._mTotalChars - self._mFreqChars)
-                                    * self._mTypicalDistributionRatio)
+            r = (self._mFreqChars / ((self._mTotalChars - self._mFreqChars)
+                 * self._mTypicalDistributionRatio))
             if r < SURE_YES:
                 return r
 
@@ -101,7 +99,7 @@ class CharDistributionAnalysis:
         # For charset detection, certain amount of data is enough
         return self._mTotalChars > ENOUGH_DATA_THRESHOLD
 
-    def get_order(self, aStr):
+    def get_order(self, aBuf):
         # We do not handle characters based on the original encoding string,
         # but convert this encoding string to a number, here called order.
         # This allows multiple encodings of a language to share one frequency
@@ -116,13 +114,14 @@ class EUCTWDistributionAnalysis(CharDistributionAnalysis):
         self._mTableSize = EUCTW_TABLE_SIZE
         self._mTypicalDistributionRatio = EUCTW_TYPICAL_DISTRIBUTION_RATIO
 
-    def get_order(self, aStr):
+    def get_order(self, aBuf):
         # for euc-TW encoding, we are interested
         #   first  byte range: 0xc4 -- 0xfe
         #   second byte range: 0xa1 -- 0xfe
         # no validation needed here. State machine has done that
-        if aStr[0] >= '\xC4':
-            return 94 * (wrap_ord(aStr[0]) - 0xC4) + wrap_ord(aStr[1]) - 0xA1
+        first_char = wrap_ord(aBuf[0])
+        if first_char >= 0xC4:
+            return 94 * (first_char - 0xC4) + wrap_ord(aBuf[1]) - 0xA1
         else:
             return -1
 
@@ -134,13 +133,14 @@ class EUCKRDistributionAnalysis(CharDistributionAnalysis):
         self._mTableSize = EUCKR_TABLE_SIZE
         self._mTypicalDistributionRatio = EUCKR_TYPICAL_DISTRIBUTION_RATIO
 
-    def get_order(self, aStr):
+    def get_order(self, aBuf):
         # for euc-KR encoding, we are interested
         #   first  byte range: 0xb0 -- 0xfe
         #   second byte range: 0xa1 -- 0xfe
         # no validation needed here. State machine has done that
-        if aStr[0] >= '\xB0':
-            return 94 * (wrap_ord(aStr[0]) - 0xB0) + wrap_ord(aStr[1]) - 0xA1
+        first_char = wrap_ord(aBuf[0])
+        if first_char >= 0xB0:
+            return 94 * (first_char - 0xB0) + wrap_ord(aBuf[1]) - 0xA1
         else:
             return -1
 
@@ -152,13 +152,14 @@ class GB2312DistributionAnalysis(CharDistributionAnalysis):
         self._mTableSize = GB2312_TABLE_SIZE
         self._mTypicalDistributionRatio = GB2312_TYPICAL_DISTRIBUTION_RATIO
 
-    def get_order(self, aStr):
+    def get_order(self, aBuf):
         # for GB2312 encoding, we are interested
         #  first  byte range: 0xb0 -- 0xfe
         #  second byte range: 0xa1 -- 0xfe
         # no validation needed here. State machine has done that
-        if (aStr[0] >= '\xB0') and (aStr[1] >= '\xA1'):
-            return 94 * (wrap_ord(aStr[0]) - 0xB0) + wrap_ord(aStr[1]) - 0xA1
+        first_char, second_char = wrap_ord(aBuf[0]), wrap_ord(aBuf[1])
+        if (first_char >= 0xB0) and (second_char >= 0xA1):
+            return 94 * (first_char - 0xB0) + second_char - 0xA1
         else:
             return -1
 
@@ -170,18 +171,17 @@ class Big5DistributionAnalysis(CharDistributionAnalysis):
         self._mTableSize = BIG5_TABLE_SIZE
         self._mTypicalDistributionRatio = BIG5_TYPICAL_DISTRIBUTION_RATIO
 
-    def get_order(self, aStr):
+    def get_order(self, aBuf):
         # for big5 encoding, we are interested
         #   first  byte range: 0xa4 -- 0xfe
         #   second byte range: 0x40 -- 0x7e , 0xa1 -- 0xfe
         # no validation needed here. State machine has done that
-        if aStr[0] >= '\xA4':
-            if aStr[1] >= '\xA1':
-                return (157 * (wrap_ord(aStr[0]) - 0xA4) + wrap_ord(aStr[1])
-                        - 0xA1 + 63)
+        first_char, second_char = wrap_ord(aBuf[0]), wrap_ord(aBuf[1])
+        if first_char >= 0xA4:
+            if second_char >= 0xA1:
+                return 157 * (first_char - 0xA4) + second_char - 0xA1 + 63
             else:
-                return (157 * (wrap_ord(aStr[0]) - 0xA4) + wrap_ord(aStr[1])
-                        - 0x40)
+                return 157 * (first_char - 0xA4) + second_char - 0x40
         else:
             return -1
 
@@ -193,19 +193,20 @@ class SJISDistributionAnalysis(CharDistributionAnalysis):
         self._mTableSize = JIS_TABLE_SIZE
         self._mTypicalDistributionRatio = JIS_TYPICAL_DISTRIBUTION_RATIO
 
-    def get_order(self, aStr):
+    def get_order(self, aBuf):
         # for sjis encoding, we are interested
         #   first  byte range: 0x81 -- 0x9f , 0xe0 -- 0xfe
         #   second byte range: 0x40 -- 0x7e,  0x81 -- oxfe
         # no validation needed here. State machine has done that
-        if (aStr[0] >= '\x81') and (aStr[0] <= '\x9F'):
-            order = 188 * (wrap_ord(aStr[0]) - 0x81)
-        elif (aStr[0] >= '\xE0') and (aStr[0] <= '\xEF'):
-            order = 188 * (wrap_ord(aStr[0]) - 0xE0 + 31)
+        first_char, second_char = wrap_ord(aBuf[0]), wrap_ord(aBuf[1])
+        if (first_char >= 0x81) and (first_char <= 0x9F):
+            order = 188 * (first_char - 0x81)
+        elif (first_char >= 0xE0) and (first_char <= 0xEF):
+            order = 188 * (first_char - 0xE0 + 31)
         else:
             return -1
-        order = order + wrap_ord(aStr[1]) - 0x40
-        if aStr[1] > '\x7F':
+        order = order + second_char - 0x40
+        if second_char > 0x7F:
             order = -1
         return order
 
@@ -217,12 +218,13 @@ class EUCJPDistributionAnalysis(CharDistributionAnalysis):
         self._mTableSize = JIS_TABLE_SIZE
         self._mTypicalDistributionRatio = JIS_TYPICAL_DISTRIBUTION_RATIO
 
-    def get_order(self, aStr):
+    def get_order(self, aBuf):
         # for euc-JP encoding, we are interested
         #   first  byte range: 0xa0 -- 0xfe
         #   second byte range: 0xa1 -- 0xfe
         # no validation needed here. State machine has done that
-        if aStr[0] >= '\xA0':
-            return 94 * (wrap_ord(aStr[0]) - 0xA1) + wrap_ord(aStr[1]) - 0xa1
+        char = wrap_ord(aBuf[0])
+        if char >= 0xA0:
+            return 94 * (char - 0xA1) + wrap_ord(aBuf[1]) - 0xa1
         else:
             return -1

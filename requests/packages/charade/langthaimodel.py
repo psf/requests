@@ -13,12 +13,12 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -30,7 +30,7 @@
 # 253: symbol (punctuation) that does not belong to word
 # 252: 0 - 9
 
-# The following result for thai was collected from a limited sample (1M). 
+# The following result for thai was collected from a limited sample (1M).
 
 # Character Mapping Table:
 TIS620CharToOrderMap = (
@@ -52,12 +52,12 @@ TIS620CharToOrderMap = (
  68, 56, 59, 65, 69, 60, 70, 80, 71, 87,248,249,250,251,252,253,
 )
 
-# Model Table: 
+# Model Table:
 # total sequences: 100%
 # first 512 sequences: 92.6386%
 # first 1024 sequences:7.3177%
 # rest  sequences:     1.0230%
-# negative sequences:  0.0436% 
+# negative sequences:  0.0436%
 ThaiLangModel = (
 0,1,3,3,3,3,0,0,3,3,0,3,3,0,3,3,3,3,3,3,3,3,0,0,3,3,3,0,3,3,3,3,
 0,3,3,0,0,0,1,3,0,3,3,2,3,3,0,1,2,3,3,3,3,0,2,0,2,0,0,3,2,1,2,2,

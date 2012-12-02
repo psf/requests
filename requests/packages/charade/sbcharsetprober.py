@@ -53,11 +53,13 @@ class SingleByteCharSetProber(CharSetProber):
 
     def reset(self):
         CharSetProber.reset(self)
-        self._mLastOrder = 255  # char order of last character
+        # char order of last character
+        self._mLastOrder = 255
         self._mSeqCounters = [0] * NUMBER_OF_SEQ_CAT
         self._mTotalSeqs = 0
         self._mTotalChar = 0
-        self._mFreqChar = 0  # characters that fall in our sampling range
+        # characters that fall in our sampling range
+        self._mFreqChar = 0
 
     def get_charset_name(self):
         if self._mNameProber:
@@ -72,10 +74,7 @@ class SingleByteCharSetProber(CharSetProber):
         if not aLen:
             return self.get_state()
         for c in aBuf:
-            try:
-                order = self._mModel['charToOrderMap'][wrap_ord(c)]
-            except IndexError:
-                return constants.eError
+            order = self._mModel['charToOrderMap'][wrap_ord(c)]
             if order < SYMBOL_CAT_ORDER:
                 self._mTotalChar += 1
             if order < SAMPLE_SIZE:
@@ -84,9 +83,10 @@ class SingleByteCharSetProber(CharSetProber):
                     self._mTotalSeqs += 1
                     if not self._mReversed:
                         i = (self._mLastOrder * SAMPLE_SIZE) + order
+                        model = self._mModel['precedenceMatrix'][i]
                     else:  # reverse the order of the letters in the lookup
                         i = (order * SAMPLE_SIZE) + self._mLastOrder
-                    model = self._mModel['precedenceMatrix'][i]
+                        model = self._mModel['precedenceMatrix'][i]
                     self._mSeqCounters[model] += 1
             self._mLastOrder = order
 
@@ -96,14 +96,13 @@ class SingleByteCharSetProber(CharSetProber):
                 if cf > POSITIVE_SHORTCUT_THRESHOLD:
                     if constants._debug:
                         sys.stderr.write('%s confidence = %s, we have a'
-                                         ' winner\n' %
-                                         (self._mModel['charsetName'],
-                                          cf))
+                                         'winner\n' %
+                                         (self._mModel['charsetName'], cf))
                     self._mState = constants.eFoundIt
                 elif cf < NEGATIVE_SHORTCUT_THRESHOLD:
                     if constants._debug:
                         sys.stderr.write('%s confidence = %s, below negative'
-                                         ' shortcut threshhold %s\n' %
+                                         'shortcut threshhold %s\n' %
                                          (self._mModel['charsetName'], cf,
                                           NEGATIVE_SHORTCUT_THRESHOLD))
                     self._mState = constants.eNotMe
@@ -113,11 +112,8 @@ class SingleByteCharSetProber(CharSetProber):
     def get_confidence(self):
         r = 0.01
         if self._mTotalSeqs > 0:
-            #print(self._mSeqCounters[POSITIVE_CAT], self._mTotalSeqs,
-            #      self._mModel['mTypicalPositiveRatio'])
             r = ((1.0 * self._mSeqCounters[POSITIVE_CAT]) / self._mTotalSeqs
                  / self._mModel['mTypicalPositiveRatio'])
-            #print(r, self._mFreqChar, self._mTotalChar)
             r = r * self._mFreqChar / self._mTotalChar
             if r >= 1.0:
                 r = 0.99

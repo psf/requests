@@ -19,11 +19,8 @@
 ######################### END LICENSE BLOCK #########################
 
 
-from sys import version_info
-
-
 def wrap_ord(a):
-    if isinstance(a, str) and version_info < (3, 0):
+    if isinstance(a, str):
         return ord(a)
-    elif isinstance(a, int) and version_info >= (3, 0):
+    elif isinstance(a, int):
         return a

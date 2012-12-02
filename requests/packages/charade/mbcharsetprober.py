@@ -37,7 +37,7 @@ class MultiByteCharSetProber(CharSetProber):
         CharSetProber.__init__(self)
         self._mDistributionAnalyzer = None
         self._mCodingSM = None
-        self._mLastChar = ['\x00', '\x00']
+        self._mLastChar = [0, 0]
 
     def reset(self):
         CharSetProber.reset(self)
@@ -45,7 +45,7 @@ class MultiByteCharSetProber(CharSetProber):
             self._mCodingSM.reset()
         if self._mDistributionAnalyzer:
             self._mDistributionAnalyzer.reset()
-        self._mLastChar = ['\x00', '\x00']
+        self._mLastChar = [0, 0]
 
     def get_charset_name(self):
         pass
@@ -56,9 +56,9 @@ class MultiByteCharSetProber(CharSetProber):
             codingState = self._mCodingSM.next_state(aBuf[i])
             if codingState == constants.eError:
                 if constants._debug:
-                    sys.stderr.write(self.get_charset_name() +
-                                     ' prober hit error at byte ' + str(i) +
-                                     '\n')
+                    sys.stderr.write(self.get_charset_name()
+                                     + ' prober hit error at byte ' + str(i)
+                                     + '\n')
                 self._mState = constants.eNotMe
                 break
             elif codingState == constants.eItsMe:
@@ -77,7 +77,7 @@ class MultiByteCharSetProber(CharSetProber):
 
         if self.get_state() == constants.eDetecting:
             if (self._mDistributionAnalyzer.got_enough_data() and
-               (self.get_confidence() > constants.SHORTCUT_THRESHOLD)):
+                    (self.get_confidence() > constants.SHORTCUT_THRESHOLD)):
                 self._mState = constants.eFoundIt
 
         return self.get_state()

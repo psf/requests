@@ -13,12 +13,12 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -28,7 +28,7 @@
 # Sampling from about 20M text materials include literature and computer technology
 #
 # Japanese frequency table, applied to both S-JIS and EUC-JP
-# They are sorted in order. 
+# They are sorted in order.
 
 # 128  --> 0.77094
 # 256  --> 0.85710
@@ -38,15 +38,15 @@
 #
 # Ideal Distribution Ratio = 0.92635 / (1-0.92635) = 12.58
 # Random Distribution Ration = 512 / (2965+62+83+86-512) = 0.191
-# 
-# Typical Distribution Ratio, 25% of IDR 
+#
+# Typical Distribution Ratio, 25% of IDR
 
 JIS_TYPICAL_DISTRIBUTION_RATIO = 3.0
 
-# Char to FreqOrder table , 
+# Char to FreqOrder table ,
 JIS_TABLE_SIZE = 4368
 
-JISCharToFreqOrder = ( \
+JISCharToFreqOrder = (
   40,   1,   6, 182, 152, 180, 295,2127, 285, 381,3295,4304,3068,4606,3165,3510, #   16
 3511,1822,2785,4607,1193,2226,5070,4608, 171,2996,1247,  18, 179,5071, 856,1661, #   32
 1262,5072, 619, 127,3431,3512,3230,1899,1700, 232, 228,1294,1298, 284, 283,2041, #   48
@@ -565,3 +565,5 @@ JISCharToFreqOrder = ( \
 8224,8225,8226,8227,8228,8229,8230,8231,8232,8233,8234,8235,8236,8237,8238,8239, # 8240
 8240,8241,8242,8243,8244,8245,8246,8247,8248,8249,8250,8251,8252,8253,8254,8255, # 8256
 8256,8257,8258,8259,8260,8261,8262,8263,8264,8265,8266,8267,8268,8269,8270,8271) # 8272
+
+# flake8: noqa

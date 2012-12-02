@@ -1,0 +1,13 @@
+{
+  "url": "http://httpbin.org/get",
+  "headers": {
+    "Content-Length": "",
+    "Connection": "keep-alive",
+    "Accept": "*/*",
+    "User-Agent": "curl/7.24.0 (x86_64-apple-darwin12.0) libcurl/7.24.0 OpenSSL/0.9.8r zlib/1.2.5",
+    "Host": "httpbin.org",
+    "Content-Type": ""
+  },
+  "args": {},
+  "origin": "184.72.18.219"
+}
