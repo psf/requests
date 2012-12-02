@@ -48,3 +48,4 @@ defaults['keep_alive'] = True
 defaults['encode_uri'] = True
 defaults['trust_env'] = True
 defaults['store_cookies'] = True
+defaults['support_http0.9'] = True

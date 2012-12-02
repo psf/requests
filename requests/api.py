@@ -44,7 +44,7 @@ def request(method, url, **kwargs):
     adhoc_session = False
     session = kwargs.pop('session', None)
     if session is None:
-        session = sessions.session()
+        session = sessions.session(config=kwargs.get('config', None))
         adhoc_session = True
 
     try:
