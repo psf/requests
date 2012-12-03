@@ -16,7 +16,7 @@ perform the simplest of tasks.
 
 Things shouldn't be this way. Not in Python.
 
-::
+.. code-block:: pycon
 
     >>> r = requests.get('https://api.github.com', auth=('user', 'pass'))
     >>> r.status_code
@@ -54,11 +54,15 @@ Features
 Installation
 ------------
 
-To install requests, simply: ::
+To install requests, simply:
+
+.. code-block:: bash
 
     $ pip install requests
 
-Or, if you absolutely must: ::
+Or, if you absolutely must:
+
+.. code-block:: bash
 
     $ easy_install requests
 
