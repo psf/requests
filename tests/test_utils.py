@@ -118,5 +118,26 @@ class UtilityTests(unittest.TestCase):
         else:
             del os.environ['no_proxy']
 
+    def test_parse_header_links(self):
+        r'''Checks that header links are parsed properly'''
+        link1 = '</same-rel-1>;rel=alternate,</same-rel-2>;rel="alternate"'
+        expected1 = {'alternate': [{'href': '/same-rel-1',
+                                   'rel': 'alternate'},
+                                  {'href': '/same-rel-2',
+                                   'rel': 'alternate'}]}
+        result1 = requests.utils.parse_header_links(link1)
+        self.assertEqual(result1, expected1)
+
+        link2 = '</two-rel>;rel="alternate self";title="The Title"'
+        expected2 = {'alternate': [{'href' : '/two-rel',
+                                    'rel': 'alternate',
+                                    'title': 'The Title'}],
+                     'self' : [{'href' : '/two-rel',
+                                'rel': 'self',
+                                'title': 'The Title'}]}
+        result2 = requests.utils.parse_header_links(link2)
+        self.assertEqual(result2, expected2)
+
+
 if __name__ == '__main__':
     unittest.main()
