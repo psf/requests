@@ -137,12 +137,13 @@ In case the JSON decoding fails, ``r.json`` simply returns ``None``.
 Raw Response Content
 --------------------
 
-In the rare case that you'd like to get the absolute raw socket response from the server,
-you can access ``r.raw``::
+In the rare case that you'd like to get the raw socket response from the
+server, you can access ``r.raw``. If you want to do this, make sure you set
+``prefetch=False`` in your initial request. Once you do, you can do this::
 
+    >>> r = requests.get('https:/github.com/timeline.json', prefetch=False)
     >>> r.raw
     <requests.packages.urllib3.response.HTTPResponse object at 0x101194810>
-
     >>> r.raw.read(10)
     '\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03'
 
