@@ -700,6 +700,8 @@ class Response(object):
         self.headers = CaseInsensitiveDict()
 
         #: File-like object representation of response (for advanced usage).
+        #: Requires that ``prefetch=False` on the request.
+        # This requirement does not apply for use internally to Requests.
         self.raw = None
 
         #: Final URL location of Response.
