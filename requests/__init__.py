@@ -37,7 +37,7 @@ The other HTTP methods are supported - see `requests.api`. Full documentation
 is at <http://python-requests.org>.
 
 :copyright: (c) 2012 by Kenneth Reitz.
-:license: ISC, see LICENSE for more details.
+:license: Apache 2.0, see LICENSE for more details.
 
 """
 
@@ -45,7 +45,7 @@ __title__ = 'requests'
 __version__ = '0.14.2'
 __build__ = 0x001402
 __author__ = 'Kenneth Reitz'
-__license__ = 'ISC'
+__license__ = 'Apache 2.0'
 __copyright__ = 'Copyright 2012 Kenneth Reitz'
 
 
