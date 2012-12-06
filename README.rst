@@ -5,7 +5,7 @@ Requests: HTTP for Humans
 .. image:: https://secure.travis-ci.org/kennethreitz/requests.png?branch=develop
         :target: https://secure.travis-ci.org/kennethreitz/requests
 
-Requests is an ISC Licensed HTTP library, written in Python, for human
+Requests is an Apache2 Licensed HTTP library, written in Python, for human
 beings.
 
 Most existing Python modules for sending HTTP requests are extremely
