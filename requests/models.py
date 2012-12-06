@@ -734,6 +734,14 @@ class Response(object):
         """Returns true if :attr:`status_code` is 'OK'."""
         return self.ok
 
+    def __iter__(self):
+        """Iterates over the response data, one line at a time."""
+        return self.iter_lines()
+
+    def __len__(self):
+        """Returns the content-length."""
+        return int(self.headers.get('content-length', len(self.content)))
+
     def __nonzero__(self):
         """Returns true if :attr:`status_code` is 'OK'."""
         return self.ok
