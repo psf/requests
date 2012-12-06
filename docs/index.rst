@@ -8,7 +8,7 @@ Requests: HTTP for Humans
 
 Release v\ |version|. (:ref:`Installation <install>`)
 
-Requests is an :ref:`ISC Licensed <isc>` HTTP library, written in Python, for human beings.
+Requests is an :ref:`Apache2 Licensed <apache2>` HTTP library, written in Python, for human beings.
 
 Python's standard **urllib2** module provides most of
 the HTTP capabilities you need, but the API is thoroughly **broken**.

@@ -17,9 +17,9 @@ Requests was developed with a few :pep:`20` idioms in mind.
 
 All contributions to Requests should keep these important rules in mind.
 
-.. _`isc`:
+.. _`apache2`:
 
-ISC License
+Apache2 License
 -----------
 
 A large number of open source projects you find today are `GPL Licensed`_.
@@ -33,10 +33,10 @@ The MIT, BSD, ISC, and Apache2 licenses are great alternatives to the GPL
 that allow your open-source software to be used freely in proprietary,
 closed-source software.
 
-Requests is released under terms of `The ISC License`_.
+Requests is released under terms of `Apache2 License`_.
 
 .. _`GPL Licensed`: http://www.opensource.org/licenses/gpl-license.php
-.. _`The ISC License`: http://www.opensource.org/licenses/isc-license
+.. _`Apache2 License`: http://opensource.org/licenses/Apache-2.0
 
 
 Requests License
