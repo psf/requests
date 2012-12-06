@@ -65,7 +65,7 @@ def encode_multipart_formdata(fields, boundary=None):
         if isinstance(value, tuple):
             filename, data = value
             writer(body).write('Content-Disposition: form-data; name="%s"; '
-                               'filename="%s"\r\n' % (fieldname, filename))
+                               'filename="%s"\r\n' % (fieldname, filename.decode("utf-8")))
             body.write(b('Content-Type: %s\r\n\r\n' %
                        (get_content_type(filename))))
         else:
