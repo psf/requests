@@ -49,6 +49,9 @@ from .exceptions import (
     MaxRetryError,
     SSLError,
     TimeoutError,
+    InnerConnectionTimeoutError,
+    ConnectionTimeoutError,
+    OperationTimeoutError,
 )
 
 from .packages.ssl_match_hostname import match_hostname, CertificateError
@@ -69,7 +72,74 @@ port_by_scheme = {
 
 ## Connection objects (extension of httplib)
 
-class VerifiedHTTPSConnection(HTTPSConnection):
+class HTTPConnectionTwo(HTTPConnection):
+    """
+    Based on httplib.HTTPConnection but has differents timeouts
+    for connection time and operation (waiting for actual reply)
+    also throws different exceptions in those two cases.
+    """
+
+    def __init__(self, host, port=None, strict=None,
+                 timeout=socket._GLOBAL_DEFAULT_TIMEOUT):
+
+        # timeout can be either single value or pair
+        if isinstance(timeout, (list, tuple)) and len(timeout) > 1:
+            HTTPConnection.__init__(self, host, port=port, strict=strict, timeout=timeout[0])
+            self.connect_timeout = timeout[1]
+        else:
+            HTTPConnection.__init__(self, host, port=port, strict=strict, timeout=timeout)
+            self.connect_timeout = timeout
+
+
+    def connect(self):
+        """Connect to the host and port specified in __init__ with connect_timeout instead of timeout."""
+        try:
+            self.sock = socket.create_connection((self.host,self.port), self.connect_timeout)
+        except socket.timeout, err:
+            raise InnerConnectionTimeoutError()
+
+        if self.timeout == socket._GLOBAL_DEFAULT_TIMEOUT:
+            self.sock.settimeout(socket.getdefaulttimeout())
+        else:
+            self.sock.settimeout(self.timeout)
+
+
+class HTTPSConnectionTwo(HTTPSConnection):
+    """
+    Based on httplib.HTTPConnection but has differents timeouts
+    for connection time and operation (waiting for actual reply)
+    also throws different exceptions in those two cases.
+    """
+
+    def __init__(self, host, port=None, key_file=None, cert_file=None,
+                 strict=None, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
+                 connect_timeout=socket._GLOBAL_DEFAULT_TIMEOUT):
+
+        # timeout can be either single value or pair
+        if isinstance(timeout, (list, tuple)) and len(timeout) > 1:
+            HTTPSConnection.__init__(self, host, port=port, key_file=key_file,
+                cert_file=cert_file, strict=strict, timeout=timeout[0])
+            self.connect_timeout = timeout[1]
+        else:
+            HTTPSConnection.__init__(self, host, port=port, key_file=key_file,
+                cert_file=cert_file, strict=strict, timeout=timeout)
+            self.connect_timeout = timeout
+
+    def connect(self):
+        "Connect to a host on a given (SSL) port with connect_timeout instead of timeout."
+        try:
+            sock = socket.create_connection((self.host,self.port), self.connect_timeout)
+        except socket.timeout, err:
+            raise InnerConnectionTimeoutError()
+
+        if self.timeout == socket._GLOBAL_DEFAULT_TIMEOUT:
+            sock.settimeout(socket.getdefaulttimeout())
+        else:
+            sock.settimeout(self.timeout)
+
+        self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file)
+
+class VerifiedHTTPSConnection(HTTPSConnectionTwo):
     """
     Based on httplib.HTTPSConnection but wraps the socket with
     SSL certification.
@@ -92,7 +162,15 @@ class VerifiedHTTPSConnection(HTTPSConnection):
 
     def connect(self):
         # Add certificate verification
-        sock = socket.create_connection((self.host, self.port), self.timeout)
+        try:
+            sock = socket.create_connection((self.host,self.port), self.connect_timeout)
+        except socket.timeout, err:
+            raise InnerConnectionTimeoutError()
+
+        if self.timeout == socket._GLOBAL_DEFAULT_TIMEOUT:
+            sock.settimeout(socket.getdefaulttimeout())
+        else:
+            sock.settimeout(self.timeout)
 
         # Wrap socket using verification with the root certs in
         # trusted_root_certs
@@ -189,7 +267,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         self.num_connections += 1
         log.info("Starting new HTTP connection (%d): %s" %
                  (self.num_connections, self.host))
-        return HTTPConnection(host=self.host, port=self.port)
+        return HTTPConnectionTwo(host=self.host, port=self.port)
 
     def _get_conn(self, timeout=None):
         """
@@ -252,7 +330,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         # Connection never got put back into the pool, close it.
         conn.close()
 
-    def _make_request(self, conn, method, url, timeout=_Default,
+    def _make_request(self, conn, method, url, timeout=_Default, connect_timeout=_Default,
                       **httplib_request_kw):
         """
         Perform a request on a given httplib connection object taken from our
@@ -264,6 +342,10 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             timeout = self.timeout
 
         conn.timeout = timeout # This only does anything in Py26+
+        if connect_timeout == _Default:
+            conn.connect_timeout = timeout
+        else:
+            conn.connect_timeout = connect_timeout
         conn.request(method, url, **httplib_request_kw)
 
         # Set timeout
@@ -318,7 +400,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
     def urlopen(self, method, url, body=None, headers=None, retries=3,
                 redirect=True, assert_same_host=True, timeout=_Default,
-                pool_timeout=None, release_conn=None, **response_kw):
+                pool_timeout=None, release_conn=None, connect_timeout=_Default,
+                **response_kw):
         """
         Get a connection from the pool and perform an HTTP request. This is the
         lowest level call for making a request, so you'll need to specify all
@@ -403,7 +486,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
             raise HostChangedError(self, url, retries - 1)
 
-        conn = None
+        conn, response, err = None, None, None
 
         try:
             # Request a connection from the queue
@@ -412,6 +495,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             # Make the request on the httplib connection object
             httplib_response = self._make_request(conn, method, url,
                                                   timeout=timeout,
+                                                  connect_timeout=connect_timeout,
                                                   body=body, headers=headers)
 
             # If we're going to release the connection in ``finally:``, then
@@ -438,8 +522,13 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         except SocketTimeout as e:
             # Timed out by socket
-            raise TimeoutError(self, "Request timed out. (timeout=%s)" %
-                               timeout)
+            raise OperationTimeoutError(self, "Request timed out. (timeout=%s)" %
+                                        timeout)
+
+        except InnerConnectionTimeoutError as e:
+            # Could not connect to host:port - timed out by socket
+            raise ConnectionTimeoutError(self, "Request timed out. (connect_timeout=%s)" %
+                                         connect_timeout)
 
         except BaseSSLError as e:
             # SSL certificate error
@@ -469,7 +558,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             return self.urlopen(method, url, body, headers, retries - 1,
                                 redirect, assert_same_host,
                                 timeout=timeout, pool_timeout=pool_timeout,
-                                release_conn=release_conn, **response_kw)
+                                release_conn=release_conn, connect_timeout=connect_timeout,
+                                **response_kw)
 
         # Handle redirect?
         redirect_location = redirect and response.get_redirect_location()
@@ -480,7 +570,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             return self.urlopen(method, redirect_location, body, headers,
                                 retries - 1, redirect, assert_same_host,
                                 timeout=timeout, pool_timeout=pool_timeout,
-                                release_conn=release_conn, **response_kw)
+                                release_conn=release_conn, connect_timeout=connect_timeout,
+                                **response_kw)
 
         return response
 
@@ -523,11 +614,11 @@ class HTTPSConnectionPool(HTTPConnectionPool):
                  % (self.num_connections, self.host))
 
         if not ssl: # Platform-specific: Python compiled without +ssl
-            if not HTTPSConnection or HTTPSConnection is object:
+            if not HTTPSConnectionTwo or HTTPSConnectionTwo is object:
                 raise SSLError("Can't connect to HTTPS URL because the SSL "
                                "module is not available.")
 
-            return HTTPSConnection(host=self.host, port=self.port)
+            return HTTPSConnectionTwo(host=self.host, port=self.port)
 
         connection = VerifiedHTTPSConnection(host=self.host, port=self.port)
         connection.set_cert(key_file=self.key_file, cert_file=self.cert_file,

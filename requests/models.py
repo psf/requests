@@ -19,14 +19,14 @@ from .status_codes import codes
 from .auth import HTTPBasicAuth, HTTPProxyAuth
 from .cookies import cookiejar_from_dict, extract_cookies_to_jar, get_cookie_header
 from .packages.urllib3.exceptions import MaxRetryError, LocationParseError
-from .packages.urllib3.exceptions import TimeoutError
+from .packages.urllib3.exceptions import TimeoutError, ConnectionTimeoutError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .packages.urllib3 import connectionpool, poolmanager
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .defaults import SCHEMAS
 from .exceptions import (
-    ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
+    ConnectionError, HTTPError, RequestException, Timeout, ConnectionTimeout, TooManyRedirects,
     URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
@@ -639,6 +639,8 @@ class Request(object):
             except (_SSLError, _HTTPError) as e:
                 if isinstance(e, _SSLError):
                     raise SSLError(e)
+                elif isinstance(e, ConnectionTimeoutError):
+                    raise ConnectionTimeout(e)
                 elif isinstance(e, TimeoutError):
                     raise Timeout(e)
                 else:

@@ -1020,6 +1020,20 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
     #     assert r.content is None
     #     assert isinstance(r.error, requests.exceptions.Timeout)
 
+    def test_connect_timeout(self):
+
+        self.assertRaises(
+            requests.exceptions.ConnectionTimeout,
+            get,
+            httpbin('stream', '1000'), timeout=0.0001)
+
+        # In safe mode, should return a blank response
+        r = get(httpbin('delay', '1000'), timeout=1,
+                config=dict(safe_mode=True))
+        assert r.content is None
+        assert isinstance(r.error, requests.exceptions.Timeout)
+        self.assertFalse(isinstance(r.error, requests.exceptions.ConnectionTimeout))
+
     def test_upload_binary_data(self):
 
         requests.get(httpbin('post'), auth=('a', 'b'), data='\xff')

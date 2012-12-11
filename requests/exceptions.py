@@ -30,6 +30,9 @@ class SSLError(ConnectionError):
 class Timeout(RequestException):
     """The request timed out."""
 
+class ConnectionTimeout(Timeout):
+    """The connection to host timed out."""
+
 
 class URLRequired(RequestException):
     """A valid URL is required to make a request."""
