@@ -3,8 +3,8 @@
 
 import os
 import sys
-import requests
-from requests.compat import is_py3, is_py2
+import requesocks
+from requesocks.compat import is_py3, is_py2
 
 try:
     from setuptools import setup
@@ -23,24 +23,24 @@ if sys.argv[-1] == 'test':
 
 required = ['certifi>=0.0.7',]
 packages = [
-    'requests',
-    'requests.packages',
-    'requests.packages.urllib3',
-    'requests.packages.urllib3.packages',
-    'requests.packages.urllib3.packages.ssl_match_hostname',
-    'requests.packages.urllib3.packages.mimetools_choose_boundary',
+    'requesocks',
+    'requesocks.packages',
+    'requesocks.packages.urllib3',
+    'requesocks.packages.urllib3.packages',
+    'requesocks.packages.urllib3.packages.ssl_match_hostname',
+    'requesocks.packages.urllib3.packages.mimetools_choose_boundary',
 ]
 
 if is_py3:
     required.append('chardet2')
 else:
     required.append('chardet>=1.0.0')
-    packages.append('requests.packages.oreos')
+    packages.append('requesocks.packages.oreos')
 
 
 setup(
-    name='requests',
-    version=requests.__version__,
+    name='requesocks',
+    version=requesocks.__version__,
     description='Python HTTP for Humans.',
     long_description=open('README.rst').read() + '\n\n' +
                      open('HISTORY.rst').read(),
