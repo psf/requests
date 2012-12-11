@@ -1,3 +1,6 @@
+Fork of github.com/foxx/requests == python-requests *working with socks proxy* (i.e tor).
+Just renamed the package to allow simultaneously use of original reuests and socks-capable requests.
+
 Requests: HTTP for Humans
 =========================
 
