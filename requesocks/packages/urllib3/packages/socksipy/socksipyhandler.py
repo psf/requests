@@ -9,7 +9,7 @@ This module provides a Handler which you can use with urllib2 to allow it to tun
 
 import urllib2
 import httplib
-from requests.requesocks.packages.urllib3.packages.socksipy import socks
+import socks
 
 class SocksiPyConnection(httplib.HTTPConnection):
     def __init__(self, proxytype, proxyaddr, proxyport = None, rdns = True, username = None, password = None, *args, **kwargs):

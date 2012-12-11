@@ -100,6 +100,14 @@ class Request(object):
         self.allow_redirects = allow_redirects
 
         # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})
+        # Modified proxies dict from urllib
+        #
+        # Accepts:
+        #  - socks4://1.2.3.4:8080
+        #  - socks5://1.2.3.4:8080
+        #  - http://1.2.3.4:8080
+        #
+
         self.proxies = dict(proxies or [])
 
         # If no proxies are given, allow configuration by environment variables
@@ -463,17 +471,57 @@ class Request(object):
             # Update self to reflect the auth changes.
             self.__dict__.update(r.__dict__)
 
-        _p = urlparse(url)
-        proxy = self.proxies.get(_p.scheme)
+        _target_scheme = urlparse(url).scheme
+
+        # extract scheme/host/port for the proxy
+        proxy = self.proxies.get(_target_scheme)
 
         if proxy:
-            conn = poolmanager.proxy_from_url(proxy)
-            _proxy = urlparse(proxy)
-            if '@' in _proxy.netloc:
-                auth, url = _proxy.netloc.split('@', 1)
-                self.proxy_auth = HTTPProxyAuth(*auth.split(':', 1))
-                r = self.proxy_auth(self)
-                self.__dict__.update(r.__dict__)
+            # extract some proxy info
+            _proxy_scheme, _proxy_host, _proxy_port = connectionpool.get_host(proxy)
+
+            if _proxy_scheme in ('socks4', 'socks5'):
+                # NEVER use keep alive for this type of proxy
+                conn = connectionpool.connection_from_url(url)
+
+                # override our connection to hit the proxy first
+                conn._proxy_scheme = _proxy_scheme
+                conn._proxy_host = _proxy_host
+                conn._proxy_port = int(_proxy_port)
+
+            elif _target_scheme == "https":
+                # NEVER use keep alive for this type of proxy
+                conn = connectionpool.connection_from_url(url)
+
+                # store our original connection for _tunnel()
+                conn._tunnel_host = conn.host
+                conn._tunnel_port = conn.port
+
+                # override our connection to hit the proxy first
+                conn._proxy_scheme = _proxy_scheme
+                conn._proxy_host = _proxy_host
+                conn._proxy_port = int(_proxy_port)
+
+                # Same headers are curl passes for --proxy1.0
+                conn._tunnel_headers = {
+                    'Accept' : '*/*',
+                    'Proxy-Connection' : 'close'
+                }
+
+                # forcibly disable SSL verification due to the proxy
+                # always failing (e.g. burp proxy)
+                self.verify = False
+
+            else:
+                # use the original poolmanager proxy
+                conn = poolmanager.proxy_from_url(proxy)
+                _proxy = urlparse(proxy)
+                if '@' in _proxy.netloc:
+                    auth, url = _proxy.netloc.split('@', 1)
+                    self.proxy_auth = HTTPProxyAuth(*auth.split(':', 1))
+                    r = self.proxy_auth(self)
+                    self.__dict__.update(r.__dict__)
+
         else:
             # Check to see if keep_alive is allowed.
             if self.config.get('keep_alive'):
@@ -553,7 +601,7 @@ class Request(object):
                     raise ConnectionError(e)
 
                 except (_SSLError, _HTTPError) as e:
-                    if self.verify and isinstance(e, _SSLError):
+                    if isinstance(e, _SSLError):
                         raise SSLError(e)
 
                     raise Timeout('Request timed out.')
