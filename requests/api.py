@@ -7,7 +7,7 @@ requests.api
 This module implements the Requests API.
 
 :copyright: (c) 2012 by Kenneth Reitz.
-:license: ISC, see LICENSE for more details.
+:license: Apache2, see LICENSE for more details.
 
 """
 
@@ -42,7 +42,7 @@ def request(method, url, **kwargs):
     adhoc_session = False
     session = kwargs.pop('session', None)
     if session is None:
-        session = sessions.session()
+        session = sessions.session(config=kwargs.get('config', None))
         adhoc_session = True
 
     try:

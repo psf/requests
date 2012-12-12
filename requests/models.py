@@ -233,7 +233,7 @@ class Request(object):
 
         if r.status_code in REDIRECT_STATI and not self.redirect:
 
-            while (('location' in r.headers) and
+            while (('location' in r.headers and r.status_code in REDIRECT_STATI) and
                    ((r.status_code is codes.see_other) or (self.allow_redirects))):
 
                 r.content  # Consume socket so it can be released
@@ -700,6 +700,8 @@ class Response(object):
         self.headers = CaseInsensitiveDict()
 
         #: File-like object representation of response (for advanced usage).
+        #: Requires that ``prefetch=False` on the request.
+        # This requirement does not apply for use internally to Requests.
         self.raw = None
 
         #: Final URL location of Response.

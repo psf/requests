@@ -125,7 +125,8 @@ class Session(object):
     def init_poolmanager(self):
         self.poolmanager = PoolManager(
             num_pools=self.config.get('pool_connections'),
-            maxsize=self.config.get('pool_maxsize')
+            maxsize=self.config.get('pool_maxsize'),
+            strict=not self.config.get('support_http0.9')
         )
 
     def __repr__(self):
