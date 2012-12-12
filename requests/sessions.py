@@ -58,7 +58,7 @@ class Session(object):
 
     __attrs__ = [
         'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
-        'params', 'config', 'verify', 'cert', 'prefetch']
+        'params', 'config', 'verify', 'cert', 'prefetch', 'connect_timeout']
 
     def __init__(self,
         headers=None,
@@ -71,11 +71,13 @@ class Session(object):
         config=None,
         prefetch=True,
         verify=True,
-        cert=None):
+        cert=None,
+        connect_timeout=None):
 
         self.headers = from_key_val_list(headers or [])
         self.auth = auth
         self.timeout = timeout
+        self.connect_timeout = connect_timeout
         self.proxies = from_key_val_list(proxies or [])
         self.hooks = from_key_val_list(hooks or {})
         self.params = from_key_val_list(params or [])
@@ -133,7 +135,8 @@ class Session(object):
         config=None,
         prefetch=None,
         verify=None,
-        cert=None):
+        cert=None,
+        connect_timeout=None):
 
         """Constructs and sends a :class:`Request <Request>`.
         Returns :class:`Response <Response>` object.
@@ -154,6 +157,7 @@ class Session(object):
         :param prefetch: (optional) whether to immediately download the response content. Defaults to ``True``.
         :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
         :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+        :param connect_timeout: (optional) Float describing the timeout of the connection attempt.
         """
 
         method = str(method).upper()
@@ -192,7 +196,8 @@ class Session(object):
             prefetch=prefetch,
             verify=verify,
             cert=cert,
-            _poolmanager=self.poolmanager
+            _poolmanager=self.poolmanager,
+            connect_timeout=connect_timeout
         )
 
         # merge session cookies into passed-in ones

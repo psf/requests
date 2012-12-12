@@ -1025,14 +1025,37 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         self.assertRaises(
             requests.exceptions.ConnectionTimeout,
             get,
-            httpbin('stream', '1000'), timeout=0.0001)
+            httpbin('stream', '1000'), timeout=10, connect_timeout=0.0001)
+        try:
+            get(httpbin('stream', '1000'), timeout=10, connect_timeout=0.0001)
+        except requests.exceptions.ConnectionTimeout, ex:
+            assert ex.args[0].args[0].endswith("Request timed out. (connect_timeout=0.0001)")
 
         # In safe mode, should return a blank response
-        r = get(httpbin('delay', '1000'), timeout=1,
-                config=dict(safe_mode=True))
+        r = get(httpbin('delay', '1000'), timeout=1, connect_timeout=10,
+            config=dict(safe_mode=True))
         assert r.content is None
         assert isinstance(r.error, requests.exceptions.Timeout)
-        self.assertFalse(isinstance(r.error, requests.exceptions.ConnectionTimeout))
+        assert isinstance(r.error, requests.exceptions.OperationTimeout)
+        assert r.error.args[0].args[0].endswith("Request timed out. (timeout=1)")
+
+        # Imitating old behavior with one timeout parameter
+        self.assertRaises(
+            requests.exceptions.ConnectionTimeout,
+            get,
+            httpbin('stream', '1000'), timeout=0.0001)
+        r = get(httpbin('stream', '1000'), timeout=0.0001, config=dict(safe_mode=True))
+        assert r.content is None
+        assert isinstance(r.error, requests.exceptions.Timeout)
+        assert isinstance(r.error, requests.exceptions.ConnectionTimeout)
+        assert r.error.args[0].args[0].endswith("Request timed out. (connect_timeout=0.0001)")
+
+        r = get(httpbin('delay', '1000'), timeout=1,
+            config=dict(safe_mode=True))
+        assert r.content is None
+        assert isinstance(r.error, requests.exceptions.Timeout)
+        assert isinstance(r.error, requests.exceptions.OperationTimeout)
+        assert r.error.args[0].args[0].endswith("Request timed out. (timeout=1)")
 
     def test_upload_binary_data(self):
 

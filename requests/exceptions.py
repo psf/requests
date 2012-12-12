@@ -30,6 +30,10 @@ class SSLError(ConnectionError):
 class Timeout(RequestException):
     """The request timed out."""
 
+class OperationTimeout(Timeout):
+    """Operation timed out while waiting for query results."""
+
+
 class ConnectionTimeout(Timeout):
     """The connection to host timed out."""
 

@@ -49,8 +49,8 @@ from .exceptions import (
     MaxRetryError,
     SSLError,
     TimeoutError,
-    InnerConnectionTimeoutError,
     ConnectionTimeoutError,
+    InnerConnectionTimeoutError,
     OperationTimeoutError,
 )
 
@@ -98,7 +98,7 @@ class HTTPConnectionTwo(HTTPConnection):
         except socket.timeout, err:
             raise InnerConnectionTimeoutError()
 
-        if self.timeout == socket._GLOBAL_DEFAULT_TIMEOUT:
+        if self.timeout is socket._GLOBAL_DEFAULT_TIMEOUT:
             self.sock.settimeout(socket.getdefaulttimeout())
         else:
             self.sock.settimeout(self.timeout)
@@ -132,7 +132,7 @@ class HTTPSConnectionTwo(HTTPSConnection):
         except socket.timeout, err:
             raise InnerConnectionTimeoutError()
 
-        if self.timeout == socket._GLOBAL_DEFAULT_TIMEOUT:
+        if self.timeout is socket._GLOBAL_DEFAULT_TIMEOUT:
             sock.settimeout(socket.getdefaulttimeout())
         else:
             sock.settimeout(self.timeout)
@@ -167,7 +167,7 @@ class VerifiedHTTPSConnection(HTTPSConnectionTwo):
         except socket.timeout, err:
             raise InnerConnectionTimeoutError()
 
-        if self.timeout == socket._GLOBAL_DEFAULT_TIMEOUT:
+        if self.timeout is socket._GLOBAL_DEFAULT_TIMEOUT:
             sock.settimeout(socket.getdefaulttimeout())
         else:
             sock.settimeout(self.timeout)
@@ -238,16 +238,22 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
     :param headers:
         Headers to include with all requests, unless other headers are given
         explicitly.
+
+    :param connect_timeout:
+        Socket connection timeout for each individual connection, can be a float.
+        If None timeout parameter is used instead. Affects only connection attemp,
+        for actual operations timeout parameter is used.
     """
 
     scheme = 'http'
 
     def __init__(self, host, port=None, strict=False, timeout=None, maxsize=1,
-                 block=False, headers=None):
+                 block=False, headers=None, connect_timeout=None):
         super(HTTPConnectionPool, self).__init__(host, port)
 
         self.strict = strict
         self.timeout = timeout
+        self.connect_timeout = connect_timeout
         self.pool = self.QueueCls(maxsize)
         self.block = block
         self.headers = headers or {}
@@ -262,7 +268,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
     def _new_conn(self):
         """
-        Return a fresh :class:`httplib.HTTPConnection`.
+        Return a fresh :class:`HTTPConnectionTwo`.
         """
         self.num_connections += 1
         log.info("Starting new HTTP connection (%d): %s" %
@@ -340,12 +346,11 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         if timeout is _Default:
             timeout = self.timeout
+        if connect_timeout is _Default:
+            connect_timeout = self.timeout
 
         conn.timeout = timeout # This only does anything in Py26+
-        if connect_timeout == _Default:
-            conn.connect_timeout = timeout
-        else:
-            conn.connect_timeout = connect_timeout
+        conn.connect_timeout = connect_timeout # Same goes here.
         conn.request(method, url, **httplib_request_kw)
 
         # Set timeout
@@ -462,6 +467,9 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             back into the pool. If None, it takes the value of
             ``response_kw.get('preload_content', True)``.
 
+        :param connect_timeout:
+            If specified, overrides the default connect_timeout for this one request.
+
         :param \**response_kw:
             Additional parameters are passed to
             :meth:`urllib3.response.HTTPResponse.from_httplib`
@@ -474,6 +482,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         if timeout is _Default:
             timeout = self.timeout
+        if connect_timeout is _Default:
+            connect_timeout = self.connect_timeout
 
         if release_conn is None:
             release_conn = response_kw.get('preload_content', True)
@@ -595,11 +605,11 @@ class HTTPSConnectionPool(HTTPConnectionPool):
                  strict=False, timeout=None, maxsize=1,
                  block=False, headers=None,
                  key_file=None, cert_file=None,
-                 cert_reqs='CERT_NONE', ca_certs=None):
+                 cert_reqs='CERT_NONE', ca_certs=None, connect_timeout=None):
 
         super(HTTPSConnectionPool, self).__init__(host, port,
                                                   strict, timeout, maxsize,
-                                                  block, headers)
+                                                  block, headers, connect_timeout)
         self.key_file = key_file
         self.cert_file = cert_file
         self.cert_reqs = cert_reqs
@@ -607,14 +617,14 @@ class HTTPSConnectionPool(HTTPConnectionPool):
 
     def _new_conn(self):
         """
-        Return a fresh :class:`httplib.HTTPSConnection`.
+        Return a fresh :class:`httplib.HTTPSConnectionTwo`.
         """
         self.num_connections += 1
         log.info("Starting new HTTPS connection (%d): %s"
                  % (self.num_connections, self.host))
 
         if not ssl: # Platform-specific: Python compiled without +ssl
-            if not HTTPSConnectionTwo or HTTPSConnectionTwo is object:
+            if not HTTPSConnection or HTTPSConnection is object:
                 raise SSLError("Can't connect to HTTPS URL because the SSL "
                                "module is not available.")
 

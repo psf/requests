@@ -37,6 +37,7 @@ def request(method, url, **kwargs):
     :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
     :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+    :param connect_timeout: (optional) Float describing the timeout of the connection attempt.
     """
 
     # if this session was passed in, leave it open (and retain pooled connections);

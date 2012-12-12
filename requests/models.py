@@ -19,15 +19,15 @@ from .status_codes import codes
 from .auth import HTTPBasicAuth, HTTPProxyAuth
 from .cookies import cookiejar_from_dict, extract_cookies_to_jar, get_cookie_header
 from .packages.urllib3.exceptions import MaxRetryError, LocationParseError
-from .packages.urllib3.exceptions import TimeoutError, ConnectionTimeoutError
+from .packages.urllib3.exceptions import TimeoutError, ConnectionTimeoutError, OperationTimeoutError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .packages.urllib3 import connectionpool, poolmanager
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .defaults import SCHEMAS
 from .exceptions import (
-    ConnectionError, HTTPError, RequestException, Timeout, ConnectionTimeout, TooManyRedirects,
-    URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
+    ConnectionError, HTTPError, RequestException, Timeout, ConnectionTimeout, OperationTimeout,
+    TooManyRedirects, URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
 from .utils import (
     get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
     stream_decode_response_unicode, get_netrc_auth, get_environ_proxies,
@@ -56,6 +56,7 @@ class Request(object):
         auth=None,
         cookies=None,
         timeout=None,
+        connect_timeout=None,
         redirect=False,
         allow_redirects=False,
         proxies=None,
@@ -73,6 +74,11 @@ class Request(object):
         #: Float describes the timeout of the request.
         #  (Use socket.setdefaulttimeout() as fallback)
         self.timeout = timeout
+        #: Float describes the timeout of an attempt to connect to the remote host.
+        #  (When not given timeout parameter is used for backward compatibility)
+        self.connect_timeout = connect_timeout
+        if connect_timeout is None:
+            self.connect_timeout = self.timeout
 
         #: Request URL.
         #: Accept objects that have string representations.
@@ -302,6 +308,7 @@ class Request(object):
                     data=data,
                     config=self.config,
                     timeout=self.timeout,
+                    connect_timeout=self.connect_timeout,
                     _poolmanager=self._poolmanager,
                     proxies=self.proxies,
                     verify=self.verify,
@@ -627,6 +634,7 @@ class Request(object):
                     decode_content=False,
                     retries=self.config.get('max_retries', 0),
                     timeout=self.timeout,
+                    connect_timeout=self.connect_timeout,
                 )
                 self.sent = True
 
@@ -641,6 +649,8 @@ class Request(object):
                     raise SSLError(e)
                 elif isinstance(e, ConnectionTimeoutError):
                     raise ConnectionTimeout(e)
+                elif isinstance(e, OperationTimeoutError):
+                    raise OperationTimeout(e)
                 elif isinstance(e, TimeoutError):
                     raise Timeout(e)
                 else:
