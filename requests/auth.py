@@ -19,7 +19,8 @@ from .compat import urlparse, str
 from .utils import parse_dict_header
 
 try:
-    from ._oauth import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER, extract_params)
+    from oauthlib.common import extract_params
+    from oauthlib.oauth1.rfc5849 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
 
 except (ImportError, SyntaxError):
     SIGNATURE_HMAC = None
