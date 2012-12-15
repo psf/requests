@@ -18,7 +18,11 @@ class IterationTestCase(unittest.TestCase):
         r = requests.Request(method='GET', url='http://github.com/')
         r = r.prepare()
 
-        s.send(r)
+        r = s.send(r)
+        print r
+
+
+
 
 
 if __name__ == '__main__':

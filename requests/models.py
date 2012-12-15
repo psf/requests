@@ -145,9 +145,13 @@ class Request(object):
         return '<Request [%s]>' % (self.method)
 
     def prepare(self):
+        """Constructs a PreparedRequest and returns it."""
         p = PreparedRequest()
         p.prepare_method(self.method)
-        p.prepare_url(self.url)
+        p.prepare_url(self.url, self.params)
+        p.prepare_headers(self.headers)
+        p.prepare_auth(self.auth)
+        p.prepare_body(self.data, self.files)
 
 
         return p
@@ -162,7 +166,7 @@ class PreparedRequest(RequestMixin):
         self.method = None
         self.url = None
         self.headers = None
-        self.data = None
+        self.body = None
         self.params = None
         self.auth = None
         # self.cookies = None
@@ -179,18 +183,17 @@ class PreparedRequest(RequestMixin):
         return '<PreparedRequest [%s]>' % (self.method)
 
     def prepare_method(self, method):
-
+        """Prepares the given HTTP method."""
         try:
             method = unicode(method)
         except NameError:
             # We're on Python 3.
             method = str(method)
 
-
         self.method = method.upper()
 
-    def prepare_url(self, url):
-        """Request URL."""
+    def prepare_url(self, url, params):
+        """Prepares the given HTTP URL."""
         #: Accept objects that have string representations.
         try:
             url = unicode(url)
@@ -231,7 +234,7 @@ class PreparedRequest(RequestMixin):
             if isinstance(fragment, str):
                 fragment = fragment.encode('utf-8')
 
-        enc_params = self._encode_params(self.params)
+        enc_params = self._encode_params(params)
         if enc_params:
             if query:
                 query = '%s&%s' % (query, enc_params)
@@ -242,26 +245,66 @@ class PreparedRequest(RequestMixin):
 
         # if self.config.get('encode_uri', True):
             # url = requote_uri(url)
+        # TODO: re-evaluate quote param (perhaps not, people can create this themselves now)
+        url = requote_uri(url)
 
         self.url = url
 
     def prepare_headers(self, headers):
-        """change to list"""
+        """Prepares the given HTTP headers."""
 
         if headers:
             self.headers = CaseInsensitiveDict(self.headers)
         else:
             self.headers = CaseInsensitiveDict()
 
-    def prepare_data(self, headers, files):
+    def prepare_body(self, data, files):
+        """Prepares the given HTTP body data."""
         # if a generator is provided, error out.
-        pass
 
-    def prepare_params(self, params):
-        pass
+        # Nottin' on you.
+        body = None
+        content_type = None
+
+        # Multi-part file uploads.
+        if files:
+            (body, content_type) = self._encode_files(files)
+        else:
+            if data:
+
+                body = self._encode_params(data)
+                if isinstance(data, str) or isinstance(data, builtin_str) or hasattr(data, 'read'):
+                    content_type = None
+                else:
+                    content_type = 'application/x-www-form-urlencoded'
+
+        self.headers['Content-Length'] = '0'
+        if hasattr(body, 'seek') and hasattr(body, 'tell'):
+            body.seek(0, 2)
+            self.headers['Content-Length'] = str(body.tell())
+            body.seek(0, 0)
+        elif body is not None:
+            self.headers['Content-Length'] = str(len(body))
+
+        # Add content-type if it wasn't explicitly provided.
+        if (content_type) and (not 'content-type' in self.headers):
+            self.headers['Content-Type'] = content_type
+
+        self.body = body
+
+
 
     def prepare_auth(self, auth):
-        pass
+        if auth:
+            if isinstance(auth, tuple) and len(auth) == 2:
+                # special-case basic HTTP auth
+                auth = HTTPBasicAuth(*auth)
+
+            # Allow auth to make its changes.
+            r = auth(self)
+
+            # Update self to reflect the auth changes.
+            self.__dict__.update(r.__dict__)
 
     def prepare_cookies(self, cookies):
         #: CookieJar to attach to :class:`Request <Request>`.
@@ -712,44 +755,44 @@ class OldRequest(object):
         if not self.auth and self.config.get('trust_env'):
             self.auth = get_netrc_auth(url)
 
-        if self.auth:
-            if isinstance(self.auth, tuple) and len(self.auth) == 2:
-                # special-case basic HTTP auth
-                self.auth = HTTPBasicAuth(*self.auth)
+        # if self.auth:
+        #     if isinstance(self.auth, tuple) and len(self.auth) == 2:
+        #         # special-case basic HTTP auth
+        #         self.auth = HTTPBasicAuth(*self.auth)
 
-            # Allow auth to make its changes.
-            r = self.auth(self)
+        #     # Allow auth to make its changes.
+        #     r = self.auth(self)
 
-            # Update self to reflect the auth changes.
-            self.__dict__.update(r.__dict__)
+        #     # Update self to reflect the auth changes.
+        #     self.__dict__.update(r.__dict__)
 
-        # Nottin' on you.
-        body = None
-        content_type = None
+        # # Nottin' on you.
+        # body = None
+        # content_type = None
 
-        # Multi-part file uploads.
-        if self.files:
-            (body, content_type) = self._encode_files(self.files)
-        else:
-            if self.data:
+        # # Multi-part file uploads.
+        # if self.files:
+        #     (body, content_type) = self._encode_files(self.files)
+        # else:
+        #     if self.data:
 
-                body = self._encode_params(self.data)
-                if isinstance(self.data, str) or isinstance(self.data, builtin_str) or hasattr(self.data, 'read'):
-                    content_type = None
-                else:
-                    content_type = 'application/x-www-form-urlencoded'
+        #         body = self._encode_params(self.data)
+        #         if isinstance(self.data, str) or isinstance(self.data, builtin_str) or hasattr(self.data, 'read'):
+        #             content_type = None
+        #         else:
+        #             content_type = 'application/x-www-form-urlencoded'
 
-        self.headers['Content-Length'] = '0'
-        if hasattr(body, 'seek') and hasattr(body, 'tell'):
-            body.seek(0, 2)
-            self.headers['Content-Length'] = str(body.tell())
-            body.seek(0, 0)
-        elif body is not None:
-            self.headers['Content-Length'] = str(len(body))
+        # self.headers['Content-Length'] = '0'
+        # if hasattr(body, 'seek') and hasattr(body, 'tell'):
+        #     body.seek(0, 2)
+        #     self.headers['Content-Length'] = str(body.tell())
+        #     body.seek(0, 0)
+        # elif body is not None:
+        #     self.headers['Content-Length'] = str(len(body))
 
-        # Add content-type if it wasn't explicitly provided.
-        if (content_type) and (not 'content-type' in self.headers):
-            self.headers['Content-Type'] = content_type
+        # # Add content-type if it wasn't explicitly provided.
+        # if (content_type) and (not 'content-type' in self.headers):
+        #     self.headers['Content-Type'] = content_type
 
         _p = urlparse(url)
         no_proxy = filter(lambda x: x.strip(), self.proxies.get('no', '').split(','))
