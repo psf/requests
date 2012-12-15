@@ -32,7 +32,7 @@ class MockRequest(object):
     def __init__(self, request):
         self._r = request
         self._new_headers = {}
-        self.type = urlparse(self._r.full_url).scheme
+        self.type = urlparse(self._r.url).scheme
 
     def get_type(self):
         return self.type

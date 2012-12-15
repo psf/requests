@@ -190,6 +190,7 @@ class Request(object):
         p.prepare_method(self.method)
         p.prepare_url(self.url, self.params)
         p.prepare_headers(self.headers)
+        p.prepare_cookies(self.cookies)
         p.prepare_auth(self.auth)
         p.prepare_body(self.data, self.files)
 
@@ -347,11 +348,16 @@ class PreparedRequest(RequestMixin):
             self.__dict__.update(r.__dict__)
 
     def prepare_cookies(self, cookies):
-        #: CookieJar to attach to :class:`Request <Request>`.
+
         if isinstance(cookies, cookielib.CookieJar):
-            self.cookies = cookies
+            cookies = cookies
         else:
-            self.cookies = cookiejar_from_dict(cookies)
+            cookies = cookiejar_from_dict(cookies)
+
+        if 'cookie' not in self.headers:
+            cookie_header = get_cookie_header(cookies, self)
+            if cookie_header is not None:
+                self.headers['Cookie'] = cookie_header
 
     def send(self):
         pass
@@ -616,7 +622,7 @@ class OldRequest(object):
                     verify=self.verify,
                     session=self.session,
                     cert=self.cert,
-                    prefetch=self.prefetch,
+                    prefetch=self.prefetch
                 )
 
                 request.send()
@@ -627,127 +633,6 @@ class OldRequest(object):
         self.response = r
         self.response.request = self
 
-
-
-    def _encode_files(self, files):
-        """Build the body for a multipart/form-data request.
-
-        Will successfully encode files when passed as a dict or a list of
-        2-tuples. Order is retained if data is a list of 2-tuples but abritrary
-        if parameters are supplied as a dict.
-
-        """
-        if (not files) or isinstance(self.data, str):
-            return None
-
-        new_fields = []
-        fields = to_key_val_list(self.data)
-        files = to_key_val_list(files)
-
-        for field, val in fields:
-            if isinstance(val, list):
-                for v in val:
-                    new_fields.append((field, builtin_str(v)))
-            else:
-                new_fields.append((field, builtin_str(val)))
-
-        for (k, v) in files:
-            # support for explicit filename
-            if isinstance(v, (tuple, list)):
-                fn, fp = v
-            else:
-                fn = guess_filename(v) or k
-                fp = v
-            if isinstance(fp, str):
-                fp = StringIO(fp)
-            if isinstance(fp, bytes):
-                fp = BytesIO(fp)
-            new_fields.append((k, (fn, fp.read())))
-
-        body, content_type = encode_multipart_formdata(new_fields)
-
-        return body, content_type
-
-    @property
-    def full_url(self):
-        """Build the actual URL to use."""
-
-        if not self.url:
-            raise URLRequired()
-
-        url = self.url
-
-        # Support for unicode domain names and paths.
-        scheme, netloc, path, params, query, fragment = urlparse(url)
-
-        if not scheme:
-            raise MissingSchema("Invalid URL %r: No schema supplied" % url)
-
-        if not scheme in SCHEMAS:
-            raise InvalidSchema("Invalid scheme %r" % scheme)
-
-        try:
-            netloc = netloc.encode('idna').decode('utf-8')
-        except UnicodeError:
-            raise InvalidURL('URL has an invalid label.')
-
-        if not path:
-            path = '/'
-
-        if is_py2:
-            if isinstance(scheme, str):
-                scheme = scheme.encode('utf-8')
-            if isinstance(netloc, str):
-                netloc = netloc.encode('utf-8')
-            if isinstance(path, str):
-                path = path.encode('utf-8')
-            if isinstance(params, str):
-                params = params.encode('utf-8')
-            if isinstance(query, str):
-                query = query.encode('utf-8')
-            if isinstance(fragment, str):
-                fragment = fragment.encode('utf-8')
-
-        enc_params = self._encode_params(self.params)
-        if enc_params:
-            if query:
-                query = '%s&%s' % (query, enc_params)
-            else:
-                query = enc_params
-
-        url = (urlunparse([scheme, netloc, path, params, query, fragment]))
-
-        if self.config.get('encode_uri', True):
-            url = requote_uri(url)
-
-        return url
-
-    @property
-    def path_url(self):
-        """Build the path URL to use."""
-
-        url = []
-
-        p = urlsplit(self.full_url)
-
-        # Proxies use full URLs.
-        if p.scheme in self.proxies:
-            url_base, frag = urldefrag(self.full_url)
-            return url_base
-
-
-        path = p.path
-        if not path:
-            path = '/'
-
-        url.append(path)
-
-        query = p.query
-        if query:
-            url.append('?')
-            url.append(query)
-
-        return ''.join(url)
 
     def register_hook(self, event, hook):
         """Properly register a hook."""
@@ -852,40 +737,40 @@ class OldRequest(object):
         if not self.config.get('keep_alive'):
             self.headers['Connection'] = 'close'
 
-        if url.startswith('https') and self.verify:
+        # if url.startswith('https') and self.verify:
 
-            cert_loc = None
+        #     cert_loc = None
 
-            # Allow self-specified cert location.
-            if self.verify is not True:
-                cert_loc = self.verify
+        #     # Allow self-specified cert location.
+        #     if self.verify is not True:
+        #         cert_loc = self.verify
 
-            # Look for configuration.
-            if not cert_loc and self.config.get('trust_env'):
-                cert_loc = os.environ.get('REQUESTS_CA_BUNDLE')
+        #     # Look for configuration.
+        #     if not cert_loc and self.config.get('trust_env'):
+        #         cert_loc = os.environ.get('REQUESTS_CA_BUNDLE')
 
-            # Curl compatibility.
-            if not cert_loc and self.config.get('trust_env'):
-                cert_loc = os.environ.get('CURL_CA_BUNDLE')
+        #     # Curl compatibility.
+        #     if not cert_loc and self.config.get('trust_env'):
+        #         cert_loc = os.environ.get('CURL_CA_BUNDLE')
 
-            if not cert_loc:
-                cert_loc = DEFAULT_CA_BUNDLE_PATH
+        #     if not cert_loc:
+        #         cert_loc = DEFAULT_CA_BUNDLE_PATH
 
-            if not cert_loc:
-                raise Exception("Could not find a suitable SSL CA certificate bundle.")
+        #     if not cert_loc:
+        #         raise Exception("Could not find a suitable SSL CA certificate bundle.")
 
-            conn.cert_reqs = 'CERT_REQUIRED'
-            conn.ca_certs = cert_loc
-        else:
-            conn.cert_reqs = 'CERT_NONE'
-            conn.ca_certs = None
+        #     conn.cert_reqs = 'CERT_REQUIRED'
+        #     conn.ca_certs = cert_loc
+        # else:
+        #     conn.cert_reqs = 'CERT_NONE'
+        #     conn.ca_certs = None
 
-        if self.cert:
-            if len(self.cert) == 2:
-                conn.cert_file = self.cert[0]
-                conn.key_file = self.cert[1]
-            else:
-                conn.cert_file = self.cert
+        # if self.cert:
+        #     if len(self.cert) == 2:
+        #         conn.cert_file = self.cert[0]
+        #         conn.key_file = self.cert[1]
+        #     else:
+        #         conn.cert_file = self.cert
 
         if not self.sent or anyway:
 
@@ -964,8 +849,18 @@ class OldRequest(object):
         return deepcopy(self)
 
 
+class BaseResponse(object):
+    """The basic Respone"""
+    def __init__(self):
+        self.url = None
+        self.status_code = None
+        self.reason = None
+        self.headers = None
+        self.data = None
+        self.body = None
 
-class Response(object):
+
+class Response(BaseResponse):
     """The core :class:`Response <Response>` object. All
     :class:`Request <Request>` objects contain a
     :class:`response <Response>` attribute, which is an instance
@@ -973,6 +868,7 @@ class Response(object):
     """
 
     def __init__(self):
+        super(Response, self).__init__()
 
         self._content = False
         self._content_consumed = False
@@ -993,9 +889,6 @@ class Response(object):
         #: Final URL location of Response.
         self.url = None
 
-        #: Resulting :class:`HTTPError` of request, if one occurred.
-        self.error = None
-
         #: Encoding to decode with when accessing r.text.
         self.encoding = None
 
@@ -1005,7 +898,9 @@ class Response(object):
         self.history = []
 
         #: The :class:`Request <Request>` that created the Response.
-        self.request = None
+        # self.request = None
+
+        self.reason = None
 
         #: A CookieJar of Cookies the server sent back.
         self.cookies = None
@@ -1180,22 +1075,12 @@ class Response(object):
 
         return l
 
-    @property
-    def reason(self):
-        """The HTTP Reason for the response."""
-        return self.raw.reason
-
-    def raise_for_status(self, allow_redirects=True):
+    def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occurred."""
 
-        if self.error:
-            raise self.error
-
         http_error_msg = ''
-        if 300 <= self.status_code < 400 and not allow_redirects:
-            http_error_msg = '%s Redirection: %s' % (self.status_code, self.reason)
 
-        elif 400 <= self.status_code < 500:
+        if 400 <= self.status_code < 500:
             http_error_msg = '%s Client Error: %s' % (self.status_code, self.reason)
 
         elif 500 <= self.status_code < 600:

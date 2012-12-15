@@ -30,12 +30,7 @@ defaults['base_headers'] = {
     'Accept': '*/*'
 }
 
-defaults['verbose'] = None
+# Consumed at the session level, not connection.
 defaults['max_redirects'] = 30
-defaults['pool_connections'] = 10
-defaults['pool_maxsize'] = 10
-defaults['max_retries'] = 0
-defaults['keep_alive'] = True
-defaults['encode_uri'] = True
 defaults['trust_env'] = True
-defaults['support_http0.9'] = True
+# defaults['support_http0.9'] = True
