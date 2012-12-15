@@ -3,6 +3,14 @@
 History
 -------
 
+1.0.0 (2012-??-??)
+++++++++++++++++++
+
+- Massive Refactor
+- Connection Adapters
+- Standard library logging
+
+
 0.14.2 (2012-10-27)
 +++++++++++++++++++
 
