@@ -574,7 +574,6 @@ class Response(BaseResponse):
 
         header = self.headers['link']
 
-        # l = MultiDict()
         l = {}
 
         if header:
