@@ -390,7 +390,7 @@ why not write one and submit it?
 .. _OAuth: https://github.com/requests/requests-oauthlib
 .. _Kerberos: https://github.com/requests/requests-kerberos
 .. _NTLM: https://github.com/requests/requests-ntlm
-.. _organisation on Github: https://github.com/requests
+.. _organization on Github: https://github.com/requests
 
 
 Redirection and History
