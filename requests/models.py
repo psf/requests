@@ -11,6 +11,7 @@ import os
 import socket
 import collections
 import logging
+from copy import deepcopy
 
 from datetime import datetime
 from io import BytesIO
@@ -676,6 +677,10 @@ class Request(object):
             return conn
         except LocationParseError as e:
             raise InvalidURL(e)
+
+    def prepare(self):
+        return deepcopy(self)
+
 
 
 class Response(object):
