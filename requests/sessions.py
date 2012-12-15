@@ -344,6 +344,10 @@ class Session(object):
 
         return self.request('delete', url, **kwargs)
 
+    def send(self, request):
+        """Send a given PreparedRequest."""
+        return request.send()
+
     def __getstate__(self):
         return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
 
