@@ -104,6 +104,46 @@ class RequestMixin(object):
         else:
             return data
 
+    @staticmethod
+    def _encode_files(files, data):
+        """Build the body for a multipart/form-data request.
+
+        Will successfully encode files when passed as a dict or a list of
+        2-tuples. Order is retained if data is a list of 2-tuples but abritrary
+        if parameters are supplied as a dict.
+
+        """
+        if (not files) or isinstance(data, str):
+            return None
+
+        new_fields = []
+        fields = to_key_val_list(data)
+        files = to_key_val_list(files)
+
+        for field, val in fields:
+            if isinstance(val, list):
+                for v in val:
+                    new_fields.append((field, builtin_str(v)))
+            else:
+                new_fields.append((field, builtin_str(val)))
+
+        for (k, v) in files:
+            # support for explicit filename
+            if isinstance(v, (tuple, list)):
+                fn, fp = v
+            else:
+                fn = guess_filename(v) or k
+                fp = v
+            if isinstance(fp, str):
+                fp = StringIO(fp)
+            if isinstance(fp, bytes):
+                fp = BytesIO(fp)
+            new_fields.append((k, (fn, fp.read())))
+
+        body, content_type = encode_multipart_formdata(new_fields)
+
+        return body, content_type
+
 
 class Request(object):
     """A user-created Request object."""
@@ -268,7 +308,7 @@ class PreparedRequest(RequestMixin):
 
         # Multi-part file uploads.
         if files:
-            (body, content_type) = self._encode_files(files)
+            (body, content_type) = self._encode_files(files, data)
         else:
             if data:
 
