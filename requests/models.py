@@ -204,9 +204,8 @@ class Request(object):
                 # Set encoding.
                 response.encoding = get_encoding_from_headers(response.headers)
 
-                # Add new cookies from the server. Don't if configured not to
-                if self.config.get('store_cookies'):
-                    extract_cookies_to_jar(self.cookies, self, resp)
+                # Add new cookies from the server.
+                extract_cookies_to_jar(self.cookies, self, resp)
 
                 # Save cookies in Response.
                 response.cookies = self.cookies
