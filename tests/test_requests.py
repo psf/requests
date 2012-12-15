@@ -462,15 +462,6 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         self.assertFalse(r.error)
         r.raise_for_status()
 
-    def test_default_status_raising(self):
-        config = {'danger_mode': True}
-        args = [httpbin('status', '404')]
-        kwargs = dict(config=config)
-        self.assertRaises(HTTPError, get, *args, **kwargs)
-
-        r = get(httpbin('status', '200'))
-        self.assertEqual(r.status_code, 200)
-
     def test_decompress_gzip(self):
 
         r = get(httpbin('gzip'))
@@ -1026,10 +1017,6 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         except TypeError:
             self.fail('Not able to have none in header values')
 
-    def test_danger_mode_redirects(self):
-        s = requests.session()
-        s.config['danger_mode'] = True
-        s.get(httpbin('redirect', '4'))
 
     def test_empty_response(self):
         r = requests.get(httpbin('status', '404'))
