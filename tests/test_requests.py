@@ -930,19 +930,6 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
         ds2 = pickle.loads(pickle.dumps(requests.session(prefetch=False)))
         self.assertTrue(ds1.prefetch)
         self.assertFalse(ds2.prefetch)
-    
-    def test_session_connection_error_with_safe_mode(self):
-        config = {"safe_mode":True}
-
-        s = requests.session()
-        r = s.get("http://localhost:1/nope", timeout=0.1, config=config)
-        self.assertFalse(r.ok)
-        self.assertTrue(r.content is None)
-
-        s2 = requests.session(config=config)
-        r2 = s2.get("http://localhost:1/nope", timeout=0.1)
-        self.assertFalse(r2.ok)
-        self.assertTrue(r2.content is None)
 
     def test_connection_error(self):
         try:
@@ -951,26 +938,6 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             pass
         else:
             self.fail()
-
-    def test_connection_error_with_safe_mode(self):
-        config = {'safe_mode': True}
-        r = get('http://localhost:1/nope', allow_redirects=False, config=config)
-        self.assertTrue(r.content is None)
-
-    # def test_invalid_content(self):
-    #     # WARNING: if you're using a terrible DNS provider (comcast),
-    #     # this will fail.
-    #     try:
-    #         hah = 'http://somedomainthatclearlydoesntexistg.com'
-    #         r = get(hah, allow_redirects=False)
-    #     except requests.ConnectionError:
-    #         pass   # \o/
-    #     else:
-    #         assert False
-
-    #     config = {'safe_mode': True}
-    #     r = get(hah, allow_redirects=False, config=config)
-    #     assert r.content == None
 
     def test_cached_response(self):
 
@@ -1032,32 +999,6 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
             self.assertEqual(bytes().join(r.iter_content(chunk_size=chunk_size)), r.content)
 
 
-    # def test_safe_mode(self):
-
-    #     safe = requests.session(config=dict(safe_mode=True))
-
-    #     # Safe mode creates empty responses for failed requests.
-    #     # Iterating on these responses should produce empty sequences
-    #     r = get('http://0.0.0.0:700/', session=safe)
-    #     self.assertEqual(list(r.iter_lines()), [])
-    #     assert isinstance(r.error, requests.exceptions.ConnectionError)
-
-    #     r = get('http://0.0.0.0:789/', session=safe)
-    #     self.assertEqual(list(r.iter_content()), [])
-    #     assert isinstance(r.error, requests.exceptions.ConnectionError)
-
-    #     # When not in safe mode, should raise Timeout exception
-    #     self.assertRaises(
-    #         requests.exceptions.Timeout,
-    #         get,
-    #         httpbin('stream', '1000'), timeout=0.0001)
-
-    #     # In safe mode, should return a blank response
-    #     r = get(httpbin('stream', '1000'), timeout=0.0001,
-    #             config=dict(safe_mode=True))
-    #     assert r.content is None
-    #     assert isinstance(r.error, requests.exceptions.Timeout)
-
     def test_upload_binary_data(self):
 
         requests.get(httpbin('post'), auth=('a', 'b'), data='\xff')
@@ -1093,17 +1034,6 @@ class RequestsTestSuite(TestSetup, TestBaseMixin, unittest.TestCase):
     def test_empty_response(self):
         r = requests.get(httpbin('status', '404'))
         r.text
-
-    def test_max_redirects(self):
-        """Test the max_redirects config variable, normally and under safe_mode."""
-        def unsafe_callable():
-            requests.get(httpbin('redirect', '3'), config=dict(max_redirects=2))
-        self.assertRaises(requests.exceptions.TooManyRedirects, unsafe_callable)
-
-        # add safe mode
-        response = requests.get(httpbin('redirect', '3'), config=dict(safe_mode=True, max_redirects=2))
-        self.assertTrue(response.content is None)
-        self.assertTrue(isinstance(response.error, requests.exceptions.TooManyRedirects))
 
     def test_connection_keepalive_and_close(self):
         """Test that we send 'Connection: close' when keep_alive is disabled."""
