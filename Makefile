@@ -4,6 +4,9 @@ SHELL := /bin/bash
 # Travis/Jenkins should be ensuring that all other tests pass on all supported versions
 CI_TESTS=$(shell find tests/ -name "*.py" ! -name "test_requests_ext.py" ! -name "test_requests_async.py")
 
+iter:
+	python test_iteration.py
+
 init:
 	python setup.py develop
 	pip install -r requirements.txt

@@ -46,7 +46,239 @@ CONTENT_CHUNK_SIZE = 10 * 1024
 
 log = logging.getLogger(__name__)
 
+
+class RequestMixin(object):
+    """docstring for RequestMixin"""
+
+    @property
+    def path_url(self):
+        """Build the path URL to use."""
+
+        url = []
+
+        p = urlsplit(self.url)
+
+        # Proxies use full URLs.
+        # if p.scheme in self.proxies:
+            # url_base, frag = urldefrag(self.url)
+            # return url_base
+
+
+        path = p.path
+        if not path:
+            path = '/'
+
+        url.append(path)
+
+        query = p.query
+        if query:
+            url.append('?')
+            url.append(query)
+
+        return ''.join(url)
+
+    @staticmethod
+    def _encode_params(data):
+        """Encode parameters in a piece of data.
+
+        Will successfully encode parameters when passed as a dict or a list of
+        2-tuples. Order is retained if data is a list of 2-tuples but abritrary
+        if parameters are supplied as a dict.
+        """
+
+        if isinstance(data, (str, bytes)):
+            return data
+        elif hasattr(data, 'read'):
+            return data
+        elif hasattr(data, '__iter__'):
+            result = []
+            for k, vs in to_key_val_list(data):
+                if isinstance(vs, basestring) or not hasattr(vs, '__iter__'):
+                    vs = [vs]
+                for v in vs:
+                    if v is not None:
+                        result.append(
+                            (k.encode('utf-8') if isinstance(k, str) else k,
+                             v.encode('utf-8') if isinstance(v, str) else v))
+            return urlencode(result, doseq=True)
+        else:
+            return data
+
+
 class Request(object):
+    """A user-created Request object."""
+    def __init__(self,
+        method=None,
+        url=None,
+        headers=None,
+        files=None,
+        data=dict(),
+        params=dict(),
+        auth=None,
+        cookies=None,
+        timeout=None,
+        allow_redirects=False,
+        proxies=None,
+        hooks=None,
+        prefetch=True,
+        verify=None,
+        cert=None):
+
+        self.method = method
+        self.url = url
+        self.headers = headers
+        self.files = files
+        self.data = data
+        self.params = params
+        self.auth = auth
+        self.cookies = cookies
+        self.timeout = timeout
+        # TODO: move to attached
+        self.allow_redirects = allow_redirects
+        self.proxies = proxies
+        self.hooks = hooks
+        # self.prefetch = prefetch
+        # self.verify = verify
+        # self.cert = cert
+
+    def __repr__(self):
+        return '<Request [%s]>' % (self.method)
+
+    def prepare(self):
+        p = PreparedRequest()
+        p.prepare_method(self.method)
+        p.prepare_url(self.url)
+
+
+        return p
+
+
+class PreparedRequest(RequestMixin):
+    """The :class:`Request <Request>` object. It carries out all functionality
+    of Requests. Recommended interface is with the Requests functions.
+    """
+
+    def __init__(self):
+        self.method = None
+        self.url = None
+        self.headers = None
+        self.data = None
+        self.params = None
+        self.auth = None
+        # self.cookies = None
+        self.timeout = None
+        # TODO: move to attached
+        self.allow_redirects = None
+        self.proxies = None
+        self.hooks = None
+        # self.prefetch = None
+        # self.verify = None
+        # self.cert = None
+
+    def __repr__(self):
+        return '<PreparedRequest [%s]>' % (self.method)
+
+    def prepare_method(self, method):
+
+        try:
+            method = unicode(method)
+        except NameError:
+            # We're on Python 3.
+            method = str(method)
+
+
+        self.method = method.upper()
+
+    def prepare_url(self, url):
+        """Request URL."""
+        #: Accept objects that have string representations.
+        try:
+            url = unicode(url)
+        except NameError:
+            # We're on Python 3.
+            url = str(url)
+        except UnicodeDecodeError:
+            pass
+
+        # Support for unicode domain names and paths.
+        scheme, netloc, path, params, query, fragment = urlparse(url)
+
+        if not scheme:
+            raise MissingSchema("Invalid URL %r: No schema supplied" % url)
+
+        if not scheme in SCHEMAS:
+            raise InvalidSchema("Invalid scheme %r" % scheme)
+
+        try:
+            netloc = netloc.encode('idna').decode('utf-8')
+        except UnicodeError:
+            raise InvalidURL('URL has an invalid label.')
+
+        if not path:
+            path = '/'
+
+        if is_py2:
+            if isinstance(scheme, str):
+                scheme = scheme.encode('utf-8')
+            if isinstance(netloc, str):
+                netloc = netloc.encode('utf-8')
+            if isinstance(path, str):
+                path = path.encode('utf-8')
+            if isinstance(params, str):
+                params = params.encode('utf-8')
+            if isinstance(query, str):
+                query = query.encode('utf-8')
+            if isinstance(fragment, str):
+                fragment = fragment.encode('utf-8')
+
+        enc_params = self._encode_params(self.params)
+        if enc_params:
+            if query:
+                query = '%s&%s' % (query, enc_params)
+            else:
+                query = enc_params
+
+        url = (urlunparse([scheme, netloc, path, params, query, fragment]))
+
+        # if self.config.get('encode_uri', True):
+            # url = requote_uri(url)
+
+        self.url = url
+
+    def prepare_headers(self, headers):
+        """change to list"""
+
+        if headers:
+            self.headers = CaseInsensitiveDict(self.headers)
+        else:
+            self.headers = CaseInsensitiveDict()
+
+    def prepare_data(self, headers, files):
+        # if a generator is provided, error out.
+        pass
+
+    def prepare_params(self, params):
+        pass
+
+    def prepare_auth(self, auth):
+        pass
+
+    def prepare_cookies(self, cookies):
+        #: CookieJar to attach to :class:`Request <Request>`.
+        if isinstance(cookies, cookielib.CookieJar):
+            self.cookies = cookies
+        else:
+            self.cookies = cookiejar_from_dict(cookies)
+
+    def send(self):
+        pass
+        # return
+
+    # def prepare_allow_
+
+
+
+class OldRequest(object):
     """The :class:`Request <Request>` object. It carries out all functionality
     of Requests. Recommended interface is with the Requests functions.
     """
@@ -79,15 +311,7 @@ class Request(object):
         #  (Use socket.setdefaulttimeout() as fallback)
         self.timeout = timeout
 
-        #: Request URL.
-        #: Accept objects that have string representations.
-        try:
-            self.url = unicode(url)
-        except NameError:
-            # We're on Python 3.
-            self.url = str(url)
-        except UnicodeDecodeError:
-            self.url = url
+        # URL
 
         #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.
         self.headers = dict(headers or [])
@@ -137,11 +361,11 @@ class Request(object):
         #: Authentication tuple or object to attach to :class:`Request <Request>`.
         self.auth = auth
 
-        #: CookieJar to attach to :class:`Request <Request>`.
-        if isinstance(cookies, cookielib.CookieJar):
-            self.cookies = cookies
-        else:
-            self.cookies = cookiejar_from_dict(cookies)
+        # #: CookieJar to attach to :class:`Request <Request>`.
+        # if isinstance(cookies, cookielib.CookieJar):
+        #     self.cookies = cookies
+        # else:
+        #     self.cookies = cookiejar_from_dict(cookies)
 
         #: True if Request has been sent.
         self.sent = False
@@ -169,10 +393,10 @@ class Request(object):
         #: Prefetch response content
         self.prefetch = prefetch
 
-        if headers:
-            headers = CaseInsensitiveDict(self.headers)
-        else:
-            headers = CaseInsensitiveDict()
+        # if headers:
+        #     headers = CaseInsensitiveDict(self.headers)
+        # else:
+        #     headers = CaseInsensitiveDict()
 
         # Add configured base headers.
         for (k, v) in list(self.config.get('base_headers', {}).items()):
@@ -320,32 +544,7 @@ class Request(object):
         self.response = r
         self.response.request = self
 
-    @staticmethod
-    def _encode_params(data):
-        """Encode parameters in a piece of data.
 
-        Will successfully encode parameters when passed as a dict or a list of
-        2-tuples. Order is retained if data is a list of 2-tuples but abritrary
-        if parameters are supplied as a dict.
-        """
-
-        if isinstance(data, (str, bytes)):
-            return data
-        elif hasattr(data, 'read'):
-            return data
-        elif hasattr(data, '__iter__'):
-            result = []
-            for k, vs in to_key_val_list(data):
-                if isinstance(vs, basestring) or not hasattr(vs, '__iter__'):
-                    vs = [vs]
-                for v in vs:
-                    if v is not None:
-                        result.append(
-                            (k.encode('utf-8') if isinstance(k, str) else k,
-                             v.encode('utf-8') if isinstance(v, str) else v))
-            return urlencode(result, doseq=True)
-        else:
-            return data
 
     def _encode_files(self, files):
         """Build the body for a multipart/form-data request.
