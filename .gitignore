@@ -14,3 +14,7 @@ requests.egg-info/
 env/
 
 .workon
+
+t.py
+
+t2.py
