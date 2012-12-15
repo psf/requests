@@ -370,45 +370,27 @@ Another popular form of web service protection is Digest Authentication::
     <Response [200]>
 
 
-OAuth Authentication
+Other Authentication
 --------------------
 
-Requests features robust, built-in OAuth support!
+Requests is designed to allow other forms of authentication to be easily and
+quickly plugged in. Members of the open-source community frequently write
+authentication handlers for more complicated or less commonly-used forms of
+authentication. Some of the best have been brought together under a single
+`organization on Github`_, including:
 
-OAuth takes many forms, so let's take a look at a few different forms::
+- OAuth_
+- Kerberos_
+- NTLM_
 
-    import requests
-    from requests.auth import OAuth1
+If you want to use any of these forms of authentication, go straight to their
+Github page and follow the instructions. If you can't find the one you want,
+why not write one and submit it?
 
-    url = u'https://api.twitter.com/1/account/settings.json'
-
-    client_key = u'...'
-    client_secret = u'...'
-    resource_owner_key = u'...'
-    resource_owner_secret = u'...'
-
-
-Query signing::
-
-    queryoauth = OAuth1(client_key, client_secret,
-                        resource_owner_key, resource_owner_secret,
-                        signature_type='query')
-    r = requests.get(url, auth=queryoauth)
-
-Header signing::
-
-    headeroauth = OAuth1(client_key, client_secret,
-                         resource_owner_key, resource_owner_secret,
-                         signature_type='auth_header')
-    r = requests.get(url, auth=headeroauth)
-
-Body signing::
-
-    bodyoauth = OAuth1(client_key, client_secret,
-                       resource_owner_key, resource_owner_secret,
-                       signature_type='body')
-
-    r = requests.post(url, auth=bodyoauth)
+.. _OAuth: https://github.com/requests/requests-oauthlib
+.. _Kerberos: https://github.com/requests/requests-kerberos
+.. _NTLM: https://github.com/requests/requests-ntlm
+.. _organisation on Github: https://github.com/requests
 
 
 Redirection and History
