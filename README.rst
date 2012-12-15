@@ -2,8 +2,8 @@ Requests: HTTP for Humans
 =========================
 
 
-.. image:: https://secure.travis-ci.org/kennethreitz/requests.png?branch=develop
-        :target: https://secure.travis-ci.org/kennethreitz/requests
+.. image:: https://travis-ci.org/kennethreitz/requests.png?branch=master
+        :target: https://travis-ci.org/kennethreitz/requests
 
 Requests is an Apache2 Licensed HTTP library, written in Python, for human
 beings.
