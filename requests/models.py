@@ -513,13 +513,13 @@ class OldRequest(object):
             if resp:
 
                 # Fallback to None if there's no status_code, for whatever reason.
-                response.status_code = getattr(resp, 'status', None)
+                # response.status_code = getattr(resp, 'status', None)
 
                 # Make headers case-insensitive.
-                response.headers = CaseInsensitiveDict(getattr(resp, 'headers', {}))
+                # response.headers = CaseInsensitiveDict(getattr(resp, 'headers', {}))
 
                 # Set encoding.
-                response.encoding = get_encoding_from_headers(response.headers)
+                # response.encoding = get_encoding_from_headers(response.headers)
 
                 # Add new cookies from the server.
                 extract_cookies_to_jar(self.cookies, self, resp)
@@ -546,7 +546,7 @@ class OldRequest(object):
         history = []
 
         r = build(resp)
-
+        # TODO: session level shit
         if r.status_code in REDIRECT_STATI and not self.redirect:
 
             while (('location' in r.headers and r.status_code in REDIRECT_STATI) and
@@ -775,45 +775,45 @@ class OldRequest(object):
         if not self.sent or anyway:
 
             # Skip if 'cookie' header is explicitly set.
-            if 'cookie' not in self.headers:
-                cookie_header = get_cookie_header(self.cookies, self)
-                if cookie_header is not None:
-                    self.headers['Cookie'] = cookie_header
+            # if 'cookie' not in self.headers:
+            #     cookie_header = get_cookie_header(self.cookies, self)
+            #     if cookie_header is not None:
+            #         self.headers['Cookie'] = cookie_header
 
             # Pre-send hook.
             r = dispatch_hook('pre_send', self.hooks, self)
             self.__dict__.update(r.__dict__)
 
             # catch urllib3 exceptions and throw Requests exceptions
-            try:
-                # Send the request.
-                r = conn.urlopen(
-                    method=self.method,
-                    url=self.path_url,
-                    body=body,
-                    headers=self.headers,
-                    redirect=False,
-                    assert_same_host=False,
-                    preload_content=False,
-                    decode_content=False,
-                    retries=self.config.get('max_retries', 0),
-                    timeout=self.timeout,
-                )
-                self.sent = True
+            # try:
+            #     # Send the request.
+            #     r = conn.urlopen(
+            #         method=self.method,
+            #         url=self.path_url,
+            #         body=body,
+            #         headers=self.headers,
+            #         redirect=False,
+            #         assert_same_host=False,
+            #         preload_content=False,
+            #         decode_content=False,
+            #         retries=self.config.get('max_retries', 0),
+            #         timeout=self.timeout,
+            #     )
+            #     self.sent = True
 
-            except socket.error as sockerr:
-                raise ConnectionError(sockerr)
+            # except socket.error as sockerr:
+            #     raise ConnectionError(sockerr)
 
-            except MaxRetryError as e:
-                raise ConnectionError(e)
+            # except MaxRetryError as e:
+            #     raise ConnectionError(e)
 
-            except (_SSLError, _HTTPError) as e:
-                if isinstance(e, _SSLError):
-                    raise SSLError(e)
-                elif isinstance(e, TimeoutError):
-                    raise Timeout(e)
-                else:
-                    raise Timeout('Request timed out.')
+            # except (_SSLError, _HTTPError) as e:
+            #     if isinstance(e, _SSLError):
+            #         raise SSLError(e)
+            #     elif isinstance(e, TimeoutError):
+            #         raise Timeout(e)
+            #     else:
+            #         raise Timeout('Request timed out.')
 
             # build_response can throw TooManyRedirects
             self._build_response(r)
