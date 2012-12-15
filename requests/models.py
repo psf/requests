@@ -10,6 +10,8 @@ This module contains the primary objects that power Requests.
 import os
 import socket
 import collections
+import logging
+
 from datetime import datetime
 from io import BytesIO
 
@@ -41,6 +43,7 @@ from .compat import (
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
 
+log = logging.getLogger(__name__)
 
 class Request(object):
     """The :class:`Request <Request>` object. It carries out all functionality
@@ -503,10 +506,7 @@ class Request(object):
         self.__dict__.update(r.__dict__)
 
         # Logging
-        if self.config.get('verbose'):
-            self.config.get('verbose').write('%s   %s   %s\n' % (
-                datetime.now().isoformat(), self.method, url
-            ))
+        log.info('Sending %s: %s' % (self, url))
 
         # Use .netrc auth if none was provided.
         if not self.auth and self.config.get('trust_env'):
