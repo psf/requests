@@ -46,7 +46,7 @@ class KeepAliveTests(unittest.TestCase):
         self.make_requests(self.proxies)
 
     def make_requests(self, proxies=None):
-        for _ in xrange(self.request_count):
+        for _ in range(self.request_count):
             self.session.get(self.url, proxies=proxies).text
 
     def check_each_request_are_in_same_connection(self):
