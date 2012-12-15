@@ -45,11 +45,8 @@ def request(method, url, **kwargs):
         session = sessions.session(config=kwargs.get('config', None))
         adhoc_session = True
 
-    try:
-        return session.request(method=method, url=url, **kwargs)
-    finally:
-        if adhoc_session:
-            session.close()
+
+    return session.request(method=method, url=url, **kwargs)
 
 
 def get(url, **kwargs):

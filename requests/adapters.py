@@ -117,8 +117,6 @@ class HTTPAdapter(BaseAdapter):
 
 
 
-
-
     def close(self):
         """Dispose of any internal state.
 

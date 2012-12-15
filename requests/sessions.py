@@ -19,6 +19,8 @@ from .utils import header_expand, from_key_val_list
 from .packages.urllib3.poolmanager import PoolManager
 
 
+from adapters import HTTPAdapter
+
 def merge_kwargs(local_kwarg, default_kwarg):
     """Merges kwarg dictionaries.
 
@@ -114,23 +116,11 @@ class Session(object):
         for (k, v) in list(defaults.items()):
             self.config.setdefault(k, deepcopy(v))
 
-        self.init_poolmanager()
-
         # Set up a CookieJar to be used by default
         if isinstance(cookies, cookielib.CookieJar):
             self.cookies = cookies
         else:
             self.cookies = cookiejar_from_dict(cookies)
-
-    def init_poolmanager(self):
-        self.poolmanager = PoolManager(
-            num_pools=self.config.get('pool_connections'),
-            maxsize=self.config.get('pool_maxsize'),
-            strict=not self.config.get('support_http0.9')
-        )
-
-    def __repr__(self):
-        return '<requests-client at 0x%x>' % (id(self))
 
     def __enter__(self):
         return self
@@ -139,14 +129,47 @@ class Session(object):
         self.close()
 
     def close(self):
-        """Dispose of any internal state.
-
-        Currently, this just closes the PoolManager, which closes pooled
-        connections.
-        """
-        self.poolmanager.clear()
+        pass
 
     def request(self, method, url,
+        params=None,
+        data=None,
+        headers=None,
+        cookies=None,
+        files=None,
+        auth=None,
+        timeout=None,
+        allow_redirects=True,
+        proxies=None,
+        hooks=None,
+        return_response=True,
+        config=None,
+        prefetch=None,
+        verify=None,
+        cert=None):
+
+        req = Request()
+        req.method = method
+        req.url = url
+        req.headers = headers
+        req.files = files
+        req.data = data
+        req.params = params
+        req.auth = auth
+        req.cookies = cookies
+        # TODO: move to attached
+        req.allow_redirects = allow_redirects
+        req.proxies = proxies
+        req.hooks = hooks
+
+        prep = req.prepare()
+
+        return self.send(prep)
+
+
+
+
+    def old_request(self, method, url,
         params=None,
         data=None,
         headers=None,
@@ -268,13 +291,6 @@ class Session(object):
         # Send the HTTP Request.
         return self._send_request(r, **args)
 
-    def _send_request(self, r, **kwargs):
-        # Send the request.
-        r.send(prefetch=kwargs.get("prefetch"))
-
-        # Return the response.
-        return r.response
-
     def get(self, url, **kwargs):
         """Sends a GET request. Returns :class:`Response` object.
 
@@ -346,7 +362,9 @@ class Session(object):
 
     def send(self, request):
         """Send a given PreparedRequest."""
-        return request.send()
+        adapter = HTTPAdapter()
+        r = adapter.send(request)
+        return r
 
     def __getstate__(self):
         return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
