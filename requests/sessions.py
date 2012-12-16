@@ -19,7 +19,7 @@ from .utils import header_expand, from_key_val_list
 from .packages.urllib3.poolmanager import PoolManager
 
 
-from adapters import HTTPAdapter
+from .adapters import HTTPAdapter
 
 def merge_kwargs(local_kwarg, default_kwarg):
     """Merges kwarg dictionaries.
