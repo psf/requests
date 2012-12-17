@@ -108,15 +108,16 @@ class SessionRedirectMixin(object):
                 method = 'GET'
 
             # Remove the cookie headers that were sent.
-            # headers = req.headers
-            # try:
-            #     del headers['Cookie']
-            # except KeyError:
-            #     pass
+            headers = req.headers
+            try:
+                del headers['Cookie']
+            except KeyError:
+                pass
 
             resp = self.request(
                     url=url,
                     method=method,
+                    headers=headers,
                     params=req.params,
                     auth=req.auth,
                     cookies=req.cookies,
