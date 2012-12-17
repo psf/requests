@@ -215,8 +215,6 @@ class RequestsTestCase(unittest.TestCase):
             pass
 
     def test_request_ok_set(self):
-
-
         r = requests.get(httpbin('status', '404'))
         self.assertEqual(r.ok, False)
 
