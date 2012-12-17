@@ -64,14 +64,6 @@ class HTTPAdapter(BaseAdapter):
             if verify is not True:
                 cert_loc = verify
 
-            # Look for configuration.
-            if not cert_loc and self.config.get('trust_env'):
-                cert_loc = os.environ.get('REQUESTS_CA_BUNDLE')
-
-            # Curl compatibility.
-            if not cert_loc and self.config.get('trust_env'):
-                cert_loc = os.environ.get('CURL_CA_BUNDLE')
-
             if not cert_loc:
                 cert_loc = DEFAULT_CA_BUNDLE_PATH
 

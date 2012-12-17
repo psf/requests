@@ -8,6 +8,7 @@ This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
 
 """
+import os
 
 from .compat import cookielib
 from .cookies import cookiejar_from_dict
@@ -225,6 +226,15 @@ class Session(SessionRedirectMixin):
             # Set environment's basic authentication.
             if not auth:
                 auth = get_netrc_auth(url)
+
+            # Look for configuration.
+            if not verify and verify is not False:
+                verify = os.environ.get('REQUESTS_CA_BUNDLE')
+
+            # Curl compatibility.
+            if not verify and verify is not False:
+                verify = os.environ.get('CURL_CA_BUNDLE')
+
 
         # Merge all the kwargs.
         params = merge_kwargs(params, self.params)
