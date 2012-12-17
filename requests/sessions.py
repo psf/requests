@@ -62,7 +62,7 @@ def merge_kwargs(local_kwarg, default_kwarg):
 
 class SessionRedirectMixin(object):
 
-    def resolve_redirects(self, resp, req, stream=False, timeout=None, verify=True, cert=None):
+    def resolve_redirects(self, resp, req, stream=False, timeout=None, verify=True, cert=None, proxies=None):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
@@ -125,7 +125,8 @@ class SessionRedirectMixin(object):
                     stream=stream,
                     timeout=timeout,
                     verify=verify,
-                    cert=cert
+                    cert=cert,
+                    proxies=proxies
                 )
 
             i += 1
@@ -255,7 +256,7 @@ class Session(SessionRedirectMixin):
         resp = self.send(prep, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
 
         # Redirect resolving generator.
-        gen = self.resolve_redirects(resp, req, stream, timeout, verify, cert)
+        gen = self.resolve_redirects(resp, req, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
 
         # Resolve redirects if allowed.
         history = [r for r in gen] if allow_redirects else []

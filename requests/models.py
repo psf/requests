@@ -528,7 +528,6 @@ class Response(object):
 
         return content
 
-    @property
     def json(self):
         """Returns the json-encoded content of a response, if any."""
 
@@ -539,14 +538,8 @@ class Response(object):
             # a best guess).
             encoding = guess_json_utf(self.content)
             if encoding is not None:
-                try:
-                    return json.loads(self.content.decode(encoding))
-                except (ValueError, UnicodeDecodeError):
-                    pass
-        try:
-            return json.loads(self.text or self.content)
-        except ValueError:
-            return None
+                return json.loads(self.content.decode(encoding))
+        return json.loads(self.text or self.content)
 
     @property
     def links(self):

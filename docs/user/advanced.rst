@@ -116,10 +116,10 @@ If you specify a wrong path or an invalid cert::
 Body Content Workflow
 ---------------------
 
-By default, when you make a request, the body of the response is downloaded immediately. You can override this behavior and defer downloading the response body until you access the :class:`Response.content` attribute with the ``prefetch`` parameter::
+By default, when you make a request, the body of the response is downloaded immediately. You can override this behavior and defer downloading the response body until you access the :class:`Response.content` attribute with the ``stream`` parameter::
 
     tarball_url = 'https://github.com/kennethreitz/requests/tarball/master'
-    r = requests.get(tarball_url, prefetch=False)
+    r = requests.get(tarball_url, stream=True)
 
 At this point only the response headers have been downloaded and the connection remains open, hence allowing us to make content retrieval conditional::
 
@@ -128,8 +128,6 @@ At this point only the response headers have been downloaded and the connection 
       ...
 
 You can further control the workflow by use of the :class:`Response.iter_content` and :class:`Response.iter_lines` methods, or reading from the underlying urllib3 :class:`urllib3.HTTPResponse` at :class:`Response.raw`.
-
-Note that in versions prior to 0.13.6 the ``prefetch`` default was set to ``False``.
 
 Configuring Requests
 --------------------
@@ -143,19 +141,7 @@ Keep-Alive
 
 Excellent news — thanks to urllib3, keep-alive is 100% automatic within a session! Any requests that you make within a session will automatically reuse the appropriate connection!
 
-Note that connections are only released back to the pool for reuse once all body data has been read; be sure to either set ``prefetch`` to ``True`` or read the ``content`` property of the ``Response`` object.
-
-If you'd like to disable keep-alive, you can simply set the ``keep_alive`` configuration to ``False``::
-
-    s = requests.session()
-    s.config['keep_alive'] = False
-
-
-Asynchronous Requests
-----------------------
-
-
-``requests.async`` has been removed from requests and is now its own repository named `GRequests <https://github.com/kennethreitz/grequests>`_.
+Note that connections are only released back to the pool for reuse once all body data has been read; be sure to either set ``stream`` to ``False`` or read the ``content`` property of the ``Response`` object.
 
 
 Event Hooks
@@ -166,15 +152,6 @@ the request process, or signal event handling.
 
 Available hooks:
 
-``args``:
-    A dictionary of the arguments being sent to Request().
-
-``pre_request``:
-    The Request object, directly before being sent.
-
-``post_request``:
-    The Request object, directly after being sent.
-
 ``response``:
     The response generated from a Request.
 
@@ -183,15 +160,15 @@ You can assign a hook function on a per-request basis by passing a
 ``{hook_name: callback_function}`` dictionary to the ``hooks`` request
 parameter::
 
-    hooks=dict(args=print_url)
+    hooks=dict(response=print_url)
 
 That ``callback_function`` will receive a chunk of data as its first
 argument.
 
 ::
 
-    def print_url(args):
-        print args['url']
+    def print_url(r):
+        print(r.url)
 
 If an error occurs while executing your callback, a warning is given.
 
@@ -201,40 +178,9 @@ anything, nothing else is effected.
 
 Let's print some request method arguments at runtime::
 
-    >>> requests.get('http://httpbin.org', hooks=dict(args=print_url))
+    >>> requests.get('http://httpbin.org', hooks=dict(response=print_url))
     http://httpbin.org
     <Response [200]>
-
-Let's hijack some arguments this time with a new callback::
-
-    def hack_headers(args):
-        if args.get('headers') is None:
-            args['headers'] = dict()
-
-        args['headers'].update({'X-Testing': 'True'})
-
-        return args
-
-    hooks = dict(args=hack_headers)
-    headers = dict(yo=dawg)
-
-And give it a try::
-
-    >>> requests.get('http://httpbin.org/headers', hooks=hooks, headers=headers)
-    {
-        "headers": {
-            "Content-Length": "",
-            "Accept-Encoding": "gzip",
-            "Yo": "dawg",
-            "X-Forwarded-For": "::ffff:24.127.96.129",
-            "Connection": "close",
-            "User-Agent": "python-requests.org",
-            "Host": "httpbin.org",
-            "X-Testing": "True",
-            "X-Forwarded-Protocol": "",
-            "Content-Type": ""
-        }
-    }
 
 
 Custom Authentication
@@ -283,25 +229,11 @@ To use the Twitter Streaming API to track the keyword "requests"::
     import json
 
     r = requests.post('https://stream.twitter.com/1/statuses/filter.json',
-        data={'track': 'requests'}, auth=('username', 'password'), prefetch=False)
+        data={'track': 'requests'}, auth=('username', 'password'), stream=True)
 
     for line in r.iter_lines():
         if line: # filter out keep-alive new lines
             print json.loads(line)
-
-
-Verbose Logging
----------------
-
-If you want to get a good look at what HTTP requests are being sent
-by your application, you can turn on verbose logging.
-
-To do so, just configure Requests with a stream to write to::
-
-    >>> my_config = {'verbose': sys.stderr}
-    >>> requests.get('http://httpbin.org/headers', config=my_config)
-    2011-08-17T03:04:23.380175   GET   http://httpbin.org/headers
-    <Response [200]>
 
 
 Proxies
@@ -349,7 +281,7 @@ Encodings
 When you receive a response, Requests makes a guess at the encoding to use for
 decoding the response when you call the ``Response.text`` method. Requests
 will first check for an encoding in the HTTP header, and if none is present,
-will use `chardet <http://pypi.python.org/pypi/chardet>`_ to attempt to guess
+will use `charade <http://pypi.python.org/pypi/charade>`_ to attempt to guess
 the encoding.
 
 The only time Requests will not do this is if no explicit charset is present
