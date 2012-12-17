@@ -100,8 +100,8 @@ class RequestEncodingMixin(object):
             return None
 
         new_fields = []
-        fields = to_key_val_list(data)
-        files = to_key_val_list(files)
+        fields = to_key_val_list(data or {})
+        files = to_key_val_list(files or {})
 
         for field, val in fields:
             if isinstance(val, list):

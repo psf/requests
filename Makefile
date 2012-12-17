@@ -6,6 +6,10 @@ test:
 test-deps:
 	pip install py.test
 
+six:
+	python test_requests.py
+	python3 test_requests.py
+
 deps: urllib3 certs charade
 
 urllib3:
