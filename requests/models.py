@@ -145,7 +145,7 @@ class RequestMixin(object):
 
 
 class Request(object):
-    """A user-created Request object."""
+    """A user-created :class:`Request <Request>` object."""
     def __init__(self,
         method=None,
         url=None,
@@ -193,9 +193,7 @@ class Request(object):
 
 
 class PreparedRequest(RequestMixin):
-    """The :class:`Request <Request>` object. It carries out all functionality
-    of Requests. Recommended interface is with the Requests functions.
-    """
+    """The :class:`PreparedRequest <PreparedRequest>` object."""
 
     def __init__(self):
         self.method = None
