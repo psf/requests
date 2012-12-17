@@ -240,6 +240,7 @@ class PreparedRequest(RequestMixin):
         except UnicodeError:
             raise InvalidURL('URL has an invalid label.')
 
+        # Bare domains aren't valid URLs.
         if not path:
             path = '/'
 
@@ -264,13 +265,7 @@ class PreparedRequest(RequestMixin):
             else:
                 query = enc_params
 
-        url = (urlunparse([scheme, netloc, path, params, query, fragment]))
-
-        # if self.config.get('encode_uri', True):
-            # url = requote_uri(url)
-        # TODO: re-evaluate quote param (perhaps not, people can create this themselves now)
-        url = requote_uri(url)
-
+        url = requote_uri(urlunparse([scheme, netloc, path, params, query, fragment]))
         self.url = url
 
     def prepare_headers(self, headers):
