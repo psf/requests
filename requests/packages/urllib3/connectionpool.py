@@ -6,8 +6,9 @@
 
 import logging
 import socket
+import errno
 
-from socket import timeout as SocketTimeout
+from socket import error as SocketError, timeout as SocketTimeout
 
 try: # Python 3
     from http.client import HTTPConnection, HTTPException
@@ -41,7 +42,7 @@ except (ImportError, AttributeError): # Platform-specific: No SSL.
 
 from .request import RequestMethods
 from .response import HTTPResponse
-from .util import get_host, is_connection_dropped
+from .util import get_host, is_connection_dropped, ssl_wrap_socket
 from .exceptions import (
     ClosedPoolError,
     EmptyPoolError,
@@ -76,6 +77,7 @@ class VerifiedHTTPSConnection(HTTPSConnection):
     """
     cert_reqs = None
     ca_certs = None
+    ssl_version = None
 
     def set_cert(self, key_file=None, cert_file=None,
                  cert_reqs='CERT_NONE', ca_certs=None):
@@ -96,9 +98,12 @@ class VerifiedHTTPSConnection(HTTPSConnection):
 
         # Wrap socket using verification with the root certs in
         # trusted_root_certs
-        self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file,
+        self.sock = ssl_wrap_socket(sock, self.key_file, self.cert_file,
                                     cert_reqs=self.cert_reqs,
-                                    ca_certs=self.ca_certs)
+                                    ca_certs=self.ca_certs,
+                                    server_hostname=self.host,
+                                    ssl_version=self.ssl_version)
+
         if self.ca_certs:
             match_hostname(self.sock.getpeercert(), self.host)
 
@@ -166,13 +171,13 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
     def __init__(self, host, port=None, strict=False, timeout=None, maxsize=1,
                  block=False, headers=None):
-        super(HTTPConnectionPool, self).__init__(host, port)
+        ConnectionPool.__init__(self, host, port)
+        RequestMethods.__init__(self, headers)
 
         self.strict = strict
         self.timeout = timeout
         self.pool = self.QueueCls(maxsize)
         self.block = block
-        self.headers = headers or {}
 
         # Fill the queue up so that doing get() on it will block properly
         for _ in xrange(maxsize):
@@ -189,7 +194,9 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         self.num_connections += 1
         log.info("Starting new HTTP connection (%d): %s" %
                  (self.num_connections, self.host))
-        return HTTPConnection(host=self.host, port=self.port)
+        return HTTPConnection(host=self.host,
+                              port=self.port,
+                              strict=self.strict)
 
     def _get_conn(self, timeout=None):
         """
@@ -449,11 +456,14 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             # Name mismatch
             raise SSLError(e)
 
-        except HTTPException as e:
+        except (HTTPException, SocketError) as e:
             # Connection broken, discard. It will be replaced next _get_conn().
             conn = None
             # This is necessary so we can access e below
             err = e
+
+            if retries == 0:
+                raise MaxRetryError(self, url, e)
 
         finally:
             if release_conn:
@@ -491,11 +501,11 @@ class HTTPSConnectionPool(HTTPConnectionPool):
 
     When Python is compiled with the :mod:`ssl` module, then
     :class:`.VerifiedHTTPSConnection` is used, which *can* verify certificates,
-    instead of :class:httplib.HTTPSConnection`.
+    instead of :class:`httplib.HTTPSConnection`.
 
-    The ``key_file``, ``cert_file``, ``cert_reqs``, and ``ca_certs`` parameters
+    The ``key_file``, ``cert_file``, ``cert_reqs``, ``ca_certs``, and ``ssl_version``
     are only used if :mod:`ssl` is available and are fed into
-    :meth:`ssl.wrap_socket` to upgrade the connection socket into an SSL socket.
+    :meth:`urllib3.util.ssl_wrap_socket` to upgrade the connection socket into an SSL socket.
     """
 
     scheme = 'https'
@@ -504,15 +514,16 @@ class HTTPSConnectionPool(HTTPConnectionPool):
                  strict=False, timeout=None, maxsize=1,
                  block=False, headers=None,
                  key_file=None, cert_file=None,
-                 cert_reqs='CERT_NONE', ca_certs=None):
+                 cert_reqs='CERT_NONE', ca_certs=None, ssl_version=None):
 
-        super(HTTPSConnectionPool, self).__init__(host, port,
-                                                  strict, timeout, maxsize,
-                                                  block, headers)
+        HTTPConnectionPool.__init__(self, host, port,
+                                    strict, timeout, maxsize,
+                                    block, headers)
         self.key_file = key_file
         self.cert_file = cert_file
         self.cert_reqs = cert_reqs
         self.ca_certs = ca_certs
+        self.ssl_version = ssl_version
 
     def _new_conn(self):
         """
@@ -527,11 +538,21 @@ class HTTPSConnectionPool(HTTPConnectionPool):
                 raise SSLError("Can't connect to HTTPS URL because the SSL "
                                "module is not available.")
 
-            return HTTPSConnection(host=self.host, port=self.port)
+            return HTTPSConnection(host=self.host,
+                                   port=self.port,
+                                   strict=self.strict)
 
-        connection = VerifiedHTTPSConnection(host=self.host, port=self.port)
+        connection = VerifiedHTTPSConnection(host=self.host,
+                                             port=self.port,
+                                             strict=self.strict)
         connection.set_cert(key_file=self.key_file, cert_file=self.cert_file,
                             cert_reqs=self.cert_reqs, ca_certs=self.ca_certs)
+
+        if self.ssl_version is None:
+            connection.ssl_version = ssl.PROTOCOL_SSLv23
+        else:
+            connection.ssl_version = self.ssl_version
+
         return connection
 
 

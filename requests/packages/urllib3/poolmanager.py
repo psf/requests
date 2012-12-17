@@ -30,8 +30,12 @@ class PoolManager(RequestMethods):
     necessary connection pools for you.
 
     :param num_pools:
-        Number of connection pools to cache before discarding the least recently
-        used pool.
+        Number of connection pools to cache before discarding the least
+        recently used pool.
+
+    :param headers:
+        Headers to include with all requests, unless other headers are given
+        explicitly.
 
     :param \**connection_pool_kw:
         Additional parameters are used to create fresh
@@ -40,15 +44,16 @@ class PoolManager(RequestMethods):
     Example: ::
 
         >>> manager = PoolManager(num_pools=2)
-        >>> r = manager.urlopen("http://google.com/")
-        >>> r = manager.urlopen("http://google.com/mail")
-        >>> r = manager.urlopen("http://yahoo.com/")
+        >>> r = manager.request('GET', 'http://google.com/')
+        >>> r = manager.request('GET', 'http://google.com/mail')
+        >>> r = manager.request('GET', 'http://yahoo.com/')
         >>> len(manager.pools)
         2
 
     """
 
-    def __init__(self, num_pools=10, **connection_pool_kw):
+    def __init__(self, num_pools=10, headers=None, **connection_pool_kw):
+        RequestMethods.__init__(self, headers)
         self.connection_pool_kw = connection_pool_kw
         self.pools = RecentlyUsedContainer(num_pools,
                                            dispose_func=lambda p: p.close())
@@ -113,6 +118,8 @@ class PoolManager(RequestMethods):
 
         kw['assert_same_host'] = False
         kw['redirect'] = False
+        if 'headers' not in kw:
+            kw['headers'] = self.headers
 
         response = conn.urlopen(method, u.request_uri, **kw)
 
@@ -124,7 +131,7 @@ class PoolManager(RequestMethods):
             method = 'GET'
 
         log.info("Redirecting %s -> %s" % (url, redirect_location))
-        kw['retries'] = kw.get('retries', 3) - 1 # Persist retries countdown
+        kw['retries'] = kw.get('retries', 3) - 1  # Persist retries countdown
         return self.urlopen(method, redirect_location, **kw)
 
 
@@ -138,13 +145,11 @@ class ProxyManager(RequestMethods):
         self.proxy_pool = proxy_pool
 
     def _set_proxy_headers(self, headers=None):
-        headers = headers or {}
+        headers_ = {'Accept': '*/*'}
+        if headers:
+            headers_.update(headers)
 
-        # Same headers are curl passes for --proxy1.0
-        headers['Accept'] = '*/*'
-        headers['Proxy-Connection'] = 'Keep-Alive'
-
-        return headers
+        return headers_
 
     def urlopen(self, method, url, **kw):
         "Same as HTTP(S)ConnectionPool.urlopen, ``url`` must be absolute."

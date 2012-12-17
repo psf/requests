@@ -41,13 +41,16 @@ def iter_fields(fields):
 
 def encode_multipart_formdata(fields, boundary=None):
     """
-    Encode a dictionary of ``fields`` using the multipart/form-data mime format.
+    Encode a dictionary of ``fields`` using the multipart/form-data MIME format.
 
     :param fields:
-        Dictionary of fields or list of (key, value) field tuples.  The key is
-        treated as the field name, and the value as the body of the form-data
-        bytes. If the value is a tuple of two elements, then the first element
-        is treated as the filename of the form-data section.
+        Dictionary of fields or list of (key, value) or (key, value, MIME type)
+        field tuples.  The key is treated as the field name, and the value as
+        the body of the form-data bytes. If the value is a tuple of two
+        elements, then the first element is treated as the filename of the
+        form-data section and a suitable MIME type is guessed based on the
+        filename. If the value is a tuple of three elements, then the third
+        element is treated as an explicit MIME type of the form-data section.
 
         Field names and filenames must be unicode.
 
@@ -63,16 +66,20 @@ def encode_multipart_formdata(fields, boundary=None):
         body.write(b('--%s\r\n' % (boundary)))
 
         if isinstance(value, tuple):
-            filename, data = value
+            if len(value) == 3:
+                filename, data, content_type = value
+            else:
+                filename, data = value
+                content_type = get_content_type(filename)
             writer(body).write('Content-Disposition: form-data; name="%s"; '
                                'filename="%s"\r\n' % (fieldname, filename))
             body.write(b('Content-Type: %s\r\n\r\n' %
-                       (get_content_type(filename))))
+                       (content_type,)))
         else:
             data = value
             writer(body).write('Content-Disposition: form-data; name="%s"\r\n'
                                % (fieldname))
-            body.write(b'Content-Type: text/plain\r\n\r\n')
+            body.write(b'\r\n')
 
         if isinstance(data, int):
             data = str(data)  # Backwards compatibility

@@ -130,7 +130,9 @@ class HTTPResponse(object):
             after having ``.read()`` the file object. (Overridden if ``amt`` is
             set.)
         """
-        content_encoding = self.headers.get('content-encoding')
+        # Note: content-encoding value should be case-insensitive, per RFC 2616
+        # Section 3.5
+        content_encoding = self.headers.get('content-encoding', '').lower()
         decoder = self.CONTENT_DECODERS.get(content_encoding)
         if decode_content is None:
             decode_content = self._decode_content
