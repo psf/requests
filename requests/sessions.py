@@ -253,20 +253,19 @@ class Session(SessionMixin):
 
         resp = self.send(prep)
 
-        # Redirect generator.
+        # Redirect resolving generator.
         gen = self.resolve_redirects(resp, req, prefetch, timeout, verify, cert)
 
+        # Resolve redirects if allowed.
         history = [r for r in gen] if allow_redirects else []
 
+        # Shuffle things around if there's history.
         if history:
             history.insert(0, resp)
             resp = history.pop()
-            resp.history = history
+            resp.history = tuple(history)
 
         return resp
-
-
-
 
 
 
