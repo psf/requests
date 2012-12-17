@@ -70,10 +70,14 @@ class SessionRedirectMixin(object):
         # ((resp.status_code is codes.see_other))
         while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
 
+            # Persist cookies.
+            for cookie in resp.cookies:
+                self.cookies.set_cookie(cookie)
+
             resp.content  # Consume socket so it can be released
 
             if i > self.max_redirects:
-                raise TooManyRedirects()
+                raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects)
 
             # Release the connection back into the pool.
             resp.close()
@@ -186,51 +190,38 @@ class Session(SessionRedirectMixin):
         params=None,
         data=None,
         headers=None,
-        cookies=None or {},
+        cookies=None,
         files=None,
         auth=None,
         timeout=None,
         allow_redirects=True,
         proxies=None,
         hooks=None,
-        return_response=True,
         prefetch=None,
         verify=None,
         cert=None):
 
+        cookies = cookies or {}
 
-        # merge session cookies into passed-in ones
-        dead_cookies = None
-        # passed-in cookies must become a CookieJar:
+        # Bootstrap CookieJar.
         if not isinstance(cookies, cookielib.CookieJar):
             cookies = cookiejar_from_dict(cookies)
-            # support unsetting cookies that have been passed in with None values
-            # this is only meaningful when `cookies` is a dict ---
-            # for a real CookieJar, the client should use session.cookies.clear()
-            if cookies is not None:
-                dead_cookies = [name for name in cookies if cookies[name] is None]
-        # merge the session's cookies into the passed-in cookies:
+
+        # Bubble down session cookies.
         for cookie in self.cookies:
             cookies.set_cookie(cookie)
-        # remove the unset cookies from the jar we'll be using with the current request
-        # (but not from the session's own store of cookies):
-        if dead_cookies is not None:
-            for name in dead_cookies:
-                remove_cookie_by_name(cookies, name)
 
-        # Merge local kwargs with session kwargs.
-        for attr in self.__attrs__:
-            # we already merged cookies:
-            if attr == 'cookies':
-                continue
-
-            session_val = getattr(self, attr, None)
-            local_val = locals().get(attr)
-            locals()[attr] = merge_kwargs(local_val, session_val)
-
-
+        # Merge all the kwargs.
+        params = merge_kwargs(params, self.params)
         headers = merge_kwargs(headers, self.headers)
+        auth = merge_kwargs(auth, self.auth)
+        proxies = merge_kwargs(proxies, self.proxies)
+        hooks = merge_kwargs(hooks, self.hooks)
+        prefetch = merge_kwargs(prefetch, self.prefetch)
+        verify = merge_kwargs(verify, self.verify)
+        cert = merge_kwargs(cert, self.cert)
 
+        # Create the Request.
         req = Request()
         req.method = method
         req.url = url
@@ -240,15 +231,12 @@ class Session(SessionRedirectMixin):
         req.params = params
         req.auth = auth
         req.cookies = cookies
-        # TODO: move to attached
-        # req.allow_redirects = allow_redirects
-        # req.proxies = proxies
         req.hooks = hooks
 
+        # Prepare the Request.
         prep = req.prepare()
 
-        # TODO: prepare cookies.
-
+        # Send the request.
         resp = self.send(prep, prefetch=prefetch, timeout=timeout, verify=verify, cert=cert)
 
         # Redirect resolving generator.
@@ -267,9 +255,6 @@ class Session(SessionRedirectMixin):
         self.response = dispatch_hook('response', hooks, resp)
 
         return resp
-
-
-
 
     def get(self, url, **kwargs):
         """Sends a GET request. Returns :class:`Response` object.
@@ -340,10 +325,10 @@ class Session(SessionRedirectMixin):
 
         return self.request('DELETE', url, **kwargs)
 
-    def send(self, request, prefetch=True, timeout=None, verify=True, cert=None):
+    def send(self, request, **kwargs):
         """Send a given PreparedRequest."""
         adapter = HTTPAdapter()
-        r = adapter.send(request, prefetch, timeout, verify, cert)
+        r = adapter.send(request, **kwargs)
         return r
 
     def __getstate__(self):

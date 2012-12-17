@@ -41,18 +41,13 @@ class MockRequest(object):
         return urlparse(self._r.url).netloc
 
     def get_origin_req_host(self):
-        if self._r.response.history:
-            r = self._r.response.history[0]
-            return urlparse(r.url).netloc
-        else:
-            return self.get_host()
+        return self.get_host()
 
     def get_full_url(self):
         return self._r.url
 
     def is_unverifiable(self):
-        # unverifiable == redirected
-        return bool(self._r.response.history)
+        return True
 
     def has_header(self, name):
         return name in self._r.headers or name in self._new_headers
