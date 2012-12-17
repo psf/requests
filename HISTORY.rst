@@ -3,15 +3,22 @@
 History
 -------
 
-1.0.0 (2012-??-??)
+1.0.0 (2012-12-17)
 ++++++++++++++++++
 
-- Massive Refactor
+- Massive Refactor and Simplification
 - Switch to Apache 2.0 license
-- Connection Adapters
+- Swappable Connection Adapters
+- Mountable Connection Adapters
+- Mutable ProcessedRequest chain
+- Removal of all configuration
 - Standard library logging
 - Make Reponse.json() callable, not property.
+- Usage of new charade project, which provides python 2 and 3 simultaneous chardet.
+- Removal of all hooks except 'response'
+- Removal of all authentication helpers (OAuth, Kerberos)
 
+This is not a backwards compatible change.
 
 0.14.2 (2012-10-27)
 +++++++++++++++++++
