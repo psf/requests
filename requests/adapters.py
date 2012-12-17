@@ -7,22 +7,20 @@ requests.adapters
 This module contains the transport adapters that Requests uses to define
 and maintain connections.
 """
+
 import os
+import socket
+
 from .models import Response
 from .packages.urllib3.poolmanager import PoolManager
 from .utils import DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers
-
-import socket
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import TimeoutError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
-from .packages.urllib3 import poolmanager
 from .cookies import extract_cookies_to_jar
-from .exceptions import (
-ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
-URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
+from .exceptions import ConnectionError, Timeout, SSLError
 
 DEFAULT_POOLSIZE = 10
 DEFAULT_RETRIES = 0
