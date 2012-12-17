@@ -12,7 +12,7 @@ requests (cookies, auth, proxies).
 from .compat import cookielib
 from .cookies import cookiejar_from_dict, remove_cookie_by_name
 from .models import Request
-from .hooks import dispatch_hook, HOOKS
+from .hooks import dispatch_hook, default_hooks
 from .utils import header_expand, from_key_val_list, default_headers
 from .exceptions import TooManyRedirects
 
@@ -60,7 +60,7 @@ def merge_kwargs(local_kwarg, default_kwarg):
     return kwargs
 
 
-class SessionMixin(object):
+class SessionRedirectMixin(object):
 
     def resolve_redirects(self, resp, req, prefetch=True, timeout=None, verify=True, cert=None):
         """Receives a Response. Returns a generator of Responses."""
@@ -127,58 +127,45 @@ class SessionMixin(object):
             yield resp
 
 
-class Session(SessionMixin):
+class Session(SessionRedirectMixin):
     """A Requests session."""
 
     __attrs__ = [
         'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
         'params', 'verify', 'cert', 'prefetch']
 
-    def __init__(self,
-        headers=None,
-        cookies=None,
-        auth=None,
-        timeout=None,
-        proxies=None,
-        hooks=None,
-        params=None,
-        prefetch=True,
-        verify=True,
-        cert=None):
+    def __init__(self):
 
         #: A case-insensitive dictionary of headers to be sent on each
         #: :class:`Request <Request>` sent from this
         #: :class:`Session <Session>`.
-        self.headers = from_key_val_list(headers or [])
+        self.headers = default_headers()
 
         #: Authentication tuple or object to attach to
         #: :class:`Request <Request>`.
-        self.auth = auth
-
-        #: Float describing the timeout of the each :class:`Request <Request>`.
-        self.timeout = timeout
+        self.auth = None
 
         #: Dictionary mapping protocol to the URL of the proxy (e.g.
         #: {'http': 'foo.bar:3128'}) to be used on each
         #: :class:`Request <Request>`.
-        self.proxies = from_key_val_list(proxies or [])
+        self.proxies = {}
 
         #: Event-handling hooks.
-        self.hooks = from_key_val_list(hooks or {})
+        self.hooks = default_hooks()
 
         #: Dictionary of querystring data to attach to each
         #: :class:`Request <Request>`. The dictionary values may be lists for
         #: representing multivalued query parameters.
-        self.params = from_key_val_list(params or [])
+        self.params = {}
 
         #: Prefetch response content.
-        self.prefetch = prefetch
+        self.prefetch = True
 
         #: SSL Verification.
-        self.verify = verify
+        self.verify = True
 
         #: SSL certificate.
-        self.cert = cert
+        self.cert = None
 
         #: Maximum number of redirects to follow.
         self.max_redirects = DEFAULT_REDIRECT_LIMIT
@@ -186,13 +173,8 @@ class Session(SessionMixin):
         #: Should we trust the environment
         self.trust_env = True
 
-        self.default_headers = default_headers()
-
         # Set up a CookieJar to be used by default
-        if isinstance(cookies, cookielib.CookieJar):
-            self.cookies = cookies
-        else:
-            self.cookies = cookiejar_from_dict(cookies)
+        self.cookies = cookiejar_from_dict({})
 
     def __enter__(self):
         return self
@@ -230,14 +212,14 @@ class Session(SessionMixin):
         req.cookies = cookies
         # TODO: move to attached
         # req.allow_redirects = allow_redirects
-        req.proxies = proxies
+        # req.proxies = proxies
         req.hooks = hooks
 
         prep = req.prepare()
 
         # TODO: prepare cookies.
 
-        resp = self.send(prep, prefetch, timeout, verify, cert)
+        resp = self.send(prep, prefetch=prefetch, timeout=timeout, verify=verify, cert=cert)
 
         # Redirect resolving generator.
         gen = self.resolve_redirects(resp, req, prefetch, timeout, verify, cert)
