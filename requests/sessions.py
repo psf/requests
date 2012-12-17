@@ -134,10 +134,6 @@ class SessionRedirectMixin(object):
 class Session(SessionRedirectMixin):
     """A Requests session."""
 
-    __attrs__ = [
-        'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
-        'params', 'verify', 'cert', 'prefetch']
-
     def __init__(self):
 
         #: A case-insensitive dictionary of headers to be sent on each
