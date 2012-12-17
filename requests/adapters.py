@@ -20,6 +20,7 @@ from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .packages.urllib3 import connectionpool, poolmanager
 from .packages.urllib3.filepost import encode_multipart_formdata
+from .cookies import extract_cookies_to_jar
 from .exceptions import (
 ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
 URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
@@ -109,10 +110,10 @@ class HTTPAdapter(BaseAdapter):
         else:
             response.url = req.url
 
-        return response
         # Add new cookies from the server.
-        # extract_cookies_to_jar(self.cookies, self, resp)
+        extract_cookies_to_jar(response.cookies, req, resp)
 
+        return response
 
 
     def close(self):

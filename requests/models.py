@@ -385,10 +385,7 @@ class Response(object):
         self.reason = None
 
         #: A CookieJar of Cookies the server sent back.
-        self.cookies = None
-
-        #: Dictionary of configurations for this request.
-        self.config = {}
+        self.cookies = cookiejar_from_dict({})
 
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
