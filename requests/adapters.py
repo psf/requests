@@ -14,12 +14,11 @@ from .utils import DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers
 
 import socket
 from .structures import CaseInsensitiveDict
-from .packages.urllib3.exceptions import MaxRetryError, LocationParseError
+from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import TimeoutError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
-from .packages.urllib3 import connectionpool, poolmanager
-from .packages.urllib3.filepost import encode_multipart_formdata
+from .packages.urllib3 import poolmanager
 from .cookies import extract_cookies_to_jar
 from .exceptions import (
 ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
