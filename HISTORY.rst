@@ -11,6 +11,7 @@ History
 - Swappable Connection Adapters
 - Mountable Connection Adapters
 - Mutable ProcessedRequest chain
+- /s/prefetch/stream
 - Removal of all configuration
 - Standard library logging
 - Make Reponse.json() callable, not property.
