@@ -14,7 +14,14 @@ Available hooks:
 """
 
 
-HOOKS = ('response')
+HOOKS = ['response']
+
+def default_hooks():
+    hooks = {}
+    for event in HOOKS:
+        hooks[event] = []
+    return hooks
+
 # TODO: response is the only one
 
 def dispatch_hook(key, hooks, hook_data):

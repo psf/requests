@@ -9,13 +9,13 @@ This module contains the primary objects that power Requests.
 
 # import os
 # import socket
-# import collections
+import collections
 import logging
 
 # from datetime import datetime
 from io import BytesIO
 
-from .hooks import dispatch_hook, HOOKS
+from .hooks import dispatch_hook, default_hooks
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
 
@@ -46,7 +46,7 @@ CONTENT_CHUNK_SIZE = 10 * 1024
 log = logging.getLogger(__name__)
 
 
-class RequestMixin(object):
+class RequestEncodingMixin(object):
 
     @property
     def path_url(self):
@@ -143,7 +143,30 @@ class RequestMixin(object):
         return body, content_type
 
 
-class Request(object):
+class RequestHooksMixin(object):
+    def register_hook(self, event, hook):
+        """Properly register a hook."""
+        print self
+        print event
+        print hook
+        if isinstance(hook, collections.Callable):
+            self.hooks[event].append(hook)
+        elif hasattr(hook, '__iter__'):
+            self.hooks[event].extend(h for h in hook if isinstance(h, collections.Callable))
+
+    def deregister_hook(self, event, hook):
+        """Deregister a previously registered hook.
+        Returns True if the hook existed, False if not.
+        """
+
+        try:
+            self.hooks[event].remove(hook)
+            return True
+        except ValueError:
+            return False
+
+
+class Request(RequestHooksMixin):
     """A user-created :class:`Request <Request>` object."""
     def __init__(self,
         method=None,
@@ -155,12 +178,18 @@ class Request(object):
         auth=None,
         cookies=None,
         timeout=None,
-        allow_redirects=False,
-        proxies=None,
-        hooks=None,
-        prefetch=True,
-        verify=None,
-        cert=None):
+        hooks=None):
+
+        # Default empty dicts for dict params.
+        data = [] if data is None else data
+        files = [] if files is None else files
+        headers = {} if headers is None else headers
+        params = {} if params is None else params
+        hooks = {} if hooks is None else hooks
+
+        self.hooks = default_hooks()
+        for (k, v) in list(hooks.items()):
+            self.register_hook(event=k, hook=v)
 
         self.method = method
         self.url = url
@@ -170,8 +199,8 @@ class Request(object):
         self.params = params
         self.auth = auth
         self.cookies = cookies
-        self.allow_redirects = allow_redirects
-        self.proxies = proxies
+        # self.allow_redirects = allow_redirects
+        # self.proxies = proxies
         self.hooks = hooks
 
     def __repr__(self):
@@ -191,7 +220,7 @@ class Request(object):
         return p
 
 
-class PreparedRequest(RequestMixin):
+class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     """The :class:`PreparedRequest <PreparedRequest>` object."""
 
     def __init__(self):
@@ -203,7 +232,7 @@ class PreparedRequest(RequestMixin):
         self.auth = None
         self.allow_redirects = None
         self.proxies = None
-        self.hooks = None
+        self.hooks = default_hooks()
 
     def __repr__(self):
         return '<PreparedRequest [%s]>' % (self.method)
@@ -313,12 +342,16 @@ class PreparedRequest(RequestMixin):
     def prepare_auth(self, auth):
         """Prepares the given HTTP auth data."""
         if auth:
+            # print auth
             if isinstance(auth, tuple) and len(auth) == 2:
                 # special-case basic HTTP auth
                 auth = HTTPBasicAuth(*auth)
 
             # Allow auth to make its changes.
             r = auth(self)
+            # print r
+            # print r.__dict__
+            # print self.__dict__
 
             # Update self to reflect the auth changes.
             self.__dict__.update(r.__dict__)
