@@ -14,7 +14,7 @@ from .cookies import cookiejar_from_dict, remove_cookie_by_name
 from .models import Request
 from .hooks import dispatch_hook, default_hooks
 from .utils import header_expand, from_key_val_list, default_headers
-from .exceptions import TooManyRedirects
+from .exceptions import TooManyRedirects, InvalidSchema
 
 from .compat import urlparse, urljoin
 from .adapters import HTTPAdapter
@@ -177,6 +177,11 @@ class Session(SessionRedirectMixin):
         # Set up a CookieJar to be used by default
         self.cookies = cookiejar_from_dict({})
 
+        # Default connection adapters.
+        self.adapters = {}
+        self.mount('http://', HTTPAdapter())
+        self.mount('https://', HTTPAdapter())
+
     def __enter__(self):
         return self
 
@@ -324,9 +329,23 @@ class Session(SessionRedirectMixin):
 
     def send(self, request, **kwargs):
         """Send a given PreparedRequest."""
-        adapter = HTTPAdapter()
+        adapter = self.get_adapter(url=request.url)
         r = adapter.send(request, **kwargs)
         return r
+
+    def get_adapter(self, url):
+        """Returns the appropriate connnection adapter for the given URL."""
+        for (prefix, adapter) in self.adapters.items():
+
+            if url.startswith(prefix):
+                return adapter
+
+        # Nothing matches :-/
+        raise InvalidSchema('No connection adapters were found for \'%s\'' % url)
+
+    def mount(self, prefix, adapter):
+        """Registers a connection adapter to a prefix."""
+        self.adapters[prefix] = adapter
 
     def __getstate__(self):
         return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
