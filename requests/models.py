@@ -48,7 +48,6 @@ log = logging.getLogger(__name__)
 
 
 class RequestMixin(object):
-    """docstring for RequestMixin"""
 
     @property
     def path_url(self):

@@ -7,6 +7,7 @@ History
 ++++++++++++++++++
 
 - Massive Refactor
+- Switch to Apache 2.0 license
 - Connection Adapters
 - Standard library logging
 
