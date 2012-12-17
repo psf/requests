@@ -13,7 +13,7 @@ import socket
 
 from .models import Response
 from .auth import HTTPProxyAuth
-from .packages.urllib3.poolmanager import PoolManager, ProxyManager
+from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
 from .hooks import dispatch_hook
 from .compat import urlparse
 from .utils import DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers
@@ -119,7 +119,7 @@ class HTTPAdapter(BaseAdapter):
         proxy = proxies.get(urlparse(url).scheme)
 
         if proxy:
-            conn = ProxyManager(self.poolmanager.proxy_from_url(proxy))
+            conn = proxy_from_url(proxy)
         else:
             conn = self.poolmanager.connection_from_url(url)
 
