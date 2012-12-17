@@ -43,7 +43,7 @@ is at <http://python-requests.org>.
 
 __title__ = 'requests'
 __version__ = '1.0.0'
-__build__ = 0x00000
+__build__ = 0x01000
 __author__ = 'Kenneth Reitz'
 __license__ = 'Apache 2.0'
 __copyright__ = 'Copyright 2012 Kenneth Reitz'
