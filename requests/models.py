@@ -9,12 +9,13 @@ This module contains the primary objects that power Requests.
 
 # import os
 # import socket
+
 import collections
 import logging
 
 # from datetime import datetime
 from io import BytesIO
-
+from types import GeneratorType
 from .hooks import dispatch_hook, default_hooks
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
@@ -305,7 +306,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_body(self, data, files):
         """Prepares the given HTTP body data."""
-        # if a generator is provided, error out.
+
+        # If a generator is provided, error out.
+        if isinstance(data, types.GeneratorType)
+            raise NotImplementedError('Generator bodies are not supported yet.')
 
         # Nottin' on you.
         body = None
