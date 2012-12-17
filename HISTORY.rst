@@ -3,6 +3,11 @@
 History
 -------
 
+1.0.1
++++++
+
+- Cert verification exception bug.
+
 1.0.0 (2012-12-17)
 ++++++++++++++++++
 
