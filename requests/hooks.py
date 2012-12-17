@@ -8,22 +8,13 @@ This module provides the capabilities for the Requests hooks system.
 
 Available hooks:
 
-``pre_request``:
-    The Request object, directly after being created.
-
-``pre_send``:
-    The Request object, directly before being sent.
-
-``post_request``:
-    The Request object, directly after being sent.
-
 ``response``:
     The response generated from a Request.
 
 """
 
 
-HOOKS = ('pre_prepare', 'post_prepare', 'pre_request', 'pre_send', 'post_request', 'response')
+HOOKS = ('response')
 # TODO: response is the only one
 
 def dispatch_hook(key, hooks, hook_data):
