@@ -30,23 +30,12 @@ def request(method, url, **kwargs):
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     :param return_response: (optional) If False, an un-sent Request object will returned.
-    :param session: (optional) A :class:`Session` object to be used for the request.
-    :param config: (optional) A configuration dictionary. See ``request.defaults`` for allowed keys and their default values.
     :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
     :param prefetch: (optional) if ``True``, the response content will be immediately downloaded.
     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
     """
 
-    # if this session was passed in, leave it open (and retain pooled connections);
-    # if we're making it just for this call, then close it when we're done.
-    adhoc_session = False
-    session = kwargs.pop('session', None)
-    if session is None:
-        session = sessions.session(config=kwargs.get('config', None))
-        adhoc_session = True
-        # Todo, close sessions after?
-
-
+    session = sessions.Session()
     return session.request(method=method, url=url, **kwargs)
 
 
@@ -79,7 +68,6 @@ def head(url, **kwargs):
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     """
 
-    kwargs.setdefault('allow_redirects', False)
     return request('head', url, **kwargs)
 
 

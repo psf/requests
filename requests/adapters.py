@@ -164,9 +164,3 @@ class HTTPAdapter(BaseAdapter):
             r.content
 
         return r
-
-
-
-
-
-

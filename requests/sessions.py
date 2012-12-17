@@ -9,13 +9,11 @@ requests (cookies, auth, proxies).
 
 """
 
-from copy import deepcopy
 from .compat import cookielib
 from .cookies import cookiejar_from_dict, remove_cookie_by_name
 from .models import Request
 from .hooks import dispatch_hook
 from .utils import header_expand, from_key_val_list, default_headers
-from .packages.urllib3.poolmanager import PoolManager
 from .exceptions import TooManyRedirects
 
 from .compat import urlparse, urljoin
@@ -134,7 +132,7 @@ class Session(SessionMixin):
 
     __attrs__ = [
         'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
-        'params', 'config', 'verify', 'cert', 'prefetch']
+        'params', 'verify', 'cert', 'prefetch']
 
     def __init__(self,
         headers=None,
@@ -144,7 +142,6 @@ class Session(SessionMixin):
         proxies=None,
         hooks=None,
         params=None,
-        config=None,
         prefetch=True,
         verify=True,
         cert=None):
@@ -173,10 +170,6 @@ class Session(SessionMixin):
         #: :class:`Request <Request>`. The dictionary values may be lists for
         #: representing multivalued query parameters.
         self.params = from_key_val_list(params or [])
-
-        #: Dictionary of configuration parameters for this
-        #: :class:`Session <Session>`.
-        self.config = from_key_val_list(config or {})
 
         #: Prefetch response content.
         self.prefetch = prefetch
@@ -222,7 +215,6 @@ class Session(SessionMixin):
         proxies=None,
         hooks=None,
         return_response=True,
-        config=None,
         prefetch=None,
         verify=None,
         cert=None):
