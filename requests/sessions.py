@@ -186,7 +186,7 @@ class Session(SessionRedirectMixin):
         params=None,
         data=None,
         headers=None,
-        cookies=None,
+        cookies=None or {},
         files=None,
         auth=None,
         timeout=None,
@@ -197,6 +197,39 @@ class Session(SessionRedirectMixin):
         prefetch=None,
         verify=None,
         cert=None):
+
+
+        # merge session cookies into passed-in ones
+        dead_cookies = None
+        # passed-in cookies must become a CookieJar:
+        if not isinstance(cookies, cookielib.CookieJar):
+            cookies = cookiejar_from_dict(cookies)
+            # support unsetting cookies that have been passed in with None values
+            # this is only meaningful when `cookies` is a dict ---
+            # for a real CookieJar, the client should use session.cookies.clear()
+            if cookies is not None:
+                dead_cookies = [name for name in cookies if cookies[name] is None]
+        # merge the session's cookies into the passed-in cookies:
+        for cookie in self.cookies:
+            cookies.set_cookie(cookie)
+        # remove the unset cookies from the jar we'll be using with the current request
+        # (but not from the session's own store of cookies):
+        if dead_cookies is not None:
+            for name in dead_cookies:
+                remove_cookie_by_name(cookies, name)
+
+        # Merge local kwargs with session kwargs.
+        for attr in self.__attrs__:
+            # we already merged cookies:
+            if attr == 'cookies':
+                continue
+
+            session_val = getattr(self, attr, None)
+            local_val = locals().get(attr)
+            locals()[attr] = merge_kwargs(local_val, session_val)
+
+
+        headers = merge_kwargs(headers, self.headers)
 
         req = Request()
         req.method = method

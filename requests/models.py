@@ -257,7 +257,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             pass
 
         # Support for unicode domain names and paths.
-        scheme, netloc, path, params, query, fragment = urlparse(url)
+        scheme, netloc, path, _params, query, fragment = urlparse(url)
 
         if not scheme:
             raise MissingSchema("Invalid URL %r: No schema supplied" % url)
@@ -278,8 +278,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 netloc = netloc.encode('utf-8')
             if isinstance(path, str):
                 path = path.encode('utf-8')
-            if isinstance(params, str):
-                params = params.encode('utf-8')
+            if isinstance(_params, str):
+                _params = _params.encode('utf-8')
             if isinstance(query, str):
                 query = query.encode('utf-8')
             if isinstance(fragment, str):
@@ -292,7 +292,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 query = enc_params
 
-        url = requote_uri(urlunparse([scheme, netloc, path, params, query, fragment]))
+        url = requote_uri(urlunparse([scheme, netloc, path, _params, query, fragment]))
         self.url = url
 
     def prepare_headers(self, headers):
