@@ -359,12 +359,6 @@ class PreparedRequest(RequestMixin):
             if cookie_header is not None:
                 self.headers['Cookie'] = cookie_header
 
-    def send(self):
-        pass
-        # return
-
-    # def prepare_allow_
-
 
 
 class OldRequest(object):
@@ -849,18 +843,18 @@ class OldRequest(object):
         return deepcopy(self)
 
 
-class BaseResponse(object):
-    """The basic Respone"""
-    def __init__(self):
-        self.url = None
-        self.status_code = None
-        self.reason = None
-        self.headers = None
-        self.data = None
-        self.body = None
+# class BaseResponse(object):
+#     """The basic Respone"""
+#     def __init__(self):
+#         self.url = None
+#         self.status_code = None
+#         self.reason = None
+#         self.headers = None
+#         self.data = None
+#         self.body = None
 
 
-class Response(BaseResponse):
+class Response(object):
     """The core :class:`Response <Response>` object. All
     :class:`Request <Request>` objects contain a
     :class:`response <Response>` attribute, which is an instance

@@ -164,6 +164,8 @@ class Session(object):
 
         prep = req.prepare()
 
+        # TODO: prepare cookies.
+
         return self.send(prep)
 
 

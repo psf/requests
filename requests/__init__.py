@@ -42,15 +42,15 @@ is at <http://python-requests.org>.
 """
 
 __title__ = 'requests'
-__version__ = '0.14.2'
-__build__ = 0x001402
+__version__ = '1.0.0'
+__build__ = 0x00000
 __author__ = 'Kenneth Reitz'
 __license__ = 'Apache 2.0'
 __copyright__ = 'Copyright 2012 Kenneth Reitz'
 
 
 from . import utils
-from .models import Request, Response
+from .models import Request, Response, PreparedRequest
 from .api import request, get, head, post, patch, put, delete, options
 from .sessions import session, Session
 from .status_codes import codes
