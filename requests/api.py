@@ -44,6 +44,7 @@ def request(method, url, **kwargs):
     if session is None:
         session = sessions.session(config=kwargs.get('config', None))
         adhoc_session = True
+        # Todo, close sessions after?
 
 
     return session.request(method=method, url=url, **kwargs)
