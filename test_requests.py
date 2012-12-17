@@ -3,6 +3,7 @@
 
 """Tests for Requests."""
 
+import json
 import os
 import unittest
 
@@ -242,6 +243,13 @@ class RequestsTestCase(unittest.TestCase):
         r = requests.get(httpbin('get'), params=dict(test=['foo', 'baz']))
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.url, httpbin('get?test=foo&test=baz'))
+
+    def test_different_encodings_dont_break_post(self):
+        r = requests.post(httpbin('post'),
+                          data={'stuff': json.dumps({'a': 123})},
+                          params={'blah': 'asdf1234'},
+                          files={'file': ('test_requests.py', open(__file__, 'rb'))})
+        self.assertEqual(r.status_code, 200)
 
 
 

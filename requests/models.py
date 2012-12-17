@@ -28,7 +28,7 @@ from .utils import (
     guess_json_utf)
 from .compat import (
     cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    StringIO, is_py2, chardet, json, builtin_str, urldefrag, basestring)
+    StringIO, is_py2, is_py3, chardet, json, builtin_str, urldefrag, basestring)
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
@@ -222,13 +222,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_method(self, method):
         """Prepares the given HTTP method."""
-        try:
-            method = unicode(method)
-        except NameError:
-            # We're on Python 3.
-            method = str(method)
-
-        self.method = method.upper()
+        self.method = method
+        if self.method is not None:
+            self.method = self.method.upper()
 
     def prepare_url(self, url, params):
         """Prepares the given HTTP URL."""
