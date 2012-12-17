@@ -27,7 +27,7 @@ from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .packages.urllib3 import connectionpool, poolmanager
 from .packages.urllib3.filepost import encode_multipart_formdata
-from .defaults import SCHEMAS
+
 from .exceptions import (
     ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
     URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
@@ -234,9 +234,6 @@ class PreparedRequest(RequestMixin):
 
         if not scheme:
             raise MissingSchema("Invalid URL %r: No schema supplied" % url)
-
-        if not scheme in SCHEMAS:
-            raise InvalidSchema("Invalid scheme %r" % scheme)
 
         try:
             netloc = netloc.encode('idna').decode('utf-8')
