@@ -18,8 +18,15 @@ from .hooks import dispatch_hook
 from .utils import header_expand, from_key_val_list
 from .packages.urllib3.poolmanager import PoolManager
 
-
+from .compat import urlparse, urljoin
 from .adapters import HTTPAdapter
+
+from .utils import requote_uri
+
+from .status_codes import codes
+REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
+
+
 
 def merge_kwargs(local_kwarg, default_kwarg):
     """Merges kwarg dictionaries.
@@ -55,7 +62,89 @@ def merge_kwargs(local_kwarg, default_kwarg):
     return kwargs
 
 
-class Session(object):
+
+class SessionMixin(object):
+
+    def resolve_redirects(self, resp, req, prefetch=True, timeout=None, verify=True, cert=None):
+        """Receives a Response. Returns a generator of Responses."""
+
+        print resp
+        print req
+        print resp.headers['location']
+        print resp.status_code
+
+        # ((resp.status_code is codes.see_other))
+        while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
+
+            resp.content  # Consume socket so it can be released
+
+            # if not len(history) < self.config.get('max_redirects'):
+                # raise TooManyRedirects()
+
+            # Release the connection back into the pool.
+            resp.close()
+
+            # history.append(r)
+
+            url = resp.headers['location']
+
+            # Handle redirection without scheme (see: RFC 1808 Section 4)
+            if url.startswith('//'):
+                parsed_rurl = urlparse(resp.url)
+                url = '%s:%s' % (parsed_rurl.scheme, url)
+
+            # Facilitate non-RFC2616-compliant 'location' headers
+            # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
+            if not urlparse(url).netloc:
+                url = urljoin(resp.url,
+                              # Compliant with RFC3986, we percent
+                              # encode the url.
+                              requote_uri(url))
+
+            # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
+            if resp.status_code is codes.see_other:
+                method = 'GET'
+            else:
+                method = req.method
+
+            # Do what the browsers do, despite standards...
+            if resp.status_code in (codes.moved, codes.found) and req.method == 'POST':
+                method = 'GET'
+
+            if (resp.status_code == 303) and req.method != 'HEAD':
+                method = 'GET'
+
+            # Remove the cookie headers that were sent.
+            # headers = req.headers
+            # try:
+            #     del headers['Cookie']
+            # except KeyError:
+            #     pass
+
+            resp = self.request(
+                    url=url,
+                    method=method,
+                    params=req.params,
+                    auth=req.auth,
+                    cookies=req.cookies,
+                    allow_redirects=False,
+                    prefetch=prefetch,
+                    timeout=timeout,
+                    verify=verify,
+                    cert=cert
+                )
+
+            yield resp
+
+
+
+
+
+
+
+
+
+class Session(SessionMixin):
     """A Requests session."""
 
     __attrs__ = [
@@ -166,7 +255,21 @@ class Session(object):
 
         # TODO: prepare cookies.
 
-        return self.send(prep)
+        resp = self.send(prep)
+
+        if allow_redirects:
+            gen = self.resolve_redirects(resp, req, prefetch, timeout, verify, cert)
+
+            history = [r for r in gen]
+
+            print history
+
+        return resp
+
+
+
+
+
 
 
     def get(self, url, **kwargs):
@@ -177,7 +280,7 @@ class Session(object):
         """
 
         kwargs.setdefault('allow_redirects', True)
-        return self.request('get', url, **kwargs)
+        return self.request('GET', url, **kwargs)
 
     def options(self, url, **kwargs):
         """Sends a OPTIONS request. Returns :class:`Response` object.
@@ -187,7 +290,7 @@ class Session(object):
         """
 
         kwargs.setdefault('allow_redirects', True)
-        return self.request('options', url, **kwargs)
+        return self.request('OPTIONS', url, **kwargs)
 
     def head(self, url, **kwargs):
         """Sends a HEAD request. Returns :class:`Response` object.
@@ -197,7 +300,7 @@ class Session(object):
         """
 
         kwargs.setdefault('allow_redirects', False)
-        return self.request('head', url, **kwargs)
+        return self.request('HEAD', url, **kwargs)
 
     def post(self, url, data=None, **kwargs):
         """Sends a POST request. Returns :class:`Response` object.
@@ -207,7 +310,7 @@ class Session(object):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
-        return self.request('post', url, data=data, **kwargs)
+        return self.request('POST', url, data=data, **kwargs)
 
     def put(self, url, data=None, **kwargs):
         """Sends a PUT request. Returns :class:`Response` object.
@@ -217,7 +320,7 @@ class Session(object):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
-        return self.request('put', url, data=data, **kwargs)
+        return self.request('PUT', url, data=data, **kwargs)
 
     def patch(self, url, data=None, **kwargs):
         """Sends a PATCH request. Returns :class:`Response` object.
@@ -227,7 +330,7 @@ class Session(object):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
-        return self.request('patch', url,  data=data, **kwargs)
+        return self.request('PATCH', url,  data=data, **kwargs)
 
     def delete(self, url, **kwargs):
         """Sends a DELETE request. Returns :class:`Response` object.
@@ -236,12 +339,12 @@ class Session(object):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
-        return self.request('delete', url, **kwargs)
+        return self.request('DELETE', url, **kwargs)
 
-    def send(self, request):
+    def send(self, request, prefetch=True, timeout=None, verify=True, cert=None):
         """Send a given PreparedRequest."""
         adapter = HTTPAdapter()
-        r = adapter.send(request)
+        r = adapter.send(request, prefetch, timeout, verify, cert)
         return r
 
     def __getstate__(self):

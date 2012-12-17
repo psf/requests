@@ -575,3 +575,6 @@ class Response(object):
             http_error = HTTPError(http_error_msg)
             http_error.response = self
             raise http_error
+
+    def close(self):
+        return self.raw.release_conn()
