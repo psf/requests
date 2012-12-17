@@ -68,10 +68,6 @@ class SessionMixin(object):
     def resolve_redirects(self, resp, req, prefetch=True, timeout=None, verify=True, cert=None):
         """Receives a Response. Returns a generator of Responses."""
 
-        print resp
-        print req
-        print resp.headers['location']
-        print resp.status_code
 
         # ((resp.status_code is codes.see_other))
         while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
@@ -257,12 +253,15 @@ class Session(SessionMixin):
 
         resp = self.send(prep)
 
-        if allow_redirects:
-            gen = self.resolve_redirects(resp, req, prefetch, timeout, verify, cert)
+        # Redirect generator.
+        gen = self.resolve_redirects(resp, req, prefetch, timeout, verify, cert)
 
-            history = [r for r in gen]
+        history = [r for r in gen] if allow_redirects else []
 
-            print history
+        if history:
+            history.insert(0, resp)
+            resp = history.pop()
+            resp.history = history
 
         return resp
 
