@@ -15,20 +15,13 @@ import logging
 
 # from datetime import datetime
 from io import BytesIO
-from types import GeneratorType
 from .hooks import dispatch_hook, default_hooks
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
 
 from .auth import HTTPBasicAuth, HTTPProxyAuth
 from .cookies import cookiejar_from_dict, extract_cookies_to_jar, get_cookie_header
-# from .packages.urllib3.exceptions import MaxRetryError, LocationParseError
-# from .packages.urllib3.exceptions import TimeoutError
-# from .packages.urllib3.exceptions import SSLError as _SSLError
-# from .packages.urllib3.exceptions import HTTPError as _HTTPError
-# from .packages.urllib3 import connectionpool, poolmanager
 from .packages.urllib3.filepost import encode_multipart_formdata
-
 from .exceptions import (
     ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
     URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
@@ -43,6 +36,7 @@ from .compat import (
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
+ITER_CHUNK_SIZE = 10 * 1024
 
 log = logging.getLogger(__name__)
 
@@ -56,12 +50,6 @@ class RequestEncodingMixin(object):
         url = []
 
         p = urlsplit(self.url)
-
-        # Proxies use full URLs.
-        # if p.scheme in self.proxies:
-            # url_base, frag = urldefrag(self.url)
-            # return url_base
-
 
         path = p.path
         if not path:
@@ -308,7 +296,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepares the given HTTP body data."""
 
         # If a generator is provided, error out.
-        if isinstance(data, types.GeneratorType)
+        if isinstance(data, type(_ for _ in [])):
             raise NotImplementedError('Generator bodies are not supported yet.')
 
         # Nottin' on you.
@@ -457,7 +445,7 @@ class Response(object):
 
         return gen
 
-    def iter_lines(self, chunk_size=10 * 1024, decode_unicode=None):
+    def iter_lines(self, chunk_size=ITER_CHUNK_SIZE, decode_unicode=None):
         """Iterates over the response data, one line at a time.  This
         avoids reading the content at once into memory for large
         responses.

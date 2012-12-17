@@ -12,8 +12,10 @@ import os
 import socket
 
 from .models import Response
+from .auth import HTTPProxyAuth
 from .packages.urllib3.poolmanager import PoolManager
 from .hooks import dispatch_hook
+from .compat import urlparse
 from .utils import DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import MaxRetryError
@@ -119,6 +121,19 @@ class HTTPAdapter(BaseAdapter):
         response = dispatch_hook('response', req.hooks, response)
         return response
 
+    def get_connection(self, url, proxies=None):
+        proxies = proxies or {}
+        proxy = proxies.get(urlparse(url).scheme)
+
+        if proxy:
+            conn = poolmanager.proxy_from_url(proxy)
+        else:
+            conn = self.poolmanager.connection_from_url(url)
+
+        return conn
+        # no_proxy = filter(lambda x: x.strip(), self.proxies.get('no', '').split(','))
+
+
 
     def close(self):
         """Dispose of any internal state.
@@ -128,10 +143,11 @@ class HTTPAdapter(BaseAdapter):
         """
         self.poolmanager.clear()
 
-    def send(self, request, prefetch=True, timeout=None, verify=True, cert=None):
+    def send(self, request, prefetch=True, timeout=None, verify=True, cert=None, proxies=None):
         """Sends PreparedRequest object. Returns Response object."""
 
-        conn = self.poolmanager.connection_from_url(request.url)
+        conn = self.get_connection(request.url, proxies)
+
         self.cert_verify(conn, request.url, verify, cert)
 
         try:
