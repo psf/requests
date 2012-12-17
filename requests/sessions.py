@@ -19,7 +19,7 @@ from .exceptions import TooManyRedirects, InvalidSchema
 from .compat import urlparse, urljoin
 from .adapters import HTTPAdapter
 
-from .utils import requote_uri
+from .utils import requote_uri, get_environ_proxies, get_netrc_auth
 
 from .status_codes import codes
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
@@ -204,6 +204,7 @@ class Session(SessionRedirectMixin):
         cert=None):
 
         cookies = cookies or {}
+        proxies = proxies or {}
 
         # Bootstrap CookieJar.
         if not isinstance(cookies, cookielib.CookieJar):
@@ -212,6 +213,17 @@ class Session(SessionRedirectMixin):
         # Bubble down session cookies.
         for cookie in self.cookies:
             cookies.set_cookie(cookie)
+
+        # Gather clues from the surrounding environment.
+        if self.trust_env:
+            # Set environment's proxies.
+            env_proxies = get_environ_proxies(url) or {}
+            for (k, v) in env_proxies.items():
+                proxies.setdefault(k, v)
+
+            # Set environment's basic authentication.
+            if not auth:
+                auth = get_netrc_auth(url)
 
         # Merge all the kwargs.
         params = merge_kwargs(params, self.params)
@@ -222,6 +234,7 @@ class Session(SessionRedirectMixin):
         stream = merge_kwargs(stream, self.stream)
         verify = merge_kwargs(verify, self.verify)
         cert = merge_kwargs(cert, self.cert)
+
 
         # Create the Request.
         req = Request()
@@ -239,7 +252,7 @@ class Session(SessionRedirectMixin):
         prep = req.prepare()
 
         # Send the request.
-        resp = self.send(prep, stream=stream, timeout=timeout, verify=verify, cert=cert)
+        resp = self.send(prep, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
 
         # Redirect resolving generator.
         gen = self.resolve_redirects(resp, req, stream, timeout, verify, cert)

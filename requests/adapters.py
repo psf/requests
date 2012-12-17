@@ -127,7 +127,7 @@ class HTTPAdapter(BaseAdapter):
         proxy = proxies.get(urlparse(url).scheme)
 
         if proxy:
-            conn = poolmanager.proxy_from_url(proxy)
+            conn = self.poolmanager.ProxyManager(self.poolmanager.proxy_from_url(proxy))
         else:
             conn = self.poolmanager.connection_from_url(url)
 
