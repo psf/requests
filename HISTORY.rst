@@ -3,10 +3,11 @@
 History
 -------
 
-1.0.1
-+++++
+1.0.1 (2012-12-17)
+++++++++++++++++++
 
 - Cert verification exception bug.
+- Proxy fix for HTTPAdapter.
 
 1.0.0 (2012-12-17)
 ++++++++++++++++++
