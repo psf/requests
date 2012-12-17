@@ -418,6 +418,11 @@ class Response(object):
             return False
         return True
 
+    @property
+    def apparent_encoding(self):
+        """The apparent encoding, provided by the lovely Charade library."""
+        return chardet.detect(self.content)['encoding']
+
     def iter_content(self, chunk_size=1, decode_unicode=False):
         """Iterates over the response data.  This avoids reading the content
         at once into memory for large responses.  The chunk size is the number
