@@ -16,6 +16,7 @@ from .models import Request
 from .hooks import dispatch_hook
 from .utils import header_expand, from_key_val_list, default_headers
 from .packages.urllib3.poolmanager import PoolManager
+from .exceptions import TooManyRedirects
 
 from .compat import urlparse, urljoin
 from .adapters import HTTPAdapter
@@ -61,27 +62,26 @@ def merge_kwargs(local_kwarg, default_kwarg):
     return kwargs
 
 
-
 class SessionMixin(object):
 
     def resolve_redirects(self, resp, req, prefetch=True, timeout=None, verify=True, cert=None):
         """Receives a Response. Returns a generator of Responses."""
 
+        i = 0
 
         # ((resp.status_code is codes.see_other))
         while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
 
             resp.content  # Consume socket so it can be released
 
-            # if not len(history) < self.config.get('max_redirects'):
-                # raise TooManyRedirects()
+            if i > self.max_redirects:
+                raise TooManyRedirects()
 
             # Release the connection back into the pool.
             resp.close()
 
-            # history.append(r)
-
             url = resp.headers['location']
+            method = req.method
 
             # Handle redirection without scheme (see: RFC 1808 Section 4)
             if url.startswith('//'):
@@ -91,16 +91,12 @@ class SessionMixin(object):
             # Facilitate non-RFC2616-compliant 'location' headers
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
             if not urlparse(url).netloc:
-                url = urljoin(resp.url,
-                              # Compliant with RFC3986, we percent
-                              # encode the url.
-                              requote_uri(url))
+                # Compliant with RFC3986, we percent encode the url.
+                url = urljoin(resp.url, requote_uri(url))
 
             # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
             if resp.status_code is codes.see_other:
                 method = 'GET'
-            else:
-                method = req.method
 
             # Do what the browsers do, despite standards...
             if resp.status_code in (codes.moved, codes.found) and req.method == 'POST':
@@ -130,6 +126,7 @@ class SessionMixin(object):
                 )
 
             yield resp
+            i += 1
 
 
 
