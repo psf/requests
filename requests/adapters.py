@@ -89,7 +89,7 @@ class HTTPAdapter(BaseAdapter):
             else:
                 conn.cert_file = cert
 
-    # @staticmethod
+
     def build_response(self, req, resp):
         response = Response()
 
