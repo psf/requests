@@ -76,7 +76,7 @@ class SessionRedirectMixin(object):
 
             resp.content  # Consume socket so it can be released
 
-            if i > self.max_redirects:
+            if i >= self.max_redirects:
                 raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects)
 
             # Release the connection back into the pool.
