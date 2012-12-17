@@ -182,7 +182,7 @@ class RequestsTestCase(unittest.TestCase):
         post1 = requests.post(url, data={'some': 'data'})
         self.assertEqual(post1.status_code, 200)
 
-        with open(__file__) as f:
+        with open('requirements.txt') as f:
             post2 = requests.post(url, files={'some': f})
         self.assertEqual(post2.status_code, 200)
 
@@ -202,7 +202,7 @@ class RequestsTestCase(unittest.TestCase):
         post1 = requests.post(url, data={'some': 'data'})
         self.assertEqual(post1.status_code, 200)
 
-        with open(__file__) as f:
+        with open('requirements.txt') as f:
             post2 = requests.post(url, data={'some': 'data'}, files={'some': f})
         self.assertEqual(post2.status_code, 200)
 
@@ -213,6 +213,37 @@ class RequestsTestCase(unittest.TestCase):
             requests.post(url, files=['bad file data'])
         except ValueError:
             pass
+
+    def test_request_ok_set(self):
+
+
+        r = requests.get(httpbin('status', '404'))
+        self.assertEqual(r.ok, False)
+
+    def test_status_raising(self):
+        r = requests.get(httpbin('status', '404'))
+        self.assertRaises(requests.exceptions.HTTPError, r.raise_for_status)
+
+        r = requests.get(httpbin('status', '500'))
+        self.assertFalse(r.ok)
+
+    def test_decompress_gzip(self):
+        r = requests.get(httpbin('gzip'))
+        r.content.decode('ascii')
+
+    def test_unicode_get(self):
+        url = httpbin('/get')
+        requests.get(url, params={'foo': 'føø'})
+        requests.get(url, params={'føø': 'føø'})
+        requests.get(url, params={'føø': 'føø'})
+        requests.get(url, params={'foo': 'foo'})
+        requests.get(httpbin('ø'), params={'foo': 'foo'})
+
+    def test_urlencoded_get_query_multivalued_param(self):
+
+        r = requests.get(httpbin('get'), params=dict(test=['foo', 'baz']))
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.url, httpbin('get?test=foo&test=baz'))
 
 
 
