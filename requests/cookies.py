@@ -38,7 +38,7 @@ class MockRequest(object):
         return self.type
 
     def get_host(self):
-        return urlparse(self._r.full_url).netloc
+        return urlparse(self._r.url).netloc
 
     def get_origin_req_host(self):
         if self._r.response.history:
@@ -48,7 +48,7 @@ class MockRequest(object):
             return self.get_host()
 
     def get_full_url(self):
-        return self._r.full_url
+        return self._r.url
 
     def is_unverifiable(self):
         # unverifiable == redirected
