@@ -62,7 +62,7 @@ class HTTPAdapter(BaseAdapter):
 
             # Allow self-specified cert location.
             if verify is not True:
-                cert_loc = self.verify
+                cert_loc = verify
 
             # Look for configuration.
             if not cert_loc and self.config.get('trust_env'):
