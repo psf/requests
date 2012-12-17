@@ -141,7 +141,6 @@ class HTTPDigestAuth(AuthBase):
         """Takes the given response and tries digest-auth, if needed."""
 
         num_401_calls = r.request.hooks['response'].count(self.handle_401)
-
         s_auth = r.headers.get('www-authenticate', '')
 
         if 'digest' in s_auth.lower() and num_401_calls < 2:
@@ -154,8 +153,7 @@ class HTTPDigestAuth(AuthBase):
             r.raw.release_conn()
 
             r.request.headers['Authorization'] = self.build_digest_header(r.request.method, r.request.url)
-            r.request.send(anyway=True)
-            _r = r.request.response
+            _r = r.connection.send(r.request)
             _r.history.append(r)
 
             return _r

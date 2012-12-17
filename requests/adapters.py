@@ -13,6 +13,7 @@ import socket
 
 from .models import Response
 from .packages.urllib3.poolmanager import PoolManager
+from .hooks import dispatch_hook
 from .utils import DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import MaxRetryError
@@ -88,8 +89,8 @@ class HTTPAdapter(BaseAdapter):
             else:
                 conn.cert_file = cert
 
-    @staticmethod
-    def build_response(req, resp):
+    # @staticmethod
+    def build_response(self, req, resp):
         response = Response()
 
         # Fallback to None if there's no status_code, for whatever reason.
@@ -110,6 +111,12 @@ class HTTPAdapter(BaseAdapter):
         # Add new cookies from the server.
         extract_cookies_to_jar(response.cookies, req, resp)
 
+        # Give the Response some context.
+        response.request = req
+        response.connection = self
+
+        # Run the Response hook.
+        response = dispatch_hook('response', req.hooks, response)
         return response
 
 

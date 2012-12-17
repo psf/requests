@@ -146,9 +146,7 @@ class RequestEncodingMixin(object):
 class RequestHooksMixin(object):
     def register_hook(self, event, hook):
         """Properly register a hook."""
-        print self
-        print event
-        print hook
+
         if isinstance(hook, collections.Callable):
             self.hooks[event].append(hook)
         elif hasattr(hook, '__iter__'):
@@ -342,16 +340,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_auth(self, auth):
         """Prepares the given HTTP auth data."""
         if auth:
-            # print auth
             if isinstance(auth, tuple) and len(auth) == 2:
                 # special-case basic HTTP auth
                 auth = HTTPBasicAuth(*auth)
 
             # Allow auth to make its changes.
             r = auth(self)
-            # print r
-            # print r.__dict__
-            # print self.__dict__
 
             # Update self to reflect the auth changes.
             self.__dict__.update(r.__dict__)

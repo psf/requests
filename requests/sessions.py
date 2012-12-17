@@ -12,7 +12,7 @@ requests (cookies, auth, proxies).
 from .compat import cookielib
 from .cookies import cookiejar_from_dict, remove_cookie_by_name
 from .models import Request
-from .hooks import dispatch_hook
+from .hooks import dispatch_hook, HOOKS
 from .utils import header_expand, from_key_val_list, default_headers
 from .exceptions import TooManyRedirects
 
