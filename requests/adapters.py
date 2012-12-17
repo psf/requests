@@ -10,7 +10,7 @@ and maintain connections.
 import os
 from .models import Response
 from .packages.urllib3.poolmanager import PoolManager
-from .utils import DEFAULT_CA_BUNDLE_PATH
+from .utils import DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers
 
 import socket
 from .structures import CaseInsensitiveDict
@@ -43,9 +43,7 @@ class BaseAdapter(object):
 
 class HTTPAdapter(BaseAdapter):
     """Built-In HTTP Adapter for Urllib3."""
-    def __init__(self,
-        pool_connections=DEFAULT_POOLSIZE,
-        pool_maxsize=DEFAULT_POOLSIZE):
+    def __init__(self, pool_connections=DEFAULT_POOLSIZE, pool_maxsize=DEFAULT_POOLSIZE):
         self.max_retries = DEFAULT_RETRIES
         self.config = {}
 
@@ -103,7 +101,7 @@ class HTTPAdapter(BaseAdapter):
         response.headers = CaseInsensitiveDict(getattr(resp, 'headers', {}))
 
         # Set encoding.
-        # response.encoding = get_encoding_from_headers(response.headers)
+        response.encoding = get_encoding_from_headers(response.headers)
         response.raw = resp
 
         if isinstance(req.url, bytes):
