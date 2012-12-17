@@ -1,34 +1,10 @@
 SHELL := /bin/bash
 
-# test_requests_ext.py depends on external services, and async doesn't work under Python 3
-# Travis/Jenkins should be ensuring that all other tests pass on all supported versions
-CI_TESTS=$(shell find tests/ -name "*.py" ! -name "test_requests_ext.py" ! -name "test_requests_async.py")
-
-iter:
-	python test_iteration.py
-
-init:
-	python setup.py develop
-	pip install -r requirements.txt
-
 test:
-	nosetests ./tests/*
+	py.test
 
-lazy:
-	nosetests --with-color tests/test_requests.py
-
-simple:
-	nosetests tests/test_requests.py
-
-citests:
-	nosetests ${CI_TESTS} --with-xunit --xunit-file=junit-report.xml
-
-ci: citests cipyflakes
-
-travis: citests
-
-server:
-	gunicorn httpbin:app --bind=0.0.0.0:7077 &
+test-deps:
+	pip install py.test
 
 deps: urllib3 certs charade
 
@@ -48,5 +24,3 @@ charade:
 
 certs:
 	cd requests && curl -O https://raw.github.com/kennethreitz/certifi/master/certifi/cacert.pem
-
-docs: site
