@@ -171,14 +171,9 @@ class Request(object):
         self.params = params
         self.auth = auth
         self.cookies = cookies
-        # self.timeout = timeout
-        # TODO: move to attached
         self.allow_redirects = allow_redirects
         self.proxies = proxies
         self.hooks = hooks
-        # self.prefetch = prefetch
-        # self.verify = verify
-        # self.cert = cert
 
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
@@ -186,13 +181,13 @@ class Request(object):
     def prepare(self):
         """Constructs a PreparedRequest and returns it."""
         p = PreparedRequest()
+
         p.prepare_method(self.method)
         p.prepare_url(self.url, self.params)
         p.prepare_headers(self.headers)
         p.prepare_cookies(self.cookies)
         p.prepare_auth(self.auth)
         p.prepare_body(self.data, self.files)
-
 
         return p
 
@@ -209,15 +204,9 @@ class PreparedRequest(RequestMixin):
         self.body = None
         self.params = None
         self.auth = None
-        # self.cookies = None
-        self.timeout = None
-        # TODO: move to attached
         self.allow_redirects = None
         self.proxies = None
         self.hooks = None
-        # self.prefetch = None
-        # self.verify = None
-        # self.cert = None
 
     def __repr__(self):
         return '<PreparedRequest [%s]>' % (self.method)
