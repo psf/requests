@@ -12,10 +12,9 @@ requests (cookies, auth, proxies).
 from copy import deepcopy
 from .compat import cookielib
 from .cookies import cookiejar_from_dict, remove_cookie_by_name
-from .defaults import defaults
 from .models import Request
 from .hooks import dispatch_hook
-from .utils import header_expand, from_key_val_list
+from .utils import header_expand, from_key_val_list, default_headers
 from .packages.urllib3.poolmanager import PoolManager
 
 from .compat import urlparse, urljoin
@@ -25,7 +24,7 @@ from .utils import requote_uri
 
 from .status_codes import codes
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
-
+DEFAULT_REDIRECT_LIMIT = 30
 
 
 def merge_kwargs(local_kwarg, default_kwarg):
@@ -135,11 +134,6 @@ class SessionMixin(object):
 
 
 
-
-
-
-
-
 class Session(SessionMixin):
     """A Requests session."""
 
@@ -198,8 +192,13 @@ class Session(SessionMixin):
         #: SSL certificate.
         self.cert = cert
 
-        for (k, v) in list(defaults.items()):
-            self.config.setdefault(k, deepcopy(v))
+        #: Maximum number of redirects to follow.
+        self.max_redirects = DEFAULT_REDIRECT_LIMIT
+
+        #: Should we trust the environment
+        self.trust_env = True
+
+        self.default_headers = default_headers()
 
         # Set up a CookieJar to be used by default
         if isinstance(cookies, cookielib.CookieJar):

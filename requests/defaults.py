@@ -19,18 +19,3 @@ Configurations:
 """
 
 SCHEMAS = ['http', 'https']
-
-from .utils import default_user_agent
-
-defaults = dict()
-
-defaults['base_headers'] = {
-    'User-Agent': default_user_agent(),
-    'Accept-Encoding': ', '.join(('gzip', 'deflate', 'compress')),
-    'Accept': '*/*'
-}
-
-# Consumed at the session level, not connection.
-defaults['max_redirects'] = 30
-defaults['trust_env'] = True
-# defaults['support_http0.9'] = True

@@ -556,7 +556,7 @@ def default_user_agent():
         _implementation_version = platform.python_version()  # Complete Guess
     else:
         _implementation_version = 'Unknown'
-        
+
     try:
         p_system = platform.system()
         p_release = platform.release()
@@ -569,6 +569,13 @@ def default_user_agent():
             '%s/%s' % (_implementation, _implementation_version),
             '%s/%s' % (p_system, p_release),
         ])
+
+def default_headers():
+    return {
+        'User-Agent': default_user_agent(),
+        'Accept-Encoding': ', '.join(('gzip', 'deflate', 'compress')),
+        'Accept': '*/*'
+    }
 
 
 def parse_header_links(value):

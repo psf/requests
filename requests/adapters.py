@@ -34,8 +34,8 @@ class BaseAdapter(object):
     def __init__(self):
         super(BaseAdapter, self).__init__()
 
-    # def send(self):
-    #     raise NotImplementedError
+    def send(self):
+        raise NotImplementedError
 
     def close(self):
         raise NotImplementedError
