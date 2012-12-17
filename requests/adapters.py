@@ -122,6 +122,7 @@ class HTTPAdapter(BaseAdapter):
         return response
 
     def get_connection(self, url, proxies=None):
+        """Returns a connection for the given URL."""
         proxies = proxies or {}
         proxy = proxies.get(urlparse(url).scheme)
 
