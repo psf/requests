@@ -254,56 +254,6 @@ def unquote_header_value(value, is_filename=False):
     return value
 
 
-def header_expand(headers):
-    """Returns an HTTP Header value string from a dictionary.
-
-    Example expansion::
-
-        {'text/x-dvi': {'q': '.8', 'mxb': '100000', 'mxt': '5.0'}, 'text/x-c': {}}
-        # Accept: text/x-dvi; q=.8; mxb=100000; mxt=5.0, text/x-c
-
-        (('text/x-dvi', {'q': '.8', 'mxb': '100000', 'mxt': '5.0'}), ('text/x-c', {}))
-        # Accept: text/x-dvi; q=.8; mxb=100000; mxt=5.0, text/x-c
-    """
-
-    collector = []
-
-    if isinstance(headers, dict):
-        headers = list(headers.items())
-    elif isinstance(headers, basestring):
-        return headers
-    elif isinstance(headers, str):
-        # As discussed in https://github.com/kennethreitz/requests/issues/400
-        # latin-1 is the most conservative encoding used on the web. Anyone
-        # who needs more can encode to a byte-string before calling
-        return headers.encode("latin-1")
-    elif headers is None:
-        return headers
-
-    for i, (value, params) in enumerate(headers):
-
-        _params = []
-
-        for (p_k, p_v) in list(params.items()):
-
-            _params.append('%s=%s' % (p_k, p_v))
-
-        collector.append(value)
-        collector.append('; ')
-
-        if len(params):
-
-            collector.append('; '.join(_params))
-
-            if not len(headers) == i + 1:
-                collector.append(', ')
-
-    # Remove trailing separators.
-    if collector[-1] in (', ', '; '):
-        del collector[-1]
-
-    return ''.join(collector)
-
 
 def dict_from_cookiejar(cj):
     """Returns a key/value dictionary from a CookieJar.
@@ -423,8 +373,7 @@ def get_unicode_from_response(r):
 
 
 def stream_decompress(iterator, mode='gzip'):
-    """
-    Stream decodes an iterator over compressed data
+    """Stream decodes an iterator over compressed data
 
     :param iterator: An iterator over compressed data
     :param mode: 'gzip' or 'deflate'

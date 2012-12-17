@@ -7,13 +7,9 @@ requests.models
 This module contains the primary objects that power Requests.
 """
 
-# import os
-# import socket
-
 import collections
 import logging
 
-# from datetime import datetime
 from io import BytesIO
 from .hooks import dispatch_hook, default_hooks
 from .structures import CaseInsensitiveDict

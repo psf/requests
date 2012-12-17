@@ -10,10 +10,10 @@ requests (cookies, auth, proxies).
 """
 
 from .compat import cookielib
-from .cookies import cookiejar_from_dict, remove_cookie_by_name
+from .cookies import cookiejar_from_dict
 from .models import Request
 from .hooks import dispatch_hook, default_hooks
-from .utils import header_expand, from_key_val_list, default_headers
+from .utils import from_key_val_list, default_headers
 from .exceptions import TooManyRedirects, InvalidSchema
 
 from .compat import urlparse, urljoin
@@ -353,8 +353,6 @@ class Session(SessionRedirectMixin):
     def __setstate__(self, state):
         for attr, value in state.items():
             setattr(self, attr, value)
-
-        self.init_poolmanager()
 
 
 def session(**kwargs):
