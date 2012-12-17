@@ -182,9 +182,6 @@ class Session(SessionRedirectMixin):
     def __exit__(self, *args):
         self.close()
 
-    def close(self):
-        pass
-
     def request(self, method, url,
         params=None,
         data=None,

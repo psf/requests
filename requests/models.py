@@ -558,11 +558,6 @@ class Response(object):
         except ValueError:
             return None
 
-    def iter_json(self):
-        for line in self.iter_lines():
-            if line: # filter out keep-alive new lines
-                yield json.loads(line)
-
     @property
     def links(self):
         """Returns the parsed header links of the response, if any."""
