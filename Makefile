@@ -4,7 +4,7 @@ test:
 	py.test
 
 test-deps:
-	pip install py.test
+	pip install -r requirements.txt
 
 six:
 	python test_requests.py

@@ -10,7 +10,7 @@ History
 - Switch to Apache 2.0 license
 - Connection Adapters
 - Standard library logging
-- Reponse.iter_json
+- Make Reponse.json() callable, not property.
 
 
 0.14.2 (2012-10-27)
