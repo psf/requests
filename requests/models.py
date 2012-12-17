@@ -295,7 +295,7 @@ class PreparedRequest(RequestMixin):
         """Prepares the given HTTP headers."""
 
         if headers:
-            self.headers = CaseInsensitiveDict(self.headers)
+            self.headers = CaseInsensitiveDict(headers)
         else:
             self.headers = CaseInsensitiveDict()
 
