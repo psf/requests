@@ -8,9 +8,6 @@ This module provides the capabilities for the Requests hooks system.
 
 Available hooks:
 
-``args``:
-    A dictionary of the arguments being sent to Request().
-
 ``pre_request``:
     The Request object, directly after being created.
 
@@ -26,8 +23,8 @@ Available hooks:
 """
 
 
-HOOKS = ('args', 'pre_request', 'pre_send', 'post_request', 'response')
-
+HOOKS = ('pre_prepare', 'post_prepare', 'pre_request', 'pre_send', 'post_request', 'response')
+# TODO: response is the only one
 
 def dispatch_hook(key, hooks, hook_data):
     """Dispatches a hook dictionary on a given piece of data."""

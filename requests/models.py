@@ -7,12 +7,12 @@ requests.models
 This module contains the primary objects that power Requests.
 """
 
-import os
-import socket
-import collections
+# import os
+# import socket
+# import collections
 import logging
 
-from datetime import datetime
+# from datetime import datetime
 from io import BytesIO
 
 from .hooks import dispatch_hook, HOOKS
@@ -21,11 +21,11 @@ from .status_codes import codes
 
 from .auth import HTTPBasicAuth, HTTPProxyAuth
 from .cookies import cookiejar_from_dict, extract_cookies_to_jar, get_cookie_header
-from .packages.urllib3.exceptions import MaxRetryError, LocationParseError
-from .packages.urllib3.exceptions import TimeoutError
-from .packages.urllib3.exceptions import SSLError as _SSLError
-from .packages.urllib3.exceptions import HTTPError as _HTTPError
-from .packages.urllib3 import connectionpool, poolmanager
+# from .packages.urllib3.exceptions import MaxRetryError, LocationParseError
+# from .packages.urllib3.exceptions import TimeoutError
+# from .packages.urllib3.exceptions import SSLError as _SSLError
+# from .packages.urllib3.exceptions import HTTPError as _HTTPError
+# from .packages.urllib3 import connectionpool, poolmanager
 from .packages.urllib3.filepost import encode_multipart_formdata
 
 from .exceptions import (
