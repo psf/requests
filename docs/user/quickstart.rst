@@ -128,10 +128,10 @@ There's also a builtin JSON decoder, in case you're dealing with JSON data::
 
     >>> import requests
     >>> r = requests.get('https://github.com/timeline.json')
-    >>> r.json
+    >>> r.json()
     [{u'repository': {u'open_issues': 0, u'url': 'https://github.com/...
 
-In case the JSON decoding fails, ``r.json`` simply returns ``None``.
+In case the JSON decoding fails, ``r.json`` raises an exception.
 
 
 Raw Response Content
