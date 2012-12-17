@@ -243,7 +243,7 @@ class Session(SessionMixin):
         req.auth = auth
         req.cookies = cookies
         # TODO: move to attached
-        req.allow_redirects = allow_redirects
+        # req.allow_redirects = allow_redirects
         req.proxies = proxies
         req.hooks = hooks
 
@@ -251,7 +251,7 @@ class Session(SessionMixin):
 
         # TODO: prepare cookies.
 
-        resp = self.send(prep)
+        resp = self.send(prep, prefetch, timeout, verify, cert)
 
         # Redirect resolving generator.
         gen = self.resolve_redirects(resp, req, prefetch, timeout, verify, cert)
