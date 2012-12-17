@@ -190,7 +190,7 @@ class Request(RequestHooksMixin):
         return '<Request [%s]>' % (self.method)
 
     def prepare(self):
-        """Constructs a PreparedRequest and returns it."""
+        """Constructs a PreparedRequest for transmission and returns it."""
         p = PreparedRequest()
 
         p.prepare_method(self.method)

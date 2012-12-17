@@ -7,4 +7,3 @@ env: HTTPBIN_URL=http://httpbin.org/
 script: make test
 install:
   - make test-deps
-  - pip install . --use-mirrors

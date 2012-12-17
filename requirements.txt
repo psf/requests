@@ -1,2 +1,2 @@
-py.test
+pytest
 sphinx
