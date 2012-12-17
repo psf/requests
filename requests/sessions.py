@@ -125,10 +125,8 @@ class SessionMixin(object):
                     cert=cert
                 )
 
-            yield resp
             i += 1
-
-
+            yield resp
 
 
 class Session(SessionMixin):
