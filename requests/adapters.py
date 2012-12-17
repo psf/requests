@@ -132,8 +132,6 @@ class HTTPAdapter(BaseAdapter):
             conn = self.poolmanager.connection_from_url(url)
 
         return conn
-        # no_proxy = filter(lambda x: x.strip(), self.proxies.get('no', '').split(','))
-
 
 
     def close(self):
