@@ -378,7 +378,7 @@ class Response(object):
         self.headers = CaseInsensitiveDict()
 
         #: File-like object representation of response (for advanced usage).
-        #: Requires that ``prefetch=False` on the request.
+        #: Requires that ``stream=True` on the request.
         # This requirement does not apply for use internally to Requests.
         self.raw = None
 
@@ -393,8 +393,6 @@ class Response(object):
         #: up here. The list is sorted from the oldest to the most recent request.
         self.history = []
 
-        #: The :class:`Request <Request>` that created the Response.
-        # self.request = None
 
         self.reason = None
 
@@ -513,8 +511,7 @@ class Response(object):
 
         # Fallback to auto-detected encoding.
         if self.encoding is None:
-            if chardet is not None:
-                encoding = chardet.detect(self.content)['encoding']
+            encoding = self.apparent_encoding
 
         # Decode unicode from given encoding.
         try:

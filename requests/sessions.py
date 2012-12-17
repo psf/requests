@@ -62,7 +62,7 @@ def merge_kwargs(local_kwarg, default_kwarg):
 
 class SessionRedirectMixin(object):
 
-    def resolve_redirects(self, resp, req, prefetch=True, timeout=None, verify=True, cert=None):
+    def resolve_redirects(self, resp, req, stream=False, timeout=None, verify=True, cert=None):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
@@ -122,7 +122,7 @@ class SessionRedirectMixin(object):
                     auth=req.auth,
                     cookies=req.cookies,
                     allow_redirects=False,
-                    prefetch=prefetch,
+                    stream=stream,
                     timeout=timeout,
                     verify=verify,
                     cert=cert
@@ -159,8 +159,8 @@ class Session(SessionRedirectMixin):
         #: representing multivalued query parameters.
         self.params = {}
 
-        #: Prefetch response content.
-        self.prefetch = True
+        #: Stream response content.
+        self.stream = False
 
         #: SSL Verification.
         self.verify = True
@@ -194,7 +194,7 @@ class Session(SessionRedirectMixin):
         allow_redirects=True,
         proxies=None,
         hooks=None,
-        prefetch=None,
+        stream=None,
         verify=None,
         cert=None):
 
@@ -214,7 +214,7 @@ class Session(SessionRedirectMixin):
         auth = merge_kwargs(auth, self.auth)
         proxies = merge_kwargs(proxies, self.proxies)
         hooks = merge_kwargs(hooks, self.hooks)
-        prefetch = merge_kwargs(prefetch, self.prefetch)
+        stream = merge_kwargs(stream, self.stream)
         verify = merge_kwargs(verify, self.verify)
         cert = merge_kwargs(cert, self.cert)
 
@@ -234,10 +234,10 @@ class Session(SessionRedirectMixin):
         prep = req.prepare()
 
         # Send the request.
-        resp = self.send(prep, prefetch=prefetch, timeout=timeout, verify=verify, cert=cert)
+        resp = self.send(prep, stream=stream, timeout=timeout, verify=verify, cert=cert)
 
         # Redirect resolving generator.
-        gen = self.resolve_redirects(resp, req, prefetch, timeout, verify, cert)
+        gen = self.resolve_redirects(resp, req, stream, timeout, verify, cert)
 
         # Resolve redirects if allowed.
         history = [r for r in gen] if allow_redirects else []

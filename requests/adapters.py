@@ -142,7 +142,7 @@ class HTTPAdapter(BaseAdapter):
         """
         self.poolmanager.clear()
 
-    def send(self, request, prefetch=True, timeout=None, verify=True, cert=None, proxies=None):
+    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
         """Sends PreparedRequest object. Returns Response object."""
 
         conn = self.get_connection(request.url, proxies)
@@ -180,7 +180,7 @@ class HTTPAdapter(BaseAdapter):
 
         r = self.build_response(request, resp)
 
-        if prefetch:
+        if not stream:
             r.content
 
         return r
