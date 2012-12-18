@@ -379,7 +379,7 @@ class Session(SessionRedirectMixin):
             setattr(self, attr, value)
 
 
-def session(**kwargs):
+def session():
     """Returns a :class:`Session` for context-management."""
 
-    return Session(**kwargs)
+    return Session()
