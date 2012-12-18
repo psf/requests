@@ -71,10 +71,6 @@ class SessionRedirectMixin(object):
         # ((resp.status_code is codes.see_other))
         while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
 
-            # Persist cookies.
-            for cookie in resp.cookies:
-                self.cookies.set_cookie(cookie)
-
             resp.content  # Consume socket so it can be released
 
             if i >= self.max_redirects:
@@ -264,6 +260,10 @@ class Session(SessionRedirectMixin):
 
         # Send the request.
         resp = self.send(prep, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
+
+        # Persist cookies.
+        for cookie in resp.cookies:
+            self.cookies.set_cookie(cookie)
 
         # Redirect resolving generator.
         gen = self.resolve_redirects(resp, req, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
