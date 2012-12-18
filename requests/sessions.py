@@ -384,7 +384,13 @@ class Session(SessionRedirectMixin):
             setattr(self, attr, value)
 
 
-def session():
+def session(**kwargs):
     """Returns a :class:`Session` for context-management."""
 
-    return Session()
+    sess = Session()
+    for attr in kwargs:
+        if hasattr(sess, attr):
+            setattr(sess, attr, kwargs[attr])
+        else:
+            raise AttributeError("'Session' object has no attribute %r" % attr)
+    return sess
