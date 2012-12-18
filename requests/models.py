@@ -11,24 +11,21 @@ import collections
 import logging
 
 from io import BytesIO
-from .hooks import dispatch_hook, default_hooks
+from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
 
-from .auth import HTTPBasicAuth, HTTPProxyAuth
-from .cookies import cookiejar_from_dict, extract_cookies_to_jar, get_cookie_header
+from .auth import HTTPBasicAuth
+from .cookies import cookiejar_from_dict, get_cookie_header
 from .packages.urllib3.filepost import encode_multipart_formdata
-from .exceptions import (
-    ConnectionError, HTTPError, RequestException, Timeout, TooManyRedirects,
-    URLRequired, SSLError, MissingSchema, InvalidSchema, InvalidURL)
+from .exceptions import HTTPError, RequestException, MissingSchema, InvalidURL
 from .utils import (
-    get_encoding_from_headers, stream_untransfer, guess_filename, requote_uri,
-    stream_decode_response_unicode, get_netrc_auth, get_environ_proxies,
-    to_key_val_list, DEFAULT_CA_BUNDLE_PATH, parse_header_links, iter_slices,
-    guess_json_utf)
+    stream_untransfer, guess_filename, requote_uri,
+    stream_decode_response_unicode, to_key_val_list, parse_header_links,
+    iter_slices, guess_json_utf)
 from .compat import (
-    cookielib, urlparse, urlunparse, urljoin, urlsplit, urlencode, str, bytes,
-    StringIO, is_py2, is_py3, chardet, json, builtin_str, urldefrag, basestring)
+    cookielib, urlparse, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
+    is_py2, chardet, json, builtin_str, basestring)
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
@@ -384,7 +381,6 @@ class Response(object):
         #: the history of the Request. Any redirect responses will end
         #: up here. The list is sorted from the oldest to the most recent request.
         self.history = []
-
 
         self.reason = None
 
