@@ -391,4 +391,6 @@ def session(**kwargs):
     for attr in kwargs:
         if hasattr(sess, attr):
             setattr(sess, attr, kwargs[attr])
+        else:
+            raise AttributeError("'Session' object has no attribute %r" % attr)
     return sess
