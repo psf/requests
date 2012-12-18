@@ -8,11 +8,9 @@ This module contains the transport adapters that Requests uses to define
 and maintain connections.
 """
 
-import os
 import socket
 
 from .models import Response
-from .auth import HTTPProxyAuth
 from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
 from .hooks import dispatch_hook
 from .compat import urlparse
@@ -83,7 +81,6 @@ class HTTPAdapter(BaseAdapter):
             else:
                 conn.cert_file = cert
 
-
     def build_response(self, req, resp):
         response = Response()
 
@@ -124,7 +121,6 @@ class HTTPAdapter(BaseAdapter):
             conn = self.poolmanager.connection_from_url(url)
 
         return conn
-
 
     def close(self):
         """Dispose of any internal state.
