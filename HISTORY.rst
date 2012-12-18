@@ -3,6 +3,12 @@
 History
 -------
 
+1.0.3 (2012-12-18)
+++++++++++++++++++
+
+- Fix file upload encoding bug
+- Fix cookie behavior
+
 1.0.2 (2012-12-17)
 ++++++++++++++++++
 
