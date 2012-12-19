@@ -194,8 +194,8 @@ class Request(RequestHooksMixin):
         p.prepare_url(self.url, self.params)
         p.prepare_headers(self.headers)
         p.prepare_cookies(self.cookies)
-        p.prepare_auth(self.auth)
         p.prepare_body(self.data, self.files)
+        p.prepare_auth(self.auth)
 
         return p
 
