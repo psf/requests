@@ -115,6 +115,7 @@ class SessionRedirectMixin(object):
                     url=url,
                     method=method,
                     headers=headers,
+                    data=req.data,
                     params=req.params,
                     auth=req.auth,
                     cookies=req.cookies,
