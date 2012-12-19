@@ -194,8 +194,10 @@ class Request(RequestHooksMixin):
         p.prepare_url(self.url, self.params)
         p.prepare_headers(self.headers)
         p.prepare_cookies(self.cookies)
-        p.prepare_auth(self.auth)
         p.prepare_body(self.data, self.files)
+        # Note that prepare_auth most be last to enable authentication schemes
+        # such as OAuth to work on a fully prepared request.
+        p.prepare_auth(self.auth)
 
         return p
 
