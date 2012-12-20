@@ -21,7 +21,7 @@ def request(method, url, **kwargs):
     :param method: method for the new :class:`Request` object.
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary or bytes to be sent in the query string for the :class:`Request`.
-    :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+    :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
     :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
     :param files: (optional) Dictionary of 'name': file-like-objects (or {'name': ('filename', fileobj)}) for multipart encoding upload.
@@ -74,7 +74,7 @@ def post(url, data=None, **kwargs):
     """Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
-    :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+    :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     """
 
@@ -85,7 +85,7 @@ def put(url, data=None, **kwargs):
     """Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
-    :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+    :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     """
 
@@ -96,7 +96,7 @@ def patch(url, data=None, **kwargs):
     """Sends a PATCH request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
-    :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.
+    :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     """
 
