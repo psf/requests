@@ -26,12 +26,15 @@ Let's persist some cookies across requests::
     # '{"cookies": {"sessioncookie": "123456789"}}'
 
 
-Sessions can also be used to provide default data to the request methods::
+Sessions can also be used to provide default data to the request methods. This
+is done by providing data to the properties on a session object::
 
     headers = {'x-test': 'true'}
     auth = ('user', 'pass')
 
-    with requests.session(auth=auth, headers=headers) as c:
+    with requests.session() as c:
+        c.auth = auth
+        c.headers = headers
 
         # both 'x-test' and 'x-test2' are sent
         c.get('http://httpbin.org/headers', headers={'x-test2': 'true'})
