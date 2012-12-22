@@ -13,7 +13,7 @@ import socket
 from .models import Response
 from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
 from .hooks import dispatch_hook
-from .compat import urlparse
+from .compat import urlparse, basestring
 from .utils import DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import MaxRetryError
@@ -75,7 +75,7 @@ class HTTPAdapter(BaseAdapter):
             conn.ca_certs = None
 
         if cert:
-            if len(cert) == 2:
+            if not isinstance(cert, basestring):
                 conn.cert_file = cert[0]
                 conn.key_file = cert[1]
             else:
