@@ -25,7 +25,7 @@ from .utils import (
     iter_slices, guess_json_utf)
 from .compat import (
     cookielib, urlparse, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
-    is_py2, chardet, json, builtin_str, basestring)
+    is_py2, chardet, json, builtin_str, basestring, urldefrag)
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
