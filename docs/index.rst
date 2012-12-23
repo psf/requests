@@ -128,6 +128,7 @@ you.
 .. toctree::
    :maxdepth: 1
 
+   dev/philosophy
    dev/internals
    dev/todo
    dev/authors
