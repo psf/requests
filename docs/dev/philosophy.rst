@@ -36,6 +36,6 @@ Requests just reached v1.0.0. This huge milestone marks a major step in the righ
 Linux Distro Packages
 ~~~~~~~~~~~~~~~~~~~~~
 
-Distributions for Requests have been made for many Linux distributions, including: Ubuntu, Debian, RHEL, and Arch.
+Distributions have been made for many Linux repositories, including: Ubuntu, Debian, RHEL, and Arch.
 
 These distributions are often aggressive forks. They are discouraged and not supported.
