@@ -189,8 +189,6 @@ class Request(RequestHooksMixin):
         self.params = params
         self.auth = auth
         self.cookies = cookies
-        # self.allow_redirects = allow_redirects
-        # self.proxies = proxies
         self.hooks = hooks
 
     def __repr__(self):
@@ -220,14 +218,15 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     """
 
     def __init__(self):
+        #: HTTP verb to send to the server.
         self.method = None
+        #: HTTP URL to send the request to.
         self.url = None
+        #: dictionary of HTTP headers.
         self.headers = None
+        #: request body to send to the server.
         self.body = None
-        self.params = None
-        self.auth = None
-        self.allow_redirects = None
-        self.proxies = None
+        #: dictionary of callback hooks, for internal usage.
         self.hooks = default_hooks()
 
     def __repr__(self):
