@@ -35,12 +35,11 @@ Lower-Level Classes
 .. autoclass:: Response
    :inherited-members:
 
-Sessions
---------
+Request Sessions
+----------------
 
 .. autoclass:: Session
    :inherited-members:
-
 
 
 Exceptions
@@ -86,14 +85,6 @@ Encodings
 .. autofunction:: get_encoding_from_headers
 .. autofunction:: get_unicode_from_response
 .. autofunction:: decode_gzip
-
-
-Internals
----------
-
-These items are an internal component to Requests, and should never be
-seen by the end user (developer). This part of the API documentation
-exists for those who are extending the functionality of Requests.
 
 
 Classes
