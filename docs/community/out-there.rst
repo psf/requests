@@ -1,8 +1,6 @@
 Modules
 =======
-
-- `requests-oauth <https://github.com/maraujop/requests-oauth>`_, adds OAuth support to Requests.
-- `rauth <https://github.com/litl/rauth>`_, an alternative to requests-oauth, supports OAuth versions 1.0 and 2.0.
+- `HTTPie <https://github.com/jkbr/httpie>`_, a CLI, cURL-like tool for humans.
 - `FacePy <https://github.com/jgorset/facepy>`_, a Python wrapper to the Facebook API.
 - `robotframework-requests <https://github.com/bulkan/robotframework-requests>`_, a Robot Framework API wrapper.
 - `fullerene <https://github.com/bitprophet/fullerene>`_, a Graphite Dashboard.
@@ -31,6 +29,15 @@ ScraperWiki
 `ScraperWiki <https://scraperwiki.com/>`_ is an excellent service that allows
 you to run Python, Ruby, and PHP scraper scripts on the web. Now, Requests
 v0.6.1 is available to use in your scrapers!
+
+To give it a try, simply::
+
+    import requests
+
+Python for iOS
+--------------
+
+Requests is built into the wonderful `Python for iOS <https://itunes.apple.com/us/app/python-2.7-for-ios/id485729872?mt=Python8>`_ runtime!
 
 To give it a try, simply::
 
