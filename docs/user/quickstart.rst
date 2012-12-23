@@ -385,7 +385,8 @@ seconds with the ``timeout`` parameter::
     >>> requests.get('http://github.com', timeout=0.001)
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    requests.exceptions.Timeout: Request timed out.
+    requests.exceptions.Timeout: HTTPConnectionPool(host='github.com', port=80): Request timed out. (timeout=0.001)
+
 
 .. admonition:: Note:
 
