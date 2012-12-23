@@ -255,6 +255,16 @@ class RequestsTestCase(unittest.TestCase):
                           files={'file': ('test_requests.py', open(__file__, 'rb'))})
         self.assertEqual(r.status_code, 200)
 
+    def test_dataurl(self):
+        r = requests.get('data:text/html;charset=utf-8,f%C3%B8%C3%B8')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.headers.get('content-type'), 'text/html;charset=utf-8')
+        self.assertEqual(r.text, u'føø')
+        r = requests.get('data:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.headers.get('content-type'), 'image/gif')
+        self.assertEqual(r.content, 'GIF87a0\x000\x00\xf0\x00\x00\x00\x00\x00\xff\xff\xff,\x00\x00\x00\x000\x000\x00\x00\x02\xf0\x8c\x8f\xa9\xcb\xed\xdf\x00\x9c\x0eH\x8bs\xb0\xb4\xab\x0c\x86\x1e\x14\x96\xa64.\xe7*\xa6\t\x8b\x1a\xa7+\xafQIo8\xd9\x8ef\xd7\xf3\x80\\\xc1\xc90u\xd1\x0819\x1d\x13\xa8\x14\x1e\x8e\x14M\xcc\xe7\xe4T\x9f\xb9b%*\xadqyc\x99J\x87\xf0\xde\xb8\xd7\x0f\xe7"\xd6\x1a\xc1\x1b\xb4\xb8\x8eJ\x96\xbfL\xf8;&\x92G\xc7\'\xa7w5\x93\x05\xf5\xf4s\x13\xa7(\xf8\xe0\x078\xb8v(\xa7Xgd\x17\xc9#u\xf9\xf2q\x06We\xe6\x06z9\x89\x95\x97\x86\x97\xd8\xb6\x89\xc5jh\xd5Z\x8aT\xfa\x17\x98\x89\xf7I\xba\x9a\xfb\x93K\x83\x8a\xd3\x934\xbc94C\x85\xd4\xb7\x0b\xca;:\xdcwx\xaa\xf6\xe8\xac\x17\xcdL\xd4\xe2\x1cG\xb9D{\x0c\x1c.\x9e\xed\xb8\xd3d3{\x8d\x9d\xad\xc5\xd8\x94\x05\xa3\xde\xd5\xae,\xbf^^?\x7fW\x1f\xe5U\xb3_,\xa6\xec\xf1\xe1\x87\x1e\x1dn\x06\n\x00\x00;')
+
 
 
 if __name__ == '__main__':
