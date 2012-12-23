@@ -1,7 +1,7 @@
 .. _api:
 
-API
-===
+Developer Interface
+===================
 
 .. module:: requests
 
