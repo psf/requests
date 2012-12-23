@@ -156,7 +156,6 @@ class Request(RequestHooksMixin):
     :param params: dictionary of URL parameters to append to the URL.
     :param auth: Auth handler or (user, pass) tuple.
     :param cookies: dictionary or CookieJar of cookies to attach to this request.
-    :param timeout: REMOVE REMOVE.
     :param hooks: dictionary of callback hooks, for internal usage.
     """
     def __init__(self,
@@ -168,7 +167,6 @@ class Request(RequestHooksMixin):
         params=dict(),
         auth=None,
         cookies=None,
-        timeout=None,
         hooks=None):
 
 
