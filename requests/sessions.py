@@ -94,14 +94,11 @@ class SessionRedirectMixin(object):
                 url = urljoin(resp.url, requote_uri(url))
 
             # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
-            if resp.status_code is codes.see_other:
+            if resp.status_code is codes.see_other and req.method != 'HEAD':
                 method = 'GET'
 
             # Do what the browsers do, despite standards...
             if resp.status_code in (codes.moved, codes.found) and req.method == 'POST':
-                method = 'GET'
-
-            if (resp.status_code == 303) and req.method != 'HEAD':
                 method = 'GET'
 
             # Remove the cookie headers that were sent.
@@ -255,7 +252,7 @@ class Session(SessionRedirectMixin):
 
         # Create the Request.
         req = Request()
-        req.method = method
+        req.method = method.upper()
         req.url = url
         req.headers = headers
         req.files = files
