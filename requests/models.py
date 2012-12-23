@@ -35,7 +35,6 @@ log = logging.getLogger(__name__)
 
 
 class RequestEncodingMixin(object):
-
     @property
     def path_url(self):
         """Build the path URL to use."""
@@ -147,7 +146,19 @@ class RequestHooksMixin(object):
 
 
 class Request(RequestHooksMixin):
-    """A user-created :class:`Request <Request>` object."""
+    """A user-created :class:`Request <Request>` object.
+
+    :param method: HTTP method to use.
+    :param url: URL to send.
+    :param headers: dictionary of headers to send.
+    :param files: dictionary of {filename: fileobject} files to multipart upload.
+    :param data: the body to attach the request. If a dictionary is provided, form-encoding will take place.
+    :param params: dictionary of URL parameters to append to the URL.
+    :param auth: Auth handler or (user, pass) tuple.
+    :param cookies: dictionary or CookieJar of cookies to attach to this request.
+    :param timeout: REMOVE REMOVE.
+    :param hooks: dictionary of callback hooks, for internal usage.
+    """
     def __init__(self,
         method=None,
         url=None,
@@ -159,6 +170,7 @@ class Request(RequestHooksMixin):
         cookies=None,
         timeout=None,
         hooks=None):
+
 
         # Default empty dicts for dict params.
         data = [] if data is None else data
