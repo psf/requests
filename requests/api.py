@@ -32,6 +32,12 @@ def request(method, url, **kwargs):
     :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
     :param stream: (optional) if ``False``, the response content will be immediately downloaded.
     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+
+    Usage::
+
+      >>> import requests
+      >>> req = requests.request('GET', 'http://httpbin.org/get')
+      <Response [200]>
     """
 
     session = sessions.Session()

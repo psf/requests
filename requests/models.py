@@ -148,6 +148,8 @@ class RequestHooksMixin(object):
 class Request(RequestHooksMixin):
     """A user-created :class:`Request <Request>` object.
 
+    Used to prepare a :class:`PreparedRequest <PreparedRequest>`, which is sent to the server.
+
     :param method: HTTP method to use.
     :param url: URL to send.
     :param headers: dictionary of headers to send.
@@ -381,10 +383,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
 
 class Response(object):
-    """The core :class:`Response <Response>` object. All
-    :class:`Request <Request>` objects contain a
-    :class:`response <Response>` attribute, which is an instance
-    of this class.
+    """The :class:`Response <Response>` object, which contains a
+    server's response to an HTTP request.
     """
 
     def __init__(self):
