@@ -55,22 +55,6 @@ Exceptions
 .. autoexception:: TooManyRedirects
 
 
-.. _configurations:
-
-Configurations
---------------
-
-.. automodule:: requests.defaults
-
-
-Utilities
----------
-
-These functions are used internally, but may be useful outside of
-Requests.
-
-.. module:: requests.utils
-
 Status Code Lookup
 ~~~~~~~~~~~~~~~~~~
 
