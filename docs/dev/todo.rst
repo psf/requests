@@ -12,7 +12,7 @@ Requests is under active development, and contributions are more than welcome!
 #. Send a pull request and bug the maintainer until it gets merged and published. :)
    Make sure to add yourself to `AUTHORS <https://github.com/kennethreitz/requests/blob/master/AUTHORS.rst>`_.
 
-Development dependencies
+Development Dependencies
 ------------------------
 
 You'll need to install py.test in order to run the Requests' test suite::
@@ -26,17 +26,24 @@ You'll need to install py.test in order to run the Requests' test suite::
     test_requests.py .........................
     25 passed in 3.50 seconds
 
-Versions of Python
-------------------
+Runtime Environments
+--------------------
 
-Officially (as of 26-Nov-2012), requests supports python 2.6-3.3. In the
-future, support for 3.1 and 3.2 may be dropped. In general you will need to
-test on at least one python 2 and one python 3 version. You can also set up
-Travis CI for your own fork before you submit a pull request so that you are
-assured your fork works. To use Travis CI for your fork and other projects see
-their `documentation <http://about.travis-ci.org/docs/user/getting-started/>`_.
+Requests currently supports the following versions of Python:
 
-What Needs to be Done
----------------------
+- Python 2.6
+- Python 2.7
+- Python 3.1
+- Python 3.2
+- Python 3.3
+- PyPy 1.9
 
-- Documentation needs a roadmap.
+Support for Python 3.1 and 3.2 may be dropped at any time.
+
+Google App Engine will never be officially supported. Pull requests for compatiblity will be accepted, as long as they don't complicate the codebase.
+
+
+Are you crazy?
+--------------
+
+- SPDY support would be awesome. No C extensions.
