@@ -73,6 +73,7 @@ Requests is ready for today's web.
 - Multipart File Uploads
 - Connection Timeouts
 - ``.netrc`` support
+- Python 2.6—3.3
 - Thread-safe.
 
 
