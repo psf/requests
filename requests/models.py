@@ -197,7 +197,7 @@ class Request(RequestHooksMixin):
         return '<Request [%s]>' % (self.method)
 
     def prepare(self):
-        """Constructs a PreparedRequest for transmission and returns it."""
+        """Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it."""
         p = PreparedRequest()
 
         p.prepare_method(self.method)
@@ -213,7 +213,11 @@ class Request(RequestHooksMixin):
 
 
 class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
-    """The :class:`PreparedRequest <PreparedRequest>` object."""
+    """The fully mutable :class:`PreparedRequest <PreparedRequest>` object,
+    containing the exact bytes that will be sent to the server.
+
+    Generated from a :class:`Request <Request>` object or manually.
+    """
 
     def __init__(self):
         self.method = None
