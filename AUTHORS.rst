@@ -117,3 +117,4 @@ Patches and Suggestions
 - Stephen Zhuang (everbird)
 - Martijn Pieters
 - Jonatan Heyman
+- David Bonner <dbonner@gmail.com> @rascalking
