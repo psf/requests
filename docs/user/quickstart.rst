@@ -19,7 +19,7 @@ Let's get started with some simple examples.
 
 
 Make a Request
-------------------
+--------------
 
 Making a request with Requests is very simple.
 
@@ -175,12 +175,12 @@ dictionary of data will automatically be form-encoded when the request is made::
     >>> r = requests.post("http://httpbin.org/post", data=payload)
     >>> print r.text
     {
-      // ...snip... //
+      ...
       "form": {
         "key2": "value2",
         "key1": "value1"
       },
-      // ...snip... //
+      ...
     }
 
 There are many times that you want to send data that is not form-encoded. If you pass in a ``string`` instead of a ``dict``, that data will be posted directly.
@@ -205,11 +205,11 @@ Requests makes it simple to upload Multipart-encoded files::
     >>> r = requests.post(url, files=files)
     >>> r.text
     {
-      // ...snip... //
+      ...
       "files": {
         "file": "<censored...binary...data>"
       },
-      // ...snip... //
+      ...
     }
 
 You can set the filename explicitly::
@@ -220,11 +220,11 @@ You can set the filename explicitly::
     >>> r = requests.post(url, files=files)
     >>> r.text
     {
-      // ...snip... //
+      ...
       "files": {
         "file": "<censored...binary...data>"
       },
-      // ...snip... //
+      ...
     }
 
 If you want, you can send strings to be received as files::
@@ -235,11 +235,11 @@ If you want, you can send strings to be received as files::
     >>> r = requests.post(url, files=files)
     >>> r.text
     {
-      // ...snip... //
+      ...
       "files": {
         "file": "some,data,to,send\\nanother,row,to,send\\n"
       },
-      // ...snip... //
+      ...
     }
 
 

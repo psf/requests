@@ -17,7 +17,7 @@ A session object has all the methods of the main Requests API.
 
 Let's persist some cookies across requests::
 
-    s = requests.session()
+    s = requests.Session()
 
     s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
     r = s.get("http://httpbin.org/cookies")
@@ -29,15 +29,12 @@ Let's persist some cookies across requests::
 Sessions can also be used to provide default data to the request methods. This
 is done by providing data to the properties on a session object::
 
-    headers = {'x-test': 'true'}
-    auth = ('user', 'pass')
+    s = requests.Session()
+    s.auth = ('user', 'pass')
+    s.headers.update({'x-test': 'true'})
 
-    with requests.session() as c:
-        c.auth = auth
-        c.headers = headers
-
-        # both 'x-test' and 'x-test2' are sent
-        c.get('http://httpbin.org/headers', headers={'x-test2': 'true'})
+    # both 'x-test' and 'x-test2' are sent
+    s.get('http://httpbin.org/headers', headers={'x-test2': 'true'})
 
 
 Any dictionaries that you pass to a request method will be merged with the session-level values that are set. The method-level parameters override session parameters.
@@ -59,11 +56,11 @@ contains all of the information returned by the server and also contains the
 ``Request`` object you created originally. Here is a simple request to get some
 very important information from Wikipedia's servers::
 
-    >>> response = requests.get('http://en.wikipedia.org/wiki/Monty_Python')
+    >>> r = requests.get('http://en.wikipedia.org/wiki/Monty_Python')
 
 If we want to access the headers the server sent back to us, we do this::
 
-    >>> response.headers
+    >>> r.headers
     {'content-length': '56170', 'x-content-type-options': 'nosniff', 'x-cache':
     'HIT from cp1006.eqiad.wmnet, MISS from cp1010.eqiad.wmnet', 'content-encoding':
     'gzip', 'age': '3080', 'content-language': 'en', 'vary': 'Accept-Encoding,Cookie',
@@ -76,7 +73,7 @@ If we want to access the headers the server sent back to us, we do this::
 However, if we want to get the headers we sent the server, we simply access the
 request, and then the request's headers::
 
-    >>> response.request.headers
+    >>> r.request.headers
     {'Accept-Encoding': 'identity, deflate, compress, gzip',
     'Accept': '*/*', 'User-Agent': 'python-requests/0.13.1'}
 
@@ -131,12 +128,6 @@ At this point only the response headers have been downloaded and the connection 
       ...
 
 You can further control the workflow by use of the :class:`Response.iter_content` and :class:`Response.iter_lines` methods, or reading from the underlying urllib3 :class:`urllib3.HTTPResponse` at :class:`Response.raw`.
-
-Configuring Requests
---------------------
-
-Sometimes you may want to configure a request to customize its behavior. To do
-this, you can pass in a ``config`` dictionary to a request or session. See the :ref:`Configuration API Docs <configurations>` to learn more.
 
 
 Keep-Alive
@@ -204,6 +195,7 @@ Let's pretend that we have a web service that will only respond if the
 ::
 
     from requests.auth import AuthBase
+
     class PizzaAuth(AuthBase):
         """Attaches HTTP Pizza Authentication to the given Request object."""
         def __init__(self, username):
