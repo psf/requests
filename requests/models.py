@@ -443,7 +443,8 @@ class Response(object):
 
     @property
     def apparent_encoding(self):
-        """The apparent encoding, provided by the lovely Charade library."""
+        """The apparent encoding, provided by the lovely Charade library
+        (Thanks, Ian!)."""
         return chardet.detect(self.content)['encoding']
 
     def iter_content(self, chunk_size=1, decode_unicode=False):
