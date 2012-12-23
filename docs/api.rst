@@ -18,16 +18,6 @@ They all return an instance of the :class:`Response <Response>` object.
 
 .. autofunction:: request
 
----------------------
-
-.. autoclass:: requests.Request
-   :inherited-members:
-
-.. autoclass:: Response
-   :inherited-members:
-
----------------------
-
 .. autofunction:: head
 .. autofunction:: get
 .. autofunction:: post
@@ -36,9 +26,17 @@ They all return an instance of the :class:`Response <Response>` object.
 .. autofunction:: delete
 
 
------------------
+Lower-Level Classes
+~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: session
+.. autoclass:: requests.Request
+   :inherited-members:
+
+.. autoclass:: Response
+   :inherited-members:
+
+Sessions
+--------
 
 .. autoclass:: Session
    :inherited-members:

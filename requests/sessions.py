@@ -131,7 +131,17 @@ class SessionRedirectMixin(object):
 
 
 class Session(SessionRedirectMixin):
-    """A Requests session."""
+    """A Requests session.
+
+    Provides cookie persistience, connection-pooling, and configuration.
+
+    Basic Usage::
+
+      >>> import requests
+      >>> s = requests.Session()
+      >>> s.get('http://httpbin.org/get')
+      200
+    """
 
     def __init__(self):
 
@@ -140,7 +150,7 @@ class Session(SessionRedirectMixin):
         #: :class:`Session <Session>`.
         self.headers = default_headers()
 
-        #: Authentication tuple or object to attach to
+        #: Default Authentication tuple or object to attach to
         #: :class:`Request <Request>`.
         self.auth = None
 
@@ -157,19 +167,19 @@ class Session(SessionRedirectMixin):
         #: representing multivalued query parameters.
         self.params = {}
 
-        #: Stream response content.
+        #: Stream response content default.
         self.stream = False
 
-        #: SSL Verification.
+        #: SSL Verification default.
         self.verify = True
 
-        #: SSL certificate.
+        #: SSL certificate default.
         self.cert = None
 
         #: Maximum number of redirects to follow.
         self.max_redirects = DEFAULT_REDIRECT_LIMIT
 
-        #: Should we trust the environment
+        #: Should we trust the environment?
         self.trust_env = True
 
         # Set up a CookieJar to be used by default
