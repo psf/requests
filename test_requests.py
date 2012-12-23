@@ -86,6 +86,10 @@ class RequestsTestCase(unittest.TestCase):
         r = requests.get(httpbin('redirect', '1'))
         self.assertEqual(r.status_code, 200)
 
+    def test_HTTP_302_ALLOW_REDIRECT_POST(self):
+        r = requests.post(httpbin('status', '302'), data={'some': 'data'})
+        self.assertEqual(r.status_code, 200)
+
     def test_HTTP_200_OK_GET_WITH_PARAMS(self):
         heads = {'User-agent': 'Mozilla/5.0'}
 
