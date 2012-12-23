@@ -63,25 +63,6 @@ Configurations
 .. automodule:: requests.defaults
 
 
-.. _async:
-
-Async
------
-
-.. module:: requests.async
-
-
-.. autofunction:: map
-.. autofunction:: request
-.. autofunction:: head
-.. autofunction:: get
-.. autofunction:: post
-.. autofunction:: put
-.. autofunction:: patch
-.. autofunction:: delete
-
-
-
 Utilities
 ---------
 
@@ -138,6 +119,9 @@ Classes
    :inherited-members:
 
 .. autoclass:: requests.Request
+   :inherited-members:
+
+.. autoclass:: requests.PreparedRequest
    :inherited-members:
 
 .. _sessionapi:
