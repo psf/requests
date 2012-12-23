@@ -20,6 +20,8 @@ They all return an instance of the :class:`Response <Response>` object.
 
 ---------------------
 
+.. autoclass:: requests.Request
+   :inherited-members:
 
 .. autoclass:: Response
    :inherited-members:
