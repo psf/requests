@@ -15,26 +15,25 @@ Requests is under active development, and contributions are more than welcome!
 Development dependencies
 ------------------------
 
-You'll need to install ``gunicorn`` and ``httpbin`` and various other dependencies in
-order to run requests' test suite::
+You'll need to install py.test in order to run the Requests' test suite::
 
-    $ virtualenv env
-    $ . env/bin/activate
-    $ make
+    $ make test-deps
     $ make test
+    py.test
+    platform darwin -- Python 2.7.3 -- pytest-2.3.4
+    collected 25 items
 
-The ``Makefile`` has various useful targets for testing. For example, if you 
-want to see how your pull request will behave with Travis-CI you would run 
-``make travis``.
+    test_requests.py .........................
+    25 passed in 3.50 seconds
 
-Versions of Python to Test On
------------------------------
+Versions of Python
+------------------
 
-Officially (as of 26-Nov-2012), requests supports python 2.6-3.3. In the 
-future, support for 3.1 and 3.2 may be dropped. In general you will need to 
-test on at least one python 2 and one python 3 version. You can also set up 
-Travis CI for your own fork before you submit a pull request so that you are 
-assured your fork works. To use Travis CI for your fork and other projects see 
+Officially (as of 26-Nov-2012), requests supports python 2.6-3.3. In the
+future, support for 3.1 and 3.2 may be dropped. In general you will need to
+test on at least one python 2 and one python 3 version. You can also set up
+Travis CI for your own fork before you submit a pull request so that you are
+assured your fork works. To use Travis CI for your fork and other projects see
 their `documentation <http://about.travis-ci.org/docs/user/getting-started/>`_.
 
 What Needs to be Done
