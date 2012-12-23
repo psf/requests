@@ -180,7 +180,7 @@ class DataURLAdapter(BaseAdapter):
     @classmethod
     def parse_dataurl(cls, dataurl):
         if not dataurl.startswith('data:'):
-            raise InvalidURL()
+            raise InvalidURL('DataURL should start with "data:".')
         metadata, data = dataurl.rsplit(',', 1)
         if metadata.endswith(';base64'):
             mediatype = metadata[5:-7]
