@@ -18,7 +18,7 @@ from .utils import from_key_val_list, default_headers
 from .exceptions import TooManyRedirects, InvalidSchema
 
 from .compat import urlparse, urljoin
-from .adapters import HTTPAdapter
+from .adapters import HTTPAdapter, DataURLAdapter
 
 from .utils import requote_uri, get_environ_proxies, get_netrc_auth
 
@@ -186,6 +186,7 @@ class Session(SessionRedirectMixin):
         self.adapters = {}
         self.mount('http://', HTTPAdapter())
         self.mount('https://', HTTPAdapter())
+        self.mount('data:', DataURLAdapter())
 
     def __enter__(self):
         return self

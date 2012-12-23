@@ -255,6 +255,12 @@ class RequestsTestCase(unittest.TestCase):
                           files={'file': ('test_requests.py', open(__file__, 'rb'))})
         self.assertEqual(r.status_code, 200)
 
+    def test_dataurl(self):
+        r = requests.get('data:text/html;charset=utf-8,f%C3%B8%C3%B8')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.headers.get('content-type'), 'text/html;charset=utf-8')
+        self.assertEqual(r.text, u'føø')
+
 
 
 if __name__ == '__main__':

@@ -13,7 +13,7 @@ import socket
 from .models import Response
 from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
 from .hooks import dispatch_hook
-from .compat import urlparse, basestring
+from .compat import urlparse, basestring, StringIO, unquote
 from .utils import DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import MaxRetryError
@@ -21,7 +21,7 @@ from .packages.urllib3.exceptions import TimeoutError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .cookies import extract_cookies_to_jar
-from .exceptions import ConnectionError, Timeout, SSLError
+from .exceptions import ConnectionError, Timeout, SSLError, InvalidURL
 
 DEFAULT_POOLSIZE = 10
 DEFAULT_RETRIES = 0
@@ -167,6 +167,63 @@ class HTTPAdapter(BaseAdapter):
                 raise Timeout('Request timed out.')
 
         r = self.build_response(request, resp)
+
+        if not stream:
+            r.content
+
+        return r
+
+class DataURLAdapter(BaseAdapter):
+    def __init__(self):
+        pass
+
+    @classmethod
+    def parse_dataurl(cls, dataurl):
+        if not dataurl.startswith('data:'):
+            raise InvalidURL()
+        metadata, data = dataurl.rsplit(',', 1)
+        if metadata.endswith(';base64'):
+            mediatype = metadata[5:-7]
+            data = data.decode('base64')
+        else:
+            mediatype = metadata[5:]
+            data = unquote(data)
+        return mediatype, data
+
+    def build_response(self, request):
+        response = Response()
+
+        mediatype, data = self.parse_dataurl(request.url)
+
+        # status code allways 200
+        response.status_code = 200
+
+        # the only header is content-type (media-type)
+        if mediatype:
+            response.headers = CaseInsensitiveDict({
+                'Content-Type': mediatype,
+                })
+
+        # set encoding
+        response.encoding = get_encoding_from_headers(response.headers)
+        response.raw = StringIO(data)
+
+        if isinstance(request.url, bytes):
+            response.url = request.url.decode('utf-8')
+        else:
+            response.url = request.url
+
+        response.request = request
+
+        # Run the Response hook.
+        response = dispatch_hook('response', request.hooks, response)
+        return response
+
+    def close(self):
+        pass
+
+    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
+        r = self.build_response(request)
 
         if not stream:
             r.content
