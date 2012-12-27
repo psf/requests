@@ -13,7 +13,7 @@ import socket
 from .models import Response
 from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
 from .hooks import dispatch_hook
-from .compat import urlparse, basestring
+from .compat import urlparse, basestring, urldefrag
 from .utils import DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import MaxRetryError
@@ -130,6 +130,21 @@ class HTTPAdapter(BaseAdapter):
         """
         self.poolmanager.clear()
 
+    def request_url(self, request, proxies):
+        """Obtain the url to use when making the final request.
+
+        If the message is being sent through a proxy, the full URL has to be
+        used. Otherwise, we should only use the path portion of the URL."""
+        proxies = proxies or {}
+        proxy = proxies.get(urlparse(request.url).scheme)
+
+        if proxy:
+            url, _ = urldefrag(request.url)
+        else:
+            url = request.path_url
+
+        return url
+
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
         """Sends PreparedRequest object. Returns Response object."""
 
@@ -137,11 +152,13 @@ class HTTPAdapter(BaseAdapter):
 
         self.cert_verify(conn, request.url, verify, cert)
 
+        url = self.request_url(request, proxies)
+
         try:
             # Send the request.
             resp = conn.urlopen(
                 method=request.method,
-                url=request.path_url,
+                url=url,
                 body=request.body,
                 headers=request.headers,
                 redirect=False,
