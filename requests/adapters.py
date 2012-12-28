@@ -118,7 +118,6 @@ class HTTPAdapter(BaseAdapter):
 
         if proxy:
             proxy = prepend_scheme_if_needed(proxy, urlparse(url).scheme)
-            print proxy
             conn = proxy_from_url(proxy)
         else:
             conn = self.poolmanager.connection_from_url(url)
