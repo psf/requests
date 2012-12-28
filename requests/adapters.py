@@ -14,7 +14,8 @@ from .models import Response
 from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
 from .hooks import dispatch_hook
 from .compat import urlparse, basestring, urldefrag
-from .utils import DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers
+from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
+                    prepend_scheme_if_needed)
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import TimeoutError
@@ -116,6 +117,7 @@ class HTTPAdapter(BaseAdapter):
         proxy = proxies.get(urlparse(url).scheme)
 
         if proxy:
+            proxy = prepend_scheme_if_needed(proxy, urlparse(url).scheme)
             conn = proxy_from_url(proxy)
         else:
             conn = self.poolmanager.connection_from_url(url)
