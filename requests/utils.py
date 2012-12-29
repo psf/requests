@@ -11,6 +11,7 @@ that are also useful for external consumption.
 
 import cgi
 import codecs
+import netaddr
 import os
 import platform
 import re
@@ -417,6 +418,32 @@ def requote_uri(uri):
     return quote(unquote_unreserved(uri), safe="!#$%&'()*+,/:;=?@[]~")
 
 
+def match_no_proxy(url, no_proxy):
+    if not no_proxy:
+        return False
+
+    no_proxy_network = []
+    no_proxy_domain = []
+    for host in no_proxy.split(','):
+        try:
+            no_proxy_network.append(netaddr.IPNetwork(host))
+        except (ValueError, netaddr.AddrFormatError):
+            no_proxy_domain.append(host)
+
+    # The netloc may have the port at the end and we extract the host part.
+    netloc = urlparse(url).netloc.split(':')[0]
+    try:
+        netloc = netaddr.IPAddress(netloc)
+        for host in no_proxy_network:
+            if netloc in host:
+                return True
+    except (ValueError, netaddr.AddrFormatError):
+        for host in no_proxy_domain:
+            if netloc.endswith(host):
+                return True
+    return False
+
+
 def get_environ_proxies(url):
     """Return a dict of environment proxies."""
 
@@ -434,17 +461,10 @@ def get_environ_proxies(url):
     # we're getting isn't in the no_proxy list.
     no_proxy = get_proxy('no_proxy')
 
-    if no_proxy:
-        # We need to check whether we match here. We need to see if we match
-        # the end of the netloc, both with and without the port.
-        no_proxy = no_proxy.split(',')
-        netloc = urlparse(url).netloc
-
-        for host in no_proxy:
-            if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
-                # The URL does match something in no_proxy, so we don't want
-                # to apply the proxies on this URL.
-                return {}
+    # If the URL does match something in no_proxy, we don't want
+    # to apply the proxies on this URL.
+    if match_no_proxy(url, no_proxy):
+        return {}
 
     # If we get here, we either didn't have no_proxy set or we're not going
     # anywhere that no_proxy applies to.
