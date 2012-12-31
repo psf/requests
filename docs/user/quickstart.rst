@@ -411,12 +411,6 @@ If a request exceeds the configured number of maximum redirections, a
 All exceptions that Requests explicitly raises inherit from
 :class:`requests.exceptions.RequestException`.
 
-You can refer to :ref:`Configuration API Docs <configurations>` for immediate
-raising of :class:`HTTPError` exceptions via the ``danger_mode`` option or
-have Requests catch the majority of
-:class:`requests.exceptions.RequestException` exceptions with the ``safe_mode``
-option.
-
 -----------------------
 
 Ready for more? Check out the :ref:`advanced <advanced>` section.
