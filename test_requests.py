@@ -255,7 +255,10 @@ class RequestsTestCase(unittest.TestCase):
                           files={'file': ('test_requests.py', open(__file__, 'rb'))})
         self.assertEqual(r.status_code, 200)
 
-
+    def test_skip_accept_encoding(self):
+        r = requests.get(httpbin('get'), headers={"User-Agent": "foomaster"}, skip_accept_encoding=True)
+        headers = json.loads(r.content)["headers"]
+        self.assertNotIn("accept-encoding", [header.lower() for header in headers])
 
 if __name__ == '__main__':
     unittest.main()
