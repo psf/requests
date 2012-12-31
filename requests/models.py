@@ -153,6 +153,8 @@ class Request(RequestHooksMixin):
     :param method: HTTP method to use.
     :param url: URL to send.
     :param headers: dictionary of headers to send.
+    :param skip_host: (optional) if ``True``, urllib3 will not inject a default 'Host' header.
+    :param skip_accept_encoding: (optional) if ``True``, urllib3 will not inject a default 'Accept-Encoding' header.
     :param files: dictionary of {filename: fileobject} files to multipart upload.
     :param data: the body to attach the request. If a dictionary is provided, form-encoding will take place.
     :param params: dictionary of URL parameters to append to the URL.
@@ -172,6 +174,8 @@ class Request(RequestHooksMixin):
         method=None,
         url=None,
         headers=None,
+        skip_host=False,
+        skip_accept_encoding=False,
         files=None,
         data=dict(),
         params=dict(),
@@ -194,6 +198,8 @@ class Request(RequestHooksMixin):
         self.method = method
         self.url = url
         self.headers = headers
+        self.skip_host = skip_host
+        self.skip_accept_encoding = skip_accept_encoding
         self.files = files
         self.data = data
         self.params = params
@@ -213,6 +219,7 @@ class Request(RequestHooksMixin):
         p.prepare_headers(self.headers)
         p.prepare_cookies(self.cookies)
         p.prepare_body(self.data, self.files)
+        p.prepare_skips(skip_host=self.skip_host, skip_accept_encoding=self.skip_accept_encoding)
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
         p.prepare_auth(self.auth)
@@ -250,6 +257,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.body = None
         #: dictionary of callback hooks, for internal usage.
         self.hooks = default_hooks()
+        # default skip settings for urllib3
+        self.skip_host = False
+        self.skip_accept_encoding = False
 
     def __repr__(self):
         return '<PreparedRequest [%s]>' % (self.method)
@@ -354,6 +364,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             self.headers['Content-Type'] = content_type
 
         self.body = body
+
+    def prepare_skips(self, skip_host=False, skip_accept_encoding=False):
+        """Prepares urllib3 for any desired skipped headers."""
+        self.skip_host = skip_host
+        self.skip_accept_encoding = skip_accept_encoding
 
     def prepare_auth(self, auth):
         """Prepares the given HTTP auth data."""

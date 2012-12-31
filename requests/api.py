@@ -23,6 +23,8 @@ def request(method, url, **kwargs):
     :param params: (optional) Dictionary or bytes to be sent in the query string for the :class:`Request`.
     :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
+    :param skip_host: (optional) if ``True``, urllib3 will not inject a default 'Host' header.
+    :param skip_accept_encoding: (optional) if ``True``, urllib3 will not inject a default 'Accept-Encoding' header.
     :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
     :param files: (optional) Dictionary of 'name': file-like-objects (or {'name': ('filename', fileobj)}) for multipart encoding upload.
     :param auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.

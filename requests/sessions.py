@@ -112,6 +112,8 @@ class SessionRedirectMixin(object):
                     url=url,
                     method=method,
                     headers=headers,
+                    skip_host=req.skip_host,
+                    skip_accept_encoding=req.skip_accept_encoding,
                     params=req.params,
                     auth=req.auth,
                     cookies=req.cookies,
@@ -146,6 +148,14 @@ class Session(SessionRedirectMixin):
         #: :class:`Request <Request>` sent from this
         #: :class:`Session <Session>`.
         self.headers = default_headers()
+
+        #: Toggle injection of default "Host" header.
+        self.skip_host = False
+
+        #: Toggle injection of a default "Accept-Encoding" header from urllib3.
+        #: Note that :class:`Request <Request>` has its own default that must be
+        #: overriden first with `default_headers`.
+        self.skip_accept_encoding = False
 
         #: Default Authentication tuple or object to attach to
         #: :class:`Request <Request>`.
@@ -197,6 +207,8 @@ class Session(SessionRedirectMixin):
         params=None,
         data=None,
         headers=None,
+        skip_host=False,
+        skip_accept_encoding=False,
         cookies=None,
         files=None,
         auth=None,
@@ -255,6 +267,8 @@ class Session(SessionRedirectMixin):
         req.method = method.upper()
         req.url = url
         req.headers = headers
+        req.skip_host = skip_host
+        req.skip_accept_encoding = skip_accept_encoding
         req.files = files
         req.data = data
         req.params = params

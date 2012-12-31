@@ -163,6 +163,8 @@ class HTTPAdapter(BaseAdapter):
                 url=url,
                 body=request.body,
                 headers=request.headers,
+                skip_host=request.skip_host,
+                skip_accept_encoding=request.skip_accept_encoding,
                 redirect=False,
                 assert_same_host=False,
                 preload_content=False,
