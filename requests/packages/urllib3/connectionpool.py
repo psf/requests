@@ -10,35 +10,28 @@ import errno
 
 from socket import error as SocketError, timeout as SocketTimeout
 
-try: # Python 3
-    from http.client import HTTPConnection, HTTPException
-    from http.client import HTTP_PORT, HTTPS_PORT
-except ImportError:
-    from httplib import HTTPConnection, HTTPException
-    from httplib import HTTP_PORT, HTTPS_PORT
+from .httpconnection import (HTTPConnection,
+    HTTPException,
+    HTTP_PORT,
+    HTTPS_PORT,
+)
 
 try: # Python 3
     from queue import LifoQueue, Empty, Full
 except ImportError:
     from Queue import LifoQueue, Empty, Full
 
-
 try: # Compiled with SSL?
     HTTPSConnection = object
     BaseSSLError = None
     ssl = None
 
-    try: # Python 3
-        from http.client import HTTPSConnection
-    except ImportError:
-        from httplib import HTTPSConnection
+    from httpconnection import HTTPSConnection
 
     import ssl
     BaseSSLError = ssl.SSLError
-
 except (ImportError, AttributeError): # Platform-specific: No SSL.
     pass
-
 
 from .request import RequestMethods
 from .response import HTTPResponse
@@ -325,6 +318,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
     def urlopen(self, method, url, body=None, headers=None, retries=3,
                 redirect=True, assert_same_host=True, timeout=_Default,
+                skip_host=False,
+                skip_accept_encoding=False,
                 pool_timeout=None, release_conn=None, **response_kw):
         """
         Get a connection from the pool and perform an HTTP request. This is the
@@ -386,6 +381,12 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             back into the pool. If None, it takes the value of
             ``response_kw.get('preload_content', True)``.
 
+        :param skip_host:
+            If ``True``, the default "Host" header will not be set.
+
+        :param skip_accept_encoding:
+            If ``True``, the default "Accept-Encoding" header will not be set.
+
         :param \**response_kw:
             Additional parameters are passed to
             :meth:`urllib3.response.HTTPResponse.from_httplib`
@@ -419,6 +420,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             # Make the request on the httplib connection object
             httplib_response = self._make_request(conn, method, url,
                                                   timeout=timeout,
+                                                  skip_host=skip_host,
+                                                  skip_accept_encoding=skip_accept_encoding,
                                                   body=body, headers=headers)
 
             # If we're going to release the connection in ``finally:``, then
@@ -479,6 +482,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             return self.urlopen(method, url, body, headers, retries - 1,
                                 redirect, assert_same_host,
                                 timeout=timeout, pool_timeout=pool_timeout,
+                                skip_host=skip_host,
+                                skip_accept_encoding=skip_accept_encoding,
                                 release_conn=release_conn, **response_kw)
 
         # Handle redirect?
@@ -490,6 +495,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             return self.urlopen(method, redirect_location, body, headers,
                                 retries - 1, redirect, assert_same_host,
                                 timeout=timeout, pool_timeout=pool_timeout,
+                                skip_host=skip_host,
+                                skip_accept_encoding=skip_accept_encoding,
                                 release_conn=release_conn, **response_kw)
 
         return response
