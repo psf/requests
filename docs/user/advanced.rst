@@ -480,9 +480,9 @@ GitHub uses these for `pagination <http://developer.github.com/v3/#pagination>`_
 
 Requests will automatically parse these link headers and make them easily consumable::
 
-    >>> r.links['next']
-    'https://api.github.com/users/kennethreitz/repos?page=2&per_page=10'
+    >>> r.links["next"]
+    {'url': 'https://api.github.com/users/kennethreitz/repos?page=2&per_page=10', 'rel': 'next'}
 
-    >>> r.links['last']
-    'https://api.github.com/users/kennethreitz/repos?page=6&per_page=10'
+    >>> r.links["last"]
+    {'url': 'https://api.github.com/users/kennethreitz/repos?page=7&per_page=10', 'rel': 'last'}
 
