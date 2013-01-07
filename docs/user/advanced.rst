@@ -313,17 +313,12 @@ out what type of content it is. Do this like so::
     ...
     application/json; charset=utf-8
 
-So, GitHub returns JSON. That's great, we can use the JSON module to turn it
-into Python objects. Because GitHub returned UTF-8, we should use the
-``r.text`` method, not the ``r.content`` method. ``r.content`` returns a
-bytestring, while ``r.text`` returns a Unicode-encoded string. I have no plans
-to perform byte-manipulation on this response, so I want any Unicode code
-points encoded.
+So, GitHub returns JSON. That's great, we can use the ``r.json`` method to
+parse it into Python objects.
 
 ::
 
-    >>> import json
-    >>> commit_data = json.loads(r.text)
+    >>> commit_data = r.json()
     >>> print commit_data.keys()
     [u'committer', u'author', u'url', u'tree', u'sha', u'parents', u'message']
     >>> print commit_data[u'committer']
@@ -380,7 +375,7 @@ Cool, we have three comments. Let's take a look at the last of them.
     >>> r = requests.get(r.url + u'/comments')
     >>> r.status_code
     200
-    >>> comments = json.loads(r.text)
+    >>> comments = r.json()
     >>> print comments[0].keys()
     [u'body', u'url', u'created_at', u'updated_at', u'user', u'id']
     >>> print comments[2][u'body']
@@ -417,7 +412,7 @@ the very common Basic Auth.
     >>> r = requests.post(url=url, data=body, auth=auth)
     >>> r.status_code
     201
-    >>> content = json.loads(r.text)
+    >>> content = r.json()
     >>> print content[u'body']
     Sounds great! I'll get right on it.
 
