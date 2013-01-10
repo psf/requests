@@ -255,6 +255,14 @@ class RequestsTestCase(unittest.TestCase):
                           files={'file': ('test_requests.py', open(__file__, 'rb'))})
         self.assertEqual(r.status_code, 200)
 
+    def test_custom_content_type(self):
+        r = requests.post(httpbin('post'),
+                          data={'stuff': json.dumps({'a': 123})},
+                          files={'file1': ('test_requests.py', open(__file__, 'rb')),
+                                 'file2': ('test_requests', open(__file__, 'rb'),
+                                           'text/py-content-type')})
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue("text/py-content-type" in r.request.body)
 
 
 if __name__ == '__main__':

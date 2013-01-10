@@ -118,3 +118,4 @@ Patches and Suggestions
 - Martijn Pieters
 - Jonatan Heyman
 - David Bonner <dbonner@gmail.com> @rascalking
+- Vinod Chandru
