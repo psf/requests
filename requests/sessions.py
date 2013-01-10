@@ -60,8 +60,9 @@ def merge_kwargs(local_kwarg, default_kwarg):
         return new_key
 
     kwargs = default_kwarg.copy()
+    original_keys = kwargs.keys()
     for key, value in local_kwarg.items():
-        kwargs[get_original_key(kwargs.keys(), key)] = value
+        kwargs[get_original_key(original_keys, key)] = value
 
     # Remove keys that are set to None.
     for (k, v) in local_kwarg.items():
