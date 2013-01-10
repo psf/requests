@@ -262,7 +262,7 @@ class RequestsTestCase(unittest.TestCase):
                                  'file2': ('test_requests', open(__file__, 'rb'),
                                            'text/py-content-type')})
         self.assertEqual(r.status_code, 200)
-        self.assertTrue("text/py-content-type" in r.request.body)
+        self.assertTrue(b"text/py-content-type" in r.request.body)
 
 
 if __name__ == '__main__':
