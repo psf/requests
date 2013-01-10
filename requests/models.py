@@ -108,8 +108,12 @@ class RequestEncodingMixin(object):
 
         for (k, v) in files:
             # support for explicit filename
+            ft = None
             if isinstance(v, (tuple, list)):
-                fn, fp = v
+                if len(v) == 2:
+                    fn, fp = v
+                else:
+                    fn, fp, ft = v
             else:
                 fn = guess_filename(v) or k
                 fp = v
@@ -117,7 +121,12 @@ class RequestEncodingMixin(object):
                 fp = StringIO(fp)
             if isinstance(fp, bytes):
                 fp = BytesIO(fp)
-            new_fields.append((k, (fn, fp.read())))
+            
+            if ft:
+                new_v = (fn, fp.read(), ft)
+            else:
+                new_v = (fn, fp.read())
+            new_fields.append((k, new_v))
 
         body, content_type = encode_multipart_formdata(new_fields)
 
