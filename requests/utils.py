@@ -40,6 +40,13 @@ def dict_to_sequence(d):
 
     return d
 
+def super_len(o):
+    if hasattr(o, '__len__'):
+        return len(o)
+    if hasattr(o, 'len'):
+        return o.len
+    if hasattr(o, 'fileno'):
+        return os.fstat(o.fileno()).st_size
 
 def get_netrc_auth(url):
     """Returns the Requests tuple auth for a given url from netrc."""
