@@ -120,18 +120,18 @@ class SessionRedirectMixin(object):
                 pass
 
             resp = self.request(
-                    url=url,
-                    method=method,
-                    headers=headers,
-                    auth=req.auth,
-                    cookies=req.cookies,
-                    allow_redirects=False,
-                    stream=stream,
-                    timeout=timeout,
-                    verify=verify,
-                    cert=cert,
-                    proxies=proxies
-                )
+                url=url,
+                method=method,
+                headers=headers,
+                auth=req.auth,
+                cookies=req.cookies,
+                allow_redirects=False,
+                stream=stream,
+                timeout=timeout,
+                verify=verify,
+                cert=cert,
+                proxies=proxies
+            )
 
             i += 1
             yield resp
@@ -204,19 +204,19 @@ class Session(SessionRedirectMixin):
         self.close()
 
     def request(self, method, url,
-        params=None,
-        data=None,
-        headers=None,
-        cookies=None,
-        files=None,
-        auth=None,
-        timeout=None,
-        allow_redirects=True,
-        proxies=None,
-        hooks=None,
-        stream=None,
-        verify=None,
-        cert=None):
+                params=None,
+                data=None,
+                headers=None,
+                cookies=None,
+                files=None,
+                auth=None,
+                timeout=None,
+                allow_redirects=True,
+                proxies=None,
+                hooks=None,
+                stream=None,
+                verify=None,
+                cert=None):
 
         cookies = cookies or {}
         proxies = proxies or {}
@@ -248,7 +248,6 @@ class Session(SessionRedirectMixin):
             if not verify and verify is not False:
                 verify = os.environ.get('CURL_CA_BUNDLE')
 
-
         # Merge all the kwargs.
         params = merge_kwargs(params, self.params)
         headers = merge_kwargs(headers, self.headers)
@@ -258,7 +257,6 @@ class Session(SessionRedirectMixin):
         stream = merge_kwargs(stream, self.stream)
         verify = merge_kwargs(verify, self.verify)
         cert = merge_kwargs(cert, self.cert)
-
 
         # Create the Request.
         req = Request()
