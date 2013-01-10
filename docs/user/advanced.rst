@@ -138,6 +138,28 @@ Excellent news — thanks to urllib3, keep-alive is 100% automatic within a ses
 Note that connections are only released back to the pool for reuse once all body data has been read; be sure to either set ``stream`` to ``False`` or read the ``content`` property of the ``Response`` object.
 
 
+Streaming Uploads
+-----------------
+
+Requests supports streaming uploads, which allow you to send large streams or files without reading them into memory. To stream and upload, simply provide a file-like object for your body::
+
+    with open('massive-body') as f:
+        request.post('http://some.url/streamed', data=f)
+
+
+Chunk-Encoded Requests
+----------------------
+
+Requests also supports Chunked transfer encoding for outgoing and incoming requests. To send a chunk-encoded request, simply provide a generator (or any iterator without a length) for your body::
+
+
+    def gen():
+        yield 'hi'
+        yield 'there'
+
+    request.post('http://some.url/chunked', data=gen())
+
+
 Event Hooks
 -----------
 

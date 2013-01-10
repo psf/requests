@@ -3,6 +3,15 @@
 History
 -------
 
+1.1.0 (2013-01-10)
+++++++++++++++++++
+
+- CHUNKED REQUESTS
+- Support for iterable response bodies
+- Assume servers persist redirect params
+- Allow explicit content types to be specified for file data
+- Make merge_kwargs case-insensitive when looking up keys
+
 1.0.3 (2012-12-18)
 ++++++++++++++++++
 
