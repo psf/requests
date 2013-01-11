@@ -12,9 +12,11 @@ from requests.auth import HTTPDigestAuth
 
 HTTPBIN = os.environ.get('HTTPBIN_URL', 'http://httpbin.org/')
 
+
 def httpbin(*suffix):
     """Returns url for HTTPBIN resource."""
     return HTTPBIN + '/'.join(suffix)
+
 
 class RequestsTestCase(unittest.TestCase):
 
@@ -54,20 +56,23 @@ class RequestsTestCase(unittest.TestCase):
         assert pr.url == req.url
         assert pr.body == 'life=42'
 
-
     def test_path_is_not_double_encoded(self):
         request = requests.Request('GET', "http://0.0.0.0/get/test case").prepare()
 
         self.assertEqual(request.path_url, "/get/test%20case")
 
     def test_params_are_added_before_fragment(self):
-        request = requests.Request('GET',
+        request = requests.Request(
+            'GET',
             "http://example.com/path#fragment", params={"a": "b"}).prepare()
-        self.assertEqual(request.url,
+        self.assertEqual(
+            request.url,
             "http://example.com/path?a=b#fragment")
-        request = requests.Request('GET',
+        request = requests.Request(
+            'GET',
             "http://example.com/path?key=value#fragment", params={"a": "b"}).prepare()
-        self.assertEqual(request.url,
+        self.assertEqual(
+            request.url,
             "http://example.com/path?key=value&a=b#fragment")
 
     def test_HTTP_200_OK_GET(self):
@@ -135,7 +140,6 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
 
     def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self):
-
 
         auth = ('user', 'pass')
         url = httpbin('basic-auth', 'user', 'pass')
