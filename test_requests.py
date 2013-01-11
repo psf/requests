@@ -93,10 +93,14 @@ class RequestsTestCase(unittest.TestCase):
     def test_HTTP_200_OK_GET_WITH_PARAMS(self):
         heads = {'User-agent': 'Mozilla/5.0'}
 
-        r = requests.get(httpbin('user-agent'), headers=heads)
+        response = requests.get(httpbin('user-agent'), headers=heads)
 
-        self.assertTrue(heads['User-agent'] in r.text)
-        self.assertEqual(r.status_code, 200)
+        # Assert that header keys aren't duplicated in the request
+        headers = response.request.headers
+        self.assertEqual(
+            len(headers), len(set([key.lower() for key in headers])))
+        self.assertTrue(heads['User-agent'] in response.text)
+        self.assertEqual(response.status_code, 200)
 
     def test_HTTP_200_OK_GET_WITH_MIXED_PARAMS(self):
         heads = {'User-agent': 'Mozilla/5.0'}
