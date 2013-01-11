@@ -380,7 +380,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 body.seek(0, 2)
                 self.headers['Content-Length'] = str(body.tell())
                 body.seek(0, 0)
-            elif body is not None:
+            elif hasattr(body,'__len__'):
                 self.headers['Content-Length'] = str(len(body))
 
             # Add content-type if it wasn't explicitly provided.
