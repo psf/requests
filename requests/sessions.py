@@ -13,7 +13,7 @@ import os
 from .compat import cookielib
 from .cookies import cookiejar_from_dict
 from .models import Request
-from .hooks import dispatch_hook, default_hooks
+from .hooks import default_hooks
 from .utils import from_key_val_list, default_headers
 from .exceptions import TooManyRedirects, InvalidSchema
 
@@ -293,9 +293,6 @@ class Session(SessionRedirectMixin):
             history.insert(0, resp)
             resp = history.pop()
             resp.history = tuple(history)
-
-        # Response manipulation hook.
-        self.response = dispatch_hook('response', hooks, resp)
 
         return resp
 

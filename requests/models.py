@@ -11,7 +11,7 @@ import collections
 import logging
 
 from io import BytesIO
-from .hooks import default_hooks
+from .hooks import default_hooks, HOOKS
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
 
@@ -225,6 +225,7 @@ class Request(RequestHooksMixin):
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
         p.prepare_auth(self.auth)
+        p.prepare_hooks(self.hooks)
 
         return p
 
@@ -414,6 +415,21 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             cookie_header = get_cookie_header(cookies, self)
             if cookie_header is not None:
                 self.headers['Cookie'] = cookie_header
+
+    def prepare_hooks(self, hooks):
+        """Prepares the given hooks."""
+        for event in HOOKS:
+            if event not in self.hooks:
+                self.hooks[event] = []
+            if event not in hooks:
+                hooks[event] = []
+
+            if not hasattr(self.hooks[event], '__iter__'):
+                self.hooks[event] = [self.hooks[event]]
+            if not hasattr(hooks[event], '__iter__'):
+                hooks[event] = [hooks[event]]
+
+            self.hooks[event].extend(hooks[event])
 
 
 class Response(object):
