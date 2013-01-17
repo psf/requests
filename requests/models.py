@@ -25,7 +25,7 @@ from .utils import (
     iter_slices, guess_json_utf, super_len)
 from .compat import (
     cookielib, urlparse, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
-    is_py2, chardet, json, builtin_str, basestring)
+    is_py2, chardet, json, builtin_str, basestring, ET)
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
@@ -602,6 +602,10 @@ class Response(object):
             if encoding is not None:
                 return json.loads(self.content.decode(encoding))
         return json.loads(self.text or self.content)
+
+    def xml(self):
+        """Returns the xml-encoded content of a response, if any"""
+        return ET.fromstring(self.text or self.content)
 
     @property
     def links(self):

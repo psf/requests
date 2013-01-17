@@ -264,6 +264,13 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertTrue(b"text/py-content-type" in r.request.body)
 
+    def test_returned_xml(self):
+        r = requests.get('http://github.com/blog.atom')
+        # assertisinstance is 2.7+ only
+        x = r.xml()
+        self.assertTrue(hasattr(x, 'find'))
+
+
 
 if __name__ == '__main__':
     unittest.main()
