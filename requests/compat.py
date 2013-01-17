@@ -90,6 +90,7 @@ if is_py2:
     from Cookie import Morsel
     from StringIO import StringIO
     from .packages.urllib3.packages.ordered_dict import OrderedDict
+    from xml.etree import cElementTree as ET
 
     builtin_str = str
     bytes = str
@@ -106,6 +107,7 @@ elif is_py3:
     from http.cookies import Morsel
     from io import StringIO
     from collections import OrderedDict
+    from xml.etree import ElementTree as ET
 
     builtin_str = str
     str = str
