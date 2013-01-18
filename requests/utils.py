@@ -28,8 +28,6 @@ _hush_pyflakes = (RequestsCookieJar,)
 
 NETRC_FILES = ('.netrc', '_netrc')
 
-# if certifi is installed, use its CA bundle;
-# otherwise, try and use the OS bundle
 DEFAULT_CA_BUNDLE_PATH = certs.where()
 
 def dict_to_sequence(d):
