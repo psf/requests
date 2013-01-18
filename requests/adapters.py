@@ -11,7 +11,7 @@ and maintain connections.
 import socket
 
 from .models import Response
-from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
+from .packages.urllib3.poolmanager import PoolManager, ProxyManager
 from .packages.urllib3.response import HTTPResponse
 from .hooks import dispatch_hook
 from .compat import urlparse, basestring, urldefrag
@@ -120,7 +120,7 @@ class HTTPAdapter(BaseAdapter):
 
         if proxy:
             proxy = prepend_scheme_if_needed(proxy, urlparse(url).scheme)
-            conn = proxy_from_url(proxy)
+            conn = ProxyManager(self.poolmanager.connection_from_url(proxy))
         else:
             conn = self.poolmanager.connection_from_url(url)
 
