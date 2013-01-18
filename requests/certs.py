@@ -14,17 +14,9 @@ packaged CA bundle.
 
 import os.path
 
-certifi = None
-try:
-    import certifi
-except ImportError:
-    pass
-
 def where():
     """Return the preferred certificate bundle."""
-    if certifi:
-        return certifi.where()
-
+    # vendored bundle inside Requests
     return os.path.join(os.path.dirname(__file__), 'cacert.pem')
 
 if __name__ == '__main__':
