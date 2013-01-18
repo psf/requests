@@ -5,10 +5,13 @@
 
 import json
 import os
+import os.path
 import unittest
+import urllib
 
 import requests
 from requests.auth import HTTPDigestAuth
+from requests.adapters import FileAdapter
 
 HTTPBIN = os.environ.get('HTTPBIN_URL', 'http://httpbin.org/')
 
@@ -263,6 +266,29 @@ class RequestsTestCase(unittest.TestCase):
                                            'text/py-content-type')})
         self.assertEqual(r.status_code, 200)
         self.assertTrue(b"text/py-content-type" in r.request.body)
+
+    def test_file_get(self):
+        s = requests.Session()
+        s.mount('file://', FileAdapter())
+        r = s.get('file://' + __file__)
+        print r.content
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue("magic_signature_text" in r.content)
+
+    def test_file_missing(self):
+        s = requests.Session()
+        s.mount('file://', FileAdapter())
+        r = s.get('file://this/file/does/not/exist')
+        print r.content
+        self.assertEqual(r.status_code, 404)
+
+    def test_file_dir_index(self):
+        s = requests.Session()
+        s.mount('file://', FileAdapter())
+        r = s.get('file://' + urllib.quote(os.path.dirname(__file__)))
+        print r.content
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(os.path.basename(__file__) in r.content)
 
 
 if __name__ == '__main__':
