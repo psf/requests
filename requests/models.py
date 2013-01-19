@@ -121,7 +121,7 @@ class RequestEncodingMixin(object):
                 fp = StringIO(fp)
             if isinstance(fp, bytes):
                 fp = BytesIO(fp)
-            
+
             if ft:
                 new_v = (fn, fp.read(), ft)
             else:
@@ -346,7 +346,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         ])
 
         try:
-            length = super_len(data)
+            length = str(super_len(data))
         except (TypeError, AttributeError):
             length = False
 

@@ -9,6 +9,12 @@ import unittest
 
 import requests
 from requests.auth import HTTPDigestAuth
+from requests.compat import str
+
+try:
+    import StringIO
+except ImportError:
+    import io as StringIO
 
 HTTPBIN = os.environ.get('HTTPBIN_URL', 'http://httpbin.org/')
 
@@ -131,8 +137,6 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
 
     def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self):
-
-
         auth = ('user', 'pass')
         url = httpbin('basic-auth', 'user', 'pass')
 
@@ -263,6 +267,11 @@ class RequestsTestCase(unittest.TestCase):
                                            'text/py-content-type')})
         self.assertEqual(r.status_code, 200)
         self.assertTrue(b"text/py-content-type" in r.request.body)
+
+    def test_content_length_is_string_for_file_objects(self):
+        r = requests.Request(url='http://httpbin.org/post',
+                             data=StringIO.StringIO('abc')).prepare()
+        self.assertTrue(type(r.headers['Content-Length']) == str)
 
 
 if __name__ == '__main__':
