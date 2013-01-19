@@ -268,11 +268,6 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertTrue(b"text/py-content-type" in r.request.body)
 
-    def test_content_length_is_string_for_file_objects(self):
-        r = requests.Request(url='http://httpbin.org/post',
-                             data=StringIO.StringIO('abc')).prepare()
-        self.assertTrue(type(r.headers['Content-Length']) == str)
-
 
 if __name__ == '__main__':
     unittest.main()
