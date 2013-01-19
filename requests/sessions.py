@@ -295,7 +295,7 @@ class Session(SessionRedirectMixin):
             resp.history = tuple(history)
 
         # Response manipulation hook.
-        self.response = dispatch_hook('response', hooks, resp)
+        resp = dispatch_hook('response', hooks, resp)
 
         return resp
 
