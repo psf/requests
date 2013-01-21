@@ -29,7 +29,7 @@ from .compat import (
 
 REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
-ITER_CHUNK_SIZE = 10 * 1024
+ITER_CHUNK_SIZE = 512
 
 log = logging.getLogger(__name__)
 
@@ -121,7 +121,7 @@ class RequestEncodingMixin(object):
                 fp = StringIO(fp)
             if isinstance(fp, bytes):
                 fp = BytesIO(fp)
-            
+
             if ft:
                 new_v = (fn, fp.read(), ft)
             else:
