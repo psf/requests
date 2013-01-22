@@ -58,6 +58,17 @@ class PoolManager(RequestMethods):
         self.pools = RecentlyUsedContainer(num_pools,
                                            dispose_func=lambda p: p.close())
 
+    def _new_pool(self, scheme, host, port):
+        """
+        Create a new :class:`ConnectionPool` based on host, port and scheme.
+
+        This method is used to actually create the connection pools handed out
+        by :meth:`connection_from_url` and companion methods. It is intended
+        to be overridden for customization.
+        """
+        pool_cls = pool_classes_by_scheme[scheme]
+        return pool_cls(host, port, **self.connection_pool_kw)
+
     def clear(self):
         """
         Empty our store of pools and direct them all to close.
@@ -74,6 +85,7 @@ class PoolManager(RequestMethods):
         If ``port`` isn't given, it will be derived from the ``scheme`` using
         ``urllib3.connectionpool.port_by_scheme``.
         """
+        scheme = scheme or 'http'
         port = port or port_by_scheme.get(scheme, 80)
 
         pool_key = (scheme, host, port)
@@ -85,11 +97,8 @@ class PoolManager(RequestMethods):
             return pool
 
         # Make a fresh ConnectionPool of the desired type
-        pool_cls = pool_classes_by_scheme[scheme]
-        pool = pool_cls(host, port, **self.connection_pool_kw)
-
+        pool = self._new_pool(scheme, host, port)
         self.pools[pool_key] = pool
-
         return pool
 
     def connection_from_url(self, url):
