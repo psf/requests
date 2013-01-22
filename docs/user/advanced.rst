@@ -144,7 +144,7 @@ Streaming Uploads
 Requests supports streaming uploads, which allow you to send large streams or files without reading them into memory. To stream and upload, simply provide a file-like object for your body::
 
     with open('massive-body') as f:
-        request.post('http://some.url/streamed', data=f)
+        requests.post('http://some.url/streamed', data=f)
 
 
 Chunk-Encoded Requests
@@ -157,7 +157,7 @@ Requests also supports Chunked transfer encoding for outgoing and incoming reque
         yield 'hi'
         yield 'there'
 
-    request.post('http://some.url/chunked', data=gen())
+    requests.post('http://some.url/chunked', data=gen())
 
 
 Event Hooks
