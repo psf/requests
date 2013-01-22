@@ -12,9 +12,11 @@ from requests.auth import HTTPDigestAuth
 
 HTTPBIN = os.environ.get('HTTPBIN_URL', 'http://httpbin.org/')
 
+
 def httpbin(*suffix):
     """Returns url for HTTPBIN resource."""
     return HTTPBIN + '/'.join(suffix)
+
 
 class RequestsTestCase(unittest.TestCase):
 
@@ -54,20 +56,23 @@ class RequestsTestCase(unittest.TestCase):
         assert pr.url == req.url
         assert pr.body == 'life=42'
 
-
     def test_path_is_not_double_encoded(self):
         request = requests.Request('GET', "http://0.0.0.0/get/test case").prepare()
 
         self.assertEqual(request.path_url, "/get/test%20case")
 
     def test_params_are_added_before_fragment(self):
-        request = requests.Request('GET',
+        request = requests.Request(
+            'GET',
             "http://example.com/path#fragment", params={"a": "b"}).prepare()
-        self.assertEqual(request.url,
+        self.assertEqual(
+            request.url,
             "http://example.com/path?a=b#fragment")
-        request = requests.Request('GET',
+        request = requests.Request(
+            'GET',
             "http://example.com/path?key=value#fragment", params={"a": "b"}).prepare()
-        self.assertEqual(request.url,
+        self.assertEqual(
+            request.url,
             "http://example.com/path?key=value&a=b#fragment")
 
     def test_HTTP_200_OK_GET(self):
@@ -93,10 +98,14 @@ class RequestsTestCase(unittest.TestCase):
     def test_HTTP_200_OK_GET_WITH_PARAMS(self):
         heads = {'User-agent': 'Mozilla/5.0'}
 
-        r = requests.get(httpbin('user-agent'), headers=heads)
+        response = requests.get(httpbin('user-agent'), headers=heads)
 
-        self.assertTrue(heads['User-agent'] in r.text)
-        self.assertEqual(r.status_code, 200)
+        # Assert that header keys aren't duplicated in the request
+        headers = response.request.headers
+        self.assertEqual(
+            len(headers), len(set([key.lower() for key in headers])))
+        self.assertTrue(heads['User-agent'] in response.text)
+        self.assertEqual(response.status_code, 200)
 
     def test_HTTP_200_OK_GET_WITH_MIXED_PARAMS(self):
         heads = {'User-agent': 'Mozilla/5.0'}
@@ -131,7 +140,6 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
 
     def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self):
-
 
         auth = ('user', 'pass')
         url = httpbin('basic-auth', 'user', 'pass')
