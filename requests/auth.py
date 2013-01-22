@@ -68,18 +68,21 @@ class HTTPDigestAuth(AuthBase):
         realm = self.chal['realm']
         nonce = self.chal['nonce']
         qop = self.chal.get('qop')
-        algorithm = self.chal.get('algorithm', 'MD5')
-        opaque = self.chal.get('opaque', None)
+        algorithm = self.chal.get('algorithm')
+        opaque = self.chal.get('opaque')
 
-        algorithm = algorithm.upper()
+        if algorithm is None:
+            _algorithm = 'MD5'
+        else:
+            _algorithm = algorithm.upper()
         # lambdas assume digest modules are imported at the top level
-        if algorithm == 'MD5':
+        if _algorithm == 'MD5':
             def md5_utf8(x):
                 if isinstance(x, str):
                     x = x.encode('utf-8')
                 return hashlib.md5(x).hexdigest()
             hash_utf8 = md5_utf8
-        elif algorithm == 'SHA':
+        elif _algorithm == 'SHA':
             def sha_utf8(x):
                 if isinstance(x, str):
                     x = x.encode('utf-8')
@@ -129,9 +132,10 @@ class HTTPDigestAuth(AuthBase):
            'response="%s"' % (self.username, realm, nonce, path, respdig)
         if opaque:
             base += ', opaque="%s"' % opaque
+        if algorithm:
+            base += ', algorithm="%s"' % algorithm
         if entdig:
             base += ', digest="%s"' % entdig
-            base += ', algorithm="%s"' % algorithm
         if qop:
             base += ', qop=auth, nc=%s, cnonce="%s"' % (ncvalue, cnonce)
 
