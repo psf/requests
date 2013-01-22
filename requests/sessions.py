@@ -275,6 +275,10 @@ class Session(SessionRedirectMixin):
         # Prepare the Request.
         prep = req.prepare()
 
+        # If auth hooks are present, they aren't passed to `dispatch_hook`
+        # As such, we need to update the original hooks dictionary with them
+        hooks.update(prep.hooks)
+
         # Send the request.
         resp = self.send(prep, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
 
