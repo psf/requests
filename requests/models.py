@@ -539,6 +539,41 @@ class Response(object):
         if pending is not None:
             yield pending
 
+    def download(self, file_name, chunk_size=ITER_CHUNK_SIZE, decode_unicode=None):
+        """Writes the raw response data to a file. Requires stream=True. Useful
+        for downloading large files without exhausting machine memory. If
+        file_name already exists it will be overwritten. Returns the response
+        content size in number of bytes or raises an exception."""
+
+        size = 0
+        f = open(file_name, 'wb')
+
+        if self._content is False:
+            try:
+                if self._content_consumed:
+                    raise RuntimeError(
+                        'The content for this response was already consumed')
+
+                if self.status_code is 0:
+                    self._content = None
+                else:
+                    self._content = bytes()
+                    for chunk in self.iter_content(chunk_size, decode_unicode=decode_unicode):
+                        f.write(chunk)
+                        size += len(chunk)
+
+            except AttributeError:
+                self._content = None
+
+        elif self._content is not None:
+            f.write(self._content)
+            size = len(self._content)
+
+        f.close()
+        self._content_consumed = True
+
+        return size
+
     @property
     def content(self):
         """Content of the response, in bytes."""
