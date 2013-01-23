@@ -225,6 +225,7 @@ class Request(RequestHooksMixin):
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
         p.prepare_auth(self.auth)
+        # This MUST go after prepare_auth. Authenticators could add a hook
         p.prepare_hooks(self.hooks)
 
         return p

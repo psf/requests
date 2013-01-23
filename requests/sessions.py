@@ -130,8 +130,9 @@ class SessionRedirectMixin(object):
                     timeout=timeout,
                     verify=verify,
                     cert=cert,
-                    proxies=proxies
-                )
+                    proxies=proxies,
+                    hooks=req.hooks,
+            )
 
             i += 1
             yield resp
