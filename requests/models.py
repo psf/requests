@@ -283,7 +283,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Support for unicode domain names and paths.
         scheme, netloc, path, _params, query, fragment = urlparse(url)
 
-        if not scheme:
+        if not (scheme and netloc):
             raise MissingSchema("Invalid URL %r: No schema supplied" % url)
 
         try:
