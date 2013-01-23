@@ -13,7 +13,7 @@ import os
 from .compat import cookielib
 from .cookies import cookiejar_from_dict
 from .models import Request
-from .hooks import default_hooks
+from .hooks import default_hooks, dispatch_hook
 from .utils import from_key_val_list, default_headers
 from .exceptions import TooManyRedirects, InvalidSchema
 
