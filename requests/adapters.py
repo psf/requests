@@ -11,9 +11,8 @@ and maintain connections.
 import socket
 
 from .models import Response
-from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
+from .packages.urllib3.poolmanager import PoolManager, ProxyManager
 from .packages.urllib3.response import HTTPResponse
-from .hooks import dispatch_hook
 from .compat import urlparse, basestring, urldefrag
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     prepend_scheme_if_needed)
@@ -109,8 +108,6 @@ class HTTPAdapter(BaseAdapter):
         response.request = req
         response.connection = self
 
-        # Run the Response hook.
-        response = dispatch_hook('response', req.hooks, response)
         return response
 
     def get_connection(self, url, proxies=None):
@@ -120,7 +117,7 @@ class HTTPAdapter(BaseAdapter):
 
         if proxy:
             proxy = prepend_scheme_if_needed(proxy, urlparse(url).scheme)
-            conn = proxy_from_url(proxy)
+            conn = ProxyManager(self.poolmanager.connection_from_url(proxy))
         else:
             conn = self.poolmanager.connection_from_url(url)
 

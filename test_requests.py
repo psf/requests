@@ -9,6 +9,12 @@ import unittest
 
 import requests
 from requests.auth import HTTPDigestAuth
+from requests.compat import str
+
+try:
+    import StringIO
+except ImportError:
+    import io as StringIO
 
 HTTPBIN = os.environ.get('HTTPBIN_URL', 'http://httpbin.org/')
 
@@ -131,8 +137,6 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
 
     def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self):
-
-
         auth = ('user', 'pass')
         url = httpbin('basic-auth', 'user', 'pass')
 

@@ -22,6 +22,7 @@ try:  # Test for SSL features
     SSLContext = None
     HAS_SNI = False
 
+    import ssl
     from ssl import wrap_socket, CERT_NONE, SSLError, PROTOCOL_SSLv23
     from ssl import SSLContext  # Modern SSL?
     from ssl import HAS_SNI  # Has SNI?
@@ -263,10 +264,48 @@ def is_connection_dropped(conn):
             return True
 
 
+def resolve_cert_reqs(candidate):
+    """
+    Resolves the argument to a numeric constant, which can be passed to
+    the wrap_socket function/method from the ssl module.
+    Defaults to :data:`ssl.CERT_NONE`.
+    If given a string it is assumed to be the name of the constant in the
+    :mod:`ssl` module or its abbrevation.
+    (So you can specify `REQUIRED` instead of `CERT_REQUIRED`.
+    If it's neither `None` nor a string we assume it is already the numeric
+    constant which can directly be passed to wrap_socket.
+    """
+    if candidate is None:
+        return CERT_NONE
+
+    if isinstance(candidate, str):
+        res = getattr(ssl, candidate, None)
+        if res is None:
+            res = getattr(ssl, 'CERT_' + candidate)
+        return res
+
+    return candidate
+
+
+def resolve_ssl_version(candidate):
+    """
+    like resolve_cert_reqs
+    """
+    if candidate is None:
+        return PROTOCOL_SSLv23
+
+    if isinstance(candidate, str):
+        res = getattr(ssl, candidate, None)
+        if res is None:
+            res = getattr(ssl, 'PROTOCOL_' + candidate)
+        return res
+
+    return candidate
+
 if SSLContext is not None:  # Python 3.2+
-    def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=CERT_NONE,
+    def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
                         ca_certs=None, server_hostname=None,
-                        ssl_version=PROTOCOL_SSLv23):
+                        ssl_version=None):
         """
         All arguments except `server_hostname` have the same meaning as for
         :func:`ssl.wrap_socket`
@@ -279,8 +318,9 @@ if SSLContext is not None:  # Python 3.2+
         if ca_certs:
             try:
                 context.load_verify_locations(ca_certs)
-            except TypeError as e:  # Reraise as SSLError
-                # FIXME: This block needs a test.
+            # Py32 raises IOError
+            # Py33 raises FileNotFoundError
+            except Exception as e:  # Reraise as SSLError
                 raise SSLError(e)
         if certfile:
             # FIXME: This block needs a test.
@@ -290,9 +330,9 @@ if SSLContext is not None:  # Python 3.2+
         return context.wrap_socket(sock)
 
 else:  # Python 3.1 and earlier
-    def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=CERT_NONE,
+    def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
                         ca_certs=None, server_hostname=None,
-                        ssl_version=PROTOCOL_SSLv23):
+                        ssl_version=None):
         return wrap_socket(sock, keyfile=keyfile, certfile=certfile,
                            ca_certs=ca_certs, cert_reqs=cert_reqs,
                            ssl_version=ssl_version)
