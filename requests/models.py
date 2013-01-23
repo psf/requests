@@ -11,7 +11,7 @@ import collections
 import logging
 
 from io import BytesIO
-from .hooks import default_hooks, HOOKS
+from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 from .status_codes import codes
 

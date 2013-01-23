@@ -276,10 +276,6 @@ class Session(SessionRedirectMixin):
         # Prepare the Request.
         prep = req.prepare()
 
-        # If auth hooks are present, they aren't passed to `dispatch_hook`
-        # As such, we need to update the original hooks dictionary with them
-        hooks.update(prep.hooks)
-
         # Send the request.
         resp = self.send(prep, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
 
@@ -298,9 +294,6 @@ class Session(SessionRedirectMixin):
             history.insert(0, resp)
             resp = history.pop()
             resp.history = tuple(history)
-
-        # Response manipulation hook.
-        resp = dispatch_hook('response', hooks, resp)
 
         return resp
 
@@ -375,8 +368,11 @@ class Session(SessionRedirectMixin):
 
     def send(self, request, **kwargs):
         """Send a given PreparedRequest."""
+        hooks = request.hooks
         adapter = self.get_adapter(url=request.url)
         r = adapter.send(request, **kwargs)
+        # Response manipulation hooks
+        r = dispatch_hook('response', hooks, r)
         return r
 
     def get_adapter(self, url):
