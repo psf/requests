@@ -110,6 +110,12 @@ class RequestsTestCase(unittest.TestCase):
         r = requests.get(httpbin('get') + '?test=true', params={'q': 'test'}, headers=heads)
         self.assertEqual(r.status_code, 200)
 
+    def test_HTTP_200_OK_GET_DOWNLOAD(self):
+        r = requests.get(httpbin('get'), stream=True)
+        self.assertEqual(r.status_code, 200)
+        size = r.download('/dev/null')
+        self.assertTrue(size > 0)
+
     def test_user_agent_transfers(self):
 
         heads = {
