@@ -596,8 +596,11 @@ class Response(object):
 
         return content
 
-    def json(self):
-        """Returns the json-encoded content of a response, if any."""
+    def json(self, **kwargs):
+        """Returns the json-encoded content of a response, if any.
+
+        :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
+        """
 
         if not self.encoding and len(self.content) > 3:
             # No encoding set. JSON RFC 4627 section 3 states we should expect
@@ -606,8 +609,8 @@ class Response(object):
             # a best guess).
             encoding = guess_json_utf(self.content)
             if encoding is not None:
-                return json.loads(self.content.decode(encoding))
-        return json.loads(self.text or self.content)
+                return json.loads(self.content.decode(encoding), **kwargs)
+        return json.loads(self.text or self.content, **kwargs)
 
     @property
     def links(self):
