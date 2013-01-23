@@ -424,18 +424,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_hooks(self, hooks):
         """Prepares the given hooks."""
-        for event in HOOKS:
-            if event not in self.hooks:
-                self.hooks[event] = []
-            if event not in hooks:
-                hooks[event] = []
-
-            if not hasattr(self.hooks[event], '__iter__'):
-                self.hooks[event] = [self.hooks[event]]
-            if not hasattr(hooks[event], '__iter__'):
-                hooks[event] = [hooks[event]]
-
-            self.hooks[event].extend(hooks[event])
+        for event in hooks:
+            self.register_hook(event, hooks[event])
 
 
 class Response(object):
