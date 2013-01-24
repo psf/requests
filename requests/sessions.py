@@ -279,15 +279,24 @@ class Session(SessionRedirectMixin):
         # As such, we need to update the original hooks dictionary with them
         hooks.update(prep.hooks)
 
+        # These will be attached to the requests, so hooks can use them to
+        # make derivitive requests.
+        send_kwargs = {'stream': stream, 'timeout': timeout, 'verify': verify,
+                        'cert': cert, 'proxies': proxies}
+
         # Send the request.
-        resp = self.send(prep, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
+        resp = self.send(prep, **send_kwargs)
+
+        # Attach the kwargs that should be passed to send on subsequent
+        # requests
+        resp.send_kwargs = send_kwargs
 
         # Persist cookies.
         for cookie in resp.cookies:
             self.cookies.set_cookie(cookie)
 
         # Redirect resolving generator.
-        gen = self.resolve_redirects(resp, req, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
+        gen = self.resolve_redirects(resp, req, **send_kwargs)
 
         # Resolve redirects if allowed.
         history = [r for r in gen] if allow_redirects else []
