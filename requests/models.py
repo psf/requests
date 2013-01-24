@@ -471,6 +471,9 @@ class Response(object):
         #: A CookieJar of Cookies the server sent back.
         self.cookies = cookiejar_from_dict({})
 
+        #: The amount of time taken for the response to arrive (in seconds).
+        self.time_taken = 0.0
+
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
 
