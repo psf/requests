@@ -157,7 +157,7 @@ class HTTPDigestAuth(AuthBase):
             r.raw.release_conn()
 
             r.request.headers['Authorization'] = self.build_digest_header(r.request.method, r.request.url)
-            _r = r.connection.send(r.request)
+            _r = r.connection.send(r.request, **r.send_kwargs)
             _r.history.append(r)
 
             return _r
