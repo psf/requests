@@ -34,9 +34,6 @@ class RequestsTestCase(unittest.TestCase):
         """Teardown."""
         pass
 
-    def test_assertion(self):
-        assert 1
-
     def test_entry_points(self):
 
         requests.session
