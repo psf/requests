@@ -225,6 +225,8 @@ class Request(RequestHooksMixin):
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
         p.prepare_auth(self.auth)
+        # This MUST go after prepare_auth. Authenticators could add a hook
+        p.prepare_hooks(self.hooks)
 
         return p
 
@@ -420,6 +422,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             cookie_header = get_cookie_header(cookies, self)
             if cookie_header is not None:
                 self.headers['Cookie'] = cookie_header
+
+    def prepare_hooks(self, hooks):
+        """Prepares the given hooks."""
+        for event in hooks:
+            self.register_hook(event, hooks[event])
 
 
 class Response(object):
