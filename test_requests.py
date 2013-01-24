@@ -34,9 +34,6 @@ class RequestsTestCase(unittest.TestCase):
         """Teardown."""
         pass
 
-    def test_assertion(self):
-        assert 1
-
     def test_entry_points(self):
 
         requests.session
@@ -75,10 +72,6 @@ class RequestsTestCase(unittest.TestCase):
             "http://example.com/path?key=value#fragment", params={"a": "b"}).prepare()
         self.assertEqual(request.url,
             "http://example.com/path?key=value&a=b#fragment")
-
-    def test_HTTP_200_OK_GET(self):
-        r = requests.get(httpbin('get'))
-        self.assertEqual(r.status_code, 200)
 
     def test_HTTP_200_OK_GET_ALTERNATIVE(self):
         r = requests.Request('GET', httpbin('get'))
@@ -280,6 +273,11 @@ class RequestsTestCase(unittest.TestCase):
         resp = s.send(prep)
 
         self.assertTrue(hasattr(resp, 'hook_working'))
+
+    def test_links(self):
+        url = 'https://api.github.com/users/kennethreitz/repos?page=1&per_page=10'
+        r = requests.head(url=url)
+        self.assertEqual(r.links['next']['rel'], 'next')
 
 
 if __name__ == '__main__':
