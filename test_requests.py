@@ -265,6 +265,11 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertTrue(b"text/py-content-type" in r.request.body)
 
+    def test_links(self):
+        url = 'https://api.github.com/users/kennethreitz/repos?page=1&per_page=10'
+        r = requests.head(url=url)
+        self.assertEqual(r.links['next']['rel'], 'next')
+
 
 if __name__ == '__main__':
     unittest.main()
