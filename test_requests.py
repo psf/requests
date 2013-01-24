@@ -261,6 +261,19 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertTrue(b"text/py-content-type" in r.request.body)
 
+    def test_prepared_request_hook(self):
+        def hook(resp):
+            resp.hook_working = True
+            return resp
+
+        req = requests.Request('GET', HTTPBIN, hooks={'response': hook})
+        prep = req.prepare()
+
+        s = requests.Session()
+        resp = s.send(prep)
+
+        self.assertTrue(hasattr(resp, 'hook_working'))
+
     def test_links(self):
         url = 'https://api.github.com/users/kennethreitz/repos?page=1&per_page=10'
         r = requests.head(url=url)

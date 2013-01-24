@@ -13,7 +13,7 @@ import os
 from .compat import cookielib
 from .cookies import cookiejar_from_dict
 from .models import Request
-from .hooks import dispatch_hook, default_hooks
+from .hooks import default_hooks, dispatch_hook
 from .utils import from_key_val_list, default_headers
 from .exceptions import TooManyRedirects, InvalidSchema
 
@@ -130,8 +130,9 @@ class SessionRedirectMixin(object):
                     timeout=timeout,
                     verify=verify,
                     cert=cert,
-                    proxies=proxies
-                )
+                    proxies=proxies,
+                    hooks=req.hooks,
+            )
 
             i += 1
             yield resp
@@ -275,10 +276,6 @@ class Session(SessionRedirectMixin):
         # Prepare the Request.
         prep = req.prepare()
 
-        # If auth hooks are present, they aren't passed to `dispatch_hook`
-        # As such, we need to update the original hooks dictionary with them
-        hooks.update(prep.hooks)
-
         # Send the request.
         resp = self.send(prep, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
 
@@ -297,9 +294,6 @@ class Session(SessionRedirectMixin):
             history.insert(0, resp)
             resp = history.pop()
             resp.history = tuple(history)
-
-        # Response manipulation hook.
-        resp = dispatch_hook('response', hooks, resp)
 
         return resp
 
@@ -374,8 +368,11 @@ class Session(SessionRedirectMixin):
 
     def send(self, request, **kwargs):
         """Send a given PreparedRequest."""
+        hooks = request.hooks
         adapter = self.get_adapter(url=request.url)
         r = adapter.send(request, **kwargs)
+        # Response manipulation hooks
+        r = dispatch_hook('response', hooks, r)
         return r
 
     def get_adapter(self, url):
