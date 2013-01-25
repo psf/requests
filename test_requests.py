@@ -277,7 +277,7 @@ class RequestsTestCase(unittest.TestCase):
         jar.set(key, value, secure=secure, domain=domain, rest=rest)
 
         self.assertEqual(len(jar), 1)
-        self.assertIn('some_cookie', jar)
+        self.assertTrue('some_cookie' in jar)
 
         cookie = list(jar)[0]
         self.assertEqual(cookie.secure, secure)
