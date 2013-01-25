@@ -58,6 +58,11 @@ class RequestsTestCase(unittest.TestCase):
         assert pr.body == 'life=42'
 
 
+    def test_no_content_length(self):
+        req = requests.Request('GET', httpbin('get')).prepare()
+        self.assertNotIn('Content-Length', req.headers)
+
+
     def test_path_is_not_double_encoded(self):
         request = requests.Request('GET', "http://0.0.0.0/get/test case").prepare()
 
