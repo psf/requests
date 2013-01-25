@@ -60,7 +60,7 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_no_content_length(self):
         req = requests.Request('GET', httpbin('get')).prepare()
-        self.assertNotIn('Content-Length', req.headers)
+        self.assertTrue('Content-Length' not in req.headers)
 
 
     def test_path_is_not_double_encoded(self):
