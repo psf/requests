@@ -282,8 +282,27 @@ class RequestsTestCase(unittest.TestCase):
         self.assertTrue(hasattr(resp, 'hook_working'))
 
     def test_links(self):
-        url = 'https://api.github.com/users/kennethreitz/repos?page=1&per_page=10'
-        r = requests.head(url=url)
+        r = requests.Response()
+        r.headers = {
+            'cache-control': 'public, max-age=60, s-maxage=60',
+            'connection': 'keep-alive',
+            'content-encoding': 'gzip',
+            'content-type': 'application/json; charset=utf-8',
+            'date': 'Sat, 26 Jan 2013 16:47:56 GMT',
+            'etag': '"6ff6a73c0e446c1f61614769e3ceb778"',
+            'last-modified': 'Sat, 26 Jan 2013 16:22:39 GMT',
+            'link': ('<https://api.github.com/users/kennethreitz/repos?'
+                     'page=2&per_page=10>; rel="next", <https://api.github.'
+                     'com/users/kennethreitz/repos?page=7&per_page=10>; '
+                     ' rel="last"'),
+            'server': 'GitHub.com',
+            'status': '200 OK',
+            'vary': 'Accept',
+            'x-content-type-options': 'nosniff',
+            'x-github-media-type': 'github.beta',
+            'x-ratelimit-limit': '60',
+            'x-ratelimit-remaining': '57'
+        }
         self.assertEqual(r.links['next']['rel'], 'next')
 
     def test_cookie_parameters(self):
