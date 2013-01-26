@@ -329,7 +329,7 @@ class RequestsTestCase(unittest.TestCase):
         r = requests.Response()
         io = StringIO.StringIO('abc')
         r.raw = io
-        self.assertTrue(iter(r).next())
+        self.assertTrue(next(iter(r)))
         io.close()
 
 if __name__ == '__main__':
