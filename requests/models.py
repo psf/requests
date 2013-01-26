@@ -487,7 +487,7 @@ class Response(object):
         return self.ok
 
     def __iter__(self):
-        """Returns the current object."""
+        """Allows you to use a response as an iterator."""
         return self.iter_content(128)
 
     @property
