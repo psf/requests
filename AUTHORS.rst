@@ -119,3 +119,4 @@ Patches and Suggestions
 - Jonatan Heyman
 - David Bonner <dbonner@gmail.com> @rascalking
 - Vinod Chandru
+- Johnny Goodnow <j.goodnow29@gmail.com>
