@@ -286,6 +286,23 @@ class RequestsTestCase(unittest.TestCase):
         r = requests.head(url=url)
         self.assertEqual(r.links['next']['rel'], 'next')
 
+    def test_cookie_parameters(self):
+        key = 'some_cookie'
+        value = 'some_value'
+        secure = True
+        domain = 'test.com'
+        rest = {'HttpOnly': True}
+
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set(key, value, secure=secure, domain=domain, rest=rest)
+
+        self.assertEqual(len(jar), 1)
+        self.assertTrue('some_cookie' in jar)
+
+        cookie = list(jar)[0]
+        self.assertEqual(cookie.secure, secure)
+        self.assertEqual(cookie.domain, domain)
+        self.assertEqual(cookie._rest['HttpOnly'], rest['HttpOnly'])
 
 if __name__ == '__main__':
     unittest.main()
