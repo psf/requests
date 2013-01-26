@@ -392,7 +392,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             body.seek(0, 0)
         elif body is not None:
             self.headers['Content-Length'] = str(len(body))
-        elif self.method in ('POST', 'PUT', 'PATCH'):
+        elif self.method not in ('GET', 'HEAD'):
             self.headers['Content-Length'] = '0'
 
     def prepare_auth(self, auth):
