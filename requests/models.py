@@ -486,6 +486,10 @@ class Response(object):
         """Returns true if :attr:`status_code` is 'OK'."""
         return self.ok
 
+    def __iter__(self):
+        """Returns the current object."""
+        return self.iter_content(128)
+
     @property
     def ok(self):
         try:
