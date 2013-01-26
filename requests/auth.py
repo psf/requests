@@ -144,24 +144,26 @@ class HTTPDigestAuth(AuthBase):
     def handle_401(self, r):
         """Takes the given response and tries digest-auth, if needed."""
 
-        num_401_calls = r.request.hooks['response'].count(self.handle_401)
+        num_401_calls =  getattr(self, 'num_401_calls', 1)
         s_auth = r.headers.get('www-authenticate', '')
 
         if 'digest' in s_auth.lower() and num_401_calls < 2:
 
+            setattr(self, 'num_401_calls', num_401_calls + 1)
             self.chal = parse_dict_header(s_auth.replace('Digest ', ''))
 
             # Consume content and release the original connection
             # to allow our new request to reuse the same one.
             r.content
             r.raw.release_conn()
-
+            
             r.request.headers['Authorization'] = self.build_digest_header(r.request.method, r.request.url)
             _r = r.connection.send(r.request)
             _r.history.append(r)
 
             return _r
 
+        setattr(self, 'num_401_calls', 1)  
         return r
 
     def __call__(self, r):
