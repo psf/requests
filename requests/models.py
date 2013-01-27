@@ -188,7 +188,6 @@ class Request(RequestHooksMixin):
         cookies=None,
         hooks=None):
 
-
         # Default empty dicts for dict params.
         data = [] if data is None else data
         files = [] if files is None else files
@@ -529,9 +528,8 @@ class Response(object):
 
         pending = None
 
-        for chunk in self.iter_content(
-            chunk_size=chunk_size,
-            decode_unicode=decode_unicode):
+        for chunk in self.iter_content(chunk_size=chunk_size,
+                                       decode_unicode=decode_unicode):
 
             if pending is not None:
                 chunk = pending + chunk

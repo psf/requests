@@ -14,6 +14,7 @@ packaged CA bundle.
 
 import os.path
 
+
 def where():
     """Return the preferred certificate bundle."""
     # vendored bundle inside Requests

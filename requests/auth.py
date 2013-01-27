@@ -36,6 +36,7 @@ class AuthBase(object):
     def __call__(self, r):
         raise NotImplementedError('Auth hooks must be callable.')
 
+
 class HTTPBasicAuth(AuthBase):
     """Attaches HTTP Basic Authentication to the given Request object."""
     def __init__(self, username, password):
@@ -129,7 +130,7 @@ class HTTPDigestAuth(AuthBase):
 
         # XXX should the partial digests be encoded too?
         base = 'username="%s", realm="%s", nonce="%s", uri="%s", ' \
-           'response="%s"' % (self.username, realm, nonce, path, respdig)
+               'response="%s"' % (self.username, realm, nonce, path, respdig)
         if opaque:
             base += ', opaque="%s"' % opaque
         if algorithm:
@@ -144,7 +145,7 @@ class HTTPDigestAuth(AuthBase):
     def handle_401(self, r):
         """Takes the given response and tries digest-auth, if needed."""
 
-        num_401_calls =  getattr(self, 'num_401_calls', 1)
+        num_401_calls = getattr(self, 'num_401_calls', 1)
         s_auth = r.headers.get('www-authenticate', '')
 
         if 'digest' in s_auth.lower() and num_401_calls < 2:
@@ -156,14 +157,14 @@ class HTTPDigestAuth(AuthBase):
             # to allow our new request to reuse the same one.
             r.content
             r.raw.release_conn()
-            
+
             r.request.headers['Authorization'] = self.build_digest_header(r.request.method, r.request.url)
             _r = r.connection.send(r.request)
             _r.history.append(r)
 
             return _r
 
-        setattr(self, 'num_401_calls', 1)  
+        setattr(self, 'num_401_calls', 1)
         return r
 
     def __call__(self, r):

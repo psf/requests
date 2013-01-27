@@ -120,18 +120,18 @@ class SessionRedirectMixin(object):
                 pass
 
             resp = self.request(
-                    url=url,
-                    method=method,
-                    headers=headers,
-                    auth=req.auth,
-                    cookies=req.cookies,
-                    allow_redirects=False,
-                    stream=stream,
-                    timeout=timeout,
-                    verify=verify,
-                    cert=cert,
-                    proxies=proxies,
-                    hooks=req.hooks,
+                url=url,
+                method=method,
+                headers=headers,
+                auth=req.auth,
+                cookies=req.cookies,
+                allow_redirects=False,
+                stream=stream,
+                timeout=timeout,
+                verify=verify,
+                cert=cert,
+                proxies=proxies,
+                hooks=req.hooks,
             )
 
             i += 1
@@ -249,7 +249,6 @@ class Session(SessionRedirectMixin):
             if not verify and verify is not False:
                 verify = os.environ.get('CURL_CA_BUNDLE')
 
-
         # Merge all the kwargs.
         params = merge_kwargs(params, self.params)
         headers = merge_kwargs(headers, self.headers)
@@ -259,7 +258,6 @@ class Session(SessionRedirectMixin):
         stream = merge_kwargs(stream, self.stream)
         verify = merge_kwargs(verify, self.verify)
         cert = merge_kwargs(cert, self.cert)
-
 
         # Create the Request.
         req = Request()

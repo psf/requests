@@ -18,9 +18,11 @@ except ImportError:
 
 HTTPBIN = os.environ.get('HTTPBIN_URL', 'http://httpbin.org/')
 
+
 def httpbin(*suffix):
     """Returns url for HTTPBIN resource."""
     return HTTPBIN + '/'.join(suffix)
+
 
 class RequestsTestCase(unittest.TestCase):
 
@@ -57,13 +59,11 @@ class RequestsTestCase(unittest.TestCase):
         assert pr.url == req.url
         assert pr.body == 'life=42'
 
-
     def test_no_content_length(self):
         get_req = requests.Request('GET', httpbin('get')).prepare()
         self.assertTrue('Content-Length' not in get_req.headers)
         head_req = requests.Request('HEAD', httpbin('head')).prepare()
         self.assertTrue('Content-Length' not in head_req.headers)
-
 
     def test_path_is_not_double_encoded(self):
         request = requests.Request('GET', "http://0.0.0.0/get/test case").prepare()
@@ -113,16 +113,14 @@ class RequestsTestCase(unittest.TestCase):
     def test_user_agent_transfers(self):
 
         heads = {
-            'User-agent':
-                'Mozilla/5.0 (github.com/kennethreitz/requests)'
+            'User-agent': 'Mozilla/5.0 (github.com/kennethreitz/requests)'
         }
 
         r = requests.get(httpbin('user-agent'), headers=heads)
         self.assertTrue(heads['User-agent'] in r.text)
 
         heads = {
-            'user-agent':
-                'Mozilla/5.0 (github.com/kennethreitz/requests)'
+            'user-agent': 'Mozilla/5.0 (github.com/kennethreitz/requests)'
         }
 
         r = requests.get(httpbin('user-agent'), headers=heads)
