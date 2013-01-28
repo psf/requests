@@ -9,6 +9,7 @@ requests (cookies, auth, proxies).
 
 """
 import os
+from datetime import datetime
 
 from .compat import cookielib
 from .cookies import cookiejar_from_dict
@@ -368,7 +369,9 @@ class Session(SessionRedirectMixin):
         """Send a given PreparedRequest."""
         hooks = request.hooks
         adapter = self.get_adapter(url=request.url)
+        start = datetime.utcnow()
         r = adapter.send(request, **kwargs)
+        r.elapsed = datetime.utcnow() - start
         # Response manipulation hooks
         r = dispatch_hook('response', hooks, r)
         return r
