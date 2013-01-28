@@ -9,7 +9,7 @@ and maintain connections.
 """
 
 import socket
-import time
+import datetime
 
 from .models import Response
 from .packages.urllib3.poolmanager import PoolManager, ProxyManager
@@ -156,7 +156,7 @@ class HTTPAdapter(BaseAdapter):
         url = self.request_url(request, proxies)
 
         chunked = not (request.body is None or 'Content-Length' in request.headers)
-        start = time.time()
+        start = datetime.datetime.utcnow()
 
         try:
             if not chunked:
@@ -200,7 +200,7 @@ class HTTPAdapter(BaseAdapter):
                     preload_content=False,
                     decode_content=False
                 )
-            finish = time.time()
+            finish = datetime.datetime.utcnow()
 
         except socket.error as sockerr:
             raise ConnectionError(sockerr)
@@ -217,7 +217,7 @@ class HTTPAdapter(BaseAdapter):
                 raise Timeout('Request timed out.')
 
         r = self.build_response(request, resp)
-        r.time_taken = finish - start
+        r.elapsed = finish - start
 
         if not stream:
             r.content

@@ -9,6 +9,7 @@ This module contains the primary objects that power Requests.
 
 import collections
 import logging
+import datetime
 
 from io import BytesIO
 from .hooks import default_hooks
@@ -471,8 +472,9 @@ class Response(object):
         #: A CookieJar of Cookies the server sent back.
         self.cookies = cookiejar_from_dict({})
 
-        #: The amount of time taken for the response to arrive (in seconds).
-        self.time_taken = 0.0
+        #: The amount of time elapsed between sending the request
+        #: and the arrival of the response (as a timedelta)
+        self.elapsed = datetime.timedelta(0)
 
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
