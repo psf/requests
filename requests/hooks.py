@@ -16,6 +16,7 @@ Available hooks:
 
 HOOKS = ['response']
 
+
 def default_hooks():
     hooks = {}
     for event in HOOKS:
@@ -23,6 +24,7 @@ def default_hooks():
     return hooks
 
 # TODO: response is the only one
+
 
 def dispatch_hook(key, hooks, hook_data):
     """Dispatches a hook dictionary on a given piece of data."""
