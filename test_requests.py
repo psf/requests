@@ -323,5 +323,10 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(cookie.domain, domain)
         self.assertEqual(cookie._rest['HttpOnly'], rest['HttpOnly'])
 
+    def test_time_elapsed_blank(self):
+        r = requests.get(httpbin('get'))
+        self.assertTrue(r.elapsed.total_seconds() > 0.0)
+
+
 if __name__ == '__main__':
     unittest.main()
