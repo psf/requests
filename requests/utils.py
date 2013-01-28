@@ -30,6 +30,7 @@ NETRC_FILES = ('.netrc', '_netrc')
 
 DEFAULT_CA_BUNDLE_PATH = certs.where()
 
+
 def dict_to_sequence(d):
     """Returns an internal sequence dictionary update."""
 
@@ -38,6 +39,7 @@ def dict_to_sequence(d):
 
     return d
 
+
 def super_len(o):
     if hasattr(o, '__len__'):
         return len(o)
@@ -45,6 +47,7 @@ def super_len(o):
         return o.len
     if hasattr(o, 'fileno'):
         return os.fstat(o.fileno()).st_size
+
 
 def get_netrc_auth(url):
     """Returns the Requests tuple auth for a given url from netrc."""
@@ -464,11 +467,9 @@ def default_user_agent():
     if _implementation == 'CPython':
         _implementation_version = platform.python_version()
     elif _implementation == 'PyPy':
-        _implementation_version = '%s.%s.%s' % (
-                                                sys.pypy_version_info.major,
+        _implementation_version = '%s.%s.%s' % (sys.pypy_version_info.major,
                                                 sys.pypy_version_info.minor,
-                                                sys.pypy_version_info.micro
-                                            )
+                                                sys.pypy_version_info.micro)
         if sys.pypy_version_info.releaselevel != 'final':
             _implementation_version = ''.join([_implementation_version, sys.pypy_version_info.releaselevel])
     elif _implementation == 'Jython':
@@ -485,11 +486,10 @@ def default_user_agent():
         p_system = 'Unknown'
         p_release = 'Unknown'
 
-    return " ".join([
-            'python-requests/%s' % __version__,
-            '%s/%s' % (_implementation, _implementation_version),
-            '%s/%s' % (p_system, p_release),
-        ])
+    return " ".join(['python-requests/%s' % __version__,
+                     '%s/%s' % (_implementation, _implementation_version),
+                     '%s/%s' % (p_system, p_release)])
+
 
 def default_headers():
     return {
@@ -522,7 +522,7 @@ def parse_header_links(value):
 
         for param in params.split(";"):
             try:
-                key,value = param.split("=")
+                key, value = param.split("=")
             except ValueError:
                 break
 

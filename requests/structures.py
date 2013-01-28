@@ -11,6 +11,7 @@ Data structures that power Requests.
 import os
 from itertools import islice
 
+
 class IteratorProxy(object):
     """docstring for IteratorProxy"""
     def __init__(self, i):
@@ -30,6 +31,7 @@ class IteratorProxy(object):
 
     def read(self, n):
         return "".join(islice(self.i, None, n))
+
 
 class CaseInsensitiveDict(dict):
     """Case-insensitive Dictionary
