@@ -325,6 +325,12 @@ class RequestsTestCase(unittest.TestCase):
         r = requests.get(httpbin('get'))
         self.assertTrue(r.elapsed.total_seconds() > 0.0)
 
+    def test_response_is_iterable(self):
+        r = requests.Response()
+        io = StringIO.StringIO('abc')
+        r.raw = io
+        self.assertTrue(next(iter(r)))
+        io.close()
 
 if __name__ == '__main__':
     unittest.main()
