@@ -367,12 +367,8 @@ class Session(SessionRedirectMixin):
         """Send a given PreparedRequest."""
         # Set up variables needed for resolve_redirects and dispatching of
         # hooks
-        allow_redirects = True
-        if 'allow_redirects' in kwargs:
-            allow_redirects = kwargs.pop('allow_redirects')
-        req = None
-        if 'req' in kwargs:
-            req = kwargs.pop('req')
+        allow_redirects = kwargs.pop('allow_redirects', True)
+        req = kwargs.pop('req', None)
         stream = kwargs.get('stream', False)
         timeout = kwargs.get('timeout')
         verify = kwargs.get('verify')
