@@ -75,7 +75,8 @@ def merge_kwargs(local_kwarg, default_kwarg):
 
 class SessionRedirectMixin(object):
 
-    def resolve_redirects(self, resp, req, stream=False, timeout=None, verify=True, cert=None, proxies=None):
+    def resolve_redirects(self, resp, req, stream=False, timeout=None,
+                          verify=True, cert=None, proxies=None):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
@@ -276,23 +277,20 @@ class Session(SessionRedirectMixin):
         prep = req.prepare()
 
         # Send the request.
-        resp = self.send(prep, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
+        send_kwargs = {
+            'stream': stream,
+            'timeout': timeout,
+            'verify': verify,
+            'cert': cert,
+            'proxies': proxies,
+            'allow_redirects': allow_redirects,
+            'req': req,
+        }
+        resp = self.send(prep, **send_kwargs)
 
         # Persist cookies.
         for cookie in resp.cookies:
             self.cookies.set_cookie(cookie)
-
-        # Redirect resolving generator.
-        gen = self.resolve_redirects(resp, req, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
-
-        # Resolve redirects if allowed.
-        history = [r for r in gen] if allow_redirects else []
-
-        # Shuffle things around if there's history.
-        if history:
-            history.insert(0, resp)
-            resp = history.pop()
-            resp.history = tuple(history)
 
         return resp
 
@@ -367,13 +365,49 @@ class Session(SessionRedirectMixin):
 
     def send(self, request, **kwargs):
         """Send a given PreparedRequest."""
+        # Set up variables needed for resolve_redirects and dispatching of
+        # hooks
+        allow_redirects = True
+        if 'allow_redirects' in kwargs:
+            allow_redirects = kwargs.pop('allow_redirects')
+        req = None
+        if 'req' in kwargs:
+            req = kwargs.pop('req')
+        stream = kwargs.get('stream', False)
+        timeout = kwargs.get('timeout')
+        verify = kwargs.get('verify')
+        cert = kwargs.get('cert')
+        proxies = kwargs.get('proxies')
         hooks = request.hooks
+
+        # Get the appropriate adapter to use
         adapter = self.get_adapter(url=request.url)
+
+        # Start time (approximately) of the request
         start = datetime.utcnow()
+        # Send the request
         r = adapter.send(request, **kwargs)
+        # Total elapsed time of the request (approximately)
         r.elapsed = datetime.utcnow() - start
+
+        # Redirect resolving generator.
+        gen = self.resolve_redirects(r, req, stream=stream, timeout=timeout,
+                                     verify=verify, cert=cert, proxies=proxies)
+
+        # Resolve redirects if allowed.
+        history = [resp for resp in gen] if allow_redirects else []
+
+        # Shuffle things around if there's history.
+        if history:
+            # Insert the first (original) request at the start
+            history.insert(0, r)
+            # Get the last request made
+            r = history.pop()
+            r.history = tuple(history)
+
         # Response manipulation hooks
         r = dispatch_hook('response', hooks, r)
+
         return r
 
     def get_adapter(self, url):
