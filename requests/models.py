@@ -628,6 +628,18 @@ class Response(object):
                 return json.loads(self.content.decode(encoding), **kwargs)
         return json.loads(self.text or self.content, **kwargs)
 
+    def ppjson(self, **kwargs):
+        """Returns the prettyfied string based on the json-encoded
+        content of a response, if any.
+
+        :param \*\*kwargs: Optional arguments that ``json.dumps`` takes.
+        """
+
+        ppjson_kwargs = {'sort_keys': True, 'indent': 4}
+        ppjson_kwargs.update(kwargs)
+
+        return json.dumps(self.json(), **ppjson_kwargs)
+
     @property
     def links(self):
         """Returns the parsed header links of the response, if any."""
