@@ -106,7 +106,7 @@ class SessionRedirectMixin(object):
                 url = urljoin(resp.url, requote_uri(url))
 
             # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
-            if resp.status_code is codes.see_other and req.method != 'HEAD':
+            if resp.status_code == codes.see_other and req.method != 'HEAD':
                 method = 'GET'
 
             # Do what the browsers do, despite standards...
