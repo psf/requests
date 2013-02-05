@@ -3,6 +3,7 @@
 
 """Tests for Requests."""
 
+from __future__ import division
 import json
 import os
 import unittest
@@ -323,7 +324,10 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_time_elapsed_blank(self):
         r = requests.get(httpbin('get'))
-        self.assertTrue(r.elapsed.total_seconds() > 0.0)
+        td = r.elapsed
+        total_seconds = ((td.microseconds + (td.seconds + td.days * 24 * 3600)
+                         * 10**6) / 10**6)
+        self.assertTrue(total_seconds > 0.0)
 
     def test_response_is_iterable(self):
         r = requests.Response()
