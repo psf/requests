@@ -3,14 +3,20 @@ How to Help
 
 Requests is under active development, and contributions are more than welcome!
 
-#. Check for open issues or open a fresh issue to start a discussion around a feature idea or a bug.
+#. Check for open issues or open a fresh issue to start a discussion around a bug.
    There is a Contributor Friendly tag for issues that should be ideal for people who are not very
    familiar with the codebase yet.
 #. Fork `the repository <https://github.com/kennethreitz/requests>`_ on Github andstart making your
    changes to a new branch.
-#. Write a test which shows that the bug was fixed or that the feature works as expected.
+#. Write a test which shows that the bug was fixed.
 #. Send a pull request and bug the maintainer until it gets merged and published. :)
    Make sure to add yourself to `AUTHORS <https://github.com/kennethreitz/requests/blob/master/AUTHORS.rst>`_.
+
+Feature Freeze
+--------------
+
+As of v1.0.0, Requests has now entered a feature freeze. Requests for new
+features and Pull Requests implementing those features will not be accepted.
 
 Development Dependencies
 ------------------------
