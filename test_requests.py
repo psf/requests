@@ -336,5 +336,10 @@ class RequestsTestCase(unittest.TestCase):
         self.assertTrue(next(iter(r)))
         io.close()
 
+    def test_get_auth_from_url(self):
+        url = 'http://user:pass@complex.url.com/path?query=yes'
+        self.assertEqual(('user', 'pass'),
+                         requests.utils.get_auth_from_url(url))
+
 if __name__ == '__main__':
     unittest.main()

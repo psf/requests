@@ -580,3 +580,13 @@ def prepend_scheme_if_needed(url, new_scheme):
         netloc, path = path, netloc
 
     return urlunparse((scheme, netloc, path, params, query, fragment))
+
+
+def get_auth_from_url(url):
+    """Given a url with authentication components, extract them into a tuple of
+    username,password."""
+    if url:
+        parsed = urlparse(url)
+        return (parsed.username, parsed.password)
+    else:
+        return ('', '')
