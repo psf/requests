@@ -15,7 +15,7 @@ from .packages.urllib3.poolmanager import PoolManager, ProxyManager
 from .packages.urllib3.response import HTTPResponse
 from .compat import urlparse, basestring, urldefrag
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
-                    prepend_scheme_if_needed)
+                    prepend_scheme_if_needed, get_auth_from_url)
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import TimeoutError
@@ -23,6 +23,7 @@ from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .cookies import extract_cookies_to_jar
 from .exceptions import ConnectionError, Timeout, SSLError
+from .auth import _basic_auth_str
 
 DEFAULT_POOLSIZE = 10
 DEFAULT_RETRIES = 0
@@ -146,6 +147,21 @@ class HTTPAdapter(BaseAdapter):
 
         return url
 
+    def add_headers(self, request, **kwargs):
+        """Add any headers needed by the connection. Currently this only adds a
+        Host: header if a proxy is being used."""
+        proxies = kwargs.get('proxies', {})
+
+        if proxies is None:
+            proxies = {}
+
+        proxy = proxies.get(urlparse(request.url).scheme)
+        username, password = get_auth_from_url(proxy)
+
+        if username and password:
+            request.headers['Proxy-Authorization'] = _basic_auth_str(username,
+                                                                     password)
+
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
         """Sends PreparedRequest object. Returns Response object."""
 
@@ -153,6 +169,7 @@ class HTTPAdapter(BaseAdapter):
 
         self.cert_verify(conn, request.url, verify, cert)
         url = self.request_url(request, proxies)
+        self.add_headers(request, proxies=proxies)
 
         chunked = not (request.body is None or 'Content-Length' in request.headers)
 
