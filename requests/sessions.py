@@ -206,6 +206,20 @@ class Session(SessionRedirectMixin):
     def __exit__(self, *args):
         self.close()
 
+    def create_request(self, method, url, headers, files, data, params, auth, cookies, hooks):
+        # a workaround for the old 'pre_request' method
+        req = Request()
+        req.method = method.upper()
+        req.url = url
+        req.headers = headers
+        req.files = files
+        req.data = data
+        req.params = params
+        req.auth = auth
+        req.cookies = cookies
+        req.hooks = hooks
+        return req
+        
     def request(self, method, url,
         params=None,
         data=None,
@@ -262,16 +276,7 @@ class Session(SessionRedirectMixin):
         cert = merge_kwargs(cert, self.cert)
 
         # Create the Request.
-        req = Request()
-        req.method = method.upper()
-        req.url = url
-        req.headers = headers
-        req.files = files
-        req.data = data
-        req.params = params
-        req.auth = auth
-        req.cookies = cookies
-        req.hooks = hooks
+        req = self.create_request(method.upper(), url, headers, files, data, params, auth, cookies, hooks)
 
         # Prepare the Request.
         prep = req.prepare()
