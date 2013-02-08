@@ -248,7 +248,7 @@ def add_dict_to_cookiejar(cj, cookie_dict):
     """Returns a CookieJar from a key/value dictionary.
 
     :param cj: CookieJar to insert cookies into.
-    :param cookie_dict: Dict of key/values to insert into CookieJar.
+    :param cookie_dict: dictionary of key/values to insert into CookieJar.
     """
 
     cj2 = cookiejar_from_dict(cookie_dict)
@@ -269,7 +269,7 @@ def get_encodings_from_content(content):
 
 
 def get_encoding_from_headers(headers):
-    """Returns encodings from given HTTP Header Dict.
+    """Returns encodings from given HTTP header dictionary.
 
     :param headers: dictionary to extract encoding from.
     """
@@ -289,7 +289,7 @@ def get_encoding_from_headers(headers):
 
 
 def stream_decode_response_unicode(iterator, r):
-    """Stream decodes a iterator."""
+    """Stream decodes an iterator."""
 
     if r.encoding is None:
         for item in iterator:
@@ -315,17 +315,17 @@ def iter_slices(string, slice_length):
 
 
 def get_unicode_from_response(r):
-    """Returns the requested content back in unicode.
+    """Returns the requested content back in Unicode.
 
-    :param r: Response object to get unicode content from.
+    :param r: Response object to get Unicode content from.
 
     Tried:
 
-    1. charset from content-type
+    1. Charset from Content-Type header
 
-    2. every encodings from ``<meta ... charset=XXX>``
+    2. Every encodings from ``<meta ... charset=XXX>``
 
-    3. fall back and replace all unicode characters
+    3. Fall back and replace all Unicode characters
 
     """
 
@@ -348,7 +348,7 @@ def get_unicode_from_response(r):
 
 
 def stream_decompress(iterator, mode='gzip'):
-    """Stream decodes an iterator over compressed data
+    """Stream decodes an iterator over compressed data.
 
     :param iterator: An iterator over compressed data
     :param mode: 'gzip' or 'deflate'
@@ -500,7 +500,7 @@ def default_headers():
 
 
 def parse_header_links(value):
-    """Return a dict of parsed link headers proxies.
+    """Return a dictionary of parsed link headers proxies.
 
     i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
 
@@ -583,7 +583,7 @@ def prepend_scheme_if_needed(url, new_scheme):
 
 
 def get_auth_from_url(url):
-    """Given a url with authentication components, extract them into a tuple of
+    """Given a URL with authentication components, extract them into a tuple of
     username,password."""
     if url:
         parsed = urlparse(url)

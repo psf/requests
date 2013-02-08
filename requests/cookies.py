@@ -337,7 +337,7 @@ def create_cookie(name, value, **kwargs):
 
 
 def morsel_to_cookie(morsel):
-    """Convert a Morsel object into a Cookie containing the one k/v pair."""
+    """Convert a Morsel object into a Cookie containing the one key/value pair."""
     c = create_cookie(
         name=morsel.key,
         value=morsel.value,
@@ -362,7 +362,7 @@ def morsel_to_cookie(morsel):
 def cookiejar_from_dict(cookie_dict, cookiejar=None):
     """Returns a CookieJar from a key/value dictionary.
 
-    :param cookie_dict: Dict of key/values to insert into CookieJar.
+    :param cookie_dict: Dictionary of key/value pairs to insert into CookieJar.
     """
     if cookiejar is None:
         cookiejar = RequestsCookieJar()
