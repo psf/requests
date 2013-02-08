@@ -192,6 +192,12 @@ class Session(SessionRedirectMixin):
         #: Should we trust the environment?
         self.trust_env = True
 
+        #: Should we track the referer?
+        self.track_referer = False
+
+        #: Last loaded page.
+        self.last_page = None
+
         # Set up a CookieJar to be used by default
         self.cookies = cookiejar_from_dict({})
 
@@ -254,6 +260,8 @@ class Session(SessionRedirectMixin):
         # Merge all the kwargs.
         params = merge_kwargs(params, self.params)
         headers = merge_kwargs(headers, self.headers)
+        if self.track_referer and self.last_page is not None and 'referer' not in headers:
+            headers['Referer'] = self.last_page
         auth = merge_kwargs(auth, self.auth)
         proxies = merge_kwargs(proxies, self.proxies)
         hooks = merge_kwargs(hooks, self.hooks)
@@ -291,6 +299,10 @@ class Session(SessionRedirectMixin):
         # Persist cookies.
         for cookie in resp.cookies:
             self.cookies.set_cookie(cookie)
+
+        # Persist the referer if tracking is enabled.
+        if self.track_referer:
+            self.last_page = resp.url
 
         return resp
 
@@ -417,7 +429,7 @@ class Session(SessionRedirectMixin):
         raise InvalidSchema("No connection adapters were found for '%s'" % url)
 
     def close(self):
-        """Closes all adapters and as such the session"""
+        """Closes all adapters and as such the session."""
         for _, v in self.adapters.items():
             v.close()
 
