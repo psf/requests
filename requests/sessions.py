@@ -13,7 +13,7 @@ from datetime import datetime
 
 from .compat import cookielib
 from .cookies import cookiejar_from_dict
-from .models import Request
+from .models import Request, PreparedRequest
 from .hooks import default_hooks, dispatch_hook
 from .utils import from_key_val_list, default_headers
 from .exceptions import TooManyRedirects, InvalidSchema
@@ -74,11 +74,17 @@ def merge_kwargs(local_kwarg, default_kwarg):
 
 
 class SessionRedirectMixin(object):
-    def resolve_redirects(self, resp, prepared_request, stream=False,
-                          timeout=None, verify=True, cert=None, proxies=None):
+    def resolve_redirects(self, resp, req, stream=False, timeout=None,
+                          verify=True, cert=None, proxies=None):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
+        prepared_request = PreparedRequest()
+        prepared_request.body = req.body
+        prepared_request.headers = req.headers.copy()
+        prepared_request.hooks = req.hooks
+        prepared_request.method = req.method
+        prepared_request.url = req.url
 
         # ((resp.status_code is codes.see_other))
         while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
