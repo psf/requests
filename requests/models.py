@@ -48,7 +48,7 @@ class RequestEncodingMixin(object):
         if not path:
             path = '/'
 
-        url.append(path)
+        url.append(builtin_str(path))
 
         query = p.query
         if query:
