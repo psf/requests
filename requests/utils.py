@@ -46,7 +46,16 @@ def super_len(o):
     if hasattr(o, 'len'):
         return o.len
     if hasattr(o, 'fileno'):
-        return os.fstat(o.fileno()).st_size
+        try:
+            return os.fstat(o.fileno()).st_size
+        except:
+            # in Python3 and when using cStringIO, this will throw an
+            # io.UnsupportedOperation. Since the io module is not imported, we
+            # have to catch everything here
+            # also, we assume that the file-like object is seekable to the end
+            length = o.seek(0, os.SEEK_END)
+            o.seek(0)
+            return length
 
 
 def get_netrc_auth(url):
