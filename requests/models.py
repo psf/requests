@@ -389,12 +389,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_content_length(self, body):
         if hasattr(body, 'seek') and hasattr(body, 'tell'):
             body.seek(0, 2)
-            self.headers['Content-Length'] = str(body.tell())
+            self.headers['Content-Length'] = builtin_str(body.tell())
             body.seek(0, 0)
         elif body is not None:
-            self.headers['Content-Length'] = str(len(body))
+            self.headers['Content-Length'] = builtin_str(len(body))
         elif self.method not in ('GET', 'HEAD'):
-            self.headers['Content-Length'] = '0'
+            self.headers['Content-Length'] = builtin_str(0)
 
     def prepare_auth(self, auth):
         """Prepares the given HTTP auth data."""
