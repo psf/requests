@@ -349,7 +349,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         ])
 
         try:
-            length = str(super_len(data))
+            length = builtin_str(super_len(data))
         except (TypeError, AttributeError):
             length = False
 
