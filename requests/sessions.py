@@ -125,15 +125,16 @@ class SessionRedirectMixin(object):
 
             prepared_request.method = method
 
-            # Remove the cookie headers that were sent.
-            headers = prepared_request.headers
-            for h in ('Cookie', 'Content-Length'):
-                try:
-                    del headers[h]
-                except KeyError:
-                    pass
+            if resp.status_code is not codes.temporary:
+                if 'Content-Length' in prepared_request.headers:
+                    del prepared_request.headers['Content-Length']
 
-            prepared_request.body = None
+                prepared_request.body = None
+
+            try:
+                del prepared_request.headers['Cookie']
+            except KeyError:
+                pass
 
             resp = self.send(
                 prepared_request,
