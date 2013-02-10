@@ -341,5 +341,9 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(('user', 'pass'),
                          requests.utils.get_auth_from_url(url))
 
+    def test_cannot_send_unprepared_requests(self):
+        r = requests.Request(url=HTTPBIN)
+        self.assertRaises(ValueError, requests.Session().send, r)
+
 if __name__ == '__main__':
     unittest.main()
