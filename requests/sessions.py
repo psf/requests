@@ -136,6 +136,9 @@ class SessionRedirectMixin(object):
             except KeyError:
                 pass
 
+            if response.headers.get('Set-Cookie'):
+                prepared_request.headers['Cookie'] = response.headers.get('Set-Cookie')
+
             resp = self.send(
                 prepared_request,
                 stream=stream,
