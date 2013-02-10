@@ -111,6 +111,11 @@ class RequestsTestCase(unittest.TestCase):
         r = requests.get(httpbin('get') + '?test=true', params={'q': 'test'}, headers=heads)
         self.assertEqual(r.status_code, 200)
 
+    def test_set_cookie_on_301(self):
+        url = httpbin('cookies/set/foo/bar')
+        r = s.get(url)
+        self.assertTrue(s.cookies['foo'] == 'bar')
+
     def test_user_agent_transfers(self):
 
         heads = {
