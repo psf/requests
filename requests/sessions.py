@@ -13,7 +13,7 @@ from datetime import datetime
 
 from .compat import cookielib
 from .cookies import cookiejar_from_dict
-from .models import Request
+from .models import Request, PreparedRequest
 from .hooks import default_hooks, dispatch_hook
 from .utils import from_key_val_list, default_headers
 from .exceptions import TooManyRedirects, InvalidSchema
@@ -74,12 +74,17 @@ def merge_kwargs(local_kwarg, default_kwarg):
 
 
 class SessionRedirectMixin(object):
-
     def resolve_redirects(self, resp, req, stream=False, timeout=None,
                           verify=True, cert=None, proxies=None):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
+        prepared_request = PreparedRequest()
+        prepared_request.body = req.body
+        prepared_request.headers = req.headers.copy()
+        prepared_request.hooks = req.hooks
+        prepared_request.method = req.method
+        prepared_request.url = req.url
 
         # ((resp.status_code is codes.see_other))
         while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
@@ -93,7 +98,7 @@ class SessionRedirectMixin(object):
             resp.close()
 
             url = resp.headers['location']
-            method = req.method
+            method = prepared_request.method
 
             # Handle redirection without scheme (see: RFC 1808 Section 4)
             if url.startswith('//'):
@@ -106,34 +111,39 @@ class SessionRedirectMixin(object):
                 # Compliant with RFC3986, we percent encode the url.
                 url = urljoin(resp.url, requote_uri(url))
 
+            prepared_request.url = url
+
             # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
-            if resp.status_code == codes.see_other and req.method != 'HEAD':
+            if (resp.status_code == codes.see_other and
+                    prepared_request.method != 'HEAD'):
                 method = 'GET'
 
             # Do what the browsers do, despite standards...
-            if resp.status_code in (codes.moved, codes.found) and req.method == 'POST':
+            if (resp.status_code in (codes.moved, codes.found) and
+                    prepared_request.method == 'POST'):
                 method = 'GET'
 
-            # Remove the cookie headers that were sent.
-            headers = req.headers
+            prepared_request.method = method
+
+            if resp.status_code is not codes.temporary:
+                if 'Content-Length' in prepared_request.headers:
+                    del prepared_request.headers['Content-Length']
+
+                prepared_request.body = None
+
             try:
-                del headers['Cookie']
+                del prepared_request.headers['Cookie']
             except KeyError:
                 pass
 
-            resp = self.request(
-                url=url,
-                method=method,
-                headers=headers,
-                auth=req.auth,
-                cookies=req.cookies,
-                allow_redirects=False,
+            resp = self.send(
+                prepared_request,
                 stream=stream,
                 timeout=timeout,
                 verify=verify,
                 cert=cert,
                 proxies=proxies,
-                hooks=req.hooks,
+                allow_redirects=False,
             )
 
             i += 1
@@ -392,8 +402,9 @@ class Session(SessionRedirectMixin):
         r.elapsed = datetime.utcnow() - start
 
         # Redirect resolving generator.
-        gen = self.resolve_redirects(r, req, stream=stream, timeout=timeout,
-                                     verify=verify, cert=cert, proxies=proxies)
+        gen = self.resolve_redirects(r, request, stream=stream,
+                                     timeout=timeout, verify=verify, cert=cert,
+                                     proxies=proxies)
 
         # Resolve redirects if allowed.
         history = [resp for resp in gen] if allow_redirects else []
