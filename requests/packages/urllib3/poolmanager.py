@@ -147,14 +147,24 @@ class PoolManager(RequestMethods):
 class ProxyManager(RequestMethods):
     """
     Given a ConnectionPool to a proxy, the ProxyManager's ``urlopen`` method
-    will make requests to any url through the defined proxy.
+    will make requests to any url through the defined proxy. The ProxyManager
+    class will automatically set the 'Host' header if it is not provided.
     """
 
     def __init__(self, proxy_pool):
         self.proxy_pool = proxy_pool
 
-    def _set_proxy_headers(self, headers=None):
+    def _set_proxy_headers(self, url, headers=None):
+        """
+        Sets headers needed by proxies: specifically, the Accept and Host
+        headers. Only sets headers not provided by the user.
+        """
         headers_ = {'Accept': '*/*'}
+
+        host = parse_url(url).host
+        if host:
+            headers_['Host'] = host
+
         if headers:
             headers_.update(headers)
 
@@ -163,7 +173,7 @@ class ProxyManager(RequestMethods):
     def urlopen(self, method, url, **kw):
         "Same as HTTP(S)ConnectionPool.urlopen, ``url`` must be absolute."
         kw['assert_same_host'] = False
-        kw['headers'] = self._set_proxy_headers(kw.get('headers'))
+        kw['headers'] = self._set_proxy_headers(url, headers=kw.get('headers'))
         return self.proxy_pool.urlopen(method, url, **kw)
 
 
