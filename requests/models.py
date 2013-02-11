@@ -14,7 +14,6 @@ import datetime
 from io import BytesIO
 from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
-from .status_codes import codes
 
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header
@@ -28,7 +27,6 @@ from .compat import (
     cookielib, urlparse, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring)
 
-REDIRECT_STATI = (codes.moved, codes.found, codes.other, codes.temporary_moved)
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
 
