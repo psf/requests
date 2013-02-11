@@ -85,6 +85,7 @@ class SessionRedirectMixin(object):
         prepared_request.hooks = req.hooks
         prepared_request.method = req.method
         prepared_request.url = req.url
+        cookiejar = resp.cookies
 
         # ((resp.status_code is codes.see_other))
         while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
@@ -131,10 +132,13 @@ class SessionRedirectMixin(object):
 
                 prepared_request.body = None
 
+            headers = prepared_request.headers
             try:
-                del prepared_request.headers['Cookie']
+                del headers['Cookie']
             except KeyError:
                 pass
+
+            prepared_request.prepare_cookies(cookiejar)
 
             resp = self.send(
                 prepared_request,
@@ -146,8 +150,12 @@ class SessionRedirectMixin(object):
                 allow_redirects=False,
             )
 
+            cookiejar.update(resp.cookies)
+
             i += 1
             yield resp
+
+        resp.cookies.update(cookiejar)
 
 
 class Session(SessionRedirectMixin):
