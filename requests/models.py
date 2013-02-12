@@ -325,8 +325,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepares the given HTTP headers."""
 
         if headers:
-            if is_py2:
-                headers = dict((builtin_str(name), value) for name, value in headers.items())
+            headers = dict((name.encode('ascii'), value) for name, value in headers.items())
             self.headers = CaseInsensitiveDict(headers)
         else:
             self.headers = CaseInsensitiveDict()

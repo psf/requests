@@ -10,7 +10,7 @@ import unittest
 
 import requests
 from requests.auth import HTTPDigestAuth
-from requests.compat import is_py2, str
+from requests.compat import str
 
 try:
     import StringIO
@@ -252,8 +252,7 @@ class RequestsTestCase(unittest.TestCase):
         requests.get(httpbin('ø'), params={'foo': 'foo'})
 
     def test_unicode_header_name(self):
-        if is_py2:
-            requests.put(httpbin('put'), headers={unicode('Content-Type'): 'application/octet-stream'}, data='\xff')
+        requests.put(httpbin('put'), headers={str('Content-Type'): 'application/octet-stream'}, data='\xff') # compat.str is unicode.
 
     def test_urlencoded_get_query_multivalued_param(self):
 
