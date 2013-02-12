@@ -120,3 +120,4 @@ Patches and Suggestions
 - David Bonner <dbonner@gmail.com> @rascalking
 - Vinod Chandru
 - Johnny Goodnow <j.goodnow29@gmail.com>
+- Denis Ryzhkov <denisr@denisr.com>

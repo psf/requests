@@ -251,6 +251,9 @@ class RequestsTestCase(unittest.TestCase):
         requests.get(url, params={'foo': 'foo'})
         requests.get(httpbin('ø'), params={'foo': 'foo'})
 
+    def test_unicode_header_name(self):
+        requests.put(httpbin('put'), headers={str('Content-Type'): 'application/octet-stream'}, data='\xff') # compat.str is unicode.
+
     def test_urlencoded_get_query_multivalued_param(self):
 
         r = requests.get(httpbin('get'), params=dict(test=['foo', 'baz']))
