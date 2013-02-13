@@ -18,7 +18,7 @@ from .structures import CaseInsensitiveDict
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header
 from .packages.urllib3.filepost import encode_multipart_formdata
-from .exceptions import HTTPError, RequestException, MissingSchema, InvalidURL
+from .exceptions import HTTPError, RequestException, MissingScheme, InvalidURL
 from .utils import (
     stream_untransfer, guess_filename, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
@@ -284,7 +284,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         scheme, netloc, path, _params, query, fragment = urlparse(url)
 
         if not (scheme and netloc):
-            raise MissingSchema("Invalid URL %r: No schema supplied" % url)
+            raise MissingScheme("Invalid URL %r: No scheme supplied" % url)
 
         try:
             netloc = netloc.encode('idna').decode('utf-8')
