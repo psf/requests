@@ -414,6 +414,9 @@ class Session(SessionRedirectMixin):
         # Total elapsed time of the request (approximately)
         r.elapsed = datetime.utcnow() - start
 
+        # Response manipulation hooks
+        r = dispatch_hook('response', hooks, r)
+
         # Redirect resolving generator.
         gen = self.resolve_redirects(r, request, stream=stream,
                                      timeout=timeout, verify=verify, cert=cert,
@@ -429,9 +432,6 @@ class Session(SessionRedirectMixin):
             # Get the last request made
             r = history.pop()
             r.history = tuple(history)
-
-        # Response manipulation hooks
-        r = dispatch_hook('response', hooks, r)
 
         return r
 
