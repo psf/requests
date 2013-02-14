@@ -142,7 +142,7 @@ class HTTPDigestAuth(AuthBase):
 
         return 'Digest %s' % (base)
 
-    def handle_401(self, r):
+    def handle_401(self, r, **kwargs):
         """Takes the given response and tries digest-auth, if needed."""
 
         num_401_calls = getattr(self, 'num_401_calls', 1)
@@ -159,7 +159,7 @@ class HTTPDigestAuth(AuthBase):
             r.raw.release_conn()
 
             r.request.headers['Authorization'] = self.build_digest_header(r.request.method, r.request.url)
-            _r = r.connection.send(r.request)
+            _r = r.connection.send(r.request, **kwargs)
             _r.history.append(r)
 
             return _r
