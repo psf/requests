@@ -4,6 +4,7 @@ python:
   - 2.7
   - 3.2
   - 3.3
+  - pypy
 env: HTTPBIN_URL=http://httpbin.org/
 script: make test
 install:
