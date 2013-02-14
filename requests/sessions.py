@@ -155,8 +155,6 @@ class SessionRedirectMixin(object):
             i += 1
             yield resp
 
-        resp.cookies.update(cookiejar)
-
 
 class Session(SessionRedirectMixin):
     """A Requests session.
