@@ -172,6 +172,18 @@ class RequestsTestCase(unittest.TestCase):
         r = s.get(url)
         self.assertEqual(r.status_code, 200)
 
+    def test_DIGEST_STREAM(self):
+
+        auth = HTTPDigestAuth('user', 'pass')
+        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+
+        r = requests.get(url, auth=auth, stream=True)
+        self.assertNotEqual(r.raw.read(), '')
+
+        r = requests.get(url, auth=auth, stream=False)
+        self.assertEqual(r.raw.read(), '')
+
+
     def test_DIGESTAUTH_WRONG_HTTP_401_GET(self):
 
         auth = HTTPDigestAuth('user', 'wrongpass')
