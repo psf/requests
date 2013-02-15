@@ -160,7 +160,8 @@ class SessionRedirectMixin(object):
             i += 1
             yield resp
 
-        resp.cookies.update(cookiejar)
+        if not resp.cookies:
+            resp.cookies.update(cookiejar)
 
 
 class Session(SessionRedirectMixin):
