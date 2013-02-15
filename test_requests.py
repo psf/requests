@@ -178,10 +178,10 @@ class RequestsTestCase(unittest.TestCase):
         url = httpbin('digest-auth', 'auth', 'user', 'pass')
 
         r = requests.get(url, auth=auth, stream=True)
-        self.assertNotEqual(str(r.raw.read()), str(''))
+        self.assertNotEqual(r.raw.read(), b'')
 
         r = requests.get(url, auth=auth, stream=False)
-        self.assertEqual(str(r.raw.read()), str(''))
+        self.assertEqual(r.raw.read(), b'')
 
 
     def test_DIGESTAUTH_WRONG_HTTP_401_GET(self):
