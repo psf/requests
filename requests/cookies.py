@@ -240,8 +240,6 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         """Dict-like __getitem__() for compatibility with client code. Throws exception
         if there are more than one cookie with name. In that case, use the more
         explicit get() method instead. Caution: operation is O(n), not O(1)."""
-        if isinstance(name, cookielib.Cookie):
-            name = name.name
 
         return self._find_no_duplicates(name)
 
@@ -249,8 +247,6 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         """Dict-like __setitem__ for compatibility with client code. Throws exception
         if there is already a cookie of that name in the jar. In that case, use the more
         explicit set() method instead."""
-        if isinstance(name, cookielib.Cookie):
-            name = name.name
 
         self.set(name, value)
 
