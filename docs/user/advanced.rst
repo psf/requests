@@ -262,8 +262,8 @@ If you need to use a proxy, you can configure individual requests with the
     import requests
 
     proxies = {
-      "http": "10.10.1.10:3128",
-      "https": "10.10.1.10:1080",
+      "http": "http://10.10.1.10:3128",
+      "https": "http://10.10.1.10:1080",
     }
 
     requests.get("http://example.org", proxies=proxies)
@@ -272,8 +272,8 @@ You can also configure proxies by environment variables ``HTTP_PROXY`` and ``HTT
 
 ::
 
-    $ export HTTP_PROXY="10.10.1.10:3128"
-    $ export HTTPS_PROXY="10.10.1.10:1080"
+    $ export HTTP_PROXY="http://10.10.1.10:3128"
+    $ export HTTPS_PROXY="http://10.10.1.10:1080"
     $ python
     >>> import requests
     >>> requests.get("http://example.org")
