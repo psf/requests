@@ -240,8 +240,6 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         """Dict-like __getitem__() for compatibility with client code. Throws exception
         if there are more than one cookie with name. In that case, use the more
         explicit get() method instead. Caution: operation is O(n), not O(1)."""
-        if isinstance(name, cookielib.Cookie):
-            name = name.name
 
         return self._find_no_duplicates(name)
 
@@ -249,14 +247,20 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         """Dict-like __setitem__ for compatibility with client code. Throws exception
         if there is already a cookie of that name in the jar. In that case, use the more
         explicit set() method instead."""
-        if isinstance(name, cookielib.Cookie):
-            name = name.name
 
         self.set(name, value)
 
     def __delitem__(self, name):
         """Deletes a cookie given a name. Wraps cookielib.CookieJar's remove_cookie_by_name()."""
         remove_cookie_by_name(self, name)
+
+    def update(self, other):
+        """Updates this jar with cookies from another CookieJar or dict-like"""
+        if isinstance(other, cookielib.CookieJar):
+            for cookie in other:
+                self.set_cookie(cookie)
+        else:
+            super(RequestsCookieJar, self).update(other)
 
     def _find(self, name, domain=None, path=None):
         """Requests uses this method internally to get cookie values. Takes as args name
