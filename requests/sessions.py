@@ -251,9 +251,10 @@ class Session(SessionRedirectMixin):
         if not isinstance(cookies, cookielib.CookieJar):
             cookies = cookiejar_from_dict(cookies)
 
-        # Bubble down session cookies.
-        for cookie in self.cookies:
-            cookies.set_cookie(cookie)
+        # Merge with session cookies
+        merged_cookies = self.cookies.copy()
+        merged_cookies.update(cookies)
+        cookies = merged_cookies
 
         # Gather clues from the surrounding environment.
         if self.trust_env:
@@ -312,8 +313,7 @@ class Session(SessionRedirectMixin):
         resp = self.send(prep, **send_kwargs)
 
         # Persist cookies.
-        for cookie in resp.cookies:
-            self.cookies.set_cookie(cookie)
+        self.cookies.update(resp.cookies)
 
         return resp
 

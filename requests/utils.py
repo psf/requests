@@ -252,8 +252,7 @@ def add_dict_to_cookiejar(cj, cookie_dict):
     """
 
     cj2 = cookiejar_from_dict(cookie_dict)
-    for cookie in cj2:
-        cj.set_cookie(cookie)
+    cj.update(cj2)
     return cj
 
 
