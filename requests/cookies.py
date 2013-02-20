@@ -307,8 +307,10 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
             self._cookies_lock = threading.RLock()
 
     def copy(self):
-        """This is not implemented. Calling this will throw an exception."""
-        raise NotImplementedError
+        """Return a copy of this RequestsCookieJar."""
+        new_cj = RequestsCookieJar()
+        new_cj.update(self)
+        return new_cj
 
 
 def create_cookie(name, value, **kwargs):
