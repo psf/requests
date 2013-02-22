@@ -228,7 +228,7 @@ class HTTPAdapter(BaseAdapter):
             elif isinstance(e, TimeoutError):
                 raise Timeout(e)
             else:
-                raise e
+                raise
 
         r = self.build_response(request, resp)
 
