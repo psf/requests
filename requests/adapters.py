@@ -13,7 +13,7 @@ import socket
 from .models import Response
 from .packages.urllib3.poolmanager import PoolManager, ProxyManager
 from .packages.urllib3.response import HTTPResponse
-from .compat import urlparse, basestring, urldefrag
+from .compat import urlparse, basestring, urldefrag, unquote
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     prepend_scheme_if_needed, get_auth_from_url)
 from .structures import CaseInsensitiveDict
@@ -148,8 +148,8 @@ class HTTPAdapter(BaseAdapter):
         return url
 
     def add_headers(self, request, **kwargs):
-        """Add any headers needed by the connection. Currently this only adds a
-        Host: header if a proxy is being used."""
+        """Add any headers needed by the connection. Currently this adds a
+        Proxy-Authorization header."""
         proxies = kwargs.get('proxies', {})
 
         if proxies is None:
@@ -159,6 +159,10 @@ class HTTPAdapter(BaseAdapter):
         username, password = get_auth_from_url(proxy)
 
         if username and password:
+            # Proxy auth usernames and passwords will be urlencoded, we need
+            # to decode them.
+            username = unquote(username)
+            password = unquote(password)
             request.headers['Proxy-Authorization'] = _basic_auth_str(username,
                                                                      password)
 
