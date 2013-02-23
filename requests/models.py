@@ -649,12 +649,14 @@ class Response(object):
         return l
 
     @property
-    def status_code(self, code=None):
+    def status_code(self):
         """Integer representing the responded HTTP Status."""
-        if code:
-            self.status.code = code
-
         return self.status.code
+
+    @status_code.setter
+    def status_code(self, code):
+        """Integer representing the responded HTTP Status."""
+        self.status.code = code
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occurred."""
