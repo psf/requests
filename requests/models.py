@@ -478,7 +478,7 @@ class Response(object):
         self.elapsed = datetime.timedelta(0)
 
     def __repr__(self):
-        return '<Response [%s: %s]>' % (self.status_code, self.status_name)
+        return '<Response [%s: %s]>' % (self.status.code, self.status.name)
 
     def __bool__(self):
         """Returns true if :attr:`status_code` is 'OK'."""
