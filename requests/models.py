@@ -19,7 +19,7 @@ from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .exceptions import HTTPError, RequestException, MissingSchema, InvalidURL
-from .status_codes import name
+from .status_codes import Status
 from .utils import (
     stream_untransfer, guess_filename, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
@@ -444,8 +444,8 @@ class Response(object):
         self._content = False
         self._content_consumed = False
 
-        #: Integer Code of responded HTTP Status.
-        self.status_code = None
+        #: Object representing the responded HTTP Status.
+        self.status = Status()
 
         #: Case-insensitive Dictionary of Response Headers.
         #: For example, ``headers['content-encoding']`` will return the
@@ -649,12 +649,12 @@ class Response(object):
         return l
 
     @property
-    def status_name(self):
-        """Returns the name of the current status_code."""
-        if self.status_code in name:
-            return name[self.status_code]
-        else:
-            return 'Name Not Found'
+    def status_code(self, code=None):
+        """Integer representing the responded HTTP Status."""
+        if code:
+            self.status.code = code
+
+        return self.status.code
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occurred."""
