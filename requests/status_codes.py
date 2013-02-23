@@ -77,6 +77,23 @@ _codes = {
     510: ('not_extended',),
 }
 
+description = {
+
+    # Informational.
+    200: 'OK',
+    207: 'Multi-Status',
+    208: "I'm Used",
+    203: 'Non-Authoritative Info',
+
+    # Client Error.
+    414: 'Request-URI Too Long',
+    418: "I'm a Teapot",
+
+    # Server Error.
+    505: 'HTTP Version Not Supported',
+
+}
+
 codes = LookupDict(name='status_codes')
 
 for (code, titles) in list(_codes.items()):
@@ -84,3 +101,5 @@ for (code, titles) in list(_codes.items()):
         setattr(codes, title, code)
         if not title.startswith('\\'):
             setattr(codes, title.upper(), code)
+    if code not in description:
+        description[code] = titles[0].replace('_', ' ').title()
