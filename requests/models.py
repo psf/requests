@@ -19,7 +19,7 @@ from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .exceptions import HTTPError, RequestException, MissingSchema, InvalidURL
-from .status_codes import description
+from .status_codes import name
 from .utils import (
     stream_untransfer, guess_filename, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
@@ -478,7 +478,7 @@ class Response(object):
         self.elapsed = datetime.timedelta(0)
 
     def __repr__(self):
-        return '<Response [%s: %s]>' % (self.status_code, self.status_description)
+        return '<Response [%s: %s]>' % (self.status_code, self.status_name)
 
     def __bool__(self):
         """Returns true if :attr:`status_code` is 'OK'."""
@@ -649,12 +649,12 @@ class Response(object):
         return l
 
     @property
-    def status_description(self):
-        """Returns the description of the current status_code."""
-        if self.status_code in description:
-            return description[self.status_code]
+    def status_name(self):
+        """Returns the name of the current status_code."""
+        if self.status_code in name:
+            return name[self.status_code]
         else:
-            return 'Description Not Found'
+            return 'Name Not Found'
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError` or :class:`URLError`, if one occurred."""

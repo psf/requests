@@ -77,7 +77,7 @@ _codes = {
     510: ('not_extended',),
 }
 
-description = {
+name = {
 
     # Informational.
     200: 'OK',
@@ -101,5 +101,5 @@ for (code, titles) in list(_codes.items()):
         setattr(codes, title, code)
         if not title.startswith('\\'):
             setattr(codes, title.upper(), code)
-    if code not in description:
-        description[code] = titles[0].replace('_', ' ').title()
+    if code not in name:
+        name[code] = titles[0].replace('_', ' ').title()
