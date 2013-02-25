@@ -121,3 +121,4 @@ Patches and Suggestions
 - Vinod Chandru
 - Johnny Goodnow <j.goodnow29@gmail.com>
 - Denis Ryzhkov <denisr@denisr.com>
+- Daniel Oaks <danneh@danneh.net>
