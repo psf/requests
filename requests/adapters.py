@@ -15,14 +15,14 @@ from .packages.urllib3.poolmanager import PoolManager, ProxyManager
 from .packages.urllib3.response import HTTPResponse
 from .compat import urlparse, basestring, urldefrag, unquote
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
-                    prepend_scheme_if_needed, get_auth_from_url)
+                    get_auth_from_url)
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import TimeoutError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .cookies import extract_cookies_to_jar
-from .exceptions import ConnectionError, Timeout, SSLError
+from .exceptions import ConnectionError, Timeout, SSLError, MissingSchema
 from .auth import _basic_auth_str
 
 DEFAULT_POOLSIZE = 10
@@ -117,7 +117,10 @@ class HTTPAdapter(BaseAdapter):
         proxy = proxies.get(urlparse(url).scheme)
 
         if proxy:
-            proxy = prepend_scheme_if_needed(proxy, urlparse(url).scheme)
+            # Check the proxy has a scheme.
+            if not urlparse(proxy).scheme:
+                raise MissingSchema('Proxy URLs must have a scheme.')
+
             conn = ProxyManager(self.poolmanager.connection_from_url(proxy))
         else:
             conn = self.poolmanager.connection_from_url(url)
