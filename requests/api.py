@@ -73,6 +73,7 @@ def head(url, **kwargs):
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     """
 
+    kwargs.setdefault('allow_redirects', False)
     return request('head', url, **kwargs)
 
 
