@@ -455,7 +455,10 @@ class Session(SessionRedirectMixin):
         self.adapters[prefix] = adapter
 
     def __getstate__(self):
-        return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
+        if hasattr(self, '__attrs__'):
+            return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
+        else:
+            return {}
 
     def __setstate__(self, state):
         for attr, value in state.items():
