@@ -330,9 +330,12 @@ if SSLContext is not None:  # Python 3.2+
         return context.wrap_socket(sock)
 
 else:  # Python 3.1 and earlier
-    def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
-                        ca_certs=None, server_hostname=None,
-                        ssl_version=None):
-        return wrap_socket(sock, keyfile=keyfile, certfile=certfile,
-                           ca_certs=ca_certs, cert_reqs=cert_reqs,
-                           ssl_version=ssl_version)
+#    def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
+#                        ca_certs=None, server_hostname=None,
+#                        ssl_version=None):
+#        return wrap_socket(sock, keyfile=keyfile, certfile=certfile,
+#                           ca_certs=ca_certs, cert_reqs=cert_reqs,
+#                           ssl_version=ssl_version)
+    def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None, ca_certs=None, server_hostname=None, ssl_version=None):
+        raise Error('This is not meant to be called')
+
