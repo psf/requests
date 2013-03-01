@@ -385,7 +385,17 @@ class RequestsTestCase(unittest.TestCase):
 
         # undo monkey patch
         HTTPConnectionPool.urlopen = old_urlopen
-        
+
+    def test_http_error(self):
+        error = requests.exceptions.HTTPError()
+        self.assertEqual(error.response, None)
+        response = requests.Response()
+        error = requests.exceptions.HTTPError(response=response)
+        self.assertEqual(error.response, response)
+        error = requests.exceptions.HTTPError('message', response=response)
+        self.assertEqual(str(error), 'message')
+        self.assertEqual(error.response, response)
+
 
 if __name__ == '__main__':
     unittest.main()
