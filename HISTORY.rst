@@ -40,7 +40,7 @@ History
 - /s/prefetch/stream
 - Removal of all configuration
 - Standard library logging
-- Make Reponse.json() callable, not property.
+- Make Response.json() callable, not property.
 - Usage of new charade project, which provides python 2 and 3 simultaneous chardet.
 - Removal of all hooks except 'response'
 - Removal of all authentication helpers (OAuth, Kerberos)
@@ -575,10 +575,10 @@ This is not a backwards compatible change.
 ++++++++++++++++++
 
 * New HTTPHandling Methods
-    - Reponse.__nonzero__ (false if bad HTTP Status)
+    - Response.__nonzero__ (false if bad HTTP Status)
     - Response.ok (True if expected HTTP Status)
     - Response.error (Logged HTTPError if bad HTTP Status)
-    - Reponse.raise_for_status() (Raises stored HTTPError)
+    - Response.raise_for_status() (Raises stored HTTPError)
 
 
 0.2.2 (2011-02-14)
