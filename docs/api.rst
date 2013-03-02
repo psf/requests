@@ -142,12 +142,12 @@ API Changes
 .. _requests-kerberos: https://github.com/requests/requests-kerberos
 
 * The parameter for streaming requests was changed from ``prefetch`` to
-  ``stream``. In addition, the stream parameter is required for raw response
-  reading.
+  ``stream`` and the logic was inverted. In addition, ``stream`` is now
+  required for raw response reading.
 
   ::
 
-      # in 0.x, the "stream" parameter was called "prefetch"
+      # in 0.x, passing prefetch=False would accomplish the same thing
       r = requests.get('https://github.com/timeline.json', stream=True)
       r.raw.read(10)
 
