@@ -129,7 +129,7 @@ API Changes
 
   ::
 
-      with requests.session() as s:    # formerly, session took parameters
+      with requests.Session() as s:    # formerly, session took parameters
           s.auth = auth
           s.headers.update(headers)
 
