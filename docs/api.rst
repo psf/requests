@@ -129,9 +129,10 @@ API Changes
 
   ::
 
-      with requests.Session() as s:    # formerly, session took parameters
-          s.auth = auth
-          s.headers.update(headers)
+      s = requests.Session()    # formerly, session took parameters
+      s.auth = auth
+      s.headers.update(headers)
+      r = s.get('http://httpbin.org/headers')
 
 * All request hooks have been removed except 'response'.
 
