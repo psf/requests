@@ -419,7 +419,7 @@ class Session(SessionRedirectMixin):
         r.elapsed = datetime.utcnow() - start
 
         # Response manipulation hooks
-        r = dispatch_hook('response', hooks, r)
+        r = dispatch_hook('response', hooks, r, **kwargs)
 
         # Redirect resolving generator.
         gen = self.resolve_redirects(r, request, stream=stream,
