@@ -121,3 +121,4 @@ Patches and Suggestions
 - Vinod Chandru
 - Johnny Goodnow <j.goodnow29@gmail.com>
 - Denis Ryzhkov <denisr@denisr.com>
+- Wilfred Hughes <me@wilfred.me.uk> @dontYetKnow
