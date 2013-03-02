@@ -646,7 +646,7 @@ class Response(object):
         return l
 
     def raise_for_status(self):
-        """Raises stored :class:`HTTPError` or :class:`URLError`, if one occurred."""
+        """Raises stored :class:`HTTPError`, if one occurred."""
 
         http_error_msg = ''
 
