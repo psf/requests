@@ -104,3 +104,74 @@ Classes
 .. autoclass:: requests.Session
    :inherited-members:
 
+
+Migrating to 1.x
+----------------
+
+This section details the main differences between 0.x and 1.x and is meant
+to ease the pain of upgrading.
+
+
+API Changes
+~~~~~~~~~~~
+
+* ``Response.json`` is now a callable and not a property of a response.
+
+  ::
+
+      import requests
+      r = requests.get('https://github.com/timeline.json')
+      r.json()   # This *call* raises an exception if JSON decoding fails
+
+* The ``Session`` API has changed. Sessions objects no longer take parameters.
+  ``Session`` is also now capitalized, but it can still be
+  instantiated with a lowercase ``session`` for backwards compatibility.
+
+  ::
+
+      s = requests.Session()    # formerly, session took parameters
+      s.auth = auth
+      s.headers.update(headers)
+      r = s.get('http://httpbin.org/headers')
+
+* All request hooks have been removed except 'response'.
+
+* Authentication helpers have been broken out into separate modules. See
+  requests-oauthlib_ and requests-kerberos_.
+
+.. _requests-oauthlib: https://github.com/requests/requests-oauthlib
+.. _requests-kerberos: https://github.com/requests/requests-kerberos
+
+* The parameter for streaming requests was changed from ``prefetch`` to
+  ``stream`` and the logic was inverted. In addition, ``stream`` is now
+  required for raw response reading.
+
+  ::
+
+      # in 0.x, passing prefetch=False would accomplish the same thing
+      r = requests.get('https://github.com/timeline.json', stream=True)
+      r.raw.read(10)
+
+* The ``config`` parameter to the requests method has been removed. Some of
+  these options are now configured on a ``Session`` such as keep-alive and
+  maximum number of redirects. The verbosity option should be handled by
+  configuring logging.
+
+  ::
+
+      # Verbosity should now be configured with logging
+      my_config = {'verbose': sys.stderr}
+      requests.get('http://httpbin.org/headers', config=my_config)  # bad!
+
+
+Licensing
+~~~~~~~~~
+
+One key difference that has nothing to do with the API is a change in the
+license from the ISC_ license to the `Apache 2.0`_ license. The Apache 2.0
+license ensures that contributions to requests are also covered by the Apache
+2.0 license.
+
+.. _ISC: http://opensource.org/licenses/ISC
+.. _Apache 2.0: http://opensource.org/licenses/Apache-2.0
+
