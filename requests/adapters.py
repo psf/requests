@@ -45,6 +45,7 @@ class BaseAdapter(object):
 class HTTPAdapter(BaseAdapter):
     """Built-In HTTP Adapter for Urllib3."""
     def __init__(self, pool_connections=DEFAULT_POOLSIZE, pool_maxsize=DEFAULT_POOLSIZE):
+        self.max_retries = DEFAULT_RETRIES
         self.config = {}
 
         super(HTTPAdapter, self).__init__()
@@ -165,7 +166,7 @@ class HTTPAdapter(BaseAdapter):
             request.headers['Proxy-Authorization'] = _basic_auth_str(username,
                                                                      password)
 
-    def send(self, request, stream=False, timeout=None, max_retries=DEFAULT_RETRIES, verify=True, cert=None, proxies=None):
+    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
         """Sends PreparedRequest object. Returns Response object."""
 
         conn = self.get_connection(request.url, proxies)
@@ -187,7 +188,7 @@ class HTTPAdapter(BaseAdapter):
                     assert_same_host=False,
                     preload_content=False,
                     decode_content=False,
-                    retries=max_retries,
+                    retries=self.max_retries,
                     timeout=timeout
                 )
 

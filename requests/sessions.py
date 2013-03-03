@@ -80,7 +80,7 @@ def merge_kwargs(local_kwarg, default_kwarg):
 
 class SessionRedirectMixin(object):
     def resolve_redirects(self, resp, req, stream=False, timeout=None,
-                          max_retries=0, verify=True, cert=None, proxies=None):
+                          verify=True, cert=None, proxies=None):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
@@ -149,7 +149,6 @@ class SessionRedirectMixin(object):
                 prepared_request,
                 stream=stream,
                 timeout=timeout,
-                max_retries=max_retries,
                 verify=verify,
                 cert=cert,
                 proxies=proxies,
@@ -238,7 +237,6 @@ class Session(SessionRedirectMixin):
         files=None,
         auth=None,
         timeout=None,
-        max_retries=0,
         allow_redirects=True,
         proxies=None,
         hooks=None,
@@ -306,7 +304,6 @@ class Session(SessionRedirectMixin):
         send_kwargs = {
             'stream': stream,
             'timeout': timeout,
-            'max_retries': max_retries,
             'verify': verify,
             'cert': cert,
             'proxies': proxies,
@@ -402,7 +399,6 @@ class Session(SessionRedirectMixin):
         req = kwargs.pop('req', None)
         stream = kwargs.get('stream', False)
         timeout = kwargs.get('timeout')
-        max_retries = kwargs.get('max_retries')
         verify = kwargs.get('verify')
         cert = kwargs.get('cert')
         proxies = kwargs.get('proxies')
@@ -423,8 +419,7 @@ class Session(SessionRedirectMixin):
 
         # Redirect resolving generator.
         gen = self.resolve_redirects(r, request, stream=stream,
-                                     timeout=timeout, max_retries=max_retries,
-                                     verify=verify, cert=cert,
+                                     timeout=timeout, verify=verify, cert=cert,
                                      proxies=proxies)
 
         # Resolve redirects if allowed.
