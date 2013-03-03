@@ -122,3 +122,4 @@ Patches and Suggestions
 - Johnny Goodnow <j.goodnow29@gmail.com>
 - Denis Ryzhkov <denisr@denisr.com>
 - Wilfred Hughes <me@wilfred.me.uk> @dontYetKnow
+- Dmitry Medvinsky <me@dmedvinsky.name>
