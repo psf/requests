@@ -11,7 +11,7 @@ and maintain connections.
 import socket
 
 from .models import Response
-from .packages.urllib3.poolmanager import PoolManager, ProxyManager
+from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
 from .packages.urllib3.response import HTTPResponse
 from .compat import urlparse, basestring, urldefrag, unquote
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
@@ -194,7 +194,7 @@ class HTTPAdapter(BaseAdapter):
 
         if proxy:
             except_on_missing_scheme(proxy)
-            conn = ProxyManager(self.poolmanager.connection_from_url(proxy))
+            conn = proxy_from_url(proxy).connection_from_url(url)
         else:
             conn = self.poolmanager.connection_from_url(url.lower())
 
