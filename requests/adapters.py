@@ -71,6 +71,7 @@ class HTTPAdapter(BaseAdapter):
                  pool_block=DEFAULT_POOLBLOCK):
         self.max_retries = max_retries
         self.config = {}
+        self.proxy_manager = {}
 
         super(HTTPAdapter, self).__init__()
 
@@ -194,7 +195,10 @@ class HTTPAdapter(BaseAdapter):
 
         if proxy:
             except_on_missing_scheme(proxy)
-            conn = proxy_from_url(proxy).connection_from_url(url)
+            if not proxy in self.proxy_manager:
+                self.proxy_manager[proxy] = proxy_from_url(proxy)
+
+            conn = self.proxy_manager[proxy].connection_from_url(url)
         else:
             conn = self.poolmanager.connection_from_url(url.lower())
 
