@@ -366,5 +366,36 @@ class RequestsTestCase(unittest.TestCase):
         r = requests.Request(url=HTTPBIN)
         self.assertRaises(ValueError, requests.Session().send, r)
 
+    def test_can_specify_retries(self):
+        # monkey patch urlopen
+        from requests.packages.urllib3.poolmanager import HTTPConnectionPool
+        old_urlopen = HTTPConnectionPool.urlopen
+
+        max_retries_used = []
+        def urlopen(*args, **kwargs):
+            """Save what value we used for retries each time we call urlopen."""
+            max_retries_used.append(kwargs.get('retries'))
+            return old_urlopen(*args, **kwargs)
+
+        HTTPConnectionPool.urlopen = urlopen
+
+        # do the request and check that max_retries was passed through
+        requests.get(httpbin('get'), max_retries=5)
+        self.assertEqual(max_retries_used, [5])
+
+        # undo monkey patch
+        HTTPConnectionPool.urlopen = old_urlopen
+
+    def test_http_error(self):
+        error = requests.exceptions.HTTPError()
+        self.assertEqual(error.response, None)
+        response = requests.Response()
+        error = requests.exceptions.HTTPError(response=response)
+        self.assertEqual(error.response, response)
+        error = requests.exceptions.HTTPError('message', response=response)
+        self.assertEqual(str(error), 'message')
+        self.assertEqual(error.response, response)
+
+
 if __name__ == '__main__':
     unittest.main()

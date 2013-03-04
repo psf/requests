@@ -657,9 +657,7 @@ class Response(object):
             http_error_msg = '%s Server Error: %s' % (self.status_code, self.reason)
 
         if http_error_msg:
-            http_error = HTTPError(http_error_msg)
-            http_error.response = self
-            raise http_error
+            raise HTTPError(http_error_msg, response=self)
 
     def close(self):
         return self.raw.release_conn()
