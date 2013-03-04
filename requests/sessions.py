@@ -176,6 +176,10 @@ class Session(SessionRedirectMixin):
       200
     """
 
+    __attrs__ = [
+        'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',   
+        'params', 'verify', 'cert', 'prefetch']
+
     def __init__(self):
 
         #: A case-insensitive dictionary of headers to be sent on each
@@ -455,10 +459,7 @@ class Session(SessionRedirectMixin):
         self.adapters[prefix] = adapter
 
     def __getstate__(self):
-        if hasattr(self, '__attrs__'):
-            return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
-        else:
-            return {}
+        return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
 
     def __setstate__(self, state):
         for attr, value in state.items():
