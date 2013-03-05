@@ -287,7 +287,6 @@ We can view the server's response headers using a Python dictionary::
 
     >>> r.headers
     {
-        'status': '200 OK',
         'content-encoding': 'gzip',
         'transfer-encoding': 'chunked',
         'connection': 'close',
