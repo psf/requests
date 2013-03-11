@@ -44,6 +44,8 @@ class BaseAdapter(object):
 
 class HTTPAdapter(BaseAdapter):
     """Built-In HTTP Adapter for Urllib3."""
+    __attrs__ = ['max_retries', 'config', '_pool_connections', '_pool_maxsize']
+
     def __init__(self, pool_connections=DEFAULT_POOLSIZE, pool_maxsize=DEFAULT_POOLSIZE):
         self.max_retries = DEFAULT_RETRIES
         self.config = {}
@@ -52,7 +54,23 @@ class HTTPAdapter(BaseAdapter):
 
         self.init_poolmanager(pool_connections, pool_maxsize)
 
+    def __getstate__(self):
+        return dict((attr, getattr(self, attr, None)) for attr in
+                    self.__attrs__)
+
+    def __setstate__(self, state):
+        for attr, value in state.items():
+            setattr(self, attr, value)
+
+        # setup a new poolmanager after unpickling
+        if self._pool_connections is not None:
+            self.init_poolmanager(self._pool_connections, self._pool_maxsize)
+
     def init_poolmanager(self, connections, maxsize):
+        # save these values for pickling
+        self._pool_connections = connections
+        self._pool_maxsize = maxsize
+
         self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize)
 
     def cert_verify(self, conn, url, verify, cert):
