@@ -80,7 +80,7 @@ def merge_kwargs(local_kwarg, default_kwarg):
 
 class SessionRedirectMixin(object):
     def resolve_redirects(self, resp, req, stream=False, timeout=None,
-                          verify=True, cert=None, proxies=None, cookies=None):
+                          verify=True, cert=None, proxies=None):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
@@ -92,7 +92,7 @@ class SessionRedirectMixin(object):
         prepared_request.url = req.url
 
         cookiejar = cookiejar_from_dict({})
-        cookiejar.update(cookies)
+        cookiejar.update(self.cookies)
         cookiejar.update(resp.cookies)
 
         # ((resp.status_code is codes.see_other))
@@ -411,7 +411,6 @@ class Session(SessionRedirectMixin):
         cert = kwargs.get('cert')
         proxies = kwargs.get('proxies')
         hooks = request.hooks
-        cookies = self.cookies
 
         # Get the appropriate adapter to use
         adapter = self.get_adapter(url=request.url)
@@ -429,7 +428,7 @@ class Session(SessionRedirectMixin):
         # Redirect resolving generator.
         gen = self.resolve_redirects(r, request, stream=stream,
                                      timeout=timeout, verify=verify, cert=cert,
-                                     proxies=proxies, cookies=cookies)
+                                     proxies=proxies)
 
         # Resolve redirects if allowed.
         history = [resp for resp in gen] if allow_redirects else []
