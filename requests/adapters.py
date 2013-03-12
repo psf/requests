@@ -52,6 +52,9 @@ class HTTPAdapter(BaseAdapter):
 
         super(HTTPAdapter, self).__init__()
 
+        self._pool_connections = pool_connections
+        self._pool_maxsize = pool_maxsize
+
         self.init_poolmanager(pool_connections, pool_maxsize)
 
     def __getstate__(self):
@@ -62,9 +65,7 @@ class HTTPAdapter(BaseAdapter):
         for attr, value in state.items():
             setattr(self, attr, value)
 
-        # setup a new poolmanager after unpickling
-        if self._pool_connections is not None:
-            self.init_poolmanager(self._pool_connections, self._pool_maxsize)
+        self.init_poolmanager(self._pool_connections, self._pool_maxsize)
 
     def init_poolmanager(self, connections, maxsize):
         # save these values for pickling
