@@ -4,6 +4,7 @@
 """Tests for Requests."""
 
 from __future__ import division
+import concurrent.futures
 import json
 import os
 import unittest
@@ -12,6 +13,7 @@ import pickle
 import requests
 from requests.auth import HTTPDigestAuth
 from requests.compat import str
+from requests.futures import FuturesSession
 
 try:
     import StringIO
@@ -385,6 +387,41 @@ class RequestsTestCase(unittest.TestCase):
 
         r = s.send(r.prepare())
         self.assertEqual(r.status_code, 200)
+
+    def test_futures_session(self):
+        # basic futures get
+        sess = FuturesSession()
+        future = sess.get(httpbin('get'))
+        self.assertIsInstance(future, concurrent.futures.Future)
+        resp = future.result()
+        self.assertIsInstance(resp, requests.Response)
+        self.assertEqual(200, resp.status_code)
+
+        # non-200, 404
+        future = sess.get(httpbin('status/404'))
+        resp = future.result()
+        self.assertEqual(404, resp.status_code)
+
+        def cb(s, r):
+            self.assertIsInstance(s, FuturesSession)
+            self.assertIsInstance(r, requests.Response)
+            # add the parsed json data to the response
+            r.data = r.json()
+
+        future = sess.get(httpbin('get'), background_callback=cb)
+        # this should block until complete
+        resp = future.result()
+        self.assertEqual(200, resp.status_code)
+        # make sure the callback was invoked
+        self.assertTrue(hasattr(resp, 'data'))
+
+        def rasing_cb(s, r):
+            raise Exception('boom')
+
+        future = sess.get(httpbin('get'), background_callback=rasing_cb)
+        with self.assertRaises(Exception) as cm:
+            resp = future.result()
+        self.assertEqual('boom', cm.exception.args[0])
 
 
 if __name__ == '__main__':
