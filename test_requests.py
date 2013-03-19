@@ -118,6 +118,12 @@ class RequestsTestCase(unittest.TestCase):
         r = s.get(url)
         self.assertTrue(s.cookies['foo'] == 'bar')
 
+    def test_cookie_sent_on_redirect(self):
+        s = requests.session()
+        s.get(httpbin('cookies/set?foo=bar'))
+        r = s.get(httpbin('redirect/1'))  # redirects to httpbin('get')
+        self.assertTrue("Cookie" in r.json()["headers"])
+
     def test_user_agent_transfers(self):
 
         heads = {
