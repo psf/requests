@@ -474,6 +474,10 @@ class Response(object):
         #: and the arrival of the response (as a timedelta)
         self.elapsed = datetime.timedelta(0)
 
+        #: The original :class:`Request <Request>` object which ultimately
+        #: resulted in this :class:`Response <Response>` object.
+        self.request = None
+
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
 
