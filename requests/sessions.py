@@ -421,6 +421,8 @@ class Session(SessionRedirectMixin):
         r = adapter.send(request, **kwargs)
         # Total elapsed time of the request (approximately)
         r.elapsed = datetime.utcnow() - start
+        # Attach the original request object
+        r.request = req
 
         # Response manipulation hooks
         r = dispatch_hook('response', hooks, r, **kwargs)

@@ -392,6 +392,15 @@ class RequestsTestCase(unittest.TestCase):
         r = s.send(r.prepare())
         self.assertEqual(r.status_code, 200)
 
+    def test_request_returned(self):
+        sess = requests.Session()
+        resp = sess.request('GET', httpbin('get'), headers={
+                'X-How-Much-Wood-Could-A-Wood-Chuck-Chuck': 'All of it.'
+        })
+        self.assertEqual(
+            resp.request.headers['X-How-Much-Wood-Could-A-Wood-Chuck-Chuck'],
+            'All of it.')
+
 
 if __name__ == '__main__':
     unittest.main()
