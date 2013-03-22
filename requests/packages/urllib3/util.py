@@ -137,7 +137,8 @@ def parse_url(url):
 
     # Auth
     if '@' in url:
-        auth, url = url.split('@', 1)
+        auth = '@'.join(url.split('@')[:-1]) # Allows for @ in password
+        url = url.split('@')[-1] # gets the host:port part
 
     # IPv6
     if url and url[0] == '[':
