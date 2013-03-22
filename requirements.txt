@@ -1,2 +1,3 @@
-pytest
-sphinx
+py==1.4.12
+pytest==2.3.4
+invoke==0.2.0
