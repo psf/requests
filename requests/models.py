@@ -222,11 +222,10 @@ class Request(RequestHooksMixin):
         p.prepare_body(self.data, self.files)
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
-        if self.auth is None:
-            auth = get_auth_from_url(self.url)
-            if auth[0] is not None and auth[1] is not None:
-                self.auth = auth
-        p.prepare_auth(self.auth)
+
+        embedded_auth = get_auth_from_url(self.url)
+        p.prepare_auth(self.auth or embedded_auth)
+
         # This MUST go after prepare_auth. Authenticators could add a hook
         p.prepare_hooks(self.hooks)
 
