@@ -220,11 +220,9 @@ class Request(RequestHooksMixin):
         p.prepare_headers(self.headers)
         p.prepare_cookies(self.cookies)
         p.prepare_body(self.data, self.files)
+        p.prepare_auth(self.auth, self.url)
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
-
-        embedded_auth = get_auth_from_url(self.url)
-        p.prepare_auth(self.auth or embedded_auth)
 
         # This MUST go after prepare_auth. Authenticators could add a hook
         p.prepare_hooks(self.hooks)
@@ -398,8 +396,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         elif self.method not in ('GET', 'HEAD'):
             self.headers['Content-Length'] = '0'
 
-    def prepare_auth(self, auth):
+    def prepare_auth(self, auth, url=''):
         """Prepares the given HTTP auth data."""
+
+        # If no Auth is explicitly provided, extract it from the URL.
+        if auth is None:
+            url_auth = get_auth_from_url(self.url)
+            auth = url_auth if any(url_auth) else None
+
         if auth:
             if isinstance(auth, tuple) and len(auth) == 2:
                 # special-case basic HTTP auth
