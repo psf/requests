@@ -399,7 +399,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_auth(self, auth, url=''):
         """Prepares the given HTTP auth data."""
 
-        # If no Auth is explicitly provided, extract it from the URL.
+        # If no Auth is explicitly provided, extract it from the URL first.
         if auth is None:
             url_auth = get_auth_from_url(self.url)
             auth = url_auth if any(url_auth) else None
