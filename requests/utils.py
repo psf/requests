@@ -588,4 +588,4 @@ def get_auth_from_url(url):
         parsed = urlparse(url)
         return (parsed.username, parsed.password)
     else:
-        return ('', '')
+        return None
