@@ -33,6 +33,7 @@ from .sjisprober import SJISProber
 from .eucjpprober import EUCJPProber
 from .gb2312prober import GB2312Prober
 from .euckrprober import EUCKRProber
+from .cp949prober import CP949Prober
 from .big5prober import Big5Prober
 from .euctwprober import EUCTWProber
 
@@ -46,6 +47,7 @@ class MBCSGroupProber(CharSetGroupProber):
             EUCJPProber(),
             GB2312Prober(),
             EUCKRProber(),
+            CP949Prober(),
             Big5Prober(),
             EUCTWProber()
         ]

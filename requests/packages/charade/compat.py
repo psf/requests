@@ -18,9 +18,17 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
+import sys
+
+
+if sys.version_info < (3, 0):
+    base_str = (str, unicode)
+else:
+    base_str = (bytes, str)
+
 
 def wrap_ord(a):
-    if isinstance(a, str):
+    if sys.version_info < (3, 0) and isinstance(a, base_str):
         return ord(a)
-    elif isinstance(a, int):
+    else:
         return a

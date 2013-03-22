@@ -78,6 +78,46 @@ Big5SMModel = {'classTable': BIG5_cls,
                'charLenTable': Big5CharLenTable,
                'name': 'Big5'}
 
+# CP949
+
+CP949_cls  = (
+    1,1,1,1,1,1,1,1, 1,1,1,1,1,1,0,0,  # 00 - 0f
+    1,1,1,1,1,1,1,1, 1,1,1,0,1,1,1,1,  # 10 - 1f
+    1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,  # 20 - 2f
+    1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,  # 30 - 3f
+    1,4,4,4,4,4,4,4, 4,4,4,4,4,4,4,4,  # 40 - 4f
+    4,4,5,5,5,5,5,5, 5,5,5,1,1,1,1,1,  # 50 - 5f
+    1,5,5,5,5,5,5,5, 5,5,5,5,5,5,5,5,  # 60 - 6f
+    5,5,5,5,5,5,5,5, 5,5,5,1,1,1,1,1,  # 70 - 7f
+    0,6,6,6,6,6,6,6, 6,6,6,6,6,6,6,6,  # 80 - 8f
+    6,6,6,6,6,6,6,6, 6,6,6,6,6,6,6,6,  # 90 - 9f
+    6,7,7,7,7,7,7,7, 7,7,7,7,7,8,8,8,  # a0 - af
+    7,7,7,7,7,7,7,7, 7,7,7,7,7,7,7,7,  # b0 - bf
+    7,7,7,7,7,7,9,2, 2,3,2,2,2,2,2,2,  # c0 - cf
+    2,2,2,2,2,2,2,2, 2,2,2,2,2,2,2,2,  # d0 - df
+    2,2,2,2,2,2,2,2, 2,2,2,2,2,2,2,2,  # e0 - ef
+    2,2,2,2,2,2,2,2, 2,2,2,2,2,2,2,0,  # f0 - ff
+)
+
+CP949_st = (
+#cls=    0      1      2      3      4      5      6      7      8      9  # previous state =
+    eError,eStart,     3,eError,eStart,eStart,     4,     5,eError,     6, # eStart
+    eError,eError,eError,eError,eError,eError,eError,eError,eError,eError, # eError
+    eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe, # eItsMe
+    eError,eError,eStart,eStart,eError,eError,eError,eStart,eStart,eStart, # 3
+    eError,eError,eStart,eStart,eStart,eStart,eStart,eStart,eStart,eStart, # 4
+    eError,eStart,eStart,eStart,eStart,eStart,eStart,eStart,eStart,eStart, # 5
+    eError,eStart,eStart,eStart,eStart,eError,eError,eStart,eStart,eStart, # 6
+)
+
+CP949CharLenTable = (0, 1, 2, 0, 1, 1, 2, 2, 0, 2)
+
+CP949SMModel = {'classTable': CP949_cls,
+                'classFactor': 10,
+                'stateTable': CP949_st,
+                'charLenTable': CP949CharLenTable,
+                'name': 'CP949'}
+
 # EUC-JP
 
 EUCJP_cls = (
