@@ -401,11 +401,17 @@ class Session(SessionRedirectMixin):
         if getattr(request, 'prepare', None):
             raise ValueError('You can only send PreparedRequests.')
 
+        # Set up default kwarg values
+        kwargs.setdefault('stream', self.stream)
+        kwargs.setdefault('cert', self.cert)
+        kwargs.setdefault('verify', self.verify)
+        kwargs.setdefault('proxies', self.proxies)
+
         # Set up variables needed for resolve_redirects and dispatching of
         # hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
         req = kwargs.pop('req', None)
-        stream = kwargs.get('stream', False)
+        stream = kwargs.get('stream')
         timeout = kwargs.get('timeout')
         verify = kwargs.get('verify')
         cert = kwargs.get('cert')
