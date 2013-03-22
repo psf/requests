@@ -20,7 +20,7 @@ from .cookies import cookiejar_from_dict, get_cookie_header
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .exceptions import HTTPError, RequestException, MissingSchema, InvalidURL
 from .utils import (
-    stream_untransfer, guess_filename, requote_uri,
+    stream_untransfer, guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
     iter_slices, guess_json_utf, super_len)
 from .compat import (
@@ -222,6 +222,10 @@ class Request(RequestHooksMixin):
         p.prepare_body(self.data, self.files)
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
+        if self.auth is None:
+            auth = get_auth_from_url(self.url)
+            if auth[0] is not None and auth[1] is not None:
+                self.auth = auth
         p.prepare_auth(self.auth)
         # This MUST go after prepare_auth. Authenticators could add a hook
         p.prepare_hooks(self.hooks)
