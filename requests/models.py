@@ -20,7 +20,7 @@ from .cookies import cookiejar_from_dict, get_cookie_header
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .exceptions import HTTPError, RequestException, MissingSchema, InvalidURL
 from .utils import (
-    stream_untransfer, guess_filename, requote_uri,
+    stream_untransfer, guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
     iter_slices, guess_json_utf, super_len)
 from .compat import (
@@ -220,9 +220,10 @@ class Request(RequestHooksMixin):
         p.prepare_headers(self.headers)
         p.prepare_cookies(self.cookies)
         p.prepare_body(self.data, self.files)
+        p.prepare_auth(self.auth, self.url)
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
-        p.prepare_auth(self.auth)
+
         # This MUST go after prepare_auth. Authenticators could add a hook
         p.prepare_hooks(self.hooks)
 
@@ -395,8 +396,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         elif self.method not in ('GET', 'HEAD'):
             self.headers['Content-Length'] = '0'
 
-    def prepare_auth(self, auth):
+    def prepare_auth(self, auth, url=''):
         """Prepares the given HTTP auth data."""
+
+        # If no Auth is explicitly provided, extract it from the URL first.
+        if auth is None:
+            url_auth = get_auth_from_url(self.url)
+            auth = url_auth if any(url_auth) else None
+
         if auth:
             if isinstance(auth, tuple) and len(auth) == 2:
                 # special-case basic HTTP auth

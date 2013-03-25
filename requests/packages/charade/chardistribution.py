@@ -40,6 +40,7 @@ from .compat import wrap_ord
 ENOUGH_DATA_THRESHOLD = 1024
 SURE_YES = 0.99
 SURE_NO = 0.01
+MINIMUM_DATA_THRESHOLD = 3
 
 
 class CharDistributionAnalysis:
@@ -82,7 +83,7 @@ class CharDistributionAnalysis:
         """return confidence based on existing data"""
         # if we didn't receive any character in our consideration range,
         # return negative answer
-        if self._mTotalChars <= 0:
+        if self._mTotalChars <= 0 or self._mFreqChars <= MINIMUM_DATA_THRESHOLD:
             return SURE_NO
 
         if self._mTotalChars != self._mFreqChars:

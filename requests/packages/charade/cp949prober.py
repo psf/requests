@@ -1,15 +1,13 @@
 ######################## BEGIN LICENSE BLOCK ########################
-# The Original Code is Mozilla Universal charset detector code.
+# The Original Code is mozilla.org code.
 #
 # The Initial Developer of the Original Code is
 # Netscape Communications Corporation.
-# Portions created by the Initial Developer are Copyright (C) 2001
+# Portions created by the Initial Developer are Copyright (C) 1998
 # the Initial Developer. All Rights Reserved.
 #
 # Contributor(s):
 #   Mark Pilgrim - port to Python
-#   Shy Shalom - original C code
-#   Proofpoint, Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -27,28 +25,20 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-from .charsetgroupprober import CharSetGroupProber
-from .utf8prober import UTF8Prober
-from .sjisprober import SJISProber
-from .eucjpprober import EUCJPProber
-from .gb2312prober import GB2312Prober
-from .euckrprober import EUCKRProber
-from .cp949prober import CP949Prober
-from .big5prober import Big5Prober
-from .euctwprober import EUCTWProber
+from .mbcharsetprober import MultiByteCharSetProber
+from .codingstatemachine import CodingStateMachine
+from .chardistribution import EUCKRDistributionAnalysis
+from .mbcssm import CP949SMModel
 
 
-class MBCSGroupProber(CharSetGroupProber):
+class CP949Prober(MultiByteCharSetProber):
     def __init__(self):
-        CharSetGroupProber.__init__(self)
-        self._mProbers = [
-            UTF8Prober(),
-            SJISProber(),
-            EUCJPProber(),
-            GB2312Prober(),
-            EUCKRProber(),
-            CP949Prober(),
-            Big5Prober(),
-            EUCTWProber()
-        ]
+        MultiByteCharSetProber.__init__(self)
+        self._mCodingSM = CodingStateMachine(CP949SMModel)
+        # NOTE: CP949 is a superset of EUC-KR, so the distribution should be
+        #       not different.
+        self._mDistributionAnalyzer = EUCKRDistributionAnalysis()
         self.reset()
+
+    def get_charset_name(self):
+        return "CP949"

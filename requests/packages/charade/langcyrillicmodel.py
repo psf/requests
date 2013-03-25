@@ -25,8 +25,6 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-from . import constants
-
 # KOI8-R language model
 # Character Mapping Table:
 KOI8R_CharToOrderMap = (

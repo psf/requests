@@ -7,6 +7,7 @@ from __future__ import division
 import json
 import os
 import unittest
+import pickle
 
 import requests
 from requests.auth import HTTPDigestAuth
@@ -116,6 +117,12 @@ class RequestsTestCase(unittest.TestCase):
         url = httpbin('cookies/set?foo=bar')
         r = s.get(url)
         self.assertTrue(s.cookies['foo'] == 'bar')
+
+    def test_cookie_sent_on_redirect(self):
+        s = requests.session()
+        s.get(httpbin('cookies/set?foo=bar'))
+        r = s.get(httpbin('redirect/1'))  # redirects to httpbin('get')
+        self.assertTrue("Cookie" in r.json()["headers"])
 
     def test_user_agent_transfers(self):
 
@@ -375,6 +382,15 @@ class RequestsTestCase(unittest.TestCase):
         error = requests.exceptions.HTTPError('message', response=response)
         self.assertEqual(str(error), 'message')
         self.assertEqual(error.response, response)
+
+    def test_session_pickling(self):
+        r = requests.Request('GET', httpbin('get'))
+        s = requests.Session()
+
+        s = pickle.loads(pickle.dumps(s))
+
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code, 200)
 
 
 if __name__ == '__main__':

@@ -90,7 +90,10 @@ class SessionRedirectMixin(object):
         prepared_request.hooks = req.hooks
         prepared_request.method = req.method
         prepared_request.url = req.url
-        cookiejar = resp.cookies
+
+        cookiejar = cookiejar_from_dict({})
+        cookiejar.update(self.cookies)
+        cookiejar.update(resp.cookies)
 
         # ((resp.status_code is codes.see_other))
         while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
@@ -177,8 +180,9 @@ class Session(SessionRedirectMixin):
     """
 
     __attrs__ = [
-        'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',   
-        'params', 'verify', 'cert', 'prefetch']
+        'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
+        'params', 'verify', 'cert', 'prefetch', 'adapters', 'stream',
+        'trust_env']
 
     def __init__(self):
 
