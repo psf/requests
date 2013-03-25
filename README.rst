@@ -1,5 +1,6 @@
-Fork of github.com/foxx/requests == python-requests *working with socks proxy* (i.e tor).
-Just renamed the package to allow simultaneously use of original reuests and socks-capable requests.
+
+Requesocks is the fork of github.com/foxx/requests == python-requests *working with socks proxy* (i.e tor).
+Just renamed the package to allow simultaneously use of original requests and socks-capable-requests.
 
 Requests: HTTP for Humans
 =========================
@@ -18,13 +19,13 @@ perform the simplest of tasks.
 Things shouldn't be this way. Not in Python.
 
 ::
-
-    >>> r = requests.get('https://api.github.com', auth=('user', 'pass'))
-    >>> r.status_code
-    204
-    >>> r.headers['content-type']
-    'application/json'
-    >>> r.text
+    session = requesocks.session()
+    session.proxies = {'http': 'socks5://127.0.0.1:9050',
+                       'https': 'socks5://127.0.0.1:9050'}
+    r = session.get('https://api.github.com', auth=('user', 'pass'))
+    print(r.status_code)
+    print(r.headers['content-type'])
+    print(r.text)
     ...
 
 See `the same code, without Requests <https://gist.github.com/973705>`_.
@@ -57,11 +58,11 @@ Installation
 
 To install requests, simply: ::
 
-    $ pip install requests
+    $ pip install requesocks
 
 Or, if you absolutely must: ::
 
-    $ easy_install requests
+    $ easy_install requesocks
 
 But, you really shouldn't do that.
 

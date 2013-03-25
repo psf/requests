@@ -4,13 +4,11 @@
 import os
 import sys
 import requesocks
-from requesocks.compat import is_py3, is_py2
 
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-
 
 
 if sys.argv[-1] == 'publish':
@@ -25,20 +23,18 @@ packages = [
     'requesocks.packages.urllib3',
     'requesocks.packages.urllib3.packages',
     'requesocks.packages.urllib3.packages.ssl_match_hostname',
+    'requesocks.packages.urllib3.packages.socksipy',
     'requesocks.packages.urllib3.packages.mimetools_choose_boundary',
 ]
 
-if is_py3:
-    required.append('chardet2')
-else:
-    required.append('chardet>=1.0.0')
-    packages.append('requesocks.packages.oreos')
+required.append('chardet>=1.0.0')
+packages.append('requesocks.packages.oreos')
 
 
 setup(
     name='requesocks',
     version=requesocks.__version__,
-    description='Python HTTP for Humans.',
+    description='Python HTTP for Humans, with socks proxy support',
     long_description=open('README.rst').read() + '\n\n' +
                      open('HISTORY.rst').read(),
     author='Kenneth Reitz',
@@ -57,8 +53,5 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.0',
-        'Programming Language :: Python :: 3.1',
     ),
 )
