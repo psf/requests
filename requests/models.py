@@ -511,10 +511,11 @@ class Response(object):
         return chardet.detect(self.content)['encoding']
 
     def iter_content(self, chunk_size=1, decode_unicode=False):
-        """Iterates over the response data.  This avoids reading the content
-        at once into memory for large responses.  The chunk size is the number
-        of bytes it should read into memory.  This is not necessarily the
-        length of each item returned as decoding can take place.
+        """Iterates over the response data.  When stream=True is set on the
+        request, this avoids reading the content at once into memory for
+        large responses.  The chunk size is the number of bytes it should
+        read into memory.  This is not necessarily the length of each item
+        returned as decoding can take place.
         """
         if self._content_consumed:
             # simulate reading small chunks of the content
@@ -536,9 +537,9 @@ class Response(object):
         return gen
 
     def iter_lines(self, chunk_size=ITER_CHUNK_SIZE, decode_unicode=None):
-        """Iterates over the response data, one line at a time.  This
-        avoids reading the content at once into memory for large
-        responses.
+        """Iterates over the response data, one line at a time.  When
+        stream=True is set on the request, this avoids reading the
+        content at once into memory for large responses.
         """
 
         pending = None
