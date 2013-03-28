@@ -316,7 +316,6 @@ class Session(SessionRedirectMixin):
             'cert': cert,
             'proxies': proxies,
             'allow_redirects': allow_redirects,
-            'req': req,
         }
         resp = self.send(prep, **send_kwargs)
 
@@ -398,14 +397,17 @@ class Session(SessionRedirectMixin):
         """Send a given PreparedRequest."""
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
+        kwargs.setdefault('stream', False)
+        kwargs.setdefault('verify', True)
+        kwargs.setdefault('proxies', {})
+
         if getattr(request, 'prepare', None):
             raise ValueError('You can only send PreparedRequests.')
 
         # Set up variables needed for resolve_redirects and dispatching of
         # hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
-        req = kwargs.pop('req', None)
-        stream = kwargs.get('stream', False)
+        stream = kwargs.get('stream')
         timeout = kwargs.get('timeout')
         verify = kwargs.get('verify')
         cert = kwargs.get('cert')
