@@ -394,7 +394,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         elif body is not None:
             l = super_len(body)
             if l:
-                self.headers['Content-Length'] = super_len(l)
+                self.headers['Content-Length'] = str(l)
         elif self.method not in ('GET', 'HEAD'):
             self.headers['Content-Length'] = '0'
 

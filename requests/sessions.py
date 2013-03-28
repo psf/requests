@@ -429,12 +429,14 @@ class Session(SessionRedirectMixin):
 
     def send(self, request, **kwargs):
         """Send a given PreparedRequest."""
-        # It's possible that users might accidentally send a Request object.
-        # Guard against that specific failure case.
+        # Set defaults that the hooks can utilize to ensure they always have
+        # the correct parameters to reproduce the previous request.
         kwargs.setdefault('stream', False)
         kwargs.setdefault('verify', True)
         kwargs.setdefault('proxies', {})
 
+        # It's possible that users might accidentally send a Request object.
+        # Guard against that specific failure case.
         if getattr(request, 'prepare', None):
             raise ValueError('You can only send PreparedRequests.')
 
