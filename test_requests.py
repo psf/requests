@@ -394,7 +394,7 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_session_response_attr(self):
         s = requests.Session()
-        self.assertRaises(AttributeError, lambda : dir(s.response))
+        self.assertFalse(hasattr(s, 'response'))
         r = s.get(httpbin('get'))
         self.assertEqual(r, s.response)
         s.get(httpbin('ip'))
