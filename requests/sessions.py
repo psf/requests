@@ -431,9 +431,10 @@ class Session(SessionRedirectMixin):
         """Send a given PreparedRequest."""
         # Set defaults that the hooks can utilize to ensure they always have
         # the correct parameters to reproduce the previous request.
-        kwargs.setdefault('stream', False)
-        kwargs.setdefault('verify', True)
-        kwargs.setdefault('proxies', {})
+        kwargs.setdefault('stream', self.stream)
+        kwargs.setdefault('verify', self.verify)
+        kwargs.setdefault('cert', self.cert)
+        kwargs.setdefault('proxies', self.proxies
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
