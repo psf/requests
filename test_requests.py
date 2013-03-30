@@ -392,6 +392,14 @@ class RequestsTestCase(unittest.TestCase):
         r = s.send(r.prepare())
         self.assertEqual(r.status_code, 200)
 
+    def test_session_response_attr(self):
+        s = requests.Session()
+        self.assertRaises(AttributeError, lambda : dir(s.response))
+        r = s.get(httpbin('get'))
+        self.assertEqual(r, s.response)
+        s.get(httpbin('ip'))
+        self.assertNotEqual(r, s.response)
+
 
 if __name__ == '__main__':
     unittest.main()
