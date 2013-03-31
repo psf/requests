@@ -3,6 +3,34 @@
 History
 -------
 
+1.2.0 (2013-03-xx)
+++++++++++++++++++
+
+- Fixed cookies on sessions and on requests
+- Significantly change how hooks are dispatched - hooks now receive all the 
+  arguments specified by the user when making a request so hooks can make a 
+  secondary request with the same parameters. This is especially necessary for 
+  authentication handler authors
+- certifi support was removed
+- Fixed bug where using OAuth 1 with body ``signature_type`` sent no data
+- Major proxy work thanks to @Lukasa including parsing of proxy authentication 
+  from the proxy url
+- Fix DigestAuth handling too many 401s
+- Update vendored urllib3 to include SSL bug fixes
+- Allow keyword arguments to be passed to ``json.loads()`` via the 
+  ``Response.json()`` method
+- Don't send ``Content-Length`` header by default on ``GET`` or ``HEAD`` 
+  requests
+- Add ``elapsed`` attribute to ``Response`` objects to time how long a request 
+  took.
+- Fix ``RequestsCookieJar``
+- Sessions and Adapters are now picklable, i.e., can be used with the 
+  mutiprocessing library
+- Update charade to version 1.0.3
+
+The change in how hooks are dispatched will likely cause a great deal of 
+issues.
+
 1.1.0 (2013-01-10)
 ++++++++++++++++++
 
