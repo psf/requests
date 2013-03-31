@@ -23,6 +23,9 @@ pool_classes_by_scheme = {
 
 log = logging.getLogger(__name__)
 
+SSL_KEYWORDS = ('key_file', 'cert_file', 'cert_reqs', 'ca_certs',
+                'ssl_version')
+
 
 class PoolManager(RequestMethods):
     """
@@ -67,7 +70,13 @@ class PoolManager(RequestMethods):
         to be overridden for customization.
         """
         pool_cls = pool_classes_by_scheme[scheme]
-        return pool_cls(host, port, **self.connection_pool_kw)
+        kwargs = self.connection_pool_kw
+        if scheme == 'http':
+            kwargs = self.connection_pool_kw.copy()
+            for kw in SSL_KEYWORDS:
+                kwargs.pop(kw, None)
+
+        return pool_cls(host, port, **kwargs)
 
     def clear(self):
         """
