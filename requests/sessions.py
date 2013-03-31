@@ -134,7 +134,8 @@ class SessionRedirectMixin(object):
 
             prepared_request.method = method
 
-            if resp.status_code is not codes.temporary:
+            # https://github.com/kennethreitz/requests/issues/1084
+            if resp.status_code not in (codes.temporary, codes.resume):
                 if 'Content-Length' in prepared_request.headers:
                     del prepared_request.headers['Content-Length']
 
@@ -251,6 +252,39 @@ class Session(SessionRedirectMixin):
         stream=None,
         verify=None,
         cert=None):
+        """Constructs a :class:`Request <Request>`, prepares it and sends it.
+        Returns :class:`Response <Response>` object.
+
+        :param method: method for the new :class:`Request` object.
+        :param url: URL for the new :class:`Request` object.
+        :param params: (optional) Dictionary or bytes to be sent in the query
+            string for the :class:`Request`.
+        :param data: (optional) Dictionary or bytes to send in the body of the
+            :class:`Request`.
+        :param headers: (optional) Dictionary of HTTP Headers to send with the
+            :class:`Request`.
+        :param cookies: (optional) Dict or CookieJar object to send with the
+            :class:`Request`.
+        :param files: (optional) Dictionary of 'filename': file-like-objects
+            for multipart encoding upload.
+        :param auth: (optional) Auth tuple or callable to enable
+            Basic/Digest/Custom HTTP Auth.
+        :param timeout: (optional) Float describing the timeout of the
+            request.
+        :param allow_redirects: (optional) Boolean. Set to True by default.
+        :param proxies: (optional) Dictionary mapping protocol to the URL of
+            the proxy.
+        :param return_response: (optional) If False, an un-sent Request object
+            will returned.
+        :param config: (optional) A configuration dictionary. See
+            ``request.defaults`` for allowed keys and their default values.
+        :param prefetch: (optional) whether to immediately download the response
+            content. Defaults to ``True``.
+        :param verify: (optional) if ``True``, the SSL cert will be verified.
+            A CA_BUNDLE path can also be provided.
+        :param cert: (optional) if String, path to ssl client cert file (.pem).
+            If Tuple, ('cert', 'key') pair.
+        """
 
         cookies = cookies or {}
         proxies = proxies or {}
@@ -316,7 +350,6 @@ class Session(SessionRedirectMixin):
             'cert': cert,
             'proxies': proxies,
             'allow_redirects': allow_redirects,
-            'req': req,
         }
         resp = self.send(prep, **send_kwargs)
 
@@ -396,6 +429,13 @@ class Session(SessionRedirectMixin):
 
     def send(self, request, **kwargs):
         """Send a given PreparedRequest."""
+        # Set defaults that the hooks can utilize to ensure they always have
+        # the correct parameters to reproduce the previous request.
+        kwargs.setdefault('stream', self.stream)
+        kwargs.setdefault('verify', self.verify)
+        kwargs.setdefault('cert', self.cert)
+        kwargs.setdefault('proxies', self.proxies
+
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
         if getattr(request, 'prepare', None):
@@ -404,8 +444,7 @@ class Session(SessionRedirectMixin):
         # Set up variables needed for resolve_redirects and dispatching of
         # hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
-        req = kwargs.pop('req', None)
-        stream = kwargs.get('stream', False)
+        stream = kwargs.get('stream')
         timeout = kwargs.get('timeout')
         verify = kwargs.get('verify')
         cert = kwargs.get('cert')

@@ -295,8 +295,15 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertTrue(b"text/py-content-type" in r.request.body)
 
+    def test_hook_receives_request_arguments(self):
+        def hook(resp, **kwargs):
+            assert resp is not None
+            assert kwargs != {}
+
+        requests.Request('GET', HTTPBIN, hooks={'response': hook})
+
     def test_prepared_request_hook(self):
-        def hook(resp):
+        def hook(resp, **kwargs):
             resp.hook_working = True
             return resp
 
