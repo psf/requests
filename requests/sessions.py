@@ -10,7 +10,6 @@ requests (cookies, auth, proxies).
 """
 import os
 from datetime import datetime
-from copy import copy
 
 from .compat import cookielib
 from .cookies import cookiejar_from_dict
@@ -85,12 +84,6 @@ class SessionRedirectMixin(object):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
-        prepared_request = PreparedRequest()
-        prepared_request.body = req.body
-        prepared_request.headers = req.headers.copy()
-        prepared_request.hooks = req.hooks
-        prepared_request.method = req.method
-        prepared_request.url = req.url
 
         cookiejar = cookiejar_from_dict({})
         cookiejar.update(self.cookies)
@@ -98,6 +91,10 @@ class SessionRedirectMixin(object):
 
         # ((resp.status_code is codes.see_other))
         while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
+            prepared_request = PreparedRequest()
+            prepared_request.body = req.body
+            prepared_request.headers = req.headers.copy()
+            prepared_request.hooks = req.hooks
 
             resp.content  # Consume socket so it can be released
 
@@ -108,7 +105,7 @@ class SessionRedirectMixin(object):
             resp.close()
 
             url = resp.headers['location']
-            method = prepared_request.method
+            method = req.method
 
             # Handle redirection without scheme (see: RFC 1808 Section 4)
             if url.startswith('//'):
@@ -125,12 +122,12 @@ class SessionRedirectMixin(object):
 
             # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
             if (resp.status_code == codes.see_other and
-                    prepared_request.method != 'HEAD'):
+                    method != 'HEAD'):
                 method = 'GET'
 
             # Do what the browsers do, despite standards...
             if (resp.status_code in (codes.moved, codes.found) and
-                    prepared_request.method == 'POST'):
+                    method == 'POST'):
                 method = 'GET'
 
             prepared_request.method = method
@@ -151,7 +148,7 @@ class SessionRedirectMixin(object):
             prepared_request.prepare_cookies(cookiejar)
 
             resp = self.send(
-                copy(prepared_request),
+                prepared_request,
                 stream=stream,
                 timeout=timeout,
                 verify=verify,
