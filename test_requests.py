@@ -124,6 +124,12 @@ class RequestsTestCase(unittest.TestCase):
         r = s.get(httpbin('redirect/1'))  # redirects to httpbin('get')
         self.assertTrue("Cookie" in r.json()["headers"])
 
+    def test_requests_in_history_are_not_overridden(self):
+        resp = requests.get(httpbin('redirect/3'))
+        urls = [r.url for r in resp.history]
+        req_urls = [r.request.url for r in resp.history]
+        self.assertEquals(urls, req_urls)
+
     def test_user_agent_transfers(self):
 
         heads = {
