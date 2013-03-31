@@ -10,6 +10,7 @@ requests (cookies, auth, proxies).
 """
 import os
 from datetime import datetime
+from copy import copy
 
 from .compat import cookielib
 from .cookies import cookiejar_from_dict
@@ -150,7 +151,7 @@ class SessionRedirectMixin(object):
             prepared_request.prepare_cookies(cookiejar)
 
             resp = self.send(
-                prepared_request,
+                copy(prepared_request),
                 stream=stream,
                 timeout=timeout,
                 verify=verify,
