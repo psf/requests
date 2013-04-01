@@ -575,7 +575,7 @@ class Response(object):
                     raise RuntimeError(
                         'The content for this response was already consumed')
 
-                if self.status_code is 0:
+                if self.status_code == 0:
                     self._content = None
                 else:
                     self._content = bytes().join(self.iter_content(CONTENT_CHUNK_SIZE)) or bytes()
