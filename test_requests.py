@@ -286,6 +286,12 @@ class RequestsTestCase(unittest.TestCase):
                           files={'file': ('test_requests.py', open(__file__, 'rb'))})
         self.assertEqual(r.status_code, 200)
 
+    def test_unicode_multipart_post(self):
+        r = requests.post(httpbin('post'),
+                          data={'stuff': u'ëlïxr'},
+                          files={'file': ('test_requests.py', open(__file__, 'rb'))})
+        self.assertEqual(r.status_code, 200)
+
     def test_custom_content_type(self):
         r = requests.post(httpbin('post'),
                           data={'stuff': json.dumps({'a': 123})},
