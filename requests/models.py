@@ -60,7 +60,7 @@ class RequestEncodingMixin(object):
         """Encode parameters in a piece of data.
 
         Will successfully encode parameters when passed as a dict or a list of
-        2-tuples. Order is retained if data is a list of 2-tuples but abritrary
+        2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
         if parameters are supplied as a dict.
         """
 
