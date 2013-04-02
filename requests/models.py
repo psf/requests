@@ -99,11 +99,13 @@ class RequestEncodingMixin(object):
         files = to_key_val_list(files or {})
 
         for field, val in fields:
-            if isinstance(val, list):
-                for v in val:
-                    new_fields.append((field, str(v)))
-            else:
-                new_fields.append((field, str(val)))
+            if isinstance(val, basestring) or not hasattr(val, '__iter__'):
+                val = [val]
+            for v in val:
+                if v is not None:
+                    new_fields.append(
+                        (field.encode('utf-8') if isinstance(field, str) else field,
+                         v.encode('utf-8') if isinstance(v, str) else v))
 
         for (k, v) in files:
             # support for explicit filename
