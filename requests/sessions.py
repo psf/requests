@@ -274,12 +274,8 @@ class Session(SessionRedirectMixin):
         :param allow_redirects: (optional) Boolean. Set to True by default.
         :param proxies: (optional) Dictionary mapping protocol to the URL of
             the proxy.
-        :param return_response: (optional) If False, an un-sent Request object
-            will returned.
-        :param config: (optional) A configuration dictionary. See
-            ``request.defaults`` for allowed keys and their default values.
-        :param prefetch: (optional) whether to immediately download the response
-            content. Defaults to ``True``.
+        :param stream: (optional) whether to immediately download the response
+            content. Defaults to ``False``.
         :param verify: (optional) if ``True``, the SSL cert will be verified.
             A CA_BUNDLE path can also be provided.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
