@@ -251,7 +251,8 @@ class Session(SessionRedirectMixin):
         hooks=None,
         stream=None,
         verify=None,
-        cert=None):
+        cert=None,
+        return_response=True):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -339,6 +340,9 @@ class Session(SessionRedirectMixin):
         req.cookies = cookies
         req.hooks = hooks
 
+	if not return_response:
+	  return req
+	
         # Prepare the Request.
         prep = req.prepare()
 
