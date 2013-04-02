@@ -25,7 +25,7 @@ History
   took.
 - Fix ``RequestsCookieJar``
 - Sessions and Adapters are now picklable, i.e., can be used with the
-  mutiprocessing library
+  multiprocessing library
 - Update charade to version 1.0.3
 
 The change in how hooks are dispatched will likely cause a great deal of
