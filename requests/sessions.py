@@ -340,9 +340,9 @@ class Session(SessionRedirectMixin):
         req.cookies = cookies
         req.hooks = hooks
 
-	if not return_response:
-	  return req
-	
+        if not return_response:
+            return req
+        
         # Prepare the Request.
         prep = req.prepare()
 
