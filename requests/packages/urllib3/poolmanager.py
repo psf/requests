@@ -76,7 +76,7 @@ class PoolManager(RequestMethods):
             for kw in SSL_KEYWORDS:
                 kwargs.pop(kw, None)
 
-        return pool_cls(host, port, **kwargs)
+        return pool_cls(host, port, source_address=source_address, **kwargs)
 
     def clear(self):
         """
