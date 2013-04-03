@@ -22,7 +22,8 @@ from .exceptions import HTTPError, RequestException, MissingSchema, InvalidURL
 from .utils import (
     stream_untransfer, guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, to_native_string)
+    iter_slices, guess_json_utf, super_len, to_native_string,
+    dict_to_native_string)
 from .compat import (
     cookielib, urlparse, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring)
@@ -418,6 +419,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if isinstance(cookies, cookielib.CookieJar):
             cookies = cookies
         else:
+            cookies = dict_to_native_string(cookies)
             cookies = cookiejar_from_dict(cookies)
 
         if 'cookie' not in self.headers:

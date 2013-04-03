@@ -603,3 +603,17 @@ def to_native_string(string):
         return string.encode('utf-8')
     else:
         return string.decode('utf-8')
+
+
+def dict_to_native_string(dictionary):
+    """Turns a dict of strings to strings into a dict of native strings to
+    native strings."""
+    if dictionary:
+        new_dict = {}
+
+        for key, value in dictionary.items():
+            new_dict[to_native_string(key)] = to_native_string(value)
+
+        return new_dict
+    else:
+        return dictionary
