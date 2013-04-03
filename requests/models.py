@@ -22,7 +22,7 @@ from .exceptions import HTTPError, RequestException, MissingSchema, InvalidURL
 from .utils import (
     stream_untransfer, guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len)
+    iter_slices, guess_json_utf, super_len, to_native_string)
 from .compat import (
     cookielib, urlparse, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring)
@@ -268,15 +268,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepares the given HTTP method."""
         self.method = method
         if self.method is not None:
-            self.method = self.method.upper()
+            self.method = to_native_string(self.method.upper())
 
     def prepare_url(self, url, params):
         """Prepares the given HTTP URL."""
         #: Accept objects that have string representations.
         try:
-            url = unicode(url)
-        except NameError:
-            # We're on Python 3.
             url = str(url)
         except UnicodeDecodeError:
             pass
@@ -296,26 +293,20 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if not path:
             path = '/'
 
-        if is_py2:
-            if isinstance(scheme, str):
-                scheme = scheme.encode('utf-8')
-            if isinstance(netloc, str):
-                netloc = netloc.encode('utf-8')
-            if isinstance(path, str):
-                path = path.encode('utf-8')
-            if isinstance(_params, str):
-                _params = _params.encode('utf-8')
-            if isinstance(query, str):
-                query = query.encode('utf-8')
-            if isinstance(fragment, str):
-                fragment = fragment.encode('utf-8')
-
         enc_params = self._encode_params(params)
         if enc_params:
             if query:
                 query = '%s&%s' % (query, enc_params)
             else:
                 query = enc_params
+
+        scheme = to_native_string(scheme)
+        netloc = to_native_string(netloc)
+        path = to_native_string(path)
+        _params = to_native_string(_params)
+        query = to_native_string(query)
+        fragment = to_native_string(fragment)
+        query = to_native_string(query)
 
         url = requote_uri(urlunparse([scheme, netloc, path, _params, query, fragment]))
         self.url = url
@@ -324,7 +315,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepares the given HTTP headers."""
 
         if headers:
-            headers = dict((name.encode('ascii'), value) for name, value in headers.items())
+            headers = dict((to_native_string(name), to_native_string(value))
+                           for name, value in headers.items())
             self.headers = CaseInsensitiveDict(headers)
         else:
             self.headers = CaseInsensitiveDict()
@@ -389,12 +381,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_content_length(self, body):
         if hasattr(body, 'seek') and hasattr(body, 'tell'):
             body.seek(0, 2)
-            self.headers['Content-Length'] = str(body.tell())
+            self.headers['Content-Length'] = to_native_string(body.tell())
             body.seek(0, 0)
         elif body is not None:
             l = super_len(body)
             if l:
-                self.headers['Content-Length'] = str(l)
+                self.headers['Content-Length'] = builtin_str(l)
         elif self.method not in ('GET', 'HEAD'):
             self.headers['Content-Length'] = '0'
 
@@ -431,7 +423,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if 'cookie' not in self.headers:
             cookie_header = get_cookie_header(cookies, self)
             if cookie_header is not None:
-                self.headers['Cookie'] = cookie_header
+                self.headers['Cookie'] = to_native_string(cookie_header)
 
     def prepare_hooks(self, hooks):
         """Prepares the given hooks."""
