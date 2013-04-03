@@ -602,4 +602,4 @@ def to_native_string(string):
     elif is_py2:
         return string.encode('utf-8')
     else:
-        return str(string)
+        return string.decode('utf-8')
