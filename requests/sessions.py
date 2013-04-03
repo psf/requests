@@ -251,7 +251,9 @@ class Session(SessionRedirectMixin):
         hooks=None,
         stream=None,
         verify=None,
-        cert=None):
+        cert=None,
+        source_address=None):
+        
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -350,6 +352,7 @@ class Session(SessionRedirectMixin):
             'cert': cert,
             'proxies': proxies,
             'allow_redirects': allow_redirects,
+            'source_address': source_address
         }
         resp = self.send(prep, **send_kwargs)
 
