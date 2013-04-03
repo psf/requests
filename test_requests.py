@@ -11,7 +11,7 @@ import pickle
 
 import requests
 from requests.auth import HTTPDigestAuth
-from requests.compat import str
+from requests.compat import str, bytes, builtin_str
 
 try:
     import StringIO
@@ -398,6 +398,30 @@ class RequestsTestCase(unittest.TestCase):
 
         r = s.send(r.prepare())
         self.assertEqual(r.status_code, 200)
+
+    def test_all_prepared_data_is_native_strings(self):
+        # On a PreparedRequest, all string-based properties should be native
+        # strings, regardless of what was passed in. This explicitly does not
+        # include request.body, which should always be a bytestring. That
+        # behaviour is tested elsewhere.
+        r = requests.Request(method=str('GET'),
+                             url=bytes('http://test.com'),
+                             headers={str('key'): bytes('value'),
+                                      bytes('key2'): str('val2')},
+                             params={str('uni'): bytes('byt'),
+                                     bytes('byt'): str('uni')},
+                             cookies={str('unicook'): bytes('bytval'),
+                                      bytes('bytcook'): str('unival')},
+                             )
+        p = r.prepare()
+
+        # Assert that all the things are native strings.
+        self.assertTrue(isinstance(p.url, builtin_str))
+        self.assertTrue(isinstance(p.method, builtin_str))
+
+        for key, val in p.headers.items():
+            self.assertTrue(isinstance(key, builtin_str))
+            self.assertTrue(isinstance(val, builtin_str))
 
 
 if __name__ == '__main__':
