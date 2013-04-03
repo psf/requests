@@ -405,13 +405,13 @@ class RequestsTestCase(unittest.TestCase):
         # include request.body, which should always be a bytestring. That
         # behaviour is tested elsewhere.
         r = requests.Request(method=str('GET'),
-                             url=bytes('http://test.com'),
-                             headers={str('key'): bytes('value'),
-                                      bytes('key2'): str('val2')},
-                             params={str('uni'): bytes('byt'),
-                                     bytes('byt'): str('uni')},
-                             cookies={str('unicook'): bytes('bytval'),
-                                      bytes('bytcook'): str('unival')},
+                             url=str('http://www.test.com/'),
+                             headers={str('key'): 'value'.encode('ascii'),
+                                      'key2'.encode('ascii'): str('val2')},
+                             params={str('uni'): 'byt'.encode('ascii'),
+                                     'byt'.encode('ascii'): str('uni')},
+                             cookies={str('unicook'): 'bytval'.encode('ascii'),
+                                      'bytcook'.encode('ascii'): str('unival')},
                              )
         p = r.prepare()
 
