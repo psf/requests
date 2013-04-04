@@ -75,8 +75,42 @@ request, and then the request's headers::
 
     >>> r.request.headers
     {'Accept-Encoding': 'identity, deflate, compress, gzip',
-    'Accept': '*/*', 'User-Agent': 'python-requests/0.13.1'}
+    'Accept': '*/*', 'User-Agent': 'python-requests/1.2.0'}
 
+Prepared Requests
+-----------------
+
+Whenever you receive a :class:`Response <requests.models.Response>` object 
+from an API call or a Session call, the ``request`` attribute is actually the 
+``PreparedRequest`` that was used. In some cases you may wish to do some extra 
+work to the body or headers (or anything else really) before sending a 
+request. The simple recipe for this is the following::
+
+    from requests import Request, Session
+
+    s = Session()
+    prepped = Request('GET',  # or any other method, 'POST', 'PUT', etc.
+                      url,
+                      data=data
+                      headers=headers
+                      # ...
+                      ).prepare()
+    # do something with prepped.body
+    # do something with prepped.headers
+    resp = s.send(prepped,
+                  stream=stream,
+                  verify=verify,
+                  proxies=proxies,
+                  cert=cert,
+                  timeout=timeout,
+                  # etc.
+                  )
+    print(resp.status_code)
+
+Since you are not doing anything special with the ``Request`` object, you 
+prepare it immediately and modified the ``PreparedRequest`` object. You then 
+send that with the other parameters you would have sent to ``requests.*`` or 
+``Sesssion.*``. 
 
 SSL Cert Verification
 ---------------------
