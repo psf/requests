@@ -61,7 +61,7 @@ class PoolManager(RequestMethods):
         self.pools = RecentlyUsedContainer(num_pools,
                                            dispose_func=lambda p: p.close())
 
-    def _new_pool(self, scheme, host, port):
+    def _new_pool(self, scheme, host, port, source_address):
         """
         Create a new :class:`ConnectionPool` based on host, port and scheme.
 
@@ -76,7 +76,7 @@ class PoolManager(RequestMethods):
             for kw in SSL_KEYWORDS:
                 kwargs.pop(kw, None)
 
-        return pool_cls(host, port, **kwargs)
+        return pool_cls(host, port, source_address=source_address, **kwargs)
 
     def clear(self):
         """
@@ -87,7 +87,7 @@ class PoolManager(RequestMethods):
         """
         self.pools.clear()
 
-    def connection_from_host(self, host, port=None, scheme='http'):
+    def connection_from_host(self, host, port=None, scheme='http', source_address=None):
         """
         Get a :class:`ConnectionPool` based on the host, port, and scheme.
 
@@ -97,7 +97,7 @@ class PoolManager(RequestMethods):
         scheme = scheme or 'http'
         port = port or port_by_scheme.get(scheme, 80)
 
-        pool_key = (scheme, host, port)
+        pool_key = (scheme, host, port, source_address)
 
         # If the scheme, host, or port doesn't match existing open connections,
         # open a new ConnectionPool.
@@ -106,11 +106,11 @@ class PoolManager(RequestMethods):
             return pool
 
         # Make a fresh ConnectionPool of the desired type
-        pool = self._new_pool(scheme, host, port)
+        pool = self._new_pool(scheme, host, port, source_address)
         self.pools[pool_key] = pool
         return pool
 
-    def connection_from_url(self, url):
+    def connection_from_url(self, url, source_address=None):
         """
         Similar to :func:`urllib3.connectionpool.connection_from_url` but
         doesn't pass any additional parameters to the
@@ -120,7 +120,7 @@ class PoolManager(RequestMethods):
         constructor.
         """
         u = parse_url(url)
-        return self.connection_from_host(u.host, port=u.port, scheme=u.scheme)
+        return self.connection_from_host(u.host, port=u.port, scheme=u.scheme, source_address=source_address)
 
     def urlopen(self, method, url, redirect=True, **kw):
         """

@@ -125,9 +125,10 @@ class ConnectionPool(object):
     scheme = None
     QueueCls = LifoQueue
 
-    def __init__(self, host, port=None):
+    def __init__(self, host, port=None, source_address=None):
         self.host = host
         self.port = port
+        self.source_address = source_address
 
     def __str__(self):
         return '%s(host=%r, port=%r)' % (type(self).__name__,
@@ -175,9 +176,9 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
     scheme = 'http'
 
-    def __init__(self, host, port=None, strict=False, timeout=None, maxsize=1,
+    def __init__(self, host, port=None, source_address=None, strict=False, timeout=None, maxsize=1,
                  block=False, headers=None):
-        ConnectionPool.__init__(self, host, port)
+        ConnectionPool.__init__(self, host, port, source_address=source_address)
         RequestMethods.__init__(self, headers)
 
         self.strict = strict
@@ -202,7 +203,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
                  (self.num_connections, self.host))
         return HTTPConnection(host=self.host,
                               port=self.port,
-                              strict=self.strict)
+                              strict=self.strict,
+                              source_address=self.source_address)
 
     def _get_conn(self, timeout=None):
         """
@@ -521,13 +523,14 @@ class HTTPSConnectionPool(HTTPConnectionPool):
     scheme = 'https'
 
     def __init__(self, host, port=None,
+                 source_address=None,
                  strict=False, timeout=None, maxsize=1,
                  block=False, headers=None,
                  key_file=None, cert_file=None, cert_reqs=None,
                  ca_certs=None, ssl_version=None,
                  assert_hostname=None, assert_fingerprint=None):
 
-        HTTPConnectionPool.__init__(self, host, port,
+        HTTPConnectionPool.__init__(self, host, port, source_address,
                                     strict, timeout, maxsize,
                                     block, headers)
         self.key_file = key_file
@@ -553,11 +556,13 @@ class HTTPSConnectionPool(HTTPConnectionPool):
 
             return HTTPSConnection(host=self.host,
                                    port=self.port,
-                                   strict=self.strict)
+                                   strict=self.strict,
+                                   source_address=self.source_address)
 
         connection = VerifiedHTTPSConnection(host=self.host,
                                              port=self.port,
-                                             strict=self.strict)
+                                             strict=self.strict,
+                                             source_address=self.source_address)
         connection.set_cert(key_file=self.key_file, cert_file=self.cert_file,
                             cert_reqs=self.cert_reqs, ca_certs=self.ca_certs,
                             assert_hostname=self.assert_hostname,

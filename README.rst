@@ -1,82 +1,31 @@
-Requests: HTTP for Humans
-=========================
+Requests: HTTP for Humans (now with source_address support)
+===========================================================
 
+Fork of Kenneth Reitz's fantastic Requests library with source_address support (and a forked version of the included urllib3 that's included with requests).
 
-.. image:: https://travis-ci.org/kennethreitz/requests.png?branch=master
-        :target: https://travis-ci.org/kennethreitz/requests
+This means that this fork is only compatible with Python 2.7, when HTTPConnection added source_address support (and I have not yet tested it on 3.3). This first draft is a little specific to my Python 2.7 needs and I'll wait for feedback before I clean things up.
 
-Requests is an Apache2 Licensed HTTP library, written in Python, for human
-beings.
+Find the real documentation here: https://github.com/kennethreitz/requests
 
-Most existing Python modules for sending HTTP requests are extremely
-verbose and cumbersome. Python's builtin urllib2 module provides most of
-the HTTP capabilities you should need, but the api is thoroughly broken.
-It requires an enormous amount of work (even method overrides) to
-perform the simplest of tasks.
+I've removed the docs from this fork because I haven't had time to update all of them and no docs is better than docs that are wrong.
 
-Things shouldn't be this way. Not in Python.
+source_address is a kwarg on request building methods (get/post/put/etc)
+
+session objects have a source_address attribute that can be set on the session (and overridden on an individual request like all the other request related session object attributes).
+
+If you pass in 0 for the port then the underlying HTTPConnection object falls back to "default behaviour" which, as far as I can tell, is the normal "any available port" behaviour.
+
+Perhaps the source_address should accept an ip string *or* a tuple so that you don't need to specify the 0 (and the subtlety of free source ports and the magic 0 argument don't need to be understood by the users)
 
 .. code-block:: pycon
 
-    >>> r = requests.get('https://api.github.com', auth=('user', 'pass'))
-    >>> r.status_code
-    204
-    >>> r.headers['content-type']
-    'application/json'
-    >>> r.text
-    ...
+    >>> r = requests.get('https://api.github.com', auth=('user', 'pass'), source_address=('127.0.0.1', 54444))
+    >>> r = requests.get('https://api.github.com', auth=('user', 'pass'), source_address=('127.0.0.1', 0))
+    >>> sess = requests.session()
+    >>> sess.source_address = ('127.0.0.1', 54444)
+    >>> sess.auth = ('user', 'pass')
+    >>> r = sess.get('https://api.github.com')
 
-See `the same code, without Requests <https://gist.github.com/973705>`_.
+I don't have good test coverage yet (and none at all checked in at the moment because I was using netcat to set up a fake server). I will work out a reasonable way to test this and then hopefully get this merged into requests.
 
-Requests allow you to send HTTP/1.1 requests. You can add headers, form data,
-multipart files, and parameters with simple Python dictionaries, and access the
-response data in the same way. It's powered by httplib and `urllib3
-<https://github.com/shazow/urllib3>`_, but it does all the hard work and crazy
-hacks for you.
-
-
-Features
---------
-
-- International Domains and URLs
-- Keep-Alive & Connection Pooling
-- Sessions with Cookie Persistence
-- Browser-style SSL Verification
-- Basic/Digest Authentication
-- Elegant Key/Value Cookies
-- Automatic Decompression
-- Unicode Response Bodies
-- Multipart File Uploads
-- Connection Timeouts
-- Thread-safety
-
-
-Installation
-------------
-
-To install requests, simply:
-
-.. code-block:: bash
-
-    $ pip install requests
-
-Or, if you absolutely must:
-
-.. code-block:: bash
-
-    $ easy_install requests
-
-But, you really shouldn't do that.
-
-
-
-Contribute
-----------
-
-#. Check for open issues or open a fresh issue to start a discussion around a feature idea or a bug. There is a Contributor Friendly tag for issues that should be ideal for people who are not very familiar with the codebase yet.
-#. Fork `the repository`_ on Github to start making your changes to the **master** branch (or branch off of it).
-#. Write a test which shows that the bug was fixed or that the feature works as expected.
-#. Send a pull request and bug the maintainer until it gets merged and published. :) Make sure to add yourself to AUTHORS_.
-
-.. _`the repository`: http://github.com/kennethreitz/requests
-.. _AUTHORS: https://github.com/kennethreitz/requests/blob/master/AUTHORS.rst
+I'm definitely open to suggestions of more elegant ways to thread the source_address parameter through the session, adapter, connectionpool and connection objects that are in between the requests api and the underlying HTTPConnection. It's not bad right now but I have a feeling that someone with a better mental model of how Requests works might see a nicer way to thread this argument through the class hierarchy.

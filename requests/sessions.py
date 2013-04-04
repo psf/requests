@@ -196,6 +196,11 @@ class Session(SessionRedirectMixin):
         #: :class:`Request <Request>`.
         self.auth = None
 
+        #: Default Source Address tuple (Source IP, Source Port)
+        #: to attach to
+        #: :class:`Request <Request>`.
+        self.source_address = None
+
         #: Dictionary mapping protocol to the URL of the proxy (e.g.
         #: {'http': 'foo.bar:3128'}) to be used on each
         #: :class:`Request <Request>`.
@@ -251,7 +256,9 @@ class Session(SessionRedirectMixin):
         hooks=None,
         stream=None,
         verify=None,
-        cert=None):
+        cert=None,
+        source_address=None):
+        
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -317,6 +324,7 @@ class Session(SessionRedirectMixin):
         params = merge_kwargs(params, self.params)
         headers = merge_kwargs(headers, self.headers)
         auth = merge_kwargs(auth, self.auth)
+        source_address = merge_kwargs(source_address, self.source_address)
         proxies = merge_kwargs(proxies, self.proxies)
         hooks = merge_kwargs(hooks, self.hooks)
         stream = merge_kwargs(stream, self.stream)
@@ -346,6 +354,7 @@ class Session(SessionRedirectMixin):
             'cert': cert,
             'proxies': proxies,
             'allow_redirects': allow_redirects,
+            'source_address': source_address
         }
         resp = self.send(prep, **send_kwargs)
 
