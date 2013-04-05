@@ -124,6 +124,19 @@ class RequestsTestCase(unittest.TestCase):
         r = s.get(httpbin('redirect/1'))  # redirects to httpbin('get')
         self.assertTrue("Cookie" in r.json()["headers"])
 
+    def test_cookie_removed_on_expire(self):
+        s = requests.session()
+        s.get(httpbin('cookies/set?foo=bar'))
+        self.assertTrue(s.cookies['foo'] == 'bar')
+        s.get(
+            httpbin('response-headers'),
+            params={
+                'Set-Cookie':
+                    'foo=deleted; expires=Thu, 01-Jan-1970 00:00:01 GMT'
+            }
+        )
+        self.assertNotIn('foo', s.cookies)
+
     def test_user_agent_transfers(self):
 
         heads = {
