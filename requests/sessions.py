@@ -12,7 +12,7 @@ import os
 from datetime import datetime
 
 from .compat import cookielib
-from .cookies import cookiejar_from_dict
+from .cookies import cookiejar_from_dict, extract_cookies_to_jar
 from .models import Request, PreparedRequest
 from .hooks import default_hooks, dispatch_hook
 from .utils import from_key_val_list, default_headers
@@ -91,10 +91,6 @@ class SessionRedirectMixin(object):
         prepared_request.method = req.method
         prepared_request.url = req.url
 
-        cookiejar = cookiejar_from_dict({})
-        cookiejar.update(self.cookies)
-        cookiejar.update(resp.cookies)
-
         # ((resp.status_code is codes.see_other))
         while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
 
@@ -147,7 +143,7 @@ class SessionRedirectMixin(object):
             except KeyError:
                 pass
 
-            prepared_request.prepare_cookies(cookiejar)
+            prepared_request.prepare_cookies(self.cookies)
 
             resp = self.send(
                 prepared_request,
@@ -159,12 +155,12 @@ class SessionRedirectMixin(object):
                 allow_redirects=False,
             )
 
-            cookiejar.update(resp.cookies)
+            extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
 
             i += 1
             yield resp
 
-        resp.cookies.update(cookiejar)
+        resp.cookies = self.cookies.copy()
 
 
 class Session(SessionRedirectMixin):
@@ -349,9 +345,6 @@ class Session(SessionRedirectMixin):
         }
         resp = self.send(prep, **send_kwargs)
 
-        # Persist cookies.
-        self.cookies.update(resp.cookies)
-
         return resp
 
     def get(self, url, **kwargs):
@@ -459,6 +452,9 @@ class Session(SessionRedirectMixin):
 
         # Response manipulation hooks
         r = dispatch_hook('response', hooks, r, **kwargs)
+
+        # Persist cookies
+        extract_cookies_to_jar(self.cookies, request, r.raw)
 
         # Redirect resolving generator.
         gen = self.resolve_redirects(r, request, stream=stream,
