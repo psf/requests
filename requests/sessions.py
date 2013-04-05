@@ -160,8 +160,6 @@ class SessionRedirectMixin(object):
             i += 1
             yield resp
 
-        resp.cookies = self.cookies.copy()
-
 
 class Session(SessionRedirectMixin):
     """A Requests session.
