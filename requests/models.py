@@ -284,8 +284,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Support for unicode domain names and paths.
         scheme, netloc, path, _params, query, fragment = urlparse(url)
 
-        if not (scheme and netloc):
+        if not scheme:
             raise MissingSchema("Invalid URL %r: No schema supplied" % url)
+
+        if not netloc:
+            raise InvalidURL("Invalid URL %t: No netloc supplied" % url)
 
         try:
             netloc = netloc.encode('idna').decode('utf-8')
