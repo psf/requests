@@ -131,7 +131,8 @@ There's also a builtin JSON decoder, in case you're dealing with JSON data::
     >>> r.json()
     [{u'repository': {u'open_issues': 0, u'url': 'https://github.com/...
 
-In case the JSON decoding fails, ``r.json`` raises an exception.
+In case the JSON decoding fails, ``r.json`` raises an exception: `ValueError:
+No JSON object could be decoded`
 
 
 Raw Response Content
