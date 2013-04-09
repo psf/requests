@@ -41,6 +41,9 @@ Request Sessions
 .. autoclass:: Session
    :inherited-members:
 
+.. autoclass:: requests.adapters.HTTPAdapter
+   :inherited-members:
+
 
 Exceptions
 ~~~~~~~~~~
@@ -102,6 +105,9 @@ Classes
 .. _sessionapi:
 
 .. autoclass:: requests.Session
+   :inherited-members:
+
+.. autoclass:: requests.adapters.HTTPAdapter
    :inherited-members:
 
 
