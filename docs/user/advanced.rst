@@ -80,10 +80,10 @@ request, and then the request's headers::
 Prepared Requests
 -----------------
 
-Whenever you receive a :class:`Response <requests.models.Response>` object 
-from an API call or a Session call, the ``request`` attribute is actually the 
-``PreparedRequest`` that was used. In some cases you may wish to do some extra 
-work to the body or headers (or anything else really) before sending a 
+Whenever you receive a :class:`Response <requests.models.Response>` object
+from an API call or a Session call, the ``request`` attribute is actually the
+``PreparedRequest`` that was used. In some cases you may wish to do some extra
+work to the body or headers (or anything else really) before sending a
 request. The simple recipe for this is the following::
 
     from requests import Request, Session
@@ -107,10 +107,10 @@ request. The simple recipe for this is the following::
                   )
     print(resp.status_code)
 
-Since you are not doing anything special with the ``Request`` object, you 
-prepare it immediately and modified the ``PreparedRequest`` object. You then 
-send that with the other parameters you would have sent to ``requests.*`` or 
-``Sesssion.*``. 
+Since you are not doing anything special with the ``Request`` object, you
+prepare it immediately and modified the ``PreparedRequest`` object. You then
+send that with the other parameters you would have sent to ``requests.*`` or
+``Sesssion.*``.
 
 SSL Cert Verification
 ---------------------
@@ -536,4 +536,40 @@ Requests will automatically parse these link headers and make them easily consum
 
     >>> r.links["last"]
     {'url': 'https://api.github.com/users/kennethreitz/repos?page=7&per_page=10', 'rel': 'last'}
+
+Transport Adapters
+------------------
+
+As of v1.0.0, Requests has moved to a modular internal design. Part of the
+reason this was done was to implement Transport Adapters, originally
+`described here`_. Transport Adapters provide a mechanism to define interaction
+methods for an HTTP service. In particular, they allow you to apply per-service
+configuration.
+
+Requests ships with a single Transport Adapter, the
+:class:`HTTPAdapter <requests.adapters.HTTPAdapter>`. This adapter provides the
+default Requests interaction with HTTP and HTTPS using the powerful `urllib3`_
+library. Whenever a Requests :class:`Session <Session>` is initialized, one of
+these is attached to the :class:`Session <Session>` object for HTTP, and one
+for HTTPS.
+
+Requests enables users to create and use their own Transport Adapters that
+provide specific functionality. Once created, a Transport Adapter can be
+mounted to a Session object, along with an indication of which web services
+it should apply to.
+
+::
+
+    >>> s = requests.Session()
+    >>> s.mount('http://www.github.com', MyAdapter())
+
+The mount call registers a specific instance of a Transport Adapter to a
+prefix. Once mounted, any HTTP request made using that session whose URL starts
+with the given prefix will use the given Transport Adapter.
+
+Implementing a Transport Adapter is beyond the scope of this documentation, but
+a good start would be to subclass the ``requests.adapters.BaseAdapter`` class.
+
+.. _`described here`: http://kennethreitz.org/exposures/the-future-of-python-http
+.. _`urllib3`: https://github.com/shazow/urllib3
 
