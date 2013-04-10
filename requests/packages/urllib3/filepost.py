@@ -93,6 +93,6 @@ def encode_multipart_formdata(fields, boundary=None):
 
     body.write(b('--%s--\r\n' % (boundary)))
 
-    content_type = b('multipart/form-data; boundary=%s' % boundary)
+    content_type = str('multipart/form-data; boundary=%s' % boundary)
 
     return body.getvalue(), content_type
