@@ -380,6 +380,11 @@ class RequestsTestCase(unittest.TestCase):
     def test_response_is_iterable(self):
         r = requests.Response()
         io = StringIO.StringIO('abc')
+        read_ = io.read
+
+        def read_mock(amt, decode_content=None):
+            return read_(amt)
+        setattr(io, 'read', read_mock)
         r.raw = io
         self.assertTrue(next(iter(r)))
         io.close()
