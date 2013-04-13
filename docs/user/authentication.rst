@@ -44,6 +44,25 @@ and Requests supports this out of the box as well::
     <Response [200]>
 
 
+OAuth 1 Authentication
+----------------------
+
+A common form of authentication for several web APIs is OAuth. The ``requests-oauthlib`` library allows Requests users to easily make OAuth authenticated requests::
+
+    >>> import request
+    >>> from requests_oauthlib import OAuth1
+
+    >>> url = 'https://api.twitter.com/1.1/account/verify_credentials.json'
+    >>> auth = OAuth1('YOUR_APP_KEY', 'YOUR_APP_SECRET',
+                      'USER_OAUTH_TOKEN', 'USER_OAUTH_TOKEN_SECRET')
+
+    >>> requests.get(url, auth=auth)
+    <Response [200]>
+
+For more information on how to OAuth flow works, please see the official `OAuth`_ website.
+For examples and documentation on requests-oauthlib, please see the `requests_oauthlib`_ repository on GitHub
+
+
 Other Authentication
 --------------------
 
@@ -53,7 +72,6 @@ authentication handlers for more complicated or less commonly-used forms of
 authentication. Some of the best have been brought together under the
 `Requests organization`_, including:
 
-- OAuth_
 - Kerberos_
 - NTLM_
 
@@ -77,7 +95,8 @@ authentication will additionally add hooks to provide further functionality.
 Examples can be found under the `Requests organization`_ and in the
 ``auth.py`` file.
 
-.. _OAuth: https://github.com/requests/requests-oauthlib
+.. _OAuth: http://oauth.net/
+.. _requests_oauthlib: https://github.com/requests/requests-oauthlib
 .. _Kerberos: https://github.com/requests/requests-kerberos
 .. _NTLM: https://github.com/requests/requests-ntlm
 .. _Requests organization: https://github.com/requests

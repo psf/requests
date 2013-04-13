@@ -278,9 +278,17 @@ To use the Twitter Streaming API to track the keyword "requests"::
 
     import requests
     import json
+    from requests_oauthlib import OAuth1
 
-    r = requests.post('https://stream.twitter.com/1/statuses/filter.json',
-        data={'track': 'requests'}, auth=('username', 'password'), stream=True)
+    app_key = 'YOUR_APP_KEY'
+    app_secret = 'YOUR_APP_SECRET'
+    oauth_token = 'USER_OAUTH_TOKEN'
+    oauth_token_secret = 'USER_OAUTH_TOKEN_SECRET'
+
+    auth = OAuth1(app_key, app_secret, oauth_token, oauth_token_secret)
+
+    r = requests.post('https://stream.twitter.com/1.1/statuses/filter.json',
+                      data={'track': 'requests'}, auth=auth, stream=True)
 
     for line in r.iter_lines():
         if line: # filter out keep-alive new lines
