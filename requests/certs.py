@@ -18,7 +18,7 @@ import os.path
 def where():
     """Return the preferred certificate bundle."""
     # vendored bundle inside Requests
-    return os.path.join(os.path.dirname(__file__), 'cacert.pem')
+    return os.path.join('cacert.pem')
 
 if __name__ == '__main__':
     print(where())
