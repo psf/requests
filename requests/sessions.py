@@ -125,7 +125,7 @@ class SessionRedirectMixin(object):
 
             # Do what the browsers do, despite standards...
             if (resp.status_code in (codes.moved, codes.found) and
-                    prepared_request.method == 'POST'):
+                    prepared_request.method not in ('GET', 'HEAD')):
                 method = 'GET'
 
             prepared_request.method = method
