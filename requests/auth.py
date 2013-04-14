@@ -8,6 +8,7 @@ This module contains the authentication handlers for Requests.
 """
 
 import os
+import re
 import time
 import hashlib
 import logging
@@ -151,7 +152,8 @@ class HTTPDigestAuth(AuthBase):
         if 'digest' in s_auth.lower() and num_401_calls < 2:
 
             setattr(self, 'num_401_calls', num_401_calls + 1)
-            self.chal = parse_dict_header(s_auth.replace('Digest ', ''))
+            pat = re.compile(r'digest ', flags=re.IGNORECASE)
+            self.chal = parse_dict_header(pat.sub('', s_auth))
 
             # Consume content and release the original connection
             # to allow our new request to reuse the same one.
