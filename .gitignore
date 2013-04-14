@@ -7,10 +7,12 @@ pylint.txt
 toy.py
 violations.pyflakes.txt
 cover/
+build/
 docs/_build
 requests.egg-info/
 *.pyc
 *.swp
+*.egg
 env/
 
 .workon
