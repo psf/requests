@@ -4,29 +4,48 @@
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
-import gzip
+
 import logging
 import zlib
 
-from io import BytesIO
-
 from .exceptions import DecodeError
-from .packages.six import string_types as basestring
+from .packages.six import string_types as basestring, binary_type
 
 
 log = logging.getLogger(__name__)
 
 
-def decode_gzip(data):
-    gzipper = gzip.GzipFile(fileobj=BytesIO(data))
-    return gzipper.read()
+class DeflateDecoder(object):
+
+    def __init__(self):
+        self._first_try = True
+        self._data = binary_type()
+        self._obj = zlib.decompressobj()
+
+    def __getattr__(self, name):
+        return getattr(self._obj, name)
+
+    def decompress(self, data):
+        if not self._first_try:
+            return self._obj.decompress(data)
+
+        self._data += data
+        try:
+            return self._obj.decompress(data)
+        except zlib.error:
+            self._first_try = False
+            self._obj = zlib.decompressobj(-zlib.MAX_WBITS)
+            try:
+                return self.decompress(self._data)
+            finally:
+                self._data = None
 
 
-def decode_deflate(data):
-    try:
-        return zlib.decompress(data)
-    except zlib.error:
-        return zlib.decompress(data, -zlib.MAX_WBITS)
+def _get_decoder(mode):
+    if mode == 'gzip':
+        return zlib.decompressobj(16 + zlib.MAX_WBITS)
+
+    return DeflateDecoder()
 
 
 class HTTPResponse(object):
@@ -52,10 +71,7 @@ class HTTPResponse(object):
         otherwise unused.
     """
 
-    CONTENT_DECODERS = {
-        'gzip': decode_gzip,
-        'deflate': decode_deflate,
-    }
+    CONTENT_DECODERS = ['gzip', 'deflate']
 
     def __init__(self, body='', headers=None, status=0, version=0, reason=None,
                  strict=0, preload_content=True, decode_content=True,
@@ -65,8 +81,9 @@ class HTTPResponse(object):
         self.version = version
         self.reason = reason
         self.strict = strict
+        self.decode_content = decode_content
 
-        self._decode_content = decode_content
+        self._decoder = None
         self._body = body if body and isinstance(body, basestring) else None
         self._fp = None
         self._original_response = original_response
@@ -115,13 +132,13 @@ class HTTPResponse(object):
         parameters: ``decode_content`` and ``cache_content``.
 
         :param amt:
-            How much of the content to read. If specified, decoding and caching
-            is skipped because we can't decode partial content nor does it make
-            sense to cache partial content as the full response.
+            How much of the content to read. If specified, caching is skipped
+            because it doesn't make sense to cache partial content as the full
+            response.
 
         :param decode_content:
             If True, will attempt to decode the body based on the
-            'content-encoding' header. (Overridden if ``amt`` is set.)
+            'content-encoding' header.
 
         :param cache_content:
             If True, will save the returned data such that the same result is
@@ -133,18 +150,24 @@ class HTTPResponse(object):
         # Note: content-encoding value should be case-insensitive, per RFC 2616
         # Section 3.5
         content_encoding = self.headers.get('content-encoding', '').lower()
-        decoder = self.CONTENT_DECODERS.get(content_encoding)
+        if self._decoder is None:
+            if content_encoding in self.CONTENT_DECODERS:
+                self._decoder = _get_decoder(content_encoding)
         if decode_content is None:
-            decode_content = self._decode_content
+            decode_content = self.decode_content
 
         if self._fp is None:
             return
+
+        flush_decoder = False
 
         try:
             if amt is None:
                 # cStringIO doesn't like amt=None
                 data = self._fp.read()
+                flush_decoder = True
             else:
+                cache_content = False
                 data = self._fp.read(amt)
                 if amt != 0 and not data:  # Platform-specific: Buggy versions of Python.
                     # Close the connection when no data is returned
@@ -155,14 +178,18 @@ class HTTPResponse(object):
                     # properly close the connection in all cases. There is no harm
                     # in redundantly calling close.
                     self._fp.close()
-                return data
+                    flush_decoder = True
 
             try:
-                if decode_content and decoder:
-                    data = decoder(data)
+                if decode_content and self._decoder:
+                    data = self._decoder.decompress(data)
             except (IOError, zlib.error):
                 raise DecodeError("Received response with content-encoding: %s, but "
                                   "failed to decode it." % content_encoding)
+
+            if flush_decoder and self._decoder:
+                buf = self._decoder.decompress(binary_type())
+                data += buf + self._decoder.flush()
 
             if cache_content:
                 self._body = data

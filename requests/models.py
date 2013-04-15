@@ -20,7 +20,7 @@ from .cookies import cookiejar_from_dict, get_cookie_header
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .exceptions import HTTPError, RequestException, MissingSchema, InvalidURL
 from .utils import (
-    stream_untransfer, guess_filename, get_auth_from_url, requote_uri,
+    guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
     iter_slices, guess_json_utf, super_len)
 from .compat import (
@@ -528,13 +528,13 @@ class Response(object):
 
         def generate():
             while 1:
-                chunk = self.raw.read(chunk_size)
+                chunk = self.raw.read(chunk_size, decode_content=True)
                 if not chunk:
                     break
                 yield chunk
             self._content_consumed = True
 
-        gen = stream_untransfer(generate(), self)
+        gen = generate()
 
         if decode_unicode:
             gen = stream_decode_response_unicode(gen, self)
