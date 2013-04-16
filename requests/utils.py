@@ -21,7 +21,8 @@ from netrc import netrc, NetrcParseError
 from . import __version__
 from . import certs
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, urlparse, bytes, str, OrderedDict, urlunparse
+from .compat import (quote, urlparse, bytes, str, OrderedDict, urlunparse,
+                     builtin_str, is_py2)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 
 _hush_pyflakes = (RequestsCookieJar,)
@@ -547,3 +548,30 @@ def get_auth_from_url(url):
         return (parsed.username, parsed.password)
     else:
         return ('', '')
+
+
+def to_native_string(string):
+    """Turns a string object into a native string. If the string is already a
+    native string, this is a no-op. Otherwise, on Python 2, encodes unicode
+    objects as UTF-8. On Python 3, uses the Python default locale-based
+    decoding of bytestrings."""
+    if isinstance(string, builtin_str):
+        return string
+    elif is_py2:
+        return string.encode('utf-8')
+    else:
+        return string.decode('utf-8')
+
+
+def dict_to_native_string(dictionary):
+    """Turns a dict of strings to strings into a dict of native strings to
+    native strings."""
+    if dictionary:
+        new_dict = {}
+
+        for key, value in dictionary.items():
+            new_dict[to_native_string(key)] = to_native_string(value)
+
+        return new_dict
+    else:
+        return dictionary
