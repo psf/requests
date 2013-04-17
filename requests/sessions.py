@@ -212,7 +212,8 @@ class Session(SessionRedirectMixin):
         #: SSL certificate default.
         self.cert = None
 
-        #: Maximum number of redirects to follow.
+        #: Maximum number of redirects allowed. If the request exceeds this
+        #: limit, a :class:`TooManyRedirects` exception is raised.
         self.max_redirects = DEFAULT_REDIRECT_LIMIT
 
         #: Should we trust the environment?
