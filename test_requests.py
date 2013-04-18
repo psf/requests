@@ -438,6 +438,11 @@ class RequestsTestCase(unittest.TestCase):
         r = s.send(r.prepare())
         self.assertEqual(r.status_code, 200)
 
+    def test_ordered_parameters(self):
+        url = httpbin('get')
+        r = requests.get(url, params=[("multi", [1,2,3]), ("second", "content"), ("multi", 5)])
+        self.assertEqual(r.url, "http://httpbin.org/get?multi=1&multi=2&multi=3&second=content&multi=5")
+
 
 if __name__ == '__main__':
     unittest.main()
