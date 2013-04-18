@@ -135,10 +135,12 @@ def to_key_val_list(value):
     if isinstance(value, (str, bytes, bool, int)):
         raise ValueError('cannot encode objects that are not 2-tuples')
 
-    if isinstance(value, MultiDict):
-        value = value.items(multi=True)
-    elif isinstance(value, dict):
-        value = value.items()
+    if isinstance(value, dict):
+        try:
+            # Check for MultiDict first
+            value = value.items(multi=True)
+        except TypeError:
+            value = value.items()
 
     return list(value)
 
