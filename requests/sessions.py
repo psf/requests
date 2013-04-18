@@ -15,6 +15,7 @@ from .compat import cookielib
 from .cookies import cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar
 from .models import Request, PreparedRequest
 from .hooks import default_hooks, dispatch_hook
+from .structures import OrderedMultiDict
 from .utils import from_key_val_list, default_headers
 from .exceptions import TooManyRedirects, InvalidSchema
 
@@ -201,7 +202,7 @@ class Session(SessionRedirectMixin):
         #: Dictionary of querystring data to attach to each
         #: :class:`Request <Request>`. The dictionary values may be lists for
         #: representing multivalued query parameters.
-        self.params = {}
+        self.params = OrderedMultiDict()
 
         #: Stream response content default.
         self.stream = False
@@ -309,8 +310,11 @@ class Session(SessionRedirectMixin):
             if not verify and verify is not False:
                 verify = os.environ.get('CURL_CA_BUNDLE')
 
+        # Merge parameters
+        params = OrderedMultiDict(params)
+        params.update(self.params)
+
         # Merge all the kwargs.
-        params = merge_kwargs(params, self.params)
         headers = merge_kwargs(headers, self.headers)
         auth = merge_kwargs(auth, self.auth)
         proxies = merge_kwargs(proxies, self.proxies)
