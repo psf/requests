@@ -23,7 +23,6 @@ from . import certs
 from .compat import parse_http_list as _parse_list_header
 from .compat import quote, urlparse, bytes, str, OrderedDict, urlunparse
 from .cookies import RequestsCookieJar, cookiejar_from_dict
-from .structures import MultiDict
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -135,10 +134,12 @@ def to_key_val_list(value):
     if isinstance(value, (str, bytes, bool, int)):
         raise ValueError('cannot encode objects that are not 2-tuples')
 
-    if isinstance(value, MultiDict):
-        value = value.items(multi=True)
-    elif isinstance(value, dict):
-        value = value.items()
+    if isinstance(value, dict):
+        try:
+            # Check for MultiDict first
+            value = value.items(multi=True)
+        except TypeError:
+            value = value.items()
 
     return list(value)
 
