@@ -448,9 +448,9 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(prep.body, "multi=1&multi=2&multi=3&second=content&multi=5")
 
         prep = requests.Request('POST', url, files=[('file', b"first file"), ('file', b"second file")]).prepare()
-        self.assertGreater(prep.body.find(b'first file'), -1)
-        self.assertGreater(prep.body.find(b'second file'), -1)
-        self.assertGreater(prep.body.find(b'second file'), prep.body.find(b'first file'))
+        assert prep.body.find(b'first file') > -1
+        assert prep.body.find(b'second file') > -1
+        assert prep.body.find(b'second file') > prep.body.find(b'first file')
 
 
 if __name__ == '__main__':
