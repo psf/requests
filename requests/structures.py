@@ -415,7 +415,7 @@ class MultiDict(TypeConversionDict):
             default_list = dict.__getitem__(self, key)
         return default_list
 
-    def items(self, multi=False):
+    def items(self, multi=True):
         """Return a list of ``(key, value)`` pairs.
 
         :param multi: If set to `True` the list returned will have a
@@ -454,7 +454,7 @@ class MultiDict(TypeConversionDict):
         """
         return list(self.iterlistvalues())
 
-    def iteritems(self, multi=False):
+    def iteritems(self, multi=True):
         """Like :meth:`items` but returns an iterator."""
         for key, values in dict.iteritems(self):
             if multi:
@@ -553,7 +553,8 @@ class MultiDict(TypeConversionDict):
         return '%s(%r)' % (self.__class__.__name__, self.items(multi=True))
 
 
-# from mitsuhiko/werkzeug
+# from mitsuhiko/werkzeug (with the exception of all iterators, which default to multi=True, instead of werkzeug's
+#                          multi=False)
 class OrderedMultiDict(MultiDict):
     """Works like a regular :class:`MultiDict` but preserves the
     order of the fields.  To convert the ordered multi dict into a
@@ -633,7 +634,7 @@ class OrderedMultiDict(MultiDict):
     def itervalues(self):
         return (value for key, value in self.iteritems())
 
-    def iteritems(self, multi=False):
+    def iteritems(self, multi=True):
         ptr = self._first_bucket
         if multi:
             while ptr is not None:
