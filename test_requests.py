@@ -447,9 +447,10 @@ class RequestsTestCase(unittest.TestCase):
         prep = requests.Request('POST', url, data=[("multi", [1,2,3]), ("second", "content"), ("multi", 5)]).prepare()
         self.assertEqual(prep.body, "multi=1&multi=2&multi=3&second=content&multi=5")
 
-        resp = requests.post(url, files=[('file', "first file content"), ('file', "second file content")])
-        self.assertRegex(str(resp.request.body), r"first file content.+second file content")
-        self.assertEqual(resp.status_code, 200)
+        prep = requests.Request('POST', url, files=[('file', b"first file"), ('file', b"second file")]).prepare()
+        self.assertGreater(prep.body.find(b'first file'), -1)
+        self.assertGreater(prep.body.find(b'second file'), -1)
+        self.assertGreater(prep.body.find(b'second file'), prep.body.find(b'first file'))
 
 
 if __name__ == '__main__':
