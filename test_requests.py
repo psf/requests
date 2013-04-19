@@ -169,6 +169,7 @@ class RequestsTestCase(unittest.TestCase):
             }
         )
         assert 'foo' not in s.cookies
+<<<<<<< HEAD
 
     def test_request_cookie_overrides_session_cookie(self):
         s = requests.session()
@@ -188,7 +189,13 @@ class RequestsTestCase(unittest.TestCase):
         assert r.json()['cookies']['foo'] == 'bar'
         # Make sure the session cj is still the custom one
         assert s.cookies is cj
-
+    
+    def test_requests_in_history_are_not_overridden(self):
+        resp = requests.get(httpbin('redirect/3'))
+        urls = [r.url for r in resp.history]
+        req_urls = [r.request.url for r in resp.history]
+        self.assertEquals(urls, req_urls)
+        
     def test_user_agent_transfers(self):
 
         heads = {
