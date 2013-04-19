@@ -130,21 +130,22 @@ class LookupDict(dict):
 # from mitsuihiko/werkzeug
 BadRequestKeyError = KeyError
 
-# from mitsuhiko/werkzeug (slightly altered to use items() instead of iteritems())
+# from mitsuhiko/werkzeug (slightly altered to use items() instead of iteritems(), and duck-typing for MultiDict)
 def iter_multi_items(mapping):
     """Iterates over the items of a mapping yielding keys and values
     without dropping any from more complex structures.
     """
-    if isinstance(mapping, MultiDict):
-        for item in mapping.items(multi=True):
-            yield item
-    elif isinstance(mapping, dict):
-        for key, value in mapping.items():
-            if isinstance(value, (tuple, list)):
-                for value in value:
+    if isinstance(mapping, dict):
+        try:
+            for item in mapping.items(multi=True):
+                yield item
+        except TypeError:
+            for key, value in mapping.items():
+                if isinstance(value, (tuple, list)):
+                    for value in value:
+                        yield key, value
+                else:
                     yield key, value
-            else:
-                yield key, value
     else:
         for item in mapping:
             yield item
@@ -276,7 +277,7 @@ class MultiDict(TypeConversionDict):
     """
 
     def __init__(self, mapping=None):
-        if isinstance(mapping, MultiDict):
+        if isinstance(mapping, dict) and hasattr(mapping, 'iterlists'):
             dict.__init__(self, ((k, l[:]) for k, l in mapping.iterlists()))
         elif isinstance(mapping, dict):
             tmp = {}
@@ -576,7 +577,7 @@ class OrderedMultiDict(MultiDict):
             OrderedMultiDict.update(self, mapping)
 
     def __eq__(self, other):
-        if not isinstance(other, MultiDict):
+        if not hasattr(other, 'iterlists'):
             return NotImplemented
         if isinstance(other, OrderedMultiDict):
             iter1 = self.iteritems(multi=True)
