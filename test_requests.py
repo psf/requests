@@ -640,6 +640,5 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
 
-
 if __name__ == '__main__':
     unittest.main()
