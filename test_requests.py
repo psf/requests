@@ -438,10 +438,19 @@ class RequestsTestCase(unittest.TestCase):
         r = s.send(r.prepare())
         self.assertEqual(r.status_code, 200)
 
-    def test_ordered_parameters(self):
+    def test_ordered_kwargs_output(self):
         url = httpbin('get')
-        r = requests.Request('GET', url, params=[("multi", [1,2,3]), ("second", "content"), ("multi", 5)]).prepare()
-        self.assertEqual(r.url, "http://httpbin.org/get?multi=1&multi=2&multi=3&second=content&multi=5")
+        prep = requests.Request('GET', url, params=[("multi", [1,2,3]), ("second", "content"), ("multi", 5)]).prepare()
+        self.assertEqual(prep.url, "http://httpbin.org/get?multi=1&multi=2&multi=3&second=content&multi=5")
+
+        url = httpbin('post')
+        prep = requests.Request('POST', url, data=[("multi", [1,2,3]), ("second", "content"), ("multi", 5)]).prepare()
+        self.assertEqual(prep.body, "multi=1&multi=2&multi=3&second=content&multi=5")
+
+        resp = requests.post(url, files=[('file', "first file content"), ('file', "second file content")])
+        self.assertRegex(str(resp.request.body), r"first file content.+second file content")
+        self.assertEqual(resp.status_code, 200)
+
 
 
 if __name__ == '__main__':
