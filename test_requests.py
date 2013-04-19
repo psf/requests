@@ -169,7 +169,6 @@ class RequestsTestCase(unittest.TestCase):
             }
         )
         assert 'foo' not in s.cookies
-<<<<<<< HEAD
 
     def test_request_cookie_overrides_session_cookie(self):
         s = requests.session()
