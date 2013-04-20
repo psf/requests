@@ -628,6 +628,11 @@ class TestCaseInsensitiveDict(unittest.TestCase):
 
     def test_ordered_kwargs_output(self):
         url = httpbin('get')
+
+        s = requests.Session()
+        r = s.request('GET', url, params='multi=1')
+        self.assertEqual(r.request.url, "http://httpbin.org/get?multi=1")
+
         prep = requests.Request('GET', url, params=[("multi", [1,2,3]), ("second", "content"), ("multi", 5)]).prepare()
         self.assertEqual(prep.url, "http://httpbin.org/get?multi=1&multi=2&multi=3&second=content&multi=5")
 
