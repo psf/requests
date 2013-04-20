@@ -34,7 +34,7 @@ REDIRECT_STATI = (
 DEFAULT_REDIRECT_LIMIT = 30
 
 
-def merge_kwargs(local_kwarg, default_kwarg):
+def merge_kwargs(local_kwarg, default_kwarg, ordered=False):
     """Merges kwarg dictionaries.
 
     If a local key in the dictionary is set to None, it will be removed.
@@ -56,20 +56,24 @@ def merge_kwargs(local_kwarg, default_kwarg):
     default_kwarg = from_key_val_list(default_kwarg)
     local_kwarg = from_key_val_list(local_kwarg)
 
-    # Update new values in a case-insensitive way
-    def get_original_key(original_keys, new_key):
-        """
-        Finds the key from original_keys that case-insensitive matches new_key.
-        """
-        for original_key in original_keys:
-            if key.lower() == original_key.lower():
-                return original_key
-        return new_key
+    if ordered:
+        kwargs = OrderedMultiDict(default_kwarg)
+        kwargs.update(local_kwarg)
+    else:
+        # Update new values in a case-insensitive way
+        def get_original_key(original_keys, new_key):
+            """
+            Finds the key from original_keys that case-insensitive matches new_key.
+            """
+            for original_key in original_keys:
+                if key.lower() == original_key.lower():
+                    return original_key
+            return new_key
 
-    kwargs = default_kwarg.copy()
-    original_keys = kwargs.keys()
-    for key, value in local_kwarg.items():
-        kwargs[get_original_key(original_keys, key)] = value
+        kwargs = default_kwarg.copy()
+        original_keys = kwargs.keys()
+        for key, value in local_kwarg.items():
+            kwargs[get_original_key(original_keys, key)] = value
 
     # Remove keys that are set to None.
     for (k, v) in local_kwarg.items():
@@ -309,11 +313,8 @@ class Session(SessionRedirectMixin):
             if not verify and verify is not False:
                 verify = os.environ.get('CURL_CA_BUNDLE')
 
-        # Merge parameters
-        params = OrderedMultiDict(params)
-        params.update(self.params)
-
         # Merge all the kwargs.
+        params = merge_kwargs(params, self.params, ordered=True)
         headers = merge_kwargs(headers, self.headers)
         auth = merge_kwargs(auth, self.auth)
         proxies = merge_kwargs(proxies, self.proxies)
