@@ -125,3 +125,4 @@ Patches and Suggestions
 - Dmitry Medvinsky <me@dmedvinsky.name>
 - Bryce Boe <bbzbryce@gmail.com> @bboe
 - Colin Dunklau <colin.dunklau@gmail.com> @cdunklau
+- Shaun Geng <_@shaung.org> @shaung
