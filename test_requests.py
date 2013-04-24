@@ -482,6 +482,17 @@ class RequestsTestCase(unittest.TestCase):
             'application/json'
         )
 
+    def test_override_request_headers(self):
+        url = httpbin('get')
+
+        r = requests.get(url, headers=[('accept-encoding', None)])
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue('Accept-Encoding' not in r.request.headers)
+
+        r = requests.get(url, headers=[('accept-encoding', 'gzip')])
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual('gzip', r.request.headers['Accept-Encoding'])
+
 
 class TestCaseInsensitiveDict(unittest.TestCase):
 

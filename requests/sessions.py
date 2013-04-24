@@ -60,20 +60,24 @@ def merge_kwargs(local_kwarg, default_kwarg):
         """
         Finds the key from original_keys that case-insensitive matches new_key.
         """
+        key_lowered = new_key.lower()
         for original_key in original_keys:
-            if key.lower() == original_key.lower():
+            if key_lowered == original_key.lower():
                 return original_key
         return new_key
 
     kwargs = default_kwarg.copy()
     original_keys = kwargs.keys()
     for key, value in local_kwarg.items():
-        kwargs[get_original_key(original_keys, key)] = value
-
-    # Remove keys that are set to None.
-    for (k, v) in local_kwarg.items():
-        if v is None:
-            del kwargs[k]
+        key = get_original_key(original_keys, key)
+        if value is not None:
+            kwargs[key] = value
+        elif key in kwargs:
+            # Remove keys that are set to None.
+            try:
+                del kwargs[key]
+            except KeyError:
+                pass
 
     return kwargs
 
