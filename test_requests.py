@@ -438,6 +438,22 @@ class RequestsTestCase(unittest.TestCase):
         r = s.send(r.prepare())
         self.assertEqual(r.status_code, 200)
 
+    def test_best_adapter_match_is_returned(self):
+        # NOTE: If you are on a platform where dictionary iteration order is
+        # nondeterministic (unlikely, but possible), this test may sometimes
+        # pass with a false negative. Be warned.
+        s = requests.Session()
+        a, b, c, d = (requests.adapters.HTTPAdapter(),
+                      requests.adapters.HTTPAdapter(),
+                      requests.adapters.HTTPAdapter(),
+                      requests.adapters.HTTPAdapter())
+
+        s.mount('http://t', a)
+        s.mount('http://test', d)
+        s.mount('http://tes', c)
+        s.mount('http://te', b)
+
+        self.assertTrue(s.get_adapter('http://test.com') is d)
 
 if __name__ == '__main__':
     unittest.main()
