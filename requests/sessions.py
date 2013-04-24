@@ -475,13 +475,20 @@ class Session(SessionRedirectMixin):
 
     def get_adapter(self, url):
         """Returns the appropriate connnection adapter for the given URL."""
+        best_match = ''
+
         for (prefix, adapter) in self.adapters.items():
 
-            if url.startswith(prefix):
-                return adapter
+            if url.startswith(prefix) and (len(best_match) < len(prefix)):
+                print "New best match: %s" % prefix
+                best_match = prefix
 
-        # Nothing matches :-/
-        raise InvalidSchema("No connection adapters were found for '%s'" % url)
+        if best_match:
+            return self.adapters[best_match]
+        else:
+            # Nothing matches :-/
+            raise InvalidSchema("No connection adapters were found for '%s'" %
+                                url)
 
     def close(self):
         """Closes all adapters and as such the session"""
