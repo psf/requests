@@ -487,11 +487,11 @@ class RequestsTestCase(unittest.TestCase):
 
         r = requests.get(url, headers=[('accept-encoding', None)])
         self.assertEqual(r.status_code, 200)
-        self.assertTrue('Accept-Encoding' not in r.request.headers)
+        self.assertFalse(b'Accept-Encoding' in r.request.headers)
 
         r = requests.get(url, headers=[('accept-encoding', 'gzip')])
         self.assertEqual(r.status_code, 200)
-        self.assertEqual('gzip', r.request.headers['Accept-Encoding'])
+        self.assertEqual('gzip', r.request.headers[b'Accept-Encoding'])
 
 
 class TestCaseInsensitiveDict(unittest.TestCase):
