@@ -300,13 +300,14 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
 
     def test_unicode_multipart_post(self):
+        elixr = b'\xc3\xabl\xc3\xafxr' # ëlïxr
         r = requests.post(httpbin('post'),
-                          data={'stuff': u'ëlïxr'},
+                          data={'stuff': elixr.decode('utf8')},
                           files={'file': ('test_requests.py', open(__file__, 'rb'))})
         self.assertEqual(r.status_code, 200)
 
         r = requests.post(httpbin('post'),
-                          data={'stuff': u'ëlïxr'.encode('utf-8')},
+                          data={'stuff': elixr},
                           files={'file': ('test_requests.py', open(__file__, 'rb'))})
         self.assertEqual(r.status_code, 200)
 
