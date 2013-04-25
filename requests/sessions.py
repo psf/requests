@@ -450,7 +450,7 @@ class Session(SessionRedirectMixin):
         r.elapsed = datetime.utcnow() - start
 
         # Response manipulation hooks
-        r = dispatch_hook('response', hooks, r, **kwargs)
+        self.response = r = dispatch_hook('response', hooks, r, **kwargs)
 
         # Persist cookies
         extract_cookies_to_jar(self.cookies, request, r.raw)
