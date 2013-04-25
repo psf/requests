@@ -480,11 +480,11 @@ class Session(SessionRedirectMixin):
         for (prefix, adapter) in self.adapters.items():
 
             if url.startswith(prefix) and (len(best_match) < len(prefix)):
-                print "New best match: %s" % prefix
                 best_match = prefix
+                best_adapter = adapter
 
         if best_match:
-            return self.adapters[best_match]
+            return best_adapter
         else:
             # Nothing matches :-/
             raise InvalidSchema("No connection adapters were found for '%s'" %
