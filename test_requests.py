@@ -138,6 +138,14 @@ class RequestsTestCase(unittest.TestCase):
         )
         assert 'foo' not in s.cookies
 
+    def test_request_cookie_overrides_session_cookie(self):
+        s = requests.session()
+        s.cookies['foo'] = 'bar'
+        r = s.get(httpbin('cookies'), cookies={'foo': 'baz'})
+        assert r.json()['cookies']['foo'] == 'baz'
+        # Session cookie should not be modified
+        assert s.cookies['foo'] == 'bar'
+
     def test_generic_cookiejar_works(self):
         cj = cookielib.CookieJar()
         cookiejar_from_dict({'foo': 'bar'}, cj)
