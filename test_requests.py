@@ -11,7 +11,8 @@ import pickle
 
 import requests
 from requests.auth import HTTPDigestAuth
-from requests.compat import str
+from requests.compat import str, cookielib
+from requests.cookies import cookiejar_from_dict
 
 try:
     import StringIO
@@ -136,6 +137,25 @@ class RequestsTestCase(unittest.TestCase):
             }
         )
         assert 'foo' not in s.cookies
+
+    def test_request_cookie_overrides_session_cookie(self):
+        s = requests.session()
+        s.cookies['foo'] = 'bar'
+        r = s.get(httpbin('cookies'), cookies={'foo': 'baz'})
+        assert r.json()['cookies']['foo'] == 'baz'
+        # Session cookie should not be modified
+        assert s.cookies['foo'] == 'bar'
+
+    def test_generic_cookiejar_works(self):
+        cj = cookielib.CookieJar()
+        cookiejar_from_dict({'foo': 'bar'}, cj)
+        s = requests.session()
+        s.cookies = cj
+        r = s.get(httpbin('cookies'))
+        # Make sure the cookie was sent
+        assert r.json()['cookies']['foo'] == 'bar'
+        # Make sure the session cj is still the custom one
+        assert s.cookies is cj
 
     def test_user_agent_transfers(self):
 
