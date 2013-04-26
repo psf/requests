@@ -4,7 +4,6 @@
 """Tests for Requests."""
 
 from __future__ import division
-import cookielib
 import json
 import os
 import unittest
@@ -12,7 +11,7 @@ import pickle
 
 import requests
 from requests.auth import HTTPDigestAuth
-from requests.compat import str
+from requests.compat import str, cookielib
 from requests.cookies import cookiejar_from_dict
 
 try:
