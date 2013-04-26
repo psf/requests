@@ -9,6 +9,7 @@ requests (cookies, auth, proxies).
 
 """
 import os
+from copy import copy
 from datetime import datetime
 
 from .compat import cookielib
@@ -285,8 +286,9 @@ class Session(SessionRedirectMixin):
             cookies = cookiejar_from_dict(cookies)
 
         # Merge with session cookies
-        merged_cookies = self.cookies.copy()
-        merged_cookies.update(cookies)
+        merged_cookies = copy(self.cookies)
+        for cookie in cookies:
+            merged_cookies.set_cookie(cookie)
         cookies = merged_cookies
 
         # Gather clues from the surrounding environment.
