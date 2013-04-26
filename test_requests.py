@@ -4,6 +4,7 @@
 """Tests for Requests."""
 
 from __future__ import division
+import cookielib
 import json
 import os
 import unittest
@@ -12,6 +13,7 @@ import pickle
 import requests
 from requests.auth import HTTPDigestAuth
 from requests.compat import str
+from requests.cookies import cookiejar_from_dict
 
 try:
     import StringIO
@@ -136,6 +138,17 @@ class RequestsTestCase(unittest.TestCase):
             }
         )
         assert 'foo' not in s.cookies
+
+    def test_generic_cookiejar_works(self):
+        cj = cookielib.CookieJar()
+        cookiejar_from_dict({'foo': 'bar'}, cj)
+        s = requests.session()
+        s.cookies = cj
+        r = s.get(httpbin('cookies'))
+        # Make sure the cookie was sent
+        assert r.json()['cookies']['foo'] == 'bar'
+        # Make sure the session cj is still the custom one
+        assert s.cookies is cj
 
     def test_user_agent_transfers(self):
 
