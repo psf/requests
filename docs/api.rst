@@ -13,7 +13,7 @@ important right here and provide links to the canonical documentation.
 Main Interface
 --------------
 
-All of Request's functionality can be accessed by these 7 methods.
+All of Requests' functionality can be accessed by these 7 methods.
 They all return an instance of the :class:`Response <Response>` object.
 
 .. autofunction:: request
