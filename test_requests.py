@@ -475,29 +475,29 @@ class TestCaseInsensitiveDict(unittest.TestCase):
     def test_mapping_init(self):
         cid = CaseInsensitiveDict({'Foo': 'foo','BAr': 'bar'})
         self.assertEqual(len(cid), 2)
-        self.assertIn('foo', cid)
-        self.assertIn('bar', cid)
+        self.assertTrue('foo' in cid)
+        self.assertTrue('bar' in cid)
         self.assertRaises(ValueError, CaseInsensitiveDict,
                           {'Foo': 'foo', 'foo': 'foo','BAr': 'bar'})
 
     def test_iterable_init(self):
         cid = CaseInsensitiveDict([('Foo', 'foo'), ('BAr', 'bar')])
         self.assertEqual(len(cid), 2)
-        self.assertIn('foo', cid)
-        self.assertIn('bar', cid)
+        self.assertTrue('foo' in cid)
+        self.assertTrue('bar' in cid)
         self.assertRaises(ValueError, CaseInsensitiveDict,
                           [('Foo', 'foo'), ('foo', 'foo'), ('BAr', 'bar')])
 
     def test_kwargs_init(self):
         cid = CaseInsensitiveDict(FOO='foo', BAr='bar')
         self.assertEqual(len(cid), 2)
-        self.assertIn('foo', cid)
-        self.assertIn('bar', cid)
+        self.assertTrue('foo' in cid)
+        self.assertTrue('bar' in cid)
         self.assertRaises(ValueError, CaseInsensitiveDict,
                           foo='foo', FOO='foo', BAr='bar')
 
     def test_implements_mutable_mapping(self):
-        self.assertIsInstance(self.cid, MutableMapping)
+        self.assertTrue(isinstance(self.cid, MutableMapping))
 
     def test_len(self):
         self.assertEqual(len(self.cid), 1)
