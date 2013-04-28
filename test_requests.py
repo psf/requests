@@ -8,11 +8,13 @@ import json
 import os
 import unittest
 import pickle
+from collections import MutableMapping
 
 import requests
 from requests.auth import HTTPDigestAuth
 from requests.compat import str, cookielib
 from requests.cookies import cookiejar_from_dict
+from requests.structures import CaseInsensitiveDict
 
 try:
     import StringIO
@@ -457,6 +459,101 @@ class RequestsTestCase(unittest.TestCase):
 
         r = s.send(r.prepare())
         self.assertEqual(r.status_code, 200)
+
+
+class TestCaseInsensitiveDict(unittest.TestCase):
+    def setUp(self):
+        self.cid = CaseInsensitiveDict()
+        self.cid['spam'] = 'oneval'
+        self.cid['Spam'] = 'twoval'
+        self.cid['sPAM'] = 'redval'
+        self.cid['SPAM'] = 'blueval'
+
+    def tearDown(self):
+        del self.cid
+
+    def test_mapping_init(self):
+        cid = CaseInsensitiveDict({'Foo': 'foo','BAr': 'bar'})
+        self.assertEqual(len(cid), 2)
+        self.assertIn('foo', cid)
+        self.assertIn('bar', cid)
+        self.assertRaises(ValueError, CaseInsensitiveDict,
+                          {'Foo': 'foo', 'foo': 'foo','BAr': 'bar'})
+
+    def test_iterable_init(self):
+        cid = CaseInsensitiveDict([('Foo', 'foo'), ('BAr', 'bar')])
+        self.assertEqual(len(cid), 2)
+        self.assertIn('foo', cid)
+        self.assertIn('bar', cid)
+        self.assertRaises(ValueError, CaseInsensitiveDict,
+                          [('Foo', 'foo'), ('foo', 'foo'), ('BAr', 'bar')])
+
+    def test_kwargs_init(self):
+        cid = CaseInsensitiveDict(FOO='foo', BAr='bar')
+        self.assertEqual(len(cid), 2)
+        self.assertIn('foo', cid)
+        self.assertIn('bar', cid)
+        self.assertRaises(ValueError, CaseInsensitiveDict,
+                          foo='foo', FOO='foo', BAr='bar')
+
+    def test_implements_mutable_mapping(self):
+        self.assertIsInstance(self.cid, MutableMapping)
+
+    def test_len(self):
+        self.assertEqual(len(self.cid), 1)
+
+    def test_getitem(self):
+        self.assertEqual(self.cid['spam'], 'blueval')
+        self.assertEqual(self.cid['SPAM'], 'blueval')
+
+    def test_getitem_nonused_casing(self):
+        self.assertEqual(self.cid['sPam'], 'blueval')
+
+    def test_delitem(self):
+        del self.cid['sPam']
+        self.assertFalse('spam' in self.cid)
+        self.assertEqual(len(self.cid), 0)
+
+    def test_contains(self):
+        self.assertTrue('spam' in self.cid)
+        self.assertTrue('SPAM' in self.cid)
+        self.assertTrue('sPam' in self.cid)
+
+    def test_get(self):
+        self.assertEqual(self.cid.get('spam'), 'blueval')
+        self.assertEqual(self.cid.get('SPAM'), 'blueval')
+        self.assertEqual(self.cid.get('sPam'), 'blueval')
+        self.assertEqual(self.cid.get('nonexistant', 'default'), 'default')
+
+    def test_update(self):
+        self.cid.update({'sPam': 'notblueval'})
+        self.assertEqual(self.cid['spam'], 'notblueval')
+        cid = CaseInsensitiveDict({'Foo': 'foo','BAr': 'bar'})
+        cid.update({'fOO': 'anotherfoo', 'bAR': 'anotherbar'})
+        self.assertEqual(len(cid), 2)
+        self.assertEqual(cid['foo'], 'anotherfoo')
+        self.assertEqual(cid['bar'], 'anotherbar')
+        self.assertRaises(ValueError, cid.update,
+                          {'Foo': 'foo', 'foo': 'foo','BAr': 'bar'})
+
+    def test_iter(self):
+        for k in iter(self.cid):
+            self.assertEqual(k, k.lower())
+
+    def test_equality(self):
+        self.assertEqual(self.cid, CaseInsensitiveDict({'spam': 'blueval'}))
+        self.assertNotEqual(self.cid, CaseInsensitiveDict({'spam': 'notblueval'}))
+        self.assertRaises(TypeError, lambda: self.cid == {'spam': 'blueval'})
+
+    def test_setdefault(self):
+        self.assertEqual(
+            self.cid.setdefault('spam', 'notblueval'),
+            'blueval'
+        )
+        self.assertEqual(
+            self.cid.setdefault('notspam', 'notblueval'),
+            'notblueval'
+        )
 
 
 if __name__ == '__main__':

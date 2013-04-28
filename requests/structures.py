@@ -9,7 +9,8 @@ Data structures that power Requests.
 """
 
 import os
-from itertools import islice
+import collections
+from itertools import islice, chain
 
 
 class IteratorProxy(object):
@@ -33,43 +34,120 @@ class IteratorProxy(object):
         return "".join(islice(self.i, None, n))
 
 
-class CaseInsensitiveDict(dict):
-    """Case-insensitive Dictionary
+class CaseInsensitiveDict(object):
+    """
+    A case-insensitive ``dict``-like object. Implements all methods
+    and operations of ``collections.MutableMapping`` as well as
+    ``copy``, ``iterkeys``, ``iteritems``, and ``itervalues``. All
+    keys are expected to be strings, and are stored/returned in
+    lowercase.
 
     For example, ``headers['content-encoding']`` will return the
-    value of a ``'Content-Encoding'`` response header."""
+    value of a ``'Content-Encoding'`` response header.
 
-    @property
-    def lower_keys(self):
-        if not hasattr(self, '_lower_keys') or not self._lower_keys:
-            self._lower_keys = dict((k.lower(), k) for k in list(self.keys()))
-        return self._lower_keys
+    If the constructor or ``.update`` is given keys that have equal
+    ``.lower()``s, it will raise ValueError as the behavior of such
+    input cannot be defined sanely.
 
-    def _clear_lower_keys(self):
-        if hasattr(self, '_lower_keys'):
-            self._lower_keys.clear()
+    """
+    def __init__(self, data=None, **kwargs):
+        self._store = dict()
+        if data is None:
+            self.update({}, **kwargs)
+        else:
+            self.update(data, **kwargs)
 
     def __setitem__(self, key, value):
-        dict.__setitem__(self, key, value)
-        self._clear_lower_keys()
-
-    def __delitem__(self, key):
-        dict.__delitem__(self, self.lower_keys.get(key.lower(), key))
-        self._lower_keys.clear()
-
-    def __contains__(self, key):
-        return key.lower() in self.lower_keys
+        self._store[key.lower()] = value
 
     def __getitem__(self, key):
-        # We allow fall-through here, so values default to None
-        if key in self:
-            return dict.__getitem__(self, self.lower_keys[key.lower()])
+        return self._store[key.lower()]
+
+    def __delitem__(self, key):
+        del self._store[key.lower()]
+
+    def __iter__(self):
+        return iter(self._store)
+
+    def __len__(self):
+        return len(self._store)
+
+    def __contains__(self, key):
+        return key.lower() in self._store
+
+    def keys(self):
+        return self._store.keys()
+
+    def items(self):
+        return self._store.items()
+
+    def values(self):
+        return self._store.values()
 
     def get(self, key, default=None):
-        if key in self:
-            return self[key]
+        return self._store.get(key.lower(), default)
+
+    def __eq__(self, other):
+        if isinstance(other, CaseInsensitiveDict):
+            return self._store == other._store
         else:
-            return default
+            raise TypeError(
+                "Can only compare with CaseInsensitiveDict instances"
+            )
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def pop(self, key, default=None):
+        if default is None:
+            return self._store.pop(key.lower())
+        else:
+            return self._store.pop(key.lower(), default)
+
+    def popitem(self):
+        return self._store.popitem()
+
+    def clear(self):
+        self._store.clear()
+
+    def update(self, other, **kwargs):
+        if isinstance(other, collections.Mapping):
+            items = other.items()
+            self._store = dict((k.lower(), v) for (k, v) in other.items())
+        else:
+            items = other
+            self._store = dict((i[0].lower(), i[1]) for i in other)
+        seenkeys = set()
+        for key, value in chain(items, kwargs.items()):
+            key = key.lower()
+            if key in seenkeys:
+                raise ValueError(
+                    'Keys must be unique after being lowercased, found "%s" '
+                    'at least twice.'
+                )
+            self._store[key] = value
+            seenkeys.add(key)
+
+    def setdefault(self, key, default=None):
+        return self._store.setdefault(key.lower(), default)
+
+    # Remaining methods not strictly needed for collections.Mapping
+    def copy(self):
+        return CaseInsensitiveDict(self._store.copy())
+
+    def iteritems(self):
+        return self._store.iteritems()
+
+    def iterkeys(self):
+        return self._store.iterkeys()
+
+    def itervalues(self):
+        return self._store.itervalues()
+
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__.__name__, self._store)
+
+collections.MutableMapping.register(CaseInsensitiveDict)
 
 
 class LookupDict(dict):
