@@ -1,5 +1,5 @@
 # urllib3/connectionpool.py
-# Copyright 2008-2012 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
+# Copyright 2008-2013 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
 #
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
@@ -446,12 +446,14 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         except Empty as e:
             # Timed out by queue
-            raise TimeoutError(self, "Request timed out. (pool_timeout=%s)" %
+            raise TimeoutError(self, url,
+                               "Request timed out. (pool_timeout=%s)" %
                                pool_timeout)
 
         except SocketTimeout as e:
             # Timed out by socket
-            raise TimeoutError(self, "Request timed out. (timeout=%s)" %
+            raise TimeoutError(self, url,
+                               "Request timed out. (timeout=%s)" %
                                timeout)
 
         except BaseSSLError as e:
