@@ -10,7 +10,7 @@ Data structures that power Requests.
 
 import os
 import collections
-from itertools import islice, chain
+from itertools import islice
 
 
 class IteratorProxy(object):
