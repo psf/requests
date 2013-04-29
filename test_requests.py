@@ -477,37 +477,41 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertEqual(len(cid), 2)
         self.assertTrue('foo' in cid)
         self.assertTrue('bar' in cid)
-        self.assertRaises(ValueError, CaseInsensitiveDict,
-                          {'Foo': 'foo', 'foo': 'foo','BAr': 'bar'})
 
     def test_iterable_init(self):
         cid = CaseInsensitiveDict([('Foo', 'foo'), ('BAr', 'bar')])
         self.assertEqual(len(cid), 2)
         self.assertTrue('foo' in cid)
         self.assertTrue('bar' in cid)
-        self.assertRaises(ValueError, CaseInsensitiveDict,
-                          [('Foo', 'foo'), ('foo', 'foo'), ('BAr', 'bar')])
 
     def test_kwargs_init(self):
         cid = CaseInsensitiveDict(FOO='foo', BAr='bar')
         self.assertEqual(len(cid), 2)
         self.assertTrue('foo' in cid)
         self.assertTrue('bar' in cid)
-        self.assertRaises(ValueError, CaseInsensitiveDict,
-                          foo='foo', FOO='foo', BAr='bar')
 
     def test_implements_mutable_mapping(self):
-        self.assertTrue(isinstance(self.cid, MutableMapping))
+        self.assertTrue(isinstance(CaseInsensitiveDict(), MutableMapping))
 
     def test_len(self):
-        self.assertEqual(len(self.cid), 1)
+        cid = CaseInsensitiveDict({'a': 'a', 'b': 'b'})
+        cid['A'] = 'a'
+        self.assertEqual(len(cid), 2)
 
     def test_getitem(self):
-        self.assertEqual(self.cid['spam'], 'blueval')
-        self.assertEqual(self.cid['SPAM'], 'blueval')
+        cid = CaseInsensitiveDict({'Spam': 'blueval'})
+        self.assertEqual(cid['spam'], 'blueval')
+        self.assertEqual(cid['SPAM'], 'blueval')
 
-    def test_getitem_nonused_casing(self):
-        self.assertEqual(self.cid['sPam'], 'blueval')
+    def test_solves_649(self):
+        cid = CaseInsensitiveDict()
+        cid['spam'] = 'oneval'
+        cid['Spam'] = 'twoval'
+        cid['sPAM'] = 'redval'
+        cid['SPAM'] = 'blueval'
+        self.assertEqual(cid['spam'], 'blueval')
+        self.assertEqual(cid['SPAM'], 'blueval')
+        self.assertEqual(cid.keys(), ['SPAM'])
 
     def test_delitem(self):
         del self.cid['sPam']
@@ -533,8 +537,6 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertEqual(len(cid), 2)
         self.assertEqual(cid['foo'], 'anotherfoo')
         self.assertEqual(cid['bar'], 'anotherbar')
-        self.assertRaises(ValueError, cid.update,
-                          {'Foo': 'foo', 'foo': 'foo','BAr': 'bar'})
 
     def test_update_retains_unchanged(self):
         cid = CaseInsensitiveDict({'foo': 'foo', 'bar': 'bar'})
@@ -542,13 +544,14 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertEquals(cid['bar'], 'bar')
 
     def test_iter(self):
-        for k in iter(self.cid):
-            self.assertEqual(k, k.lower())
+        cid = CaseInsensitiveDict({'Spam': 'spam', 'Eggs': 'eggs'})
+        keys = frozenset(['Spam', 'Eggs'])
+        self.assertEqual(frozenset(iter(cid)), keys)
 
     def test_equality(self):
         self.assertEqual(self.cid, CaseInsensitiveDict({'spam': 'blueval'}))
         self.assertNotEqual(self.cid, CaseInsensitiveDict({'spam': 'notblueval'}))
-        self.assertRaises(TypeError, lambda: self.cid == {'spam': 'blueval'})
+        self.assertEqual(self.cid, {'sPAM': 'blueval'})
 
     def test_setdefault(self):
         self.assertEqual(
@@ -559,6 +562,29 @@ class TestCaseInsensitiveDict(unittest.TestCase):
             self.cid.setdefault('notspam', 'notblueval'),
             'notblueval'
         )
+
+    def test_preserve_key_case(self):
+        cid = CaseInsensitiveDict({
+            'Accept': 'application/json',
+            'user-Agent': 'requests',
+        })
+        keyset = frozenset(['Accept', 'user-Agent'])
+        self.assertEqual(set(i[0] for i in cid.items()), keyset)
+        self.assertEqual(set(cid.keys()), keyset)
+        self.assertEqual(set(cid), keyset)
+
+    def test_preserve_last_key_case(self):
+        cid = CaseInsensitiveDict({
+            'Accept': 'application/json',
+            'user-Agent': 'requests',
+        })
+        cid.update({'ACCEPT': 'application/json'})
+        cid['USER-AGENT'] = 'requests'
+        keyset = frozenset(['ACCEPT', 'USER-AGENT'])
+        self.assertEqual(frozenset(i[0] for i in cid.items()), keyset)
+        self.assertEqual(frozenset(cid.keys()), keyset)
+        self.assertEqual(frozenset(cid), keyset)
+
 
 
 if __name__ == '__main__':

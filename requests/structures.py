@@ -36,84 +36,80 @@ class IteratorProxy(object):
 
 class CaseInsensitiveDict(collections.MutableMapping):
     """
-    A case-insensitive ``dict``-like object. Implements all methods
-    and operations of ``collections.MutableMapping`` as well as
-    ``copy``, ``iterkeys``, ``iteritems``, and ``itervalues``. All
-    keys are expected to be strings, and are stored/returned in
-    lowercase.
+    A case-insensitive ``dict``-like object.
+
+    Implements all methods and operations of
+    ``collections.MutableMapping`` as well as dict's ``copy``.
+
+    All keys are expected to be strings. The structure remembers the
+    case of the last key to be set, and ``iter(instance)``,
+    ``keys()``, ``items()``, ``iterkeys()``, and ``iteritems()``
+    will contain case-sensitive keys. However, querying and contains
+    testing is case insensitive.
 
     For example, ``headers['content-encoding']`` will return the
-    value of a ``'Content-Encoding'`` response header.
+    value of a ``'Content-Encoding'`` response header, regardless
+    of how the header name was originally stored.
 
-    If the constructor or ``.update`` is given keys that have equal
-    ``.lower()``s, it will raise ValueError as the behavior of such
-    input cannot be defined sanely.
+    If the constructor, ``.update``, or equality comparison
+    operations are given keys that have equal ``.lower()``s, the
+    behavior is undefined.
 
     """
+    ## NOTE _store is not a direct representation of the mapping
+    # itself: Keys are the lowercased versions of keys as inserted,
+    # and values are a tuple of (cased_key, mapped_value).
     def __init__(self, data=None, **kwargs):
         self._store = dict()
         if data is None:
-            self.update({}, **kwargs)
-        else:
-            self.update(data, **kwargs)
+            data = {}
+        self.update(data, **kwargs)
 
     def __setitem__(self, key, value):
-        self._store[key.lower()] = value
+        self._store[key.lower()] = (key, value)
 
     def __getitem__(self, key):
-        return self._store[key.lower()]
+        return self._store[key.lower()][1]
 
     def __delitem__(self, key):
         del self._store[key.lower()]
 
     def __iter__(self):
-        return iter(self._store)
+        return (k for k, v in self._store.values())
 
     def __len__(self):
         return len(self._store)
 
-    def __eq__(self, other):
-        if isinstance(other, CaseInsensitiveDict):
-            return self._store == other._store
-        else:
-            raise TypeError(
-                "Can only compare with CaseInsensitiveDict instances"
-            )
+    def lower_items(self):
+        """Like iteritems(), but with all lowercase keys."""
+        return (
+            (lowerkey, keyval[1])
+            for (lowerkey, keyval)
+            in self._store.items()
+        )
 
-    def __ne__(self, other):
-        return not (self == other)
+    def __eq__(self, other):
+        if isinstance(other, collections.Mapping):
+            other = CaseInsensitiveDict(other)
+        else:
+            return NotImplemented
+        # Compare insensitively
+        return dict(self.lower_items()) == dict(other.lower_items())
 
     def update(self, other, **kwargs):
         if isinstance(other, collections.Mapping):
             items = other.items()
         else:
             items = other
-        seenkeys = set()
         for key, value in chain(items, kwargs.items()):
-            key = key.lower()
-            if key in seenkeys:
-                raise ValueError(
-                    'Keys must be unique after being lowercased, found "%s" '
-                    'at least twice.' % key
-                )
-            self._store[key] = value
-            seenkeys.add(key)
+            self[key] = value
 
-    # Remaining methods not strictly needed for collections.Mapping
+    # Copy is required
     def copy(self):
-        return CaseInsensitiveDict(self._store.copy())
-
-    def iteritems(self):
-        return self._store.iteritems()
-
-    def iterkeys(self):
-        return self._store.iterkeys()
-
-    def itervalues(self):
-        return self._store.itervalues()
+         return CaseInsensitiveDict(self._store.values())
 
     def __repr__(self):
-        return '%s(%r)' % (self.__class__.__name__, self._store)
+        return '%s(%r)' % (self.__class__.__name__, dict(self.items()))
 
 
 class LookupDict(dict):
