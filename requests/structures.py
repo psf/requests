@@ -34,7 +34,7 @@ class IteratorProxy(object):
         return "".join(islice(self.i, None, n))
 
 
-class CaseInsensitiveDict(object):
+class CaseInsensitiveDict(collections.MutableMapping):
     """
     A case-insensitive ``dict``-like object. Implements all methods
     and operations of ``collections.MutableMapping`` as well as
@@ -72,21 +72,6 @@ class CaseInsensitiveDict(object):
     def __len__(self):
         return len(self._store)
 
-    def __contains__(self, key):
-        return key.lower() in self._store
-
-    def keys(self):
-        return self._store.keys()
-
-    def items(self):
-        return self._store.items()
-
-    def values(self):
-        return self._store.values()
-
-    def get(self, key, default=None):
-        return self._store.get(key.lower(), default)
-
     def __eq__(self, other):
         if isinstance(other, CaseInsensitiveDict):
             return self._store == other._store
@@ -98,38 +83,21 @@ class CaseInsensitiveDict(object):
     def __ne__(self, other):
         return not (self == other)
 
-    def pop(self, key, default=None):
-        if default is None:
-            return self._store.pop(key.lower())
-        else:
-            return self._store.pop(key.lower(), default)
-
-    def popitem(self):
-        return self._store.popitem()
-
-    def clear(self):
-        self._store.clear()
-
     def update(self, other, **kwargs):
         if isinstance(other, collections.Mapping):
             items = other.items()
-            self._store = dict((k.lower(), v) for (k, v) in other.items())
         else:
             items = other
-            self._store = dict((i[0].lower(), i[1]) for i in other)
         seenkeys = set()
         for key, value in chain(items, kwargs.items()):
             key = key.lower()
             if key in seenkeys:
                 raise ValueError(
                     'Keys must be unique after being lowercased, found "%s" '
-                    'at least twice.'
+                    'at least twice.' % key
                 )
             self._store[key] = value
             seenkeys.add(key)
-
-    def setdefault(self, key, default=None):
-        return self._store.setdefault(key.lower(), default)
 
     # Remaining methods not strictly needed for collections.Mapping
     def copy(self):
@@ -146,8 +114,6 @@ class CaseInsensitiveDict(object):
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self._store)
-
-collections.MutableMapping.register(CaseInsensitiveDict)
 
 
 class LookupDict(dict):

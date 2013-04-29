@@ -536,6 +536,11 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertRaises(ValueError, cid.update,
                           {'Foo': 'foo', 'foo': 'foo','BAr': 'bar'})
 
+    def test_update_retains_unchanged(self):
+        cid = CaseInsensitiveDict({'foo': 'foo', 'bar': 'bar'})
+        cid.update({'foo': 'newfoo'})
+        self.assertEquals(cid['bar'], 'bar')
+
     def test_iter(self):
         for k in iter(self.cid):
             self.assertEqual(k, k.lower())
