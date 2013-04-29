@@ -123,4 +123,5 @@ Patches and Suggestions
 - Denis Ryzhkov <denisr@denisr.com>
 - Wilfred Hughes <me@wilfred.me.uk> @dontYetKnow
 - Dmitry Medvinsky <me@dmedvinsky.name>
+- Bryce Boe <bbzbryce@gmail.com> @bboe
 - Colin Dunklau (cdunklau)
