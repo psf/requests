@@ -511,7 +511,7 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         cid['SPAM'] = 'blueval'
         self.assertEqual(cid['spam'], 'blueval')
         self.assertEqual(cid['SPAM'], 'blueval')
-        self.assertEqual(cid.keys(), ['SPAM'])
+        self.assertEqual(list(cid.keys()), ['SPAM'])
 
     def test_delitem(self):
         del self.cid['sPam']
