@@ -96,14 +96,6 @@ class CaseInsensitiveDict(collections.MutableMapping):
         # Compare insensitively
         return dict(self.lower_items()) == dict(other.lower_items())
 
-    def update(self, other, **kwargs):
-        if isinstance(other, collections.Mapping):
-            items = other.items()
-        else:
-            items = other
-        for key, value in chain(items, kwargs.items()):
-            self[key] = value
-
     # Copy is required
     def copy(self):
          return CaseInsensitiveDict(self._store.values())
