@@ -479,7 +479,7 @@ class RequestsTestCase(unittest.TestCase):
             'application/json'
         )
         self.assertEqual(
-            headers['Accept'.encode('ascii'],
+            headers['Accept'.encode('ascii')],
             'application/json'
         )
 
