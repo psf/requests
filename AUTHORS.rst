@@ -124,3 +124,4 @@ Patches and Suggestions
 - Wilfred Hughes <me@wilfred.me.uk> @dontYetKnow
 - Dmitry Medvinsky <me@dmedvinsky.name>
 - Bryce Boe <bbzbryce@gmail.com> @bboe
+- Colin Dunklau <colin.dunklau@gmail.com> @cdunklau
