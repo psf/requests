@@ -23,7 +23,7 @@ from .exceptions import HTTPError, RequestException, MissingSchema, InvalidURL
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len)
+    iter_slices, guess_json_utf, super_len, to_native_string)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring)
@@ -346,7 +346,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepares the given HTTP headers."""
 
         if headers:
-            headers = dict((name.encode('ascii'), value) for name, value in headers.items())
+            headers = dict((to_native_string(name), value) for name, value in headers.items())
             self.headers = CaseInsensitiveDict(headers)
         else:
             self.headers = CaseInsensitiveDict()

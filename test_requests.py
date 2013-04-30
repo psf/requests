@@ -199,13 +199,13 @@ class RequestsTestCase(unittest.TestCase):
         assert r.json()['cookies']['foo'] == 'bar'
         # Make sure the session cj is still the custom one
         assert s.cookies is cj
-    
+
     def test_requests_in_history_are_not_overridden(self):
         resp = requests.get(httpbin('redirect/3'))
         urls = [r.url for r in resp.history]
         req_urls = [r.request.url for r in resp.history]
         self.assertEquals(urls, req_urls)
-        
+
     def test_user_agent_transfers(self):
 
         heads = {
@@ -263,7 +263,7 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 401)
 
         s = requests.session()
-        
+
         # Should use netrc and work.
         r = s.get(url)
         self.assertEqual(r.status_code, 200)
@@ -639,6 +639,16 @@ class RequestsTestCase(unittest.TestCase):
         )
         r = requests.Request('GET', url).prepare()
         self.assertEqual(r.url, url)
+
+    def test_header_keys_are_native(self):
+        headers = {u'unicode': 'blah', 'byte'.encode('ascii'): 'blah'}
+        r = requests.Request('GET', httpbin('get'), headers=headers)
+        p = r.prepare()
+
+        # This is testing that they are builtin strings. A bit weird, but there
+        # we go.
+        self.assertTrue('unicode' in p.headers.keys())
+        self.assertTrue('byte' in p.headers.keys())
 
 
 class TestCaseInsensitiveDict(unittest.TestCase):
