@@ -8,7 +8,6 @@ import json
 import os
 import unittest
 import pickle
-from collections import MutableMapping
 
 import requests
 from requests.auth import HTTPDigestAuth
@@ -460,14 +459,6 @@ class RequestsTestCase(unittest.TestCase):
         r = s.send(r.prepare())
         self.assertEqual(r.status_code, 200)
 
-    #def test_fixes_1321(self):
-    #    r = requests.get(httpbin('get'), headers={'accept-encoding': None})
-    #    headers = r.request.headers
-    #    self.assertFalse('Accept-Encoding' in headers)
-    #    self.assertFalse(
-    #        any('accept-encoding' == k.lower() for k in headers)
-    #    )
-
     def test_fixes_1329(self):
         s = requests.Session()
         s.headers.update({'accept': 'application/json'})
@@ -509,9 +500,6 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         cid['Accept'] = 'application/json'
         self.assertEqual(cid['aCCEPT'], 'application/json')
         self.assertEqual(list(cid), ['Accept'])
-
-    def test_implements_mutable_mapping(self):
-        self.assertTrue(isinstance(CaseInsensitiveDict(), MutableMapping))
 
     def test_len(self):
         cid = CaseInsensitiveDict({'a': 'a', 'b': 'b'})
