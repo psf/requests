@@ -473,8 +473,15 @@ class RequestsTestCase(unittest.TestCase):
         s.headers.update({'accept': 'application/json'})
         r = s.get(httpbin('get'))
         headers = r.request.headers
-        self.assertEqual(headers['accept'], 'application/json')
-        self.assertEqual(headers['Accept'], 'application/json')
+        # ASCII encode because of key comparison changes in py3
+        self.assertEqual(
+            headers['accept'.encode('ascii')],
+            'application/json'
+        )
+        self.assertEqual(
+            headers['Accept'.encode('ascii'],
+            'application/json'
+        )
 
 
 class TestCaseInsensitiveDict(unittest.TestCase):
