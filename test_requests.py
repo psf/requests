@@ -460,17 +460,24 @@ class RequestsTestCase(unittest.TestCase):
         r = s.send(r.prepare())
         self.assertEqual(r.status_code, 200)
 
+    #def test_fixes_1321(self):
+    #    r = requests.get(httpbin('get'), headers={'accept-encoding': None})
+    #    headers = r.request.headers
+    #    self.assertFalse('Accept-Encoding' in headers)
+    #    self.assertFalse(
+    #        any('accept-encoding' == k.lower() for k in headers)
+    #    )
+
+    def test_fixes_1329(self):
+        s = requests.Session()
+        s.headers.update({'accept': 'application/json'})
+        r = s.get(httpbin('get'))
+        headers = r.request.headers
+        self.assertEqual(headers['accept'], 'application/json')
+        self.assertEqual(headers['Accept'], 'application/json')
+
 
 class TestCaseInsensitiveDict(unittest.TestCase):
-    def setUp(self):
-        self.cid = CaseInsensitiveDict()
-        self.cid['spam'] = 'oneval'
-        self.cid['Spam'] = 'twoval'
-        self.cid['sPAM'] = 'redval'
-        self.cid['SPAM'] = 'blueval'
-
-    def tearDown(self):
-        del self.cid
 
     def test_mapping_init(self):
         cid = CaseInsensitiveDict({'Foo': 'foo','BAr': 'bar'})
@@ -490,6 +497,12 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertTrue('foo' in cid)
         self.assertTrue('bar' in cid)
 
+    def test_docstring_example(self):
+        cid = CaseInsensitiveDict()
+        cid['Accept'] = 'application/json'
+        self.assertEqual(cid['aCCEPT'], 'application/json')
+        self.assertEqual(list(cid), ['Accept'])
+
     def test_implements_mutable_mapping(self):
         self.assertTrue(isinstance(CaseInsensitiveDict(), MutableMapping))
 
@@ -503,7 +516,7 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertEqual(cid['spam'], 'blueval')
         self.assertEqual(cid['SPAM'], 'blueval')
 
-    def test_solves_649(self):
+    def test_fixes_649(self):
         cid = CaseInsensitiveDict()
         cid['spam'] = 'oneval'
         cid['Spam'] = 'twoval'
@@ -514,24 +527,35 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertEqual(list(cid.keys()), ['SPAM'])
 
     def test_delitem(self):
-        del self.cid['sPam']
-        self.assertFalse('spam' in self.cid)
-        self.assertEqual(len(self.cid), 0)
+        cid = CaseInsensitiveDict()
+        cid['Spam'] = 'someval'
+        del cid['sPam']
+        self.assertFalse('spam' in cid)
+        self.assertEqual(len(cid), 0)
 
     def test_contains(self):
-        self.assertTrue('spam' in self.cid)
-        self.assertTrue('SPAM' in self.cid)
-        self.assertTrue('sPam' in self.cid)
+        cid = CaseInsensitiveDict()
+        cid['Spam'] = 'someval'
+        self.assertTrue('Spam' in cid)
+        self.assertTrue('spam' in cid)
+        self.assertTrue('SPAM' in cid)
+        self.assertTrue('sPam' in cid)
+        self.assertFalse('notspam' in cid)
 
     def test_get(self):
-        self.assertEqual(self.cid.get('spam'), 'blueval')
-        self.assertEqual(self.cid.get('SPAM'), 'blueval')
-        self.assertEqual(self.cid.get('sPam'), 'blueval')
-        self.assertEqual(self.cid.get('nonexistant', 'default'), 'default')
+        cid = CaseInsensitiveDict()
+        cid['spam'] = 'oneval'
+        cid['SPAM'] = 'blueval'
+        self.assertEqual(cid.get('spam'), 'blueval')
+        self.assertEqual(cid.get('SPAM'), 'blueval')
+        self.assertEqual(cid.get('sPam'), 'blueval')
+        self.assertEqual(cid.get('notspam', 'default'), 'default')
 
     def test_update(self):
-        self.cid.update({'sPam': 'notblueval'})
-        self.assertEqual(self.cid['spam'], 'notblueval')
+        cid = CaseInsensitiveDict()
+        cid['spam'] = 'blueval'
+        cid.update({'sPam': 'notblueval'})
+        self.assertEqual(cid['spam'], 'notblueval')
         cid = CaseInsensitiveDict({'Foo': 'foo','BAr': 'bar'})
         cid.update({'fOO': 'anotherfoo', 'bAR': 'anotherbar'})
         self.assertEqual(len(cid), 2)
@@ -549,19 +573,32 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertEqual(frozenset(iter(cid)), keys)
 
     def test_equality(self):
-        self.assertEqual(self.cid, CaseInsensitiveDict({'spam': 'blueval'}))
-        self.assertNotEqual(self.cid, CaseInsensitiveDict({'spam': 'notblueval'}))
-        self.assertEqual(self.cid, {'sPAM': 'blueval'})
+        cid = CaseInsensitiveDict({'SPAM': 'blueval', 'Eggs': 'redval'})
+        othercid = CaseInsensitiveDict({'spam': 'blueval', 'eggs': 'redval'})
+        self.assertEqual(cid, othercid)
+        del othercid['spam']
+        self.assertNotEqual(cid, othercid)
+        self.assertEqual(cid, {'spam': 'blueval', 'eggs': 'redval'})
 
     def test_setdefault(self):
+        cid = CaseInsensitiveDict({'Spam': 'blueval'})
         self.assertEqual(
-            self.cid.setdefault('spam', 'notblueval'),
+            cid.setdefault('spam', 'notblueval'),
             'blueval'
         )
         self.assertEqual(
-            self.cid.setdefault('notspam', 'notblueval'),
+            cid.setdefault('notspam', 'notblueval'),
             'notblueval'
         )
+
+    def test_lower_items(self):
+        cid = CaseInsensitiveDict({
+            'Accept': 'application/json',
+            'user-Agent': 'requests',
+        })
+        keyset = frozenset(lowerkey for lowerkey, v in cid.lower_items())
+        lowerkeyset = frozenset(['accept', 'user-agent'])
+        self.assertEqual(keyset, lowerkeyset)
 
     def test_preserve_key_case(self):
         cid = CaseInsensitiveDict({
@@ -569,9 +606,9 @@ class TestCaseInsensitiveDict(unittest.TestCase):
             'user-Agent': 'requests',
         })
         keyset = frozenset(['Accept', 'user-Agent'])
-        self.assertEqual(set(i[0] for i in cid.items()), keyset)
-        self.assertEqual(set(cid.keys()), keyset)
-        self.assertEqual(set(cid), keyset)
+        self.assertEqual(frozenset(i[0] for i in cid.items()), keyset)
+        self.assertEqual(frozenset(cid.keys()), keyset)
+        self.assertEqual(frozenset(cid), keyset)
 
     def test_preserve_last_key_case(self):
         cid = CaseInsensitiveDict({
