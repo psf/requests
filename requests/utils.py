@@ -23,6 +23,7 @@ from . import certs
 from .compat import parse_http_list as _parse_list_header
 from .compat import quote, urlparse, bytes, str, OrderedDict, urlunparse
 from .cookies import RequestsCookieJar, cookiejar_from_dict
+from .structures import CaseInsensitiveDict
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -449,11 +450,11 @@ def default_user_agent():
 
 
 def default_headers():
-    return {
+    return CaseInsensitiveDict({
         'User-Agent': default_user_agent(),
         'Accept-Encoding': ', '.join(('gzip', 'deflate', 'compress')),
         'Accept': '*/*'
-    }
+    })
 
 
 def parse_header_links(value):
