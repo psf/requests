@@ -98,8 +98,9 @@ class SessionRedirectMixin(object):
                 url = '%s:%s' % (parsed_rurl.scheme, url)
 
             # The scheme should be lower case...
-            scheme, uri = url.split('://')
-            url = '%s://%s' % (scheme.lower(), uri)
+            if '://' in url:
+                scheme, uri = url.split('://', 1)
+                url = '%s://%s' % (scheme.lower(), uri)
 
             # Facilitate non-RFC2616-compliant 'location' headers
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
