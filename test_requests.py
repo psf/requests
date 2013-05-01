@@ -645,6 +645,25 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert prep.body.find(b'second file') > -1
         assert prep.body.find(b'second file') > prep.body.find(b'first file')
 
+    def test_ordered_kwargs_output(self):
+        url = httpbin('get')
+
+        s = requests.Session()
+        r = s.request('GET', url, params='multi=1')
+        self.assertEqual(r.request.url, "http://httpbin.org/get?multi=1")
+
+        prep = requests.Request('GET', url, params=[("multi", [1,2,3]), ("second", "content"), ("multi", 5)]).prepare()
+        self.assertEqual(prep.url, "http://httpbin.org/get?multi=1&multi=2&multi=3&second=content&multi=5")
+
+        url = httpbin('post')
+        prep = requests.Request('POST', url, data=[("multi", [1,2,3]), ("second", "content"), ("multi", 5)]).prepare()
+        self.assertEqual(prep.body, "multi=1&multi=2&multi=3&second=content&multi=5")
+
+        prep = requests.Request('POST', url, files=[('file', b"first file"), ('file', b"second file")]).prepare()
+        assert prep.body.find(b'first file') > -1
+        assert prep.body.find(b'second file') > -1
+        assert prep.body.find(b'second file') > prep.body.find(b'first file')
+
 
 if __name__ == '__main__':
     unittest.main()
