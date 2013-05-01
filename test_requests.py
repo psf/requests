@@ -708,7 +708,7 @@ class TestCaseInsensitiveDict(unittest.TestCase):
 
     def test_uppercase_scheme_redirect(self):
         r = requests.get(httpbin('redirect-to'), params={'url': 'HTTP://example.com/'})
-
+        self.assertEqual(r.status_code, 200)
 
 if __name__ == '__main__':
     unittest.main()
