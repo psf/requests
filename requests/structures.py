@@ -135,7 +135,7 @@ def iter_multi_items(mapping):
     """Iterates over the items of a mapping yielding keys and values
     without dropping any from more complex structures.
     """
-    if isinstance(mapping, dict):
+    if isinstance(mapping, collections.Mapping):
         try:
             for item in mapping.items(multi=True):
                 yield item
@@ -277,9 +277,9 @@ class MultiDict(TypeConversionDict):
     """
 
     def __init__(self, mapping=None):
-        if isinstance(mapping, dict) and hasattr(mapping, 'iterlists'):
+        if isinstance(mapping, collections.Mapping) and hasattr(mapping, 'iterlists'):
             dict.__init__(self, ((k, l[:]) for k, l in mapping.iterlists()))
-        elif isinstance(mapping, dict):
+        elif isinstance(mapping, collections.Mapping):
             tmp = {}
             for key, value in mapping.iteritems():
                 if isinstance(value, (tuple, list)):

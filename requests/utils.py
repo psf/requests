@@ -16,6 +16,7 @@ import platform
 import re
 import sys
 import zlib
+import collections
 from netrc import netrc, NetrcParseError
 
 from . import __version__
@@ -135,7 +136,7 @@ def to_key_val_list(value):
     if isinstance(value, (str, bytes, bool, int)):
         raise ValueError('cannot encode objects that are not 2-tuples')
 
-    if isinstance(value, dict):
+    if isinstance(value, collections.Mapping):
         try:
             # Check for MultiDict first
             value = value.items(multi=True)

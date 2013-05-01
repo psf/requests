@@ -350,7 +350,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             hasattr(data, '__iter__'),
             not isinstance(data, basestring),
             not isinstance(data, list),
-            not isinstance(data, dict)
+            not isinstance(data, collections.Mapping)
         ])
 
         try:
