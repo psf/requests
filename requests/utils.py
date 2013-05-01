@@ -21,9 +21,9 @@ from netrc import netrc, NetrcParseError
 from . import __version__
 from . import certs
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, urlparse, bytes, str, OrderedDict, urlunparse
+from .compat import quote, urlparse, bytes, str, urlunparse
 from .cookies import RequestsCookieJar, cookiejar_from_dict
-from .structures import CaseInsensitiveDict, MultiDict
+from .structures import CaseInsensitiveDict, OrderedMultiDict
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -113,7 +113,7 @@ def from_key_val_list(value):
     if isinstance(value, (str, bytes, bool, int)):
         raise ValueError('cannot encode objects that are not 2-tuples')
 
-    return OrderedDict(value)
+    return OrderedMultiDict(value)
 
 
 def to_key_val_list(value):
