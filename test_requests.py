@@ -499,6 +499,9 @@ class RequestsTestCase(unittest.TestCase):
         r = requests.get('HTTP://example.com/')
         self.assertEqual(r.status_code, 200)
 
+    def test_uppercase_scheme_redirect(self):
+        r = requests.get(httpbin('redirect-to'), params={'url': 'HTTP://example.com/'})
+        self.assertEqual(r.status_code, 200)
     def test_transport_adapter_ordering(self):
         s = requests.Session()
         order = ['https://', 'http://']
@@ -704,11 +707,6 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertEqual(frozenset(cid.keys()), keyset)
         self.assertEqual(frozenset(cid), keyset)
 
-
-
-    def test_uppercase_scheme_redirect(self):
-        r = requests.get(httpbin('redirect-to'), params={'url': 'HTTP://example.com/'})
-        self.assertEqual(r.status_code, 200)
 
 if __name__ == '__main__':
     unittest.main()
