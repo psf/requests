@@ -460,7 +460,11 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
 
     def test_fixes_1329(self):
+        """
+        Ensure that header updates are done case-insensitively.
+        """
         s = requests.Session()
+        s.headers.update({'ACCEPT': 'BOGUS'})
         s.headers.update({'accept': 'application/json'})
         r = s.get(httpbin('get'))
         headers = r.request.headers
@@ -471,6 +475,10 @@ class RequestsTestCase(unittest.TestCase):
         )
         self.assertEqual(
             headers['Accept'.encode('ascii')],
+            'application/json'
+        )
+        self.assertEqual(
+            headers['ACCEPT'.encode('ascii')],
             'application/json'
         )
 
@@ -512,6 +520,7 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertEqual(cid['SPAM'], 'blueval')
 
     def test_fixes_649(self):
+        """__setitem__ should behave case-insensitively."""
         cid = CaseInsensitiveDict()
         cid['spam'] = 'oneval'
         cid['Spam'] = 'twoval'
