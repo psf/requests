@@ -22,7 +22,7 @@ from netrc import netrc, NetrcParseError
 from . import __version__
 from . import certs
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, urlparse, str, urlunparse, basestring
+from .compat import quote, urlparse, str, urlunparse
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict, OrderedMultiDict
 
@@ -111,10 +111,10 @@ def from_key_val_list(value):
     if value is None:
         return None
 
-    if isinstance(value, (basestring, bool, int)):
+    try:
+        return OrderedMultiDict(value)
+    except ValueError:
         raise ValueError('cannot encode objects that are not 2-tuples')
-
-    return OrderedMultiDict(value)
 
 
 def to_key_val_list(value):
@@ -133,17 +133,18 @@ def to_key_val_list(value):
     if value is None:
         return None
 
-    if isinstance(value, (basestring, bool, int)):
-        raise ValueError('cannot encode objects that are not 2-tuples')
-
     if isinstance(value, collections.Mapping):
         try:
             # Check for MultiDict first
-            value = value.items(multi=True)
+            items = value.items(multi=True)
         except TypeError:
-            value = value.items()
+            items = value.items()
+    elif isinstance(value, collections.Iterable):
+        items = value
+    else:
+        raise ValueError('cannot encode objects that are not 2-tuples')
 
-    return list(value)
+    return [(k, v) for k, v in items]
 
 
 # From mitsuhiko/werkzeug (used with permission).
