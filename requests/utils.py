@@ -95,18 +95,20 @@ def guess_filename(obj):
 
 
 def from_key_val_list(value):
-    """Take an object and test to see if it can be represented as a
-    dictionary. Unless it can not be represented as such, return an
-    OrderedDict, e.g.,
+    """
+    Take an object and test to see if it can be represented as an
+    ordered dictionary (supporting multiple values for the same key).
+    Unless it can not be represented as such, return an OrderedMultiDict, e.g.,
 
     ::
-
         >>> from_key_val_list([('key', 'val')])
-        OrderedDict([('key', 'val')])
+        OrderedMultiDict([('key', 'val')])
+        >>> from_key_val_list([('key', 'val1'), ('key', 'val2')])
+        OrderedMultiDict([('key', 'val1'), ('key', 'val2'))
         >>> from_key_val_list('string')
-        ValueError: need more than 1 value to unpack
+        ValueError: Value must be a mapping, or iterable of 2-tuples
         >>> from_key_val_list({'key': 'val'})
-        OrderedDict([('key', 'val')])
+        OrderedMultiDict([('key', 'val')])
     """
     if value is None:
         return None
@@ -114,21 +116,23 @@ def from_key_val_list(value):
     try:
         return OrderedMultiDict(value)
     except ValueError:
-        raise ValueError('cannot encode objects that are not 2-tuples')
+        raise ValueError('Value must be a mapping, or iterable of 2-tuples')
 
 
 def to_key_val_list(value):
-    """Take an object and test to see if it can be represented as a
-    dictionary. If it can be, return a list of tuples, e.g.,
+    """
+    Take an object and test to see if it can be represented as a
+    list of 2-tuples. If it can be, return a list of 2-tuples, e.g.,
 
     ::
-
+        >>> to_key_val_list(OrderedMultiDict([('key', 'val1'), ('key', 'val2')])
+        [('key', 'val1'), ('key', 'val2')]
         >>> to_key_val_list([('key', 'val')])
         [('key', 'val')]
         >>> to_key_val_list({'key': 'val'})
         [('key', 'val')]
         >>> to_key_val_list('string')
-        ValueError: cannot encode objects that are not 2-tuples.
+        ValueError: 'Value must be a mapping, or iterable of 2-tuples'
     """
     if value is None:
         return None
@@ -142,7 +146,7 @@ def to_key_val_list(value):
     elif isinstance(value, collections.Iterable):
         items = value
     else:
-        raise ValueError('cannot encode objects that are not 2-tuples')
+        raise ValueError('Value must be a mapping, or iterable of 2-tuples')
 
     return [(k, v) for k, v in items]
 
