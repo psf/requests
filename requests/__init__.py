@@ -51,7 +51,7 @@ __copyright__ = 'Copyright 2013 Kenneth Reitz'
 
 from . import utils
 from .models import Request, Response, PreparedRequest
-from .api import request, get, head, post, patch, put, delete, options
+from .api import request, get, head, post, patch, put, delete, options, trace
 from .sessions import session, Session
 from .status_codes import codes
 from .exceptions import (

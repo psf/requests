@@ -416,6 +416,15 @@ class Session(SessionRedirectMixin):
 
         return self.request('DELETE', url, **kwargs)
 
+    def trace(self, url, **kwargs):
+        """Sends a TRACE request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        """
+
+        return self.request('TRACE', url, **kwargs)
+
     def send(self, request, **kwargs):
         """Send a given PreparedRequest."""
         # Set defaults that the hooks can utilize to ensure they always have
