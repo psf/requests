@@ -125,7 +125,7 @@ def to_key_val_list(value):
     list of 2-tuples. If it can be, return a list of 2-tuples, e.g.,
 
     ::
-        >>> to_key_val_list(OrderedMultiDict([('key', 'val1'), ('key', 'val2')])
+        >>> to_key_val_list(OrderedMultiDict([('key', 'val1'), ('key', 'val2')]))
         [('key', 'val1'), ('key', 'val2')]
         >>> to_key_val_list([('key', 'val')])
         [('key', 'val')]
