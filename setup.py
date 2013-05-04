@@ -20,6 +20,7 @@ packages = [
     'requests.packages.charade',
     'requests.packages.urllib3',
     'requests.packages.urllib3.packages',
+    'requests.packages.urllib3.contrib',
     'requests.packages.urllib3.packages.ssl_match_hostname'
 ]
 
