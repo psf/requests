@@ -482,6 +482,10 @@ class RequestsTestCase(unittest.TestCase):
             'application/json'
         )
 
+    def test_credits(self):
+        answer = raw_input('Do you see Kenneth? (Y/n) ').upper() or 'Y'
+        self.assertTrue(answer == 'Y')
+
 
 class TestCaseInsensitiveDict(unittest.TestCase):
 
