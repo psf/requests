@@ -49,7 +49,7 @@ OAuth 1 Authentication
 
 A common form of authentication for several web APIs is OAuth. The ``requests-oauthlib`` library allows Requests users to easily make OAuth authenticated requests::
 
-    >>> import request
+    >>> import requests
     >>> from requests_oauthlib import OAuth1
 
     >>> url = 'https://api.twitter.com/1.1/account/verify_credentials.json'
