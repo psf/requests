@@ -69,6 +69,13 @@ Or, if you absolutely must:
 But, you really shouldn't do that.
 
 
+Documentation
+-------------
+
+Documentation is available courtesy of `Read the Docs`_.
+
+.. _`Read the Docs`: https://requests.readthedocs.org
+
 
 Contribute
 ----------
