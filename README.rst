@@ -69,6 +69,11 @@ Or, if you absolutely must:
 But, you really shouldn't do that.
 
 
+Documentation
+-------------
+
+Documentation is available at http://docs.python-requests.org/.
+
 
 Contribute
 ----------
