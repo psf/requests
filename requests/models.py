@@ -646,7 +646,7 @@ class Response(object):
     def links(self):
         """Returns the parsed header links of the response, if any."""
 
-        header = self.headers['link']
+        header = self.headers.get('link')
 
         # l = MultiDict()
         l = {}
