@@ -13,7 +13,7 @@ import requests
 from requests.auth import HTTPDigestAuth
 from requests.compat import str, cookielib
 from requests.cookies import cookiejar_from_dict
-from requests.structures import CaseInsensitiveDict
+from requests.structures import CaseInsensitiveDict, OrderedMultiDict
 
 try:
     import StringIO
@@ -626,6 +626,25 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertEqual(frozenset(cid.keys()), keyset)
         self.assertEqual(frozenset(cid), keyset)
 
+    def test_ordered_kwargs_output(self):
+        url = httpbin('get')
+
+        s = requests.Session()
+        s.params = OrderedMultiDict({'multi': 2})
+        r = s.request('GET', url, params={'multi': '1'})
+        self.assertEqual(r.request.url, "http://httpbin.org/get?multi=2&multi=1")
+
+        prep = requests.Request('GET', url, params=[("multi", [1,2,3]), ("second", "content"), ("multi", 5)]).prepare()
+        self.assertEqual(prep.url, "http://httpbin.org/get?multi=1&multi=2&multi=3&second=content&multi=5")
+
+        url = httpbin('post')
+        prep = requests.Request('POST', url, data=[("multi", [1,2,3]), ("second", "content"), ("multi", 5)]).prepare()
+        self.assertEqual(prep.body, "multi=1&multi=2&multi=3&second=content&multi=5")
+
+        prep = requests.Request('POST', url, files=[('file', b"first file"), ('file', b"second file")]).prepare()
+        assert prep.body.find(b'first file') > -1
+        assert prep.body.find(b'second file') > -1
+        assert prep.body.find(b'second file') > prep.body.find(b'first file')
 
 
 if __name__ == '__main__':

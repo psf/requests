@@ -16,14 +16,15 @@ import platform
 import re
 import sys
 import zlib
+import collections
 from netrc import netrc, NetrcParseError
 
 from . import __version__
 from . import certs
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, urlparse, bytes, str, OrderedDict, urlunparse
+from .compat import quote, urlparse, str, urlunparse
 from .cookies import RequestsCookieJar, cookiejar_from_dict
-from .structures import CaseInsensitiveDict
+from .structures import CaseInsensitiveDict, OrderedMultiDict
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -94,51 +95,60 @@ def guess_filename(obj):
 
 
 def from_key_val_list(value):
-    """Take an object and test to see if it can be represented as a
-    dictionary. Unless it can not be represented as such, return an
-    OrderedDict, e.g.,
+    """
+    Take an object and test to see if it can be represented as an
+    ordered dictionary (supporting multiple values for the same key).
+    Unless it can not be represented as such, return an OrderedMultiDict, e.g.,
 
     ::
-
         >>> from_key_val_list([('key', 'val')])
-        OrderedDict([('key', 'val')])
+        OrderedMultiDict([('key', 'val')])
+        >>> from_key_val_list([('key', 'val1'), ('key', 'val2')])
+        OrderedMultiDict([('key', 'val1'), ('key', 'val2'))
         >>> from_key_val_list('string')
-        ValueError: need more than 1 value to unpack
+        ValueError: Value must be a mapping, or iterable of 2-tuples
         >>> from_key_val_list({'key': 'val'})
-        OrderedDict([('key', 'val')])
+        OrderedMultiDict([('key', 'val')])
     """
     if value is None:
         return None
 
-    if isinstance(value, (str, bytes, bool, int)):
-        raise ValueError('cannot encode objects that are not 2-tuples')
-
-    return OrderedDict(value)
+    try:
+        return OrderedMultiDict(value)
+    except ValueError:
+        raise ValueError('Value must be a mapping, or iterable of 2-tuples')
 
 
 def to_key_val_list(value):
-    """Take an object and test to see if it can be represented as a
-    dictionary. If it can be, return a list of tuples, e.g.,
+    """
+    Take an object and test to see if it can be represented as a
+    list of 2-tuples. If it can be, return a list of 2-tuples, e.g.,
 
     ::
-
+        >>> to_key_val_list(OrderedMultiDict([('key', 'val1'), ('key', 'val2')]))
+        [('key', 'val1'), ('key', 'val2')]
         >>> to_key_val_list([('key', 'val')])
         [('key', 'val')]
         >>> to_key_val_list({'key': 'val'})
         [('key', 'val')]
         >>> to_key_val_list('string')
-        ValueError: cannot encode objects that are not 2-tuples.
+        ValueError: 'Value must be a mapping, or iterable of 2-tuples'
     """
     if value is None:
         return None
 
-    if isinstance(value, (str, bytes, bool, int)):
-        raise ValueError('cannot encode objects that are not 2-tuples')
+    if isinstance(value, collections.Mapping):
+        try:
+            # Check for MultiDict first
+            items = value.items(multi=True)
+        except TypeError:
+            items = value.items()
+    elif isinstance(value, collections.Iterable):
+        items = value
+    else:
+        raise ValueError('Value must be a mapping, or iterable of 2-tuples')
 
-    if isinstance(value, dict):
-        value = value.items()
-
-    return list(value)
+    return [(k, v) for k, v in items]
 
 
 # From mitsuhiko/werkzeug (used with permission).
