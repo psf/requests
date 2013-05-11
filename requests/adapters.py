@@ -25,6 +25,7 @@ from .cookies import extract_cookies_to_jar
 from .exceptions import ConnectionError, Timeout, SSLError
 from .auth import _basic_auth_str
 
+DEFAULT_POOLBLOCK = False
 DEFAULT_POOLSIZE = 10
 DEFAULT_RETRIES = 0
 
@@ -64,7 +65,8 @@ class HTTPAdapter(BaseAdapter):
     __attrs__ = ['max_retries', 'config', '_pool_connections', '_pool_maxsize']
 
     def __init__(self, pool_connections=DEFAULT_POOLSIZE,
-                 pool_maxsize=DEFAULT_POOLSIZE, max_retries=DEFAULT_RETRIES):
+                 pool_maxsize=DEFAULT_POOLSIZE, pool_block=DEFAULT_POOLBLOCK,
+                 max_retries=DEFAULT_RETRIES):
         self.max_retries = max_retries
         self.config = {}
 
@@ -72,8 +74,9 @@ class HTTPAdapter(BaseAdapter):
 
         self._pool_connections = pool_connections
         self._pool_maxsize = pool_maxsize
+        self._pool_block = pool_block
 
-        self.init_poolmanager(pool_connections, pool_maxsize)
+        self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
 
     def __getstate__(self):
         return dict((attr, getattr(self, attr, None)) for attr in
@@ -85,19 +88,22 @@ class HTTPAdapter(BaseAdapter):
 
         self.init_poolmanager(self._pool_connections, self._pool_maxsize)
 
-    def init_poolmanager(self, connections, maxsize):
+    def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK):
         """Initializes a urllib3 PoolManager. This method should not be called
         from user code, and is only exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         :param connections: The number of urllib3 connection pools to cache.
         :param maxsize: The maximum number of connections to save in the pool.
+        :param block: Block when no free connections are available.
         """
         # save these values for pickling
         self._pool_connections = connections
         self._pool_maxsize = maxsize
+        self._pool_block = block
 
-        self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize)
+        self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize,
+                                       block=block)
 
     def cert_verify(self, conn, url, verify, cert):
         """Verify a SSL certificate. This method should not be called from user
