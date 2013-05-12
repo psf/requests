@@ -54,6 +54,7 @@ class HTTPAdapter(BaseAdapter):
     :param pool_connections: The number of urllib3 connection pools to cache.
     :param pool_maxsize: The maximum number of connections to save in the pool.
     :param max_retries: The maximum number of retries each connection should attempt.
+    :param pool_block: Whether the connection pool should block for connections.
 
     Usage::
 
@@ -65,8 +66,8 @@ class HTTPAdapter(BaseAdapter):
     __attrs__ = ['max_retries', 'config', '_pool_connections', '_pool_maxsize']
 
     def __init__(self, pool_connections=DEFAULT_POOLSIZE,
-                 pool_maxsize=DEFAULT_POOLSIZE, pool_block=DEFAULT_POOLBLOCK,
-                 max_retries=DEFAULT_RETRIES):
+                 pool_maxsize=DEFAULT_POOLSIZE, max_retries=DEFAULT_RETRIES,
+                 pool_block=DEFAULT_POOLBLOCK):
         self.max_retries = max_retries
         self.config = {}
 
