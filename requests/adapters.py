@@ -87,7 +87,8 @@ class HTTPAdapter(BaseAdapter):
         for attr, value in state.items():
             setattr(self, attr, value)
 
-        self.init_poolmanager(self._pool_connections, self._pool_maxsize)
+        self.init_poolmanager(self._pool_connections, self._pool_maxsize,
+                              block=self._pool_block)
 
     def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK):
         """Initializes a urllib3 PoolManager. This method should not be called
