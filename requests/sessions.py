@@ -11,14 +11,13 @@ requests (cookies, auth, proxies).
 import os
 from datetime import datetime
 
-from .compat import cookielib
+from .compat import cookielib, OrderedDict, urljoin, urlparse
 from .cookies import cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar
 from .models import Request, PreparedRequest
 from .hooks import default_hooks, dispatch_hook
 from .utils import from_key_val_list, default_headers
 from .exceptions import TooManyRedirects, InvalidSchema
 
-from .compat import urlparse, urljoin
 from .adapters import HTTPAdapter
 
 from .utils import requote_uri, get_environ_proxies, get_netrc_auth
@@ -223,9 +222,9 @@ class Session(SessionRedirectMixin):
         self.cookies = cookiejar_from_dict({})
 
         # Default connection adapters.
-        self.adapters = {}
-        self.mount('http://', HTTPAdapter())
+        self.adapters = OrderedDict()
         self.mount('https://', HTTPAdapter())
+        self.mount('http://', HTTPAdapter())
 
     def __enter__(self):
         return self
@@ -490,8 +489,13 @@ class Session(SessionRedirectMixin):
             v.close()
 
     def mount(self, prefix, adapter):
-        """Registers a connection adapter to a prefix."""
+        """Registers a connection adapter to a prefix.
+
+        Adapters are sorted in descending order by key length."""
         self.adapters[prefix] = adapter
+        keys_to_move = [k for k in self.adapters if len(k) < len(prefix)]
+        for key in keys_to_move:
+            self.adapters[key] = self.adapters.pop(key)
 
     def __getstate__(self):
         return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
