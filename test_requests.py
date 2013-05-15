@@ -11,6 +11,7 @@ import pickle
 
 import requests
 from requests.auth import HTTPDigestAuth
+from requests.adapters import HTTPAdapter
 from requests.compat import str, cookielib
 from requests.cookies import cookiejar_from_dict
 from requests.structures import CaseInsensitiveDict
@@ -482,6 +483,44 @@ class RequestsTestCase(unittest.TestCase):
             'application/json'
         )
 
+    def test_transport_adapter_ordering(self):
+        s = requests.Session()
+        order = ['https://', 'http://']
+        self.assertEqual(order, list(s.adapters))
+        s.mount('http://git', HTTPAdapter())
+        s.mount('http://github', HTTPAdapter())
+        s.mount('http://github.com', HTTPAdapter())
+        s.mount('http://github.com/about/', HTTPAdapter())
+        order = [
+            'http://github.com/about/',
+            'http://github.com',
+            'http://github',
+            'http://git',
+            'https://',
+            'http://',
+        ]
+        self.assertEqual(order, list(s.adapters))
+        s.mount('http://gittip', HTTPAdapter())
+        s.mount('http://gittip.com', HTTPAdapter())
+        s.mount('http://gittip.com/about/', HTTPAdapter())
+        order = [
+            'http://github.com/about/',
+            'http://gittip.com/about/',
+            'http://github.com',
+            'http://gittip.com',
+            'http://github',
+            'http://gittip',
+            'http://git',
+            'https://',
+            'http://',
+        ]
+        self.assertEqual(order, list(s.adapters))
+        s2 = requests.Session()
+        s2.adapters = {'http://': HTTPAdapter()}
+        s2.mount('https://', HTTPAdapter())
+        self.assertTrue('http://' in s2.adapters)
+        self.assertTrue('https://' in s2.adapters)
+
 
 class TestCaseInsensitiveDict(unittest.TestCase):
 
@@ -625,7 +664,6 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertEqual(frozenset(i[0] for i in cid.items()), keyset)
         self.assertEqual(frozenset(cid.keys()), keyset)
         self.assertEqual(frozenset(cid), keyset)
-
 
 
 if __name__ == '__main__':
