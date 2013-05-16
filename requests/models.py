@@ -18,6 +18,7 @@ from .structures import CaseInsensitiveDict
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header
 from .packages.urllib3.filepost import encode_multipart_formdata
+from .packages.urllib3.util import parse_url
 from .exceptions import HTTPError, RequestException, MissingSchema, InvalidURL
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -284,18 +285,27 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             pass
 
         # Support for unicode domain names and paths.
-        scheme, netloc, path, _params, query, fragment = urlparse(url)
+        scheme, auth, host, port, path, query, fragment = parse_url(url)
 
         if not scheme:
             raise MissingSchema("Invalid URL %r: No schema supplied" % url)
 
-        if not netloc:
-            raise InvalidURL("Invalid URL %t: No netloc supplied" % url)
+        if not host:
+            raise InvalidURL("Invalid URL %t: No host supplied" % url)
 
+        # Only want to apply IDNA to the hostname
         try:
-            netloc = netloc.encode('idna').decode('utf-8')
+            host = host.encode('idna').decode('utf-8')
         except UnicodeError:
             raise InvalidURL('URL has an invalid label.')
+
+        # Carefully reconstruct the network location
+        netloc = auth or ''
+        if netloc:
+            netloc += '@'
+        netloc += host
+        if port:
+            netloc += ':' + str(port)
 
         # Bare domains aren't valid URLs.
         if not path:
@@ -308,8 +318,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 netloc = netloc.encode('utf-8')
             if isinstance(path, str):
                 path = path.encode('utf-8')
-            if isinstance(_params, str):
-                _params = _params.encode('utf-8')
             if isinstance(query, str):
                 query = query.encode('utf-8')
             if isinstance(fragment, str):
@@ -322,7 +330,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 query = enc_params
 
-        url = requote_uri(urlunparse([scheme, netloc, path, _params, query, fragment]))
+        url = requote_uri(urlunparse([scheme, netloc, path, None, query, fragment]))
         self.url = url
 
     def prepare_headers(self, headers):

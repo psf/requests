@@ -127,3 +127,4 @@ Patches and Suggestions
 - Colin Dunklau <colin.dunklau@gmail.com> @cdunklau
 - Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar> @hobarrera
 - Łukasz Langa <lukasz@langa.pl> @llanga
+- Dave Shawley <daveshawley@gmail.com>
