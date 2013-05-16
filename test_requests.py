@@ -521,6 +521,15 @@ class RequestsTestCase(unittest.TestCase):
         self.assertTrue('http://' in s2.adapters)
         self.assertTrue('https://' in s2.adapters)
 
+    def test_long_authinfo_in_url(self):
+        url = 'http://{0}:{1}@{2}:9000/path?query#frag'.format(
+            'E8A3BE87-9E3F-4620-8858-95478E385B5B',
+            'EA770032-DA4D-4D84-8CE9-29C6D910BF1E',
+            'exactly-------------sixty-----------three------------characters',
+        )
+        r = requests.Request('GET', url).prepare()
+        self.assertEqual(r.url, url)
+
 
 class TestCaseInsensitiveDict(unittest.TestCase):
 
