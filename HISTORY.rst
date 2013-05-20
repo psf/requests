@@ -3,6 +3,15 @@
 History
 -------
 
+1.2.1 (2013-05-20)
+++++++++++++++++++
+
+- Python 3.3.2 compatibility
+- Always percent-encode location headers
+- Fix connection adapter matching to be most-specific first
+- new argument to the default connection adapter for passing a block argument
+- prevent a KeyError when there's no link headers
+
 1.2.0 (2013-03-31)
 ++++++++++++++++++
 
