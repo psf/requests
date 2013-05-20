@@ -111,9 +111,11 @@ class SessionRedirectMixin(object):
 
             # Facilitate non-RFC2616-compliant 'location' headers
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
+            # Compliant with RFC3986, we percent encode the url.
             if not urlparse(url).netloc:
-                # Compliant with RFC3986, we percent encode the url.
                 url = urljoin(resp.url, requote_uri(url))
+            else:
+                url = requote_uri(url)
 
             prepared_request.url = url
 
