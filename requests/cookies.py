@@ -69,6 +69,10 @@ class MockRequest(object):
     def unverifiable(self):
         return self.is_unverifiable()
 
+    @property
+    def origin_req_host(self):
+        return self.get_origin_req_host()
+
 
 class MockResponse(object):
     """Wraps a `httplib.HTTPMessage` to mimic a `urllib.addinfourl`.
