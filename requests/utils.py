@@ -11,11 +11,11 @@ that are also useful for external consumption.
 
 import cgi
 import codecs
+import collections
 import os
 import platform
 import re
 import sys
-import zlib
 from netrc import netrc, NetrcParseError
 
 from . import __version__
@@ -135,7 +135,7 @@ def to_key_val_list(value):
     if isinstance(value, (str, bytes, bool, int)):
         raise ValueError('cannot encode objects that are not 2-tuples')
 
-    if isinstance(value, dict):
+    if isinstance(value, collections.Mapping):
         value = value.items()
 
     return list(value)
