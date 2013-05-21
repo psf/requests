@@ -153,7 +153,7 @@ class HTTPDigestAuth(AuthBase):
 
             setattr(self, 'num_401_calls', num_401_calls + 1)
             pat = re.compile(r'digest ', flags=re.IGNORECASE)
-            self.chal = parse_dict_header(pat.sub('', s_auth))
+            self.chal = parse_dict_header(pat.sub('', s_auth, count=1))
 
             # Consume content and release the original connection
             # to allow our new request to reuse the same one.
