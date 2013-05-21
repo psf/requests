@@ -105,7 +105,7 @@ class RequestEncodingMixin(object):
             for v in val:
                 if v is not None:
                     new_fields.append(
-                        (field.encode('utf-8') if isinstance(field, str) else field,
+                        (field.decode('utf-8') if isinstance(field, bytes) else field,
                          v.encode('utf-8') if isinstance(v, str) else v))
 
         for (k, v) in files:
@@ -291,7 +291,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             raise MissingSchema("Invalid URL %r: No schema supplied" % url)
 
         if not host:
-            raise InvalidURL("Invalid URL %t: No host supplied" % url)
+            raise InvalidURL("Invalid URL %r: No host supplied" % url)
 
         # Only want to apply IDNA to the hostname
         try:

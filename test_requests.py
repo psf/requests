@@ -14,6 +14,7 @@ from requests.auth import HTTPDigestAuth
 from requests.adapters import HTTPAdapter
 from requests.compat import str, cookielib
 from requests.cookies import cookiejar_from_dict
+from requests.exceptions import InvalidURL, MissingSchema
 from requests.structures import CaseInsensitiveDict
 
 try:
@@ -53,7 +54,8 @@ class RequestsTestCase(unittest.TestCase):
         requests.post
 
     def test_invalid_url(self):
-        self.assertRaises(ValueError, requests.get, 'hiwpefhipowhefopw')
+        self.assertRaises(MissingSchema, requests.get, 'hiwpefhipowhefopw')
+        self.assertRaises(InvalidURL, requests.get, 'http://')
 
     def test_basic_building(self):
         req = requests.Request()
@@ -342,6 +344,17 @@ class RequestsTestCase(unittest.TestCase):
                           files={'file': ('test_requests.py', open(__file__, 'rb'))})
         self.assertEqual(r.status_code, 200)
 
+    def test_unicode_multipart_post_fieldnames(self):
+        filename = os.path.splitext(__file__)[0] + '.py'
+        r = requests.Request(method='POST',
+                             url=httpbin('post'),
+                             data={'stuff'.encode('utf-8'): 'elixr'},
+                             files={'file': ('test_requests.py',
+                                             open(filename, 'rb'))})
+        prep = r.prepare()
+        self.assertTrue(b'name="stuff"' in prep.body)
+        self.assertFalse(b'name="b\'stuff\'"' in prep.body)
+
     def test_custom_content_type(self):
         r = requests.post(httpbin('post'),
                           data={'stuff': json.dumps({'a': 123})},
@@ -520,6 +533,20 @@ class RequestsTestCase(unittest.TestCase):
         s2.mount('https://', HTTPAdapter())
         self.assertTrue('http://' in s2.adapters)
         self.assertTrue('https://' in s2.adapters)
+
+    def test_header_remove_is_case_insensitive(self):
+        # From issue #1321
+        s = requests.Session()
+        s.headers['foo'] = 'bar'
+        r = s.get(httpbin('get'), headers={'FOO': None})
+        assert 'foo' not in r.request.headers
+
+    def test_params_are_merged_case_sensitive(self):
+        s = requests.Session()
+        s.params['foo'] = 'bar'
+        r = s.get(httpbin('get'), params={'FOO': 'bar'})
+        assert r.json()['args'] == {'foo': 'bar', 'FOO': 'bar'}
+
 
     def test_long_authinfo_in_url(self):
         url = 'http://{0}:{1}@{2}:9000/path?query#frag'.format(
