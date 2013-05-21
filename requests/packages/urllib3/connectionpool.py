@@ -4,9 +4,10 @@
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
+import errno
 import logging
 import socket
-import errno
+import sys
 
 from socket import error as SocketError, timeout as SocketTimeout
 from .util import resolve_cert_reqs, resolve_ssl_version, assert_fingerprint
@@ -284,9 +285,9 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         if sock:
             sock.settimeout(timeout)
 
-        try: # Python 2.7+, use buffering of HTTP responses
+        if sys.version_info.major >= 2 and sys.version_info.minor > 6:
             httplib_response = conn.getresponse(buffering=True)
-        except TypeError: # Python 2.6 and older
+        else:
             httplib_response = conn.getresponse()
 
         # AppEngine doesn't have a version attr.
