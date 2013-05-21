@@ -40,7 +40,6 @@ setup(
     package_dir={'requests': 'requests'},
     include_package_data=True,
     install_requires=requires,
-    setup_requires=['sphinx'],
     license=open('LICENSE').read(),
     zip_safe=False,
     classifiers=(
