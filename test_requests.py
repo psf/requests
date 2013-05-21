@@ -346,7 +346,7 @@ class RequestsTestCase(unittest.TestCase):
         r = requests.Request(method='POST',
                              url=httpbin('post'),
                              data={'stuff'.encode('utf-8'): 'elixr'},
-                             files={'file': ('test_requests.py',
+                             files={'file': ('setup.py',
                                              open(__file__, 'rb'))})
         prep = r.prepare()
         self.assertTrue(b'name="stuff"' in prep.body)
