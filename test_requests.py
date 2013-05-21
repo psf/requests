@@ -521,6 +521,20 @@ class RequestsTestCase(unittest.TestCase):
         self.assertTrue('http://' in s2.adapters)
         self.assertTrue('https://' in s2.adapters)
 
+    def test_header_remove_is_case_insensitive(self):
+        # From issue #1321
+        s = requests.Session()
+        s.headers['foo'] = 'bar'
+        r = s.get(httpbin('get'), headers={'FOO': None})
+        assert 'foo' not in r.request.headers
+
+    def test_params_are_merged_case_sensitive(self):
+        s = requests.Session()
+        s.params['foo'] = 'bar'
+        r = s.get(httpbin('get'), params={'FOO': 'bar'})
+        assert r.json()['args'] == {'foo': 'bar', 'FOO': 'bar'}
+
+
     def test_long_authinfo_in_url(self):
         url = 'http://{0}:{1}@{2}:9000/path?query#frag'.format(
             'E8A3BE87-9E3F-4620-8858-95478E385B5B',
