@@ -342,6 +342,16 @@ class RequestsTestCase(unittest.TestCase):
                           files={'file': ('test_requests.py', open(__file__, 'rb'))})
         self.assertEqual(r.status_code, 200)
 
+    def test_unicode_multipart_post_fieldnames(self):
+        r = requests.Request(method='POST',
+                             url=httpbin('post'),
+                             data={'stuff'.encode('utf-8'): 'elixr'},
+                             files={'file': ('test_requests.py',
+                                             open(__file__, 'rb'))})
+        prep = r.prepare()
+        self.assertTrue(b'name="stuff"' in prep.body)
+        self.assertFalse(b'name="b\'stuff\'"' in prep.body)
+
     def test_custom_content_type(self):
         r = requests.post(httpbin('post'),
                           data={'stuff': json.dumps({'a': 123})},

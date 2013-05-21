@@ -105,7 +105,7 @@ class RequestEncodingMixin(object):
             for v in val:
                 if v is not None:
                     new_fields.append(
-                        (field.encode('utf-8') if isinstance(field, str) else field,
+                        (field.decode('utf-8') if isinstance(field, bytes) else field,
                          v.encode('utf-8') if isinstance(v, str) else v))
 
         for (k, v) in files:
