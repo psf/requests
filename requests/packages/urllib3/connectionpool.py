@@ -146,11 +146,6 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         Port used for this HTTP Connection (None is equivalent to 80), passed
         into :class:`httplib.HTTPConnection`.
 
-    :param strict:
-        Causes BadStatusLine to be raised if the status line can't be parsed
-        as a valid HTTP/1.0 or 1.1 status line, passed into
-        :class:`httplib.HTTPConnection`.
-
     :param timeout:
         Socket timeout for each individual connection, can be a float. None
         disables timeout.
@@ -175,12 +170,11 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
     scheme = 'http'
 
-    def __init__(self, host, port=None, strict=False, timeout=None, maxsize=1,
+    def __init__(self, host, port=None, timeout=None, maxsize=1,
                  block=False, headers=None):
         ConnectionPool.__init__(self, host, port)
         RequestMethods.__init__(self, headers)
 
-        self.strict = strict
         self.timeout = timeout
         self.pool = self.QueueCls(maxsize)
         self.block = block
@@ -201,8 +195,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         log.info("Starting new HTTP connection (%d): %s" %
                  (self.num_connections, self.host))
         return HTTPConnection(host=self.host,
-                              port=self.port,
-                              strict=self.strict)
+                              port=self.port)
 
     def _get_conn(self, timeout=None):
         """
@@ -523,14 +516,14 @@ class HTTPSConnectionPool(HTTPConnectionPool):
     scheme = 'https'
 
     def __init__(self, host, port=None,
-                 strict=False, timeout=None, maxsize=1,
+                 timeout=None, maxsize=1,
                  block=False, headers=None,
                  key_file=None, cert_file=None, cert_reqs=None,
                  ca_certs=None, ssl_version=None,
                  assert_hostname=None, assert_fingerprint=None):
 
         HTTPConnectionPool.__init__(self, host, port,
-                                    strict, timeout, maxsize,
+                                    timeout, maxsize,
                                     block, headers)
         self.key_file = key_file
         self.cert_file = cert_file
@@ -554,12 +547,10 @@ class HTTPSConnectionPool(HTTPConnectionPool):
                                "module is not available.")
 
             return HTTPSConnection(host=self.host,
-                                   port=self.port,
-                                   strict=self.strict)
+                                   port=self.port)
 
         connection = VerifiedHTTPSConnection(host=self.host,
-                                             port=self.port,
-                                             strict=self.strict)
+                                             port=self.port)
         connection.set_cert(key_file=self.key_file, cert_file=self.cert_file,
                             cert_reqs=self.cert_reqs, ca_certs=self.ca_certs,
                             assert_hostname=self.assert_hostname,
