@@ -467,7 +467,7 @@ class Session(SessionRedirectMixin):
         """Returns the appropriate connnection adapter for the given URL."""
         for (prefix, adapter) in self.adapters.items():
 
-            if url.lower.startswith(prefix):
+            if url.lower().startswith(prefix):
                 return adapter
 
         # Nothing matches :-/

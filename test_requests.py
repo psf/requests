@@ -87,6 +87,27 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(request.url,
             "http://example.com/path?key=value&a=b#fragment")
 
+    def test_mixed_case_scheme_acceptable(self):
+        s = requests.Session()
+        r = requests.Request('GET', 'HTTP://httbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+        r = requests.Request('GET', 'hTTp://httbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+        r = requests.Request('GET', 'HttP://httbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+        r = requests.Request('GET', 'HTTPS://httbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+        r = requests.Request('GET', 'hTTps://httbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+        r = requests.Request('GET', 'HttPs://httbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+
     def test_HTTP_200_OK_GET_ALTERNATIVE(self):
         r = requests.Request('GET', httpbin('get'))
         s = requests.Session()

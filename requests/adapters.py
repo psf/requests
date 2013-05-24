@@ -118,7 +118,7 @@ class HTTPAdapter(BaseAdapter):
         :param verify: Whether we should actually verify the certificate.
         :param cert: The SSL certificate to verify.
         """
-        if url.lower.startswith('https') and verify:
+        if url.lower().startswith('https') and verify:
 
             cert_loc = None
 
