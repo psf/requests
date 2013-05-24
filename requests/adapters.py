@@ -190,13 +190,13 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
         """
         proxies = proxies or {}
-        proxy = proxies.get(urlparse(url).scheme)
+        proxy = proxies.get(urlparse(url.lower()).scheme)
 
         if proxy:
-            proxy = prepend_scheme_if_needed(proxy, urlparse(url).scheme)
+            proxy = prepend_scheme_if_needed(proxy, urlparse(url.lower()).scheme)
             conn = ProxyManager(self.poolmanager.connection_from_url(proxy))
         else:
-            conn = self.poolmanager.connection_from_url(url)
+            conn = self.poolmanager.connection_from_url(url.lower())
 
         return conn
 
