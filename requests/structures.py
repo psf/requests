@@ -76,7 +76,6 @@ class CaseInsensitiveDict(collections.MutableMapping):
     def has_key(self, key):
         return self._store.has_key(key.lower())
 
-
     def __getitem__(self, key):
         return self._store[key.lower()][1]
 
