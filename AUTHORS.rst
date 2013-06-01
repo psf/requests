@@ -128,3 +128,4 @@ Patches and Suggestions
 - Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar> @hobarrera
 - Łukasz Langa <lukasz@langa.pl> @llanga
 - Dave Shawley <daveshawley@gmail.com>
+- James Clarke (jam)
