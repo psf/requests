@@ -108,7 +108,7 @@ class HTTPAdapter(BaseAdapter):
         self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize,
                                        block=block)
 
-    def cert_verify(self, conn, url, verify, cert):
+    def cert_verify(self, conn, url, verify, cert, dont_verify_host):
         """Verify a SSL certificate. This method should not be called from user
         code, and is only exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
@@ -132,6 +132,8 @@ class HTTPAdapter(BaseAdapter):
             if not cert_loc:
                 raise Exception("Could not find a suitable SSL CA certificate bundle.")
 
+            if dont_verify_host:
+                conn.dont_verify_host = dont_verify_host
             conn.cert_reqs = 'CERT_REQUIRED'
             conn.ca_certs = cert_loc
         else:
@@ -258,7 +260,7 @@ class HTTPAdapter(BaseAdapter):
             request.headers['Proxy-Authorization'] = _basic_auth_str(username,
                                                                      password)
 
-    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
+    def send(self, request, stream=False, timeout=None, verify=True, cert=None, dont_verify_host = None, proxies=None):
         """Sends PreparedRequest object. Returns Response object.
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
@@ -271,7 +273,7 @@ class HTTPAdapter(BaseAdapter):
 
         conn = self.get_connection(request.url, proxies)
 
-        self.cert_verify(conn, request.url, verify, cert)
+        self.cert_verify(conn, request.url, verify, cert, dont_verify_host)
         url = self.request_url(request, proxies)
         self.add_headers(request, proxies=proxies)
 

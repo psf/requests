@@ -201,6 +201,9 @@ class Session(SessionRedirectMixin):
         #: SSL certificate default.
         self.cert = None
 
+        #: SSL host verification disabling default.
+        self.dont_verify_host = None
+
         #: Maximum number of redirects allowed. If the request exceeds this
         #: limit, a :class:`TooManyRedirects` exception is raised.
         self.max_redirects = DEFAULT_REDIRECT_LIMIT
@@ -235,7 +238,9 @@ class Session(SessionRedirectMixin):
         hooks=None,
         stream=None,
         verify=None,
-        cert=None):
+        cert=None,
+        dont_verify_host=None,
+        ):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -307,6 +312,7 @@ class Session(SessionRedirectMixin):
         stream = merge_setting(stream, self.stream)
         verify = merge_setting(verify, self.verify)
         cert = merge_setting(cert, self.cert)
+        dont_verify_host = merge_setting(dont_verify_host, self.dont_verify_host)
 
         # Create the Request.
         req = Request()
@@ -329,6 +335,7 @@ class Session(SessionRedirectMixin):
             'timeout': timeout,
             'verify': verify,
             'cert': cert,
+            'dont_verify_host':dont_verify_host,
             'proxies': proxies,
             'allow_redirects': allow_redirects,
         }
