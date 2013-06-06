@@ -6,6 +6,7 @@ Compatibility code to be able to use `cookielib.CookieJar` with requests.
 requests.utils imports from here, so be careful with imports.
 """
 
+import time
 import collections
 from .compat import cookielib, urlparse, Morsel
 
@@ -354,6 +355,14 @@ def create_cookie(name, value, **kwargs):
 
 def morsel_to_cookie(morsel):
     """Convert a Morsel object into a Cookie containing the one k/v pair."""
+    expires = None
+    if morsel["max-age"]:
+        expires = time.time() + morsel["max-age"]
+    elif morsel['expires']:
+        expires = morsel['expires']
+        if type(expires) == type(""):
+            time_template = "%a, %d-%b-%Y %H:%M:%S GMT"
+            expires = time.mktime(time.strptime(expires, time_template))
     c = create_cookie(
         name=morsel.key,
         value=morsel.value,
@@ -362,7 +371,7 @@ def morsel_to_cookie(morsel):
         domain=morsel['domain'],
         path=morsel['path'],
         secure=bool(morsel['secure']),
-        expires=morsel['max-age'] or morsel['expires'],
+        expires=expires,
         discard=False,
         comment=morsel['comment'],
         comment_url=bool(morsel['comment']),
