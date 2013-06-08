@@ -260,7 +260,7 @@ reference::
     >>> r.status_code == requests.codes.ok
     True
 
-If we made a bad request (non-200 response), we can raise it with
+If we made a bad request (a 4XX client error or 5XX server error response), we can raise it with
 :class:`Response.raise_for_status()`::
 
     >>> bad_r = requests.get('http://httpbin.org/status/404')
