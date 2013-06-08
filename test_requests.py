@@ -524,6 +524,14 @@ class RequestsTestCase(unittest.TestCase):
             'application/json'
         )
 
+    def test_uppercase_scheme(self):
+        r = requests.get('HTTP://example.com/')
+        self.assertEqual(r.status_code, 200)
+
+    def test_uppercase_scheme_redirect(self):
+        r = requests.get(httpbin('redirect-to'), params={'url': 'HTTP://example.com/'})
+        self.assertEqual(r.status_code, 200)
+
     def test_transport_adapter_ordering(self):
         s = requests.Session()
         order = ['https://', 'http://']
