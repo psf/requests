@@ -110,7 +110,7 @@ class VerifiedHTTPSConnection(HTTPSConnection):
             if self.assert_fingerprint:
                 assert_fingerprint(self.sock.getpeercert(binary_form=True),
                                    self.assert_fingerprint)
-            else:
+            elif self.assert_hostname is not False:
                 match_hostname(self.sock.getpeercert(),
                                self.assert_hostname or self.host)
 
@@ -513,6 +513,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
 
     :class:`.VerifiedHTTPSConnection` uses one of ``assert_fingerprint``,
     ``assert_hostname`` and ``host`` in this order to verify connections.
+    If ``assert_hostname`` is False, no verification is done.
 
     The ``key_file``, ``cert_file``, ``cert_reqs``, ``ca_certs`` and
     ``ssl_version`` are only used if :mod:`ssl` is available and are fed into
