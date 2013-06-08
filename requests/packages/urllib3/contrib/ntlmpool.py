@@ -33,7 +33,7 @@ class NTLMConnectionPool(HTTPSConnectionPool):
     def __init__(self, user, pw, authurl, *args, **kwargs):
         """
         authurl is a random URL on the server that is protected by NTLM.
-        user is the Windows user, probably in the DOMAIN\username format.
+        user is the Windows user, probably in the DOMAIN\\username format.
         pw is the password for the user.
         """
         super(NTLMConnectionPool, self).__init__(*args, **kwargs)

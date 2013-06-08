@@ -6,6 +6,11 @@
 
 import logging
 
+try:  # Python 3
+    from urllib.parse import urljoin
+except ImportError:
+    from urlparse import urljoin
+
 from ._collections import RecentlyUsedContainer
 from .connectionpool import HTTPConnectionPool, HTTPSConnectionPool
 from .connectionpool import connection_from_url, port_by_scheme
@@ -145,6 +150,10 @@ class PoolManager(RequestMethods):
         if not redirect_location:
             return response
 
+        # Support relative URLs for redirecting.
+        redirect_location = urljoin(url, redirect_location)
+
+        # RFC 2616, Section 10.3.4
         if response.status == 303:
             method = 'GET'
 
