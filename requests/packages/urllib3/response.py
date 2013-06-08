@@ -1,5 +1,5 @@
 # urllib3/response.py
-# Copyright 2008-2012 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
+# Copyright 2008-2013 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
 #
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
@@ -7,6 +7,7 @@
 
 import logging
 import zlib
+import io
 
 from .exceptions import DecodeError
 from .packages.six import string_types as basestring, binary_type
@@ -48,7 +49,7 @@ def _get_decoder(mode):
     return DeflateDecoder()
 
 
-class HTTPResponse(object):
+class HTTPResponse(io.IOBase):
     """
     HTTP Response container.
 
@@ -239,3 +240,35 @@ class HTTPResponse(object):
 
     def getheader(self, name, default=None):
         return self.headers.get(name, default)
+
+    # Overrides from io.IOBase
+    def close(self):
+        if not self.closed:
+            self._fp.close()
+
+    @property
+    def closed(self):
+        if self._fp is None:
+            return True
+        elif hasattr(self._fp, 'closed'):
+            return self._fp.closed
+        elif hasattr(self._fp, 'isclosed'):  # Python 2
+            return self._fp.isclosed()
+        else:
+            return True
+
+    def fileno(self):
+        if self._fp is None:
+            raise IOError("HTTPResponse has no file to get a fileno from")
+        elif hasattr(self._fp, "fileno"):
+            return self._fp.fileno()
+        else:
+            raise IOError("The file-like object  this HTTPResponse is wrapped "
+                          "around has no file descriptor")
+
+    def flush(self):
+        if self._fp is not None and hasattr(self._fp, 'flush'):
+            return self._fp.flush()
+
+    def readable(self):
+        return True
