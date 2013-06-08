@@ -125,6 +125,7 @@ Patches and Suggestions
 - Dmitry Medvinsky <me@dmedvinsky.name>
 - Bryce Boe <bbzbryce@gmail.com> @bboe
 - Colin Dunklau <colin.dunklau@gmail.com> @cdunklau
+- Bob Carroll <bob.carroll@alum.rit.edu> @rcarz
 - Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar> @hobarrera
 - Łukasz Langa <lukasz@langa.pl> @llanga
 - Dave Shawley <daveshawley@gmail.com>
