@@ -364,7 +364,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         try:
             length = super_len(data)
         except (TypeError, AttributeError):
-            length = False
+            length = None
 
         if is_stream:
             body = data
@@ -372,7 +372,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if files:
                 raise NotImplementedError('Streamed bodies and files are mutually exclusive.')
 
-            if length:
+            if length is not None:
                 self.headers['Content-Length'] = str(length)
             else:
                 self.headers['Transfer-Encoding'] = 'chunked'
