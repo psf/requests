@@ -49,7 +49,7 @@ Request and Response Objects
 ----------------------------
 
 Whenever a call is made to requests.*() you are doing two major things. First,
-you are constructing a ``Request`` object which will be sent of to a server
+you are constructing a ``Request`` object which will be sent off to a server
 to request or query some resource. Second, a ``Response`` object is generated
 once ``requests`` gets a response back from the server. The response object
 contains all of the information returned by the server and also contains the
