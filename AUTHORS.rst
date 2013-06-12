@@ -130,3 +130,4 @@ Patches and Suggestions
 - Łukasz Langa <lukasz@langa.pl> @llanga
 - Dave Shawley <daveshawley@gmail.com>
 - James Clarke (jam)
+- Kevin Burke <kev@inburke.com>

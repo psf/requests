@@ -399,15 +399,16 @@ Errors and Exceptions
 ---------------------
 
 In the event of a network problem (e.g. DNS failure, refused connection, etc),
-Requests will raise a :class:`ConnectionError` exception.
+Requests will raise a :class:`~requests.exceptions.ConnectionError` exception.
 
-In the event of the rare invalid HTTP response, Requests will raise
-an  :class:`HTTPError` exception.
+In the event of the rare invalid HTTP response, Requests will raise an
+:class:`~requests.exceptions.HTTPError` exception.
 
-If a request times out, a :class:`Timeout` exception is raised.
+If a request times out, a :class:`~requests.exceptions.Timeout` exception is
+raised.
 
 If a request exceeds the configured number of maximum redirections, a
-:class:`TooManyRedirects` exception is raised.
+:class:`~requests.exceptions.TooManyRedirects` exception is raised.
 
 All exceptions that Requests explicitly raises inherit from
 :class:`requests.exceptions.RequestException`.
