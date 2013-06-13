@@ -194,6 +194,7 @@ class Session(SessionRedirectMixin):
         #: :class:`Request <Request>`. The dictionary values may be lists for
         #: representing multivalued query parameters.
         self.params = {}
+        self.matrixParams = {}
 
         #: Stream response content default.
         self.stream = False
@@ -227,6 +228,7 @@ class Session(SessionRedirectMixin):
 
     def request(self, method, url,
         params=None,
+        matrixParams=None,
         data=None,
         headers=None,
         cookies=None,
@@ -245,6 +247,8 @@ class Session(SessionRedirectMixin):
         :param method: method for the new :class:`Request` object.
         :param url: URL for the new :class:`Request` object.
         :param params: (optional) Dictionary or bytes to be sent in the query
+        string for the :class:`Request`.
+        :param matrixParams: (optional) Dictionary or bytes to be sent in the query
             string for the :class:`Request`.
         :param data: (optional) Dictionary or bytes to send in the body of the
             :class:`Request`.
@@ -303,6 +307,7 @@ class Session(SessionRedirectMixin):
 
         # Merge all the kwargs.
         params = merge_setting(params, self.params)
+        matrixParams = merge_setting(matrixParams, self.matrixParams)
         headers = merge_setting(headers, self.headers, dict_class=CaseInsensitiveDict)
         auth = merge_setting(auth, self.auth)
         proxies = merge_setting(proxies, self.proxies)
@@ -319,6 +324,7 @@ class Session(SessionRedirectMixin):
         req.files = files
         req.data = data
         req.params = params
+        req.matrixParams = matrixParams
         req.auth = auth
         req.cookies = cookies
         req.hooks = hooks
