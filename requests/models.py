@@ -84,6 +84,38 @@ class RequestEncodingMixin(object):
             return data
 
     @staticmethod
+    def _encode_matrix_params(data):
+        """Encode matrix parameters in a piece of data.
+
+        Will successfully encode parameters when passed as a dict or a list of
+        2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
+        if parameters are supplied as a dict.
+        """
+        
+        if isinstance(data, (str, bytes)):
+            return data
+        elif hasattr(data, 'read'):
+            return data
+        elif hasattr(data, '__iter__'):
+            result = []
+            for k, vs in to_key_val_list(data):
+                if isinstance(vs, basestring) or not hasattr(vs, '__iter__'):
+                    vs = [vs]
+                for v in vs:
+                    if v is not None:
+                        result.append(
+                            (k.encode('utf-8') if isinstance(k, str) else k,
+                             v.encode('utf-8') if isinstance(v, str) else v))
+            # Create the url in the matrix format
+            returnarray = []
+            for singlequery in result:
+              returnarray.append(urlencode([singlequery], doseq=True))
+
+            return ';'.join(returnarray)
+        else:
+            return data
+            
+    @staticmethod
     def _encode_files(files, data):
         """Build the body for a multipart/form-data request.
 
@@ -186,6 +218,7 @@ class Request(RequestHooksMixin):
         files=None,
         data=dict(),
         params=dict(),
+        matrixParams=dict(),
         auth=None,
         cookies=None,
         hooks=None):
@@ -195,6 +228,7 @@ class Request(RequestHooksMixin):
         files = [] if files is None else files
         headers = {} if headers is None else headers
         params = {} if params is None else params
+        matrixParams = {} if matrixParams is None else matrixParams
         hooks = {} if hooks is None else hooks
 
         self.hooks = default_hooks()
@@ -207,6 +241,7 @@ class Request(RequestHooksMixin):
         self.files = files
         self.data = data
         self.params = params
+        self.matrixParams = matrixParams
         self.auth = auth
         self.cookies = cookies
         self.hooks = hooks
@@ -219,7 +254,7 @@ class Request(RequestHooksMixin):
         p = PreparedRequest()
 
         p.prepare_method(self.method)
-        p.prepare_url(self.url, self.params)
+        p.prepare_url(self.url, self.params, self.matrixParams)
         p.prepare_headers(self.headers)
         p.prepare_cookies(self.cookies)
         p.prepare_body(self.data, self.files)
@@ -273,7 +308,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if self.method is not None:
             self.method = self.method.upper()
 
-    def prepare_url(self, url, params):
+    def prepare_url(self, url, params, matrixParams):
         """Prepares the given HTTP URL."""
         #: Accept objects that have string representations.
         try:
@@ -330,7 +365,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 query = enc_params
 
-        url = requote_uri(urlunparse([scheme, netloc, path, None, query, fragment]))
+        enc_matrixParams = self._encode_matrix_params(matrixParams)
+
+        url = requote_uri(urlunparse([scheme, netloc, path, enc_matrixParams,  query, fragment]))
         self.url = url
 
     def prepare_headers(self, headers):
