@@ -537,11 +537,18 @@ class Response(object):
             return iter_slices(self._content, chunk_size)
 
         def generate():
-            while 1:
-                chunk = self.raw.read(chunk_size, decode_content=True)
-                if not chunk:
-                    break
-                yield chunk
+            try:
+                # Special case for urllib3.
+                for chunk in self.raw.stream(chunk_size, decode_content=True):
+                    yield chunk
+            except AttributeError:
+                # Standard file-like object.
+                while 1:
+                    chunk = self.raw.read(chunk_size, decode_content=True)
+                    if not chunk:
+                        break
+                    yield chunk
+
             self._content_consumed = True
 
         gen = generate()
