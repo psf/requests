@@ -54,3 +54,6 @@ Once you have a copy of the source, you can embed it in your Python package,
 or install it into your site-packages easily::
 
     $ python setup.py install
+
+Make sure to have your packages `setup.py` specify the `package_data` attribute properly 
+so that `cacerts.pem` is included in your distribution.  Failure to do this will break SSL.
