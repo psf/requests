@@ -302,7 +302,7 @@ def stream_decode_response_unicode(iterator, r):
         rv = decoder.decode(chunk)
         if rv:
             yield rv
-    rv = decoder.decode('', final=True)
+    rv = decoder.decode(b'', final=True)
     if rv:
         yield rv
 
