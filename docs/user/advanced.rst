@@ -281,7 +281,7 @@ To use the Twitter Streaming API to track the keyword "requests"::
     import json
     import requests
 
-    r = requests.post('http://httpbin.org/stream/20', stream=True)
+    r = requests.get('http://httpbin.org/stream/20', stream=True)
 
     for line in r.iter_lines():
 
