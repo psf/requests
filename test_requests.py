@@ -234,6 +234,34 @@ class RequestsTestCase(unittest.TestCase):
         r = s.get(url)
         self.assertEqual(r.status_code, 200)
 
+    def test_basicauth_with_netrc(self):
+        auth = ('user', 'pass')
+        wrong_auth = ('wronguser', 'wrongpass')
+        url = httpbin('basic-auth', 'user', 'pass')
+
+        def get_netrc_auth_mock(url):
+            return auth
+        requests.sessions.get_netrc_auth = get_netrc_auth_mock
+
+        # Should use netrc and work.
+        r = requests.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        # Given auth should override and fail.
+        r = requests.get(url, auth=wrong_auth)
+        self.assertEqual(r.status_code, 401)
+
+        s = requests.session()
+        
+        # Should use netrc and work.
+        r = s.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        # Given auth should override and fail.
+        s.auth = wrong_auth
+        r = s.get(url)
+        self.assertEqual(r.status_code, 401)
+
     def test_DIGEST_HTTP_200_OK_GET(self):
 
         auth = HTTPDigestAuth('user', 'pass')
