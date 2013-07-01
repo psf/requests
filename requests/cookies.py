@@ -259,6 +259,11 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         """Deletes a cookie given a name. Wraps cookielib.CookieJar's remove_cookie_by_name()."""
         remove_cookie_by_name(self, name)
 
+    def set_cookie(self, cookie, *args, **kwargs):
+        if cookie.value.startswith('"') and cookie.value.endswith('"'):
+            cookie.value = cookie.value.strip('\\"')
+        return super(RequestsCookieJar, self).set_cookie(cookie, *args, **kwargs)
+
     def update(self, other):
         """Updates this jar with cookies from another CookieJar or dict-like"""
         if isinstance(other, cookielib.CookieJar):
