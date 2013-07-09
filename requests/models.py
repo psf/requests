@@ -230,6 +230,8 @@ class Request(RequestHooksMixin):
         # This MUST go after prepare_auth. Authenticators could add a hook
         p.prepare_hooks(self.hooks)
 
+        log.debug('%s', p.as_curl())
+
         return p
 
 
@@ -450,6 +452,23 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepares the given hooks."""
         for event in hooks:
             self.register_hook(event, hooks[event])
+
+    def headers_as_curl(self):
+        header_args = [
+            " -H '{key}: {value}'".format(key=key, value=value)
+            for key, value in self.headers.iteritems()
+        ]
+        return ''.join(header_args)
+
+    def as_curl(self):
+        return (
+            "curl -X {method} '{url}' {headers} --data-binary '{body}'"
+        ).format(
+            method=self.method,
+            url=self.url,
+            headers=self.headers_as_curl(),
+            body=self.body if self.body is not None else ''
+        )
 
 
 class Response(object):
