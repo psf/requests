@@ -289,8 +289,8 @@ class Session(SessionRedirectMixin):
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)
 
-            # Set environment's basic authentication.
-            if not auth:
+            # Set environment's basic authentication if not explicitly set.
+            if not auth and not self.auth:
                 auth = get_netrc_auth(url)
 
             # Look for configuration.
