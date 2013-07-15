@@ -170,6 +170,11 @@ class RequestsTestCase(unittest.TestCase):
         )
         assert 'foo' not in s.cookies
 
+    def test_cookie_quote_wrapped(self):
+        s = requests.session()
+        s.get(httpbin('cookies/set?foo="bar:baz"'))
+        self.assertTrue(s.cookies['foo'] == '"bar:baz"')
+
     def test_request_cookie_overrides_session_cookie(self):
         s = requests.session()
         s.cookies['foo'] = 'bar'
