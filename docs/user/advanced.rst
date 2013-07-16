@@ -49,7 +49,7 @@ Request and Response Objects
 ----------------------------
 
 Whenever a call is made to requests.*() you are doing two major things. First,
-you are constructing a ``Request`` object which will be sent of to a server
+you are constructing a ``Request`` object which will be sent off to a server
 to request or query some resource. Second, a ``Response`` object is generated
 once ``requests`` gets a response back from the server. The response object
 contains all of the information returned by the server and also contains the
@@ -268,6 +268,8 @@ Then, we can make a request using our Pizza Auth::
     >>> requests.get('http://pizzabin.org/admin', auth=PizzaAuth('kenneth'))
     <Response [200]>
 
+.. _streaming-requests
+
 Streaming Requests
 ------------------
 
@@ -279,7 +281,7 @@ To use the Twitter Streaming API to track the keyword "requests"::
     import json
     import requests
 
-    r = requests.post('http://httpbin.org/stream/20', stream=True)
+    r = requests.get('http://httpbin.org/stream/20', stream=True)
 
     for line in r.iter_lines():
 
@@ -574,3 +576,19 @@ a good start would be to subclass the ``requests.adapters.BaseAdapter`` class.
 .. _`described here`: http://kennethreitz.org/exposures/the-future-of-python-http
 .. _`urllib3`: https://github.com/shazow/urllib3
 
+Blocking Or Non-Blocking?
+-------------------------
+
+With the default Transport Adapter in place, Requests does not provide any kind
+of non-blocking IO. The ``Response.content`` property will block until the
+entire response has been downloaded. If you require more granularity, the
+streaming features of the library (see :ref:`streaming-requests`) allow you to
+retrieve smaller quantities of the response at a time. However, these calls
+will still block.
+
+If you are concerned about the use of blocking IO, there are lots of projects
+out there that combine Requests with one of Python's asynchronicity frameworks.
+Two excellent examples are `grequests`_ and `requests-futures`_.
+
+.. _`grequests`: https://github.com/kennethreitz/grequests
+.. _`requests-futures`: https://github.com/ross/requests-futures

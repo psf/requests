@@ -22,6 +22,7 @@ from . import __version__
 from . import certs
 from .compat import parse_http_list as _parse_list_header
 from .compat import quote, urlparse, bytes, str, OrderedDict, urlunparse
+from .compat import getproxies, proxy_bypass
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
 
@@ -301,7 +302,7 @@ def stream_decode_response_unicode(iterator, r):
         rv = decoder.decode(chunk)
         if rv:
             yield rv
-    rv = decoder.decode('', final=True)
+    rv = decoder.decode(b'', final=True)
     if rv:
         yield rv
 
@@ -386,37 +387,34 @@ def requote_uri(uri):
 def get_environ_proxies(url):
     """Return a dict of environment proxies."""
 
-    proxy_keys = [
-        'all',
-        'http',
-        'https',
-        'ftp',
-        'socks'
-    ]
-
     get_proxy = lambda k: os.environ.get(k) or os.environ.get(k.upper())
 
     # First check whether no_proxy is defined. If it is, check that the URL
     # we're getting isn't in the no_proxy list.
     no_proxy = get_proxy('no_proxy')
-
+    netloc = urlparse(url).netloc
+    
     if no_proxy:
         # We need to check whether we match here. We need to see if we match
         # the end of the netloc, both with and without the port.
         no_proxy = no_proxy.split(',')
-        netloc = urlparse(url).netloc
-
+        
         for host in no_proxy:
             if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
                 # The URL does match something in no_proxy, so we don't want
                 # to apply the proxies on this URL.
                 return {}
+                
+    # If the system proxy settings indicate that this URL should be bypassed,
+    # don't proxy.
+    if proxy_bypass(netloc):
+        return {}
 
     # If we get here, we either didn't have no_proxy set or we're not going
-    # anywhere that no_proxy applies to.
-    proxies = [(key, get_proxy(key + '_proxy')) for key in proxy_keys]
-    return dict([(key, val) for (key, val) in proxies if val])
-
+    # anywhere that no_proxy applies to, and the system settings don't require
+    # bypassing the proxy for the current URL.
+    return getproxies()
+    
 
 def default_user_agent():
     """Return a string representing the default user agent."""

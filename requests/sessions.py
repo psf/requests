@@ -71,15 +71,13 @@ class SessionRedirectMixin(object):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
-        prepared_request = PreparedRequest()
-        prepared_request.body = req.body
-        prepared_request.headers = req.headers.copy()
-        prepared_request.hooks = req.hooks
-        prepared_request.method = req.method
-        prepared_request.url = req.url
 
         # ((resp.status_code is codes.see_other))
         while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
+            prepared_request = PreparedRequest()
+            prepared_request.body = req.body
+            prepared_request.headers = req.headers.copy()
+            prepared_request.hooks = req.hooks
 
             resp.content  # Consume socket so it can be released
 
@@ -90,12 +88,17 @@ class SessionRedirectMixin(object):
             resp.close()
 
             url = resp.headers['location']
-            method = prepared_request.method
+            method = req.method
 
             # Handle redirection without scheme (see: RFC 1808 Section 4)
             if url.startswith('//'):
                 parsed_rurl = urlparse(resp.url)
                 url = '%s:%s' % (parsed_rurl.scheme, url)
+
+            # The scheme should be lower case...
+            if '://' in url:
+                scheme, uri = url.split('://', 1)
+                url = '%s://%s' % (scheme.lower(), uri)
 
             # Facilitate non-RFC2616-compliant 'location' headers
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
@@ -109,12 +112,12 @@ class SessionRedirectMixin(object):
 
             # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
             if (resp.status_code == codes.see_other and
-                    prepared_request.method != 'HEAD'):
+                    method != 'HEAD'):
                 method = 'GET'
 
             # Do what the browsers do, despite standards...
             if (resp.status_code in (codes.moved, codes.found) and
-                    prepared_request.method not in ('GET', 'HEAD')):
+                    method not in ('GET', 'HEAD')):
                 method = 'GET'
 
             prepared_request.method = method
@@ -286,8 +289,8 @@ class Session(SessionRedirectMixin):
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)
 
-            # Set environment's basic authentication.
-            if not auth:
+            # Set environment's basic authentication if not explicitly set.
+            if not auth and not self.auth:
                 auth = get_netrc_auth(url)
 
             # Look for configuration.
@@ -467,7 +470,7 @@ class Session(SessionRedirectMixin):
         """Returns the appropriate connnection adapter for the given URL."""
         for (prefix, adapter) in self.adapters.items():
 
-            if url.startswith(prefix):
+            if url.lower().startswith(prefix):
                 return adapter
 
         # Nothing matches :-/

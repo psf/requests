@@ -87,6 +87,34 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(request.url,
             "http://example.com/path?key=value&a=b#fragment")
 
+    def test_mixed_case_scheme_acceptable(self):
+        s = requests.Session()
+        r = requests.Request('GET', 'http://httpbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+        s = requests.Session()
+        r = requests.Request('GET', 'HTTP://httpbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+        r = requests.Request('GET', 'hTTp://httpbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+        r = requests.Request('GET', 'HttP://httpbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+        r = requests.Request('GET', 'https://httpbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+        r = requests.Request('GET', 'HTTPS://httpbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+        r = requests.Request('GET', 'hTTps://httpbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+        r = requests.Request('GET', 'HttPs://httpbin.org/get')
+        r = s.send(r.prepare())
+        self.assertEqual(r.status_code,200)
+
     def test_HTTP_200_OK_GET_ALTERNATIVE(self):
         r = requests.Request('GET', httpbin('get'))
         s = requests.Session()
@@ -142,6 +170,11 @@ class RequestsTestCase(unittest.TestCase):
         )
         assert 'foo' not in s.cookies
 
+    def test_cookie_quote_wrapped(self):
+        s = requests.session()
+        s.get(httpbin('cookies/set?foo="bar:baz"'))
+        self.assertTrue(s.cookies['foo'] == '"bar:baz"')
+
     def test_request_cookie_overrides_session_cookie(self):
         s = requests.session()
         s.cookies['foo'] = 'bar'
@@ -160,7 +193,13 @@ class RequestsTestCase(unittest.TestCase):
         assert r.json()['cookies']['foo'] == 'bar'
         # Make sure the session cj is still the custom one
         assert s.cookies is cj
-
+    
+    def test_requests_in_history_are_not_overridden(self):
+        resp = requests.get(httpbin('redirect/3'))
+        urls = [r.url for r in resp.history]
+        req_urls = [r.request.url for r in resp.history]
+        self.assertEquals(urls, req_urls)
+        
     def test_user_agent_transfers(self):
 
         heads = {
@@ -199,6 +238,34 @@ class RequestsTestCase(unittest.TestCase):
         s.auth = auth
         r = s.get(url)
         self.assertEqual(r.status_code, 200)
+
+    def test_basicauth_with_netrc(self):
+        auth = ('user', 'pass')
+        wrong_auth = ('wronguser', 'wrongpass')
+        url = httpbin('basic-auth', 'user', 'pass')
+
+        def get_netrc_auth_mock(url):
+            return auth
+        requests.sessions.get_netrc_auth = get_netrc_auth_mock
+
+        # Should use netrc and work.
+        r = requests.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        # Given auth should override and fail.
+        r = requests.get(url, auth=wrong_auth)
+        self.assertEqual(r.status_code, 401)
+
+        s = requests.session()
+        
+        # Should use netrc and work.
+        r = s.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        # Given auth should override and fail.
+        s.auth = wrong_auth
+        r = s.get(url)
+        self.assertEqual(r.status_code, 401)
 
     def test_DIGEST_HTTP_200_OK_GET(self):
 
@@ -495,6 +562,14 @@ class RequestsTestCase(unittest.TestCase):
             headers['ACCEPT'.encode('ascii')],
             'application/json'
         )
+
+    def test_uppercase_scheme(self):
+        r = requests.get('HTTP://example.com/')
+        self.assertEqual(r.status_code, 200)
+
+    def test_uppercase_scheme_redirect(self):
+        r = requests.get(httpbin('redirect-to'), params={'url': 'HTTP://example.com/'})
+        self.assertEqual(r.status_code, 200)
 
     def test_transport_adapter_ordering(self):
         s = requests.Session()

@@ -83,7 +83,7 @@ except ImportError:
 # ---------
 
 if is_py2:
-    from urllib import quote, unquote, quote_plus, unquote_plus, urlencode
+    from urllib import quote, unquote, quote_plus, unquote_plus, urlencode, getproxies, proxy_bypass
     from urlparse import urlparse, urlunparse, urljoin, urlsplit, urldefrag
     from urllib2 import parse_http_list
     import cookielib
@@ -100,7 +100,7 @@ if is_py2:
 
 elif is_py3:
     from urllib.parse import urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote, quote_plus, unquote_plus, urldefrag
-    from urllib.request import parse_http_list
+    from urllib.request import parse_http_list, getproxies, proxy_bypass
     from http import cookiejar as cookielib
     from http.cookies import Morsel
     from io import StringIO
