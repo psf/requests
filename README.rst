@@ -1,6 +1,8 @@
 Requests: HTTP for Humans
 =========================
 
+.. image:: https://badge.fury.io/py/requests.png
+    :target: http://badge.fury.io/py/requests
 
 .. image:: https://travis-ci.org/kennethreitz/requests.png?branch=master
         :target: https://travis-ci.org/kennethreitz/requests
