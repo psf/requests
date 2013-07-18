@@ -113,7 +113,7 @@ def parse_url(url):
 
     # While this code has overlap with stdlib's urlparse, it is much
     # simplified for our needs and less annoying.
-    # Additionally, this imeplementations does silly things to be optimal
+    # Additionally, this implementations does silly things to be optimal
     # on CPython.
 
     scheme = None
@@ -142,7 +142,8 @@ def parse_url(url):
 
     # IPv6
     if url and url[0] == '[':
-        host, url = url[1:].split(']', 1)
+        host, url = url.split(']', 1)
+        host += ']'
 
     # Port
     if ':' in url:

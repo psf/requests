@@ -104,15 +104,16 @@ class PoolManager(RequestMethods):
 
         pool_key = (scheme, host, port)
 
-        # If the scheme, host, or port doesn't match existing open connections,
-        # open a new ConnectionPool.
-        pool = self.pools.get(pool_key)
-        if pool:
-            return pool
+        with self.pools.lock:
+          # If the scheme, host, or port doesn't match existing open connections,
+          # open a new ConnectionPool.
+          pool = self.pools.get(pool_key)
+          if pool:
+              return pool
 
-        # Make a fresh ConnectionPool of the desired type
-        pool = self._new_pool(scheme, host, port)
-        self.pools[pool_key] = pool
+          # Make a fresh ConnectionPool of the desired type
+          pool = self._new_pool(scheme, host, port)
+          self.pools[pool_key] = pool
         return pool
 
     def connection_from_url(self, url):
