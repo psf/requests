@@ -18,7 +18,6 @@ from base64 import b64encode
 from .compat import urlparse, str
 from .utils import parse_dict_header
 
-
 log = logging.getLogger(__name__)
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
@@ -146,6 +145,7 @@ class HTTPDigestAuth(AuthBase):
     def handle_401(self, r, **kwargs):
         """Takes the given response and tries digest-auth, if needed."""
 
+        from .models import PreparedRequest
         num_401_calls = getattr(self, 'num_401_calls', 1)
         s_auth = r.headers.get('www-authenticate', '')
 
@@ -159,10 +159,17 @@ class HTTPDigestAuth(AuthBase):
             # to allow our new request to reuse the same one.
             r.content
             r.raw.release_conn()
+            prepared_request = PreparedRequest()
+            prepared_request.url = r.request.url
+            prepared_request.body = r.request.body
+            prepared_request.headers = r.request.headers.copy()
+            prepared_request.hooks = r.request.hooks
+            prepared_request.prepare_cookies(r.cookies)
 
             r.request.headers['Authorization'] = self.build_digest_header(r.request.method, r.request.url)
-            _r = r.connection.send(r.request, **kwargs)
+            _r = r.connection.send(prepared_request, **kwargs)
             _r.history.append(r)
+            _r.request = prepared_request
 
             return _r
 

@@ -289,6 +289,22 @@ class RequestsTestCase(unittest.TestCase):
         r = s.get(url)
         self.assertEqual(r.status_code, 200)
 
+    def test_DIGEST_AUTH_RETURNS_COOKIE(self):
+        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+        auth = HTTPDigestAuth('user', 'pass')
+        r = requests.get(url)
+        assert r.cookies['fake'] == 'fake_value'
+
+        r = requests.get(url, auth=auth)
+        assert r.status_code == 200
+
+    def test_DIGEST_AUTH_SETS_SESSION_COOKIES(self):
+        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+        auth = HTTPDigestAuth('user', 'pass')
+        s = requests.Session()
+        s.get(url, auth=auth)
+        assert s.cookies['fake'] == 'fake_value'
+
     def test_DIGEST_STREAM(self):
 
         auth = HTTPDigestAuth('user', 'pass')
