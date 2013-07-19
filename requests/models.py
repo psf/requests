@@ -544,7 +544,7 @@ class Response(object):
             except AttributeError:
                 # Standard file-like object.
                 while 1:
-                    chunk = self.raw.read(chunk_size, decode_content=True)
+                    chunk = self.raw.read(chunk_size)
                     if not chunk:
                         break
                     yield chunk

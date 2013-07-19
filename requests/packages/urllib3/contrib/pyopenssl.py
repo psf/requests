@@ -106,6 +106,9 @@ class WrappedSocket(object):
         self.connection = connection
         self.socket = socket
 
+    def fileno(self):
+        return self.socket.fileno()
+
     def makefile(self, mode, bufsize=-1):
         return _fileobject(self.connection, mode, bufsize)
 

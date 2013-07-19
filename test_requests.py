@@ -170,6 +170,11 @@ class RequestsTestCase(unittest.TestCase):
         )
         assert 'foo' not in s.cookies
 
+    def test_cookie_quote_wrapped(self):
+        s = requests.session()
+        s.get(httpbin('cookies/set?foo="bar:baz"'))
+        self.assertTrue(s.cookies['foo'] == '"bar:baz"')
+
     def test_request_cookie_overrides_session_cookie(self):
         s = requests.session()
         s.cookies['foo'] = 'bar'
@@ -233,6 +238,34 @@ class RequestsTestCase(unittest.TestCase):
         s.auth = auth
         r = s.get(url)
         self.assertEqual(r.status_code, 200)
+
+    def test_basicauth_with_netrc(self):
+        auth = ('user', 'pass')
+        wrong_auth = ('wronguser', 'wrongpass')
+        url = httpbin('basic-auth', 'user', 'pass')
+
+        def get_netrc_auth_mock(url):
+            return auth
+        requests.sessions.get_netrc_auth = get_netrc_auth_mock
+
+        # Should use netrc and work.
+        r = requests.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        # Given auth should override and fail.
+        r = requests.get(url, auth=wrong_auth)
+        self.assertEqual(r.status_code, 401)
+
+        s = requests.session()
+        
+        # Should use netrc and work.
+        r = s.get(url)
+        self.assertEqual(r.status_code, 200)
+
+        # Given auth should override and fail.
+        s.auth = wrong_auth
+        r = s.get(url)
+        self.assertEqual(r.status_code, 401)
 
     def test_DIGEST_HTTP_200_OK_GET(self):
 
