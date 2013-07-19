@@ -20,7 +20,7 @@ All contributions to Requests should keep these important rules in mind.
 .. _`apache2`:
 
 Apache2 License
------------
+---------------
 
 A large number of open source projects you find today are `GPL Licensed`_.
 While the GPL has its time and place, it should most certainly not be your

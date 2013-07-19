@@ -69,7 +69,7 @@ following code::
 You can see that the URL has been correctly encoded by printing the URL::
 
     >>> print r.url
-    u'http://httpbin.org/get?key2=value2&key1=value1'
+    http://httpbin.org/get?key2=value2&key1=value1
 
 Note that any dictionary key whose value is ``None`` will not be added to the
 URL's query string.
@@ -84,7 +84,7 @@ again::
     >>> import requests
     >>> r = requests.get('https://github.com/timeline.json')
     >>> r.text
-    '[{"repository":{"open_issues":0,"url":"https://github.com/...
+    u'[{"repository":{"open_issues":0,"url":"https://github.com/...
 
 Requests will automatically decode content from the server. Most unicode
 charsets are seamlessly decoded.
@@ -312,11 +312,6 @@ So, we can access the headers using any capitalization we want::
 
     >>> r.headers.get('content-type')
     'application/json; charset=utf-8'
-
-If a header doesn't exist in the Response, its value defaults to ``None``::
-
-    >>> r.headers['X-Random']
-    None
 
 
 Cookies
