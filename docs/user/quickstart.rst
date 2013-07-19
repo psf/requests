@@ -298,7 +298,7 @@ We can view the server's response headers using a Python dictionary::
         'server': 'nginx/1.0.4',
         'x-runtime': '148ms',
         'etag': '"e1ca502697e5c9317743dc078f67693f"',
-        'content-type': 'application/json; charset=utf-8'
+        'content-type': 'application/json'
     }
 
 The dictionary is special, though: it's made just for HTTP headers. According to
@@ -308,10 +308,10 @@ Headers are case-insensitive.
 So, we can access the headers using any capitalization we want::
 
     >>> r.headers['Content-Type']
-    'application/json; charset=utf-8'
+    'application/json'
 
     >>> r.headers.get('content-type')
-    'application/json; charset=utf-8'
+    'application/json'
 
 
 Cookies
