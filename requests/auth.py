@@ -159,17 +159,19 @@ class HTTPDigestAuth(AuthBase):
             # to allow our new request to reuse the same one.
             r.content
             r.raw.release_conn()
-            prepared_request = PreparedRequest()
-            prepared_request.url = r.request.url
-            prepared_request.body = r.request.body
-            prepared_request.headers = r.request.headers.copy()
-            prepared_request.hooks = r.request.hooks
-            prepared_request.prepare_cookies(r.cookies)
+            prep = PreparedRequest()
+            prep.method = r.request.method
+            prep.url = r.request.url
+            prep.body = r.request.body
+            prep.headers = r.request.headers.copy()
+            prep.hooks = r.request.hooks
+            prep.prepare_cookies(r.cookies)
 
-            r.request.headers['Authorization'] = self.build_digest_header(r.request.method, r.request.url)
-            _r = r.connection.send(prepared_request, **kwargs)
+            prep.headers['Authorization'] = self.build_digest_header(
+                prep.method, prep.url)
+            _r = r.connection.send(prep, **kwargs)
             _r.history.append(r)
-            _r.request = prepared_request
+            _r.request = prep
 
             return _r
 
