@@ -63,6 +63,17 @@ For more information on how to OAuth flow works, please see the official `OAuth`
 For examples and documentation on requests-oauthlib, please see the `requests_oauthlib`_ repository on GitHub
 
 
+netrc Authentication
+--------------------
+
+If no authentication method is given with the ``auth`` argument, Requests will
+attempt to get the authentication credentials for the URL's hostname from the
+user's netrc file.
+
+If credentials for the hostname are found, the request is sent with HTTP Basic
+Auth.
+
+
 Other Authentication
 --------------------
 
