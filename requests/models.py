@@ -25,7 +25,7 @@ from .utils import (
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
     iter_slices, guess_json_utf, super_len)
 from .compat import (
-    cookielib, urlparse, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
+    cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring)
 
 CONTENT_CHUNK_SIZE = 10 * 1024
@@ -266,6 +266,15 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def __repr__(self):
         return '<PreparedRequest [%s]>' % (self.method)
+
+    def copy(self):
+        p = PreparedRequest()
+        p.method = self.method
+        p.url = self.url
+        p.headers = self.headers
+        p.body = self.body
+        p.hooks = self.hooks
+        return p
 
     def prepare_method(self, method):
         """Prepares the given HTTP method."""
