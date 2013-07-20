@@ -59,7 +59,7 @@ Features
 Installation
 ------------
 
-To install requests, simply:
+To install Requests, simply:
 
 .. code-block:: bash
 

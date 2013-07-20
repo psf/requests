@@ -117,7 +117,7 @@ You can also access the response body as bytes, for non-text requests::
 The ``gzip`` and ``deflate`` transfer-encodings are automatically decoded for you.
 
 For example, to create an image from binary data returned by a request, you can
-use the following code:
+use the following code::
 
     >>> from PIL import Image
     >>> from StringIO import StringIO
@@ -173,7 +173,7 @@ More complicated POST requests
 ------------------------------
 
 Typically, you want to send some form-encoded data — much like an HTML form.
-To do this, simply pass a dictionary to the `data` argument. Your
+To do this, simply pass a dictionary to the ``data`` argument. Your
 dictionary of data will automatically be form-encoded when the request is made::
 
     >>> payload = {'key1': 'value1', 'key2': 'value2'}
@@ -378,7 +378,7 @@ redirection as well::
 Timeouts
 --------
 
-You can tell requests to stop waiting for a response after a given number of
+You can tell Requests to stop waiting for a response after a given number of
 seconds with the ``timeout`` parameter::
 
     >>> requests.get('http://github.com', timeout=0.001)

@@ -46,7 +46,7 @@ Requests currently supports the following versions of Python:
 
 Support for Python 3.1 and 3.2 may be dropped at any time.
 
-Google App Engine will never be officially supported. Pull requests for compatibility will be accepted, as long as they don't complicate the codebase.
+Google App Engine will never be officially supported. Pull Requests for compatibility will be accepted, as long as they don't complicate the codebase.
 
 
 Are you crazy?

@@ -38,4 +38,4 @@ Linux Distro Packages
 
 Distributions have been made for many Linux repositories, including: Ubuntu, Debian, RHEL, and Arch.
 
-These distributions are sometimes divergent forks, or are otherwise not kept up-to-date with the latest code and bugfixes. PyPI (and its mirrors) and GitHub are the official distribution sources; alternatives are not supported by the requests project.
+These distributions are sometimes divergent forks, or are otherwise not kept up-to-date with the latest code and bugfixes. PyPI (and its mirrors) and GitHub are the official distribution sources; alternatives are not supported by the Requests project.
