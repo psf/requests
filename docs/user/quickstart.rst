@@ -343,7 +343,7 @@ Requests will automatically perform location redirection while using the GET
 and OPTIONS verbs.
 
 GitHub redirects all HTTP requests to HTTPS. We can use the ``history`` method
-of the Response object to track redirection. Let's see what Github does::
+of the Response object to track redirection. Let's see what GitHub does::
 
     >>> r = requests.get('http://github.com')
     >>> r.url
@@ -353,8 +353,9 @@ of the Response object to track redirection. Let's see what Github does::
     >>> r.history
     [<Response [301]>]
 
-The :class:`Response.history` list contains a list of the
-:class:`Request` objects that were created in order to complete the request. The list is sorted from the oldest to the most recent request.
+The :class:`Response.history` list contains the :class:`Request` objects that
+were created in order to complete the request. The list is sorted from the
+oldest to the most recent request.
 
 If you're using GET or OPTIONS, you can disable redirection handling with the
 ``allow_redirects`` parameter::
@@ -389,7 +390,7 @@ seconds with the ``timeout`` parameter::
 
 .. admonition:: Note:
 
-    ``timeout`` only effects the connection process itself, not the
+    ``timeout`` only affects the connection process itself, not the
     downloading of the response body.
 
 

@@ -87,7 +87,7 @@ authentication. Some of the best have been brought together under the
 - NTLM_
 
 If you want to use any of these forms of authentication, go straight to their
-Github page and follow the instructions.
+GitHub page and follow the instructions.
 
 
 New Forms of Authentication

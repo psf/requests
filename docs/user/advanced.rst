@@ -120,7 +120,7 @@ Requests can verify SSL certificates for HTTPS requests, just like a web browser
     >>> requests.get('https://kennethreitz.com', verify=True)
     requests.exceptions.SSLError: hostname 'kennethreitz.com' doesn't match either of '*.herokuapp.com', 'herokuapp.com'
 
-I don't have SSL setup on this domain, so it fails. Excellent. Github does though::
+I don't have SSL setup on this domain, so it fails. Excellent. GitHub does though::
 
     >>> requests.get('https://github.com', verify=True)
     <Response [200]>
