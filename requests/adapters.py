@@ -345,13 +345,13 @@ class HTTPAdapter(BaseAdapter):
             raise ConnectionError(sockerr)
 
         except MaxRetryError as e:
-            raise ConnectionError(e)
+            raise ConnectionError(e.reason)
 
         except (_SSLError, _HTTPError) as e:
             if isinstance(e, _SSLError):
-                raise SSLError(e)
+                raise SSLError(e.message)
             elif isinstance(e, TimeoutError):
-                raise Timeout(e)
+                raise Timeout(e.message)
             else:
                 raise
 

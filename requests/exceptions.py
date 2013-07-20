@@ -7,6 +7,7 @@ requests.exceptions
 This module contains the set of Requests' exceptions.
 
 """
+from .utils import get_strerror_and_errno
 
 
 class RequestException(RuntimeError):
@@ -25,6 +26,10 @@ class HTTPError(RequestException):
 
 class ConnectionError(RequestException):
     """A Connection error occurred."""
+    def __init__(self, wrapped_exception):
+        strerror, errno = get_strerror_and_errno(wrapped_exception)
+        super(ConnectionError, self).__init__(strerror)
+        self.strerror, self.errno = strerror, errno
 
 
 class SSLError(ConnectionError):
@@ -33,6 +38,10 @@ class SSLError(ConnectionError):
 
 class Timeout(RequestException):
     """The request timed out."""
+    def __init__(self, wrapped_exception):
+        strerror, errno = get_strerror_and_errno(wrapped_exception)
+        super(Timeout, self).__init__(strerror)
+        self.strerror, self.errno = strerror, errno
 
 
 class URLRequired(RequestException):

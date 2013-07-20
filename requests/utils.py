@@ -565,3 +565,13 @@ def to_native_string(string, encoding='ascii'):
             out = string.decode(encoding)
 
     return out
+
+
+def get_strerror_and_errno(exception_message):
+    """Given an exception, try to get the string error and error number of the
+    exception it wraps, if they exist. If they don't, returns the string error
+    and None."""
+    try:
+        return exception_message.strerror, exception_message.errno
+    except AttributeError:
+        return exception_message, None
