@@ -13,7 +13,7 @@ The Session object allows you to persist certain parameters across
 requests. It also persists cookies across all requests made from the
 Session instance.
 
-A session object has all the methods of the main Requests API.
+A Session object has all the methods of the main Requests API.
 
 Let's persist some cookies across requests::
 
@@ -27,7 +27,7 @@ Let's persist some cookies across requests::
 
 
 Sessions can also be used to provide default data to the request methods. This
-is done by providing data to the properties on a session object::
+is done by providing data to the properties on a Session object::
 
     s = requests.Session()
     s.auth = ('user', 'pass')
