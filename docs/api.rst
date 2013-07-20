@@ -186,7 +186,7 @@ Licensing
 
 One key difference that has nothing to do with the API is a change in the
 license from the ISC_ license to the `Apache 2.0`_ license. The Apache 2.0
-license ensures that contributions to requests are also covered by the Apache
+license ensures that contributions to Requests are also covered by the Apache
 2.0 license.
 
 .. _ISC: http://opensource.org/licenses/ISC
