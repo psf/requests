@@ -17,7 +17,7 @@ from .cookies import cookiejar_from_dict, extract_cookies_to_jar, RequestsCookie
 from .models import Request, PreparedRequest
 from .hooks import default_hooks, dispatch_hook
 from .utils import to_key_val_list, default_headers
-from .exceptions import TooManyRedirects, InvalidSchema
+from .exceptions import TooManyRedirects, InvalidScheme
 from .structures import CaseInsensitiveDict
 
 from .adapters import HTTPAdapter
@@ -497,7 +497,7 @@ class Session(SessionRedirectMixin):
                 return adapter
 
         # Nothing matches :-/
-        raise InvalidSchema("No connection adapters were found for '%s'" % url)
+        raise InvalidScheme("No connection adapters were found for '%s'" % url)
 
     def close(self):
         """Closes all adapters and as such the session"""

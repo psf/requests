@@ -20,7 +20,7 @@ from .cookies import cookiejar_from_dict, get_cookie_header
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
 from .exceptions import (
-    HTTPError, RequestException, MissingSchema, InvalidURL,
+    HTTPError, RequestException, MissingScheme, InvalidURL,
     ChunkedEncodingError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -312,7 +312,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         scheme, auth, host, port, path, query, fragment = parse_url(url)
 
         if not scheme:
-            raise MissingSchema("Invalid URL %r: No schema supplied" % url)
+            raise MissingScheme("Invalid URL %r: No scheme supplied" % url)
 
         if not host:
             raise InvalidURL("Invalid URL %r: No host supplied" % url)

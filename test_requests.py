@@ -14,7 +14,7 @@ from requests.auth import HTTPDigestAuth
 from requests.adapters import HTTPAdapter
 from requests.compat import str, cookielib, getproxies, urljoin, urlparse
 from requests.cookies import cookiejar_from_dict
-from requests.exceptions import InvalidURL, MissingSchema
+from requests.exceptions import InvalidURL, MissingScheme
 from requests.structures import CaseInsensitiveDict
 
 try:
@@ -56,7 +56,7 @@ class RequestsTestCase(unittest.TestCase):
         requests.post
 
     def test_invalid_url(self):
-        self.assertRaises(MissingSchema, requests.get, 'hiwpefhipowhefopw')
+        self.assertRaises(MissingScheme, requests.get, 'hiwpefhipowhefopw')
         self.assertRaises(InvalidURL, requests.get, 'http://')
 
     def test_basic_building(self):
