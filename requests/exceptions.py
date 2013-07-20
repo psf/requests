@@ -52,11 +52,19 @@ class TooManyRedirects(RequestException):
     """Too many redirects."""
 
 
-class MissingScheme(RequestException, ValueError):
+class MissingSchema(RequestException, ValueError):
     """The URL scheme (e.g. http or https) is missing."""
 
 
-class InvalidScheme(RequestException, ValueError):
+class MissingScheme(MissingSchema):
+    """The URL scheme (e.g. http or https) is missing."""
+
+
+class InvalidSchema(RequestException, ValueError):
+    """See defaults.py for valid schemes."""
+
+
+class InvalidScheme(InvalidSchema):
     """See defaults.py for valid schemes."""
 
 
