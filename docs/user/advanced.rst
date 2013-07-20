@@ -13,7 +13,7 @@ The Session object allows you to persist certain parameters across
 requests. It also persists cookies across all requests made from the
 Session instance.
 
-A session object has all the methods of the main Requests API.
+A Session object has all the methods of the main Requests API.
 
 Let's persist some cookies across requests::
 
@@ -27,7 +27,7 @@ Let's persist some cookies across requests::
 
 
 Sessions can also be used to provide default data to the request methods. This
-is done by providing data to the properties on a session object::
+is done by providing data to the properties on a Session object::
 
     s = requests.Session()
     s.auth = ('user', 'pass')
@@ -51,7 +51,7 @@ Request and Response Objects
 Whenever a call is made to requests.*() you are doing two major things. First,
 you are constructing a ``Request`` object which will be sent off to a server
 to request or query some resource. Second, a ``Response`` object is generated
-once ``requests`` gets a response back from the server. The response object
+once ``requests`` gets a response back from the server. The Response object
 contains all of the information returned by the server and also contains the
 ``Request`` object you created originally. Here is a simple request to get some
 very important information from Wikipedia's servers::
@@ -120,7 +120,7 @@ Requests can verify SSL certificates for HTTPS requests, just like a web browser
     >>> requests.get('https://kennethreitz.com', verify=True)
     requests.exceptions.SSLError: hostname 'kennethreitz.com' doesn't match either of '*.herokuapp.com', 'herokuapp.com'
 
-I don't have SSL setup on this domain, so it fails. Excellent. Github does though::
+I don't have SSL setup on this domain, so it fails. Excellent. GitHub does though::
 
     >>> requests.get('https://github.com', verify=True)
     <Response [200]>

@@ -117,7 +117,7 @@ You can also access the response body as bytes, for non-text requests::
 The ``gzip`` and ``deflate`` transfer-encodings are automatically decoded for you.
 
 For example, to create an image from binary data returned by a request, you can
-use the following code:
+use the following code::
 
     >>> from PIL import Image
     >>> from StringIO import StringIO
@@ -173,7 +173,7 @@ More complicated POST requests
 ------------------------------
 
 Typically, you want to send some form-encoded data — much like an HTML form.
-To do this, simply pass a dictionary to the `data` argument. Your
+To do this, simply pass a dictionary to the ``data`` argument. Your
 dictionary of data will automatically be form-encoded when the request is made::
 
     >>> payload = {'key1': 'value1', 'key2': 'value2'}
@@ -343,7 +343,7 @@ Requests will automatically perform location redirection while using the GET
 and OPTIONS verbs.
 
 GitHub redirects all HTTP requests to HTTPS. We can use the ``history`` method
-of the Response object to track redirection. Let's see what Github does::
+of the Response object to track redirection. Let's see what GitHub does::
 
     >>> r = requests.get('http://github.com')
     >>> r.url
@@ -353,8 +353,9 @@ of the Response object to track redirection. Let's see what Github does::
     >>> r.history
     [<Response [301]>]
 
-The :class:`Response.history` list contains a list of the
-:class:`Request` objects that were created in order to complete the request. The list is sorted from the oldest to the most recent request.
+The :class:`Response.history` list contains the :class:`Request` objects that
+were created in order to complete the request. The list is sorted from the
+oldest to the most recent request.
 
 If you're using GET or OPTIONS, you can disable redirection handling with the
 ``allow_redirects`` parameter::
@@ -378,7 +379,7 @@ redirection as well::
 Timeouts
 --------
 
-You can tell requests to stop waiting for a response after a given number of
+You can tell Requests to stop waiting for a response after a given number of
 seconds with the ``timeout`` parameter::
 
     >>> requests.get('http://github.com', timeout=0.001)
@@ -389,7 +390,7 @@ seconds with the ``timeout`` parameter::
 
 .. admonition:: Note:
 
-    ``timeout`` only effects the connection process itself, not the
+    ``timeout`` only affects the connection process itself, not the
     downloading of the response body.
 
 
