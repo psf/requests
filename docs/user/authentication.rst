@@ -58,7 +58,8 @@ and Requests supports this out of the box as well::
 OAuth 1 Authentication
 ----------------------
 
-A common form of authentication for several web APIs is OAuth. The ``requests-oauthlib`` library allows Requests users to easily make OAuth authenticated requests::
+A common form of authentication for several web APIs is OAuth. The ``requests-oauthlib``
+library allows Requests users to easily make OAuth authenticated requests::
 
     >>> import requests
     >>> from requests_oauthlib import OAuth1
@@ -71,7 +72,8 @@ A common form of authentication for several web APIs is OAuth. The ``requests-oa
     <Response [200]>
 
 For more information on how to OAuth flow works, please see the official `OAuth`_ website.
-For examples and documentation on requests-oauthlib, please see the `requests_oauthlib`_ repository on GitHub
+For examples and documentation on requests-oauthlib, please see the `requests_oauthlib`_
+repository on GitHub
 
 
 Other Authentication
