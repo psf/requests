@@ -25,7 +25,7 @@ from .utils import (
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
     iter_slices, guess_json_utf, super_len)
 from .compat import (
-    cookielib, urlparse, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
+    cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring)
 
 CONTENT_CHUNK_SIZE = 10 * 1024
@@ -352,7 +352,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         body = None
         content_type = None
         length = None
-        is_stream = False
 
         is_stream = all([
             hasattr(data, '__iter__'),
