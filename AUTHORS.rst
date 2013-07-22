@@ -132,3 +132,4 @@ Patches and Suggestions
 - James Clarke (jam)
 - Kevin Burke <kev@inburke.com>
 - Flavio Curella
+- David Pursehouse <david.pursehouse@gmail.com> @dpursehouse
