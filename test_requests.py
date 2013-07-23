@@ -23,6 +23,8 @@ except ImportError:
     import io as StringIO
 
 HTTPBIN = os.environ.get('HTTPBIN_URL', 'http://httpbin.org/')
+# Issue #1483: Make sure the URL always has a trailing slash
+HTTPBIN = HTTPBIN.rstrip('/') + '/'
 
 
 def httpbin(*suffix):
