@@ -214,7 +214,7 @@ class HTTPAdapter(BaseAdapter):
         If the message is being sent through a proxy, the full URL has to be
         used. Otherwise, we should only use the path portion of the URL.
 
-        This shoudl not be called from user code, and is only exposed for use
+        This should not be called from user code, and is only exposed for use
         when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
