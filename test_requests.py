@@ -12,7 +12,7 @@ import pickle
 import requests
 from requests.auth import HTTPDigestAuth
 from requests.adapters import HTTPAdapter
-from requests.compat import str, cookielib, getproxies
+from requests.compat import str, cookielib, getproxies, urljoin
 from requests.cookies import cookiejar_from_dict
 from requests.exceptions import InvalidURL, MissingSchema
 from requests.structures import CaseInsensitiveDict
@@ -29,7 +29,7 @@ HTTPBIN = HTTPBIN.rstrip('/') + '/'
 
 def httpbin(*suffix):
     """Returns url for HTTPBIN resource."""
-    return HTTPBIN + '/'.join(suffix)
+    return urljoin(HTTPBIN, '/'.join(suffix))
 
 
 class RequestsTestCase(unittest.TestCase):
