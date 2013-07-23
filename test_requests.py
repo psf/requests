@@ -8,6 +8,7 @@ import json
 import os
 import unittest
 import pickle
+import urlparse
 
 import requests
 from requests.auth import HTTPDigestAuth
@@ -29,7 +30,7 @@ HTTPBIN = HTTPBIN.rstrip('/') + '/'
 
 def httpbin(*suffix):
     """Returns url for HTTPBIN resource."""
-    return HTTPBIN + '/'.join(suffix)
+    return urlparse.urljoin(HTTPBIN, '/'.join(suffix))
 
 
 class RequestsTestCase(unittest.TestCase):
