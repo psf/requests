@@ -12,7 +12,7 @@ import pickle
 import requests
 from requests.auth import HTTPDigestAuth
 from requests.adapters import HTTPAdapter
-from requests.compat import str, cookielib
+from requests.compat import str, cookielib, getproxies
 from requests.cookies import cookiejar_from_dict
 from requests.exceptions import InvalidURL, MissingSchema
 from requests.structures import CaseInsensitiveDict
@@ -88,11 +88,14 @@ class RequestsTestCase(unittest.TestCase):
             "http://example.com/path?key=value&a=b#fragment")
 
     def test_mixed_case_scheme_acceptable(self):
+        proxies = getproxies()
         s = requests.Session()
+        s.proxies = proxies
         r = requests.Request('GET', 'http://httpbin.org/get')
         r = s.send(r.prepare())
         self.assertEqual(r.status_code,200)
         s = requests.Session()
+        s.proxies = proxies
         r = requests.Request('GET', 'HTTP://httpbin.org/get')
         r = s.send(r.prepare())
         self.assertEqual(r.status_code,200)
@@ -118,6 +121,7 @@ class RequestsTestCase(unittest.TestCase):
     def test_HTTP_200_OK_GET_ALTERNATIVE(self):
         r = requests.Request('GET', httpbin('get'))
         s = requests.Session()
+        s.proxies = getproxies()
 
         r = s.send(r.prepare())
 
@@ -447,6 +451,7 @@ class RequestsTestCase(unittest.TestCase):
         prep = req.prepare()
 
         s = requests.Session()
+        s.proxies = getproxies()
         resp = s.send(prep)
 
         self.assertTrue(hasattr(resp, 'hook_working'))
@@ -536,6 +541,7 @@ class RequestsTestCase(unittest.TestCase):
         s = requests.Session()
 
         s = pickle.loads(pickle.dumps(s))
+        s.proxies = getproxies()
 
         r = s.send(r.prepare())
         self.assertEqual(r.status_code, 200)
