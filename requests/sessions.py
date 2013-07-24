@@ -211,7 +211,10 @@ class Session(SessionRedirectMixin):
         #: Should we trust the environment?
         self.trust_env = True
 
-        # Set up a CookieJar to be used by default
+        #: A CookieJar containing all currently outstanding cookies set on this
+        #: session. By default is a
+        #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but
+        #: may be any other ``CookieJar``.
         self.cookies = cookiejar_from_dict({})
 
         # Default connection adapters.
