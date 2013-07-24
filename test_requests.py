@@ -558,6 +558,7 @@ class RequestsTestCase(unittest.TestCase):
         url = "HTTP://" + parts.netloc + parts.path
         r = requests.get(httpbin('redirect-to'), params={'url': url})
         self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.url.lower(), url.lower())
 
     def test_transport_adapter_ordering(self):
         s = requests.Session()
