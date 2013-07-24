@@ -554,7 +554,9 @@ class RequestsTestCase(unittest.TestCase):
         )
 
     def test_uppercase_scheme_redirect(self):
-        r = requests.get(httpbin('redirect-to'), params={'url': 'HTTP://example.com/'})
+        parts = urlparse(httpbin('html'))
+        url = "HTTP://" + parts.netloc + parts.path
+        r = requests.get(httpbin('redirect-to'), params={'url': url})
         self.assertEqual(r.status_code, 200)
 
     def test_transport_adapter_ordering(self):
