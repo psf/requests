@@ -171,7 +171,7 @@ class Session(SessionRedirectMixin):
         'params', 'verify', 'cert', 'prefetch', 'adapters', 'stream',
         'trust_env', 'max_redirects']
 
-    def __init__(self):
+    def __init__(self, cookiejar=None):
 
         #: A case-insensitive dictionary of headers to be sent on each
         #: :class:`Request <Request>` sent from this
@@ -212,7 +212,7 @@ class Session(SessionRedirectMixin):
         self.trust_env = True
 
         # Set up a CookieJar to be used by default
-        self.cookies = cookiejar_from_dict({})
+        self.cookies = cookiejar_from_dict({}, cookiejar)
 
         # Default connection adapters.
         self.adapters = OrderedDict()
