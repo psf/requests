@@ -90,14 +90,11 @@ class RequestsTestCase(unittest.TestCase):
             "http://example.com/path?key=value&a=b#fragment")
 
     def test_mixed_case_scheme_acceptable(self):
-        proxies = getproxies()
         s = requests.Session()
-        s.proxies = proxies
+        s.proxies = getproxies()
         r = requests.Request('GET', 'http://httpbin.org/get')
         r = s.send(r.prepare())
         self.assertEqual(r.status_code,200)
-        s = requests.Session()
-        s.proxies = proxies
         r = requests.Request('GET', 'HTTP://httpbin.org/get')
         r = s.send(r.prepare())
         self.assertEqual(r.status_code,200)
