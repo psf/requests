@@ -285,7 +285,7 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 401)
 
         s = requests.session()
-        s.auth = auth
+        s.auth = HTTPDigestAuth('user', 'pass')
         r = s.get(url)
         self.assertEqual(r.status_code, 200)
 
