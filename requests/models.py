@@ -267,6 +267,15 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def __repr__(self):
         return '<PreparedRequest [%s]>' % (self.method)
 
+    def copy(self):
+        p = PreparedRequest()
+        p.method = self.method
+        p.url = self.url
+        p.headers = self.headers
+        p.body = self.body
+        p.hooks = self.hooks
+        return p
+
     def prepare_method(self, method):
         """Prepares the given HTTP method."""
         self.method = method
