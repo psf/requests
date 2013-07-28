@@ -145,7 +145,6 @@ class HTTPDigestAuth(AuthBase):
     def handle_401(self, r, **kwargs):
         """Takes the given response and tries digest-auth, if needed."""
 
-        from .models import PreparedRequest
         num_401_calls = getattr(self, 'num_401_calls', 1)
         s_auth = r.headers.get('www-authenticate', '')
 
@@ -159,12 +158,7 @@ class HTTPDigestAuth(AuthBase):
             # to allow our new request to reuse the same one.
             r.content
             r.raw.release_conn()
-            prep = PreparedRequest()
-            prep.method = r.request.method
-            prep.url = r.request.url
-            prep.body = r.request.body
-            prep.headers = r.request.headers.copy()
-            prep.hooks = r.request.hooks
+            prep = r.request.copy()
             prep.prepare_cookies(r.cookies)
 
             prep.headers['Authorization'] = self.build_digest_header(

@@ -74,10 +74,7 @@ class SessionRedirectMixin(object):
 
         # ((resp.status_code is codes.see_other))
         while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
-            prepared_request = PreparedRequest()
-            prepared_request.body = req.body
-            prepared_request.headers = req.headers.copy()
-            prepared_request.hooks = req.hooks
+            prepared_request = req.copy()
 
             resp.content  # Consume socket so it can be released
 
