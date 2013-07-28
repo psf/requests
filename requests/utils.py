@@ -25,6 +25,7 @@ from .compat import quote, urlparse, bytes, str, OrderedDict, urlunparse
 from .compat import getproxies, proxy_bypass
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
+from .exceptions import MissingSchema
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -393,18 +394,18 @@ def get_environ_proxies(url):
     # we're getting isn't in the no_proxy list.
     no_proxy = get_proxy('no_proxy')
     netloc = urlparse(url).netloc
-    
+
     if no_proxy:
         # We need to check whether we match here. We need to see if we match
         # the end of the netloc, both with and without the port.
         no_proxy = no_proxy.split(',')
-        
+
         for host in no_proxy:
             if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
                 # The URL does match something in no_proxy, so we don't want
                 # to apply the proxies on this URL.
                 return {}
-                
+
     # If the system proxy settings indicate that this URL should be bypassed,
     # don't proxy.
     if proxy_bypass(netloc):
@@ -414,7 +415,7 @@ def get_environ_proxies(url):
     # anywhere that no_proxy applies to, and the system settings don't require
     # bypassing the proxy for the current URL.
     return getproxies()
-    
+
 
 def default_user_agent():
     """Return a string representing the default user agent."""
@@ -524,18 +525,13 @@ def guess_json_utf(data):
     return None
 
 
-def prepend_scheme_if_needed(url, new_scheme):
-    '''Given a URL that may or may not have a scheme, prepend the given scheme.
-    Does not replace a present scheme with the one provided as an argument.'''
-    scheme, netloc, path, params, query, fragment = urlparse(url, new_scheme)
+def except_on_missing_scheme(url):
+    """Given a URL, raise a MissingSchema exception if the scheme is missing.
+    """
+    scheme, netloc, path, params, query, fragment = urlparse(url)
 
-    # urlparse is a finicky beast, and sometimes decides that there isn't a
-    # netloc present. Assume that it's being over-cautious, and switch netloc
-    # and path if urlparse decided there was no netloc.
-    if not netloc:
-        netloc, path = path, netloc
-
-    return urlunparse((scheme, netloc, path, params, query, fragment))
+    if not scheme:
+        raise MissingSchema('Proxy URLs must have explicit schemes.')
 
 
 def get_auth_from_url(url):
