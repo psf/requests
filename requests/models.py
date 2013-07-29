@@ -209,7 +209,6 @@ class Request(RequestHooksMixin):
         self.params = params
         self.auth = auth
         self.cookies = cookies
-        self.hooks = hooks
 
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
