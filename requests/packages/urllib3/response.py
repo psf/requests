@@ -185,9 +185,11 @@ class HTTPResponse(io.IOBase):
             try:
                 if decode_content and self._decoder:
                     data = self._decoder.decompress(data)
-            except (IOError, zlib.error):
-                raise DecodeError("Received response with content-encoding: %s, but "
-                                  "failed to decode it." % content_encoding)
+            except (IOError, zlib.error) as e:
+                raise DecodeError(
+                    "Received response with content-encoding: %s, but "
+                    "failed to decode it." % content_encoding,
+                    e)
 
             if flush_decoder and self._decoder:
                 buf = self._decoder.decompress(binary_type())

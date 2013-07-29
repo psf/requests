@@ -60,6 +60,13 @@ class Url(namedtuple('Url', ['scheme', 'auth', 'host', 'port', 'path', 'query', 
 
         return uri
 
+    @property
+    def netloc(self):
+        """Network location including host and port"""
+        if self.port:
+            return '%s:%d' % (self.host, self.port)
+        return self.host
+
 
 def split_first(s, delims):
     """
