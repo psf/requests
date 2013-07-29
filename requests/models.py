@@ -93,7 +93,7 @@ class RequestEncodingMixin(object):
 
         """
         if (not files) or isinstance(data, str):
-            return None
+            return (None, None)
 
         new_fields = []
         fields = to_key_val_list(data or {})
