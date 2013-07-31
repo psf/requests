@@ -489,6 +489,23 @@ class RequestsTestCase(unittest.TestCase):
         a.params['_'] = '?'
         self.assertNotEqual(a.params, b.params)
 
+    def test_prepared_from_session(self):
+        class DummyAuth(requests.auth.AuthBase):
+            def __call__(self, r):
+                r.headers['Dummy-Auth-Test'] = 'dummy-auth-test-ok'
+                return r
+
+        req = requests.Request('GET', httpbin('headers'))
+        self.assertEqual(req.auth, None)
+
+        s = requests.Session()
+        s.auth = DummyAuth()
+
+        prep = s.prepare_request(req)
+        resp = s.send(prep)
+
+        self.assertTrue(resp.json()['headers']['Dummy-Auth-Test'], 'dummy-auth-test-ok')
+
     def test_links(self):
         r = requests.Response()
         r.headers = {
