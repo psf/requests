@@ -231,6 +231,8 @@ class Session(SessionRedirectMixin):
     def update_request(self, request):
         """Destructively updates/merges the settings of a :class:`Request`
         object from those of the :class:`Session`.
+
+        :param request: mutable :class:`Request` instance.
         """
         cookies = request.cookies or {}
 
@@ -257,10 +259,9 @@ class Session(SessionRedirectMixin):
         request.hooks = merge_setting(request.hooks, self.hooks)
         request.method = request.method.upper()
 
-        return request
-
     def prepare_request(self, request):
-        req = self.update_request(request.copy())
+        req = request.copy()
+        self.update_request(req)
         return req.prepare()
 
     def request(self, method, url,
@@ -318,7 +319,8 @@ class Session(SessionRedirectMixin):
             cookies = cookies,
             hooks = hooks,
         )
-        prep = self.prepare_request(req)
+        self.update_request(req)
+        prep = req.prepare()
 
         proxies = proxies or {}
 
