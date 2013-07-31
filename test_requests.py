@@ -458,37 +458,6 @@ class RequestsTestCase(unittest.TestCase):
 
         self.assertTrue(hasattr(resp, 'hook_working'))
 
-    def test_request_copy(self):
-        a = requests.Request('POST', httpbin('post'),
-                headers={'oh': 'gee'},
-                files={'some': 'thing'},
-                data={'baz':'qux'},
-                params={'foo': 'bar'},
-                auth=object(),
-                cookies={'Some-Cookie':'Some Value'},
-                hooks={'response': lambda r: r })
-        b = a.copy()
-
-        self.assertNotEqual(a, b)
-        self.assertEqual(a.method, b.method)
-        self.assertEqual(a.url, b.url)
-        self.assertEqual(a.headers, b.headers)
-        self.assertEqual(a.files, b.files)
-        self.assertEqual(a.data, b.data)
-        self.assertEqual(a.params, b.params)
-        self.assertEqual(a.auth, b.auth)
-        self.assertEqual(a.cookies, b.cookies)
-        self.assertEqual(a.hooks, b.hooks)
-
-        a.headers['Foo'] = 'Bar'
-        self.assertNotEqual(a.headers, b.headers)
-
-        a.data['x'] = 'y'
-        self.assertNotEqual(a.data, b.data)
-
-        a.params['_'] = '?'
-        self.assertNotEqual(a.params, b.params)
-
     def test_prepared_from_session(self):
         class DummyAuth(requests.auth.AuthBase):
             def __call__(self, r):

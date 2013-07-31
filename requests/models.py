@@ -28,8 +28,6 @@ from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring)
 
-from copy import copy as shallowcopy
-
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
 
@@ -216,39 +214,20 @@ class Request(RequestHooksMixin):
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
 
-    def copy(self):
-        return Request(
-            method = self.method,
-            url = self.url,
-            auth = self.auth,
-
-            # Copy mutable dict/list parameters so that altering one request
-            # does not alter the copy.
-            headers = shallowcopy(self.headers),
-            params = shallowcopy(self.params),
-            cookies = shallowcopy(self.cookies),
-            hooks = shallowcopy(self.hooks),
-
-            files = shallowcopy(self.files),
-            data = shallowcopy(self.data),
-        )
-
     def prepare(self):
         """Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it."""
         p = PreparedRequest()
-
-        p.prepare_method(self.method)
-        p.prepare_url(self.url, self.params)
-        p.prepare_headers(self.headers)
-        p.prepare_cookies(self.cookies)
-        p.prepare_body(self.data, self.files)
-        p.prepare_auth(self.auth, self.url)
-        # Note that prepare_auth must be last to enable authentication schemes
-        # such as OAuth to work on a fully prepared request.
-
-        # This MUST go after prepare_auth. Authenticators could add a hook
-        p.prepare_hooks(self.hooks)
-
+        p.prepare(
+            method=self.method,
+            url=self.url,
+            headers=self.headers,
+            files=self.files,
+            data=self.data,
+            params=self.params,
+            auth=self.auth,
+            cookies=self.cookies,
+            hooks=self.hooks,
+        )
         return p
 
 
@@ -282,6 +261,22 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.body = None
         #: dictionary of callback hooks, for internal usage.
         self.hooks = default_hooks()
+
+    def prepare(self, method=None, url=None, headers=None, files=None,
+                data=None, params=None, auth=None, cookies=None, hooks=None):
+        """Prepares the the entire request with the given parameters."""
+
+        self.prepare_method(method)
+        self.prepare_url(url, params)
+        self.prepare_headers(headers)
+        self.prepare_cookies(cookies)
+        self.prepare_body(data, files)
+        self.prepare_auth(auth, url)
+        # Note that prepare_auth must be last to enable authentication schemes
+        # such as OAuth to work on a fully prepared request.
+
+        # This MUST go after prepare_auth. Authenticators could add a hook
+        self.prepare_hooks(hooks)
 
     def __repr__(self):
         return '<PreparedRequest [%s]>' % (self.method)

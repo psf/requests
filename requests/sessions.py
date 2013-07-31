@@ -228,11 +228,14 @@ class Session(SessionRedirectMixin):
     def __exit__(self, *args):
         self.close()
 
-    def update_request(self, request):
-        """Destructively updates/merges the settings of a :class:`Request`
-        object from those of the :class:`Session`.
+    def prepare_request(self, request):
+        """Constructs a :class:`PreparedRequest <PreparedRequest>` for
+        transmission and returns it. The :class:`PreparedRequest` has settings
+        merged from the :class:`Request <Request>` instance and those of the
+        :class:`Session`.
 
-        :param request: mutable :class:`Request` instance.
+        :param request: :class:`Request` instance to prepare with this
+        session's settings.
         """
         cookies = request.cookies or {}
 
@@ -244,25 +247,26 @@ class Session(SessionRedirectMixin):
         merged_cookies = RequestsCookieJar()
         merged_cookies.update(self.cookies)
         merged_cookies.update(cookies)
-        request.cookies = merged_cookies
 
-        # Gather clues from the surrounding environment.
-        if self.trust_env:
-            # Set environment's basic authentication if not explicitly set.
-            if not request.auth and not self.auth:
-                request.auth = get_netrc_auth(request.url)
 
-        # Merge settings from the request and the session.
-        request.params = merge_setting(request.params, self.params)
-        request.headers = merge_setting(request.headers, self.headers, dict_class=CaseInsensitiveDict)
-        request.auth = merge_setting(request.auth, self.auth)
-        request.hooks = merge_setting(request.hooks, self.hooks)
-        request.method = request.method.upper()
+        # Set environment's basic authentication if not explicitly set.
+        auth = request.auth
+        if self.trust_env and not auth and not self.auth:
+            auth = get_netrc_auth(request.url)
 
-    def prepare_request(self, request):
-        req = request.copy()
-        self.update_request(req)
-        return req.prepare()
+        p = PreparedRequest()
+        p.prepare(
+            method=request.method.upper(),
+            url=request.url,
+            files=request.files,
+            data=request.data,
+            headers=merge_setting(request.headers, self.headers, dict_class=CaseInsensitiveDict),
+            params=merge_setting(request.params, self.params),
+            auth=merge_setting(auth, self.auth),
+            cookies=merged_cookies,
+            hooks=merge_setting(request.hooks, self.hooks),
+        )
+        return p
 
     def request(self, method, url,
         params=None,
@@ -319,8 +323,7 @@ class Session(SessionRedirectMixin):
             cookies = cookies,
             hooks = hooks,
         )
-        self.update_request(req)
-        prep = req.prepare()
+        prep = self.prepare_request(req)
 
         proxies = proxies or {}
 
@@ -438,7 +441,7 @@ class Session(SessionRedirectMixin):
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
-        if getattr(request, 'prepare', None):
+        if not isinstance(request, PreparedRequest):
             raise ValueError('You can only send PreparedRequests.')
 
         # Set up variables needed for resolve_redirects and dispatching of
