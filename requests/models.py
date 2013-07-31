@@ -28,6 +28,8 @@ from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring)
 
+from copy import copy as shallowcopy
+
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
 
@@ -218,13 +220,17 @@ class Request(RequestHooksMixin):
         return Request(
             method = self.method,
             url = self.url,
-            headers = self.headers,
-            files = self.files,
-            data = self.data,
-            params = self.params,
             auth = self.auth,
-            cookies = self.cookies,
-            hooks = self.hooks,
+
+            # Copy mutable dict/list parameters so that altering one request
+            # does not alter the copy.
+            headers = shallowcopy(self.headers),
+            params = shallowcopy(self.params),
+            cookies = shallowcopy(self.cookies),
+            hooks = shallowcopy(self.hooks),
+
+            files = shallowcopy(self.files),
+            data = shallowcopy(self.data),
         )
 
     def prepare(self):
