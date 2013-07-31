@@ -228,6 +228,41 @@ class Session(SessionRedirectMixin):
     def __exit__(self, *args):
         self.close()
 
+    def update_request(self, request):
+        """Destructively updates/merges the settings of a :class:`Request`
+        object from those of the :class:`Session`.
+        """
+        cookies = request.cookies or {}
+
+        # Bootstrap CookieJar.
+        if not isinstance(cookies, cookielib.CookieJar):
+            cookies = cookiejar_from_dict(cookies)
+
+        # Merge with session cookies
+        merged_cookies = RequestsCookieJar()
+        merged_cookies.update(self.cookies)
+        merged_cookies.update(cookies)
+        request.cookies = merged_cookies
+
+        # Gather clues from the surrounding environment.
+        if self.trust_env:
+            # Set environment's basic authentication if not explicitly set.
+            if not request.auth and not self.auth:
+                request.auth = get_netrc_auth(request.url)
+
+        # Merge settings from the request and the session.
+        request.params = merge_setting(request.params, self.params)
+        request.headers = merge_setting(request.headers, self.headers, dict_class=CaseInsensitiveDict)
+        request.auth = merge_setting(request.auth, self.auth)
+        request.hooks = merge_setting(request.hooks, self.hooks)
+        request.method = request.method.upper()
+
+        return request
+
+    def prepare_request(self, request):
+        req = self.update_request(request.copy())
+        return req.prepare()
+
     def request(self, method, url,
         params=None,
         data=None,
@@ -271,19 +306,21 @@ class Session(SessionRedirectMixin):
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
         """
+        # Create the Request.
+        req = Request(
+            method = method.upper(),
+            url = url,
+            headers = headers,
+            files = files,
+            data = data or {},
+            params = params or {},
+            auth = auth,
+            cookies = cookies,
+            hooks = hooks,
+        )
+        prep = self.prepare_request(req)
 
-        cookies = cookies or {}
         proxies = proxies or {}
-
-        # Bootstrap CookieJar.
-        if not isinstance(cookies, cookielib.CookieJar):
-            cookies = cookiejar_from_dict(cookies)
-
-        # Merge with session cookies
-        merged_cookies = RequestsCookieJar()
-        merged_cookies.update(self.cookies)
-        merged_cookies.update(cookies)
-        cookies = merged_cookies
 
         # Gather clues from the surrounding environment.
         if self.trust_env:
@@ -291,10 +328,6 @@ class Session(SessionRedirectMixin):
             env_proxies = get_environ_proxies(url) or {}
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)
-
-            # Set environment's basic authentication if not explicitly set.
-            if not auth and not self.auth:
-                auth = get_netrc_auth(url)
 
             # Look for configuration.
             if not verify and verify is not False:
@@ -305,29 +338,10 @@ class Session(SessionRedirectMixin):
                 verify = os.environ.get('CURL_CA_BUNDLE')
 
         # Merge all the kwargs.
-        params = merge_setting(params, self.params)
-        headers = merge_setting(headers, self.headers, dict_class=CaseInsensitiveDict)
-        auth = merge_setting(auth, self.auth)
         proxies = merge_setting(proxies, self.proxies)
-        hooks = merge_setting(hooks, self.hooks)
         stream = merge_setting(stream, self.stream)
         verify = merge_setting(verify, self.verify)
         cert = merge_setting(cert, self.cert)
-
-        # Create the Request.
-        req = Request()
-        req.method = method.upper()
-        req.url = url
-        req.headers = headers
-        req.files = files
-        req.data = data
-        req.params = params
-        req.auth = auth
-        req.cookies = cookies
-        req.hooks = hooks
-
-        # Prepare the Request.
-        prep = req.prepare()
 
         # Send the request.
         send_kwargs = {

@@ -214,6 +214,19 @@ class Request(RequestHooksMixin):
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
 
+    def copy(self):
+        return Request(
+            method = self.method,
+            url = self.url,
+            headers = self.headers,
+            files = self.files,
+            data = self.data,
+            params = self.params,
+            auth = self.auth,
+            cookies = self.cookies,
+            hooks = self.hooks,
+        )
+
     def prepare(self):
         """Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it."""
         p = PreparedRequest()
