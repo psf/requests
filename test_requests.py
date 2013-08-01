@@ -12,7 +12,7 @@ import pickle
 import requests
 from requests.auth import HTTPDigestAuth
 from requests.adapters import HTTPAdapter
-from requests.compat import str, cookielib, getproxies, urljoin
+from requests.compat import str, cookielib, getproxies, urljoin, urlparse
 from requests.cookies import cookiejar_from_dict
 from requests.exceptions import InvalidURL, MissingSchema
 from requests.structures import CaseInsensitiveDict
@@ -90,35 +90,17 @@ class RequestsTestCase(unittest.TestCase):
             "http://example.com/path?key=value&a=b#fragment")
 
     def test_mixed_case_scheme_acceptable(self):
-        proxies = getproxies()
         s = requests.Session()
-        s.proxies = proxies
-        r = requests.Request('GET', 'http://httpbin.org/get')
-        r = s.send(r.prepare())
-        self.assertEqual(r.status_code,200)
-        s = requests.Session()
-        s.proxies = proxies
-        r = requests.Request('GET', 'HTTP://httpbin.org/get')
-        r = s.send(r.prepare())
-        self.assertEqual(r.status_code,200)
-        r = requests.Request('GET', 'hTTp://httpbin.org/get')
-        r = s.send(r.prepare())
-        self.assertEqual(r.status_code,200)
-        r = requests.Request('GET', 'HttP://httpbin.org/get')
-        r = s.send(r.prepare())
-        self.assertEqual(r.status_code,200)
-        r = requests.Request('GET', 'https://httpbin.org/get')
-        r = s.send(r.prepare())
-        self.assertEqual(r.status_code,200)
-        r = requests.Request('GET', 'HTTPS://httpbin.org/get')
-        r = s.send(r.prepare())
-        self.assertEqual(r.status_code,200)
-        r = requests.Request('GET', 'hTTps://httpbin.org/get')
-        r = s.send(r.prepare())
-        self.assertEqual(r.status_code,200)
-        r = requests.Request('GET', 'HttPs://httpbin.org/get')
-        r = s.send(r.prepare())
-        self.assertEqual(r.status_code,200)
+        s.proxies = getproxies()
+        parts = urlparse(httpbin('get'))
+        schemes = ['http://', 'HTTP://', 'hTTp://', 'HttP://',
+                   'https://', 'HTTPS://', 'hTTps://', 'HttPs://']
+        for scheme in schemes:
+            url = scheme + parts.netloc + parts.path
+            r = requests.Request('GET', url)
+            r = s.send(r.prepare())
+            self.assertEqual(r.status_code, 200,
+                             "failed for scheme %s" % scheme)
 
     def test_HTTP_200_OK_GET_ALTERNATIVE(self):
         r = requests.Request('GET', httpbin('get'))
@@ -588,13 +570,12 @@ class RequestsTestCase(unittest.TestCase):
             'application/json'
         )
 
-    def test_uppercase_scheme(self):
-        r = requests.get('HTTP://example.com/')
-        self.assertEqual(r.status_code, 200)
-
     def test_uppercase_scheme_redirect(self):
-        r = requests.get(httpbin('redirect-to'), params={'url': 'HTTP://example.com/'})
+        parts = urlparse(httpbin('html'))
+        url = "HTTP://" + parts.netloc + parts.path
+        r = requests.get(httpbin('redirect-to'), params={'url': url})
         self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.url.lower(), url.lower())
 
     def test_transport_adapter_ordering(self):
         s = requests.Session()
