@@ -181,9 +181,9 @@ class ProxyManager(RequestMethods):
         """
         headers_ = {'Accept': '*/*'}
 
-        host = parse_url(url).host
-        if host:
-            headers_['Host'] = host
+        netloc = parse_url(url).netloc
+        if netloc:
+            headers_['Host'] = netloc
 
         if headers:
             headers_.update(headers)
