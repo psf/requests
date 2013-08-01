@@ -19,14 +19,16 @@ from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
-from .exceptions import HTTPError, RequestException, MissingSchema, InvalidURL
+from .exceptions import (
+    HTTPError, RequestException, MissingSchema, InvalidURL,
+    ChunkedEncodingError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
     iter_slices, guess_json_utf, super_len)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
-    is_py2, chardet, json, builtin_str, basestring)
+    is_py2, chardet, json, builtin_str, basestring, IncompleteRead)
 
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
@@ -560,8 +562,12 @@ class Response(object):
         def generate():
             try:
                 # Special case for urllib3.
-                for chunk in self.raw.stream(chunk_size, decode_content=True):
-                    yield chunk
+                try:
+                    for chunk in self.raw.stream(chunk_size,
+                                                 decode_content=True):
+                        yield chunk
+                except IncompleteRead as e:
+                    raise ChunkedEncodingError(e)
             except AttributeError:
                 # Standard file-like object.
                 while 1:
