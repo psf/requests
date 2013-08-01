@@ -133,3 +133,4 @@ Patches and Suggestions
 - Kevin Burke <kev@inburke.com>
 - Flavio Curella
 - David Pursehouse <david.pursehouse@gmail.com> @dpursehouse
+- Marc Schlaich @schlamar
