@@ -74,6 +74,10 @@ class MockRequest(object):
     def origin_req_host(self):
         return self.get_origin_req_host()
 
+    @property
+    def host(self):
+        return self.get_host()
+
 
 class MockResponse(object):
     """Wraps a `httplib.HTTPMessage` to mimic a `urllib.addinfourl`.
