@@ -26,7 +26,10 @@ except ImportError:
 
 try: # Compiled with SSL?
     HTTPSConnection = object
-    BaseSSLError = None
+
+    class BaseSSLError(BaseException):
+        pass
+
     ssl = None
 
     try: # Python 3
@@ -152,8 +155,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         :class:`httplib.HTTPConnection`.
 
     :param timeout:
-        Socket timeout for each individual connection, can be a float. None
-        disables timeout.
+        Socket timeout in seconds for each individual connection, can be
+        a float. None disables timeout.
 
     :param maxsize:
         Number of connections to save that can be reused. More than 1 is useful
@@ -376,6 +379,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         :param timeout:
             If specified, overrides the default timeout for this one request.
+            It may be a float (in seconds).
 
         :param pool_timeout:
             If set and the pool is set to block=True, then this method will
@@ -410,10 +414,6 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         # Check host
         if assert_same_host and not self.is_same_host(url):
-            host = "%s://%s" % (self.scheme, self.host)
-            if self.port:
-                host = "%s:%d" % (host, self.port)
-
             raise HostChangedError(self, url, retries - 1)
 
         conn = None
