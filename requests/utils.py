@@ -21,8 +21,8 @@ from netrc import netrc, NetrcParseError
 from . import __version__
 from . import certs
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, urlparse, bytes, str, OrderedDict, urlunparse
-from .compat import getproxies, proxy_bypass
+from .compat import (quote, urlparse, bytes, str, OrderedDict, urlunparse,
+                     is_py2, is_py3, builtin_str, getproxies, proxy_bypass)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
 
@@ -393,18 +393,18 @@ def get_environ_proxies(url):
     # we're getting isn't in the no_proxy list.
     no_proxy = get_proxy('no_proxy')
     netloc = urlparse(url).netloc
-    
+
     if no_proxy:
         # We need to check whether we match here. We need to see if we match
         # the end of the netloc, both with and without the port.
         no_proxy = no_proxy.split(',')
-        
+
         for host in no_proxy:
             if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
                 # The URL does match something in no_proxy, so we don't want
                 # to apply the proxies on this URL.
                 return {}
-                
+
     # If the system proxy settings indicate that this URL should be bypassed,
     # don't proxy.
     if proxy_bypass(netloc):
@@ -414,7 +414,7 @@ def get_environ_proxies(url):
     # anywhere that no_proxy applies to, and the system settings don't require
     # bypassing the proxy for the current URL.
     return getproxies()
-    
+
 
 def default_user_agent():
     """Return a string representing the default user agent."""
@@ -546,3 +546,22 @@ def get_auth_from_url(url):
         return (parsed.username, parsed.password)
     else:
         return ('', '')
+
+
+def to_native_string(string, encoding='ascii'):
+    """
+    Given a string object, regardless of type, returns a representation of that
+    string in the native string type, encoding and decoding where necessary.
+    This assumes ASCII unless told otherwise.
+    """
+    out = None
+
+    if isinstance(string, builtin_str):
+        out = string
+    else:
+        if is_py2:
+            out = string.encode(encoding)
+        else:
+            out = string.decode(encoding)
+
+    return out
