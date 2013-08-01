@@ -399,9 +399,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 self.headers['Content-Length'] = str(length)
             else:
                 self.headers['Transfer-Encoding'] = 'chunked'
-        # Check if file, fo, generator, iterator.
-        # If not, run through normal process.
-
         else:
             # Multi-part file uploads.
             if files:
