@@ -25,7 +25,7 @@ from .compat import (quote, urlparse, bytes, str, OrderedDict, urlunparse,
                      is_py2, is_py3, builtin_str, getproxies, proxy_bypass)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
-from .exceptions import MissingSchema
+from .exceptions import MissingSchema, InvalidURL
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -363,7 +363,11 @@ def unquote_unreserved(uri):
     for i in range(1, len(parts)):
         h = parts[i][0:2]
         if len(h) == 2 and h.isalnum():
-            c = chr(int(h, 16))
+            try:
+                c = chr(int(h, 16))
+            except ValueError:
+                raise InvalidURL("Invalid percent-escape sequence: '%s'" % h)
+
             if c in UNRESERVED_SET:
                 parts[i] = c + parts[i][2:]
             else:
