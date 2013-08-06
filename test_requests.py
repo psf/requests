@@ -357,6 +357,12 @@ class RequestsTestCase(unittest.TestCase):
         except ValueError:
             pass
 
+        with open('requirements.txt') as f:
+            try:
+                requests.post(url, data='[{"some": "data"}]', files={'some': f})
+            except ValueError:
+                pass
+
     def test_request_ok_set(self):
         r = requests.get(httpbin('status', '404'))
         self.assertEqual(r.ok, False)
