@@ -11,7 +11,7 @@ import collections
 import logging
 import datetime
 
-from io import BytesIO
+from io import BytesIO, UnsupportedOperation
 from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 
@@ -385,7 +385,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         try:
             length = super_len(data)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, UnsupportedOperation):
             length = None
 
         if is_stream:
