@@ -141,6 +141,9 @@ class RequestHooksMixin(object):
     def register_hook(self, event, hook):
         """Properly register a hook."""
 
+        if event not in self.hooks:
+            raise ValueError('Unsupported event specified, with event name "%s"' % (event))
+
         if isinstance(hook, collections.Callable):
             self.hooks[event].append(hook)
         elif hasattr(hook, '__iter__'):
