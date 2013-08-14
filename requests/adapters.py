@@ -195,8 +195,12 @@ class HTTPAdapter(BaseAdapter):
 
         if proxy:
             except_on_missing_scheme(proxy)
+            proxy_headers = self.proxy_headers(proxy)
+
             if not proxy in self.proxy_manager:
-                self.proxy_manager[proxy] = proxy_from_url(proxy)
+                self.proxy_manager[proxy] = proxy_from_url(
+                                                proxy,
+                                                proxy_headers=proxy_headers)
 
             conn = self.proxy_manager[proxy].connection_from_url(url)
         else:
@@ -236,8 +240,9 @@ class HTTPAdapter(BaseAdapter):
         return url
 
     def add_headers(self, request, **kwargs):
-        """Add any headers needed by the connection. Currently this adds a
-        Proxy-Authorization header.
+        """Add any headers needed by the connection. As of v2.0 this does
+        nothing by default, but is left for overriding by users that subclass
+        the :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         This should not be called from user code, and is only exposed for use
         when subclassing the
@@ -246,12 +251,22 @@ class HTTPAdapter(BaseAdapter):
         :param request: The :class:`PreparedRequest <PreparedRequest>` to add headers to.
         :param kwargs: The keyword arguments from the call to send().
         """
-        proxies = kwargs.get('proxies', {})
+        pass
 
-        if proxies is None:
-            proxies = {}
+    def proxy_headers(self, proxy):
+        """Returns a dictionary of the headers to add to any request sent
+        through a proxy. This works with urllib3 magic to ensure that they are
+        correctly sent to the proxy, rather than in a tunnelled request if
+        CONNECT is being used.
 
-        proxy = proxies.get(urlparse(request.url).scheme)
+        This should not be called from user code, and is only exposed for use
+        when subclassing the
+        :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
+
+        :param proxies: The url of the proxy being used for this request.
+        :param kwargs: Optional additional keyword arguments.
+        """
+        headers = {}
         username, password = get_auth_from_url(proxy)
 
         if username and password:
@@ -259,8 +274,10 @@ class HTTPAdapter(BaseAdapter):
             # to decode them.
             username = unquote(username)
             password = unquote(password)
-            request.headers['Proxy-Authorization'] = _basic_auth_str(username,
-                                                                     password)
+            headers['Proxy-Authorization'] = _basic_auth_str(username,
+                                                             password)
+
+        return headers
 
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
         """Sends PreparedRequest object. Returns Response object.
@@ -277,7 +294,7 @@ class HTTPAdapter(BaseAdapter):
 
         self.cert_verify(conn, request.url, verify, cert)
         url = self.request_url(request, proxies)
-        self.add_headers(request, proxies=proxies)
+        self.add_headers(request)
 
         chunked = not (request.body is None or 'Content-Length' in request.headers)
 
