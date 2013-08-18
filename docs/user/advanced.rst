@@ -217,7 +217,7 @@ argument.
 
 ::
 
-    def print_url(r):
+    def print_url(r, *args, **kwargs):
         print(r.url)
 
 If an error occurs while executing your callback, a warning is given.
