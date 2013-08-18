@@ -388,7 +388,7 @@ seconds with the ``timeout`` parameter::
     requests.exceptions.Timeout: HTTPConnectionPool(host='github.com', port=80): Request timed out. (timeout=0.001)
 
 
-.. admonition:: Note:
+.. admonition:: Note
 
     ``timeout`` only affects the connection process itself, not the
     downloading of the response body.
