@@ -217,7 +217,7 @@ argument.
 
 ::
 
-    def print_url(r):
+    def print_url(r, request, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies):
         print(r.url)
 
 If an error occurs while executing your callback, a warning is given.
