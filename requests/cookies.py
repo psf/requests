@@ -367,12 +367,19 @@ def create_cookie(name, value, **kwargs):
 
 def morsel_to_cookie(morsel):
     """Convert a Morsel object into a Cookie containing the one k/v pair."""
+
+    def is_str(var):
+        try:
+            return isinstance(var, basestring)
+        except NameError:
+            return isinstance(var, str)
+
     expires = None
     if morsel["max-age"]:
         expires = time.time() + morsel["max-age"]
     elif morsel['expires']:
         expires = morsel['expires']
-        if type(expires) == type(""):
+        if is_str(expires):
             time_template = "%a, %d-%b-%Y %H:%M:%S GMT"
             expires = time.mktime(time.strptime(expires, time_template))
     c = create_cookie(
