@@ -28,7 +28,9 @@ CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
 def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
 
-    return 'Basic ' + b64encode(('%s:%s' % (username, password)).encode('latin1')).strip().decode('latin1')
+    return 'Basic ' + b64encode(
+        ('%s:%s' % (username, password)).encode('latin1')
+    ).strip().decode('latin1')
 
 
 class AuthBase(object):
@@ -160,7 +162,9 @@ class HTTPDigestAuth(AuthBase):
             r.content
             r.raw.release_conn()
 
-            r.request.headers['Authorization'] = self.build_digest_header(r.request.method, r.request.url)
+            r.request.headers['Authorization'] = self.build_digest_header(
+                r.request.method, r.request.url
+            )
             _r = r.connection.send(r.request, **kwargs)
             _r.history.append(r)
 

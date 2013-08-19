@@ -244,7 +244,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         dictionary = {}
         for cookie in iter(self):
             if (domain is None or cookie.domain == domain) and (path is None
-                                                or cookie.path == path):
+                                                                or cookie.path == path):
                 dictionary[cookie.name] = cookie.value
         return dictionary
 
@@ -302,9 +302,13 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
             if cookie.name == name:
                 if domain is None or cookie.domain == domain:
                     if path is None or cookie.path == path:
-                        if toReturn is not None:  # if there are multiple cookies that meet passed in criteria
-                            raise CookieConflictError('There are multiple cookies with name, %r' % (name))
-                        toReturn = cookie.value  # we will eventually return this as long as no cookie conflict
+                        if toReturn is not None:
+                            # if there are multiple cookies that meet passed in criteria
+                            raise CookieConflictError(
+                                'There are multiple cookies with name, %r' % (name)
+                            )
+                        # we will eventually return this as long as no cookie conflict
+                        toReturn = cookie.value
 
         if toReturn:
             return toReturn
@@ -367,12 +371,19 @@ def create_cookie(name, value, **kwargs):
 
 def morsel_to_cookie(morsel):
     """Convert a Morsel object into a Cookie containing the one k/v pair."""
+
+    def is_str(var):
+        try:
+            return isinstance(var, basestring)
+        except NameError:
+            return isinstance(var, str)
+
     expires = None
     if morsel["max-age"]:
         expires = time.time() + morsel["max-age"]
     elif morsel['expires']:
         expires = morsel['expires']
-        if type(expires) == type(""):
+        if is_str(expires):
             time_template = "%a, %d-%b-%Y %H:%M:%S GMT"
             expires = time.mktime(time.strptime(expires, time_template))
     c = create_cookie(

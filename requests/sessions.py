@@ -26,10 +26,10 @@ from .utils import requote_uri, get_environ_proxies, get_netrc_auth
 
 from .status_codes import codes
 REDIRECT_STATI = (
-    codes.moved, # 301
-    codes.found, # 302
-    codes.other, # 303
-    codes.temporary_moved, # 307
+    codes.moved,  # 301
+    codes.found,  # 302
+    codes.other,  # 303
+    codes.temporary_moved,  # 307
 )
 DEFAULT_REDIRECT_LIMIT = 30
 
@@ -248,7 +248,6 @@ class Session(SessionRedirectMixin):
         merged_cookies.update(self.cookies)
         merged_cookies.update(cookies)
 
-
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
         if self.trust_env and not auth and not self.auth:
@@ -268,7 +267,8 @@ class Session(SessionRedirectMixin):
         )
         return p
 
-    def request(self, method, url,
+    def request(
+        self, method, url,
         params=None,
         data=None,
         headers=None,
@@ -281,7 +281,8 @@ class Session(SessionRedirectMixin):
         hooks=None,
         stream=None,
         verify=None,
-        cert=None):
+        cert=None,
+    ):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -313,15 +314,15 @@ class Session(SessionRedirectMixin):
         """
         # Create the Request.
         req = Request(
-            method = method.upper(),
-            url = url,
-            headers = headers,
-            files = files,
-            data = data or {},
-            params = params or {},
-            auth = auth,
-            cookies = cookies,
-            hooks = hooks,
+            method=method.upper(),
+            url=url,
+            headers=headers,
+            files=files,
+            data=data or {},
+            params=params or {},
+            auth=auth,
+            cookies=cookies,
+            hooks=hooks,
         )
         prep = self.prepare_request(req)
 
@@ -395,7 +396,9 @@ class Session(SessionRedirectMixin):
         """Sends a POST request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
-        :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
+        :param data:
+            (optional) Dictionary, bytes, or file-like object to send in the body of
+            the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
@@ -405,7 +408,9 @@ class Session(SessionRedirectMixin):
         """Sends a PUT request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
-        :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
+        :param data:
+            (optional) Dictionary, bytes, or file-like object to send in the body of
+            the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
@@ -415,7 +420,9 @@ class Session(SessionRedirectMixin):
         """Sends a PATCH request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
-        :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
+        :param data:
+            (optional) Dictionary, bytes, or file-like object to send in the body of
+            the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 

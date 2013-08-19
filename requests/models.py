@@ -167,7 +167,8 @@ class Request(RequestHooksMixin):
     :param url: URL to send.
     :param headers: dictionary of headers to send.
     :param files: dictionary of {filename: fileobject} files to multipart upload.
-    :param data: the body to attach the request. If a dictionary is provided, form-encoding will take place.
+    :param data:
+        the body to attach the request. If a dictionary is provided, form-encoding will take place.
     :param params: dictionary of URL parameters to append to the URL.
     :param auth: Auth handler or (user, pass) tuple.
     :param cookies: dictionary or CookieJar of cookies to attach to this request.
@@ -181,7 +182,8 @@ class Request(RequestHooksMixin):
       <PreparedRequest [GET]>
 
     """
-    def __init__(self,
+    def __init__(
+        self,
         method=None,
         url=None,
         headers=None,
@@ -190,7 +192,8 @@ class Request(RequestHooksMixin):
         params=dict(),
         auth=None,
         cookies=None,
-        hooks=None):
+        hooks=None,
+    ):
 
         # Default empty dicts for dict params.
         data = [] if data is None else data
@@ -216,7 +219,8 @@ class Request(RequestHooksMixin):
         return '<Request [%s]>' % (self.method)
 
     def prepare(self):
-        """Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it."""
+        """Constructs a :class:`PreparedRequest <PreparedRequest>`
+        for transmission and returns it."""
         p = PreparedRequest()
         p.prepare(
             method=self.method,
@@ -403,13 +407,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             # Multi-part file uploads.
             if files:
                 (body, content_type) = self._encode_files(files, data)
-            else:
-                if data:
-                    body = self._encode_params(data)
-                    if isinstance(data, str) or isinstance(data, builtin_str) or hasattr(data, 'read'):
-                        content_type = None
-                    else:
-                        content_type = 'application/x-www-form-urlencoded'
+            elif data:
+                body = self._encode_params(data)
+                if isinstance(data, str) or isinstance(data, builtin_str) or hasattr(data, 'read'):
+                    content_type = None
+                else:
+                    content_type = 'application/x-www-form-urlencoded'
 
             self.prepare_content_length(body)
 
