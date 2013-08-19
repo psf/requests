@@ -3,9 +3,11 @@
 import requests
 from invoke import run, task
 
+
 @task
 def test():
     run('py.test', pty=True)
+
 
 @task
 def deps():
@@ -22,6 +24,7 @@ def deps():
     run('git clone https://github.com/sigmavirus24/charade.git')
     run('mv charade/charade requests/packages/')
     run('rm -fr charade')
+
 
 @task
 def certs():

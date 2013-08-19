@@ -80,14 +80,22 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(request.path_url, "/get/test%20case")
 
     def test_params_are_added_before_fragment(self):
-        request = requests.Request('GET',
-            "http://example.com/path#fragment", params={"a": "b"}).prepare()
-        self.assertEqual(request.url,
-            "http://example.com/path?a=b#fragment")
-        request = requests.Request('GET',
-            "http://example.com/path?key=value#fragment", params={"a": "b"}).prepare()
-        self.assertEqual(request.url,
-            "http://example.com/path?key=value&a=b#fragment")
+        request = requests.Request(
+            'GET',
+            "http://example.com/path#fragment", params={"a": "b"}
+        ).prepare()
+        self.assertEqual(
+            request.url,
+            "http://example.com/path?a=b#fragment"
+        )
+        request = requests.Request(
+            'GET',
+            "http://example.com/path?key=value#fragment", params={"a": "b"}
+        ).prepare()
+        self.assertEqual(
+            request.url,
+            "http://example.com/path?key=value&a=b#fragment"
+        )
 
     def test_mixed_case_scheme_acceptable(self):
         s = requests.Session()
@@ -136,7 +144,7 @@ class RequestsTestCase(unittest.TestCase):
     def test_set_cookie_on_301(self):
         s = requests.session()
         url = httpbin('cookies/set?foo=bar')
-        r = s.get(url)
+        s.get(url)
         self.assertTrue(s.cookies['foo'] == 'bar')
 
     def test_cookie_sent_on_redirect(self):
@@ -152,8 +160,7 @@ class RequestsTestCase(unittest.TestCase):
         s.get(
             httpbin('response-headers'),
             params={
-                'Set-Cookie':
-                    'foo=deleted; expires=Thu, 01-Jan-1970 00:00:01 GMT'
+                'Set-Cookie': 'foo=deleted; expires=Thu, 01-Jan-1970 00:00:01 GMT'
             }
         )
         assert 'foo' not in s.cookies
@@ -181,13 +188,13 @@ class RequestsTestCase(unittest.TestCase):
         assert r.json()['cookies']['foo'] == 'bar'
         # Make sure the session cj is still the custom one
         assert s.cookies is cj
-    
+
     def test_requests_in_history_are_not_overridden(self):
         resp = requests.get(httpbin('redirect/3'))
         urls = [r.url for r in resp.history]
         req_urls = [r.request.url for r in resp.history]
         self.assertEquals(urls, req_urls)
-        
+
     def test_user_agent_transfers(self):
 
         heads = {
@@ -245,7 +252,7 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 401)
 
         s = requests.session()
-        
+
         # Should use netrc and work.
         r = s.get(url)
         self.assertEqual(r.status_code, 200)
@@ -281,7 +288,6 @@ class RequestsTestCase(unittest.TestCase):
 
         r = requests.get(url, auth=auth, stream=False)
         self.assertEqual(r.raw.read(), b'')
-
 
     def test_DIGESTAUTH_WRONG_HTTP_401_GET(self):
 
@@ -363,7 +369,13 @@ class RequestsTestCase(unittest.TestCase):
         requests.get(httpbin('ø'), params={'foo': 'foo'})
 
     def test_unicode_header_name(self):
-        requests.put(httpbin('put'), headers={str('Content-Type'): 'application/octet-stream'}, data='\xff') # compat.str is unicode.
+        requests.put(
+            httpbin('put'),
+            headers={
+                str('Content-Type'): 'application/octet-stream'  # compat.str is unicode.
+            },
+            data='\xff'
+        )
 
     def test_urlencoded_get_query_multivalued_param(self):
 
@@ -628,7 +640,6 @@ class RequestsTestCase(unittest.TestCase):
         r = s.get(httpbin('get'), params={'FOO': 'bar'})
         assert r.json()['args'] == {'foo': 'bar', 'FOO': 'bar'}
 
-
     def test_long_authinfo_in_url(self):
         url = 'http://{0}:{1}@{2}:9000/path?query#frag'.format(
             'E8A3BE87-9E3F-4620-8858-95478E385B5B',
@@ -642,7 +653,7 @@ class RequestsTestCase(unittest.TestCase):
 class TestCaseInsensitiveDict(unittest.TestCase):
 
     def test_mapping_init(self):
-        cid = CaseInsensitiveDict({'Foo': 'foo','BAr': 'bar'})
+        cid = CaseInsensitiveDict({'Foo': 'foo', 'BAr': 'bar'})
         self.assertEqual(len(cid), 2)
         self.assertTrue('foo' in cid)
         self.assertTrue('bar' in cid)
@@ -716,7 +727,7 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         cid['spam'] = 'blueval'
         cid.update({'sPam': 'notblueval'})
         self.assertEqual(cid['spam'], 'notblueval')
-        cid = CaseInsensitiveDict({'Foo': 'foo','BAr': 'bar'})
+        cid = CaseInsensitiveDict({'Foo': 'foo', 'BAr': 'bar'})
         cid.update({'fOO': 'anotherfoo', 'bAR': 'anotherbar'})
         self.assertEqual(len(cid), 2)
         self.assertEqual(cid['foo'], 'anotherfoo')

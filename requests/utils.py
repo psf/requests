@@ -393,18 +393,18 @@ def get_environ_proxies(url):
     # we're getting isn't in the no_proxy list.
     no_proxy = get_proxy('no_proxy')
     netloc = urlparse(url).netloc
-    
+
     if no_proxy:
         # We need to check whether we match here. We need to see if we match
         # the end of the netloc, both with and without the port.
         no_proxy = no_proxy.split(',')
-        
+
         for host in no_proxy:
             if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
                 # The URL does match something in no_proxy, so we don't want
                 # to apply the proxies on this URL.
                 return {}
-                
+
     # If the system proxy settings indicate that this URL should be bypassed,
     # don't proxy.
     if proxy_bypass(netloc):
@@ -414,7 +414,7 @@ def get_environ_proxies(url):
     # anywhere that no_proxy applies to, and the system settings don't require
     # bypassing the proxy for the current URL.
     return getproxies()
-    
+
 
 def default_user_agent():
     """Return a string representing the default user agent."""
@@ -427,7 +427,9 @@ def default_user_agent():
                                                 sys.pypy_version_info.minor,
                                                 sys.pypy_version_info.micro)
         if sys.pypy_version_info.releaselevel != 'final':
-            _implementation_version = ''.join([_implementation_version, sys.pypy_version_info.releaselevel])
+            _implementation_version = ''.join(
+                [_implementation_version, sys.pypy_version_info.releaselevel]
+            )
     elif _implementation == 'Jython':
         _implementation_version = platform.python_version()  # Complete Guess
     elif _implementation == 'IronPython':
@@ -458,7 +460,8 @@ def default_headers():
 def parse_header_links(value):
     """Return a dict of parsed link headers proxies.
 
-    i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
+    i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",
+    <http://.../back.jpeg>; rel=back;type="image/jpeg"
 
     """
 
