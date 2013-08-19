@@ -3,6 +3,47 @@
 History
 -------
 
+2.0.0 (2013-XX-XX)
+++++++++++++++++++
+
+**API Changes:**
+
+- Keys in the Headers dictionary are now native strings on all Python versions,
+  i.e. bytestrings on Python 2, unicode on Python 3.
+- Proxy URLs now *must* have an explicit scheme. A ``MissingSchema`` exception
+  will be raised if they don't.
+- Added new method to ``PreparedRequest`` objects: ``PreparedRequest.copy()``.
+- Added new method to ``Session`` objects: ``Session.update_request()``. This
+  method updates a ``Request`` object with the data (e.g. cookies) stored on
+  the ``Session``.
+- Added new method to ``Session`` objects: ``Session.prepare_request()``. This
+  method updates and prepares a ``Request`` object, and returns the
+  corresponding ``PreparedRequest`` object.
+- Added new method to ``HTTPAdapter`` objects: ``HTTPAdapter.proxy_headers()``.
+  This should not be called directly, but improves the subclass interface.
+- ``httplib.IncompleteRead`` exceptions caused by incorrect chunked encoding
+  will now raise a Requests ``ChunkedEncodingError`` instead.
+- Invalid percent-escape sequences now cause a Requests ``InvalidURL``
+  exception to be raised.
+- HTTP 208 no longer uses reason phrase ``"im_used"``. Correctly uses
+  ``"already_reported"``.
+- HTTP 226 reason added (``"im_used"``).
+
+**Bugfixes:**
+
+- Vastly improved proxy support, including the CONNECT verb. Special thanks to
+  the many contributors who worked towards this improvement.
+- Chunked encoding fixes.
+- Support for mixed case schemes.
+- Retrieve environment proxies from more locations.
+- Minor cookies fixes.
+- Improved streaming behaviour, particularly for compressed data.
+- Miscellaneous small Python 3 text encoding bugs.
+- ``.netrc`` no longer overrides explicit auth.
+- Cookies set by hooks are now correctly persisted on Sessions.
+- Fix problem with cookies that specify port numbers in their host field.
+- ``BytesIO`` can be used to perform streaming uploads.
+
 1.2.3 (2013-05-25)
 ++++++++++++++++++
 
