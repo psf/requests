@@ -73,7 +73,7 @@ class SessionRedirectMixin(object):
         i = 0
 
         # ((resp.status_code is codes.see_other))
-        while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
+        while (('location' in resp.headers and resp.headers['location'] != resp.url and resp.status_code in REDIRECT_STATI)):
             prepared_request = PreparedRequest()
             prepared_request.body = req.body
             prepared_request.headers = req.headers.copy()
