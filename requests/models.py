@@ -106,6 +106,10 @@ class RequestEncodingMixin(object):
                 val = [val]
             for v in val:
                 if v is not None:
+                    # Don't call str() on bytestrings: in Py3 it all goes wrong.
+                    if not isinstance(v, bytes):
+                        v = str(v)
+
                     new_fields.append(
                         (field.decode('utf-8') if isinstance(field, bytes) else field,
                          v.encode('utf-8') if isinstance(v, str) else v))

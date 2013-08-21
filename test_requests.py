@@ -663,6 +663,14 @@ class RequestsTestCase(unittest.TestCase):
         self.assertTrue('unicode' in p.headers.keys())
         self.assertTrue('byte' in p.headers.keys())
 
+    def test_can_send_nonstring_objects_with_files(self):
+        data = {'a': 0.0}
+        files = {'b': 'foo'}
+        r = requests.Request('POST', httpbin('post'), data=data, files=files)
+        p = r.prepare()
+
+        self.assertTrue('multipart/form-data' in p.headers['Content-Type'])
+
 
 class TestCaseInsensitiveDict(unittest.TestCase):
 
