@@ -402,7 +402,7 @@ def get_environ_proxies(url):
     if no_proxy:
         # We need to check whether we match here. We need to see if we match
         # the end of the netloc, both with and without the port.
-        no_proxy = no_proxy.split(',')
+        no_proxy = no_proxy.replace(' ', '').split(',')
 
         for host in no_proxy:
             if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
