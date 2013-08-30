@@ -1,1 +1,2 @@
 include README.rst LICENSE NOTICE HISTORY.rst test_requests.py requirements.txt requests/cacert.pem
+recursive-include docs
