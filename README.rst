@@ -54,6 +54,7 @@ Features
 - Multipart File Uploads
 - Connection Timeouts
 - Thread-safety
+- HTTP(S) proxy support
 
 
 Installation
