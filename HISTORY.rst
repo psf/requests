@@ -12,6 +12,7 @@ History
   i.e. bytestrings on Python 2, unicode on Python 3.
 - Proxy URLs now *must* have an explicit scheme. A ``MissingSchema`` exception
   will be raised if they don't.
+- ``RequestException`` is now a subclass of ``IOError``, not ``RuntimeError``.
 - Added new method to ``PreparedRequest`` objects: ``PreparedRequest.copy()``.
 - Added new method to ``Session`` objects: ``Session.update_request()``. This
   method updates a ``Request`` object with the data (e.g. cookies) stored on
@@ -43,6 +44,8 @@ History
 - Cookies set by hooks are now correctly persisted on Sessions.
 - Fix problem with cookies that specify port numbers in their host field.
 - ``BytesIO`` can be used to perform streaming uploads.
+- More generous parsing of the ``no_proxy`` environment variable.
+- Non-string objects can be passed in data values alongside files.
 
 1.2.3 (2013-05-25)
 ++++++++++++++++++
