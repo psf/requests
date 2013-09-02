@@ -191,7 +191,7 @@ class HTTPResponse(io.IOBase):
                     "failed to decode it." % content_encoding,
                     e)
 
-            if flush_decoder and self._decoder:
+            if flush_decoder and decode_content and self._decoder:
                 buf = self._decoder.decompress(binary_type())
                 data += buf + self._decoder.flush()
 

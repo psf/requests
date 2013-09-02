@@ -11,7 +11,7 @@ import collections
 import logging
 import datetime
 
-from io import BytesIO
+from io import BytesIO, UnsupportedOperation
 from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 
@@ -20,12 +20,12 @@ from .cookies import cookiejar_from_dict, get_cookie_header
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
 from .exceptions import (
-    HTTPError, RequestException, MissingSchema, InvalidURL,
+    HTTPError, RequestException, MissingScheme, InvalidURL,
     ChunkedEncodingError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len)
+    iter_slices, guess_json_utf, super_len, to_native_string)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring, IncompleteRead)
@@ -312,7 +312,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         scheme, auth, host, port, path, query, fragment = parse_url(url)
 
         if not scheme:
-            raise MissingSchema("Invalid URL %r: No schema supplied" % url)
+            raise MissingScheme("Invalid URL %r: No scheme supplied" % url)
 
         if not host:
             raise InvalidURL("Invalid URL %r: No host supplied" % url)
@@ -361,8 +361,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepares the given HTTP headers."""
 
         if headers:
-            headers = dict((name.encode('ascii'), value) for name, value in headers.items())
-            self.headers = CaseInsensitiveDict(headers)
+            self.headers = CaseInsensitiveDict((to_native_string(name), value) for name, value in headers.items())
         else:
             self.headers = CaseInsensitiveDict()
 
@@ -386,7 +385,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         try:
             length = super_len(data)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, UnsupportedOperation):
             length = None
 
         if is_stream:
