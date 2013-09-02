@@ -117,6 +117,8 @@ class VerifiedHTTPSConnection(HTTPSConnection):
                 match_hostname(self.sock.getpeercert(),
                                self.assert_hostname or self.host)
 
+
+
 ## Pool objects
 
 class ConnectionPool(object):
@@ -129,7 +131,7 @@ class ConnectionPool(object):
     QueueCls = LifoQueue
 
     def __init__(self, host, port=None):
-        self.host = host
+        self.host = host.strip('[]')
         self.port = port
 
     def __str__(self):
