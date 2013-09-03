@@ -639,6 +639,50 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.url, url)
 
 
+class TestContentEncodingDetection(unittest.TestCase):
+
+    def test_none(self):
+        encodings = requests.utils.get_encodings_from_content('')
+        self.assertEqual(len(encodings), 0)
+
+    def test_html_charset(self):
+        """HTML5 meta charset attribute"""
+        content = '<meta charset="UTF-8">'
+        encodings = requests.utils.get_encodings_from_content(content)
+        self.assertEqual(len(encodings), 1)
+        self.assertEqual(encodings[0], 'UTF-8')
+
+    def test_html4_pragma(self):
+        """HTML4 pragma directive"""
+        content = '<meta http-equiv="Content-type" content="text/html;charset=UTF-8">'
+        encodings = requests.utils.get_encodings_from_content(content)
+        self.assertEqual(len(encodings), 1)
+        self.assertEqual(encodings[0], 'UTF-8')
+
+    def test_xhtml_pragma(self):
+        """XHTML 1.x served with text/html MIME type"""
+        content = '<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />'
+        encodings = requests.utils.get_encodings_from_content(content)
+        self.assertEqual(len(encodings), 1)
+        self.assertEqual(encodings[0], 'UTF-8')
+
+    def test_xml(self):
+        """XHTML 1.x served as XML"""
+        content = '<?xml version="1.0" encoding="UTF-8"?>'
+        encodings = requests.utils.get_encodings_from_content(content)
+        self.assertEqual(len(encodings), 1)
+        self.assertEqual(encodings[0], 'UTF-8')
+
+    def test_precedence(self):
+        content = '''
+        <?xml version="1.0" encoding="XML"?>
+        <meta charset="HTML5">
+        <meta http-equiv="Content-type" content="text/html;charset=HTML4" />
+        '''.strip()
+        encodings = requests.utils.get_encodings_from_content(content)
+        self.assertEqual(encodings, ['HTML5', 'HTML4', 'XML'])
+
+
 class TestCaseInsensitiveDict(unittest.TestCase):
 
     def test_mapping_init(self):
