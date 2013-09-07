@@ -391,7 +391,7 @@ seconds with the ``timeout`` parameter::
 .. admonition:: Note
 
     ``timeout`` is not a time limit on the entire response download;
-    rather, an exception is raised if the server does has not issued a
+    rather, an exception is raised if the server has not issued a
     response for ``timeout`` seconds (more precisely, if no bytes have been
     received on the underlying socket for ``timeout`` seconds).
 
