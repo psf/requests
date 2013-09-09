@@ -15,7 +15,8 @@ from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
 from .packages.urllib3.response import HTTPResponse
 from .compat import urlparse, basestring, urldefrag, unquote
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
-                    except_on_missing_scheme, get_auth_from_url)
+                    except_on_missing_scheme, get_auth_from_url,
+                    get_strerror_and_errno)
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import (MaxRetryError, TimeoutError,
                                           ClosedPoolError)
@@ -354,7 +355,7 @@ class HTTPAdapter(BaseAdapter):
             if isinstance(e, _SSLError):
                 raise SSLError(e.message)
             elif isinstance(e, TimeoutError):
-                raise Timeout(e.message)
+                raise Timeout(*get_strerror_and_errno(e.message))
             else:
                 raise
 
