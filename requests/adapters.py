@@ -17,8 +17,8 @@ from .compat import urlparse, basestring, urldefrag, unquote
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     except_on_missing_scheme, get_auth_from_url)
 from .structures import CaseInsensitiveDict
-from .packages.urllib3.exceptions import MaxRetryError
-from .packages.urllib3.exceptions import TimeoutError
+from .packages.urllib3.exceptions import (MaxRetryError, TimeoutError,
+                                          ClosedPoolError)
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .cookies import extract_cookies_to_jar
@@ -346,6 +346,9 @@ class HTTPAdapter(BaseAdapter):
 
         except MaxRetryError as e:
             raise ConnectionError(e.reason)
+
+        except ClosedPoolError as e:
+            raise ConnectionError(e.message)
 
         except (_SSLError, _HTTPError) as e:
             if isinstance(e, _SSLError):
