@@ -25,7 +25,7 @@ from .exceptions import (
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len)
+    iter_slices, guess_json_utf, super_len, get_encodings_from_content)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring, IncompleteRead)
@@ -640,16 +640,19 @@ class Response(object):
         will be guessed.
         """
 
-        # Try charset from content-type
-        content = None
-        encoding = self.encoding
-
         if not self.content:
             return str('')
 
-        # Fallback to auto-detected encoding.
-        if self.encoding is None:
-            encoding = self.apparent_encoding
+        # Try charset from content-type header first
+        encoding = self.encoding
+        if encoding is None:
+            encodings = get_encodings_from_content(self.content)
+            if len(encodings) > 0:
+                encoding = encodings[0]
+            else:
+                encoding = self.apparent_encoding
+                if encoding is None:
+                    encoding = 'utf-8'
 
         # Decode unicode from given encoding.
         try:
