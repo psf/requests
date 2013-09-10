@@ -156,7 +156,7 @@ class SessionRedirectMixin(object):
 class Session(SessionRedirectMixin):
     """A Requests session.
 
-    Provides cookie persistience, connection-pooling, and configuration.
+    Provides cookie persistence, connection-pooling, and configuration.
 
     Basic Usage::
 
