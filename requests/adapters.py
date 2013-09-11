@@ -184,7 +184,7 @@ class HTTPAdapter(BaseAdapter):
     def get_connection(self, url, proxies=None):
         """Returns a urllib3 connection for the given URL. This should not be
         called from user code, and is only exposed for use when subclassing the
-        :class:`HTTPAdapter <reqeusts.adapters.HTTPAdapter>`.
+        :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         :param url: The URL to connect to.
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
