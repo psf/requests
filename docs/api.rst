@@ -147,13 +147,14 @@ API Changes
 
 * The parameter for streaming requests was changed from ``prefetch`` to
   ``stream`` and the logic was inverted. In addition, ``stream`` is now
-  required for raw response reading.
+  required for chunked response reading.
 
   ::
 
       # in 0.x, passing prefetch=False would accomplish the same thing
       r = requests.get('https://github.com/timeline.json', stream=True)
-      r.raw.read(10)
+      for chunk in r.iter_content(8192):
+          ...
 
 * The ``config`` parameter to the requests method has been removed. Some of
   these options are now configured on a ``Session`` such as keep-alive and
@@ -170,13 +171,13 @@ API Changes
       # the only thing missing will be the response.body which is not logged.
       import httplib
       httplib.HTTPConnection.debuglevel = 1
-      
+
       logging.basicConfig() # you need to initialize logging, otherwise you will not see anything from requests
       logging.getLogger().setLevel(logging.DEBUG)
       requests_log = logging.getLogger("requests.packages.urllib3")
       requests_log.setLevel(logging.DEBUG)
       requests_log.propagate = True
-      
+
       requests.get('http://httpbin.org/headers')
 
 

@@ -161,7 +161,7 @@ At this point only the response headers have been downloaded and the connection 
       content = r.content
       ...
 
-You can further control the workflow by use of the :class:`Response.iter_content` and :class:`Response.iter_lines` methods, or reading from the underlying urllib3 :class:`urllib3.HTTPResponse` at :class:`Response.raw`.
+You can further control the workflow by use of the :class:`Response.iter_content` and :class:`Response.iter_lines` methods.
 
 
 Keep-Alive
