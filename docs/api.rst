@@ -147,7 +147,7 @@ API Changes
 
 * The parameter for streaming requests was changed from ``prefetch`` to
   ``stream`` and the logic was inverted. In addition, ``stream`` is now
-  required for chunked response reading.
+  required for raw response reading.
 
   ::
 
