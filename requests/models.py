@@ -193,8 +193,8 @@ class Request(RequestHooksMixin):
         url=None,
         headers=None,
         files=None,
-        data=dict(),
-        params=dict(),
+        data=None,
+        params=None,
         auth=None,
         cookies=None,
         hooks=None):
