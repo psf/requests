@@ -108,7 +108,7 @@ class HTTPAdapter(BaseAdapter):
         self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize,
                                        block=block)
 
-    def cert_verify(self, conn, url, verify, cert):
+    def cert_verify(self, conn, url, verify, cert, assert_hostname):
         """Verify a SSL certificate. This method should not be called from user
         code, and is only exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
@@ -117,6 +117,7 @@ class HTTPAdapter(BaseAdapter):
         :param url: The requested URL.
         :param verify: Whether we should actually verify the certificate.
         :param cert: The SSL certificate to verify.
+        :param assert_hostname: The expected SSL CN to verify.
         """
         if url.lower().startswith('https') and verify:
 
@@ -134,6 +135,8 @@ class HTTPAdapter(BaseAdapter):
 
             conn.cert_reqs = 'CERT_REQUIRED'
             conn.ca_certs = cert_loc
+            if assert_hostname is not None:
+                conn.assert_hostname = assert_hostname
         else:
             conn.cert_reqs = 'CERT_NONE'
             conn.ca_certs = None
@@ -258,7 +261,7 @@ class HTTPAdapter(BaseAdapter):
             request.headers['Proxy-Authorization'] = _basic_auth_str(username,
                                                                      password)
 
-    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
+    def send(self, request, stream=False, timeout=None, verify=True, cert=None, assert_hostname=None, proxies=None):
         """Sends PreparedRequest object. Returns Response object.
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
@@ -266,12 +269,13 @@ class HTTPAdapter(BaseAdapter):
         :param timeout: (optional) The timeout on the request.
         :param verify: (optional) Whether to verify SSL certificates.
         :param vert: (optional) Any user-provided SSL certificate to be trusted.
+        :param assert_hostname (optional): The expected SSL CN to verify.
         :param proxies: (optional) The proxies dictionary to apply to the request.
         """
 
         conn = self.get_connection(request.url, proxies)
 
-        self.cert_verify(conn, request.url, verify, cert)
+        self.cert_verify(conn, request.url, verify, cert, assert_hostname)
         url = self.request_url(request, proxies)
         self.add_headers(request, proxies=proxies)
 
