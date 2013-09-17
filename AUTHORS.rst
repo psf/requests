@@ -134,3 +134,4 @@ Patches and Suggestions
 - Flavio Curella
 - David Pursehouse <david.pursehouse@gmail.com> @dpursehouse
 - Marc Schlaich @schlamar
+- Boris Figovsky @borfig
