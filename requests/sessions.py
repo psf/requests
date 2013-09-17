@@ -168,7 +168,7 @@ class Session(SessionRedirectMixin):
 
     __attrs__ = [
         'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
-        'params', 'verify', 'cert', 'prefetch', 'adapters', 'stream',
+        'params', 'verify', 'cert', 'assert_hostname', 'prefetch', 'adapters', 'stream',
         'trust_env', 'max_redirects']
 
     def __init__(self):
@@ -203,6 +203,9 @@ class Session(SessionRedirectMixin):
 
         #: SSL certificate default.
         self.cert = None
+
+        #: SSL CN to verify.
+        self.assert_hostname = None
 
         #: Maximum number of redirects allowed. If the request exceeds this
         #: limit, a :class:`TooManyRedirects` exception is raised.
@@ -281,7 +284,8 @@ class Session(SessionRedirectMixin):
         hooks=None,
         stream=None,
         verify=None,
-        cert=None):
+        cert=None,
+        assert_hostname=None):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -310,6 +314,8 @@ class Session(SessionRedirectMixin):
             A CA_BUNDLE path can also be provided.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
+        :param assert_hostname (optional) if String, the expected CN of the
+            server certificate. if False, disable server verification.
         """
         # Create the Request.
         req = Request(
@@ -347,6 +353,7 @@ class Session(SessionRedirectMixin):
         stream = merge_setting(stream, self.stream)
         verify = merge_setting(verify, self.verify)
         cert = merge_setting(cert, self.cert)
+        assert_hostname = merge_setting(assert_hostname, self.assert_hostname)
 
         # Send the request.
         send_kwargs = {
@@ -354,6 +361,7 @@ class Session(SessionRedirectMixin):
             'timeout': timeout,
             'verify': verify,
             'cert': cert,
+            'assert_hostname': assert_hostname,
             'proxies': proxies,
             'allow_redirects': allow_redirects,
         }
