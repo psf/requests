@@ -13,7 +13,7 @@ except ImportError:
 
 from ._collections import RecentlyUsedContainer
 from .connectionpool import HTTPConnectionPool, HTTPSConnectionPool
-from .connectionpool import connection_from_url, port_by_scheme
+from .connectionpool import port_by_scheme
 from .request import RequestMethods
 from .util import parse_url
 
@@ -60,6 +60,8 @@ class PoolManager(RequestMethods):
 
     """
 
+    proxy = None
+
     def __init__(self, num_pools=10, headers=None, **connection_pool_kw):
         RequestMethods.__init__(self, headers)
         self.connection_pool_kw = connection_pool_kw
@@ -99,21 +101,23 @@ class PoolManager(RequestMethods):
         If ``port`` isn't given, it will be derived from the ``scheme`` using
         ``urllib3.connectionpool.port_by_scheme``.
         """
+
         scheme = scheme or 'http'
+
         port = port or port_by_scheme.get(scheme, 80)
 
         pool_key = (scheme, host, port)
 
         with self.pools.lock:
-          # If the scheme, host, or port doesn't match existing open connections,
-          # open a new ConnectionPool.
-          pool = self.pools.get(pool_key)
-          if pool:
-              return pool
+            # If the scheme, host, or port doesn't match existing open
+            # connections, open a new ConnectionPool.
+            pool = self.pools.get(pool_key)
+            if pool:
+                return pool
 
-          # Make a fresh ConnectionPool of the desired type
-          pool = self._new_pool(scheme, host, port)
-          self.pools[pool_key] = pool
+            # Make a fresh ConnectionPool of the desired type
+            pool = self._new_pool(scheme, host, port)
+            self.pools[pool_key] = pool
         return pool
 
     def connection_from_url(self, url):
@@ -145,7 +149,10 @@ class PoolManager(RequestMethods):
         if 'headers' not in kw:
             kw['headers'] = self.headers
 
-        response = conn.urlopen(method, u.request_uri, **kw)
+        if self.proxy is not None and u.scheme == "http":
+            response = conn.urlopen(method, url, **kw)
+        else:
+            response = conn.urlopen(method, u.request_uri, **kw)
 
         redirect_location = redirect and response.get_redirect_location()
         if not redirect_location:
@@ -164,15 +171,59 @@ class PoolManager(RequestMethods):
         return self.urlopen(method, redirect_location, **kw)
 
 
-class ProxyManager(RequestMethods):
+class ProxyManager(PoolManager):
     """
-    Given a ConnectionPool to a proxy, the ProxyManager's ``urlopen`` method
-    will make requests to any url through the defined proxy. The ProxyManager
-    class will automatically set the 'Host' header if it is not provided.
+    Behaves just like :class:`PoolManager`, but sends all requests through
+    the defined proxy, using the CONNECT method for HTTPS URLs.
+
+    :param poxy_url:
+        The URL of the proxy to be used.
+
+    :param proxy_headers:
+        A dictionary contaning headers that will be sent to the proxy. In case
+        of HTTP they are being sent with each request, while in the
+        HTTPS/CONNECT case they are sent only once. Could be used for proxy
+        authentication.
+
+    Example:
+        >>> proxy = urllib3.ProxyManager('http://localhost:3128/')
+        >>> r1 = proxy.request('GET', 'http://google.com/')
+        >>> r2 = proxy.request('GET', 'http://httpbin.org/')
+        >>> len(proxy.pools)
+        1
+        >>> r3 = proxy.request('GET', 'https://httpbin.org/')
+        >>> r4 = proxy.request('GET', 'https://twitter.com/')
+        >>> len(proxy.pools)
+        3
+
     """
 
-    def __init__(self, proxy_pool):
-        self.proxy_pool = proxy_pool
+    def __init__(self, proxy_url, num_pools=10, headers=None,
+                 proxy_headers=None, **connection_pool_kw):
+
+        if isinstance(proxy_url, HTTPConnectionPool):
+            proxy_url = '%s://%s:%i' % (proxy_url.scheme, proxy_url.host,
+                                        proxy_url.port)
+        proxy = parse_url(proxy_url)
+        if not proxy.port:
+            port = port_by_scheme.get(proxy.scheme, 80)
+            proxy = proxy._replace(port=port)
+        self.proxy = proxy
+        self.proxy_headers = proxy_headers or {}
+        assert self.proxy.scheme in ("http", "https"), \
+            'Not supported proxy scheme %s' % self.proxy.scheme
+        connection_pool_kw['_proxy'] = self.proxy
+        connection_pool_kw['_proxy_headers'] = self.proxy_headers
+        super(ProxyManager, self).__init__(
+            num_pools, headers, **connection_pool_kw)
+
+    def connection_from_host(self, host, port=None, scheme='http'):
+        if scheme == "https":
+            return super(ProxyManager, self).connection_from_host(
+                host, port, scheme)
+
+        return super(ProxyManager, self).connection_from_host(
+            self.proxy.host, self.proxy.port, self.proxy.scheme)
 
     def _set_proxy_headers(self, url, headers=None):
         """
@@ -187,16 +238,22 @@ class ProxyManager(RequestMethods):
 
         if headers:
             headers_.update(headers)
-
         return headers_
 
-    def urlopen(self, method, url, **kw):
+    def urlopen(self, method, url, redirect=True, **kw):
         "Same as HTTP(S)ConnectionPool.urlopen, ``url`` must be absolute."
-        kw['assert_same_host'] = False
-        kw['headers'] = self._set_proxy_headers(url, headers=kw.get('headers'))
-        return self.proxy_pool.urlopen(method, url, **kw)
+        u = parse_url(url)
+
+        if u.scheme == "http":
+            # It's too late to set proxy headers on per-request basis for
+            # tunnelled HTTPS connections, should use
+            # constructor's proxy_headers instead.
+            kw['headers'] = self._set_proxy_headers(url, kw.get('headers',
+                                                                self.headers))
+            kw['headers'].update(self.proxy_headers)
+
+        return super(ProxyManager, self).urlopen(method, url, redirect, **kw)
 
 
-def proxy_from_url(url, **pool_kw):
-    proxy_pool = connection_from_url(url, **pool_kw)
-    return ProxyManager(proxy_pool)
+def proxy_from_url(url, **kw):
+    return ProxyManager(proxy_url=url, **kw)

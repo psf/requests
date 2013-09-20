@@ -12,6 +12,7 @@ from io import BytesIO
 
 from .packages import six
 from .packages.six import b
+from .fields import RequestField
 
 writer = codecs.lookup('utf-8')[3]
 
@@ -23,15 +24,38 @@ def choose_boundary():
     return uuid4().hex
 
 
-def get_content_type(filename):
-    return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+def iter_field_objects(fields):
+    """
+    Iterate over fields.
+
+    Supports list of (k, v) tuples and dicts, and lists of
+    :class:`~urllib3.fields.RequestField`.
+
+    """
+    if isinstance(fields, dict):
+        i = six.iteritems(fields)
+    else:
+        i = iter(fields)
+
+    for field in i:
+      if isinstance(field, RequestField):
+        yield field
+      else:
+        yield RequestField.from_tuples(*field)
 
 
 def iter_fields(fields):
     """
     Iterate over fields.
 
+    .. deprecated ::
+
+      The addition of `~urllib3.fields.RequestField` makes this function
+      obsolete. Instead, use :func:`iter_field_objects`, which returns
+      `~urllib3.fields.RequestField` objects, instead.
+
     Supports list of (k, v) tuples and dicts.
+
     """
     if isinstance(fields, dict):
         return ((k, v) for k, v in six.iteritems(fields))
@@ -44,15 +68,7 @@ def encode_multipart_formdata(fields, boundary=None):
     Encode a dictionary of ``fields`` using the multipart/form-data MIME format.
 
     :param fields:
-        Dictionary of fields or list of (key, value) or (key, value, MIME type)
-        field tuples.  The key is treated as the field name, and the value as
-        the body of the form-data bytes. If the value is a tuple of two
-        elements, then the first element is treated as the filename of the
-        form-data section and a suitable MIME type is guessed based on the
-        filename. If the value is a tuple of three elements, then the third
-        element is treated as an explicit MIME type of the form-data section.
-
-        Field names and filenames must be unicode.
+        Dictionary of fields or list of (key, :class:`~urllib3.fields.RequestField`).
 
     :param boundary:
         If not specified, then a random boundary will be generated using
@@ -62,24 +78,11 @@ def encode_multipart_formdata(fields, boundary=None):
     if boundary is None:
         boundary = choose_boundary()
 
-    for fieldname, value in iter_fields(fields):
+    for field in iter_field_objects(fields):
         body.write(b('--%s\r\n' % (boundary)))
 
-        if isinstance(value, tuple):
-            if len(value) == 3:
-                filename, data, content_type = value
-            else:
-                filename, data = value
-                content_type = get_content_type(filename)
-            writer(body).write('Content-Disposition: form-data; name="%s"; '
-                               'filename="%s"\r\n' % (fieldname, filename))
-            body.write(b('Content-Type: %s\r\n\r\n' %
-                       (content_type,)))
-        else:
-            data = value
-            writer(body).write('Content-Disposition: form-data; name="%s"\r\n'
-                               % (fieldname))
-            body.write(b'\r\n')
+        writer(body).write(field.render_headers())
+        data = field.data
 
         if isinstance(data, int):
             data = str(data)  # Backwards compatibility

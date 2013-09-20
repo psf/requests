@@ -74,6 +74,7 @@ class HTTPResponse(io.IOBase):
     """
 
     CONTENT_DECODERS = ['gzip', 'deflate']
+    REDIRECT_STATUSES = [301, 302, 303, 307, 308]
 
     def __init__(self, body='', headers=None, status=0, version=0, reason=None,
                  strict=0, preload_content=True, decode_content=True,
@@ -107,7 +108,7 @@ class HTTPResponse(io.IOBase):
             code and valid location. ``None`` if redirect status and no
             location. ``False`` if not a redirect status code.
         """
-        if self.status in [301, 302, 303, 307]:
+        if self.status in self.REDIRECT_STATUSES:
             return self.headers.get('location')
 
         return False
@@ -191,7 +192,7 @@ class HTTPResponse(io.IOBase):
                     "failed to decode it." % content_encoding,
                     e)
 
-            if flush_decoder and self._decoder:
+            if flush_decoder and decode_content and self._decoder:
                 buf = self._decoder.decompress(binary_type())
                 data += buf + self._decoder.flush()
 
