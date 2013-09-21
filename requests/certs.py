@@ -12,13 +12,13 @@ environment, you can change the definition of where() to return a separately
 packaged CA bundle.
 """
 
-import os.path
+from pkg_resources import resource_string
 
 
 def where():
     """Return the preferred certificate bundle."""
     # vendored bundle inside Requests
-    return os.path.join(os.path.dirname(__file__), 'cacert.pem')
+    return resource_string(__name__, "cacert.pem")
 
 if __name__ == '__main__':
     print(where())
