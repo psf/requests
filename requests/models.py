@@ -10,7 +10,6 @@ This module contains the primary objects that power Requests.
 import collections
 import logging
 import datetime
-import types
 
 from io import BytesIO
 from .hooks import default_hooks
@@ -404,7 +403,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             # Multi-part file uploads.
             if files:
                 for key, val in data.items():
-                    if type(val) != types.StringType:
+                    if type(val) is not str:
                         data[key] = str(val)
                 (body, content_type) = self._encode_files(files, data)
             else:
