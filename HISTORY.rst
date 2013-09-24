@@ -12,6 +12,7 @@ History
   i.e. bytestrings on Python 2, unicode on Python 3.
 - Proxy URLs now *must* have an explicit scheme. A ``MissingSchema`` exception
   will be raised if they don't.
+- Timeouts now apply to read time if ``Stream=False``.
 - ``RequestException`` is now a subclass of ``IOError``, not ``RuntimeError``.
 - Added new method to ``PreparedRequest`` objects: ``PreparedRequest.copy()``.
 - Added new method to ``Session`` objects: ``Session.update_request()``. This
