@@ -500,7 +500,7 @@ class Session(SessionRedirectMixin):
 
     def close(self):
         """Closes all adapters and as such the session"""
-        for _, v in self.adapters.items():
+        for v in self.adapters.values():
             v.close()
 
     def mount(self, prefix, adapter):
