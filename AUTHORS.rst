@@ -135,3 +135,4 @@ Patches and Suggestions
 - David Pursehouse <david.pursehouse@gmail.com> @dpursehouse
 - Jon Parise
 - Alexander Karpinsky @homm86
+- Marc Schlaich @schlamar

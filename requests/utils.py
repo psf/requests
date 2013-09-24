@@ -21,10 +21,11 @@ from netrc import netrc, NetrcParseError
 from . import __version__
 from . import certs
 from .compat import parse_http_list as _parse_list_header
-from .compat import quote, urlparse, bytes, str, OrderedDict, urlunparse
-from .compat import getproxies, proxy_bypass
+from .compat import (quote, urlparse, bytes, str, OrderedDict, urlunparse,
+                     is_py2, is_py3, builtin_str, getproxies, proxy_bypass)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
+from .exceptions import MissingSchema, InvalidURL
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -366,7 +367,11 @@ def unquote_unreserved(uri):
     for i in range(1, len(parts)):
         h = parts[i][0:2]
         if len(h) == 2 and h.isalnum():
-            c = chr(int(h, 16))
+            try:
+                c = chr(int(h, 16))
+            except ValueError:
+                raise InvalidURL("Invalid percent-escape sequence: '%s'" % h)
+
             if c in UNRESERVED_SET:
                 parts[i] = c + parts[i][2:]
             else:
@@ -397,18 +402,18 @@ def get_environ_proxies(url):
     # we're getting isn't in the no_proxy list.
     no_proxy = get_proxy('no_proxy')
     netloc = urlparse(url).netloc
-    
+
     if no_proxy:
         # We need to check whether we match here. We need to see if we match
         # the end of the netloc, both with and without the port.
-        no_proxy = no_proxy.split(',')
-        
+        no_proxy = no_proxy.replace(' ', '').split(',')
+
         for host in no_proxy:
             if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
                 # The URL does match something in no_proxy, so we don't want
                 # to apply the proxies on this URL.
                 return {}
-                
+
     # If the system proxy settings indicate that this URL should be bypassed,
     # don't proxy.
     if proxy_bypass(netloc):
@@ -418,7 +423,7 @@ def get_environ_proxies(url):
     # anywhere that no_proxy applies to, and the system settings don't require
     # bypassing the proxy for the current URL.
     return getproxies()
-    
+
 
 def default_user_agent():
     """Return a string representing the default user agent."""
@@ -528,18 +533,13 @@ def guess_json_utf(data):
     return None
 
 
-def prepend_scheme_if_needed(url, new_scheme):
-    '''Given a URL that may or may not have a scheme, prepend the given scheme.
-    Does not replace a present scheme with the one provided as an argument.'''
-    scheme, netloc, path, params, query, fragment = urlparse(url, new_scheme)
+def except_on_missing_scheme(url):
+    """Given a URL, raise a MissingSchema exception if the scheme is missing.
+    """
+    scheme, netloc, path, params, query, fragment = urlparse(url)
 
-    # urlparse is a finicky beast, and sometimes decides that there isn't a
-    # netloc present. Assume that it's being over-cautious, and switch netloc
-    # and path if urlparse decided there was no netloc.
-    if not netloc:
-        netloc, path = path, netloc
-
-    return urlunparse((scheme, netloc, path, params, query, fragment))
+    if not scheme:
+        raise MissingSchema('Proxy URLs must have explicit schemes.')
 
 
 def get_auth_from_url(url):
@@ -550,3 +550,22 @@ def get_auth_from_url(url):
         return (parsed.username, parsed.password)
     else:
         return ('', '')
+
+
+def to_native_string(string, encoding='ascii'):
+    """
+    Given a string object, regardless of type, returns a representation of that
+    string in the native string type, encoding and decoding where necessary.
+    This assumes ASCII unless told otherwise.
+    """
+    out = None
+
+    if isinstance(string, builtin_str):
+        out = string
+    else:
+        if is_py2:
+            out = string.encode(encoding)
+        else:
+            out = string.decode(encoding)
+
+    return out

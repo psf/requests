@@ -11,7 +11,7 @@ import collections
 import logging
 import datetime
 
-from io import BytesIO
+from io import BytesIO, UnsupportedOperation
 from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 
@@ -25,7 +25,7 @@ from .exceptions import (
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len)
+    iter_slices, guess_json_utf, super_len, to_native_string)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring, IncompleteRead)
@@ -108,6 +108,10 @@ class RequestEncodingMixin(object):
                 val = [val]
             for v in val:
                 if v is not None:
+                    # Don't call str() on bytestrings: in Py3 it all goes wrong.
+                    if not isinstance(v, bytes):
+                        v = str(v)
+
                     new_fields.append(
                         (field.decode('utf-8') if isinstance(field, bytes) else field,
                          v.encode('utf-8') if isinstance(v, str) else v))
@@ -142,6 +146,9 @@ class RequestEncodingMixin(object):
 class RequestHooksMixin(object):
     def register_hook(self, event, hook):
         """Properly register a hook."""
+
+        if event not in self.hooks:
+            raise ValueError('Unsupported event specified, with event name "%s"' % (event))
 
         if isinstance(hook, collections.Callable):
             self.hooks[event].append(hook)
@@ -188,8 +195,8 @@ class Request(RequestHooksMixin):
         url=None,
         headers=None,
         files=None,
-        data=dict(),
-        params=dict(),
+        data=None,
+        params=None,
         auth=None,
         cookies=None,
         hooks=None):
@@ -363,8 +370,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepares the given HTTP headers."""
 
         if headers:
-            headers = dict((name.encode('ascii'), value) for name, value in headers.items())
-            self.headers = CaseInsensitiveDict(headers)
+            self.headers = CaseInsensitiveDict((to_native_string(name), value) for name, value in headers.items())
         else:
             self.headers = CaseInsensitiveDict()
 
@@ -388,7 +394,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         try:
             length = super_len(data)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, UnsupportedOperation):
             length = None
 
         if is_stream:

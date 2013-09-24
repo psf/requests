@@ -182,13 +182,13 @@ class RequestsTestCase(unittest.TestCase):
         assert r.json()['cookies']['foo'] == 'bar'
         # Make sure the session cj is still the custom one
         assert s.cookies is cj
-    
+
     def test_requests_in_history_are_not_overridden(self):
         resp = requests.get(httpbin('redirect/3'))
         urls = [r.url for r in resp.history]
         req_urls = [r.request.url for r in resp.history]
         self.assertEquals(urls, req_urls)
-        
+
     def test_user_agent_transfers(self):
 
         heads = {
@@ -246,7 +246,7 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 401)
 
         s = requests.session()
-        
+
         # Should use netrc and work.
         r = s.get(url)
         self.assertEqual(r.status_code, 200)
@@ -268,9 +268,25 @@ class RequestsTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, 401)
 
         s = requests.session()
-        s.auth = auth
+        s.auth = HTTPDigestAuth('user', 'pass')
         r = s.get(url)
         self.assertEqual(r.status_code, 200)
+
+    def test_DIGEST_AUTH_RETURNS_COOKIE(self):
+        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+        auth = HTTPDigestAuth('user', 'pass')
+        r = requests.get(url)
+        assert r.cookies['fake'] == 'fake_value'
+
+        r = requests.get(url, auth=auth)
+        assert r.status_code == 200
+
+    def test_DIGEST_AUTH_SETS_SESSION_COOKIES(self):
+        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+        auth = HTTPDigestAuth('user', 'pass')
+        s = requests.Session()
+        s.get(url, auth=auth)
+        assert s.cookies['fake'] == 'fake_value'
 
     def test_DIGEST_STREAM(self):
 
@@ -563,17 +579,16 @@ class RequestsTestCase(unittest.TestCase):
         s.headers.update({'accept': 'application/json'})
         r = s.get(httpbin('get'))
         headers = r.request.headers
-        # ASCII encode because of key comparison changes in py3
         self.assertEqual(
-            headers['accept'.encode('ascii')],
+            headers['accept'],
             'application/json'
         )
         self.assertEqual(
-            headers['Accept'.encode('ascii')],
+            headers['Accept'],
             'application/json'
         )
         self.assertEqual(
-            headers['ACCEPT'.encode('ascii')],
+            headers['ACCEPT'],
             'application/json'
         )
 
@@ -644,6 +659,24 @@ class RequestsTestCase(unittest.TestCase):
         )
         r = requests.Request('GET', url).prepare()
         self.assertEqual(r.url, url)
+
+    def test_header_keys_are_native(self):
+        headers = {u'unicode': 'blah', 'byte'.encode('ascii'): 'blah'}
+        r = requests.Request('GET', httpbin('get'), headers=headers)
+        p = r.prepare()
+
+        # This is testing that they are builtin strings. A bit weird, but there
+        # we go.
+        self.assertTrue('unicode' in p.headers.keys())
+        self.assertTrue('byte' in p.headers.keys())
+
+    def test_can_send_nonstring_objects_with_files(self):
+        data = {'a': 0.0}
+        files = {'b': 'foo'}
+        r = requests.Request('POST', httpbin('post'), data=data, files=files)
+        p = r.prepare()
+
+        self.assertTrue('multipart/form-data' in p.headers['Content-Type'])
 
 
 class TestContentEncodingDetection(unittest.TestCase):

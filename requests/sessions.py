@@ -74,10 +74,7 @@ class SessionRedirectMixin(object):
 
         # ((resp.status_code is codes.see_other))
         while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
-            prepared_request = PreparedRequest()
-            prepared_request.body = req.body
-            prepared_request.headers = req.headers.copy()
-            prepared_request.hooks = req.hooks
+            prepared_request = req.copy()
 
             resp.content  # Consume socket so it can be released
 
@@ -468,6 +465,10 @@ class Session(SessionRedirectMixin):
         r = dispatch_hook('response', hooks, r, **kwargs)
 
         # Persist cookies
+        if r.history:
+            # If the hooks create history then we want those cookies too
+            for resp in r.history:
+                extract_cookies_to_jar(self.cookies, resp.request, resp.raw)
         extract_cookies_to_jar(self.cookies, request, r.raw)
 
         # Redirect resolving generator.
