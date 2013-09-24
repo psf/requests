@@ -10,6 +10,7 @@ import unittest
 import pickle
 
 import requests
+import pytest
 from requests.auth import HTTPDigestAuth
 from requests.adapters import HTTPAdapter
 from requests.compat import str, cookielib, getproxies, urljoin, urlparse
@@ -338,6 +339,12 @@ class RequestsTestCase(unittest.TestCase):
             requests.post(url, files=['bad file data'])
         except ValueError:
             pass
+
+    def test_conflicting_post_params(self):
+        url = httpbin('post')
+        with open('requirements.txt') as f:
+            pytest.raises(ValueError, "requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})")
+            pytest.raises(ValueError, "requests.post(url, data=u'[{\"some\": \"data\"}]', files={'some': f})")
 
     def test_request_ok_set(self):
         r = requests.get(httpbin('status', '404'))
