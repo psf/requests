@@ -1,10 +1,14 @@
 .. _updates:
 
-Updates
-=======
+
+
+
+Community Updates
+=================
 
 If you'd like to stay up to date on the community and development of Requests,
 there are several options:
+
 
 GitHub
 ------
@@ -27,4 +31,11 @@ There's a low-volume mailing list for Requests. To subscribe to the
 mailing list, send an email to
 `requests@librelist.org <mailto:requests@librelist.org>`_.
 
+
+
+
+Software Updates
+================
+
+.. include:: ../../HISTORY.rst
 
