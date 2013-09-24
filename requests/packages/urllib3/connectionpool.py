@@ -4,12 +4,11 @@
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
-import logging
-import socket
 import errno
+import logging
 
 from socket import error as SocketError, timeout as SocketTimeout
-from .util import resolve_cert_reqs, resolve_ssl_version, assert_fingerprint
+import socket
 
 try: # Python 3
     from http.client import HTTPConnection, HTTPException
@@ -22,6 +21,7 @@ try: # Python 3
     from queue import LifoQueue, Empty, Full
 except ImportError:
     from Queue import LifoQueue, Empty, Full
+    import Queue as _  # Platform-specific: Windows
 
 
 try: # Compiled with SSL?
@@ -44,21 +44,29 @@ except (ImportError, AttributeError): # Platform-specific: No SSL.
     pass
 
 
-from .request import RequestMethods
-from .response import HTTPResponse
-from .util import get_host, is_connection_dropped, ssl_wrap_socket
 from .exceptions import (
     ClosedPoolError,
+    ConnectTimeoutError,
     EmptyPoolError,
     HostChangedError,
     MaxRetryError,
     SSLError,
-    TimeoutError,
+    ReadTimeoutError,
+    ProxyError,
 )
-
-from .packages.ssl_match_hostname import match_hostname, CertificateError
+from .packages.ssl_match_hostname import CertificateError, match_hostname
 from .packages import six
-
+from .request import RequestMethods
+from .response import HTTPResponse
+from .util import (
+    assert_fingerprint,
+    get_host,
+    is_connection_dropped,
+    resolve_cert_reqs,
+    resolve_ssl_version,
+    ssl_wrap_socket,
+    Timeout,
+)
 
 xrange = six.moves.xrange
 
@@ -96,7 +104,14 @@ class VerifiedHTTPSConnection(HTTPSConnection):
 
     def connect(self):
         # Add certificate verification
-        sock = socket.create_connection((self.host, self.port), self.timeout)
+        try:
+            sock = socket.create_connection(
+                address=(self.host, self.port),
+                timeout=self.timeout)
+        except SocketTimeout:
+                raise ConnectTimeoutError(
+                    self, "Connection to %s timed out. (connect timeout=%s)" %
+                    (self.host, self.timeout))
 
         resolved_cert_reqs = resolve_cert_reqs(self.cert_reqs)
         resolved_ssl_version = resolve_ssl_version(self.ssl_version)
@@ -123,6 +138,7 @@ class VerifiedHTTPSConnection(HTTPSConnection):
                 match_hostname(self.sock.getpeercert(),
                                self.assert_hostname or self.host)
 
+
 ## Pool objects
 
 class ConnectionPool(object):
@@ -135,6 +151,9 @@ class ConnectionPool(object):
     QueueCls = LifoQueue
 
     def __init__(self, host, port=None):
+        # httplib doesn't like it when we include brackets in ipv6 addresses
+        host = host.strip('[]')
+
         self.host = host
         self.port = port
 
@@ -142,6 +161,8 @@ class ConnectionPool(object):
         return '%s(host=%r, port=%r)' % (type(self).__name__,
                                          self.host, self.port)
 
+# This is taken from http://hg.python.org/cpython/file/7aaba721ebc0/Lib/socket.py#l252
+_blocking_errnos = set([errno.EAGAIN, errno.EWOULDBLOCK])
 
 class HTTPConnectionPool(ConnectionPool, RequestMethods):
     """
@@ -160,9 +181,15 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         as a valid HTTP/1.0 or 1.1 status line, passed into
         :class:`httplib.HTTPConnection`.
 
+        .. note::
+           Only works in Python 2. This parameter is ignored in Python 3.
+
     :param timeout:
-        Socket timeout in seconds for each individual connection, can be
-        a float. None disables timeout.
+        Socket timeout in seconds for each individual connection. This can
+        be a float or integer, which sets the timeout for the HTTP request,
+        or an instance of :class:`urllib3.util.Timeout` which gives you more
+        fine-grained control over request timeouts. After the constructor has
+        been parsed, this is always a `urllib3.util.Timeout` object.
 
     :param maxsize:
         Number of connections to save that can be reused. More than 1 is useful
@@ -192,13 +219,21 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
     scheme = 'http'
 
-    def __init__(self, host, port=None, strict=False, timeout=None, maxsize=1,
-                 block=False, headers=None, _proxy=None, _proxy_headers=None):
+    def __init__(self, host, port=None, strict=False,
+                 timeout=Timeout.DEFAULT_TIMEOUT, maxsize=1, block=False,
+                 headers=None, _proxy=None, _proxy_headers=None):
         ConnectionPool.__init__(self, host, port)
         RequestMethods.__init__(self, headers)
 
         self.strict = strict
+
+        # This is for backwards compatibility and can be removed once a timeout
+        # can only be set to a Timeout object
+        if not isinstance(timeout, Timeout):
+            timeout = Timeout.from_float(timeout)
+
         self.timeout = timeout
+
         self.pool = self.QueueCls(maxsize)
         self.block = block
 
@@ -220,9 +255,14 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         self.num_connections += 1
         log.info("Starting new HTTP connection (%d): %s" %
                  (self.num_connections, self.host))
-        return HTTPConnection(host=self.host,
-                              port=self.port,
-                              strict=self.strict)
+        extra_params = {}
+        if not six.PY3:  # Python 2
+            extra_params['strict'] = self.strict
+
+        return HTTPConnection(host=self.host, port=self.port,
+                              timeout=self.timeout.connect_timeout,
+                              **extra_params)
+
 
     def _get_conn(self, timeout=None):
         """
@@ -283,31 +323,89 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
                         % self.host)
 
         # Connection never got put back into the pool, close it.
-        conn.close()
+        if conn:
+            conn.close()
+
+    def _get_timeout(self, timeout):
+        """ Helper that always returns a :class:`urllib3.util.Timeout` """
+        if timeout is _Default:
+            return self.timeout.clone()
+
+        if isinstance(timeout, Timeout):
+            return timeout.clone()
+        else:
+            # User passed us an int/float. This is for backwards compatibility,
+            # can be removed later
+            return Timeout.from_float(timeout)
 
     def _make_request(self, conn, method, url, timeout=_Default,
                       **httplib_request_kw):
         """
         Perform a request on a given httplib connection object taken from our
         pool.
+
+        :param conn:
+            a connection from one of our connection pools
+
+        :param timeout:
+            Socket timeout in seconds for the request. This can be a
+            float or integer, which will set the same timeout value for
+            the socket connect and the socket read, or an instance of
+            :class:`urllib3.util.Timeout`, which gives you more fine-grained
+            control over your timeouts.
         """
         self.num_requests += 1
 
-        if timeout is _Default:
-            timeout = self.timeout
+        timeout_obj = self._get_timeout(timeout)
 
-        conn.timeout = timeout # This only does anything in Py26+
-        conn.request(method, url, **httplib_request_kw)
+        try:
+            timeout_obj.start_connect()
+            conn.timeout = timeout_obj.connect_timeout
+            # conn.request() calls httplib.*.request, not the method in
+            # request.py. It also calls makefile (recv) on the socket
+            conn.request(method, url, **httplib_request_kw)
+        except SocketTimeout:
+            raise ConnectTimeoutError(
+                self, "Connection to %s timed out. (connect timeout=%s)" %
+                (self.host, timeout_obj.connect_timeout))
 
-        # Set timeout
-        sock = getattr(conn, 'sock', False) # AppEngine doesn't have sock attr.
-        if sock:
-            sock.settimeout(timeout)
+        # Reset the timeout for the recv() on the socket
+        read_timeout = timeout_obj.read_timeout
+        log.debug("Setting read timeout to %s" % read_timeout)
+        # App Engine doesn't have a sock attr
+        if hasattr(conn, 'sock') and \
+            read_timeout is not None and \
+            read_timeout is not Timeout.DEFAULT_TIMEOUT:
+            # In Python 3 socket.py will catch EAGAIN and return None when you
+            # try and read into the file pointer created by http.client, which
+            # instead raises a BadStatusLine exception. Instead of catching
+            # the exception and assuming all BadStatusLine exceptions are read
+            # timeouts, check for a zero timeout before making the request.
+            if read_timeout == 0:
+                raise ReadTimeoutError(
+                    self, url,
+                    "Read timed out. (read timeout=%s)" % read_timeout)
+            conn.sock.settimeout(read_timeout)
 
-        try: # Python 2.7+, use buffering of HTTP responses
-            httplib_response = conn.getresponse(buffering=True)
-        except TypeError: # Python 2.6 and older
-            httplib_response = conn.getresponse()
+        # Receive the response from the server
+        try:
+            try: # Python 2.7+, use buffering of HTTP responses
+                httplib_response = conn.getresponse(buffering=True)
+            except TypeError: # Python 2.6 and older
+                httplib_response = conn.getresponse()
+        except SocketTimeout:
+            raise ReadTimeoutError(
+                self, url, "Read timed out. (read timeout=%s)" % read_timeout)
+
+        except SocketError as e: # Platform-specific: Python 2
+            # See the above comment about EAGAIN in Python 3. In Python 2 we
+            # have to specifically catch it and throw the timeout error
+            if e.errno in _blocking_errnos:
+                raise ReadTimeoutError(
+                    self, url,
+                    "Read timed out. (read timeout=%s)" % read_timeout)
+            raise
+
 
         # AppEngine doesn't have a version attr.
         http_version = getattr(conn, '_http_vsn_str', 'HTTP/?')
@@ -387,7 +485,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         :param redirect:
             If True, automatically handle redirects (status codes 301, 302,
-            303, 307). Each redirect counts as a retry.
+            303, 307, 308). Each redirect counts as a retry.
 
         :param assert_same_host:
             If ``True``, will make sure that the host of the pool requests is
@@ -395,8 +493,9 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             use the pool on an HTTP proxy and request foreign hosts.
 
         :param timeout:
-            If specified, overrides the default timeout for this one request.
-            It may be a float (in seconds).
+            If specified, overrides the default timeout for this one
+            request. It may be a float (in seconds) or an instance of
+            :class:`urllib3.util.Timeout`.
 
         :param pool_timeout:
             If set and the pool is set to block=True, then this method will
@@ -422,9 +521,6 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         if retries < 0:
             raise MaxRetryError(self, url)
-
-        if timeout is _Default:
-            timeout = self.timeout
 
         if release_conn is None:
             release_conn = response_kw.get('preload_content', True)
@@ -461,20 +557,20 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             #     ``response.release_conn()`` is called (implicitly by
             #     ``response.read()``)
 
-        except Empty as e:
+        except Empty:
             # Timed out by queue
-            raise TimeoutError(self, url,
-                               "Request timed out. (pool_timeout=%s)" %
-                               pool_timeout)
+            raise ReadTimeoutError(
+                self, url, "Read timed out, no pool connections are available.")
 
-        except SocketTimeout as e:
+        except SocketTimeout:
             # Timed out by socket
-            raise TimeoutError(self, url,
-                               "Request timed out. (timeout=%s)" %
-                               timeout)
+            raise ReadTimeoutError(self, url, "Read timed out.")
 
         except BaseSSLError as e:
             # SSL certificate error
+            if 'timed out' in str(e) or \
+               'did not complete (read)' in str(e): # Platform-specific: Python 2.6
+                raise ReadTimeoutError(self, url, "Read timed out.")
             raise SSLError(e)
 
         except CertificateError as e:
@@ -482,6 +578,10 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             raise SSLError(e)
 
         except (HTTPException, SocketError) as e:
+            if isinstance(e, SocketError) and self.proxy is not None:
+                raise ProxyError('Cannot connect to proxy. '
+                                 'Socket error: %s.' % e)
+
             # Connection broken, discard. It will be replaced next _get_conn().
             conn = None
             # This is necessary so we can access e below
@@ -548,8 +648,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
                  ca_certs=None, ssl_version=None,
                  assert_hostname=None, assert_fingerprint=None):
 
-        HTTPConnectionPool.__init__(self, host, port,
-                                    strict, timeout, maxsize,
+        HTTPConnectionPool.__init__(self, host, port, strict, timeout, maxsize,
                                     block, headers, _proxy, _proxy_headers)
         self.key_file = key_file
         self.cert_file = cert_file
@@ -609,8 +708,12 @@ class HTTPSConnectionPool(HTTPConnectionPool):
         else:
             connection_class = VerifiedHTTPSConnection
 
+        extra_params = {}
+        if not six.PY3:  # Python 2
+            extra_params['strict'] = self.strict
         connection = connection_class(host=actual_host, port=actual_port,
-                                      strict=self.strict)
+                                      timeout=self.timeout.connect_timeout,
+                                      **extra_params)
 
         return self._prepare_conn(connection)
 
