@@ -13,6 +13,7 @@ import socket
 from .models import Response
 from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
 from .packages.urllib3.response import HTTPResponse
+from .packages.urllib3.util import Timeout
 from .compat import urlparse, basestring, urldefrag, unquote
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     except_on_missing_scheme, get_auth_from_url)
@@ -297,6 +298,11 @@ class HTTPAdapter(BaseAdapter):
         self.add_headers(request)
 
         chunked = not (request.body is None or 'Content-Length' in request.headers)
+
+        if stream:
+            timeout = Timeout(connect=timeout)
+        else:
+            timeout = Timeout(connect=timeout, read=timeout)
 
         try:
             if not chunked:
