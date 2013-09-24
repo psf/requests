@@ -50,7 +50,7 @@ __copyright__ = 'Copyright 2013 Kenneth Reitz'
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
-    from requests.packages.urllib3.contrib import pyopenssl
+    from .packages.urllib3.contrib import pyopenssl
     pyopenssl.inject_into_urllib3()
 except ImportError:
     pass
