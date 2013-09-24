@@ -402,6 +402,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         else:
             # Multi-part file uploads.
             if files:
+                for key, val in data.items():
+                    if not isinstance( val, str ):
+                        if hasattr( val, 'decode' ):
+                            val = val.decode( 'UTF-8' )
+                        data[key] = str( val )
                 (body, content_type) = self._encode_files(files, data)
             else:
                 if data:
