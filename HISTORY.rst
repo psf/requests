@@ -35,10 +35,14 @@ History
 
 - Vastly improved proxy support, including the CONNECT verb. Special thanks to
   the many contributors who worked towards this improvement.
+- Cookies are now properly managed when 401 authentication responses are
+  received.
 - Chunked encoding fixes.
 - Support for mixed case schemes.
+- Better handling of streaming downloads.
 - Retrieve environment proxies from more locations.
 - Minor cookies fixes.
+- Imroved redirect behaviour.
 - Improved streaming behaviour, particularly for compressed data.
 - Miscellaneous small Python 3 text encoding bugs.
 - ``.netrc`` no longer overrides explicit auth.
