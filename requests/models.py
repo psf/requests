@@ -94,8 +94,10 @@ class RequestEncodingMixin(object):
         if parameters are supplied as a dict.
 
         """
-        if (not files) or isinstance(data, str):
-            return None
+        if (not files):
+            raise ValueError("Files must be provided.")
+        elif isinstance(data, basestring):
+            raise ValueError("Data must not be a string.")
 
         new_fields = []
         fields = to_key_val_list(data or {})
