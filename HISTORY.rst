@@ -42,7 +42,7 @@ Release History
 - Better handling of streaming downloads.
 - Retrieve environment proxies from more locations.
 - Minor cookies fixes.
-- Imroved redirect behaviour.
+- Improved redirect behaviour.
 - Improved streaming behaviour, particularly for compressed data.
 - Miscellaneous small Python 3 text encoding bugs.
 - ``.netrc`` no longer overrides explicit auth.
