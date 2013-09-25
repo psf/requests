@@ -193,3 +193,67 @@ license ensures that contributions to Requests are also covered by the Apache
 .. _ISC: http://opensource.org/licenses/ISC
 .. _Apache 2.0: http://opensource.org/licenses/Apache-2.0
 
+
+Migrating to 2.x
+----------------
+
+
+Compared with the 1.0 release, there were relatively few backwards
+incompatible changes, but there are still a few issues to be aware of with
+this major release.
+
+
+API Changes
+~~~~~~~~~~~
+
+* There were a couple changes to how Requests handles exceptions.
+  ``RequestException`` is now a subclass of ``IOError`` rather than
+  ``RuntimeError`` as that more accurately categorizes the type of error.
+  In addition, an invalid URL escape sequence now raises a subclass of
+  ``RequestException`` rather than a ``ValueError``.
+
+  ::
+
+      requests.get('http://%zz/')   # raises requests.exceptions.InvalidURL
+
+  Lastly, ``httplib.IncompleteRead`` exceptions caused by incorrect chunked
+  encoding will now raise a Requests ``ChunkedEncodingError`` instead.
+
+* The proxy API has changed slightly. The scheme for a proxy URL is now
+  required.
+
+  ::
+
+      proxies = {
+        "http": "10.10.1.10:3128",    # use http://10.10.1.10:3128 instead
+      }
+
+      # In requests 1.x, this was legal, in requests 2.x,
+      #  this raises requests.exceptions.MissingSchema
+      requests.get("http://example.org", proxies=proxies)
+
+
+Behavioral Changes
+~~~~~~~~~~~~~~~~~~
+
+* Keys in the ``headers`` dictionary are now native strings on all Python
+  versions, i.e. bytestrings on Python 2 and unicode on Python 3. If the
+  keys are not native strings (unicode on Python2 or bytestrings on Python 3)
+  they will be converted to the native string type assuming UTF-8 encoding.
+
+* Timeouts behave slightly differently. On streaming requests, the timeout
+  only applies to the connection attempt. On regular requests, the timeout
+  is applied to the connection process and downloading the full body.
+
+  ::
+
+      tarball_url = 'https://github.com/kennethreitz/requests/tarball/master'
+
+      # One second timeout for the connection attempt
+      # Unlimited time to download the tarball
+      r = requests.get(tarball_url, stream=True, timeout=1)
+
+      # One second timeout for the connection attempt
+      # Another full second timeout to download the tarball
+      r = requests.get(tarball_url, timeout=1)
+
