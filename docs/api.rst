@@ -202,6 +202,12 @@ Compared with the 1.0 release, there were relatively few backwards
 incompatible changes, but there are still a few issues to be aware of with
 this major release.
 
+For more details on the changes in this release including new APIs, links
+to the relevant GitHub issues and some of the bug fixes, read Cory's blog_
+on the subject.
+
+.. _blog: http://lukasa.co.uk/2013/09/Requests_20/
+
 
 API Changes
 ~~~~~~~~~~~
