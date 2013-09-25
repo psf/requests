@@ -10,6 +10,9 @@ Requests: HTTP for Humans
 .. image:: https://pypip.in/d/requests/badge.png
         :target: https://crate.io/packages/requests/
 
+.. image:: http://kbutton.org/clone.png?v1380119423135
+        :target: http://kbutton.org/kennethreitz/requests
+
 Requests is an Apache2 Licensed HTTP library, written in Python, for human
 beings.
 
