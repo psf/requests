@@ -106,6 +106,10 @@ class SessionRedirectMixin(object):
             else:
                 url = requote_uri(url)
 
+            # Update host header if present
+            if 'Host' in prepared_request.headers:
+                prepared_request.headers['Host'] = urlparse(url).hostname
+
             prepared_request.url = url
 
             # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
