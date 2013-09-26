@@ -79,7 +79,14 @@ class SessionRedirectMixin(object):
             resp.content  # Consume socket so it can be released
 
             if i >= self.max_redirects:
-                raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects)
+                message = 'Exceeded %s redirects.' % self.max_redirects
+                if 'Host' in prepared_request.headers:
+                    header_hostname = prepared_request.headers['Host']
+                    url_hostname = urlparse(resp.url).hostname
+                    if header_hostname != url_hostname:
+                        message += (' Warning: HTTP Host header "%s" does not match '
+                                    'URL domain "%s".') % (header_hostname, url_hostname)
+                raise TooManyRedirects(message)
 
             # Release the connection back into the pool.
             resp.close()
@@ -106,9 +113,14 @@ class SessionRedirectMixin(object):
             else:
                 url = requote_uri(url)
 
-            # Update host header if present
+            # Update host header it was specified manually and
+            # hostname in request url is different from hostname in redirect url
+            # https://github.com/kennethreitz/requests/pull/1628
             if 'Host' in prepared_request.headers:
-                prepared_request.headers['Host'] = urlparse(url).hostname
+                request_hostname = urlparse(resp.request.url).hostname
+                redirect_hostname = urlparse(url).hostname
+                if request_hostname != redirect_hostname:
+                    prepared_request.headers['Host'] = redirect_hostname
 
             prepared_request.url = url
 
