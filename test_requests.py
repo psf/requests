@@ -164,6 +164,12 @@ class RequestsTestCase(unittest.TestCase):
         s.get(httpbin('cookies/set?foo="bar:baz"'))
         self.assertTrue(s.cookies['foo'] == '"bar:baz"')
 
+    def test_cookie_persists_via_api(self):
+        s = requests.session()
+        r = s.get(httpbin('redirect/1'), cookies={'foo':'bar'})
+        self.assertTrue('foo' in r.request.headers['Cookie'])
+        self.assertTrue('foo' in r.history[0].request.headers['Cookie'])
+
     def test_request_cookie_overrides_session_cookie(self):
         s = requests.session()
         s.cookies['foo'] = 'bar'

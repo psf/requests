@@ -146,6 +146,13 @@ class SessionRedirectMixin(object):
 
             extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
 
+            # Restore original cookies in redirects response.
+            headers = resp.request.headers
+            try:
+                headers['Cookie'] = req.headers['Cookie']
+            except KeyError:
+                pass
+
             i += 1
             yield resp
 
