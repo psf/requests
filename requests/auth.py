@@ -77,7 +77,7 @@ class HTTPDigestAuth(AuthBase):
         else:
             _algorithm = algorithm.upper()
         # lambdas assume digest modules are imported at the top level
-        if _algorithm == 'MD5' or _algorithm == 'MD5-SESS':
+        if _algorithm == 'MD5':
             def md5_utf8(x):
                 if isinstance(x, str):
                     x = x.encode('utf-8')
@@ -89,7 +89,7 @@ class HTTPDigestAuth(AuthBase):
                     x = x.encode('utf-8')
                 return hashlib.sha1(x).hexdigest()
             hash_utf8 = sha_utf8
-
+        # XXX MD5-sess
         KD = lambda s, d: hash_utf8("%s:%s" % (s, d))
 
         if hash_utf8 is None:
@@ -104,29 +104,24 @@ class HTTPDigestAuth(AuthBase):
 
         A1 = '%s:%s:%s' % (self.username, realm, self.password)
         A2 = '%s:%s' % (method, path)
-        
-        HA1 = hash_utf8(A1)
-        HA2 = hash_utf8(A2)
-
-        if nonce == self.last_nonce:
-            self.nonce_count += 1
-        else:
-            self.nonce_count = 1
-        ncvalue = '%08x' % self.nonce_count
-        s = str(self.nonce_count).encode('utf-8')
-        s += nonce.encode('utf-8')
-        s += time.ctime().encode('utf-8')
-        s += os.urandom(8)
-
-        cnonce = (hashlib.sha1(s).hexdigest()[:16])
-        noncebit = "%s:%s:%s:%s:%s" % (nonce, ncvalue, cnonce, qop, HA2)
-        if _algorithm == 'MD5-SESS':
-            HA1 = hash_utf8('%s:%s:%s' % (HA1, nonce, cnonce))
 
         if qop is None:
-            respdig = KD(HA1, "%s:%s" % (nonce, HA2))
+            respdig = KD(hash_utf8(A1), "%s:%s" % (nonce, hash_utf8(A2)))
         elif qop == 'auth' or 'auth' in qop.split(','):
-            respdig = KD(HA1, noncebit)
+            if nonce == self.last_nonce:
+                self.nonce_count += 1
+            else:
+                self.nonce_count = 1
+
+            ncvalue = '%08x' % self.nonce_count
+            s = str(self.nonce_count).encode('utf-8')
+            s += nonce.encode('utf-8')
+            s += time.ctime().encode('utf-8')
+            s += os.urandom(8)
+
+            cnonce = (hashlib.sha1(s).hexdigest()[:16])
+            noncebit = "%s:%s:%s:%s:%s" % (nonce, ncvalue, cnonce, qop, hash_utf8(A2))
+            respdig = KD(hash_utf8(A1), noncebit)
         else:
             # XXX handle auth-int.
             return None
