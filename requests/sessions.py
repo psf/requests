@@ -13,7 +13,7 @@ from collections import Mapping
 from datetime import datetime
 
 from .compat import cookielib, OrderedDict, urljoin, urlparse
-from .cookies import cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar
+from .cookies import cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_session_cookies
 from .models import Request, PreparedRequest
 from .hooks import default_hooks, dispatch_hook
 from .utils import to_key_val_list, default_headers
@@ -145,13 +145,6 @@ class SessionRedirectMixin(object):
             )
 
             extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
-
-            # Restore original cookies in redirects response.
-            headers = resp.request.headers
-            try:
-                headers['Cookie'] = req.headers['Cookie']
-            except KeyError:
-                pass
 
             i += 1
             yield resp
@@ -328,6 +321,9 @@ class Session(SessionRedirectMixin):
             hooks = hooks,
         )
         prep = self.prepare_request(req)
+
+        # Add param cookies to session cookies
+        merge_session_cookies(self.cookies, cookies)
 
         proxies = proxies or {}
 

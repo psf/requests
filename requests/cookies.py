@@ -404,3 +404,19 @@ def cookiejar_from_dict(cookie_dict, cookiejar=None):
         for name in cookie_dict:
             cookiejar.set_cookie(create_cookie(name, cookie_dict[name]))
     return cookiejar
+
+
+def merge_session_cookies(cookiejar, cookie_dict):
+    """Merges cookie_dict with session CookieJar.
+
+    :param cookiejar: Should be session cookie.
+    :param cookie_dict: Dict of key/values to be merged.
+    """
+    if cookiejar is None:
+        cookiejar = RequestsCookieJar()
+
+    if cookie_dict is not None:
+        for k in cookie_dict:
+            # Session should not be modified by request cookie.
+            if k not in [cookie.name for cookie in cookiejar]:
+                cookiejar.set_cookie(create_cookie(k, cookie_dict[k]))
