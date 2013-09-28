@@ -392,31 +392,21 @@ def morsel_to_cookie(morsel):
     return c
 
 
-def cookiejar_from_dict(cookie_dict, cookiejar=None):
+def cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True):
     """Returns a CookieJar from a key/value dictionary.
 
     :param cookie_dict: Dict of key/values to insert into CookieJar.
+    :param cookiejar: (optional) A cookiejar to add the cookies to.
+    :param overwrite: (optional) If False, will not replace cookies
+        already in the jar with new ones.
     """
     if cookiejar is None:
         cookiejar = RequestsCookieJar()
 
     if cookie_dict is not None:
+        names_from_jar = [cookie.name for cookie in cookiejar]
         for name in cookie_dict:
-            cookiejar.set_cookie(create_cookie(name, cookie_dict[name]))
+            if overwrite or (name not in names_from_jar):
+                cookiejar.set_cookie(create_cookie(name, cookie_dict[name]))
+
     return cookiejar
-
-
-def merge_session_cookies(cookiejar, cookie_dict):
-    """Merges cookie_dict with session CookieJar.
-
-    :param cookiejar: Should be session cookie.
-    :param cookie_dict: Dict of key/values to be merged.
-    """
-    if cookiejar is None:
-        cookiejar = RequestsCookieJar()
-
-    if cookie_dict is not None:
-        for k in cookie_dict:
-            # Session should not be modified by request cookie.
-            if k not in [cookie.name for cookie in cookiejar]:
-                cookiejar.set_cookie(create_cookie(k, cookie_dict[k]))

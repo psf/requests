@@ -13,7 +13,7 @@ from collections import Mapping
 from datetime import datetime
 
 from .compat import cookielib, OrderedDict, urljoin, urlparse
-from .cookies import cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_session_cookies
+from .cookies import cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar
 from .models import Request, PreparedRequest
 from .hooks import default_hooks, dispatch_hook
 from .utils import to_key_val_list, default_headers
@@ -323,7 +323,7 @@ class Session(SessionRedirectMixin):
         prep = self.prepare_request(req)
 
         # Add param cookies to session cookies
-        merge_session_cookies(self.cookies, cookies)
+        self.cookies = cookiejar_from_dict(cookies, cookiejar=self.cookies, overwrite=False)
 
         proxies = proxies or {}
 
