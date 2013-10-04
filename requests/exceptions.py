@@ -27,6 +27,10 @@ class ConnectionError(RequestException):
     """A Connection error occurred."""
 
 
+class ProxyError(ConnectionError):
+    """A proxy error occurred."""
+
+
 class SSLError(ConnectionError):
     """An SSL error occurred."""
 
