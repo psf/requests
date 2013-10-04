@@ -44,8 +44,8 @@ class RequestMethods(object):
         explicitly.
     """
 
-    _encode_url_methods = set(['DELETE', 'GET', 'HEAD', 'OPTIONS'])
-    _encode_body_methods = set(['PATCH', 'POST', 'PUT', 'TRACE'])
+    _encode_url_methods = {'DELETE', 'GET', 'HEAD', 'OPTIONS'}
+    _encode_body_methods = {'PATCH', 'POST', 'PUT', 'TRACE'}
 
     def __init__(self, headers=None):
         self.headers = headers or {}
