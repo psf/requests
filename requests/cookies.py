@@ -351,7 +351,7 @@ def create_cookie(name, value, **kwargs):
         rest={'HttpOnly': None},
         rfc2109=False,)
 
-    badargs = set(kwargs) - set(result)
+    badargs = {kwargs} - {result}
     if badargs:
         err = 'create_cookie() got unexpected keyword arguments: %s'
         raise TypeError(err % list(badargs))
