@@ -305,7 +305,8 @@ If you need to use a proxy, you can configure individual requests with the
 
     requests.get("http://example.org", proxies=proxies)
 
-You can also configure proxies by environment variables ``HTTP_PROXY`` and ``HTTPS_PROXY``.
+You can also configure proxies by setting the environment variables
+``HTTP_PROXY`` and ``HTTPS_PROXY``.
 
 ::
 
@@ -320,6 +321,8 @@ To use HTTP Basic Auth with your proxy, use the `http://user:password@host/` syn
     proxies = {
         "http": "http://user:pass@10.10.1.10:3128/",
     }
+
+Note that proxy URLs must include the scheme.
 
 Compliance
 ----------
