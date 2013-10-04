@@ -575,7 +575,7 @@ class Response(object):
                     raise ChunkedEncodingError(e)
             except AttributeError:
                 # Standard file-like object.
-                while 1:
+                while True:
                     chunk = self.raw.read(chunk_size)
                     if not chunk:
                         break

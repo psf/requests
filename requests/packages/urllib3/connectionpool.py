@@ -27,7 +27,7 @@ except ImportError:
 try: # Compiled with SSL?
     HTTPSConnection = object
 
-    class BaseSSLError(BaseException):
+    class BaseSSLError(Exception):
         pass
 
     ssl = None
@@ -162,7 +162,7 @@ class ConnectionPool(object):
                                          self.host, self.port)
 
 # This is taken from http://hg.python.org/cpython/file/7aaba721ebc0/Lib/socket.py#l252
-_blocking_errnos = set([errno.EAGAIN, errno.EWOULDBLOCK])
+_blocking_errnos = {errno.EAGAIN, errno.EWOULDBLOCK}
 
 class HTTPConnectionPool(ConnectionPool, RequestMethods):
     """
