@@ -68,7 +68,7 @@ following code::
 
 You can see that the URL has been correctly encoded by printing the URL::
 
-    >>> print (r.url)
+    >>> print(r.url)
     http://httpbin.org/get?key2=value2&key1=value1
 
 Note that any dictionary key whose value is ``None`` will not be added to the
