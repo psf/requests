@@ -27,7 +27,7 @@ except ImportError:
 try: # Compiled with SSL?
     HTTPSConnection = object
 
-    class BaseSSLError(BaseException):
+    class BaseSSLError(Exception):
         pass
 
     ssl = None
