@@ -298,7 +298,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         p = PreparedRequest()
         p.method = self.method
         p.url = self.url
-        p.headers = self.headers
+        p.headers = self.headers.copy()
         p.body = self.body
         p.hooks = self.hooks
         return p
