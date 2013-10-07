@@ -275,8 +275,7 @@ Streaming Requests
 
 With ``requests.Response.iter_lines()`` you can easily iterate over streaming
 APIs such as the `Twitter Streaming API <https://dev.twitter.com/docs/streaming-api>`_.
-
-To use the Twitter Streaming API to track the keyword "requests"::
+Simply set ``stream`` to ``False`` and iterate over the response with ``iter_lines()``::
 
     import json
     import requests
