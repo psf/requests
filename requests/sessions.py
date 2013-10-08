@@ -78,12 +78,7 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
     if request_hooks is None or request_hooks.get('response') == []:
         return session_hooks
 
-    ret = {}
-    for (k, v) in request_hooks.items():
-        if v is not None:
-            ret[k] = set(v).union(session_hooks.get(k, []))
-
-    return ret
+    return merge_setting(request_hooks, session_hooks, dict_class)
 
 
 class SessionRedirectMixin(object):
