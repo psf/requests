@@ -8,7 +8,7 @@ requests.utils imports from here, so be careful with imports.
 
 import time
 import collections
-from .compat import cookielib, urlparse, Morsel
+from .compat import cookielib, urlparse, urlunparse, Morsel
 
 try:
     import threading
@@ -45,7 +45,14 @@ class MockRequest(object):
         return self.get_host()
 
     def get_full_url(self):
-        return self._r.url
+        if not self._r.headers.get('Host'):
+            return self._r.url
+        host = self._r.headers['Host']
+        parsed = urlparse(self._r.url)
+        return urlunparse([
+            parsed.scheme, host, parsed.path, parsed.params, parsed.query,
+            parsed.fragment
+        ])
 
     def is_unverifiable(self):
         return True
