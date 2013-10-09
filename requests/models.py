@@ -413,6 +413,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         else:
             # Multi-part file uploads.
             if files:
+                if 'content-type' in self.headers:
+                    raise ValueError(
+                        "'content-type' should not be specified in "
+                        "headers dict when using the `files` argument.")
                 (body, content_type) = self._encode_files(files, data)
             else:
                 if data:

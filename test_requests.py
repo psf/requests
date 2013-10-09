@@ -367,6 +367,8 @@ class RequestsTestCase(unittest.TestCase):
         with open('requirements.txt') as f:
             pytest.raises(ValueError, "requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})")
             pytest.raises(ValueError, "requests.post(url, data=u'[{\"some\": \"data\"}]', files={'some': f})")
+        with open('requirements.txt') as f:
+            pytest.raises(ValueError, "requests.post(url, files={'some': f}, headers={'content-type': 'multipart/form-data'})")
 
     def test_request_ok_set(self):
         r = requests.get(httpbin('status', '404'))
