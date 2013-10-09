@@ -113,7 +113,7 @@ class SessionRedirectMixin(object):
             else:
                 url = requote_uri(url)
 
-            # Update host header it was specified manually and
+            # Update host header if it was specified manually and
             # hostname in request url is different from hostname in redirect url
             # https://github.com/kennethreitz/requests/pull/1628
             if 'Host' in prepared_request.headers:
