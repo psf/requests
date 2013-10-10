@@ -137,3 +137,4 @@ Patches and Suggestions
 - Alexander Karpinsky @homm86
 - Marc Schlaich @schlamar
 - Park Ilsu <daftonshady@gmail.com> @daftshady
+- Matt Spitz @mattspitz
