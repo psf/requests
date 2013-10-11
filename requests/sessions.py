@@ -80,6 +80,16 @@ class SessionRedirectMixin(object):
 
             if i >= self.max_redirects:
                 message = 'Exceeded %s redirects.' % self.max_redirects
+
+                # Suggesting exception reason.
+                # Server may send redirect responses indefinitely if all conditions apply:
+                #   * request Host header was specified explicitly
+                #   * request Host header does not match request url hostname
+                #   * request Host header matches response Location header hostname
+                #
+                # e.g. requests.get('http://www.example.com', headers={'Host': 'example.com'})
+                # in case when www.example.com responses with page (HTTP 200 OK) and
+                # example.com responses with redirect to http://www.example.com
                 if 'Host' in prepared_request.headers:
                     header_hostname = prepared_request.headers['Host']
                     url_hostname = urlparse(resp.url).hostname
