@@ -136,7 +136,7 @@ class RequestEncodingMixin(object):
             if isinstance(fp, bytes):
                 fp = BytesIO(fp)
 
-            rf = RequestField(name=k, data=fp.read(), 
+            rf = RequestField(name=k, data=fp.read(),
                               filename=fn, headers=fh)
             rf.make_multipart(content_type=ft)
             new_fields.append(rf)
@@ -690,7 +690,7 @@ class Response(object):
             encoding = guess_json_utf(self.content)
             if encoding is not None:
                 return json.loads(self.content.decode(encoding), **kwargs)
-        return json.loads(self.text or self.content, **kwargs)
+        return json.loads(self.text, **kwargs)
 
     @property
     def links(self):
