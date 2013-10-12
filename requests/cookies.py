@@ -49,7 +49,7 @@ class MockRequest(object):
         # header
         if not self._r.headers.get('Host'):
             return self._r.url
-        # If they did set it, retrieve it and reconstruct the expected doain
+        # If they did set it, retrieve it and reconstruct the expected domain
         host = self._r.headers['Host']
         parsed = urlparse(self._r.url)
         # Reconstruct the URL as we expect it
