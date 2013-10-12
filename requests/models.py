@@ -22,7 +22,7 @@ from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
 from .exceptions import (
     HTTPError, RequestException, MissingSchema, InvalidURL,
-    ChunkedEncodingError)
+    ChunkedEncodingError, JSONDecodingError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
@@ -136,7 +136,7 @@ class RequestEncodingMixin(object):
             if isinstance(fp, bytes):
                 fp = BytesIO(fp)
 
-            rf = RequestField(name=k, data=fp.read(), 
+            rf = RequestField(name=k, data=fp.read(),
                               filename=fn, headers=fh)
             rf.make_multipart(content_type=ft)
             new_fields.append(rf)
@@ -681,6 +681,9 @@ class Response(object):
 
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
         """
+
+        if not self.content:
+            raise JSONDecodingError
 
         if not self.encoding and len(self.content) > 3:
             # No encoding set. JSON RFC 4627 section 3 states we should expect

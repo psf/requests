@@ -15,8 +15,9 @@ from requests.auth import HTTPDigestAuth
 from requests.adapters import HTTPAdapter
 from requests.compat import str, cookielib, getproxies, urljoin, urlparse
 from requests.cookies import cookiejar_from_dict
-from requests.exceptions import InvalidURL, MissingSchema
+from requests.exceptions import InvalidURL, MissingSchema, JSONDecodingError
 from requests.structures import CaseInsensitiveDict
+from requests.models import Response
 
 try:
     import StringIO
@@ -683,6 +684,13 @@ class RequestsTestCase(unittest.TestCase):
         p = r.prepare()
 
         self.assertTrue('multipart/form-data' in p.headers['Content-Type'])
+
+    def test_json_throws_exceptions_with_no_content(self):
+        resp = Response()
+        resp._content = ''
+
+        with pytest.raises(JSONDecodingError):
+            resp.json()
 
 
 class TestContentEncodingDetection(unittest.TestCase):
