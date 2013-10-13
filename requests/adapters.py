@@ -346,7 +346,8 @@ class HTTPAdapter(BaseAdapter):
                     low_conn.send(b'0\r\n\r\n')
 
                     r = low_conn.getresponse()
-                    resp = HTTPResponse.from_httplib(r,
+                    resp = HTTPResponse.from_httplib(
+                        r,
                         pool=conn,
                         connection=low_conn,
                         preload_content=False,
