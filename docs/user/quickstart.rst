@@ -339,8 +339,7 @@ parameter::
 Redirection and History
 -----------------------
 
-Requests will automatically perform location redirection while using the GET
-and OPTIONS verbs.
+Requests will automatically perform location redirection except for HEAD verb.
 
 GitHub redirects all HTTP requests to HTTPS. We can use the ``history`` method
 of the Response object to track redirection. Let's see what GitHub does::
@@ -357,8 +356,8 @@ The :class:`Response.history` list contains the :class:`Request` objects that
 were created in order to complete the request. The list is sorted from the
 oldest to the most recent request.
 
-If you're using GET or OPTIONS, you can disable redirection handling with the
-``allow_redirects`` parameter::
+If you're using GET, OPTIONS, POST, PUT, PATCH or DELETE, you can disable
+redirection handling with the ``allow_redirects`` parameter::
 
     >>> r = requests.get('http://github.com', allow_redirects=False)
     >>> r.status_code
@@ -366,8 +365,7 @@ If you're using GET or OPTIONS, you can disable redirection handling with the
     >>> r.history
     []
 
-If you're using POST, PUT, PATCH, DELETE or HEAD, you can enable
-redirection as well::
+If you're using HEAD, you can enable redirection as well::
 
     >>> r = requests.post('http://github.com', allow_redirects=True)
     >>> r.url
