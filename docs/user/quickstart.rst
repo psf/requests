@@ -339,7 +339,8 @@ parameter::
 Redirection and History
 -----------------------
 
-Requests will automatically perform location redirection except for HEAD verb.
+Requests will automatically perform location redirection for all verbs except
+HEAD.
 
 GitHub redirects all HTTP requests to HTTPS. We can use the ``history`` method
 of the Response object to track redirection. Let's see what GitHub does::
