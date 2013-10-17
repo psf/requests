@@ -4,8 +4,8 @@ Requests: HTTP for Humans
 .. image:: https://badge.fury.io/py/requests.png
     :target: http://badge.fury.io/py/requests
 
-.. image:: https://travis-ci.org/kennethreitz/requests.png?branch=master
-        :target: https://travis-ci.org/kennethreitz/requests
+.. image:: http://ci.kennethreitz.org/job/requests-trunk/
+        :target: http://ci.kennethreitz.org/job/requests-trunk/badge/icon
 
 .. image:: https://pypip.in/d/requests/badge.png
         :target: https://crate.io/packages/requests/
