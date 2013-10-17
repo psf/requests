@@ -79,7 +79,24 @@ class SessionRedirectMixin(object):
             resp.content  # Consume socket so it can be released
 
             if i >= self.max_redirects:
-                raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects)
+                message = 'Exceeded %s redirects.' % self.max_redirects
+
+                # Suggesting exception reason.
+                # Server may send redirect responses indefinitely if all conditions apply:
+                #   * request Host header was specified explicitly
+                #   * request Host header does not match request url hostname
+                #   * request Host header matches response Location header hostname
+                #
+                # e.g. requests.get('http://www.example.com', headers={'Host': 'example.com'})
+                # in case when www.example.com responses with page (HTTP 200 OK) and
+                # example.com responses with redirect to http://www.example.com
+                if 'Host' in prepared_request.headers:
+                    header_hostname = prepared_request.headers['Host']
+                    url_hostname = urlparse(resp.url).hostname
+                    if header_hostname != url_hostname:
+                        message += (' Warning: HTTP Host header "%s" does not match '
+                                    'URL domain "%s".') % (header_hostname, url_hostname)
+                raise TooManyRedirects(message)
 
             # Release the connection back into the pool.
             resp.close()
@@ -105,6 +122,15 @@ class SessionRedirectMixin(object):
                 url = urljoin(resp.url, requote_uri(url))
             else:
                 url = requote_uri(url)
+
+            # Update host header if it was specified manually and
+            # hostname in request url is different from hostname in redirect url
+            # https://github.com/kennethreitz/requests/pull/1628
+            if 'Host' in prepared_request.headers:
+                request_hostname = urlparse(resp.request.url).hostname
+                redirect_hostname = urlparse(url).hostname
+                if request_hostname != redirect_hostname:
+                    prepared_request.headers['Host'] = redirect_hostname
 
             prepared_request.url = url
 

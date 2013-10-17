@@ -139,3 +139,4 @@ Patches and Suggestions
 - Park Ilsu <daftonshady@gmail.com> @daftshady
 - Matt Spitz @mattspitz
 - Vikram Oberoi @voberoi
+- Andrew Savchyn <webdev@scorpil.com> @scorpil
