@@ -5,7 +5,7 @@ Requests: HTTP for Humans
     :target: http://badge.fury.io/py/requests
 
 .. image:: http://ci.kennethreitz.org/job/requests-trunk/
-        :target: http://ci.kennethreitz.org/job/requests-trunk/badge/icon
+        :target: http://ci.kennethreitz.org/buildStatus/icon?job=requests-trunk
 
 .. image:: https://pypip.in/d/requests/badge.png
         :target: https://crate.io/packages/requests/
