@@ -17,6 +17,7 @@ from .structures import CaseInsensitiveDict
 
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header
+from .packages.urllib3.fields import RequestField
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
 from .exceptions import (
@@ -90,7 +91,7 @@ class RequestEncodingMixin(object):
         """Build the body for a multipart/form-data request.
 
         Will successfully encode files when passed as a dict or a list of
-        2-tuples. Order is retained if data is a list of 2-tuples but abritrary
+        2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
         if parameters are supplied as a dict.
 
         """
@@ -119,11 +120,14 @@ class RequestEncodingMixin(object):
         for (k, v) in files:
             # support for explicit filename
             ft = None
+            fh = None
             if isinstance(v, (tuple, list)):
                 if len(v) == 2:
                     fn, fp = v
-                else:
+                elif len(v) == 3:
                     fn, fp, ft = v
+                else:
+                    fn, fp, ft, fh = v
             else:
                 fn = guess_filename(v) or k
                 fp = v
@@ -132,11 +136,10 @@ class RequestEncodingMixin(object):
             if isinstance(fp, bytes):
                 fp = BytesIO(fp)
 
-            if ft:
-                new_v = (fn, fp.read(), ft)
-            else:
-                new_v = (fn, fp.read())
-            new_fields.append((k, new_v))
+            rf = RequestField(name=k, data=fp.read(),
+                              filename=fn, headers=fh)
+            rf.make_multipart(content_type=ft)
+            new_fields.append(rf)
 
         body, content_type = encode_multipart_formdata(new_fields)
 
@@ -295,7 +298,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         p = PreparedRequest()
         p.method = self.method
         p.url = self.url
-        p.headers = self.headers
+        p.headers = self.headers.copy()
         p.body = self.body
         p.hooks = self.hooks
         return p
@@ -575,7 +578,7 @@ class Response(object):
                     raise ChunkedEncodingError(e)
             except AttributeError:
                 # Standard file-like object.
-                while 1:
+                while True:
                     chunk = self.raw.read(chunk_size)
                     if not chunk:
                         break
@@ -687,7 +690,7 @@ class Response(object):
             encoding = guess_json_utf(self.content)
             if encoding is not None:
                 return json.loads(self.content.decode(encoding), **kwargs)
-        return json.loads(self.text or self.content, **kwargs)
+        return json.loads(self.text, **kwargs)
 
     @property
     def links(self):
