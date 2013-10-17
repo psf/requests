@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+print 'TESTING TESTING ONE TWO THREE'
+
 import requests
 from invoke import run, task
 
