@@ -22,7 +22,7 @@ Let's persist some cookies across requests::
     s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
     r = s.get("http://httpbin.org/cookies")
 
-    print r.text
+    print(r.text)
     # '{"cookies": {"sessioncookie": "123456789"}}'
 
 
@@ -275,8 +275,7 @@ Streaming Requests
 
 With ``requests.Response.iter_lines()`` you can easily iterate over streaming
 APIs such as the `Twitter Streaming API <https://dev.twitter.com/docs/streaming-api>`_.
-
-To use the Twitter Streaming API to track the keyword "requests"::
+Simply set ``stream`` to ``True`` and iterate over the response with ``iter_lines()``::
 
     import json
     import requests
@@ -305,7 +304,8 @@ If you need to use a proxy, you can configure individual requests with the
 
     requests.get("http://example.org", proxies=proxies)
 
-You can also configure proxies by environment variables ``HTTP_PROXY`` and ``HTTPS_PROXY``.
+You can also configure proxies by setting the environment variables
+``HTTP_PROXY`` and ``HTTPS_PROXY``.
 
 ::
 
@@ -320,6 +320,8 @@ To use HTTP Basic Auth with your proxy, use the `http://user:password@host/` syn
     proxies = {
         "http": "http://user:pass@10.10.1.10:3128/",
     }
+
+Note that proxy URLs must include the scheme.
 
 Compliance
 ----------

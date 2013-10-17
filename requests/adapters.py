@@ -22,8 +22,9 @@ from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import TimeoutError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
+from .packages.urllib3.exceptions import ProxyError as _ProxyError
 from .cookies import extract_cookies_to_jar
-from .exceptions import ConnectionError, Timeout, SSLError
+from .exceptions import ConnectionError, Timeout, SSLError, ProxyError
 from .auth import _basic_auth_str
 
 DEFAULT_POOLBLOCK = False
@@ -220,8 +221,8 @@ class HTTPAdapter(BaseAdapter):
     def request_url(self, request, proxies):
         """Obtain the url to use when making the final request.
 
-        If the message is being sent through a proxy, the full URL has to be
-        used. Otherwise, we should only use the path portion of the URL.
+        If the message is being sent through a HTTP proxy, the full URL has to
+        be used. Otherwise, we should only use the path portion of the URL.
 
         This should not be called from user code, and is only exposed for use
         when subclassing the
@@ -231,9 +232,10 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: A dictionary of schemes to proxy URLs.
         """
         proxies = proxies or {}
-        proxy = proxies.get(urlparse(request.url).scheme)
+        scheme = urlparse(request.url).scheme.lower()
+        proxy = proxies.get(scheme)
 
-        if proxy:
+        if proxy and scheme != 'https':
             url, _ = urldefrag(request.url)
         else:
             url = request.path_url
@@ -352,6 +354,9 @@ class HTTPAdapter(BaseAdapter):
 
         except MaxRetryError as e:
             raise ConnectionError(e)
+
+        except _ProxyError as e:
+            raise ProxyError(e)
 
         except (_SSLError, _HTTPError) as e:
             if isinstance(e, _SSLError):

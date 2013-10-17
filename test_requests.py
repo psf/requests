@@ -164,6 +164,12 @@ class RequestsTestCase(unittest.TestCase):
         s.get(httpbin('cookies/set?foo="bar:baz"'))
         self.assertTrue(s.cookies['foo'] == '"bar:baz"')
 
+    def test_cookie_persists_via_api(self):
+        s = requests.session()
+        r = s.get(httpbin('redirect/1'), cookies={'foo':'bar'})
+        self.assertTrue('foo' in r.request.headers['Cookie'])
+        self.assertTrue('foo' in r.history[0].request.headers['Cookie'])
+
     def test_request_cookie_overrides_session_cookie(self):
         s = requests.session()
         s.cookies['foo'] = 'bar'
@@ -866,6 +872,27 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         self.assertEqual(frozenset(cid.keys()), keyset)
         self.assertEqual(frozenset(cid), keyset)
 
+
+class UtilsTestCase(unittest.TestCase):
+
+    def test_super_len_io_streams(self):
+        """ Ensures that we properly deal with different kinds of IO streams. """
+        # uses StringIO or io.StringIO (see import above)
+        from io import BytesIO
+        from requests.utils import super_len
+
+        self.assertEqual(super_len(StringIO.StringIO()), 0)
+        self.assertEqual(super_len(StringIO.StringIO('with so much drama in the LBC')), 29)
+
+        self.assertEqual(super_len(BytesIO()), 0)
+        self.assertEqual(super_len(BytesIO(b"it's kinda hard bein' snoop d-o-double-g")), 40)
+
+        try:
+            import cStringIO
+        except ImportError:
+            pass
+        else:
+            self.assertEqual(super_len(cStringIO.StringIO('but some how, some way...')), 25)
 
 if __name__ == '__main__':
     unittest.main()
