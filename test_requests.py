@@ -684,6 +684,14 @@ class RequestsTestCase(unittest.TestCase):
 
         self.assertTrue('multipart/form-data' in p.headers['Content-Type'])
 
+    def test_autoset_header_values_are_native(self):
+        data = 'this is a string'
+        length = '16'
+        req = requests.Request('POST', httpbin('post'), data=data)
+        p = req.prepare()
+
+        self.assertEqual(p.headers['Content-Length'], length)
+
 
 class TestContentEncodingDetection(unittest.TestCase):
 

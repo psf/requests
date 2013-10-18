@@ -407,7 +407,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 raise NotImplementedError('Streamed bodies and files are mutually exclusive.')
 
             if length is not None:
-                self.headers['Content-Length'] = str(length)
+                self.headers['Content-Length'] = builtin_str(length)
             else:
                 self.headers['Transfer-Encoding'] = 'chunked'
         else:
@@ -433,12 +433,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_content_length(self, body):
         if hasattr(body, 'seek') and hasattr(body, 'tell'):
             body.seek(0, 2)
-            self.headers['Content-Length'] = str(body.tell())
+            self.headers['Content-Length'] = builtin_str(body.tell())
             body.seek(0, 0)
         elif body is not None:
             l = super_len(body)
             if l:
-                self.headers['Content-Length'] = str(l)
+                self.headers['Content-Length'] = builtin_str(l)
         elif self.method not in ('GET', 'HEAD'):
             self.headers['Content-Length'] = '0'
 
