@@ -324,8 +324,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         scheme, auth, host, port, path, query, fragment = parse_url(url)
 
         if not scheme:
-            raise MissingSchema("Invalid URL %r: No schema supplied. "
-                                "Perhaps you meant http://%s?" % (url, url))
+            raise MissingSchema("Invalid URL {0!r}: No schema supplied. "
+                                "Perhaps you meant http://{0}?".format(url))
 
         if not host:
             raise InvalidURL("Invalid URL %r: No host supplied" % url)
