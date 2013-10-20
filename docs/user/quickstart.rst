@@ -152,6 +152,18 @@ server, you can access ``r.raw``. If you want to do this, make sure you set
     >>> r.raw.read(10)
     '\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03'
 
+In general, however, you should use a pattern like this to save what is being 
+streamed to a file::
+
+    with open(filename, 'wb') as fd:
+        for chunk in r.iter_content(chunk_size):
+            fd.write(chunk)
+
+Using ``Response.iter_content`` will handle a lot of what you would otherwise 
+have to handle when using ``Response.raw`` directly. When streaming a 
+download, the above is the preferred and recommended way to retrieve the 
+content.
+
 
 Custom Headers
 --------------
