@@ -48,13 +48,13 @@ All values that are contained within a session are directly available to you. Se
 Request and Response Objects
 ----------------------------
 
-Whenever a call is made to requests.*() you are doing two major things. First,
-you are constructing a ``Request`` object which will be sent off to a server
-to request or query some resource. Second, a ``Response`` object is generated
-once ``requests`` gets a response back from the server. The Response object
-contains all of the information returned by the server and also contains the
-``Request`` object you created originally. Here is a simple request to get some
-very important information from Wikipedia's servers::
+Whenever a call is made to ``requests.get()`` and friends you are doing two
+major things. First, you are constructing a ``Request`` object which will be
+sent off to a server to request or query some resource. Second, a ``Response``
+object is generated once ``requests`` gets a response back from the server.
+The Response object contains all of the information returned by the server and
+also contains the ``Request`` object you created originally. Here is a simple
+request to get some very important information from Wikipedia's servers::
 
     >>> r = requests.get('http://en.wikipedia.org/wiki/Monty_Python')
 
