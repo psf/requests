@@ -277,7 +277,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare(self, method=None, url=None, headers=None, files=None,
                 data=None, params=None, auth=None, cookies=None, hooks=None):
-        """Prepares the the entire request with the given parameters."""
+        """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)
         self.prepare_url(url, params)
