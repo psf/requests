@@ -129,7 +129,7 @@ class Latin1Prober(CharSetProber):
         if total < 0.01:
             confidence = 0.0
         else:
-            confidence = ((self._mFreqCounter[3] / total)
+            confidence = ((float(self._mFreqCounter[3]) / total)
                           - (self._mFreqCounter[1] * 20.0 / total))
         if confidence < 0.0:
             confidence = 0.0

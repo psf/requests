@@ -169,7 +169,7 @@ class JapaneseContextAnalysis:
     def get_confidence(self):
         # This is just one way to calculate confidence. It works well for me.
         if self._mTotalRel > MINIMUM_DATA_THRESHOLD:
-            return (self._mTotalRel - self._mRelSample[0]) / self._mTotalRel
+            return float(self._mTotalRel - self._mRelSample[0]) / self._mTotalRel
         else:
             return DONT_KNOW
 

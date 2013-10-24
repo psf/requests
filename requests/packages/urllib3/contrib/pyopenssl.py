@@ -26,6 +26,7 @@ import OpenSSL.SSL
 from pyasn1.codec.der import decoder as der_decoder
 from socket import _fileobject
 import ssl
+import select
 from cStringIO import StringIO
 
 from .. import connectionpool
@@ -336,6 +337,7 @@ def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
         try:
             cnx.do_handshake()
         except OpenSSL.SSL.WantReadError:
+            select.select([sock], [], [])
             continue
         except OpenSSL.SSL.Error as e:
             raise ssl.SSLError('bad handshake', e)

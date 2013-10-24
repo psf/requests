@@ -74,12 +74,10 @@ class UniversalDetector:
             if aBuf[:3] == codecs.BOM:
                 # EF BB BF  UTF-8 with BOM
                 self.result = {'encoding': "UTF-8", 'confidence': 1.0}
-            elif aBuf[:4] == codecs.BOM_UTF32_LE:
+            elif aBuf[:4] in (codecs.BOM_UTF32_LE, codecs.BOM_UTF32_BE):
                 # FF FE 00 00  UTF-32, little-endian BOM
-                self.result = {'encoding': "UTF-32LE", 'confidence': 1.0}
-            elif aBuf[:4] == codecs.BOM_UTF32_BE:
                 # 00 00 FE FF  UTF-32, big-endian BOM
-                self.result = {'encoding': "UTF-32BE", 'confidence': 1.0}
+                self.result = {'encoding': "UTF-32", 'confidence': 1.0}
             elif aBuf[:4] == b'\xFE\xFF\x00\x00':
                 # FE FF 00 00  UCS-4, unusual octet order BOM (3412)
                 self.result = {
@@ -92,12 +90,10 @@ class UniversalDetector:
                     'encoding': "X-ISO-10646-UCS-4-2143",
                     'confidence': 1.0
                 }
-            elif aBuf[:2] == codecs.BOM_LE:
+            elif aBuf[:2] == codecs.BOM_LE or aBuf[:2] == codecs.BOM_BE:
                 # FF FE  UTF-16, little endian BOM
-                self.result = {'encoding': "UTF-16LE", 'confidence': 1.0}
-            elif aBuf[:2] == codecs.BOM_BE:
                 # FE FF  UTF-16, big endian BOM
-                self.result = {'encoding': "UTF-16BE", 'confidence': 1.0}
+                self.result = {'encoding': "UTF-16", 'confidence': 1.0}
 
         self._mGotData = True
         if self.result['encoding'] and (self.result['confidence'] > 0.0):
