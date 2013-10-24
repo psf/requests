@@ -7,7 +7,9 @@ Release History
 2.0.1 (2013-10-24)
 ++++++++++++++++++
 
-- Updated included CA Bundle
+- Updated included CA Bundle with new mistrusts and automated process for the future
+- Added MD5-sess to Digest Auth
+- Fixed: Cookies not persisted when set via functional API.
 
 2.0.0 (2013-09-24)
 ++++++++++++++++++
