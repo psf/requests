@@ -14,6 +14,7 @@ Release History
 - Fixed: Correctly lowercase a redirect scheme.
 - Fixed: Cookies not persisted when set via functional API.
 - Fixed: Translate urllib3 ProxyError into a requests ProxyError derived from ConnectionError.
+- Updated internal urllib3 and chardet.
 
 2.0.0 (2013-09-24)
 ++++++++++++++++++
