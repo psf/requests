@@ -4,9 +4,11 @@ init:
 test:
 	py.test
 
+ci: init
+	py.test --junitxml=junit.xml
+
 certs:
 	curl http://ci.kennethreitz.org/job/ca-bundle/lastSuccessfulBuild/artifact/cacerts.pem -o requests/cacert.pem
-
 
 deps: urllib3 charade
 
