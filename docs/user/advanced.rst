@@ -89,22 +89,23 @@ request. The simple recipe for this is the following::
     from requests import Request, Session
 
     s = Session()
-    prepped = Request('GET',  # or any other method, 'POST', 'PUT', etc.
-                      url,
-                      data=data
-                      headers=headers
-                      # ...
-                      ).prepare()
+    req = Request('GET', url,
+        data=data,
+        headers=header
+    )
+    prepped = req.prepare()
+
     # do something with prepped.body
     # do something with prepped.headers
+
     resp = s.send(prepped,
-                  stream=stream,
-                  verify=verify,
-                  proxies=proxies,
-                  cert=cert,
-                  timeout=timeout,
-                  # etc.
-                  )
+        stream=stream,
+        verify=verify,
+        proxies=proxies,
+        cert=cert,
+        timeout=timeout
+    )
+
     print(resp.status_code)
 
 Since you are not doing anything special with the ``Request`` object, you
