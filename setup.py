@@ -26,12 +26,18 @@ packages = [
 
 requires = []
 
+with open('README.rst') as f:
+    readme = f.read()
+with open('HISTORY.rst') as f:
+    history = f.read()
+with open('LICENSE') as f:
+    license = f.read()
+
 setup(
     name='requests',
     version=requests.__version__,
     description='Python HTTP for Humans.',
-    long_description=open('README.rst').read() + '\n\n' +
-                     open('HISTORY.rst').read(),
+    long_description=readme + '\n\n' + history,
     author='Kenneth Reitz',
     author_email='me@kennethreitz.com',
     url='http://python-requests.org',
@@ -40,7 +46,7 @@ setup(
     package_dir={'requests': 'requests'},
     include_package_data=True,
     install_requires=requires,
-    license=open('LICENSE').read(),
+    license=license,
     zip_safe=False,
     classifiers=(
         'Development Status :: 5 - Production/Stable',
