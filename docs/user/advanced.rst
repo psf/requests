@@ -113,6 +113,36 @@ prepare it immediately and modified the ``PreparedRequest`` object. You then
 send that with the other parameters you would have sent to ``requests.*`` or
 ``Sesssion.*``.
 
+However, the above code will lose some of the advantages of having a Requests
+:class:`Session <requests.Session>` object. In particular,
+:class:`Session <requests.Session>`-level state such as cookies will
+not get applied to your request. To get a
+:class:`PreparedRequest <requests.models.PreparedRequest>` with that state
+applied, replace the call to ``Request.prepare()`` with a call to
+``Session.prepare_request()``, like this::
+
+    from requests import Request, Session
+
+    s = Session()
+    req = Request('GET',  # or any other method, 'POST', 'PUT', etc.
+                  url,
+                  data=data
+                  headers=headers
+                  # ...
+                  )
+    prepped = s.prepare_request(req)
+    # do something with prepped.body
+    # do something with prepped.headers
+    resp = s.send(prepped,
+                  stream=stream,
+                  verify=verify,
+                  proxies=proxies,
+                  cert=cert,
+                  timeout=timeout,
+                  # etc.
+                  )
+    print(resp.status_code)
+
 SSL Cert Verification
 ---------------------
 
