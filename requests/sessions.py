@@ -330,7 +330,11 @@ class Session(SessionRedirectMixin):
         prep = self.prepare_request(req)
 
         # Add param cookies to session cookies
-        self.cookies = cookiejar_from_dict(cookies, cookiejar=self.cookies, overwrite=False)
+        if isinstance(cookies, dict):
+            self.cookies = cookiejar_from_dict(
+                cookies, cookiejar=self.cookies, overwrite=False)
+        elif isinstance(cookies, cookielib.CookieJar):
+            self.cookies.update(cookies)
 
         proxies = proxies or {}
 
