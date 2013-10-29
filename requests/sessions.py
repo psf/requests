@@ -12,7 +12,7 @@ import os
 from collections import Mapping
 from datetime import datetime
 
-from .compat import cookielib, OrderedDict, urljoin, urlparse
+from .compat import cookielib, OrderedDict, urljoin, urlparse, urlunparse
 from .cookies import cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar
 from .models import Request, PreparedRequest
 from .hooks import default_hooks, dispatch_hook
@@ -73,7 +73,7 @@ class SessionRedirectMixin(object):
         i = 0
 
         # ((resp.status_code is codes.see_other))
-        while (('location' in resp.headers and resp.status_code in REDIRECT_STATI)):
+        while ('location' in resp.headers and resp.status_code in REDIRECT_STATI):
             prepared_request = req.copy()
 
             resp.content  # Consume socket so it can be released
@@ -93,9 +93,10 @@ class SessionRedirectMixin(object):
                 url = '%s:%s' % (parsed_rurl.scheme, url)
 
             # The scheme should be lower case...
-            if '://' in url:
-                scheme, uri = url.split('://', 1)
-                url = '%s://%s' % (scheme.lower(), uri)
+            parsed = urlparse(url)
+            parsed = (parsed.scheme.lower(), parsed.netloc, parsed.path,
+                      parsed.params, parsed.query, parsed.fragment)
+            url = urlunparse(parsed)
 
             # Facilitate non-RFC2616-compliant 'location' headers
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
@@ -321,6 +322,13 @@ class Session(SessionRedirectMixin):
             hooks = hooks,
         )
         prep = self.prepare_request(req)
+
+        # Add param cookies to session cookies
+        if isinstance(cookies, dict):
+            self.cookies = cookiejar_from_dict(
+                cookies, cookiejar=self.cookies, overwrite=False)
+        elif isinstance(cookies, cookielib.CookieJar):
+            self.cookies.update(cookies)
 
         proxies = proxies or {}
 
