@@ -84,7 +84,7 @@ class SessionRedirectMixin(object):
             # Release the connection back into the pool.
             resp.close()
 
-            url = resp.headers['location']
+            url = resp.headers['location'].lower()
             method = req.method
 
             # Handle redirection without scheme (see: RFC 1808 Section 4)
