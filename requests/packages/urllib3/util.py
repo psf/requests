@@ -365,8 +365,6 @@ def parse_url(url):
     # Scheme
     if '://' in url:
         scheme, url = url.split('://', 1)
-    elif ':' in url:
-        scheme, url = url.split(':', 1)
 
     # Find the earliest Authority Terminator
     # (http://tools.ietf.org/html/rfc3986#section-3.2)
