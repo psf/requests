@@ -683,6 +683,18 @@ class RequestsTestCase(unittest.TestCase):
 
         assert p.headers['Content-Length'] == length
 
+    def test_oddball_schemes_dont_check_URLs(self):
+        test_urls = (
+            'data:image/gif;base64,R0lGODlhAQABAHAAACH5BAUAAAAALAAAAAABAAEAAAICRAEAOw==',
+            'file:///etc/passwd',
+            'magnet:?xt=urn:btih:be08f00302bc2d1d3cfa3af02024fa647a271431',
+        )
+        for test_url in test_urls:
+            req = requests.Request('GET', test_url)
+            preq = req.prepare()
+            assert test_url == preq.url
+
+
 class TestContentEncodingDetection(unittest.TestCase):
 
     def test_none(self):
