@@ -648,8 +648,8 @@ class Response(object):
     def text(self):
         """Content of the response, in unicode.
 
-        if Response.encoding is None and chardet module is available, encoding
-        will be guessed.
+        if Response.encoding is None, encoding will be guessed using
+        ``charade``.
         """
 
         # Try charset from content-type
