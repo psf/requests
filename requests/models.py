@@ -648,7 +648,7 @@ class Response(object):
     def text(self):
         """Content of the response, in unicode.
 
-        if Response.encoding is None, encoding will be guessed using
+        If Response.encoding is None, encoding will be guessed using
         ``charade``.
         """
 
