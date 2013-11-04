@@ -90,6 +90,7 @@ class HTTPResponse(io.IOBase):
         self._body = body if body and isinstance(body, basestring) else None
         self._fp = None
         self._original_response = original_response
+        self._fp_bytes_read = 0
 
         self._pool = pool
         self._connection = connection
@@ -128,6 +129,14 @@ class HTTPResponse(io.IOBase):
 
         if self._fp:
             return self.read(cache_content=True)
+
+    def tell(self):
+        """
+        Obtain the number of bytes pulled over the wire so far. May differ from
+        the amount of content returned by :meth:``HTTPResponse.read`` if bytes
+        are encoded on the wire (e.g, compressed).
+        """
+        return self._fp_bytes_read
 
     def read(self, amt=None, decode_content=None, cache_content=False):
         """
@@ -182,6 +191,8 @@ class HTTPResponse(io.IOBase):
                     # in redundantly calling close.
                     self._fp.close()
                     flush_decoder = True
+
+            self._fp_bytes_read += len(data)
 
             try:
                 if decode_content and self._decoder:

@@ -245,12 +245,11 @@ class ProxyManager(PoolManager):
         u = parse_url(url)
 
         if u.scheme == "http":
-            # It's too late to set proxy headers on per-request basis for
-            # tunnelled HTTPS connections, should use
-            # constructor's proxy_headers instead.
+            # For proxied HTTPS requests, httplib sets the necessary headers
+            # on the CONNECT to the proxy. For HTTP, we'll definitely
+            # need to set 'Host' at the very least.
             kw['headers'] = self._set_proxy_headers(url, kw.get('headers',
                                                                 self.headers))
-            kw['headers'].update(self.proxy_headers)
 
         return super(ProxyManager, self).urlopen(method, url, redirect, **kw)
 
