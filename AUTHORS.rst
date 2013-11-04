@@ -140,3 +140,4 @@ Patches and Suggestions
 - Matt Spitz @mattspitz
 - Vikram Oberoi @voberoi
 - Can Ibanoglu <can.ibanoglu@gmail.com> @canibanoglu
+- Thomas Weißschuh <thomas@t-8ch.de> @t-8ch
