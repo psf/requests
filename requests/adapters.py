@@ -289,7 +289,7 @@ class HTTPAdapter(BaseAdapter):
         :param stream: (optional) Whether to stream the request content.
         :param timeout: (optional) The timeout on the request.
         :param verify: (optional) Whether to verify SSL certificates.
-        :param vert: (optional) Any user-provided SSL certificate to be trusted.
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
         :param proxies: (optional) The proxies dictionary to apply to the request.
         """
 
