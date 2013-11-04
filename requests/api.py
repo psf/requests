@@ -12,7 +12,7 @@ This module implements the Requests API.
 """
 
 from . import sessions
-
+from .compat import builtin_str
 
 def request(method, url, **kwargs):
     """Constructs and sends a :class:`Request <Request>`.
@@ -41,7 +41,7 @@ def request(method, url, **kwargs):
     """
 
     session = sessions.Session()
-    return session.request(method=method, url=url, **kwargs)
+    return session.request(method=builtin_str(method), url=url, **kwargs)
 
 
 def get(url, **kwargs):
