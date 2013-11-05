@@ -421,3 +421,22 @@ def cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True):
                 cookiejar.set_cookie(create_cookie(name, cookie_dict[name]))
 
     return cookiejar
+
+
+def merge_cookies(cookiejar, cookies):
+    """Add cookies to cookiejar and returns a merged CookieJar.
+
+    :param cookiejar: CookieJar object to add the cookies to.
+    :param cookies: Dictionary or CookieJar object to be added.
+    """
+    if not isinstance(cookiejar, cookielib.CookieJar):
+        raise ValueError('You can only merge into CookieJar')
+    
+    if isinstance(cookies, dict):
+        cookiejar.update(
+            cookiejar_from_dict(
+                cookies, cookiejar=cookiejar, overwrite=False))
+    elif isinstance(cookies, cookielib.CookieJar):
+        cookiejar.update(cookies)
+
+    return cookiejar
