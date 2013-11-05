@@ -186,7 +186,8 @@ class RequestsTestCase(unittest.TestCase):
         # Make sure the cookie was sent
         assert r.json()['cookies']['foo'] == 'bar'
         # Make sure the session cj is still the custom one
-        assert s.cookies is cj
+        assert isinstance(s.cookies, cookielib.CookieJar)
+        assert s.cookies['foo'] == 'bar'
     
     def test_param_cookiejar_works(self):
         cj = cookielib.CookieJar()
