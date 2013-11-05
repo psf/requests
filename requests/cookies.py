@@ -432,13 +432,17 @@ def merge_cookies(cookiejar, cookies):
     if not isinstance(cookiejar, cookielib.CookieJar):
         raise ValueError('You can only merge into CookieJar')
     
-    merged_cookie = RequestsCookieJar()
-    merged_cookie.update(cookiejar)
-
     if isinstance(cookies, dict):
-        merged_cookie = cookiejar_from_dict(
-            cookies, cookiejar=merged_cookie, overwrite=False)
+        cookiejar = cookiejar_from_dict(
+            cookies, cookiejar=cookiejar, overwrite=False)
     elif isinstance(cookies, cookielib.CookieJar):
-        merged_cookie.update(cookies)
+        try:
+            if hasattr(cookiejar, 'update'):
+                cookiejar.update(cookies)
+            else:
+                raise CookieJarError
+        except CookieJarError:
+            for cookie_in_jar in cookies:
+                cookiejar.set_cookie(cookie_in_jar)
 
-    return merged_cookie
+    return cookiejar
