@@ -437,9 +437,9 @@ def merge_cookies(cookiejar, cookies):
             cookies, cookiejar=cookiejar, overwrite=False)
     elif isinstance(cookies, cookielib.CookieJar):
         try:
-            if hasattr(cookiejar, 'update'):
+            try:
                 cookiejar.update(cookies)
-            else:
+            except AttributeError:
                 raise CookieJarError
         except CookieJarError:
             for cookie_in_jar in cookies:
