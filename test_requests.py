@@ -433,7 +433,7 @@ class RequestsTestCase(unittest.TestCase):
         prep = r.prepare()
         assert b'name="stuff"' in prep.body
         assert b'name="b\'stuff\'"' not in prep.body
-    
+
     def test_unicode_method_name(self):
         files = {'file': open('test_requests.py', 'rb')}
         r = requests.request(method=u'POST', url=httpbin('post'), files=files)
@@ -546,6 +546,18 @@ class RequestsTestCase(unittest.TestCase):
         r.raw = io
         assert next(iter(r))
         io.close()
+
+    def test_request_and_response_are_pickleable(self):
+        r = requests.get(httpbin('get'))
+
+        # verify we can pickle the original request
+        assert pickle.loads(pickle.dumps(r.request))
+
+        # verify we can pickle the response and that we have access to
+        # the original request.
+        pr = pickle.loads(pickle.dumps(r))
+        assert r.request.url == pr.request.url
+        assert r.request.headers == pr.request.headers
 
     def test_get_auth_from_url(self):
         url = 'http://user:pass@complex.url.com/path?query=yes'

@@ -489,6 +489,19 @@ class Response(object):
     server's response to an HTTP request.
     """
 
+    __attrs__ = [
+        '_content',
+        'status_code',
+        'headers',
+        'url',
+        'history',
+        'encoding',
+        'reason',
+        'cookies',
+        'elapsed',
+        'request',
+    ]
+
     def __init__(self):
         super(Response, self).__init__()
 
@@ -527,6 +540,24 @@ class Response(object):
         #: The amount of time elapsed between sending the request
         #: and the arrival of the response (as a timedelta)
         self.elapsed = datetime.timedelta(0)
+
+    def __getstate__(self):
+        # Consume everything; accessing the content attribute makes
+        # sure the content has been fully read.
+        if not self._content_consumed:
+            self.content
+
+        return dict(
+            (attr, getattr(self, attr, None))
+            for attr in self.__attrs__
+        )
+
+    def __setstate__(self, state):
+        for name, value in state.items():
+            setattr(self, name, value)
+
+        # pickled objects do not have .raw
+        setattr(self, '_content_consumed', True)
 
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
