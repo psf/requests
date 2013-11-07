@@ -165,7 +165,7 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_cookie_persists_via_api(self):
         s = requests.session()
-        r = s.get(httpbin('redirect/1'), cookies={'foo':'bar'})
+        r = s.get(httpbin('redirect/1'), cookies={'foo': 'bar'})
         assert 'foo' in r.request.headers['Cookie']
         assert 'foo' in r.history[0].request.headers['Cookie']
 
@@ -176,6 +176,12 @@ class RequestsTestCase(unittest.TestCase):
         assert r.json()['cookies']['foo'] == 'baz'
         # Session cookie should not be modified
         assert s.cookies['foo'] == 'bar'
+
+    def test_request_cookies_not_persisted(self):
+        s = requests.session()
+        s.get(httpbin('cookies'), cookies={'foo': 'baz'})
+        # Sending a request with cookies should not add cookies to the session
+        assert not s.cookies
 
     def test_generic_cookiejar_works(self):
         cj = cookielib.CookieJar()
