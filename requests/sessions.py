@@ -133,7 +133,8 @@ class SessionRedirectMixin(object):
             except KeyError:
                 pass
 
-            prepared_request.prepare_cookies(self.cookies)
+            extract_cookies_to_jar(prepared_request.cookies, prepared_request, resp.raw)
+            prepared_request.prepare_cookies(prepared_request.cookies)
 
             resp = self.send(
                 prepared_request,
@@ -325,9 +326,6 @@ class Session(SessionRedirectMixin):
             hooks = hooks,
         )
         prep = self.prepare_request(req)
-
-        # Add param cookies to session cookies
-        self.cookies = cookiejar_from_dict(cookies, cookiejar=self.cookies, overwrite=False)
 
         proxies = proxies or {}
 
