@@ -362,7 +362,7 @@ def create_cookie(name, value, **kwargs):
         rest={'HttpOnly': None},
         rfc2109=False,)
 
-    badargs = set(kwargs) - set(result)
+    badargs = set(map(lambda i: i.lower(), set(kwargs))) - set(result)
     if badargs:
         err = 'create_cookie() got unexpected keyword arguments: %s'
         raise TypeError(err % list(badargs))
@@ -383,7 +383,7 @@ def morsel_to_cookie(morsel):
         expires = time.time() + morsel["max-age"]
     elif morsel['expires']:
         expires = morsel['expires']
-        if type(expires) == type(""):
+        if isinstance(expires, str):
             time_template = "%a, %d-%b-%Y %H:%M:%S GMT"
             expires = time.mktime(time.strptime(expires, time_template))
     c = create_cookie(
