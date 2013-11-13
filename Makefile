@@ -23,3 +23,7 @@ charade:
 	git clone https://github.com/sigmavirus24/charade.git
 	mv charade/charade requests/packages/
 	rm -fr charade
+
+publish:
+	python setup.py sdist upload
+	python setup.py bdist_wheel upload
