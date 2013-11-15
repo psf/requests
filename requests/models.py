@@ -320,6 +320,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         except UnicodeDecodeError:
             pass
 
+        # Don't do any URL preparation for oddball schemes
+        if ':' in url and not url.lower().startswith('http'):
+            self.url = url
+            return
+
         # Support for unicode domain names and paths.
         scheme, auth, host, port, path, query, fragment = parse_url(url)
 
