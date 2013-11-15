@@ -4,6 +4,9 @@ init:
 test:
 	py.test
 
+coverage:
+	py.test --verbose --cov-report term --cov=requests test_requests.py
+
 ci: init
 	py.test --junitxml=junit.xml
 
