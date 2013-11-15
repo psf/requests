@@ -258,6 +258,7 @@ class Session(SessionRedirectMixin):
             url=request.url,
             files=request.files,
             data=request.data,
+            multipart=request.multipart,
             headers=merge_setting(request.headers, self.headers, dict_class=CaseInsensitiveDict),
             params=merge_setting(request.params, self.params),
             auth=merge_setting(auth, self.auth),
@@ -269,6 +270,7 @@ class Session(SessionRedirectMixin):
     def request(self, method, url,
         params=None,
         data=None,
+        multipart=None,
         headers=None,
         cookies=None,
         files=None,
@@ -289,6 +291,8 @@ class Session(SessionRedirectMixin):
             string for the :class:`Request`.
         :param data: (optional) Dictionary or bytes to send in the body of the
             :class:`Request`.
+        :param multipart: (optional) if ``True``, encode data as
+            multipart/form-data.
         :param headers: (optional) Dictionary of HTTP Headers to send with the
             :class:`Request`.
         :param cookies: (optional) Dict or CookieJar object to send with the
@@ -319,6 +323,7 @@ class Session(SessionRedirectMixin):
             headers = headers,
             files = files,
             data = data or {},
+            multipart = multipart,
             params = params or {},
             auth = auth,
             cookies = cookies,
@@ -400,6 +405,7 @@ class Session(SessionRedirectMixin):
 
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
+        :param multipart: (optional) if ``True``, encode data as multipart/form-data.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
