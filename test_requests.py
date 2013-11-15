@@ -338,6 +338,24 @@ class RequestsTestCase(unittest.TestCase):
         with pytest.raises(ValueError):
             requests.post(url, files = ['bad file data'])
 
+        post5 = requests.post(url, data={'some': 'data'}, multipart=True)
+        assert post5.status_code == 200
+
+        with open('requirements.txt') as f:
+            post6 = requests.post(url, files={'some': f}, multipart=True)
+        assert post6.status_code == 200
+
+        with pytest.raises(ValueError):
+            requests.post(url, data='[{"some": "json"}]', multipart=True)
+
+        r = requests.Request(method='POST',
+                             url=url,
+                             data={'some': 'data'},
+                             multipart=True)
+        prep = r.prepare()
+        assert b'name="some"' in prep.body
+        assert b'filename="' not in prep.body
+
     def test_POSTBIN_GET_POST_FILES_WITH_DATA(self):
 
         url = httpbin('post')
@@ -356,11 +374,36 @@ class RequestsTestCase(unittest.TestCase):
         with pytest.raises(ValueError):
             requests.post(url, files = ['bad file data'])
 
+        post5 = requests.post(url, data={'some': 'data'}, multipart=True)
+        assert post5.status_code == 200
+
+        with open('requirements.txt') as f:
+            post6 = requests.post(url, data={'some': 'data'}, files={'some': f}, multipart=True)
+        assert post6.status_code == 200
+
+        with pytest.raises(ValueError):
+            requests.post(url, data='[{"some": "json"}]', multipart=True)
+
+        with pytest.raises(ValueError):
+            requests.post(url, files = ['bad file data'], multipart=True)
+
+        r = requests.Request(method='POST',
+                             url=url,
+                             data={'some': 'data'},
+                             multipart=True)
+        prep = r.prepare()
+        assert b'name="some"' in prep.body
+        assert b'filename="' not in prep.body
+
     def test_conflicting_post_params(self):
         url = httpbin('post')
         with open('requirements.txt') as f:
             pytest.raises(ValueError, "requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})")
             pytest.raises(ValueError, "requests.post(url, data=u'[{\"some\": \"data\"}]', files={'some': f})")
+
+        with open('requirements.txt') as f:
+            pytest.raises(ValueError, "requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f}, multipart=True)")
+            pytest.raises(ValueError, "requests.post(url, data=u'[{\"some\": \"data\"}]', files={'some': f}, multipart=True)")
 
     def test_request_ok_set(self):
         r = requests.get(httpbin('status', '404'))
@@ -433,7 +476,7 @@ class RequestsTestCase(unittest.TestCase):
         prep = r.prepare()
         assert b'name="stuff"' in prep.body
         assert b'name="b\'stuff\'"' not in prep.body
-    
+
     def test_unicode_method_name(self):
         files = {'file': open('test_requests.py', 'rb')}
         r = requests.request(method=u'POST', url=httpbin('post'), files=files)

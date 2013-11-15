@@ -87,22 +87,19 @@ class RequestEncodingMixin(object):
             return data
 
     @staticmethod
-    def _encode_files(files, data):
-        """Build the body for a multipart/form-data request.
+    def _encode_data(data):
+        """Encode data as a list of fields
 
-        Will successfully encode files when passed as a dict or a list of
+        Will successfully encode data when passed as a dict or a list of
         2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
-        if parameters are supplied as a dict.
-
+        if data are supplied as a dict.
         """
-        if (not files):
-            raise ValueError("Files must be provided.")
-        elif isinstance(data, basestring):
+
+        if isinstance(data, basestring):
             raise ValueError("Data must not be a string.")
 
         new_fields = []
         fields = to_key_val_list(data or {})
-        files = to_key_val_list(files or {})
 
         for field, val in fields:
             if isinstance(val, basestring) or not hasattr(val, '__iter__'):
@@ -116,6 +113,25 @@ class RequestEncodingMixin(object):
                     new_fields.append(
                         (field.decode('utf-8') if isinstance(field, bytes) else field,
                          v.encode('utf-8') if isinstance(v, str) else v))
+
+        return new_fields
+
+    @staticmethod
+    def _encode_files(files, data):
+        """Build the body for a multipart/form-data request.
+
+        Will successfully encode files when passed as a dict or a list of
+        2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
+        if parameters are supplied as a dict.
+
+        """
+        if (not files):
+            raise ValueError("Files must be provided.")
+        elif isinstance(data, basestring):
+            raise ValueError("Data must not be a string.")
+
+        new_fields = RequestEncodingMixin._encode_data(data)
+        files = to_key_val_list(files or {})
 
         for (k, v) in files:
             # support for explicit filename
@@ -141,6 +157,20 @@ class RequestEncodingMixin(object):
             rf.make_multipart(content_type=ft)
             new_fields.append(rf)
 
+        body, content_type = encode_multipart_formdata(new_fields)
+
+        return body, content_type
+
+    @staticmethod
+    def _encode_multipart_data(data):
+        """Build the body for a multipart/form-data request.
+
+        Will successfully encode data as multipart/form-data. Order is
+        retained if data is a list of 2-tuples but arbitrary if parameters
+        are supplied as a dict.
+
+        """
+        new_fields = RequestEncodingMixin._encode_data(data)
         body, content_type = encode_multipart_formdata(new_fields)
 
         return body, content_type
@@ -180,6 +210,7 @@ class Request(RequestHooksMixin):
     :param headers: dictionary of headers to send.
     :param files: dictionary of {filename: fileobject} files to multipart upload.
     :param data: the body to attach the request. If a dictionary is provided, form-encoding will take place.
+    :param multipart: (optional) if ``True``, encode data as multipart/form-data.
     :param params: dictionary of URL parameters to append to the URL.
     :param auth: Auth handler or (user, pass) tuple.
     :param cookies: dictionary or CookieJar of cookies to attach to this request.
@@ -199,6 +230,7 @@ class Request(RequestHooksMixin):
         headers=None,
         files=None,
         data=None,
+        multipart=None,
         params=None,
         auth=None,
         cookies=None,
@@ -220,6 +252,7 @@ class Request(RequestHooksMixin):
         self.headers = headers
         self.files = files
         self.data = data
+        self.multipart = multipart
         self.params = params
         self.auth = auth
         self.cookies = cookies
@@ -236,6 +269,7 @@ class Request(RequestHooksMixin):
             headers=self.headers,
             files=self.files,
             data=self.data,
+            multipart=self.multipart,
             params=self.params,
             auth=self.auth,
             cookies=self.cookies,
@@ -276,14 +310,15 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.hooks = default_hooks()
 
     def prepare(self, method=None, url=None, headers=None, files=None,
-                data=None, params=None, auth=None, cookies=None, hooks=None):
+                data=None, multipart=None, params=None, auth=None,
+                cookies=None, hooks=None):
         """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)
         self.prepare_url(url, params)
         self.prepare_headers(headers)
         self.prepare_cookies(cookies)
-        self.prepare_body(data, files)
+        self.prepare_body(data, files, multipart)
         self.prepare_auth(auth, url)
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
@@ -383,7 +418,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         else:
             self.headers = CaseInsensitiveDict()
 
-    def prepare_body(self, data, files):
+    def prepare_body(self, data, files, multipart):
         """Prepares the given HTTP body data."""
 
         # Check if file, fo, generator, iterator.
@@ -422,11 +457,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 (body, content_type) = self._encode_files(files, data)
             else:
                 if data:
-                    body = self._encode_params(data)
-                    if isinstance(data, str) or isinstance(data, builtin_str) or hasattr(data, 'read'):
-                        content_type = None
+                    if multipart:
+                        (body, content_type) = self._encode_multipart_data(data)
                     else:
-                        content_type = 'application/x-www-form-urlencoded'
+                        body = self._encode_params(data)
+                        if isinstance(data, str) or isinstance(data, builtin_str) or hasattr(data, 'read'):
+                            content_type = None
+                        else:
+                            content_type = 'application/x-www-form-urlencoded'
 
             self.prepare_content_length(body)
 
