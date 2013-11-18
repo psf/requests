@@ -39,4 +39,4 @@ docs-init:
 
 docs:
 	cd docs && make html
-	@echo "\033[95m\n\nInstalled! Docs homepage is at docs/_build/html/index.html.\n\033[0m"
+	@echo "\033[95m\n\nBuild successful! View the docs homepage at docs/_build/html/index.html.\n\033[0m"
