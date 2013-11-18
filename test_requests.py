@@ -15,8 +15,9 @@ from requests.auth import HTTPDigestAuth
 from requests.adapters import HTTPAdapter
 from requests.compat import str, cookielib, getproxies, urljoin, urlparse
 from requests.cookies import cookiejar_from_dict
-from requests.exceptions import InvalidURL, MissingSchema
-from requests.structures import CaseInsensitiveDict
+from requests.exceptions import (InvalidURL, MissingSchema, ConnectTimeout,
+                                 ReadTimeout)
+from requests.structures import CaseInsensitiveDict, Timeout
 
 try:
     import StringIO
@@ -27,6 +28,9 @@ HTTPBIN = os.environ.get('HTTPBIN_URL', 'http://httpbin.org/')
 # Issue #1483: Make sure the URL always has a trailing slash
 HTTPBIN = HTTPBIN.rstrip('/') + '/'
 
+# We need a host that will not immediately close the connection with a TCP
+# Reset. SO suggests this hostname
+TARPIT_HOST = 'http://10.255.255.1'
 
 def httpbin(*suffix):
     """Returns url for HTTPBIN resource."""
@@ -433,7 +437,7 @@ class RequestsTestCase(unittest.TestCase):
         prep = r.prepare()
         assert b'name="stuff"' in prep.body
         assert b'name="b\'stuff\'"' not in prep.body
-    
+
     def test_unicode_method_name(self):
         files = {'file': open('test_requests.py', 'rb')}
         r = requests.request(method=u'POST', url=httpbin('post'), files=files)
@@ -534,6 +538,38 @@ class RequestsTestCase(unittest.TestCase):
         total_seconds = ((td.microseconds + (td.seconds + td.days * 24 * 3600)
                          * 10**6) / 10**6)
         assert total_seconds > 0.0
+
+    def test_read_timeout(self):
+        timeout = Timeout(read=0.1)
+        try:
+            requests.get(httpbin('delay/10'), timeout=timeout)
+            assert False, "The recv() request should time out."
+        except ReadTimeout:
+            pass
+
+    def test_connect_timeout(self):
+        timeout = Timeout(connect=0.1)
+        try:
+            requests.get(TARPIT_HOST, timeout=timeout)
+            assert False, "The connect() request should time out."
+        except ConnectTimeout:
+            pass
+
+    def test_total_timeout_connect(self):
+        timeout = Timeout(total=0.1)
+        try:
+            requests.get(TARPIT_HOST, timeout=timeout)
+            assert False, "The connect() request should time out."
+        except ConnectTimeout:
+            pass
+
+    def test_total_timeout_request(self):
+        timeout = Timeout(connect=8, read=20, total=0.5)
+        try:
+            requests.get(httpbin('delay/10'), timeout=timeout)
+            assert False, "The recv() request should time out."
+        except ReadTimeout:
+            pass
 
     def test_response_is_iterable(self):
         r = requests.Response()
@@ -875,6 +911,14 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert frozenset(i[0] for i in cid.items()) == keyset
         assert frozenset(cid.keys()) == keyset
         assert frozenset(cid) == keyset
+
+
+class StructuresTestCase(unittest.TestCase):
+    """ Test cases for requests/structures.py """
+
+    def test_timeout(self):
+        t = Timeout(connect=3, read=7)
+        assert t.total == None
 
 
 class UtilsTestCase(unittest.TestCase):
