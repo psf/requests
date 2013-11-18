@@ -28,6 +28,9 @@ HTTPBIN = os.environ.get('HTTPBIN_URL', 'http://httpbin.org/')
 # Issue #1483: Make sure the URL always has a trailing slash
 HTTPBIN = HTTPBIN.rstrip('/') + '/'
 
+# We need a host that will not immediately close the connection with a TCP
+# Reset. SO suggests this hostname
+TARPIT_HOST = 'http://10.255.255.1'
 
 def httpbin(*suffix):
     """Returns url for HTTPBIN resource."""
@@ -194,7 +197,7 @@ class RequestsTestCase(unittest.TestCase):
         assert r.json()['cookies']['foo'] == 'bar'
         # Make sure the session cj is still the custom one
         assert s.cookies is cj
-    
+
     def test_param_cookiejar_works(self):
         cj = cookielib.CookieJar()
         cookiejar_from_dict({'foo' : 'bar'}, cj)
@@ -577,6 +580,38 @@ class RequestsTestCase(unittest.TestCase):
                          * 10**6) / 10**6)
         assert total_seconds > 0.0
 
+    def test_read_timeout(self):
+        timeout = Timeout(read=0.1)
+        try:
+            requests.get(httpbin('delay/10'), timeout=timeout)
+            assert False, "The recv() request should time out."
+        except ReadTimeout:
+            pass
+
+    def test_connect_timeout(self):
+        timeout = Timeout(connect=0.1)
+        try:
+            requests.get(TARPIT_HOST, timeout=timeout)
+            assert False, "The connect() request should time out."
+        except ConnectTimeout:
+            pass
+
+    def test_total_timeout_connect(self):
+        timeout = Timeout(total=0.1)
+        try:
+            requests.get(TARPIT_HOST, timeout=timeout)
+            assert False, "The connect() request should time out."
+        except ConnectTimeout:
+            pass
+
+    def test_total_timeout_request(self):
+        timeout = Timeout(connect=8, read=20, total=0.5)
+        try:
+            requests.get(httpbin('delay/10'), timeout=timeout)
+            assert False, "The recv() request should time out."
+        except ReadTimeout:
+            pass
+
     def test_response_is_iterable(self):
         r = requests.Response()
         io = StringIO.StringIO('abc')
@@ -941,6 +976,14 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert frozenset(i[0] for i in cid.items()) == keyset
         assert frozenset(cid.keys()) == keyset
         assert frozenset(cid) == keyset
+
+
+class StructuresTestCase(unittest.TestCase):
+    """ Test cases for requests/structures.py """
+
+    def test_timeout(self):
+        t = Timeout(connect=3, read=7)
+        assert t.total == None
 
 
 class UtilsTestCase(unittest.TestCase):
