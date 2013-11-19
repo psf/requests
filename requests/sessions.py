@@ -12,7 +12,7 @@ import os
 from collections import Mapping
 from datetime import datetime
 
-from .compat import cookielib, OrderedDict, urljoin, urlparse, urlunparse, builtin_str
+from .compat import cookielib, OrderedDict, urljoin, urlparse, builtin_str
 from .cookies import cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar
 from .models import Request, PreparedRequest
 from .hooks import default_hooks, dispatch_hook
@@ -94,9 +94,7 @@ class SessionRedirectMixin(object):
 
             # The scheme should be lower case...
             parsed = urlparse(url)
-            parsed = (parsed.scheme, parsed.netloc, parsed.path,
-                      parsed.params, parsed.query, parsed.fragment)
-            url = urlunparse(parsed)
+            url = parsed.geturl()
 
             # Facilitate non-RFC2616-compliant 'location' headers
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
