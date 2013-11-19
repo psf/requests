@@ -14,7 +14,7 @@ from .models import Response
 from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
 from .packages.urllib3.response import HTTPResponse
 from .packages.urllib3.util import Timeout as TimeoutSauce
-from .compat import urlparse, basestring, urldefrag, unquote
+from .compat import urlparse, basestring, urldefrag, unquote, urlunparse
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     except_on_missing_scheme, get_auth_from_url)
 from .structures import CaseInsensitiveDict
@@ -206,7 +206,12 @@ class HTTPAdapter(BaseAdapter):
 
             conn = self.proxy_manager[proxy].connection_from_url(url)
         else:
-            conn = self.poolmanager.connection_from_url(url.lower())
+            # Only scheme should be lower case
+            parsed = urlparse(url)
+            parsed = (parsed.scheme, parsed.netloc, parsed.path,
+                    parsed.params, parsed.query, parsed.fragment)
+            url = urlunparse(parsed)
+            conn = self.poolmanager.connection_from_url(url)
 
         return conn
 
@@ -232,7 +237,7 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: A dictionary of schemes to proxy URLs.
         """
         proxies = proxies or {}
-        scheme = urlparse(request.url).scheme.lower()
+        scheme = urlparse(request.url).scheme
         proxy = proxies.get(scheme)
 
         if proxy and scheme != 'https':

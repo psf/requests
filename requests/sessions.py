@@ -94,7 +94,7 @@ class SessionRedirectMixin(object):
 
             # The scheme should be lower case...
             parsed = urlparse(url)
-            parsed = (parsed.scheme.lower(), parsed.netloc, parsed.path,
+            parsed = (parsed.scheme, parsed.netloc, parsed.path,
                       parsed.params, parsed.query, parsed.fragment)
             url = urlunparse(parsed)
 
