@@ -206,7 +206,10 @@ class HTTPAdapter(BaseAdapter):
 
             conn = self.proxy_manager[proxy].connection_from_url(url)
         else:
-            conn = self.poolmanager.connection_from_url(url.lower())
+            # Only scheme should be lower case
+            parsed = urlparse(url)
+            url = parsed.geturl()
+            conn = self.poolmanager.connection_from_url(url)
 
         return conn
 
@@ -232,7 +235,7 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: A dictionary of schemes to proxy URLs.
         """
         proxies = proxies or {}
-        scheme = urlparse(request.url).scheme.lower()
+        scheme = urlparse(request.url).scheme
         proxy = proxies.get(scheme)
 
         if proxy and scheme != 'https':
