@@ -112,8 +112,13 @@ class SessionRedirectMixin(object):
                 method = 'GET'
 
             # Do what the browsers do, despite standards...
-            if (resp.status_code in (codes.moved, codes.found) and
-                    method not in ('GET', 'HEAD')):
+            # First, turn 302s into GETs.
+            if resp.status_code == codes.found and method != 'HEAD':
+                method = 'GET'
+
+            # Second, if a POST is responded to with a 301, turn it into a GET.
+            # This bizarre behaviour is explained in Issue 1704.
+            if resp.status_code == codes.moved and method == 'POST':
                 method = 'GET'
 
             prepared_request.method = method
