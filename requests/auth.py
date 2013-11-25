@@ -63,6 +63,7 @@ class HTTPDigestAuth(AuthBase):
         self.last_nonce = ''
         self.nonce_count = 0
         self.chal = {}
+        self.pos = None
 
     def build_digest_header(self, method, url):
 
@@ -150,6 +151,10 @@ class HTTPDigestAuth(AuthBase):
     def handle_401(self, r, **kwargs):
         """Takes the given response and tries digest-auth, if needed."""
 
+        if self.pos is not None:
+            # Rewind the file position indicator of the body to where
+            # it was to resend the request.
+            r.request.body.seek(self.pos)
         num_401_calls = getattr(self, 'num_401_calls', 1)
         s_auth = r.headers.get('www-authenticate', '')
 
@@ -181,5 +186,9 @@ class HTTPDigestAuth(AuthBase):
         # If we have a saved nonce, skip the 401
         if self.last_nonce:
             r.headers['Authorization'] = self.build_digest_header(r.method, r.url)
+        try:
+            self.pos = r.body.tell()
+        except AttributeError:
+            pass
         r.register_hook('response', self.handle_401)
         return r
