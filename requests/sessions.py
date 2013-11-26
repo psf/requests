@@ -12,7 +12,7 @@ import os
 from collections import Mapping
 from datetime import datetime
 
-from .compat import cookielib, OrderedDict, urljoin, urlparse, urlunparse, builtin_str
+from .compat import cookielib, OrderedDict, urljoin, urlparse, builtin_str
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest
