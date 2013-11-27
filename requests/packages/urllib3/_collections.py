@@ -5,7 +5,16 @@
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
 from collections import MutableMapping
-from threading import RLock
+try:
+    from threading import RLock
+except ImportError: # Platform-specific: No threads available
+    class RLock:
+        def __enter__(self):
+            pass
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            pass
+
 
 try: # Python 2.7+
     from collections import OrderedDict
