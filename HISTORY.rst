@@ -3,6 +3,21 @@
 Release History
 ---------------
 
+2.1.0 (XXXX-XX-XX)
+++++++++++++++++++
+
+- Match the HTTPbis recommendation for HTTP 301 redirects.
+- Prevent hanging when using streaming uploads and Digest Auth when a 401 is received.
+- Values of headers set by Requests are now always the native string type.
+- Parse headers correctly when users override the default ``Host:`` header.
+- Avoid munging the URL in case of case-sensitive servers.
+- Looser URL handling for non-HTTP/HTTPS urls.
+- Accept unicode methods in Python 2.6 and 2.7.
+- More resilient cookie handling.
+- Make ``Response`` objects pickleable.
+- Actually added MD5-sess to Digest Auth instead of pretending to like last time.
+- Updated internal urllib3.
+- Fixed @Lukasa's lack of taste.
 
 2.0.1 (2013-10-24)
 ++++++++++++++++++
