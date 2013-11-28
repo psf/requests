@@ -9,6 +9,8 @@ Release History
 - Match the HTTPbis recommendation for HTTP 301 redirects.
 - Prevent hanging when using streaming uploads and Digest Auth when a 401 is received.
 - Values of headers set by Requests are now always the native string type.
+- Fix previously broken SNI support.
+- Fix accessing HTTP proxies using proxy authentication.
 - Parse headers correctly when users override the default ``Host:`` header.
 - Avoid munging the URL in case of case-sensitive servers.
 - Looser URL handling for non-HTTP/HTTPS urls.
