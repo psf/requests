@@ -320,6 +320,14 @@ class RequestsTestCase(unittest.TestCase):
         r = s.get(url)
         assert r.status_code == 401
 
+    def test_DIGESTAUTH_QUOTES_QOP_VALUE(self):
+
+        auth = HTTPDigestAuth('user', 'pass')
+        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+
+        r = requests.get(url, auth=auth)
+        assert '"auth"' in r.request.headers['Authorization']
+
     def test_POSTBIN_GET_POST_FILES(self):
 
         url = httpbin('post')
