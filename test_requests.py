@@ -910,5 +910,14 @@ class UtilsTestCase(unittest.TestCase):
         else:
             assert super_len(cStringIO.StringIO('but some how, some way...')) == 25
 
+    def test_get_environ_proxies_ip_ranges(self):
+        """ Ensures that IP addresses are correctly matches with ranges in no_proxy variable """
+        from requests.utils import get_environ_proxies
+        os.environ['no_proxy'] = "127.0.0.1,localhost.localdomain,192.168.0.0/24,172.16.1.1"
+        assert get_environ_proxies('http://192.168.0.1:5000/') == {}
+        assert get_environ_proxies('http://192.168.0.1/') == {}
+        assert get_environ_proxies('http://172.16.1.1/') == {}
+        assert get_environ_proxies('http://192.168.1.1:5000/') == {'no': os.environ['no_proxy']}
+
 if __name__ == '__main__':
     unittest.main()

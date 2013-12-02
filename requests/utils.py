@@ -17,6 +17,7 @@ import os
 import platform
 import re
 import sys
+import netaddr
 
 from . import __version__
 from . import certs
@@ -420,11 +421,27 @@ def get_environ_proxies(url):
         # the end of the netloc, both with and without the port.
         no_proxy = no_proxy.replace(' ', '').split(',')
 
-        for host in no_proxy:
-            if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
-                # The URL does match something in no_proxy, so we don't want
-                # to apply the proxies on this URL.
-                return {}
+        ip = None
+        try:
+            ip = netaddr.IPAddress(netloc.split(':')[0])
+        except netaddr.AddrFormatError:
+            pass
+
+        if ip:
+            for proxy_ip in no_proxy:
+                proxy_ipaddress = None
+                try:
+                    proxy_ipaddress = netaddr.IPNetwork(proxy_ip)
+                except (netaddr.AddrFormatError, ValueError):
+                    continue
+                if proxy_ipaddress and ip in proxy_ipaddress:
+                    return {}
+        else:
+            for host in no_proxy:
+                if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
+                    # The URL does match something in no_proxy, so we don't want
+                    # to apply the proxies on this URL.
+                    return {}
 
     # If the system proxy settings indicate that this URL should be bypassed,
     # don't proxy.
