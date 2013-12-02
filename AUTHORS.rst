@@ -143,3 +143,4 @@ Patches and Suggestions
 - Thomas Weißschuh <thomas@t-8ch.de> @t-8ch
 - Jayson Vantuyl <jayson@aggressive.ly> @kagato
 - Pengfei.X <pengphy@gmail.com>
+- Kamil Madac <kamil.madac@gmail.com>
