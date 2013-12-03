@@ -383,9 +383,11 @@ def morsel_to_cookie(morsel):
         expires = time.time() + morsel["max-age"]
     elif morsel['expires']:
         expires = morsel['expires']
-        if type(expires) == type(""):
+        try:
             time_template = "%a, %d-%b-%Y %H:%M:%S GMT"
             expires = time.mktime(time.strptime(expires, time_template))
+        except TypeError:
+            pass
     c = create_cookie(
         name=morsel.key,
         value=morsel.value,
