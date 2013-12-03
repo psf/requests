@@ -51,6 +51,9 @@ class RecentlyUsedContainer(MutableMapping):
         self._container = self.ContainerCls()
         self.lock = RLock()
 
+    def __del__(self):
+        self.clear()
+
     def __getitem__(self, key):
         # Re-insert the item, moving it to the end of the eviction line.
         with self.lock:
