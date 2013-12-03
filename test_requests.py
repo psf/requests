@@ -6,15 +6,16 @@
 from __future__ import division
 import json
 import os
-import unittest
 import pickle
+import unittest
 
 import requests
 import pytest
-from requests.auth import HTTPDigestAuth
 from requests.adapters import HTTPAdapter
-from requests.compat import str, cookielib, getproxies, urljoin, urlparse
-from requests.cookies import cookiejar_from_dict
+from requests.auth import HTTPDigestAuth
+from requests.compat import (
+    Morsel, cookielib, getproxies, str, urljoin, urlparse)
+from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import InvalidURL, MissingSchema
 from requests.structures import CaseInsensitiveDict
 
@@ -758,6 +759,24 @@ class RequestsTestCase(unittest.TestCase):
             req = requests.Request('GET', test_url)
             preq = req.prepare()
             assert test_url == preq.url
+
+    def test_morsel_to_cookie_expires_is_converted(self):
+        morsel = Morsel()
+
+        # Test case where we convert from string time
+        morsel['expires'] = 'Thu, 01-Jan-1970 00:00:01 GMT'
+        cookie = morsel_to_cookie(morsel)
+        self.assertEquals(cookie.expires, 18001)
+
+        # Test case where no conversion is required
+        morsel['expires'] = 100
+        cookie = morsel_to_cookie(morsel)
+        self.assertEquals(cookie.expires, 100)
+
+        # Test case where an invalid string is input
+        morsel['expires'] = 'woops'
+        with self.assertRaises(ValueError):
+            cookie = morsel_to_cookie(morsel)
 
 
 class TestContentEncodingDetection(unittest.TestCase):
