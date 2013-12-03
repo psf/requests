@@ -926,7 +926,6 @@ class UtilsTestCase(unittest.TestCase):
         from requests.utils import get_environ_proxies
         os.environ['no_proxy'] = "127.0.0.1,localhost.localdomain,192.168.0.0/24,172.16.1.1"
         assert get_environ_proxies('http://localhost.localdomain:5000/v1.0/') == {}
-        assert get_environ_proxies('http://www.requests.com:5000/v1.0/') != {}
         assert get_environ_proxies('http://www.requests.com/') != {}
 
 if __name__ == '__main__':
