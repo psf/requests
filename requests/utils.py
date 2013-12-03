@@ -17,7 +17,8 @@ import os
 import platform
 import re
 import sys
-import netaddr
+import socket
+import struct
 
 from . import __version__
 from . import certs
@@ -406,6 +407,39 @@ def requote_uri(uri):
     return quote(unquote_unreserved(uri), safe="!#$%&'()*+,/:;=?@[]~")
 
 
+def address_in_network(ip,net):
+    '''This function allows you to check if on IP belogs to a Network'''
+    ipaddr = struct.unpack('=L', socket.inet_aton(ip))[0]
+    netaddr, bits = net.split('/')
+    netmask = struct.unpack('=L', socket.inet_aton(dotted_netmask(int(bits))))[0]
+    network = struct.unpack('=L', socket.inet_aton(netaddr))[0] & netmask
+    return (ipaddr & netmask) == (network & netmask)
+
+
+def dotted_netmask(mask):
+    bits = 0xffffffff ^ (1 << 32 - mask) - 1
+    return socket.inet_ntoa(struct.pack('>I', bits))
+
+
+def is_ipv4_address(string_ip):
+    try:
+        socket.inet_aton(string_ip)
+    except BaseException:
+        return False
+    return True
+
+
+def is_ipv4_network(string_network):
+    if '/' in string_network:
+        try:
+            socket.inet_aton(string_network.split('/')[0])
+        except OSError:
+            return False
+    else:
+        return False
+    return True
+
+
 def get_environ_proxies(url):
     """Return a dict of environment proxies."""
 
@@ -421,21 +455,12 @@ def get_environ_proxies(url):
         # the end of the netloc, both with and without the port.
         no_proxy = no_proxy.replace(' ', '').split(',')
 
-        ip = None
-        try:
-            ip = netaddr.IPAddress(netloc.split(':')[0])
-        except netaddr.AddrFormatError:
-            pass
-
-        if ip:
+        ip = netloc.split(':')[0]
+        if is_ipv4_address(ip):
             for proxy_ip in no_proxy:
-                proxy_ipaddress = None
-                try:
-                    proxy_ipaddress = netaddr.IPNetwork(proxy_ip)
-                except (netaddr.AddrFormatError, ValueError):
-                    continue
-                if proxy_ipaddress and ip in proxy_ipaddress:
-                    return {}
+                if is_ipv4_network(proxy_ip):
+                    if address_in_network(ip, proxy_ip):
+                        return {}
         else:
             for host in no_proxy:
                 if netloc.endswith(host) or netloc.split(':')[0].endswith(host):

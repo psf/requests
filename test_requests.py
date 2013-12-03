@@ -913,11 +913,20 @@ class UtilsTestCase(unittest.TestCase):
     def test_get_environ_proxies_ip_ranges(self):
         """ Ensures that IP addresses are correctly matches with ranges in no_proxy variable """
         from requests.utils import get_environ_proxies
-        os.environ['no_proxy'] = "127.0.0.1,localhost.localdomain,192.168.0.0/24,172.16.1.1"
+        os.environ['no_proxy'] = "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1"
         assert get_environ_proxies('http://192.168.0.1:5000/') == {}
         assert get_environ_proxies('http://192.168.0.1/') == {}
         assert get_environ_proxies('http://172.16.1.1/') == {}
-        assert get_environ_proxies('http://192.168.1.1:5000/') == {'no': os.environ['no_proxy']}
+        assert get_environ_proxies('http://172.16.1.1:5000/') == {}
+        assert get_environ_proxies('http://192.168.1.1:5000/') != {}
+        assert get_environ_proxies('http://192.168.1.1/') != {}
+
+    def test_get_environ_proxies(self):
+        """ Ensures that IP addresses are correctly matches with ranges in no_proxy variable """
+        from requests.utils import get_environ_proxies
+        os.environ['no_proxy'] = "127.0.0.1,localhost.localdomain,192.168.0.0/24,172.16.1.1"
+        assert get_environ_proxies('http://localhost.localdomain:5000/v1.0/') == {}
+        assert get_environ_proxies('http://www.requests.com/') != {}
 
 if __name__ == '__main__':
     unittest.main()
