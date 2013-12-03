@@ -760,24 +760,6 @@ class RequestsTestCase(unittest.TestCase):
             preq = req.prepare()
             assert test_url == preq.url
 
-    def test_morsel_to_cookie_expires_is_converted(self):
-        morsel = Morsel()
-
-        # Test case where we convert from string time
-        morsel['expires'] = 'Thu, 01-Jan-1970 00:00:01 GMT'
-        cookie = morsel_to_cookie(morsel)
-        self.assertEquals(cookie.expires, 18001)
-
-        # Test case where no conversion is required
-        morsel['expires'] = 100
-        cookie = morsel_to_cookie(morsel)
-        self.assertEquals(cookie.expires, 100)
-
-        # Test case where an invalid string is input
-        morsel['expires'] = 'woops'
-        with self.assertRaises(ValueError):
-            cookie = morsel_to_cookie(morsel)
-
 
 class TestContentEncodingDetection(unittest.TestCase):
 
@@ -1021,6 +1003,62 @@ class UtilsTestCase(unittest.TestCase):
         from requests.utils import address_in_network
         assert address_in_network('192.168.1.1', '192.168.1.0/24')
         assert not address_in_network('172.16.0.1', '192.168.1.0/24')
+
+
+
+class TestMorselToCookieExpires(unittest.TestCase):
+
+    """Tests for morsel_to_cookie when morsel contains expires."""
+
+    def test_expires_valid_str(self):
+        """Test case where we convert expires from string time."""
+
+        morsel = Morsel()
+        morsel['expires'] = 'Thu, 01-Jan-1970 00:00:01 GMT'
+        cookie = morsel_to_cookie(morsel)
+        self.assertEquals(cookie.expires, 18001)
+
+    def test_expires_invalid_int(self):
+        """Test case where an invalid type is passed for expires."""
+
+        morsel = Morsel()
+        morsel['expires'] = 100
+        self.assertRaises(TypeError, morsel_to_cookie, (morsel))
+
+    def test_expires_invalid_str(self):
+        """Test case where an invalid string is input."""
+
+        morsel = Morsel()
+        morsel['expires'] = 'woops'
+        self.assertRaises(ValueError, morsel_to_cookie, (morsel))
+
+    def test_expires_none(self):
+        """Test case where expires is None."""
+
+        morsel = Morsel()
+        morsel['expires'] = None
+        cookie = morsel_to_cookie(morsel)
+        self.assertEquals(cookie.expires, None)
+
+
+class TestMorselToCookieMaxAge(unittest.TestCase):
+
+    """Tests for morsel_to_cookie when morsel contains max-age."""
+
+    def test_max_age_valid_int(self):
+        """Test case where a valid max age in seconds is passed."""
+
+        morsel = Morsel()
+        morsel['max-age'] = 60
+        cookie = morsel_to_cookie(morsel)
+        self.assertIsInstance(cookie.expires, int)
+
+    def test_max_age_invalid_str(self):
+        """Test case where a invalid max age is passed."""
+
+        morsel = Morsel()
+        morsel['max-age'] = 'woops'
+        self.assertRaises(TypeError, morsel_to_cookie, (morsel))
 
 
 if __name__ == '__main__':
