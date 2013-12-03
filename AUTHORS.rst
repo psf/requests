@@ -144,3 +144,4 @@ Patches and Suggestions
 - Jayson Vantuyl <jayson@aggressive.ly> @kagato
 - Pengfei.X <pengphy@gmail.com>
 - Kamil Madac <kamil.madac@gmail.com>
+- Michael Becker <mike@beckerfuffle.com> @beckerfuffle
