@@ -170,8 +170,8 @@ class HTTPDigestAuth(AuthBase):
             r.content
             r.raw.release_conn()
             prep = r.request.copy()
-            extract_cookies_to_jar(prep.cookies, r.request, r.raw)
-            prep.prepare_cookies(prep.cookies)
+            extract_cookies_to_jar(prep._cookies, r.request, r.raw)
+            prep.prepare_cookies(prep._cookies)
 
             prep.headers['Authorization'] = self.build_digest_header(
                 prep.method, prep.url)
