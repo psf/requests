@@ -928,5 +928,16 @@ class UtilsTestCase(unittest.TestCase):
         assert get_environ_proxies('http://localhost.localdomain:5000/v1.0/') == {}
         assert get_environ_proxies('http://www.requests.com/') != {}
 
+    def test_is_ipv4_address(self):
+        from requests.utils import is_ipv4_address
+        assert is_ipv4_address('8.8.8.8')
+        assert not is_ipv4_address('8.8.8.8.8')
+        assert not is_ipv4_address('localhost.localdomain')
+
+    def test_is_ipv4_network(self):
+        from requests.utils import is_ipv4_network
+        assert not is_ipv4_network('8.8.8.8')
+        assert is_ipv4_network('192.168.1.0/24')
+
 if __name__ == '__main__':
     unittest.main()
