@@ -13,7 +13,8 @@ from collections import Mapping
 from datetime import datetime
 
 from .compat import cookielib, OrderedDict, urljoin, urlparse, builtin_str
-from .cookies import cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar
+from .cookies import (
+    cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest
 from .hooks import default_hooks, dispatch_hook
 from .utils import to_key_val_list, default_headers
@@ -245,9 +246,8 @@ class Session(SessionRedirectMixin):
             cookies = cookiejar_from_dict(cookies)
 
         # Merge with session cookies
-        merged_cookies = RequestsCookieJar()
-        merged_cookies.update(self.cookies)
-        merged_cookies.update(cookies)
+        merged_cookies = merge_cookies(
+            merge_cookies(RequestsCookieJar(), self.cookies), cookies)
 
 
         # Set environment's basic authentication if not explicitly set.
@@ -330,7 +330,7 @@ class Session(SessionRedirectMixin):
         prep = self.prepare_request(req)
 
         # Add param cookies to session cookies
-        self.cookies = cookiejar_from_dict(cookies, cookiejar=self.cookies, overwrite=False)
+        self.cookies = merge_cookies(self.cookies, cookies)
 
         proxies = proxies or {}
 
