@@ -598,6 +598,18 @@ class RequestsTestCase(unittest.TestCase):
         url = 'http://user:pass@complex.url.com/path?query=yes'
         assert ('user', 'pass') == requests.utils.get_auth_from_url(url)
 
+    def test_get_auth_from_url_encoded_spaces(self):
+        url = 'http://user:pass%20pass@complex.url.com/path?query=yes'
+        assert ('user', 'pass pass') == requests.utils.get_auth_from_url(url)
+
+    def test_get_auth_from_url_not_encoded_spaces(self):
+        url = 'http://user:pass pass@complex.url.com/path?query=yes'
+        assert ('user', 'pass pass') == requests.utils.get_auth_from_url(url)
+
+    def test_get_auth_from_url_percent_chars(self):
+        url = 'http://user%user:pass@complex.url.com/path?query=yes'
+        assert ('user%user', 'pass') == requests.utils.get_auth_from_url(url)
+
     def test_cannot_send_unprepared_requests(self):
         r = requests.Request(url=HTTPBIN)
         with pytest.raises(ValueError):
