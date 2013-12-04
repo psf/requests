@@ -21,8 +21,8 @@ import sys
 from . import __version__
 from . import certs
 from .compat import parse_http_list as _parse_list_header
-from .compat import (quote, urlparse, bytes, str, OrderedDict, urlunparse,
-                     is_py2, is_py3, builtin_str, getproxies, proxy_bypass)
+from .compat import (quote, urlparse, bytes, str, OrderedDict,
+                     is_py2, builtin_str, getproxies, proxy_bypass)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
 from .exceptions import MissingSchema, InvalidURL
