@@ -407,8 +407,12 @@ def requote_uri(uri):
     return quote(unquote_unreserved(uri), safe="!#$%&'()*+,/:;=?@[]~")
 
 
-def address_in_network(ip,net):
-    '''This function allows you to check if on IP belogs to a Network'''
+def address_in_network(ip, net):
+    """
+    This function allows you to check if on IP belongs to a Network subnet
+    Example: returns True if ip = 192.168.1.1 and net = 192.168.1.0/24
+             returns False if ip = 192.168.1.1 and net = 192.168.100.0/24
+    """
     ipaddr = struct.unpack('=L', socket.inet_aton(ip))[0]
     netaddr, bits = net.split('/')
     netmask = struct.unpack('=L', socket.inet_aton(dotted_netmask(int(bits))))[0]
@@ -417,6 +421,10 @@ def address_in_network(ip,net):
 
 
 def dotted_netmask(mask):
+    """
+    Converts mask from /xx format to xxx.xxx.xxx.xxx
+    Example: if mask is /24 function returns 255.255.255.0
+    """
     bits = 0xffffffff ^ (1 << 32 - mask) - 1
     return socket.inet_ntoa(struct.pack('>I', bits))
 
@@ -430,6 +438,7 @@ def is_ipv4_address(string_ip):
 
 
 def is_ipv4_network(string_network):
+    """Very simple check of the network format in no_proxy variable"""
     if '/' in string_network:
         try:
             socket.inet_aton(string_network.split('/')[0])
