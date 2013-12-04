@@ -939,5 +939,17 @@ class UtilsTestCase(unittest.TestCase):
         assert not is_ipv4_network('8.8.8.8')
         assert is_ipv4_network('192.168.1.0/24')
 
+    def test_dotted_netmask(self):
+        from requests.utils import dotted_netmask
+        assert dotted_netmask(8) == '255.0.0.0'
+        assert dotted_netmask(24) == '255.255.255.0'
+        assert dotted_netmask(25) == '255.255.255.128'
+
+    def test_address_in_network(self):
+        from requests.utils import address_in_network
+        assert address_in_network('192.168.1.1', '192.168.1.0/24')
+        assert not address_in_network('172.16.0.1', '192.168.1.0/24')
+
+
 if __name__ == '__main__':
     unittest.main()
