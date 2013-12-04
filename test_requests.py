@@ -463,6 +463,25 @@ class RequestsTestCase(unittest.TestCase):
 
         requests.Request('GET', HTTPBIN, hooks={'response': hook})
 
+    def test_session_hooks_are_used_with_no_request_hooks(self):
+        hook = lambda x, *args, **kwargs: x
+        s = requests.Session()
+        s.hooks['response'].append(hook)
+        r = requests.Request('GET', HTTPBIN)
+        prep = s.prepare_request(r)
+        assert prep.hooks['response'] != []
+        assert prep.hooks['response'] == [hook]
+
+    def test_session_hooks_are_overriden_by_request_hooks(self):
+        hook1 = lambda x, *args, **kwargs: x
+        hook2 = lambda x, *args, **kwargs: x
+        assert hook1 is not hook2
+        s = requests.Session()
+        s.hooks['response'].append(hook2)
+        r = requests.Request('GET', HTTPBIN, hooks={'response': [hook1]})
+        prep = s.prepare_request(r)
+        assert prep.hooks['response'] == [hook1]
+
     def test_prepared_request_hook(self):
         def hook(resp, **kwargs):
             resp.hook_working = True
