@@ -13,6 +13,7 @@ Release History
 - Values of headers set by Requests are now always the native string type.
 - Fix previously broken SNI support.
 - Fix accessing HTTP proxies using proxy authentication.
+- Unencode HTTP Basic usernames and passwords extracted from URLs.
 - Support for IP address ranges for no_proxy environment variable
 - Parse headers correctly when users override the default ``Host:`` header.
 - Avoid munging the URL in case of case-sensitive servers.
