@@ -270,6 +270,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.url = None
         #: dictionary of HTTP headers.
         self.headers = None
+        # The `CookieJar` used to create the Cookie header will be stored here
+        # after prepare_cookies is called
+        self._cookies = None
         #: request body to send to the server.
         self.body = None
         #: dictionary of callback hooks, for internal usage.
@@ -299,6 +302,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         p.method = self.method
         p.url = self.url
         p.headers = self.headers.copy()
+        p._cookies = self._cookies.copy()
         p.body = self.body
         p.hooks = self.hooks
         return p
@@ -474,14 +478,13 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepares the given HTTP cookie data."""
 
         if isinstance(cookies, cookielib.CookieJar):
-            cookies = cookies
+            self._cookies = cookies
         else:
-            cookies = cookiejar_from_dict(cookies)
+            self._cookies = cookiejar_from_dict(cookies)
 
-        if 'cookie' not in self.headers:
-            cookie_header = get_cookie_header(cookies, self)
-            if cookie_header is not None:
-                self.headers['Cookie'] = cookie_header
+        cookie_header = get_cookie_header(self._cookies, self)
+        if cookie_header is not None:
+            self.headers['Cookie'] = cookie_header
 
     def prepare_hooks(self, hooks):
         """Prepares the given hooks."""
