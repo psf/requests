@@ -437,9 +437,17 @@ def is_ipv4_address(string_ip):
     return True
 
 
-def is_ipv4_network(string_network):
-    """Very simple check of the network format in no_proxy variable"""
-    if '/' in string_network:
+def is_valid_cidr(string_network):
+    """Very simple check of the cidr format in no_proxy variable"""
+    if string_network.count('/') == 1:
+        try:
+            mask = int(string_network.split('/')[1])
+        except ValueError:
+            return False
+
+        if mask < 1 or mask > 32:
+            return False
+
         try:
             socket.inet_aton(string_network.split('/')[0])
         except socket.error:
@@ -467,7 +475,7 @@ def get_environ_proxies(url):
         ip = netloc.split(':')[0]
         if is_ipv4_address(ip):
             for proxy_ip in no_proxy:
-                if is_ipv4_network(proxy_ip):
+                if is_valid_cidr(proxy_ip):
                     if address_in_network(ip, proxy_ip):
                         return {}
         else:

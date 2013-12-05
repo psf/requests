@@ -934,10 +934,10 @@ class UtilsTestCase(unittest.TestCase):
         assert not is_ipv4_address('8.8.8.8.8')
         assert not is_ipv4_address('localhost.localdomain')
 
-    def test_is_ipv4_network(self):
-        from requests.utils import is_ipv4_network
-        assert not is_ipv4_network('8.8.8.8')
-        assert is_ipv4_network('192.168.1.0/24')
+    def test_is_valid_cidr(self):
+        from requests.utils import is_valid_cidr
+        assert not is_valid_cidr('8.8.8.8')
+        assert is_valid_cidr('192.168.1.0/24')
 
     def test_dotted_netmask(self):
         from requests.utils import dotted_netmask
