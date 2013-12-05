@@ -330,27 +330,40 @@ class HTTPAdapter(BaseAdapter):
                     conn = conn.proxy_pool
 
                 low_conn = conn._get_conn(timeout=timeout)
-                low_conn.putrequest(request.method, url, skip_accept_encoding=True)
 
-                for header, value in request.headers.items():
-                    low_conn.putheader(header, value)
+                try:
+                    low_conn.putrequest(request.method,
+                                        url,
+                                        skip_accept_encoding=True)
 
-                low_conn.endheaders()
+                    for header, value in request.headers.items():
+                        low_conn.putheader(header, value)
 
-                for i in request.body:
-                    low_conn.send(hex(len(i))[2:].encode('utf-8'))
-                    low_conn.send(b'\r\n')
-                    low_conn.send(i)
-                    low_conn.send(b'\r\n')
-                low_conn.send(b'0\r\n\r\n')
+                    low_conn.endheaders()
 
-                r = low_conn.getresponse()
-                resp = HTTPResponse.from_httplib(r,
-                    pool=conn,
-                    connection=low_conn,
-                    preload_content=False,
-                    decode_content=False
-                )
+                    for i in request.body:
+                        low_conn.send(hex(len(i))[2:].encode('utf-8'))
+                        low_conn.send(b'\r\n')
+                        low_conn.send(i)
+                        low_conn.send(b'\r\n')
+                    low_conn.send(b'0\r\n\r\n')
+
+                    r = low_conn.getresponse()
+                    resp = HTTPResponse.from_httplib(
+                        r,
+                        pool=conn,
+                        connection=low_conn,
+                        preload_content=False,
+                        decode_content=False
+                    )
+                except:
+                    # If we hit any problems here, clean up the connection.
+                    # Then, reraise so that we can handle the actual exception.
+                    low_conn.close()
+                    raise
+                else:
+                    # All is well, return the connection to the pool.
+                    conn._put_conn(low_conn)
 
         except socket.error as sockerr:
             raise ConnectionError(sockerr)
