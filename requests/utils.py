@@ -437,7 +437,7 @@ def get_environ_proxies(url):
     return getproxies()
 
 
-def default_user_agent(name=u"python-requests"):
+def default_user_agent(name="python-requests"):
     """Return a string representing the default user agent."""
     _implementation = platform.python_implementation()
 
@@ -463,9 +463,9 @@ def default_user_agent(name=u"python-requests"):
         p_system = 'Unknown'
         p_release = 'Unknown'
 
-    return " ".join([u'%s/%s' % (name, __version__),
-                     u'%s/%s' % (_implementation, _implementation_version),
-                     u'%s/%s' % (p_system, p_release)])
+    return " ".join(['%s/%s' % (name, __version__),
+                     '%s/%s' % (_implementation, _implementation_version),
+                     '%s/%s' % (p_system, p_release)])
 
 
 def default_headers():
