@@ -432,7 +432,7 @@ def dotted_netmask(mask):
 def is_ipv4_address(string_ip):
     try:
         socket.inet_aton(string_ip)
-    except BaseException:
+    except socket.error:
         return False
     return True
 
@@ -442,7 +442,7 @@ def is_ipv4_network(string_network):
     if '/' in string_network:
         try:
             socket.inet_aton(string_network.split('/')[0])
-        except OSError:
+        except socket.error:
             return False
     else:
         return False
