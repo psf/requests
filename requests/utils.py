@@ -409,7 +409,7 @@ def requote_uri(uri):
 
 def address_in_network(ip, net):
     """
-    This function allows you to check if on IP belongs to a Network subnet
+    This function allows you to check if on IP belongs to a network subnet
     Example: returns True if ip = 192.168.1.1 and net = 192.168.1.0/24
              returns False if ip = 192.168.1.1 and net = 192.168.100.0/24
     """
