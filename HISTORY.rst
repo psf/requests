@@ -3,9 +3,11 @@
 Release History
 ---------------
 
-2.1.0 (XXXX-XX-XX)
+2.1.0 (2013-12-05)
 ++++++++++++++++++
 
+- Clean up connections when we hit problems during chunked upload, rather than leaking them.
+- Return connections to the pool when a chunked upload is successful, rather than leaking it.
 - Match the HTTPbis recommendation for HTTP 301 redirects.
 - Prevent hanging when using streaming uploads and Digest Auth when a 401 is received.
 - Values of headers set by Requests are now always the native string type.
