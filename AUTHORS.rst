@@ -1,7 +1,6 @@
 Requests is written and maintained by Kenneth Reitz and
 various contributors:
 
-
 Development Lead
 ````````````````
 
