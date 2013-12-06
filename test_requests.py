@@ -1016,7 +1016,7 @@ class TestMorselToCookieExpires(unittest.TestCase):
         morsel = Morsel()
         morsel['expires'] = 'Thu, 01-Jan-1970 00:00:01 GMT'
         cookie = morsel_to_cookie(morsel)
-        self.assertEquals(cookie.expires, 18001)
+        self.assertEquals(cookie.expires, 1)
 
     def test_expires_invalid_int(self):
         """Test case where an invalid type is passed for expires."""
@@ -1051,7 +1051,7 @@ class TestMorselToCookieMaxAge(unittest.TestCase):
         morsel = Morsel()
         morsel['max-age'] = 60
         cookie = morsel_to_cookie(morsel)
-        self.assertIsInstance(cookie.expires, int)
+        self.assertTrue(isinstance(cookie.expires, int))
 
     def test_max_age_invalid_str(self):
         """Test case where a invalid max age is passed."""
