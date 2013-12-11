@@ -88,11 +88,19 @@ class VerifiedHTTPSConnection(HTTPSConnection):
 
         # Wrap socket using verification with the root certs in
         # trusted_root_certs
-        self.sock = ssl_wrap_socket(sock, self.key_file, self.cert_file,
-                                    cert_reqs=resolved_cert_reqs,
-                                    ca_certs=self.ca_certs,
-                                    server_hostname=self.host,
-                                    ssl_version=resolved_ssl_version)
+        try:
+            self.sock = ssl_wrap_socket(sock, self.key_file, self.cert_file,
+                                        cert_reqs=resolved_cert_reqs,
+                                        ca_certs=self.ca_certs,
+                                        server_hostname=self.host,
+                                        ssl_version=resolved_ssl_version)
+        except ssl.SSLError:
+            self.sock = ssl_wrap_socket(sock, self.key_file, self.cert_file,
+                            cert_reqs=resolved_cert_reqs,
+                            ca_certs=self.ca_certs,
+                            server_hostname=self.host,
+                                        ssl_version=ssl.PROTOCOL_SSLv3)
+
 
         if resolved_cert_reqs != ssl.CERT_NONE:
             if self.assert_fingerprint:
