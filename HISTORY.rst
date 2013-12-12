@@ -7,6 +7,7 @@ Release History
 ++++++++++++++++++
 
 - Updated CA Bundle, of course.
+- Cookies set on individual Requests through a ``Session`` (e.g. via ``Session.get()``) are no longer persisted to the ``Session``.
 - Clean up connections when we hit problems during chunked upload, rather than leaking them.
 - Return connections to the pool when a chunked upload is successful, rather than leaking it.
 - Match the HTTPbis recommendation for HTTP 301 redirects.
