@@ -88,6 +88,9 @@ class HTTPAdapter(BaseAdapter):
                     self.__attrs__)
 
     def __setstate__(self, state):
+        self.proxy_manager = {}
+        self.config = {}
+
         for attr, value in state.items():
             setattr(self, attr, value)
 
