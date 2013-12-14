@@ -88,6 +88,8 @@ class HTTPAdapter(BaseAdapter):
                     self.__attrs__)
 
     def __setstate__(self, state):
+        # Can't handle by adding 'proxy_manager' to self.__attrs__ because
+        # because self.poolmanager uses a lambda function, which isn't pickleable.
         self.proxy_manager = {}
         self.config = {}
 
@@ -96,11 +98,6 @@ class HTTPAdapter(BaseAdapter):
 
         self.init_poolmanager(self._pool_connections, self._pool_maxsize,
                               block=self._pool_block)
-
-        # Can't handle by adding 'proxy_manager' to self.__attrs__ because
-        # because self.poolmanager uses a lambda function, which isn't pickleable.
-        if not hasattr(self, 'proxy_manager'):
-            self.proxy_manager = {}
 
     def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK):
         """Initializes a urllib3 PoolManager. This method should not be called
