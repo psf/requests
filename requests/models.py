@@ -591,10 +591,19 @@ class Response(object):
         return True
 
     @property
+    def _chardet_result(self):
+        return chardet.detect(self.content)
+
+    @property
     def apparent_encoding(self):
         """The apparent encoding, provided by the lovely Charade library
         (Thanks, Ian!)."""
-        return chardet.detect(self.content)['encoding']
+        return self._chardet_result['encoding']
+
+    @property
+    def apparent_encoding_confidence(self):
+        """The confidence value for the apparent encoding."""
+        return self._chardet_result['confidence']
 
     def iter_content(self, chunk_size=1, decode_unicode=False):
         """Iterates over the response data.  When stream=True is set on the
