@@ -701,6 +701,8 @@ class Response(object):
         # Fallback to auto-detected encoding.
         if self.encoding is None:
             encoding = self.apparent_encoding
+            log.warning(u'No encoding found in HTTP headers, '
+                        u'using apparent "%s".', encoding)
 
         # Decode unicode from given encoding.
         try:
