@@ -8,8 +8,12 @@ This module contains the primary objects that power Requests.
 """
 
 import collections
-import logging
 import datetime
+try:
+    from http.client import responses
+except ImportError:
+    from httplib import responses
+import logging
 
 from io import BytesIO, UnsupportedOperation
 from .hooks import default_hooks
@@ -508,6 +512,7 @@ class Response(object):
         'cookies',
         'elapsed',
         'request',
+        'version',
     ]
 
     def __init__(self):
@@ -541,6 +546,9 @@ class Response(object):
         self.history = []
 
         self.reason = None
+
+        # The HTTP version for this response.
+        self.version = None
 
         #: A CookieJar of Cookies the server sent back.
         self.cookies = cookiejar_from_dict({})
@@ -749,6 +757,28 @@ class Response(object):
                 l[key] = link
 
         return l
+
+    def as_http(self):
+        """ Returns the response as the HTTP data sent over the wire. """
+        def _to_version(ver):
+            try:
+                return unicode(float(ver)/10)
+            except Exception:
+                return ver
+        version = _to_version(self.version) or '1.0'
+        detail = responses.get(self.status_code, '')
+        res = u'HTTP/{version} {code} {detail}\n'.format(version=version,
+                                                         code=self.status_code,
+                                                         detail=detail)
+        for header_key, header_value in self.headers.items():
+            header_key_u = header_key.decode('utf-8') if isinstance(header_key, bytes) else header_key
+            header_value_u = header_value.decode('utf-8') if isinstance(header_value, bytes) else header_value
+            res += u'{key}: {value}\n'.format(
+                key=header_key_u.capitalize(),
+                value=header_value_u)
+
+        res += u"\n{text}".format(text=self.text)
+        return res
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError`, if one occurred."""

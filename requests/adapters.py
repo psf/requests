@@ -170,6 +170,9 @@ class HTTPAdapter(BaseAdapter):
         response.raw = resp
         response.reason = response.raw.reason
 
+        # HTTP version, as an integer (1.1 => 11). see httplib.py for more info
+        response.version = getattr(resp, 'version', None)
+
         if isinstance(req.url, bytes):
             response.url = req.url.decode('utf-8')
         else:
