@@ -770,7 +770,7 @@ class Response(object):
         res = u'HTTP/{version} {code} {detail}\n'.format(version=version,
                                                          code=self.status_code,
                                                          detail=detail)
-        for header_key, header_value in self.headers.iteritems():
+        for header_key, header_value in self.headers.items():
             res += u'{key}: {value}\n'.format(
                 key=header_key.decode('utf-8').capitalize(),
                 value=header_value.decode('utf-8'))
