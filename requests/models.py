@@ -769,7 +769,7 @@ class Response(object):
                                                          detail=detail)
         for header_key, header_value in self.headers.iteritems():
             res += u'{key}: {value}\n'.format(
-                key=header_key.decode('utf-8'),
+                key=header_key.decode('utf-8').capitalize(),
                 value=header_value.decode('utf-8'))
 
         res += u"\n{text}".format(text=self.text)

@@ -653,17 +653,17 @@ class RequestsTestCase(unittest.TestCase):
 
         r = requests.Response()
         r.status_code = 302
-        r.headers = OrderedDict([
-            ('Content-Type', 'application/json'),
-            ('Foo', 'bar'),
-            ('føø', 'føø'),
-        ])
+        r.headers = {
+            'Content-Type': 'application/json',
+            'Foo': 'bar',
+            'føø': 'føø',
+        }
         io = _set_response_text(r, '[content]')
         try:
             assert r.as_http() == u"""HTTP/1.0 302 Found
-Content-Type: application/json
 Foo: bar
-føø: føø
+Content-type: application/json
+Føø: føø
 
 [content]"""
         finally:
