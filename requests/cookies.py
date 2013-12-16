@@ -378,29 +378,29 @@ def create_cookie(name, value, **kwargs):
 
 def morsel_to_cookie(morsel):
     """Convert a Morsel object into a Cookie containing the one k/v pair."""
+
     expires = None
-    if morsel["max-age"]:
-        expires = time.time() + morsel["max-age"]
+    if morsel['max-age']:
+        expires = time.time() + morsel['max-age']
     elif morsel['expires']:
-        expires = morsel['expires']
-        if type(expires) == type(""):
-            time_template = "%a, %d-%b-%Y %H:%M:%S GMT"
-            expires = time.mktime(time.strptime(expires, time_template))
-    c = create_cookie(
-        name=morsel.key,
-        value=morsel.value,
-        version=morsel['version'] or 0,
-        port=None,
-        domain=morsel['domain'],
-        path=morsel['path'],
-        secure=bool(morsel['secure']),
-        expires=expires,
-        discard=False,
+        time_template = '%a, %d-%b-%Y %H:%M:%S GMT'
+        expires = time.mktime(
+            time.strptime(morsel['expires'], time_template)) - time.timezone
+    return create_cookie(
         comment=morsel['comment'],
         comment_url=bool(morsel['comment']),
+        discard=False,
+        domain=morsel['domain'],
+        expires=expires,
+        name=morsel.key,
+        path=morsel['path'],
+        port=None,
         rest={'HttpOnly': morsel['httponly']},
-        rfc2109=False,)
-    return c
+        rfc2109=False,
+        secure=bool(morsel['secure']),
+        value=morsel.value,
+        version=morsel['version'] or 0,
+    )
 
 
 def cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True):
