@@ -771,9 +771,11 @@ class Response(object):
                                                          code=self.status_code,
                                                          detail=detail)
         for header_key, header_value in self.headers.items():
+            header_key_u = header_key.decode('utf-8') if isinstance(header_key, bytes) else header_key
+            header_value_u = header_value.decode('utf-8') if isinstance(header_value, bytes) else header_value
             res += u'{key}: {value}\n'.format(
-                key=header_key.decode('utf-8').capitalize(),
-                value=header_value.decode('utf-8'))
+                key=header_key_u.capitalize(),
+                value=header_value_u)
 
         res += u"\n{text}".format(text=self.text)
         return res
