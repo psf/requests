@@ -9,7 +9,10 @@ This module contains the primary objects that power Requests.
 
 import collections
 import datetime
-import httplib
+try:
+    from http.client import responses
+except ImportError:
+    from httplib import responses
 import logging
 
 from io import BytesIO, UnsupportedOperation

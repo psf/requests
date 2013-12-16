@@ -4,7 +4,6 @@
 """Tests for Requests."""
 
 from __future__ import division
-from collections import OrderedDict
 import json
 import os
 import pickle
