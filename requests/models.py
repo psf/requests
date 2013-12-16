@@ -8,8 +8,9 @@ This module contains the primary objects that power Requests.
 """
 
 import collections
-import logging
 import datetime
+import httplib
+import logging
 
 from io import BytesIO, UnsupportedOperation
 from .hooks import default_hooks
@@ -508,6 +509,7 @@ class Response(object):
         'cookies',
         'elapsed',
         'request',
+        'version',
     ]
 
     def __init__(self):
@@ -541,6 +543,9 @@ class Response(object):
         self.history = []
 
         self.reason = None
+
+        # The HTTP version for this response.
+        self.version = None
 
         #: A CookieJar of Cookies the server sent back.
         self.cookies = cookiejar_from_dict({})
@@ -749,6 +754,26 @@ class Response(object):
                 l[key] = link
 
         return l
+
+    def as_http(self):
+        """ Returns the response as the HTTP data sent over the wire. """
+        def _to_version(ver):
+            try:
+                return unicode(float(ver)/10)
+            except Exception:
+                return ver
+        version = _to_version(self.version) or '1.0'
+        detail = httplib.responses.get(self.status_code, '')
+        res = u'HTTP/{version} {code} {detail}\n'.format(version=version,
+                                                         code=self.status_code,
+                                                         detail=detail)
+        for header_key, header_value in self.headers.iteritems():
+            res += u'{key}: {value}\n'.format(
+                key=header_key.decode('utf-8'),
+                value=header_value.decode('utf-8'))
+
+        res += u"\n{text}".format(text=self.text)
+        return res
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError`, if one occurred."""

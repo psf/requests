@@ -4,6 +4,7 @@
 """Tests for Requests."""
 
 from __future__ import division
+from collections import OrderedDict
 import json
 import os
 import pickle
@@ -32,6 +33,20 @@ HTTPBIN = HTTPBIN.rstrip('/') + '/'
 def httpbin(*suffix):
     """Returns url for HTTPBIN resource."""
     return urljoin(HTTPBIN, '/'.join(suffix))
+
+def _set_response_text(response, text):
+    """ Set the content for a response.
+
+    :return: StringIO.StringIO the IO string (so it can be closed)
+    """
+    io = StringIO.StringIO(text)
+    read_ = io.read
+
+    def read_mock(amt, decode_content=None):
+        return read_(amt)
+    setattr(io, 'read', read_mock)
+    response.raw = io
+    return io
 
 
 class RequestsTestCase(unittest.TestCase):
@@ -194,7 +209,7 @@ class RequestsTestCase(unittest.TestCase):
         assert r.json()['cookies']['foo'] == 'bar'
         # Make sure the session cj is still the custom one
         assert s.cookies is cj
-    
+
     def test_param_cookiejar_works(self):
         cj = cookielib.CookieJar()
         cookiejar_from_dict({'foo' : 'bar'}, cj)
@@ -579,13 +594,7 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_response_is_iterable(self):
         r = requests.Response()
-        io = StringIO.StringIO('abc')
-        read_ = io.read
-
-        def read_mock(amt, decode_content=None):
-            return read_(amt)
-        setattr(io, 'read', read_mock)
-        r.raw = io
+        io = _set_response_text(r, 'abc')
         assert next(iter(r))
         io.close()
 
@@ -631,6 +640,34 @@ class RequestsTestCase(unittest.TestCase):
         error = requests.exceptions.HTTPError('message', response=response)
         assert str(error) == 'message'
         assert error.response == response
+
+    def test_response_as_http(self):
+        r = requests.Response()
+        r.status_code = 417
+        assert r.as_http() == "HTTP/1.0 417 Expectation Failed\n\n"
+
+        r = requests.Response()
+        # teapot not covered in httplib.py
+        r.status_code = 418
+        assert r.as_http() == "HTTP/1.0 418 \n\n"
+
+        r = requests.Response()
+        r.status_code = 302
+        r.headers = OrderedDict([
+            ('Content-Type', 'application/json'),
+            ('Foo', 'bar'),
+            ('føø', 'føø'),
+        ])
+        io = _set_response_text(r, '[content]')
+        try:
+            assert r.as_http() == u"""HTTP/1.0 302 Found
+Content-Type: application/json
+Foo: bar
+føø: føø
+
+[content]"""
+        finally:
+            io.close()
 
     def test_session_pickling(self):
         r = requests.Request('GET', httpbin('get'))
