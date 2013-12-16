@@ -12,9 +12,6 @@ import os
 import collections
 from itertools import islice
 
-from .packages.urllib3.util import Timeout
-
-
 class IteratorProxy(object):
     """docstring for IteratorProxy"""
     def __init__(self, i):

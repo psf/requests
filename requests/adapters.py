@@ -293,7 +293,7 @@ class HTTPAdapter(BaseAdapter):
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
         :param stream: (optional) Whether to stream the request content.
         :param timeout: (optional) The timeout on the request.
-        :type timeout: float or `~:class:requests.structures.Timeout` object
+        :type timeout: float or tuple (connect timeout, read timeout), e.g. (3.05, 25)
         :param verify: (optional) Whether to verify SSL certificates.
         :param cert: (optional) Any user-provided SSL certificate to be trusted.
         :param proxies: (optional) The proxies dictionary to apply to the request.
@@ -307,8 +307,16 @@ class HTTPAdapter(BaseAdapter):
 
         chunked = not (request.body is None or 'Content-Length' in request.headers)
 
-        if not isinstance(timeout, TimeoutSauce):
-            # Legacy timeout behavior
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+            except ValueError:
+                err = ("Invalid timeout {0}. Pass a (connect, read) "
+                       "timeout tuple, or a single float to set "
+                       "both timeouts to the same value".format(timeout))
+                raise ValueError(err)
+            timeout = TimeoutSauce(connect=connect, read=read)
+        else:
             timeout = TimeoutSauce(connect=timeout, read=timeout)
 
         try:

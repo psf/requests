@@ -16,7 +16,8 @@ from requests.auth import HTTPDigestAuth
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
-from requests.exceptions import InvalidURL, MissingSchema
+from requests.exceptions import (InvalidURL, MissingSchema, ConnectTimeout,
+                                 ReadTimeout)
 from requests.structures import CaseInsensitiveDict
 
 try:
@@ -580,36 +581,36 @@ class RequestsTestCase(unittest.TestCase):
                          * 10**6) / 10**6)
         assert total_seconds > 0.0
 
+    def test_invalid_timeout(self):
+        with pytest.raises(ValueError) as e:
+            requests.get(httpbin('get'), timeout=(3, 4, 5))
+            assert False, "A 3-tuple should raise a ValueError here."
+        assert '(connect, read)' in str(e)
+
+        with pytest.raises(ValueError) as e:
+            requests.get(httpbin('get'), timeout="foo")
+            assert False, "A 3-tuple should raise a ValueError here."
+        assert 'must be an int or float' in str(e)
+
     def test_read_timeout(self):
-        timeout = Timeout(read=0.1)
         try:
-            requests.get(httpbin('delay/10'), timeout=timeout)
+            requests.get(httpbin('delay/10'), timeout=(None, 0.1))
             assert False, "The recv() request should time out."
         except ReadTimeout:
             pass
 
     def test_connect_timeout(self):
-        timeout = Timeout(connect=0.1)
         try:
-            requests.get(TARPIT_HOST, timeout=timeout)
+            requests.get(TARPIT_HOST, timeout=(0.1, None))
             assert False, "The connect() request should time out."
         except ConnectTimeout:
             pass
 
     def test_total_timeout_connect(self):
-        timeout = Timeout(total=0.1)
         try:
-            requests.get(TARPIT_HOST, timeout=timeout)
+            requests.get(TARPIT_HOST, timeout=(0.1, 0.1))
             assert False, "The connect() request should time out."
         except ConnectTimeout:
-            pass
-
-    def test_total_timeout_request(self):
-        timeout = Timeout(connect=8, read=20, total=0.5)
-        try:
-            requests.get(httpbin('delay/10'), timeout=timeout)
-            assert False, "The recv() request should time out."
-        except ReadTimeout:
             pass
 
     def test_response_is_iterable(self):
@@ -976,14 +977,6 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert frozenset(i[0] for i in cid.items()) == keyset
         assert frozenset(cid.keys()) == keyset
         assert frozenset(cid) == keyset
-
-
-class StructuresTestCase(unittest.TestCase):
-    """ Test cases for requests/structures.py """
-
-    def test_timeout(self):
-        t = Timeout(connect=3, read=7)
-        assert t.total == None
 
 
 class UtilsTestCase(unittest.TestCase):
