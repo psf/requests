@@ -766,7 +766,7 @@ class Response(object):
             except Exception:
                 return ver
         version = _to_version(self.version) or '1.0'
-        detail = httplib.responses.get(self.status_code, '')
+        detail = responses.get(self.status_code, '')
         res = u'HTTP/{version} {code} {detail}\n'.format(version=version,
                                                          code=self.status_code,
                                                          detail=detail)
