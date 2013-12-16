@@ -12,8 +12,5 @@ Data Structures
 .. autoclass:: requests.structures.CaseInsensitiveDict
     :members:
 
-.. autoclass:: requests.structures.Timeout
-    :members:
-
 .. autoclass:: requests.structures.LookupDict
     :members:

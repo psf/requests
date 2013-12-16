@@ -584,13 +584,21 @@ class RequestsTestCase(unittest.TestCase):
     def test_invalid_timeout(self):
         with pytest.raises(ValueError) as e:
             requests.get(httpbin('get'), timeout=(3, 4, 5))
-            assert False, "A 3-tuple should raise a ValueError here."
         assert '(connect, read)' in str(e)
 
         with pytest.raises(ValueError) as e:
             requests.get(httpbin('get'), timeout="foo")
-            assert False, "A 3-tuple should raise a ValueError here."
         assert 'must be an int or float' in str(e)
+
+    def test_none_timeout(self):
+        """ Check that you can set None as a valid timeout value.
+
+        To actually test this behavior, we'd want to check that setting the
+        timeout to None actually lets the request block past the system default
+        timeout. However, this would make the test suite unbearably slow.
+        """
+        r = requests.get(httpbin('get'), timeout=None)
+        assert r.status_code == 200
 
     def test_read_timeout(self):
         try:
