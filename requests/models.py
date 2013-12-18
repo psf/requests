@@ -688,7 +688,7 @@ class Response(object):
         """Content of the response, in unicode.
 
         If Response.encoding is None, encoding will be guessed using
-        ``charade``.
+        ``chardet``.
         """
 
         # Try charset from content-type
