@@ -15,7 +15,7 @@ ci: init
 certs:
 	curl http://ci.kennethreitz.org/job/ca-bundle/lastSuccessfulBuild/artifact/cacerts.pem -o requests/cacert.pem
 
-deps: urllib3 charade
+deps: urllib3 chardet
 
 urllib3:
 	rm -fr requests/packages/urllib3
@@ -23,11 +23,11 @@ urllib3:
 	mv urllib3/urllib3 requests/packages/
 	rm -fr urllib3
 
-charade:
-	rm -fr requests/packages/charade
-	git clone https://github.com/sigmavirus24/charade.git
-	mv charade/charade requests/packages/
-	rm -fr charade
+chardet:
+	rm -fr requests/packages/chardet
+	git clone https://github.com/chardet/chardet.git
+	mv chardet/chardet requests/packages/
+	rm -fr chardet
 
 publish:
 	python setup.py sdist upload
