@@ -593,6 +593,9 @@ class RequestsTestCase(unittest.TestCase):
         assert d2['some_cookie'] == 'some_value'
         assert d3['some_cookie'] == 'some_value'
 
+        keys = jar.keys()
+        assert list(keys) == list(keys)
+
     def test_time_elapsed_blank(self):
         r = requests.get(httpbin('get'))
         td = r.elapsed

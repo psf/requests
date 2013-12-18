@@ -8,7 +8,7 @@ requests.utils imports from here, so be careful with imports.
 
 import time
 import collections
-from .compat import cookielib, urlparse, urlunparse, Morsel, is_py3
+from .compat import cookielib, urlparse, urlunparse, Morsel
 
 try:
     import threading
@@ -207,10 +207,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     def keys(self):
         """Dict-like keys() that returns a list of names of cookies from the jar.
         See values() and items()."""
-        if is_py3:
-            return self.iterkeys()
-        else:
-            return list(self.iterkeys())
+        return list(self.iterkeys())
 
     def itervalues(self):
         """Dict-like itervalues() that returns an iterator of values of cookies from the jar.
@@ -221,10 +218,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     def values(self):
         """Dict-like values() that returns a list of values of cookies from the jar.
         See keys() and items()."""
-        if is_py3:
-            return self.itervalues()
-        else:
-            return list(self.itervalues())
+        return list(self.itervalues())
 
     def iteritems(self):
         """Dict-like iteritems() that returns an iterator of name-value tuples from the jar.
@@ -236,10 +230,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         """Dict-like items() that returns a list of name-value tuples from the jar.
         See keys() and values(). Allows client-code to call "dict(RequestsCookieJar)
         and get a vanilla python dict of key value pairs."""
-        if is_py3:
-            return self.iteritems()
-        else:
-            return list(self.iteritems())
+        return list(self.iteritems())
 
     def list_domains(self):
         """Utility method to list all the domains in the jar."""
