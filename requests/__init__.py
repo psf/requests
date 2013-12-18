@@ -44,7 +44,7 @@ from .release import __version__
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
-    from .packages.urllib3.contrib import pyopenssl
+    from urllib3.contrib import pyopenssl
     pyopenssl.inject_into_urllib3()
 except ImportError:
     pass
