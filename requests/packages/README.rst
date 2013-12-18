@@ -5,4 +5,4 @@ them and submitted as separate pull requests to those libraries.
 
 urllib3 pull requests go here: https://github.com/shazow/urllib3
 
-charade pull requests go here: https://github.com/sigmavirus24/charade
+chardet pull requests go here: https://github.com/chardet/chardet
