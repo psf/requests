@@ -3,3 +3,5 @@ pytest==2.3.4
 pytest-cov==1.6
 invoke==0.2.0
 wheel
+urllib3
+charade

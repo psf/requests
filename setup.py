@@ -3,8 +3,6 @@
 import os
 import sys
 
-import requests
-
 try:
     from setuptools import setup
 except ImportError:
@@ -14,17 +12,13 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
+execfile("requests/release.py")
+
 packages = [
     'requests',
-    'requests.packages',
-    'requests.packages.charade',
-    'requests.packages.urllib3',
-    'requests.packages.urllib3.packages',
-    'requests.packages.urllib3.contrib',
-    'requests.packages.urllib3.packages.ssl_match_hostname'
 ]
 
-requires = []
+requires = ['urllib3', 'charade']
 
 with open('README.rst') as f:
     readme = f.read()
@@ -35,10 +29,10 @@ with open('LICENSE') as f:
 
 setup(
     name='requests',
-    version=requests.__version__,
+    version=__version__,
     description='Python HTTP for Humans.',
     long_description=readme + '\n\n' + history,
-    author='Kenneth Reitz',
+    author=__author__,
     author_email='me@kennethreitz.com',
     url='http://python-requests.org',
     packages=packages,

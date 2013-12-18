@@ -17,9 +17,9 @@ from .structures import CaseInsensitiveDict
 
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header
-from .packages.urllib3.fields import RequestField
-from .packages.urllib3.filepost import encode_multipart_formdata
-from .packages.urllib3.util import parse_url
+from urllib3.fields import RequestField
+from urllib3.filepost import encode_multipart_formdata
+from urllib3.util import parse_url
 from .exceptions import (
     HTTPError, RequestException, MissingSchema, InvalidURL,
     ChunkedEncodingError)
