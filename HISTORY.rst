@@ -3,6 +3,11 @@
 Release History
 ---------------
 
+2.x.y (yyyy-mm-dd)
+++++++++++++++++++
+
+- Switch back to using chardet since charade has merged with it
+
 2.1.0 (2013-12-05)
 ++++++++++++++++++
 

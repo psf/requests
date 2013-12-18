@@ -369,7 +369,7 @@ Encodings
 When you receive a response, Requests makes a guess at the encoding to use for
 decoding the response when you call the ``Response.text`` method. Requests
 will first check for an encoding in the HTTP header, and if none is present,
-will use `charade <http://pypi.python.org/pypi/charade>`_ to attempt to guess
+will use `chardet <http://pypi.python.org/pypi/chardet>`_ to attempt to guess
 the encoding.
 
 The only time Requests will not do this is if no explicit charset is present

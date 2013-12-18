@@ -17,7 +17,7 @@ if sys.argv[-1] == 'publish':
 packages = [
     'requests',
     'requests.packages',
-    'requests.packages.charade',
+    'requests.packages.chardet',
     'requests.packages.urllib3',
     'requests.packages.urllib3.packages',
     'requests.packages.urllib3.contrib',
