@@ -20,9 +20,10 @@ from .cookies import cookiejar_from_dict, get_cookie_header
 from .packages.urllib3.fields import RequestField
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
+from .packages.urllib3.exceptions import DecodeError
 from .exceptions import (
     HTTPError, RequestException, MissingSchema, InvalidURL,
-    ChunkedEncodingError)
+    ChunkedEncodingError, ContentDecodingError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
@@ -616,6 +617,8 @@ class Response(object):
                         yield chunk
                 except IncompleteRead as e:
                     raise ChunkedEncodingError(e)
+                except DecodeError as e:
+                    raise ContentDecodingError(e)
             except AttributeError:
                 # Standard file-like object.
                 while True:
