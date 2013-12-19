@@ -61,3 +61,7 @@ class InvalidURL(RequestException, ValueError):
 
 class ChunkedEncodingError(RequestException):
     """The server declared chunked encoding but sent an invalid chunk."""
+
+
+class ContentDecodingError(RequestException):
+    """Failed to decode response content"""
