@@ -145,3 +145,4 @@ Patches and Suggestions
 - Pengfei.X <pengphy@gmail.com>
 - Kamil Madac <kamil.madac@gmail.com>
 - Michael Becker <mike@beckerfuffle.com> @beckerfuffle
+- Константин Подшумок @podshumok

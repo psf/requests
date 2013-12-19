@@ -570,6 +570,94 @@ class RequestsTestCase(unittest.TestCase):
         assert cookie.domain == domain
         assert cookie._rest['HttpOnly'] == rest['HttpOnly']
 
+    def test_cookie_as_dict_keeps_len(self):
+        key = 'some_cookie'
+        value = 'some_value'
+
+        key1 = 'some_cookie1'
+        value1 = 'some_value1'
+
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set(key, value)
+        jar.set(key1, value1)
+
+        d1 = dict(jar)
+        d2 = dict(jar.iteritems())
+        d3 = dict(jar.items())
+
+        assert len(jar) == 2
+        assert len(d1) == 2
+        assert len(d2) == 2
+        assert len(d3) == 2
+
+    def test_cookie_as_dict_keeps_items(self):
+        key = 'some_cookie'
+        value = 'some_value'
+
+        key1 = 'some_cookie1'
+        value1 = 'some_value1'
+
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set(key, value)
+        jar.set(key1, value1)
+
+        d1 = dict(jar)
+        d2 = dict(jar.iteritems())
+        d3 = dict(jar.items())
+
+        assert d1['some_cookie'] == 'some_value'
+        assert d2['some_cookie'] == 'some_value'
+        assert d3['some_cookie1'] == 'some_value1'
+
+    def test_cookie_as_dict_keys(self):
+        key = 'some_cookie'
+        value = 'some_value'
+
+        key1 = 'some_cookie1'
+        value1 = 'some_value1'
+
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set(key, value)
+        jar.set(key1, value1)
+
+        keys = jar.keys()
+        assert keys == list(keys)
+        # make sure one can use keys multiple times
+        assert list(keys) == list(keys)
+
+    def test_cookie_as_dict_values(self):
+        key = 'some_cookie'
+        value = 'some_value'
+
+        key1 = 'some_cookie1'
+        value1 = 'some_value1'
+
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set(key, value)
+        jar.set(key1, value1)
+
+        values = jar.values()
+        assert values == list(values)
+        # make sure one can use values multiple times
+        assert list(values) == list(values)
+
+    def test_cookie_as_dict_items(self):
+        key = 'some_cookie'
+        value = 'some_value'
+
+        key1 = 'some_cookie1'
+        value1 = 'some_value1'
+
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set(key, value)
+        jar.set(key1, value1)
+
+        items = jar.items()
+        assert items == list(items)
+        # make sure one can use items multiple times
+        assert list(items) == list(items)
+
+
     def test_time_elapsed_blank(self):
         r = requests.get(httpbin('get'))
         td = r.elapsed
