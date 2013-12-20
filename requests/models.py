@@ -692,6 +692,11 @@ class Response(object):
 
         If Response.encoding is None, encoding will be guessed using
         ``chardet``.
+
+        The encoding of the response content is determined based soley on HTTP
+        headers, following RFC 2616 to the letter. If you can take advantage of
+        non-HTTP knowledge to make a better guess at the encoding, you should
+        set ``r.encoding`` appropriately before accessing this property.
         """
 
         # Try charset from content-type
