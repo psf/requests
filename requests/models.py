@@ -526,7 +526,7 @@ class Response(object):
         self.headers = CaseInsensitiveDict()
 
         #: File-like object representation of response (for advanced usage).
-        #: Requires that ``stream=True` on the request.
+        #: Use of ``raw`` requires that ``stream=True`` be set on the request.
         # This requirement does not apply for use internally to Requests.
         self.raw = None
 

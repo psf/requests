@@ -256,7 +256,7 @@ class Session(SessionRedirectMixin):
         :class:`Session`.
 
         :param request: :class:`Request` instance to prepare with this
-        session's settings.
+            session's settings.
         """
         cookies = request.cookies or {}
 
