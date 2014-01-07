@@ -9,6 +9,7 @@ and maintain connections.
 """
 
 import socket
+import ssl
 
 from .models import Response
 from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
@@ -108,8 +109,12 @@ class HTTPAdapter(BaseAdapter):
         self._pool_maxsize = maxsize
         self._pool_block = block
 
-        self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize,
-                                       block=block)
+        self.poolmanager = PoolManager(
+            num_pools=connections,
+            maxsize=maxsize,
+            block=block,
+            ssl_version=ssl.PROTOCOL_SSLv3
+        )
 
     def cert_verify(self, conn, url, verify, cert):
         """Verify a SSL certificate. This method should not be called from user
