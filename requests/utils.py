@@ -64,16 +64,24 @@ def super_len(o):
         # e.g. BytesIO, cStringIO.StringI
         return len(o.getvalue())
 
+
 def get_netrc_auth(url):
     """Returns the Requests tuple auth for a given url from netrc."""
 
     try:
         from netrc import netrc, NetrcParseError
 
-        locations = (os.path.expanduser('~/{0}'.format(f)) for f in NETRC_FILES)
         netrc_path = None
 
-        for loc in locations:
+        for f in NETRC_FILES:
+            try:
+                loc = os.path.expanduser('~/{0}'.format(f))
+            except KeyError:
+                # os.path.expanduser can fail when $HOME is undefined and
+                # getpwuid fails. See http://bugs.python.org/issue20164 &
+                # https://github.com/kennethreitz/requests/issues/1846
+                return
+
             if os.path.exists(loc) and not netrc_path:
                 netrc_path = loc
 
