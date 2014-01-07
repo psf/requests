@@ -80,7 +80,10 @@ class VerifiedHTTPSConnection(HTTPSConnection):
         resolved_cert_reqs = resolve_cert_reqs(self.cert_reqs)
         resolved_ssl_version = resolve_ssl_version(self.ssl_version)
 
-        if self._tunnel_host:
+        # the _tunnel_host attribute was added in python 2.6.3 (via
+        # http://hg.python.org/cpython/rev/0f57b30a152f) so pythons 2.6(0-2) do
+        # not have them.
+        if getattr(self, '_tunnel_host', None):
             self.sock = sock
             # Calls self._set_hostport(), so self.host is
             # self._tunnel_host below.

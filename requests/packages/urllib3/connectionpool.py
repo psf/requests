@@ -371,9 +371,11 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         # TODO: Add optional support for socket.gethostbyname checking.
         scheme, host, port = get_host(url)
 
+        # Use explicit default port for comparison when none is given
         if self.port and not port:
-            # Use explicit default port for comparison when none is given.
             port = port_by_scheme.get(scheme)
+        elif not self.port and port == port_by_scheme.get(scheme):
+            port = None
 
         return (scheme, host, port) == (self.scheme, self.host, self.port)
 
