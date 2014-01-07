@@ -82,12 +82,13 @@ def get_netrc_auth(url):
                 # https://github.com/kennethreitz/requests/issues/1846
                 return
 
-            if os.path.exists(loc) and not netrc_path:
+            if os.path.exists(loc):
                 netrc_path = loc
+                break
 
         # Abort early if there isn't one.
         if netrc_path is None:
-            return netrc_path
+            return
 
         ri = urlparse(url)
 
