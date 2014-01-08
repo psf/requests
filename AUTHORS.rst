@@ -146,3 +146,4 @@ Patches and Suggestions
 - Kamil Madac <kamil.madac@gmail.com>
 - Michael Becker <mike@beckerfuffle.com> @beckerfuffle
 - Erik Wickstrom <erik@erikwickstrom.com> @erikwickstrom
+- Константин Подшумок @podshumok

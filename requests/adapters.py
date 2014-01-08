@@ -55,14 +55,16 @@ class HTTPAdapter(BaseAdapter):
 
     :param pool_connections: The number of urllib3 connection pools to cache.
     :param pool_maxsize: The maximum number of connections to save in the pool.
-    :param max_retries: The maximum number of retries each connection should attempt.
+    :param int max_retries: The maximum number of retries each connection
+        should attempt. Note, this applies only to failed connections and
+        timeouts, never to requests where the server returns a response.
     :param pool_block: Whether the connection pool should block for connections.
 
     Usage::
 
       >>> import requests
       >>> s = requests.Session()
-      >>> a = requests.adapters.HTTPAdapter()
+      >>> a = requests.adapters.HTTPAdapter(max_retries=3)
       >>> s.mount('http://', a)
     """
     __attrs__ = ['max_retries', 'config', '_pool_connections', '_pool_maxsize',
@@ -207,7 +209,10 @@ class HTTPAdapter(BaseAdapter):
             if not proxy in self.proxy_manager:
                 self.proxy_manager[proxy] = proxy_from_url(
                                                 proxy,
-                                                proxy_headers=proxy_headers)
+                                                proxy_headers=proxy_headers,
+                                                num_pools=self._pool_connections,
+                                                maxsize=self._pool_maxsize,
+                                                block=self._pool_block)
 
             conn = self.proxy_manager[proxy].connection_from_url(url)
         else:

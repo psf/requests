@@ -198,30 +198,39 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         self.set_cookie(c)
         return c
 
+    def iterkeys(self):
+        """Dict-like iterkeys() that returns an iterator of names of cookies from the jar.
+        See itervalues() and iteritems()."""
+        for cookie in iter(self):
+            yield cookie.name
+
     def keys(self):
         """Dict-like keys() that returns a list of names of cookies from the jar.
         See values() and items()."""
-        keys = []
+        return list(self.iterkeys())
+
+    def itervalues(self):
+        """Dict-like itervalues() that returns an iterator of values of cookies from the jar.
+        See iterkeys() and iteritems()."""
         for cookie in iter(self):
-            keys.append(cookie.name)
-        return keys
+            yield cookie.value
 
     def values(self):
         """Dict-like values() that returns a list of values of cookies from the jar.
         See keys() and items()."""
-        values = []
+        return list(self.itervalues())
+
+    def iteritems(self):
+        """Dict-like iteritems() that returns an iterator of name-value tuples from the jar.
+        See iterkeys() and itervalues()."""
         for cookie in iter(self):
-            values.append(cookie.value)
-        return values
+            yield cookie.name, cookie.value
 
     def items(self):
         """Dict-like items() that returns a list of name-value tuples from the jar.
         See keys() and values(). Allows client-code to call "dict(RequestsCookieJar)
         and get a vanilla python dict of key value pairs."""
-        items = []
-        for cookie in iter(self):
-            items.append((cookie.name, cookie.value))
-        return items
+        return list(self.iteritems())
 
     def list_domains(self):
         """Utility method to list all the domains in the jar."""

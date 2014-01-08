@@ -99,7 +99,12 @@ using, and change it, using the ``r.encoding`` property::
     >>> r.encoding = 'ISO-8859-1'
 
 If you change the encoding, Requests will use the new value of ``r.encoding``
-whenever you call ``r.text``.
+whenever you call ``r.text``. You might want to do this in any situation where
+you can apply special logic to work out what the encoding of the content will
+be. For example, HTTP and XML have the ability to specify their encoding in
+their body. In situations like this, you should use ``r.content`` to find the
+encoding, and then set ``r.encoding``. This will let you use ``r.text`` with
+the correct encoding.
 
 Requests will also use custom encodings in the event that you need them. If
 you have created your own encoding and registered it with the ``codecs``
@@ -152,16 +157,16 @@ server, you can access ``r.raw``. If you want to do this, make sure you set
     >>> r.raw.read(10)
     '\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03'
 
-In general, however, you should use a pattern like this to save what is being 
+In general, however, you should use a pattern like this to save what is being
 streamed to a file::
 
     with open(filename, 'wb') as fd:
         for chunk in r.iter_content(chunk_size):
             fd.write(chunk)
 
-Using ``Response.iter_content`` will handle a lot of what you would otherwise 
-have to handle when using ``Response.raw`` directly. When streaming a 
-download, the above is the preferred and recommended way to retrieve the 
+Using ``Response.iter_content`` will handle a lot of what you would otherwise
+have to handle when using ``Response.raw`` directly. When streaming a
+download, the above is the preferred and recommended way to retrieve the
 content.
 
 
