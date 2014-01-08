@@ -194,7 +194,7 @@ class RequestsTestCase(unittest.TestCase):
         assert r.json()['cookies']['foo'] == 'bar'
         # Make sure the session cj is still the custom one
         assert s.cookies is cj
-    
+
     def test_param_cookiejar_works(self):
         cj = cookielib.CookieJar()
         cookiejar_from_dict({'foo' : 'bar'}, cj)
@@ -510,6 +510,16 @@ class RequestsTestCase(unittest.TestCase):
         resp = s.send(prep)
 
         assert hasattr(resp, 'hook_working')
+
+    def test_send_hook(self):
+        def hook(request, **kwargs):
+            request.called_send_hook = True
+            return request
+        s = requests.Session()
+        r = requests.Request('GET', HTTPBIN, hooks={'send': [hook]})
+        prep = s.prepare_request(r)
+        s.send(prep)
+        assert prep.called_send_hook
 
     def test_prepared_from_session(self):
         class DummyAuth(requests.auth.AuthBase):

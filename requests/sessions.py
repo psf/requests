@@ -66,17 +66,22 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
     return merged_setting
 
 
+def all_hooks_are_empty(hooks):
+    """Return true if all hooks are empty, False otherwise."""
+    return all(v == [] for v in hooks.values())
+
+
 def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
     """
     Properly merges both requests and session hooks.
 
-    This is necessary because when request_hooks == {'response': []}, the
+    This is necessary because when request_hooks is empty, the
     merge breaks Session hooks entirely.
     """
-    if session_hooks is None or session_hooks.get('response') == []:
+    if session_hooks is None or all_hooks_are_empty(session_hooks):
         return request_hooks
 
-    if request_hooks is None or request_hooks.get('response') == []:
+    if request_hooks is None or all_hooks_are_empty(request_hooks):
         return session_hooks
 
     return merge_setting(request_hooks, session_hooks, dict_class)
@@ -479,6 +484,8 @@ class Session(SessionRedirectMixin):
 
         # Get the appropriate adapter to use
         adapter = self.get_adapter(url=request.url)
+
+        request = dispatch_hook('send', hooks, request, **kwargs)
 
         # Start time (approximately) of the request
         start = datetime.utcnow()
