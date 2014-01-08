@@ -300,7 +300,7 @@ Then, we can make a request using our Pizza Auth::
     >>> requests.get('http://pizzabin.org/admin', auth=PizzaAuth('kenneth'))
     <Response [200]>
 
-.. _streaming-requests
+.. _streaming-requests:
 
 Streaming Requests
 ------------------
