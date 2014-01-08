@@ -109,7 +109,7 @@ request. The simple recipe for this is the following::
     print(resp.status_code)
 
 Since you are not doing anything special with the ``Request`` object, you
-prepare it immediately and modified the ``PreparedRequest`` object. You then
+prepare it immediately and modify the ``PreparedRequest`` object. You then
 send that with the other parameters you would have sent to ``requests.*`` or
 ``Sesssion.*``.
 
@@ -118,8 +118,9 @@ However, the above code will lose some of the advantages of having a Requests
 :class:`Session <requests.Session>`-level state such as cookies will
 not get applied to your request. To get a
 :class:`PreparedRequest <requests.models.PreparedRequest>` with that state
-applied, replace the call to ``Request.prepare()`` with a call to
-``Session.prepare_request()``, like this::
+applied, replace the call to :meth:`Request.prepare()
+<requests.Request.prepare>` with a call to
+:meth:`Session.prepare_request() <requests.Session.prepare_request>`, like this::
 
     from requests import Request, Session
 
@@ -182,7 +183,10 @@ If you specify a wrong path or an invalid cert::
 Body Content Workflow
 ---------------------
 
-By default, when you make a request, the body of the response is downloaded immediately. You can override this behavior and defer downloading the response body until you access the :class:`Response.content` attribute with the ``stream`` parameter::
+By default, when you make a request, the body of the response is downloaded
+immediately. You can override this behavior and defer downloading the response
+body until you access the :class:`Response.content <requests.Response.content>`
+attribute with the ``stream`` parameter::
 
     tarball_url = 'https://github.com/kennethreitz/requests/tarball/master'
     r = requests.get(tarball_url, stream=True)
@@ -193,7 +197,7 @@ At this point only the response headers have been downloaded and the connection 
       content = r.content
       ...
 
-You can further control the workflow by use of the :class:`Response.iter_content` and :class:`Response.iter_lines` methods. Alternatively, you can read the undecoded body from the underlying urllib3 :class:`urllib3.HTTPResponse` at :class:`Response.raw`.
+You can further control the workflow by use of the :class:`Response.iter_content <requests.Response.iter_content>` and :class:`Response.iter_lines <requests.Response.iter_lines>` methods. Alternatively, you can read the undecoded body from the underlying urllib3 :class:`urllib3.HTTPResponse <urllib3.response.HTTPResponse>` at :class:`Response.raw <requests.Response.raw>`.
 
 
 Keep-Alive
@@ -305,9 +309,11 @@ Then, we can make a request using our Pizza Auth::
 Streaming Requests
 ------------------
 
-With ``requests.Response.iter_lines()`` you can easily iterate over streaming
-APIs such as the `Twitter Streaming API <https://dev.twitter.com/docs/streaming-api>`_.
-Simply set ``stream`` to ``True`` and iterate over the response with ``iter_lines()``::
+With :class:`requests.Response.iter_lines()` you can easily
+iterate over streaming APIs such as the `Twitter Streaming
+API <https://dev.twitter.com/docs/streaming-api>`_. Simply
+set ``stream`` to ``True`` and iterate over the response with
+:class:`~requests.Response.iter_lines()`::
 
     import json
     import requests
@@ -366,20 +372,20 @@ unusual to those not familiar with the relevant specification.
 Encodings
 ^^^^^^^^^
 
-When you receive a response, Requests makes a guess at the encoding to use for
-decoding the response when you call the ``Response.text`` method. Requests
-will first check for an encoding in the HTTP header, and if none is present,
-will use `chardet <http://pypi.python.org/pypi/chardet>`_ to attempt to guess
-the encoding.
+When you receive a response, Requests makes a guess at the encoding to
+use for decoding the response when you access the :attr:`Response.text
+<requests.Response.text>` attribute. Requests will first check for an
+encoding in the HTTP header, and if none is present, will use `chardet
+<http://pypi.python.org/pypi/chardet>`_ to attempt to guess the encoding.
 
-The only time Requests will not do this is if no explicit charset is present
-in the HTTP headers **and** the ``Content-Type`` header contains ``text``. In
-this situation,
-`RFC 2616 <http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7.1>`_
-specifies that the default charset must be ``ISO-8859-1``. Requests follows
-the specification in this case. If you require a different encoding, you can
-manually set the ``Response.encoding`` property, or use the raw
-``Response.content``.
+The only time Requests will not do this is if no explicit charset
+is present in the HTTP headers **and** the ``Content-Type``
+header contains ``text``. In this situation, `RFC 2616
+<http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7.1>`_ specifies
+that the default charset must be ``ISO-8859-1``. Requests follows the
+specification in this case. If you require a different encoding, you can
+manually set the :attr:`Response.encoding <requests.Response.encoding>`
+property, or use the raw :attr:`Response.content <requests.Response.content>`.
 
 HTTP Verbs
 ----------
@@ -406,8 +412,8 @@ out what type of content it is. Do this like so::
     ...
     application/json; charset=utf-8
 
-So, GitHub returns JSON. That's great, we can use the ``r.json`` method to
-parse it into Python objects.
+So, GitHub returns JSON. That's great, we can use the :meth:`r.json
+<requests.Response.json>` method to parse it into Python objects.
 
 ::
 
@@ -583,11 +589,11 @@ reason this was done was to implement Transport Adapters, originally
 methods for an HTTP service. In particular, they allow you to apply per-service
 configuration.
 
-Requests ships with a single Transport Adapter, the
-:class:`HTTPAdapter <requests.adapters.HTTPAdapter>`. This adapter provides the
-default Requests interaction with HTTP and HTTPS using the powerful `urllib3`_
-library. Whenever a Requests :class:`Session <Session>` is initialized, one of
-these is attached to the :class:`Session <Session>` object for HTTP, and one
+Requests ships with a single Transport Adapter, the :class:`HTTPAdapter
+<requests.adapters.HTTPAdapter>`. This adapter provides the default Requests
+interaction with HTTP and HTTPS using the powerful `urllib3`_ library. Whenever
+a Requests :class:`Session <requests.Session>` is initialized, one of these is
+attached to the :class:`Session <requests.Session>` object for HTTP, and one
 for HTTPS.
 
 Requests enables users to create and use their own Transport Adapters that
@@ -605,7 +611,7 @@ prefix. Once mounted, any HTTP request made using that session whose URL starts
 with the given prefix will use the given Transport Adapter.
 
 Implementing a Transport Adapter is beyond the scope of this documentation, but
-a good start would be to subclass the ``requests.adapters.BaseAdapter`` class.
+a good start would be to subclass the :class:`requests.adapters.BaseAdapter` class.
 
 .. _`described here`: http://kennethreitz.org/exposures/the-future-of-python-http
 .. _`urllib3`: https://github.com/shazow/urllib3
@@ -614,11 +620,11 @@ Blocking Or Non-Blocking?
 -------------------------
 
 With the default Transport Adapter in place, Requests does not provide any kind
-of non-blocking IO. The ``Response.content`` property will block until the
-entire response has been downloaded. If you require more granularity, the
-streaming features of the library (see :ref:`streaming-requests`) allow you to
-retrieve smaller quantities of the response at a time. However, these calls
-will still block.
+of non-blocking IO. The :attr:`Response.content <requests.Response.content>`
+property will block until the entire response has been downloaded. If
+you require more granularity, the streaming features of the library (see
+:ref:`streaming-requests`) allow you to retrieve smaller quantities of the
+response at a time. However, these calls will still block.
 
 If you are concerned about the use of blocking IO, there are lots of projects
 out there that combine Requests with one of Python's asynchronicity frameworks.
