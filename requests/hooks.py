@@ -11,10 +11,12 @@ Available hooks:
 ``response``:
     The response generated from a Request.
 
+``send``:
+    Invoked right before a Request is sent.
 """
 
 
-HOOKS = ['response']
+HOOKS = ['response', 'send']
 
 
 def default_hooks():
