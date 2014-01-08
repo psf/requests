@@ -90,6 +90,11 @@ class HTTPAdapter(BaseAdapter):
                     self.__attrs__)
 
     def __setstate__(self, state):
+        # Can't handle by adding 'proxy_manager' to self.__attrs__ because
+        # because self.poolmanager uses a lambda function, which isn't pickleable.
+        self.proxy_manager = {}
+        self.config = {}
+
         for attr, value in state.items():
             setattr(self, attr, value)
 
