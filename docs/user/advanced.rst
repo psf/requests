@@ -610,8 +610,40 @@ The mount call registers a specific instance of a Transport Adapter to a
 prefix. Once mounted, any HTTP request made using that session whose URL starts
 with the given prefix will use the given Transport Adapter.
 
-Implementing a Transport Adapter is beyond the scope of this documentation, but
-a good start would be to subclass the :class:`requests.adapters.BaseAdapter` class.
+Many of the details of implementing a Transport Adapter are beyond the scope of
+this documentation, but take a look at the next example for a simple SSL use-
+case. For more than that, you might look at subclassing
+``requests.adapters.BaseAdapter``.
+
+Example: Specific SSL Version
+-----------------------------
+
+The Requests team has made a specific choice to use whatever SSL version is
+default in the underlying library (`urllib3`_). Normally this is fine, but from
+time to time, you might find yourself needing to connect to a service-endpoint
+that uses a version that isn't compatible with the default.
+
+You can use Transport Adapters for this by taking most of the existing
+implementation of HTTPAdapter, and adding a parameter *ssl_version* that gets
+passed-through to `urllib3`. We'll make a TA that instructs the library to use
+SSLv3:
+
+::
+
+    import ssl
+
+    from requests.adapters import HTTPAdapter
+    from requests.packages.urllib3.poolmanager import PoolManager
+
+
+    class Ssl3HttpAdapter(HTTPAdapter):
+        """"Transport adapter" that allows us to use SSLv3."""
+
+        def init_poolmanager(self, connections, maxsize, block=False):
+            self.poolmanager = PoolManager(num_pools=connections,
+                                           maxsize=maxsize,
+                                           block=block,
+                                           ssl_version=ssl.PROTOCOL_SSLv3)
 
 .. _`described here`: http://kennethreitz.org/exposures/the-future-of-python-http
 .. _`urllib3`: https://github.com/shazow/urllib3
