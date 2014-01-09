@@ -616,7 +616,7 @@ case. For more than that, you might look at subclassing
 ``requests.adapters.BaseAdapter``.
 
 Example: Specific SSL Version
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Requests team has made a specific choice to use whatever SSL version is
 default in the underlying library (`urllib3`_). Normally this is fine, but from
