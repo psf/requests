@@ -7,18 +7,18 @@ Release History
 ++++++++++++++++++
 
 **API Changes**
+
 - New exception: ``ContentDecodingError``. Raised instead of ``urllib3``
   ``DecodeError`` exceptions.
 
 **Bugfixes**
-- Avoid many many exceptions from the buggy implementation of ``proxy_bypass``
-  on OS X in Python 2.6.
-- Avoid crashing when attempting to get authentication credentions from
-  ~/.netrc when running as a user without a home directory.
+
+- Avoid many many exceptions from the buggy implementation of ``proxy_bypass`` on OS X in Python 2.6.
+- Avoid crashing when attempting to get authentication credentions from ~/.netrc when running as a user without a home directory.
 - Use the correct pool size for pools of connections to proxies.
 - Fix iteration of ``CookieJar`` objects.
 - Ensure that cookies are persisted over redirect.
-- Switch back to using chardet since charade has merged with it
+- Switch back to using chardet, since it has merged with charade.
 
 2.1.0 (2013-12-05)
 ++++++++++++++++++
