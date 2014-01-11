@@ -639,7 +639,7 @@ def get_auth_from_url(url):
 
         try:
             return (unquote(parsed.username), unquote(parsed.password))
-        except AttributeError:
+        except (AttributeError, TypeError):
             pass
 
     return ('', '')
