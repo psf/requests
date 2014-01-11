@@ -635,11 +635,14 @@ def get_auth_from_url(url):
     """Given a url with authentication components, extract them into a tuple of
     username,password."""
     if url:
-        url = unquote(url)
         parsed = urlparse(url)
-        return (parsed.username, parsed.password)
-    else:
-        return ('', '')
+
+        try:
+            return (unquote(parsed.username), unquote(parsed.password))
+        except AttributeError:
+            pass
+
+    return ('', '')
 
 
 def to_native_string(string, encoding='ascii'):

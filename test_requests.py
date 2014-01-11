@@ -194,7 +194,7 @@ class RequestsTestCase(unittest.TestCase):
         assert r.json()['cookies']['foo'] == 'bar'
         # Make sure the session cj is still the custom one
         assert s.cookies is cj
-    
+
     def test_param_cookiejar_works(self):
         cj = cookielib.CookieJar()
         cookiejar_from_dict({'foo' : 'bar'}, cj)
@@ -704,6 +704,10 @@ class RequestsTestCase(unittest.TestCase):
     def test_get_auth_from_url_percent_chars(self):
         url = 'http://user%user:pass@complex.url.com/path?query=yes'
         assert ('user%user', 'pass') == requests.utils.get_auth_from_url(url)
+
+    def test_get_auth_from_url_encoded_hashes(self):
+        url = 'http://user:pass%23pass@complex.url.com/path?query=yes'
+        assert ('user', 'pass#pass') == requests.utils.get_auth_from_url(url)
 
     def test_cannot_send_unprepared_requests(self):
         r = requests.Request(url=HTTPBIN)
