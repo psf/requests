@@ -638,11 +638,13 @@ def get_auth_from_url(url):
         parsed = urlparse(url)
 
         try:
-            return (unquote(parsed.username), unquote(parsed.password))
+            auth = (unquote(parsed.username), unquote(parsed.password))
         except (AttributeError, TypeError):
-            pass
+            auth = ('', '')
+    else:
+        auth = ('', '')
 
-    return ('', '')
+    return auth
 
 
 def to_native_string(string, encoding='ascii'):
