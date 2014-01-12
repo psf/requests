@@ -286,10 +286,6 @@ class HTTPAdapter(BaseAdapter):
         username, password = get_auth_from_url(proxy)
 
         if username and password:
-            # Proxy auth usernames and passwords will be urlencoded, we need
-            # to decode them.
-            username = unquote(username)
-            password = unquote(password)
             headers['Proxy-Authorization'] = _basic_auth_str(username,
                                                              password)
 

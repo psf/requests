@@ -634,12 +634,14 @@ def except_on_missing_scheme(url):
 def get_auth_from_url(url):
     """Given a url with authentication components, extract them into a tuple of
     username,password."""
-    if url:
-        url = unquote(url)
-        parsed = urlparse(url)
-        return (parsed.username, parsed.password)
-    else:
-        return ('', '')
+    parsed = urlparse(url)
+
+    try:
+        auth = (unquote(parsed.username), unquote(parsed.password))
+    except (AttributeError, TypeError):
+        auth = ('', '')
+
+    return auth
 
 
 def to_native_string(string, encoding='ascii'):
