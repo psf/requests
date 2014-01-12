@@ -7,6 +7,7 @@ requests.utils imports from here, so be careful with imports.
 """
 
 import time
+import calendar
 import collections
 from .compat import cookielib, urlparse, urlunparse, Morsel
 
@@ -393,8 +394,8 @@ def morsel_to_cookie(morsel):
         expires = time.time() + morsel['max-age']
     elif morsel['expires']:
         time_template = '%a, %d-%b-%Y %H:%M:%S GMT'
-        expires = time.mktime(
-            time.strptime(morsel['expires'], time_template)) - time.timezone
+        expires = calendar.timegm(time.strptime(morsel['expires'],
+                                                time_template))
     return create_cookie(
         comment=morsel['comment'],
         comment_url=bool(morsel['comment']),
