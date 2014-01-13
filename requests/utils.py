@@ -635,9 +635,15 @@ def get_auth_from_url(url):
     """Given a url with authentication components, extract them into a tuple of
     username,password."""
     if url:
-        url = unquote(url)
         parsed = urlparse(url)
-        return (parsed.username, parsed.password)
+        username = ""
+        password = ""
+
+        if parsed.username is not None:
+            username = unquote(parsed.username)
+        if parsed.password is not None:
+            password = unquote(parsed.password)
+        return (username, password)
     else:
         return ('', '')
 

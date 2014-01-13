@@ -702,7 +702,7 @@ class RequestsTestCase(unittest.TestCase):
         assert ('user', 'pass pass') == requests.utils.get_auth_from_url(url)
 
     def test_get_auth_from_url_percent_chars(self):
-        url = 'http://user%user:pass@complex.url.com/path?query=yes'
+        url = 'http://user%25user:pass@complex.url.com/path?query=yes'
         assert ('user%user', 'pass') == requests.utils.get_auth_from_url(url)
 
     def test_cannot_send_unprepared_requests(self):
@@ -1092,6 +1092,15 @@ class UtilsTestCase(unittest.TestCase):
         assert address_in_network('192.168.1.1', '192.168.1.0/24')
         assert not address_in_network('172.16.0.1', '192.168.1.0/24')
 
+    def test_get_auth_from_url(self):
+        from requests.utils import get_auth_from_url
+        from requests.compat import quote
+        percent_encoding_test_chars = "%!*'();:@&=+$,/?#[] "
+        url_address = "request.com/url.html#test"
+        url = "http://" + quote(percent_encoding_test_chars, '') + ':' + quote(percent_encoding_test_chars, '') + '@' + url_address
+        (username, password) = get_auth_from_url(url)
+        assert username == percent_encoding_test_chars
+        assert password == percent_encoding_test_chars
 
 
 class TestMorselToCookieExpires(unittest.TestCase):
