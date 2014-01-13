@@ -1097,6 +1097,7 @@ class UtilsTestCase(unittest.TestCase):
         assert not address_in_network('172.16.0.1', '192.168.1.0/24')
 
     def test_get_auth_from_url(self):
+        """ Ensures that username and password in well-encoded URI as per RFC 3986 are correclty extracted """
         from requests.utils import get_auth_from_url
         from requests.compat import quote
         percent_encoding_test_chars = "%!*'();:@&=+$,/?#[] "
