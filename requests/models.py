@@ -17,7 +17,7 @@ from .structures import CaseInsensitiveDict
 
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header
-from .packages.urllib3.fields import RequestField
+from .packages.urllib3.fields import RequestField, guess_content_type
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
 from .packages.urllib3.exceptions import DecodeError
@@ -125,6 +125,7 @@ class RequestEncodingMixin(object):
             if isinstance(v, (tuple, list)):
                 if len(v) == 2:
                     fn, fp = v
+                    ft = guess_content_type(fn)
                 elif len(v) == 3:
                     fn, fp, ft = v
                 else:
