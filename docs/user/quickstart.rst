@@ -264,6 +264,12 @@ If you want, you can send strings to be received as files::
       ...
     }
 
+In the event you are posting a very large file as a ``multipart/form-data`` 
+request, you may want to stream the request. By default, ``requests`` does not 
+support this, but there is a separate package which does - 
+``requests-toolbelt``. You should read `the toolbelt's documentation 
+<https://toolbelt.rtfd.org>` for more details about how to use it.
+
 
 Response Status Codes
 ---------------------
