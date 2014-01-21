@@ -1,0 +1,6 @@
+[submodule "requests/packages/urllib3"]
+	path = requests/packages/urllib3
+	url = https://github.com/shazow/urllib3.git
+[submodule "requests/packages/chardet"]
+	path = requests/packages/chardet
+	url = https://github.com/chardet/chardet.git
