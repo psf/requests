@@ -1,5 +1,5 @@
 # urllib3/poolmanager.py
-# Copyright 2008-2013 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
+# Copyright 2008-2014 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
 #
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
@@ -176,7 +176,7 @@ class ProxyManager(PoolManager):
     Behaves just like :class:`PoolManager`, but sends all requests through
     the defined proxy, using the CONNECT method for HTTPS URLs.
 
-    :param poxy_url:
+    :param proxy_url:
         The URL of the proxy to be used.
 
     :param proxy_headers:

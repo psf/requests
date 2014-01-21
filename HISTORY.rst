@@ -3,6 +3,18 @@
 Release History
 ---------------
 
+Development Branch
+++++++++++++++
+
+**Behavior Changes**
+
+- The TCP_NODELAY option is enabled for requests that are not made
+via a proxy. Previously, a subset of requests with a body larger than
+a single TCP packet would suffer a ~200ms delay before the final
+packet was sent. That final packet will `now be sent immediately
+http://en.wikipedia.org/wiki/Nagle's_algorithm#Negative_effect_on_non-small_wri
+tes`_.
+
 2.2.0 (2014-01-09)
 ++++++++++++++++++
 
