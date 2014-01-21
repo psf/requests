@@ -14,7 +14,7 @@ Release History
 **Bugfixes**
 
 - Avoid many many exceptions from the buggy implementation of ``proxy_bypass`` on OS X in Python 2.6.
-- Avoid crashing when attempting to get authentication credentions from ~/.netrc when running as a user without a home directory.
+- Avoid crashing when attempting to get authentication credentials from ~/.netrc when running as a user without a home directory.
 - Use the correct pool size for pools of connections to proxies.
 - Fix iteration of ``CookieJar`` objects.
 - Ensure that cookies are persisted over redirect.
