@@ -3,6 +3,14 @@
 Release History
 ---------------
 
+2.2.1 (XXXX-XX-XX)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Fixes incorrect parsing of proxy credentials that contain a literal or encoded '#' character.
+- Assorted urllib3 fixes.
+
 2.2.0 (2014-01-09)
 ++++++++++++++++++
 
