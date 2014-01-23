@@ -1,4 +1,4 @@
-'''SSL with SNI-support for Python 2.
+'''SSL with SNI_-support for Python 2.
 
 This needs the following packages installed:
 
@@ -18,12 +18,31 @@ your application begins using ``urllib3``, like this::
 
 Now you can use :mod:`urllib3` as you normally would, and it will support SNI
 when the required modules are installed.
+
+Activating this module also has the positive side effect of disabling SSL/TLS
+encryption in Python 2 (see `CRIME attack`_).
+
+If you want to configure the default list of supported cipher suites, you can
+set the ``urllib3.contrib.pyopenssl.DEFAULT_SSL_CIPHER_LIST`` variable.
+
+Module Variables
+----------------
+
+:var DEFAULT_SSL_CIPHER_LIST: The list of supported SSL/TLS cipher suites.
+    Default: ``EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA256
+    EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EDH+aRSA EECDH RC4 !aNULL !eNULL !LOW !3DES
+    !MD5 !EXP !PSK !SRP !DSS'``
+
+.. _sni: https://en.wikipedia.org/wiki/Server_Name_Indication
+.. _crime attack: https://en.wikipedia.org/wiki/CRIME_(security_exploit)
+
 '''
 
 from ndg.httpsclient.ssl_peer_verification import SUBJ_ALT_NAME_SUPPORT
-from ndg.httpsclient.subj_alt_name import SubjectAltName
+from ndg.httpsclient.subj_alt_name import SubjectAltName as BaseSubjectAltName
 import OpenSSL.SSL
 from pyasn1.codec.der import decoder as der_decoder
+from pyasn1.type import univ, constraint
 from socket import _fileobject
 import ssl
 import select
@@ -50,6 +69,13 @@ _openssl_verify = {
                        + OpenSSL.SSL.VERIFY_FAIL_IF_NO_PEER_CERT,
 }
 
+# Default SSL/TLS cipher list.
+# Recommendation by https://community.qualys.com/blogs/securitylabs/2013/08/05/
+# configuring-apache-nginx-and-openssl-for-forward-secrecy
+DEFAULT_SSL_CIPHER_LIST = 'EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM ' + \
+        'EECDH+ECDSA+SHA256 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EDH+aRSA ' + \
+        'EECDH RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS'
+
 
 orig_util_HAS_SNI = util.HAS_SNI
 orig_connection_ssl_wrap_socket = connection.ssl_wrap_socket
@@ -67,6 +93,17 @@ def extract_from_urllib3():
 
     connection.ssl_wrap_socket = orig_connection_ssl_wrap_socket
     util.HAS_SNI = orig_util_HAS_SNI
+
+
+### Note: This is a slightly bug-fixed version of same from ndg-httpsclient.
+class SubjectAltName(BaseSubjectAltName):
+    '''ASN.1 implementation for subjectAltNames support'''
+
+    # There is no limit to how many SAN certificates a certificate may have,
+    #   however this needs to have some limit so we'll set an arbitrarily high
+    #   limit.
+    sizeSpec = univ.SequenceOf.sizeSpec + \
+        constraint.ValueSizeConstraint(1, 1024)
 
 
 ### Note: This is a slightly bug-fixed version of same from ndg-httpsclient.
@@ -329,6 +366,13 @@ def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
             ctx.load_verify_locations(ca_certs, None)
         except OpenSSL.SSL.Error as e:
             raise ssl.SSLError('bad ca_certs: %r' % ca_certs, e)
+
+    # Disable TLS compression to migitate CRIME attack (issue #309)
+    OP_NO_COMPRESSION = 0x20000
+    ctx.set_options(OP_NO_COMPRESSION)
+
+    # Set list of supported ciphersuites.
+    ctx.set_cipher_list(DEFAULT_SSL_CIPHER_LIST)
 
     cnx = OpenSSL.SSL.Connection(ctx, sock)
     cnx.set_tlsext_host_name(server_hostname)
