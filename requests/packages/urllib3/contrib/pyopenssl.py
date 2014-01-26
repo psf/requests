@@ -29,9 +29,8 @@ Module Variables
 ----------------
 
 :var DEFAULT_SSL_CIPHER_LIST: The list of supported SSL/TLS cipher suites.
-    Default: ``EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA256
-    EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EDH+aRSA EECDH RC4 !aNULL !eNULL !LOW !3DES
-    !MD5 !EXP !PSK !SRP !DSS'``
+    Default: ``ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:
+    ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS``
 
 .. _sni: https://en.wikipedia.org/wiki/Server_Name_Indication
 .. _crime attack: https://en.wikipedia.org/wiki/CRIME_(security_exploit)
