@@ -29,9 +29,8 @@ Module Variables
 ----------------
 
 :var DEFAULT_SSL_CIPHER_LIST: The list of supported SSL/TLS cipher suites.
-    Default: ``EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA256
-    EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EDH+aRSA EECDH RC4 !aNULL !eNULL !LOW !3DES
-    !MD5 !EXP !PSK !SRP !DSS'``
+    Default: ``ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:
+    ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS``
 
 .. _sni: https://en.wikipedia.org/wiki/Server_Name_Indication
 .. _crime attack: https://en.wikipedia.org/wiki/CRIME_(security_exploit)
@@ -69,12 +68,22 @@ _openssl_verify = {
                        + OpenSSL.SSL.VERIFY_FAIL_IF_NO_PEER_CERT,
 }
 
-# Default SSL/TLS cipher list.
-# Recommendation by https://community.qualys.com/blogs/securitylabs/2013/08/05/
-# configuring-apache-nginx-and-openssl-for-forward-secrecy
-DEFAULT_SSL_CIPHER_LIST = 'EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM ' + \
-        'EECDH+ECDSA+SHA256 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EDH+aRSA ' + \
-        'EECDH RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS'
+# A secure default.
+# Sources for more information on TLS ciphers:
+#
+# - https://wiki.mozilla.org/Security/Server_Side_TLS
+# - https://www.ssllabs.com/projects/best-practices/index.html
+# - https://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/
+#
+# The general intent is:
+# - Prefer cipher suites that offer perfect forward secrecy (DHE/ECDHE),
+# - prefer ECDHE over DHE for better performance,
+# - prefer any AES-GCM over any AES-CBC for better performance and security,
+# - use 3DES as fallback which is secure but slow,
+# - disable NULL authentication, MD5 MACs and DSS for security reasons.
+DEFAULT_SSL_CIPHER_LIST = "ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:" + \
+    "ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:" + \
+    "!aNULL:!MD5:!DSS"
 
 
 orig_util_HAS_SNI = util.HAS_SNI
