@@ -30,7 +30,8 @@ from .utils import (
     iter_slices, guess_json_utf, super_len, to_native_string)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
-    is_py2, chardet, json, builtin_str, basestring, IncompleteRead)
+    is_py2, chardet_detect, json, builtin_str, basestring, IncompleteRead,
+    idna_to_unicode)
 
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
@@ -342,7 +343,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         # Only want to apply IDNA to the hostname
         try:
-            host = host.encode('idna').decode('utf-8')
+            host = idna_to_unicode(host)
         except UnicodeError:
             raise InvalidURL('URL has an invalid label.')
 
@@ -595,7 +596,7 @@ class Response(object):
     def apparent_encoding(self):
         """The apparent encoding, provided by the lovely Charade library
         (Thanks, Ian!)."""
-        return chardet.detect(self.content)['encoding']
+        return chardet_detect(self.content)['encoding']
 
     def iter_content(self, chunk_size=1, decode_unicode=False):
         """Iterates over the response data.  When stream=True is set on the

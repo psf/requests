@@ -4,7 +4,7 @@
 pythoncompat
 """
 
-from .packages import chardet
+from .packages.chardet import detect as chardet_detect
 
 import sys
 
@@ -58,7 +58,7 @@ is_py24 = (is_py2 and _ver[1] == 4)   # I'm assuming this is not by choice.
 _ver = sys.version.lower()
 
 is_pypy = ('pypy' in _ver)
-is_jython = ('jython' in _ver)
+is_jython = sys.platform.startswith('java')
 is_ironpython = ('iron' in _ver)
 
 # Assume CPython, if nothing else.
@@ -81,6 +81,10 @@ except ImportError:
 # ---------
 # Specifics
 # ---------
+
+
+def idna_to_unicode(host):
+    return host.encode('idna').decode('utf-8')
 
 if is_py2:
     from urllib import quote, unquote, quote_plus, unquote_plus, urlencode, getproxies, proxy_bypass
@@ -113,3 +117,27 @@ elif is_py3:
     bytes = bytes
     basestring = (str, bytes)
     numeric_types = (int, float)
+
+if is_jython:
+    try:
+        from java.net import IDN
+    except ImportError:
+        raise NotImplementedError("Requests requires Java 6 or newer")
+
+    def idna_to_unicode(host):
+        """Java version of idna_to_unicode (Java 6+)"""
+        return IDN.toUnicode(host)
+
+    # chardet does not support Jython, instead, let's use Juniversalchardet and
+    # emulate charded API
+    try:
+        from org.mozilla.universalchardet import UniversalDetector
+    except ImportError:
+        raise NotImplementedError("Jython requests requires Juniversalchardet")
+
+    def chardet_detect(content):
+        """Jython version of chardet.detect"""
+        detector = UniversalDetector(None)
+        detector.handleData(content, 0, len(content))
+        detector.dataEnd()
+        return {'encoding': detector.getDetectedCharset()}
