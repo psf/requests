@@ -17,7 +17,7 @@ from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest
 from .hooks import default_hooks, dispatch_hook
-from .utils import to_key_val_list, default_headers
+from .utils import to_key_val_list, default_headers, to_native_string
 from .exceptions import TooManyRedirects, InvalidSchema
 from .structures import CaseInsensitiveDict
 
@@ -121,7 +121,7 @@ class SessionRedirectMixin(object):
             else:
                 url = requote_uri(url)
 
-            prepared_request.url = url
+            prepared_request.url = to_native_string(url)
 
             # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
             if (resp.status_code == codes.see_other and
