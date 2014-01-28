@@ -412,6 +412,9 @@ class RequestsTestCase(unittest.TestCase):
     def test_unicode_header_name(self):
         requests.put(httpbin('put'), headers={str('Content-Type'): 'application/octet-stream'}, data='\xff') # compat.str is unicode.
 
+    def test_pyopenssl_redirect(self):
+        requests.get('https://httpbin.org/status/301')
+
     def test_urlencoded_get_query_multivalued_param(self):
 
         r = requests.get(httpbin('get'), params=dict(test=['foo', 'baz']))
