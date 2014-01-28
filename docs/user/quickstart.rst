@@ -234,10 +234,10 @@ Requests makes it simple to upload Multipart-encoded files::
       ...
     }
 
-You can set the filename explicitly::
+You can set the filename, content_type and headers explicitly:
 
     >>> url = 'http://httpbin.org/post'
-    >>> files = {'file': ('report.xls', open('report.xls', 'rb'))}
+    >>> files = {'file': ('report.xls', open('report.xls', 'rb'), 'application/vnd.ms-excel', {'Expires': '0'})}
 
     >>> r = requests.post(url, files=files)
     >>> r.text
