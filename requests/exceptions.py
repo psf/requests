@@ -18,9 +18,10 @@ class RequestException(IOError):
         """
         Initialize RequestException with `request` and `response` objects.
         """
-        self.response = kwargs.pop('response', None)
+        response = kwargs.pop('response', None)
+        self.response = response
         self.request = kwargs.pop('request', None)
-        if self.response and not self.request:
+        if response and not self.request and hasattr(response, 'request'):
             self.request = self.response.request
         super(RequestException, self).__init__(*args, **kwargs)
 
