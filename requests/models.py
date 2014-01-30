@@ -772,6 +772,8 @@ class Response(object):
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)
 
+        return self
+
     def close(self):
         """Closes the underlying file descriptor and releases the connection
         back to the pool.

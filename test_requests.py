@@ -397,6 +397,10 @@ class RequestsTestCase(unittest.TestCase):
         r = requests.get(httpbin('status', '500'))
         assert not r.ok
 
+    def test_raise_for_status_returns_response(self):
+        r = requests.get(httpbin("status", '200'))
+        assert r.raise_for_status() is r
+
     def test_decompress_gzip(self):
         r = requests.get(httpbin('gzip'))
         r.content.decode('ascii')
