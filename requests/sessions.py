@@ -163,11 +163,9 @@ class SessionRedirectMixin(object):
             original_parsed = urlparse(resp.request.url)
             redirect_parsed = urlparse(url)
 
-            if original_parsed.hostname != redirect_parsed.hostname:
-                try:
-                    del headers['Authorization']
-                except KeyError:
-                    pass
+            if (original_parsed.hostname != redirect_parsed.hostname and
+                   'Authorization' in headers):
+                del headers['Authorization']
 
             # However, .netrc might have more auth for us. Let's get it if it
             # does.
