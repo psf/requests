@@ -169,7 +169,7 @@ class SessionRedirectMixin(object):
 
             # However, .netrc might have more auth for us. Let's get it if it
             # does.
-            new_auth = get_netrc_auth(url)
+            new_auth = get_netrc_auth(url) if self.trust_env else None
             if new_auth is not None:
                 prepared_request.prepare_auth(new_auth)
 
