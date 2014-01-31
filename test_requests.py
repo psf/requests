@@ -1169,5 +1169,34 @@ class TestMorselToCookieMaxAge(unittest.TestCase):
             morsel_to_cookie(morsel)
 
 
+class TestCustomWhereLoading(unittest.TestCase):
+
+    """Tests that if a module called requests_extension defines a function
+    called where will be loaded and used instead of requests.certs.where"""
+
+    def test_load_custom_where(self):
+        import types
+        import sys
+        ext_module_name = 'requests_extension'
+        try:
+            module = types.ModuleType(ext_module_name, 'For test only')
+            module.__dict__['where'] = lambda: '/path/to/cacerts.pem'
+            sys.modules[ext_module_name] = module
+            # Force reload of requests.certs module
+            try:
+                del sys.modules['requests.certs']
+            except KeyError:
+                pass
+            from requests.certs import where
+            assert where() == '/path/to/cacerts.pem'
+        finally:
+            # cleanup all global modifications
+            for module_name in ('requests.certs', ext_module_name):
+                try:
+                    del sys.modules[module_name]
+                except KeyError:
+                    pass
+
+
 if __name__ == '__main__':
     unittest.main()
