@@ -27,10 +27,10 @@ from .utils import requote_uri, get_environ_proxies, get_netrc_auth
 
 from .status_codes import codes
 REDIRECT_STATI = (
-    codes.moved, # 301
-    codes.found, # 302
-    codes.other, # 303
-    codes.temporary_moved, # 307
+    codes.moved,  # 301
+    codes.found,  # 302
+    codes.other,  # 303
+    codes.temporary_moved,  # 307
 )
 DEFAULT_REDIRECT_LIMIT = 30
 
@@ -480,8 +480,7 @@ class Session(SessionRedirectMixin):
         if not isinstance(request, PreparedRequest):
             raise ValueError('You can only send PreparedRequests.')
 
-        # Set up variables needed for resolve_redirects and dispatching of
-        # hooks
+        # Set up variables needed for resolve_redirects and dispatching of hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
         stream = kwargs.get('stream')
         timeout = kwargs.get('timeout')
@@ -495,8 +494,10 @@ class Session(SessionRedirectMixin):
 
         # Start time (approximately) of the request
         start = datetime.utcnow()
+
         # Send the request
         r = adapter.send(request, **kwargs)
+
         # Total elapsed time of the request (approximately)
         r.elapsed = datetime.utcnow() - start
 
@@ -505,15 +506,20 @@ class Session(SessionRedirectMixin):
 
         # Persist cookies
         if r.history:
+
             # If the hooks create history then we want those cookies too
             for resp in r.history:
                 extract_cookies_to_jar(self.cookies, resp.request, resp.raw)
+
         extract_cookies_to_jar(self.cookies, request, r.raw)
 
         # Redirect resolving generator.
-        gen = self.resolve_redirects(r, request, stream=stream,
-                                     timeout=timeout, verify=verify, cert=cert,
-                                     proxies=proxies)
+        gen = self.resolve_redirects(r, request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies)
 
         # Resolve redirects if allowed.
         history = [resp for resp in gen] if allow_redirects else []
@@ -547,8 +553,10 @@ class Session(SessionRedirectMixin):
         """Registers a connection adapter to a prefix.
 
         Adapters are sorted in descending order by key length."""
+
         self.adapters[prefix] = adapter
         keys_to_move = [k for k in self.adapters if len(k) < len(prefix)]
+
         for key in keys_to_move:
             self.adapters[key] = self.adapters.pop(key)
 
