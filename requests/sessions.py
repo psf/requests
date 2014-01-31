@@ -153,22 +153,20 @@ class SessionRedirectMixin(object):
             except KeyError:
                 pass
 
-            extract_cookies_to_jar(prepared_request._cookies,
-                                   prepared_request, resp.raw)
+            extract_cookies_to_jar(prepared_request._cookies, prepared_request, resp.raw)
             prepared_request._cookies.update(self.cookies)
             prepared_request.prepare_cookies(prepared_request._cookies)
 
-            # If we get redirected to a new host, we should strip out any
-            # authentication headers.
-            original_parsed = urlparse(resp.request.url)
-            redirect_parsed = urlparse(url)
+            if 'Authorization' in headers:
+                # If we get redirected to a new host, we should strip out any
+                # authentication headers.
+                original_parsed = urlparse(resp.request.url)
+                redirect_parsed = urlparse(url)
 
-            if (original_parsed.hostname != redirect_parsed.hostname and
-                   'Authorization' in headers):
-                del headers['Authorization']
+                if (original_parsed.hostname != redirect_parsed.hostname):
+                    del headers['Authorization']
 
-            # However, .netrc might have more auth for us. Let's get it if it
-            # does.
+            # .netrc might have more auth for us.
             new_auth = get_netrc_auth(url) if self.trust_env else None
             if new_auth is not None:
                 prepared_request.prepare_auth(new_auth)
