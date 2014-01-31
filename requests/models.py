@@ -644,8 +644,7 @@ class Response(object):
 
         pending = None
 
-        for chunk in self.iter_content(chunk_size=chunk_size,
-                                       decode_unicode=decode_unicode):
+        for chunk in self.iter_content(chunk_size=chunk_size, decode_unicode=decode_unicode):
 
             if pending is not None:
                 chunk = pending + chunk
