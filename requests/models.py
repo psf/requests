@@ -612,8 +612,7 @@ class Response(object):
             try:
                 # Special case for urllib3.
                 try:
-                    for chunk in self.raw.stream(chunk_size,
-                                                 decode_content=True):
+                    for chunk in self.raw.stream(chunk_size, decode_content=True):
                         yield chunk
                 except IncompleteRead as e:
                     raise ChunkedEncodingError(e)
