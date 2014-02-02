@@ -179,6 +179,31 @@ If you specify a wrong path or an invalid cert::
     >>> requests.get('https://kennethreitz.com', cert='/wrong_path/server.pem')
     SSLError: [Errno 336265225] _ssl.c:347: error:140B0009:SSL routines:SSL_CTX_use_PrivateKey_file:PEM lib
 
+Server Name Indication
+----------------------
+
+`Server Name Indication`_, or SNI, is an official extension to SSL where the
+client tells the server what hostname it is contacting. This enables `virtual
+hosting`_ on SSL protected sites.
+
+Python3's SSL module includes native support for SNI. This support has not been
+back ported to Python2. However, Requests will enable SNI support on Python2 if
+the following packages are installed:
+
+* `pyOpenSSL`_, a Python wrapper module around the OpenSSL library.
+* `ndg-httpsclient`_, enhanced HTTPS support for httplib and urllib2.
+* `pyasn1`_, ASN.1 types and codecs.
+
+When these packages are installed, Requests will automatically indicate to the
+server what hostname is being contacted. This allows the server to return the
+correct server certificate for SSL certificate verification.
+
+.. _`Server Name Indication`: https://en.wikipedia.org/wiki/Server_Name_Indication
+.. _`virtual hosting`: https://en.wikipedia.org/wiki/Virtual_hosting
+.. _`pyOpenSSL`: https://pypi.python.org/pypi/pyOpenSSL
+.. _`ndg-httpsclient`: https://pypi.python.org/pypi/ndg-httpsclient
+.. _`pyasn1`: https://pypi.python.org/pypi/pyasn1
+
 
 Body Content Workflow
 ---------------------
