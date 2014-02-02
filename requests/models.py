@@ -539,7 +539,7 @@ class Response(object):
         #: A list of :class:`Response <Response>` objects from
         #: the history of the Request. Any redirect responses will end
         #: up here. The list is sorted from the oldest to the most recent request.
-        self.history = []
+        self.history = ()
 
         self.reason = None
 
