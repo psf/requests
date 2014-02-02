@@ -60,3 +60,25 @@ supported:
 * Python 3.2
 * Python 3.3
 * PyPy 1.9
+
+What are "hostname doesn't match" errors?
+-----------------------------------------
+
+These errors occur when :ref:`SSL certificate verification <verification>`
+fails to match the certificate the server responds with to the hostname
+Requests thinks it's contacting. If you're certain the server's SSL setup is
+correct (for example, because you can visit the site with your browser) a
+possible explanation is Request's is lacking Server-Name-Indication.
+
+`Server-Name-Indication`_, or SNI, is an official extension to SSL where the
+client tells the server what hostname it is contacting. This enables `virtual
+hosting`_ on SSL protected sites, the server being to able to respond with a
+certificate appropriate for the hostname the client is contacting.
+
+Python3's SSL module includes native support for SNI. This support has not been
+back ported to Python2. For information on using SNI with Requests on Python2
+refer to this `Stack Overflow answer`_.
+
+.. _`Server-Name-Indication`: https://en.wikipedia.org/wiki/Server_Name_Indication
+.. _`virtual hosting`: https://en.wikipedia.org/wiki/Virtual_hosting
+.. _`Stack Overflow answer`: https://stackoverflow.com/questions/18578439/using-requests-with-tls-doesnt-give-sni-support/18579484#18579484
