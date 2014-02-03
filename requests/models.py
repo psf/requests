@@ -725,11 +725,20 @@ class Response(object):
         if not self.encoding and len(self.content) > 3:
             # No encoding set. JSON RFC 4627 section 3 states we should expect
             # UTF-8, -16 or -32. Detect which one to use; If the detection or
-            # decoding fails, fall back to `self.text` (using chardet to make
+            # decoding fails, fall back to `self.text` (using charade to make
             # a best guess).
             encoding = guess_json_utf(self.content)
             if encoding is not None:
-                return json.loads(self.content.decode(encoding), **kwargs)
+                try:
+                    return json.loads(self.content.decode(encoding), **kwargs)
+                except UnicodeDecodeError:
+                    # Wrong UTF codec detected; usually because it's not UTF-8
+                    # but some other 8-bit codec.  This is an RFC violation,
+                    # and the server didn't bother to tell us what codec *was*
+                    # used.
+                    pass
+            log.warn('No encoding specified for JSON response, and no '
+                     'UTF codec detected. Falling back to charade best guess.')
         return json.loads(self.text, **kwargs)
 
     @property
