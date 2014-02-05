@@ -517,7 +517,7 @@ class Response(object):
         self._content = False
         self._content_consumed = False
 
-        #: Integer Code of responded HTTP Status.
+        #: Integer Code of responded HTTP Status, e.g. 404 or 200.
         self.status_code = None
 
         #: Case-insensitive Dictionary of Response Headers.
@@ -541,6 +541,7 @@ class Response(object):
         #: up here. The list is sorted from the oldest to the most recent request.
         self.history = []
 
+        #: Textual reason of responded HTTP Status, e.g. "Not Found" or "OK".
         self.reason = None
 
         #: A CookieJar of Cookies the server sent back.
