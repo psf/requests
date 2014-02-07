@@ -18,6 +18,12 @@ from .compat import urlparse, basestring, urldefrag, unquote
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     except_on_missing_scheme, get_auth_from_url)
 from .structures import CaseInsensitiveDict
+try:
+    from .packages.urllib3.contrib import pyopenssl
+except ImportError:
+    HAS_PYOPENSSL = False
+else:
+    HAS_PYOPENSSL = True
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import TimeoutError
 from .packages.urllib3.exceptions import SSLError as _SSLError
@@ -135,12 +141,16 @@ class HTTPAdapter(BaseAdapter):
             # Allow self-specified cert location.
             if verify is not True:
                 cert_loc = verify
+            if not HAS_PYOPENSSL:
+                # Platform default CA can not be used as this feature
+                # requires pyopenssl.
+                # Fallback on preferred certificate bundle
+                # define by requests.certs.where()
+                if not cert_loc:
+                    cert_loc = DEFAULT_CA_BUNDLE_PATH
 
-            if not cert_loc:
-                cert_loc = DEFAULT_CA_BUNDLE_PATH
-
-            if not cert_loc:
-                raise Exception("Could not find a suitable SSL CA certificate bundle.")
+                if not cert_loc:
+                    raise Exception("Could not find a suitable SSL CA certificate bundle.")
 
             conn.cert_reqs = 'CERT_REQUIRED'
             conn.ca_certs = cert_loc
