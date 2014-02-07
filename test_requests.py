@@ -855,6 +855,21 @@ class RequestsTestCase(unittest.TestCase):
             preq = req.prepare()
             assert test_url == preq.url
 
+    def test_requests_pass_empty_ca_certs(self):
+        """
+        If urllib3 can support it. It is not longer necessary
+        to pass a ca_certs to it. He will just pick up the one
+        configured by your OS.
+        """
+        pytest.importorskip('requests.packages.urllib3.contrib.pyopenssl')
+        parts = urlparse(httpbin('get'))
+        url = 'https://' + parts.netloc + parts.path
+        session = requests.sessions.Session()
+        adapter = session.get_adapter(url=url)
+        connection = adapter.get_connection(url, {})
+        adapter.cert_verify(connection, url, True, None)
+        assert connection.ca_certs is None
+
 
 class TestContentEncodingDetection(unittest.TestCase):
 
@@ -1109,6 +1124,7 @@ class UtilsTestCase(unittest.TestCase):
         (username, password) = get_auth_from_url(url)
         assert username == percent_encoding_test_chars
         assert password == percent_encoding_test_chars
+
 
 
 class TestMorselToCookieExpires(unittest.TestCase):
