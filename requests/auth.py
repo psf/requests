@@ -11,15 +11,12 @@ import os
 import re
 import time
 import hashlib
-import logging
 
 from base64 import b64encode
 
 from .compat import urlparse, str
 from .cookies import extract_cookies_to_jar
 from .utils import parse_dict_header
-
-log = logging.getLogger(__name__)
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 CONTENT_TYPE_MULTI_PART = 'multipart/form-data'

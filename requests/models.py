@@ -8,7 +8,6 @@ This module contains the primary objects that power Requests.
 """
 
 import collections
-import logging
 import datetime
 
 from io import BytesIO, UnsupportedOperation
@@ -34,8 +33,6 @@ from .compat import (
 
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
-
-log = logging.getLogger(__name__)
 
 
 class RequestEncodingMixin(object):
