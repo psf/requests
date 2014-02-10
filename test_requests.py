@@ -115,6 +115,8 @@ class RequestsTestCase(unittest.TestCase):
     def test_HTTP_302_ALLOW_REDIRECT_GET(self):
         r = requests.get(httpbin('redirect', '1'))
         assert r.status_code == 200
+        assert r.history[0].status_code == 302
+        assert r.history[0].is_redirect
 
     # def test_HTTP_302_ALLOW_REDIRECT_POST(self):
     #     r = requests.post(httpbin('status', '302'), data={'some': 'data'})
