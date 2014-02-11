@@ -369,7 +369,8 @@ class Session(object):
 
         # Consume response content if it hasn't already happened, so
         # the connection can return to the pool.
-        resp.content
+        if not resp._content_consumed:
+            resp.content
 
         # Create a new request from the previous one.
         prepared_request = resp.request.copy()

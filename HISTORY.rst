@@ -32,6 +32,11 @@ Release History
 - Each response in a redirection chain has a properly-filled-out
   history property containing all of the previous responses, including
   any history added at any stage by the response-modification hook.
+- ``Session.resolve_one_redirect`` and ``Session.resolve_redirects``
+  no longer crash when the original request was made in stream mode
+  and the response body of a redirect is totally consumed by
+  ``iter_content``.
+
 
 2.2.1 (2014-01-23)
 ++++++++++++++++++

@@ -906,6 +906,20 @@ class RequestsTestCase(unittest.TestCase):
         with pytest.raises(TooManyRedirects):
             next(rg)
 
+    def test_manual_redirect_with_partial_body_read(self):
+        s = requests.Session()
+        r1 = s.get(httpbin('redirect/2'), allow_redirects=False, stream=True)
+
+        # read only the first eight bytes of the response body, then follow the redir
+        r1.iter_content(8)
+        r2 = s.resolve_one_redirect(r1)
+
+        # read all of the response via iter_content, then follow the redir
+        for chunk in r2.iter_content(1024): pass
+        r3 = s.resolve_one_redirect(r2)
+
+        assert not r3.is_redirect
+
 class TestContentEncodingDetection(unittest.TestCase):
 
     def test_none(self):
