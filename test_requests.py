@@ -16,7 +16,7 @@ from requests.auth import HTTPDigestAuth
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
-from requests.exceptions import InvalidURL, MissingSchema
+from requests.exceptions import InvalidURL, InvalidRedirect, MissingSchema, TooManyRedirects
 from requests.structures import CaseInsensitiveDict
 
 try:
@@ -857,6 +857,54 @@ class RequestsTestCase(unittest.TestCase):
             preq = req.prepare()
             assert test_url == preq.url
 
+    def test_manual_redirect_resolution(self):
+        s = requests.Session()
+        r1 = s.get(httpbin('redirect/3'), allow_redirects=False)
+        assert r1.is_redirect
+
+        r2 = s.resolve_one_redirect(r1)
+        assert r2.is_redirect
+
+        r3 = s.resolve_one_redirect(r2)
+        assert r3.is_redirect
+
+        r4 = s.resolve_one_redirect(r3)
+        assert not r4.is_redirect
+
+        assert len(r1.history) == 0
+        assert len(r2.history) == 1
+        assert len(r3.history) == 2
+        assert len(r4.history) == 3
+
+        assert r2.history[0] is r1
+        assert r3.history[0] is r1
+        assert r4.history[0] is r1
+
+        assert r3.history[1] is r2
+        assert r4.history[1] is r2
+
+        assert r4.history[2] is r3
+
+    def test_redirect_to_bogus_url(self):
+        with pytest.raises(InvalidRedirect):
+            requests.get(httpbin('redirect-to'), params={'url': 'http://@'})
+        with pytest.raises(InvalidRedirect):
+            requests.get(httpbin('redirect-to'), params={'url': 'http://example.[^com/]'})
+
+    def test_redirect_loop_detection(self):
+        with pytest.raises(TooManyRedirects):
+            requests.get(httpbin('redirect/31'))
+
+    def test_manual_redirect_loop_detection(self):
+        s = requests.Session()
+        r1 = s.get(httpbin('redirect/31'), allow_redirects=False)
+        assert r1.is_redirect
+
+        rg = s.resolve_redirects(r1)
+        for _ in range(30):
+            next(rg)
+        with pytest.raises(TooManyRedirects):
+            next(rg)
 
 class TestContentEncodingDetection(unittest.TestCase):
 

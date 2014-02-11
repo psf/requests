@@ -66,6 +66,8 @@ class InvalidSchema(RequestException, ValueError):
 class InvalidURL(RequestException, ValueError):
     """ The URL provided was somehow invalid. """
 
+class InvalidRedirect(InvalidURL):
+    """The server redirected us to an invalid URL."""
 
 class ChunkedEncodingError(RequestException):
     """The server declared chunked encoding but sent an invalid chunk."""

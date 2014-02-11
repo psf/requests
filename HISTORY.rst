@@ -3,6 +3,36 @@
 Release History
 ---------------
 
+2.2.2 (YYYY-MM-DD)
+++++++++++++++++++
+
+**API Changes**
+
+- New exception: ``InvalidRedirect``, will be thrown if the URL
+  provided in a redirection (after converting relative to absolute) is
+  malformed.  (Formerly one would get a bare ``ValueError``,
+  ``AttributeError``, or ``UnicodeError``, depending on the problem.)
+- New Session method ``resolve_one_redirect`` takes a response already
+  known to be a redirect, fires a new request for the destination of
+  the redirect, and returns the response.  This is often more
+  convenient for applications than the ``resolve_redirects`` generator.
+
+- ``Session.resolve_redirects`` no longer needs to be passed a
+  ``PreparedRequest`` as well as a ``Response``, and will honor all
+  network-level control parameters passed to the original ``send``
+  call (e.g. ``stream``, ``verify``, ``cert``, ``proxies``) without
+  needing them to be explicitly supplied again.  For source
+  compatibility, ``Session.resolve_redirects`` still accepts all the
+  arguments it used to, but all of them are ignored except the
+  response object.
+
+**Bugfixes**
+
+- ``Response.history`` is now always a list, never a tuple.
+- Each response in a redirection chain has a properly-filled-out
+  history property containing all of the previous responses, including
+  any history added at any stage by the response-modification hook.
+
 2.2.1 (2014-01-23)
 ++++++++++++++++++
 

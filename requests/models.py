@@ -286,6 +286,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.body = None
         #: dictionary of callback hooks, for internal usage.
         self.hooks = default_hooks()
+        # A dictionary of arguments to the protocol adapter will be stored here
+        # after Session.send() is called.
+        self._send_params = {}
 
     def prepare(self, method=None, url=None, headers=None, files=None,
                 data=None, params=None, auth=None, cookies=None, hooks=None):
@@ -312,6 +315,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         p.url = self.url
         p.headers = self.headers.copy()
         p._cookies = self._cookies.copy()
+        p._send_params = self._send_params.copy()
         p.body = self.body
         p.hooks = self.hooks
         return p

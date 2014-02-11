@@ -147,3 +147,4 @@ Patches and Suggestions
 - Michael Becker <mike@beckerfuffle.com> @beckerfuffle
 - Erik Wickstrom <erik@erikwickstrom.com> @erikwickstrom
 - Константин Подшумок @podshumok
+- Zack Weinberg <zackw@panix.com> @zackw
