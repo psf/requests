@@ -128,6 +128,8 @@ Release History
 1.2.1 (2013-05-20)
 ++++++++++++++++++
 
+- 301 and 302 redirects now change the verb to GET for all verbs, not just
+  POST, improving browser compatibility.
 - Python 3.3.2 compatibility
 - Always percent-encode location headers
 - Fix connection adapter matching to be most-specific first
