@@ -12,10 +12,14 @@ Release History
   provided in a redirection (after converting relative to absolute) is
   malformed.  (Formerly one would get a bare ``ValueError``,
   ``AttributeError``, or ``UnicodeError``, depending on the problem.)
-- New Session method ``resolve_one_redirect`` takes a response already
+- New ``Session`` method ``resolve_one_redirect`` takes a response already
   known to be a redirect, fires a new request for the destination of
   the redirect, and returns the response.  This is often more
-  convenient for applications than the ``resolve_redirects`` generator.
+  convenient for applications than the ``resolve_redirects``
+  generator.
+- New ``Response`` property ``is_redirect`` which is true when the
+  library could have processed this response as a redirection (whether
+  or not it actually did).
 
 - ``Session.resolve_redirects`` no longer needs to be passed a
   ``PreparedRequest`` as well as a ``Response``, and will honor all
