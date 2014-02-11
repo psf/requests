@@ -18,13 +18,15 @@ from .compat import urlparse, basestring, urldefrag, unquote
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     except_on_missing_scheme, get_auth_from_url)
 from .structures import CaseInsensitiveDict
-from .packages.urllib3.exceptions import MaxRetryError
-from .packages.urllib3.exceptions import TimeoutError
-from .packages.urllib3.exceptions import SSLError as _SSLError
+from .packages.urllib3.exceptions import ConnectTimeoutError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
+from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import ProxyError as _ProxyError
+from .packages.urllib3.exceptions import ReadTimeoutError
+from .packages.urllib3.exceptions import SSLError as _SSLError
 from .cookies import extract_cookies_to_jar
-from .exceptions import ConnectionError, Timeout, SSLError, ProxyError
+from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
+                         ProxyError)
 from .auth import _basic_auth_str
 
 DEFAULT_POOLBLOCK = False
@@ -297,6 +299,7 @@ class HTTPAdapter(BaseAdapter):
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
         :param stream: (optional) Whether to stream the request content.
         :param timeout: (optional) The timeout on the request.
+        :type timeout: float or tuple (connect timeout, read timeout), e.g. (3.05, 25)
         :param verify: (optional) Whether to verify SSL certificates.
         :param cert: (optional) Any user-provided SSL certificate to be trusted.
         :param proxies: (optional) The proxies dictionary to apply to the request.
@@ -310,8 +313,15 @@ class HTTPAdapter(BaseAdapter):
 
         chunked = not (request.body is None or 'Content-Length' in request.headers)
 
-        if stream:
-            timeout = TimeoutSauce(connect=timeout)
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+            except ValueError:
+                err = ("Invalid timeout {0}. Pass a (connect, read) "
+                       "timeout tuple, or a single float to set "
+                       "both timeouts to the same value".format(timeout))
+                raise ValueError(err)
+            timeout = TimeoutSauce(connect=connect, read=read)
         else:
             timeout = TimeoutSauce(connect=timeout, read=timeout)
 
@@ -383,8 +393,10 @@ class HTTPAdapter(BaseAdapter):
         except (_SSLError, _HTTPError) as e:
             if isinstance(e, _SSLError):
                 raise SSLError(e)
-            elif isinstance(e, TimeoutError):
-                raise Timeout(e)
+            elif isinstance(e, ConnectTimeoutError):
+                raise ConnectTimeout(e)
+            elif isinstance(e, ReadTimeoutError):
+                raise ReadTimeout(e)
             else:
                 raise
 

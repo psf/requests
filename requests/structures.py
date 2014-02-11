@@ -12,7 +12,6 @@ import os
 import collections
 from itertools import islice
 
-
 class IteratorProxy(object):
     """docstring for IteratorProxy"""
     def __init__(self, i):
@@ -48,6 +47,8 @@ class CaseInsensitiveDict(collections.MutableMapping):
     will contain case-sensitive keys. However, querying and contains
     testing is case insensitive:
 
+    .. code-block:: python
+
         cid = CaseInsensitiveDict()
         cid['Accept'] = 'application/json'
         cid['aCCEPT'] == 'application/json'  # True
@@ -58,7 +59,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
     of how the header name was originally stored.
 
     If the constructor, ``.update``, or equality comparison
-    operations are given keys that have equal ``.lower()``s, the
+    operations are given keys that have equal ``.lower()`` s, the
     behavior is undefined.
 
     """

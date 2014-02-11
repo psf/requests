@@ -5,6 +5,7 @@ init:
 
 test:
 	py.test
+	# Or, run an individual test with -k, like py.test -k invalid_timeout
 
 coverage:
 	py.test --verbose --cov-report term --cov=requests test_requests.py

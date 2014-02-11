@@ -680,3 +680,41 @@ Two excellent examples are `grequests`_ and `requests-futures`_.
 
 .. _`grequests`: https://github.com/kennethreitz/grequests
 .. _`requests-futures`: https://github.com/ross/requests-futures
+
+Timeouts
+--------
+
+Most external requests should have a timeout attached, in case the server is
+not responding in a timely manner. 
+
+The **connect** timeout is the amount of time Requests will wait for your
+client to establish a connection to a remote machine (corresponding to the
+`connect()`_) call on the socket. It's a good practice to set connect timeouts
+to slightly larger than a multiple of 3 seconds, to allow for the default `TCP
+retransmission window <http://www.hjp.at/doc/rfc/rfc2988.txt>`_.
+
+Once your client has connected to the server and sent the HTTP request, the
+**read** timeout is the amount of time the client will wait for the server to
+send a response. (Specifically, it's the amount of time that the client will
+wait *between* bytes sent from the server. In practice, this is the time before
+the server sends the first byte).
+
+If you specify a single value for the timeout, like this::
+
+    r = requests.get('https://github.com', timeout=5)
+
+The timeout value will be applied to both the ``connect`` and the ``read``
+timeouts. Specify a tuple if you would like to set the values separately::
+
+    r = requests.get('https://github.com', timeout=(3.05, 27))
+
+If the remote server is very slow, you can tell Requests to wait forever for it
+to respond, by passing None as a timeout value.
+
+.. code-block:: python
+
+    r = requests.get('https://github.com', timeout=None)
+
+.. _`connect()`: http://linux.die.net/man/2/connect
+
+

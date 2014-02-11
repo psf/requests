@@ -16,7 +16,8 @@ from requests.auth import HTTPDigestAuth
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
-from requests.exceptions import InvalidURL, MissingSchema
+from requests.exceptions import (InvalidURL, MissingSchema, ConnectTimeout,
+                                 ReadTimeout)
 from requests.structures import CaseInsensitiveDict
 
 try:
@@ -28,6 +29,9 @@ HTTPBIN = os.environ.get('HTTPBIN_URL', 'http://httpbin.org/')
 # Issue #1483: Make sure the URL always has a trailing slash
 HTTPBIN = HTTPBIN.rstrip('/') + '/'
 
+# We need a host that will not immediately close the connection with a TCP
+# Reset. SO suggests this hostname
+TARPIT_HOST = 'http://10.255.255.1'
 
 def httpbin(*suffix):
     """Returns url for HTTPBIN resource."""
@@ -667,6 +671,46 @@ class RequestsTestCase(unittest.TestCase):
         total_seconds = ((td.microseconds + (td.seconds + td.days * 24 * 3600)
                          * 10**6) / 10**6)
         assert total_seconds > 0.0
+
+    def test_invalid_timeout(self):
+        with pytest.raises(ValueError) as e:
+            requests.get(httpbin('get'), timeout=(3, 4, 5))
+        assert '(connect, read)' in str(e)
+
+        with pytest.raises(ValueError) as e:
+            requests.get(httpbin('get'), timeout="foo")
+        assert 'must be an int or float' in str(e)
+
+    def test_none_timeout(self):
+        """ Check that you can set None as a valid timeout value.
+
+        To actually test this behavior, we'd want to check that setting the
+        timeout to None actually lets the request block past the system default
+        timeout. However, this would make the test suite unbearably slow.
+        """
+        r = requests.get(httpbin('get'), timeout=None)
+        assert r.status_code == 200
+
+    def test_read_timeout(self):
+        try:
+            requests.get(httpbin('delay/10'), timeout=(None, 0.1))
+            assert False, "The recv() request should time out."
+        except ReadTimeout:
+            pass
+
+    def test_connect_timeout(self):
+        try:
+            requests.get(TARPIT_HOST, timeout=(0.1, None))
+            assert False, "The connect() request should time out."
+        except ConnectTimeout:
+            pass
+
+    def test_total_timeout_connect(self):
+        try:
+            requests.get(TARPIT_HOST, timeout=(0.1, 0.1))
+            assert False, "The connect() request should time out."
+        except ConnectTimeout:
+            pass
 
     def test_response_is_iterable(self):
         r = requests.Response()
