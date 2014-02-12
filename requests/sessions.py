@@ -362,7 +362,9 @@ class Session(object):
            :param resp: The redirection to be resolved.
         """
 
-        assert resp.is_redirect
+        # As a safety feature, if passed a non-redirect, do nothing.
+        if not resp.is_redirect:
+            return resp
 
         if len(resp.history) >= self.max_redirects:
             raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects)
@@ -407,8 +409,7 @@ class Session(object):
         prepared_request.url = to_native_string(url)
 
         # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
-        if (resp.status_code == codes.see_other and
-                method != 'HEAD'):
+        if resp.status_code == codes.see_other and method != 'HEAD':
             method = 'GET'
 
         # Do what the browsers do, despite standards...
