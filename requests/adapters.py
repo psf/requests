@@ -372,10 +372,10 @@ class HTTPAdapter(BaseAdapter):
                     conn._put_conn(low_conn)
 
         except socket.error as sockerr:
-            raise ConnectionError("%s" % type(sockerr), request=request)
+            raise ConnectionError("%s: %s" % (type(sockerr), str(sockerr)), request=request)
 
         except MaxRetryError as e:
-            raise ConnectionError("%s" % type(e), request=request)
+            raise ConnectionError("%s: %s" % (type(e), str(e)), request=request)
 
         except _ProxyError as e:
             raise ProxyError(e)
