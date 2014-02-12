@@ -16,7 +16,7 @@ from requests.auth import HTTPDigestAuth
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
-from requests.exceptions import InvalidURL, MissingSchema
+from requests.exceptions import InvalidURL, InvalidRedirect, MissingSchema, TooManyRedirects
 from requests.structures import CaseInsensitiveDict
 
 try:
@@ -115,6 +115,8 @@ class RequestsTestCase(unittest.TestCase):
     def test_HTTP_302_ALLOW_REDIRECT_GET(self):
         r = requests.get(httpbin('redirect', '1'))
         assert r.status_code == 200
+        assert r.history[0].status_code == 302
+        assert r.history[0].is_redirect
 
     # def test_HTTP_302_ALLOW_REDIRECT_POST(self):
     #     r = requests.post(httpbin('status', '302'), data={'some': 'data'})
@@ -855,6 +857,68 @@ class RequestsTestCase(unittest.TestCase):
             preq = req.prepare()
             assert test_url == preq.url
 
+    def test_manual_redirect_resolution(self):
+        s = requests.Session()
+        r1 = s.get(httpbin('redirect/3'), allow_redirects=False)
+        assert r1.is_redirect
+
+        r2 = s.resolve_one_redirect(r1)
+        assert r2.is_redirect
+
+        r3 = s.resolve_one_redirect(r2)
+        assert r3.is_redirect
+
+        r4 = s.resolve_one_redirect(r3)
+        assert not r4.is_redirect
+
+        assert len(r1.history) == 0
+        assert len(r2.history) == 1
+        assert len(r3.history) == 2
+        assert len(r4.history) == 3
+
+        assert r2.history[0] is r1
+        assert r3.history[0] is r1
+        assert r4.history[0] is r1
+
+        assert r3.history[1] is r2
+        assert r4.history[1] is r2
+
+        assert r4.history[2] is r3
+
+    def test_redirect_to_bogus_url(self):
+        with pytest.raises(InvalidRedirect):
+            requests.get(httpbin('redirect-to'), params={'url': 'http://@'})
+        with pytest.raises(InvalidRedirect):
+            requests.get(httpbin('redirect-to'), params={'url': 'http://example.[^com/]'})
+
+    def test_redirect_loop_detection(self):
+        with pytest.raises(TooManyRedirects):
+            requests.get(httpbin('redirect/31'))
+
+    def test_manual_redirect_loop_detection(self):
+        s = requests.Session()
+        r1 = s.get(httpbin('redirect/31'), allow_redirects=False)
+        assert r1.is_redirect
+
+        rg = s.resolve_redirects(r1)
+        for _ in range(30):
+            next(rg)
+        with pytest.raises(TooManyRedirects):
+            next(rg)
+
+    def test_manual_redirect_with_partial_body_read(self):
+        s = requests.Session()
+        r1 = s.get(httpbin('redirect/2'), allow_redirects=False, stream=True)
+
+        # read only the first eight bytes of the response body, then follow the redir
+        r1.iter_content(8)
+        r2 = s.resolve_one_redirect(r1)
+
+        # read all of the response via iter_content, then follow the redir
+        for chunk in r2.iter_content(1024): pass
+        r3 = s.resolve_one_redirect(r2)
+
+        assert not r3.is_redirect
 
 class TestContentEncodingDetection(unittest.TestCase):
 

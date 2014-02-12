@@ -31,6 +31,17 @@ from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring, IncompleteRead)
 
+from .status_codes import codes
+
+#: The set of HTTP status codes that indicate an automatically
+#: processable redirect.
+REDIRECT_STATI = (
+    codes.moved,  # 301
+    codes.found,  # 302
+    codes.other,  # 303
+    codes.temporary_moved,  # 307
+)
+DEFAULT_REDIRECT_LIMIT = 30
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
 
@@ -275,6 +286,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.body = None
         #: dictionary of callback hooks, for internal usage.
         self.hooks = default_hooks()
+        # A dictionary of arguments to the protocol adapter will be stored here
+        # after Session.send() is called.
+        self._send_params = {}
 
     def prepare(self, method=None, url=None, headers=None, files=None,
                 data=None, params=None, auth=None, cookies=None, hooks=None):
@@ -301,6 +315,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         p.url = self.url
         p.headers = self.headers.copy()
         p._cookies = self._cookies.copy()
+        p._send_params = self._send_params.copy()
         p.body = self.body
         p.hooks = self.hooks
         return p
@@ -588,6 +603,13 @@ class Response(object):
         except RequestException:
             return False
         return True
+
+    @property
+    def is_redirect(self):
+        """True if this Response is a well-formed HTTP redirect that
+        could have been processed automatically (by :meth:`Session.resolve_redirects`).
+        """
+        return ('location' in self.headers and self.status_code in REDIRECT_STATI)
 
     @property
     def apparent_encoding(self):
