@@ -15,7 +15,7 @@ from datetime import datetime
 from .compat import cookielib, OrderedDict, urljoin, urlparse, builtin_str
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
-from .models import Request, PreparedRequest
+from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
 from .hooks import default_hooks, dispatch_hook
 from .utils import to_key_val_list, default_headers, to_native_string
 from .exceptions import TooManyRedirects, InvalidSchema
@@ -26,13 +26,9 @@ from .adapters import HTTPAdapter
 from .utils import requote_uri, get_environ_proxies, get_netrc_auth
 
 from .status_codes import codes
-REDIRECT_STATI = (
-    codes.moved,  # 301
-    codes.found,  # 302
-    codes.other,  # 303
-    codes.temporary_moved,  # 307
-)
-DEFAULT_REDIRECT_LIMIT = 30
+
+# formerly defined here, reexposed here for backward compatibility
+from .models import REDIRECT_STATI
 
 
 def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
@@ -89,8 +85,7 @@ class SessionRedirectMixin(object):
 
         i = 0
 
-        # ((resp.status_code is codes.see_other))
-        while ('location' in resp.headers and resp.status_code in REDIRECT_STATI):
+        while resp.is_redirect:
             prepared_request = req.copy()
 
             resp.content  # Consume socket so it can be released
