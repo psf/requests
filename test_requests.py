@@ -4,6 +4,7 @@
 """Tests for Requests."""
 
 from __future__ import division
+import copy
 import json
 import os
 import pickle
@@ -16,7 +17,7 @@ from requests.auth import HTTPDigestAuth
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
-from requests.exceptions import InvalidURL, MissingSchema
+from requests.exceptions import InvalidURL, MissingSchema, TooManyRedirects
 from requests.structures import CaseInsensitiveDict
 
 try:
@@ -857,6 +858,96 @@ class RequestsTestCase(unittest.TestCase):
             preq = req.prepare()
             assert test_url == preq.url
 
+    def _validate_redirect_history_1(self, ra, xlen, full_history):
+        assert len(ra.history) == xlen
+        for i, rb in enumerate(full_history[:xlen]):
+            assert ra.history[i] is rb
+
+    def _validate_redirect_history(self, final_resp):
+        # Each response should have a history consisting of all
+        # responses up to but not including itself.
+        full_history = final_resp.history[:]
+        full_history.append(final_resp)
+        for i, ra in enumerate(full_history):
+            self._validate_redirect_history_1(ra, i, full_history)
+
+    def test_redirect_history(self):
+        final_resp = requests.get(httpbin('redirect/3'))
+        self._validate_redirect_history(final_resp)
+
+    def test_manual_redirect_history(self):
+        s = requests.Session()
+        first_resp = s.get(httpbin('redirect/3'), allow_redirects=False)
+        full_history = [first_resp]
+        self._validate_redirect_history_1(first_resp, 0, full_history)
+        for i, subseq_resp in enumerate(
+                s.resolve_redirects(first_resp, first_resp.request)):
+            full_history.append(subseq_resp)
+            self._validate_redirect_history_1(subseq_resp, i+1, full_history)
+
+    def test_redirect_history_with_hook_manipulation(self):
+        interposed = requests.get(httpbin('get'))
+        def injector(resp, *args, **kwargs):
+            injected = copy.copy(interposed)
+            injected.raw = None # prevent an AttributeError
+            resp.history.append(injected)
+
+        final_resp = requests.get(httpbin('redirect/3'),
+                                  hooks = { 'response': injector })
+        self._validate_redirect_history(final_resp)
+
+    def test_manual_redirect_history_with_hook_manipulation(self):
+        s = requests.Session()
+        interposed = s.get(httpbin('get'))
+        def injector(resp, *args, **kwargs):
+            injected = copy.copy(interposed)
+            injected.raw = None # prevent an AttributeError
+            resp.history.append(injected)
+
+        first_resp = s.get(httpbin('redirect/3'), allow_redirects=False,
+                           hooks = { 'response': injector })
+        full_history = first_resp.history[:]
+        full_history.append(first_resp)
+        self._validate_redirect_history_1(first_resp, len(full_history)-1, full_history)
+        for subseq_resp in s.resolve_redirects(first_resp, first_resp.request):
+            for h in subseq_resp.history:
+                if h not in full_history:
+                    full_history.append(h)
+            full_history.append(subseq_resp)
+            self._validate_redirect_history_1(subseq_resp, len(full_history)-1, full_history)
+
+    def test_redirect_loop_detection(self):
+        with pytest.raises(TooManyRedirects):
+            requests.get(httpbin('redirect/31'))
+
+    def test_manual_redirect_loop_detection(self):
+        s = requests.Session()
+        r1 = s.get(httpbin('redirect/31'), allow_redirects=False)
+        assert r1.is_redirect
+
+        rg = s.resolve_redirects(r1, r1.request)
+        for _ in range(30):
+            next(rg)
+        with pytest.raises(TooManyRedirects):
+            next(rg)
+
+    def test_manual_redirect_with_partial_body_read(self):
+        s = requests.Session()
+        r1 = s.get(httpbin('redirect/2'), allow_redirects=False, stream=True)
+        assert r1.is_redirect
+        rg = s.resolve_redirects(r1, r1.request, stream=True)
+
+        # read only the first eight bytes of the response body,
+        # then follow the redirect
+        r1.iter_content(8)
+        r2 = next(rg)
+        assert r2.is_redirect
+
+        # read all of the response via iter_content,
+        # then follow the redirect
+        for _ in r2.iter_content(): pass
+        r3 = next(rg)
+        assert not r3.is_redirect
 
 class TestContentEncodingDetection(unittest.TestCase):
 

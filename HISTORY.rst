@@ -12,6 +12,15 @@ Release History
   library could have processed this response as a redirection (whether
   or not it actually did).
 
+**Bugfixes**
+
+- ``Session.resolve_redirects`` no longer crashes, when responses are
+  being loaded in ``stream=True`` mode, if ``Response.iter_content``
+  is used to consume the entire stream before advancing the generator.
+- ``Response.history`` is now always a list, not a tuple.
+- Each response in a chain of redirects now has a filled-out ``history``
+  property, consisting of all responses up to but not including itself.
+
 2.2.1 (2014-01-23)
 ++++++++++++++++++
 

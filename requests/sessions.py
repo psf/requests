@@ -88,7 +88,8 @@ class SessionRedirectMixin(object):
         while resp.is_redirect:
             prepared_request = req.copy()
 
-            resp.content  # Consume socket so it can be released
+            if not resp._content_consumed:
+                resp.content  # Consume socket so it can be released
 
             if i >= self.max_redirects:
                 raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects)
@@ -166,7 +167,7 @@ class SessionRedirectMixin(object):
             if new_auth is not None:
                 prepared_request.prepare_auth(new_auth)
 
-            resp = self.send(
+            new_resp = self.send(
                 prepared_request,
                 stream=stream,
                 timeout=timeout,
@@ -176,9 +177,19 @@ class SessionRedirectMixin(object):
                 allow_redirects=False,
             )
 
-            extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
+            # Prepend the old response's history to the new response's history.
+            # If hooks created history, do the same for those responses.
+            # If hooks created history which itself has history (that is not
+            # included in resp.history), the second-order history is lost.
+            history = resp.history[:]
+            history.append(resp)
+            for r in new_resp.history:
+                r.history = history[:]
+                history.append(r)
+            new_resp.history = history
 
             i += 1
+            resp = new_resp
             yield resp
 
 
@@ -500,13 +511,13 @@ class Session(SessionRedirectMixin):
         r = dispatch_hook('response', hooks, r, **kwargs)
 
         # Persist cookies
-        if r.history:
-
-            # If the hooks create history then we want those cookies too
-            for resp in r.history:
-                extract_cookies_to_jar(self.cookies, resp.request, resp.raw)
-
+        # If the hooks create history then we want those cookies too
+        for resp in r.history:
+            extract_cookies_to_jar(self.cookies, resp.request, resp.raw)
         extract_cookies_to_jar(self.cookies, request, r.raw)
+
+        if not allow_redirects:
+            return r
 
         # Redirect resolving generator.
         gen = self.resolve_redirects(r, request,
@@ -516,17 +527,7 @@ class Session(SessionRedirectMixin):
             cert=cert,
             proxies=proxies)
 
-        # Resolve redirects if allowed.
-        history = [resp for resp in gen] if allow_redirects else []
-
-        # Shuffle things around if there's history.
-        if history:
-            # Insert the first (original) request at the start
-            history.insert(0, r)
-            # Get the last request made
-            r = history.pop()
-            r.history = tuple(history)
-
+        for r in gen: pass
         return r
 
     def get_adapter(self, url):
