@@ -3,6 +3,15 @@
 Release History
 ---------------
 
+2.3.0 (YYYY-MM-DD)
+++++++++++++++++++
+
+**API Changes**
+
+- New ``Response`` property ``is_redirect``, which is true when the
+  library could have processed this response as a redirection (whether
+  or not it actually did).
+
 2.2.1 (2014-01-23)
 ++++++++++++++++++
 

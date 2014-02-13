@@ -30,7 +30,17 @@ from .utils import (
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring, IncompleteRead)
+from .status_codes import codes
 
+#: The set of HTTP status codes that indicate an automatically
+#: processable redirect.
+REDIRECT_STATI = (
+    codes.moved,  # 301
+    codes.found,  # 302
+    codes.other,  # 303
+    codes.temporary_moved,  # 307
+)
+DEFAULT_REDIRECT_LIMIT = 30
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
 
@@ -588,6 +598,13 @@ class Response(object):
         except RequestException:
             return False
         return True
+
+    @property
+    def is_redirect(self):
+        """True if this Response is a well-formed HTTP redirect that could have
+        been processed automatically (by :meth:`Session.resolve_redirects`).
+        """
+        return ('location' in self.headers and self.status_code in REDIRECT_STATI)
 
     @property
     def apparent_encoding(self):
