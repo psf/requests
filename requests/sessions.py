@@ -328,7 +328,7 @@ class Session(SessionRedirectMixin):
         :param auth: (optional) Auth tuple or callable to enable
             Basic/Digest/Custom HTTP Auth.
         :param timeout: (optional) Float describing the timeout of the
-            request.
+            request in seconds.
         :param allow_redirects: (optional) Boolean. Set to True by default.
         :param proxies: (optional) Dictionary mapping protocol to the URL of
             the proxy.
