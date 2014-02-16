@@ -636,7 +636,7 @@ not responding in a timely manner.
 The **connect** timeout is the number of seconds Requests will wait for your
 client to establish a connection to a remote machine (corresponding to the
 `connect()`_) call on the socket. It's a good practice to set connect timeouts
-to slightly larger than a multiple of 3 , to allow for the default `TCP
+to slightly larger than a multiple of 3, to allow for the default `TCP
 retransmission window <http://www.hjp.at/doc/rfc/rfc2988.txt>`_.
 
 Once your client has connected to the server and sent the HTTP request, the
