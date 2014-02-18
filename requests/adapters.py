@@ -203,7 +203,7 @@ class HTTPAdapter(BaseAdapter):
         proxy = proxies.get(urlparse(url.lower()).scheme)
 
         if proxy:
-            proxy = prepend_scheme_if_needed(proxy, urlparse(url.lower()).scheme)
+            proxy = prepend_scheme_if_needed(proxy, 'http')
             proxy_headers = self.proxy_headers(proxy)
 
             if not proxy in self.proxy_manager:
