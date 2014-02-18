@@ -24,10 +24,10 @@ from . import __version__
 from . import certs
 from .compat import parse_http_list as _parse_list_header
 from .compat import (quote, urlparse, bytes, str, OrderedDict, unquote, is_py2,
-                     builtin_str, getproxies, proxy_bypass)
+                     builtin_str, getproxies, proxy_bypass, urlunparse)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
-from .exceptions import MissingSchema, InvalidURL
+from .exceptions import InvalidURL
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -622,13 +622,18 @@ def guess_json_utf(data):
     return None
 
 
-def except_on_missing_scheme(url):
-    """Given a URL, raise a MissingSchema exception if the scheme is missing.
-    """
-    scheme, netloc, path, params, query, fragment = urlparse(url)
+def prepend_scheme_if_needed(url, new_scheme):
+    '''Given a URL that may or may not have a scheme, prepend the given scheme.
+    Does not replace a present scheme with the one provided as an argument.'''
+    scheme, netloc, path, params, query, fragment = urlparse(url, new_scheme)
 
-    if not scheme:
-        raise MissingSchema('Proxy URLs must have explicit schemes.')
+    # urlparse is a finicky beast, and sometimes decides that there isn't a
+    # netloc present. Assume that it's being over-cautious, and switch netloc
+    # and path if urlparse decided there was no netloc.
+    if not netloc:
+        netloc, path = path, netloc
+
+    return urlunparse((scheme, netloc, path, params, query, fragment))
 
 
 def get_auth_from_url(url):
