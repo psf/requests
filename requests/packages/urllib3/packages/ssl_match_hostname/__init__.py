@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 try:
     # Python 3.2+
     from ssl import CertificateError, match_hostname
@@ -7,7 +8,7 @@ except ImportError:
         from backports.ssl_match_hostname import CertificateError, match_hostname
     except ImportError:
         # Our vendored copy
-        from _implementation import CertificateError, match_hostname
+        from ._implementation import CertificateError, match_hostname
 
 # Not needed, but documenting what we provide.
 __all__ = ('CertificateError', 'match_hostname')
