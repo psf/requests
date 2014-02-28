@@ -310,10 +310,7 @@ class HTTPAdapter(BaseAdapter):
 
         chunked = not (request.body is None or 'Content-Length' in request.headers)
 
-        if stream:
-            timeout = TimeoutSauce(connect=timeout)
-        else:
-            timeout = TimeoutSauce(connect=timeout, read=timeout)
+        timeout = TimeoutSauce(connect=timeout, read=timeout)
 
         try:
             if not chunked:
