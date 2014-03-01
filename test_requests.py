@@ -1170,6 +1170,7 @@ class TestMorselToCookieMaxAge(unittest.TestCase):
         with pytest.raises(TypeError):
             morsel_to_cookie(morsel)
 
+
 class TestTimeout:
     def test_stream_timeout(self):
         try:
@@ -1180,5 +1181,3 @@ class TestTimeout:
 
 if __name__ == '__main__':
     unittest.main()
-
-
