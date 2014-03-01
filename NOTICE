@@ -49,11 +49,3 @@ CA Bundle License
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-Issuer: CN=GTE CyberTrust Global Root O=GTE Corporation OU=GTE CyberTrust Solutions, Inc.
-Subject: CN=GTE CyberTrust Global Root O=GTE Corporation OU=GTE CyberTrust Solutions, Inc.
-Label: "GTE CyberTrust Global Root"
-Serial: 421
-MD5 Fingerprint: ca:3d:d3:68:f1:03:5c:d0:32:fa:b8:2b:59:e8:5a:db
-SHA1 Fingerprint: 97:81:79:50:d8:1c:96:70:cc:34:d8:09:cf:79:44:31:36:7e:f4:74
-SHA256 Fingerprint: a5:31:25:18:8d:21:10:aa:96:4b:02:c7:b7:c6:da:32:03:17:08:94:e5:fb:71:ff:fb:66:67:d5:e6:81:0a:36
