@@ -211,6 +211,14 @@ class RequestsTestCase(unittest.TestCase):
         req_urls = [r.request.url for r in resp.history]
         assert urls == req_urls
 
+    def test_headers_on_session_with_None_are_not_sent(self):
+        """Do not send headers in Session.headers with None values."""
+        ses = requests.Session()
+        ses.headers['Accept-Encoding'] = None
+        req = requests.Request('GET', 'http://httpbin.org/get')
+        prep = ses.prepare_request(req)
+        assert 'Accept-Encoding' not in prep.headers
+
     def test_user_agent_transfers(self):
 
         heads = {
