@@ -11,6 +11,8 @@ Release History
 - New ``Response`` property ``is_redirect``, which is true when the
   library could have processed this response as a redirection (whether
   or not it actually did).
+- The ``timeout`` parameter now affects requests with both ``stream=True`` and
+  ``stream=False`` equally.
 
 2.2.1 (2014-01-23)
 ++++++++++++++++++
