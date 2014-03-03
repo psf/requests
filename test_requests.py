@@ -1179,5 +1179,13 @@ class TestMorselToCookieMaxAge(unittest.TestCase):
             morsel_to_cookie(morsel)
 
 
+class TestTimeout:
+    def test_stream_timeout(self):
+        try:
+            r = requests.get('https://httpbin.org/delay/10', timeout=5.0)
+        except requests.exceptions.Timeout as e:
+            assert 'Read timed out' in e.args[0].args[0]
+
+
 if __name__ == '__main__':
     unittest.main()
