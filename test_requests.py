@@ -9,6 +9,7 @@ import os
 import pickle
 import unittest
 
+import io
 import requests
 import pytest
 from requests.adapters import HTTPAdapter
@@ -689,6 +690,26 @@ class RequestsTestCase(unittest.TestCase):
         r.raw = io
         assert next(iter(r))
         io.close()
+
+    def test_response_decode_unicode(self):
+        """
+        When called with decode_unicode, Response.iter_content should always
+        return unicode.
+        """
+        r = requests.Response()
+        r._content_consumed = True
+        r._content = b'the content'
+        r.encoding = 'ascii'
+
+        chunks = r.iter_content(decode_unicode=True)
+        assert all(isinstance(chunk, str) for chunk in chunks)
+
+        # also for streaming
+        r = requests.Response()
+        r.raw = io.BytesIO(b'the content')
+        r.encoding = 'ascii'
+        chunks = r.iter_content(decode_unicode=True)
+        assert all(isinstance(chunk, str) for chunk in chunks)
 
     def test_request_and_response_are_pickleable(self):
         r = requests.get(httpbin('get'))
