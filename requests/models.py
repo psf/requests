@@ -617,6 +617,9 @@ class Response(object):
         large responses.  The chunk size is the number of bytes it should
         read into memory.  This is not necessarily the length of each item
         returned as decoding can take place.
+
+        If decode_unicode is True, content will be decoded using the best
+        available encoding based on the response.
         """
         if self._content_consumed:
             # simulate reading small chunks of the content
