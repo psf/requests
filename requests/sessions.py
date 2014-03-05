@@ -18,7 +18,7 @@ from .cookies import (
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
 from .hooks import default_hooks, dispatch_hook
 from .utils import to_key_val_list, default_headers, to_native_string
-from .exceptions import TooManyRedirects, InvalidSchema
+from .exceptions import TooManyRedirects, InvalidSchema, ContentDecodingError
 from .structures import CaseInsensitiveDict
 
 from .adapters import HTTPAdapter
@@ -90,7 +90,10 @@ class SessionRedirectMixin(object):
         while resp.is_redirect:
             prepared_request = req.copy()
 
-            resp.content  # Consume socket so it can be released
+            try:
+                resp.content  # Consume socket so it can be released
+            except (ContentDecodingError, RuntimeError):
+                pass  # It seems to have already been consumed.
 
             if i >= self.max_redirects:
                 raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects)
