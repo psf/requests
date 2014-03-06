@@ -93,7 +93,7 @@ class SessionRedirectMixin(object):
             try:
                 resp.content  # Consume socket so it can be released
             except (ContentDecodingError, RuntimeError):
-                pass  # It seems to have already been consumed.
+                resp.raw.read()  # Ensure that the socket is consumed
 
             if i >= self.max_redirects:
                 raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects)
