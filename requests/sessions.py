@@ -234,7 +234,8 @@ class Session(SessionRedirectMixin):
 
         #: SSL certificate default.
         self.cert = None
-        #add
+
+        #timeout default
         self.timeout = None
 
         #: Maximum number of redirects allowed. If the request exceeds this
@@ -382,8 +383,6 @@ class Session(SessionRedirectMixin):
         stream = merge_setting(stream, self.stream)
         verify = merge_setting(verify, self.verify)
         cert = merge_setting(cert, self.cert)
-
-        #add
         timeout = merge_setting(timeout, self.timeout)
 
         # Send the request.
@@ -475,8 +474,8 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault('stream', self.stream)
         kwargs.setdefault('verify', self.verify)
         kwargs.setdefault('cert', self.cert)
-        kwargs.setdefault('timeout', self.timeout)
         kwargs.setdefault('proxies', self.proxies)
+        kwargs.setdefault('timeout', self.timeout)
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
@@ -486,10 +485,10 @@ class Session(SessionRedirectMixin):
         # Set up variables needed for resolve_redirects and dispatching of hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
         stream = kwargs.get('stream')
-        timeout = kwargs.get('timeout')
         verify = kwargs.get('verify')
         cert = kwargs.get('cert')
         proxies = kwargs.get('proxies')
+        timeout = kwargs.get('timeout')
         hooks = request.hooks
 
         # Get the appropriate adapter to use
