@@ -485,10 +485,10 @@ class Session(SessionRedirectMixin):
         # Set up variables needed for resolve_redirects and dispatching of hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
         stream = kwargs.get('stream')
+        timeout = kwargs.get('timeout')
         verify = kwargs.get('verify')
         cert = kwargs.get('cert')
         proxies = kwargs.get('proxies')
-        timeout = kwargs.get('timeout')
         hooks = request.hooks
 
         # Get the appropriate adapter to use
