@@ -133,7 +133,7 @@ class HTTPAdapter(BaseAdapter):
             cert_loc = None
 
             # Allow self-specified cert location.
-            if type(verify) == dict:
+            if isinstance(verify, dict):
                 if 'ca_bundle' in verify:
                     cert_loc = verify['ca_bundle']
                 if 'hostname' in verify:
