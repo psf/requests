@@ -385,9 +385,4 @@ class HTTPAdapter(BaseAdapter):
             else:
                 raise
 
-        r = self.build_response(request, resp)
-
-        if not stream:
-            r.content
-
-        return r
+        return self.build_response(request, resp)

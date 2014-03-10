@@ -592,6 +592,9 @@ class Session(SessionRedirectMixin):
             r = history.pop()
             r.history = history
 
+        if not stream:
+            r.content
+
         return r
 
     def get_adapter(self, url):
