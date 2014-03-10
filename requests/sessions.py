@@ -235,6 +235,9 @@ class Session(SessionRedirectMixin):
         #: SSL certificate default.
         self.cert = None
 
+        #timeout default
+        self.timeout = None
+
         #: Maximum number of redirects allowed. If the request exceeds this
         #: limit, a :class:`TooManyRedirects` exception is raised.
         self.max_redirects = DEFAULT_REDIRECT_LIMIT
@@ -380,6 +383,7 @@ class Session(SessionRedirectMixin):
         stream = merge_setting(stream, self.stream)
         verify = merge_setting(verify, self.verify)
         cert = merge_setting(cert, self.cert)
+        timeout = merge_setting(timeout, self.timeout)
 
         # Send the request.
         send_kwargs = {
@@ -471,6 +475,7 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault('verify', self.verify)
         kwargs.setdefault('cert', self.cert)
         kwargs.setdefault('proxies', self.proxies)
+        kwargs.setdefault('timeout', self.timeout)
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
