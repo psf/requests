@@ -575,6 +575,7 @@ class Response(object):
 
         # pickled objects do not have .raw
         setattr(self, '_content_consumed', True)
+        setattr(self, 'raw', None)
 
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
