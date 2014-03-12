@@ -29,7 +29,8 @@ def request(method, url, **kwargs):
     :param timeout: (optional) Float describing the timeout of the request in seconds.
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
-    :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
+    :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path or a dictionary with 
+        parameters can also be provided. The parameters may be ca_bundle, hostname and fingerprint.
     :param stream: (optional) if ``False``, the response content will be immediately downloaded.
     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
 

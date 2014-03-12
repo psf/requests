@@ -162,6 +162,16 @@ I don't have SSL setup on this domain, so it fails. Excellent. GitHub does thoug
 
 You can also pass ``verify`` the path to a CA_BUNDLE file for private certs. You can also set the ``REQUESTS_CA_BUNDLE`` environment variable.
 
+For more advanced verification options you can pass a dictionary which may contain the following fields:
+
+*ca_bundle*
+    The path to a CA_BUNDLE file.
+*fingerprint*
+    The fingerprint the certificate must match. It must be a string of 16 (MD5) or 20 (SHA1) hexdigits, and can be interspersed by colons.
+*hostname*
+    The hostname the certificate must match if no fingerprint is specified.
+    False disabled checking, True uses the hostname from the URL.
+
 Requests can also ignore verifying the SSL certificate if you set ``verify`` to False.
 
 ::
