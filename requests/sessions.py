@@ -217,10 +217,6 @@ class SessionRedirectMixin(object):
         url = prepared_request.url
         new_proxies = {}
 
-        # Consider proxies. First evaluate the new proxy config. If we are
-        # being redirected to a host on the NO_PROXY list then we want to
-        # remove the proxy dictionary entirely. Otherwise, if there's a relevant
-        # environment proxy, set it if we don't already have a proxy to go to.
         if not should_bypass_proxies(url):
             environ_proxies = get_environ_proxies(url)
             scheme = urlparse(url).scheme
@@ -230,8 +226,6 @@ class SessionRedirectMixin(object):
             except KeyError:
                 pass
 
-        # If there's a proxy-authorization header present, remove it, then add
-        # a new one (potentially re-adding the one we just removed).
         if 'Proxy-Authorization' in headers:
             del headers['Proxy-Authorization']
 
