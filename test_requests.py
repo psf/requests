@@ -21,6 +21,8 @@ from requests.exceptions import InvalidURL, MissingSchema
 from requests.models import PreparedRequest, Response
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
+from requests.models import PreparedRequest, urlencode
+from requests.hooks import default_hooks
 
 try:
     import StringIO
@@ -1274,6 +1276,31 @@ class TestRedirects:
                                  TestRedirects.default_keyword_args)
             assert session.calls[-1] == send_call
 
+
+@pytest.fixture
+def list_of_tuples():
+    return [
+            (('a', 'b'), ('c', 'd')),
+            (('c', 'd'), ('a', 'b')),
+            (('a', 'b'), ('c', 'd'), ('e', 'f')),
+            ]
+
+
+def test_data_argument_accepts_tuples(list_of_tuples):
+    """
+    Ensure that the data argument will accept tuples of strings
+    and properly encode them.
+    """
+    for data in list_of_tuples:
+        p = PreparedRequest()
+        p.prepare(
+            method='GET',
+            url='http://www.example.com',
+            data=data,
+            hooks=default_hooks()
+        )
+        assert p.body == urlencode(data)
+        
 
 if __name__ == '__main__':
     unittest.main()

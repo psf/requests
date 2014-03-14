@@ -408,9 +408,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         is_stream = all([
             hasattr(data, '__iter__'),
-            not isinstance(data, basestring),
-            not isinstance(data, list),
-            not isinstance(data, dict)
+            not isinstance(data, (basestring, list, tuple, dict))
         ])
 
         try:
