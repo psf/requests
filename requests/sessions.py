@@ -13,8 +13,8 @@ from collections import Mapping
 from datetime import datetime
 
 from .compat import cookielib, OrderedDict, urljoin, urlparse, builtin_str
-from .cookies import (
-    cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
+from .cookies import cookiejar_from_dict, extract_cookies_to_jar, \
+    RequestsCookieJar, merge_cookies
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
 from .hooks import default_hooks, dispatch_hook
 from .utils import to_key_val_list, default_headers, to_native_string
@@ -59,7 +59,8 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
         if v is None:
             del merged_setting[k]
 
-    merged_setting = dict((k, v) for (k, v) in merged_setting.items() if v is not None)
+    merged_setting = dict(
+        (k, v) for (k, v) in merged_setting.items() if v is not None)
 
     return merged_setting
 
@@ -93,7 +94,8 @@ class SessionRedirectMixin(object):
             resp.content  # Consume socket so it can be released
 
             if i >= self.max_redirects:
-                raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects)
+                raise TooManyRedirects(
+                    'Exceeded %s redirects.' % self.max_redirects)
 
             # Release the connection back into the pool.
             resp.close()
@@ -111,7 +113,8 @@ class SessionRedirectMixin(object):
             url = parsed.geturl()
 
             # Facilitate non-RFC2616-compliant 'location' headers
-            # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
+            # (e.g. '/path/to/resource' instead of
+            # 'http://domain.tld/path/to/resource')
             # Compliant with RFC3986, we percent encode the url.
             if not urlparse(url).netloc:
                 url = urljoin(resp.url, requote_uri(url))
@@ -150,7 +153,8 @@ class SessionRedirectMixin(object):
             except KeyError:
                 pass
 
-            extract_cookies_to_jar(prepared_request._cookies, prepared_request, resp.raw)
+            extract_cookies_to_jar(
+                prepared_request._cookies, prepared_request, resp.raw)
             prepared_request._cookies.update(self.cookies)
             prepared_request.prepare_cookies(prepared_request._cookies)
 
@@ -278,7 +282,6 @@ class Session(SessionRedirectMixin):
         merged_cookies = merge_cookies(
             merge_cookies(RequestsCookieJar(), self.cookies), cookies)
 
-
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
         if self.trust_env and not auth and not self.auth:
@@ -290,7 +293,8 @@ class Session(SessionRedirectMixin):
             url=request.url,
             files=request.files,
             data=request.data,
-            headers=merge_setting(request.headers, self.headers, dict_class=CaseInsensitiveDict),
+            headers=merge_setting(
+                request.headers, self.headers, dict_class=CaseInsensitiveDict),
             params=merge_setting(request.params, self.params),
             auth=merge_setting(auth, self.auth),
             cookies=merged_cookies,
@@ -298,20 +302,21 @@ class Session(SessionRedirectMixin):
         )
         return p
 
-    def request(self, method, url,
-        params=None,
-        data=None,
-        headers=None,
-        cookies=None,
-        files=None,
-        auth=None,
-        timeout=None,
-        allow_redirects=True,
-        proxies=None,
-        hooks=None,
-        stream=None,
-        verify=None,
-        cert=None):
+    def request(
+            self, method, url,
+            params=None,
+            data=None,
+            headers=None,
+            cookies=None,
+            files=None,
+            auth=None,
+            timeout=None,
+            allow_redirects=True,
+            proxies=None,
+            hooks=None,
+            stream=None,
+            verify=None,
+            cert=None):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -346,15 +351,15 @@ class Session(SessionRedirectMixin):
 
         # Create the Request.
         req = Request(
-            method = method.upper(),
-            url = url,
-            headers = headers,
-            files = files,
-            data = data or {},
-            params = params or {},
-            auth = auth,
-            cookies = cookies,
-            hooks = hooks,
+            method=method.upper(),
+            url=url,
+            headers=headers,
+            files=files,
+            data=data or {},
+            params=params or {},
+            auth=auth,
+            cookies=cookies,
+            hooks=hooks,
         )
         prep = self.prepare_request(req)
 
@@ -428,7 +433,8 @@ class Session(SessionRedirectMixin):
         """Sends a POST request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
-        :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
+        :param data: (optional) Dictionary, bytes, or file-like object
+            to send in the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
@@ -438,7 +444,8 @@ class Session(SessionRedirectMixin):
         """Sends a PUT request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
-        :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
+        :param data: (optional) Dictionary, bytes, or file-like object to
+            send in the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
@@ -448,7 +455,8 @@ class Session(SessionRedirectMixin):
         """Sends a PATCH request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
-        :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
+        :param data: (optional) Dictionary, bytes, or file-like object to
+            send in the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
@@ -477,7 +485,8 @@ class Session(SessionRedirectMixin):
         if not isinstance(request, PreparedRequest):
             raise ValueError('You can only send PreparedRequests.')
 
-        # Set up variables needed for resolve_redirects and dispatching of hooks
+        # Set up variables needed for resolve_redirects and
+        # dispatching of hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
         stream = kwargs.get('stream')
         timeout = kwargs.get('timeout')
@@ -511,7 +520,8 @@ class Session(SessionRedirectMixin):
         extract_cookies_to_jar(self.cookies, request, r.raw)
 
         # Redirect resolving generator.
-        gen = self.resolve_redirects(r, request,
+        gen = self.resolve_redirects(
+            r, request,
             stream=stream,
             timeout=timeout,
             verify=verify,
@@ -558,7 +568,8 @@ class Session(SessionRedirectMixin):
             self.adapters[key] = self.adapters.pop(key)
 
     def __getstate__(self):
-        return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
+        return dict(
+            (attr, getattr(self, attr, None)) for attr in self.__attrs__)
 
     def __setstate__(self, state):
         for attr, value in state.items():

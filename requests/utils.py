@@ -102,8 +102,8 @@ def get_netrc_auth(url):
                 login_i = (0 if _netrc[0] else 1)
                 return (_netrc[login_i], _netrc[2])
         except (NetrcParseError, IOError):
-            # If there was a parsing error or a permissions issue reading the file,
-            # we'll just skip netrc auth
+            # If there was a parsing error or a permissions issue reading
+            # the file, we'll just skip netrc auth
             pass
 
     # AppEngine hackiness.
@@ -289,7 +289,8 @@ def get_encodings_from_content(content):
     """
 
     charset_re = re.compile(r'<meta.*?charset=["\']*(.+?)["\'>]', flags=re.I)
-    pragma_re = re.compile(r'<meta.*?content=["\']*;?charset=(.+?)["\'>]', flags=re.I)
+    pragma_re = re.compile(
+        r'<meta.*?content=["\']*;?charset=(.+?)["\'>]', flags=re.I)
     xml_re = re.compile(r'^<\?xml.*?encoding=["\']*(.+?)["\'>]')
 
     return (charset_re.findall(content) +
@@ -424,7 +425,8 @@ def address_in_network(ip, net):
     """
     ipaddr = struct.unpack('=L', socket.inet_aton(ip))[0]
     netaddr, bits = net.split('/')
-    netmask = struct.unpack('=L', socket.inet_aton(dotted_netmask(int(bits))))[0]
+    netmask = struct.unpack(
+        '=L', socket.inet_aton(dotted_netmask(int(bits))))[0]
     network = struct.unpack('=L', socket.inet_aton(netaddr))[0] & netmask
     return (ipaddr & netmask) == (network & netmask)
 
@@ -489,9 +491,10 @@ def get_environ_proxies(url):
                         return {}
         else:
             for host in no_proxy:
-                if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
-                    # The URL does match something in no_proxy, so we don't want
-                    # to apply the proxies on this URL.
+                if netloc.endswith(host) or \
+                        netloc.split(':')[0].endswith(host):
+                    # The URL does match something in no_proxy, so we don't
+                    # want to apply the proxies on this URL.
                     return {}
 
     # If the system proxy settings indicate that this URL should be bypassed,
@@ -525,7 +528,8 @@ def default_user_agent(name="python-requests"):
                                                 sys.pypy_version_info.minor,
                                                 sys.pypy_version_info.micro)
         if sys.pypy_version_info.releaselevel != 'final':
-            _implementation_version = ''.join([_implementation_version, sys.pypy_version_info.releaselevel])
+            _implementation_version = ''.join(
+                [_implementation_version, sys.pypy_version_info.releaselevel])
     elif _implementation == 'Jython':
         _implementation_version = platform.python_version()  # Complete Guess
     elif _implementation == 'IronPython':
@@ -556,7 +560,8 @@ def default_headers():
 def parse_header_links(value):
     """Return a dict of parsed link headers proxies.
 
-    i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
+    i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",
+    <http://.../back.jpeg>; rel=back;type="image/jpeg"
 
     """
 

@@ -25,7 +25,9 @@ CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
 def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
 
-    return 'Basic ' + b64encode(('%s:%s' % (username, password)).encode('latin1')).strip().decode('latin1')
+    return 'Basic ' + \
+        b64encode(('%s:%s' % (username, password)).encode('latin1')).\
+        strip().decode('latin1')
 
 
 class AuthBase(object):
@@ -42,14 +44,16 @@ class HTTPBasicAuth(AuthBase):
         self.password = password
 
     def __call__(self, r):
-        r.headers['Authorization'] = _basic_auth_str(self.username, self.password)
+        r.headers['Authorization'] = \
+            _basic_auth_str(self.username, self.password)
         return r
 
 
 class HTTPProxyAuth(HTTPBasicAuth):
     """Attaches HTTP Proxy Authentication to a given Request object."""
     def __call__(self, r):
-        r.headers['Proxy-Authorization'] = _basic_auth_str(self.username, self.password)
+        r.headers['Proxy-Authorization'] = \
+            _basic_auth_str(self.username, self.password)
         return r
 
 
@@ -184,7 +188,8 @@ class HTTPDigestAuth(AuthBase):
     def __call__(self, r):
         # If we have a saved nonce, skip the 401
         if self.last_nonce:
-            r.headers['Authorization'] = self.build_digest_header(r.method, r.url)
+            r.headers['Authorization'] = \
+                self.build_digest_header(r.method, r.url)
         try:
             self.pos = r.body.tell()
         except AttributeError:

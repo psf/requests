@@ -58,7 +58,8 @@ class HTTPAdapter(BaseAdapter):
     :param int max_retries: The maximum number of retries each connection
         should attempt. Note, this applies only to failed connections and
         timeouts, never to requests where the server returns a response.
-    :param pool_block: Whether the connection pool should block for connections.
+    :param pool_block: Whether the connection pool should block for
+        connections.
 
     Usage::
 
@@ -91,7 +92,8 @@ class HTTPAdapter(BaseAdapter):
 
     def __setstate__(self, state):
         # Can't handle by adding 'proxy_manager' to self.__attrs__ because
-        # because self.poolmanager uses a lambda function, which isn't pickleable.
+        # because self.poolmanager uses a lambda function,
+        # which isn't pickleable.
         self.proxy_manager = {}
         self.config = {}
 
@@ -140,7 +142,8 @@ class HTTPAdapter(BaseAdapter):
                 cert_loc = DEFAULT_CA_BUNDLE_PATH
 
             if not cert_loc:
-                raise Exception("Could not find a suitable SSL CA certificate bundle.")
+                raise Exception(
+                    "Could not find a suitable SSL CA certificate bundle.")
 
             conn.cert_reqs = 'CERT_REQUIRED'
             conn.ca_certs = cert_loc
@@ -161,7 +164,8 @@ class HTTPAdapter(BaseAdapter):
         for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`
 
-        :param req: The :class:`PreparedRequest <PreparedRequest>` used to generate the response.
+        :param req: The :class:`PreparedRequest <PreparedRequest>`
+            used to generate the response.
         :param resp: The urllib3 response object.
         """
         response = Response()
@@ -197,7 +201,8 @@ class HTTPAdapter(BaseAdapter):
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         :param url: The URL to connect to.
-        :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
+        :param proxies: (optional) A Requests-style dictionary of proxies
+            used on this request.
         """
         proxies = proxies or {}
         proxy = proxies.get(urlparse(url.lower()).scheme)
@@ -208,11 +213,11 @@ class HTTPAdapter(BaseAdapter):
 
             if not proxy in self.proxy_manager:
                 self.proxy_manager[proxy] = proxy_from_url(
-                                                proxy,
-                                                proxy_headers=proxy_headers,
-                                                num_pools=self._pool_connections,
-                                                maxsize=self._pool_maxsize,
-                                                block=self._pool_block)
+                    proxy,
+                    proxy_headers=proxy_headers,
+                    num_pools=self._pool_connections,
+                    maxsize=self._pool_maxsize,
+                    block=self._pool_block)
 
             conn = self.proxy_manager[proxy].connection_from_url(url)
         else:
@@ -241,7 +246,8 @@ class HTTPAdapter(BaseAdapter):
         when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
-        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param request: The :class:`PreparedRequest <PreparedRequest>`
+            being sent.
         :param proxies: A dictionary of schemes to proxy URLs.
         """
         proxies = proxies or {}
@@ -264,7 +270,8 @@ class HTTPAdapter(BaseAdapter):
         when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
-        :param request: The :class:`PreparedRequest <PreparedRequest>` to add headers to.
+        :param request: The :class:`PreparedRequest <PreparedRequest>`
+            to add headers to.
         :param kwargs: The keyword arguments from the call to send().
         """
         pass
@@ -291,15 +298,19 @@ class HTTPAdapter(BaseAdapter):
 
         return headers
 
-    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
+    def send(self, request, stream=False, timeout=None,
+             verify=True, cert=None, proxies=None):
         """Sends PreparedRequest object. Returns Response object.
 
-        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param request: The :class:`PreparedRequest <PreparedRequest>`
+            being sent.
         :param stream: (optional) Whether to stream the request content.
         :param timeout: (optional) The timeout on the request.
         :param verify: (optional) Whether to verify SSL certificates.
-        :param cert: (optional) Any user-provided SSL certificate to be trusted.
-        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :param cert: (optional) Any user-provided SSL certificate to be
+            trusted.
+        :param proxies: (optional) The proxies dictionary to apply to
+            the request.
         """
 
         conn = self.get_connection(request.url, proxies)
@@ -308,7 +319,8 @@ class HTTPAdapter(BaseAdapter):
         url = self.request_url(request, proxies)
         self.add_headers(request)
 
-        chunked = not (request.body is None or 'Content-Length' in request.headers)
+        chunked = not(
+            request.body is None or 'Content-Length' in request.headers)
 
         timeout = TimeoutSauce(connect=timeout, read=timeout)
 
