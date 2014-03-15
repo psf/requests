@@ -527,7 +527,6 @@ class Session(SessionRedirectMixin):
             history.insert(0, r)
             # Get the last request made
             r = history.pop()
-            r.history = tuple(history)
 
         return r
 

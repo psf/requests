@@ -211,6 +211,16 @@ class RequestsTestCase(unittest.TestCase):
         req_urls = [r.request.url for r in resp.history]
         assert urls == req_urls
 
+    def test_history_is_always_a_list(self):
+        """
+        Show that even with redirects, Response.history is always a list.
+        """
+        resp = requests.get(httpbin('get'))
+        assert isinstance(resp.history, list)
+        resp = requests.get(httpbin('redirect/1'))
+        assert isinstance(resp.history, list)
+        assert not isinstance(resp.history, tuple)
+
     def test_headers_on_session_with_None_are_not_sent(self):
         """Do not send headers in Session.headers with None values."""
         ses = requests.Session()
