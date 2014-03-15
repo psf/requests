@@ -936,6 +936,26 @@ class RequestsTestCase(unittest.TestCase):
         r3 = next(rg)
         assert not r3.is_redirect
 
+    def _patch_adapter_gzipped_redirect(self, session, url):
+        adapter = session.get_adapter(url=url)
+        org_build_response = adapter.build_response
+        self._patched_response = False
+
+        def build_response(*args, **kwargs):
+            resp = org_build_response(*args, **kwargs)
+            if not self._patched_response:
+                resp.raw.headers['content-encoding'] = 'gzip'
+                self._patched_response = True
+            return resp
+
+        adapter.build_response = build_response
+
+    def test_redirect_with_wrong_gzipped_header(self):
+        s = requests.Session()
+        url = httpbin('redirect/1')
+        self._patch_adapter_gzipped_redirect(s, url)
+        s.get(url)
+
 
 class TestContentEncodingDetection(unittest.TestCase):
 
