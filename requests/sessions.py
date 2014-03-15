@@ -168,8 +168,11 @@ class SessionRedirectMixin(object):
             if new_auth is not None:
                 prepared_request.prepare_auth(new_auth)
 
+            # Override the original request.
+            req = prepared_request
+
             resp = self.send(
-                prepared_request,
+                req,
                 stream=stream,
                 timeout=timeout,
                 verify=verify,

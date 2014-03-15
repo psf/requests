@@ -8,6 +8,7 @@ import json
 import os
 import pickle
 import unittest
+import collections
 
 import requests
 import pytest
@@ -18,6 +19,7 @@ from requests.compat import (
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import InvalidURL, MissingSchema
 from requests.structures import CaseInsensitiveDict
+from requests.sessions import SessionRedirectMixin
 
 try:
     import StringIO
@@ -1185,6 +1187,65 @@ class TestTimeout:
             r = requests.get('https://httpbin.org/delay/10', timeout=5.0)
         except requests.exceptions.Timeout as e:
             assert 'Read timed out' in e.args[0].args[0]
+
+
+SendCall = collections.namedtuple('SendCall', ('args', 'kwargs'))
+
+
+class RedirectSession(SessionRedirectMixin):
+    def __init__(self, order_of_redirects):
+        self.redirects = order_of_redirects
+        self.calls = []
+        self.max_redirects = 30
+        self.cookies = {}
+        self.trust_env = False
+
+    def send(self, *args, **kwargs):
+        self.calls.append(SendCall(args, kwargs))
+        return self.build_response()
+
+    def build_response(self):
+        request = self.calls[-1].args[0]
+        r = requests.Response()
+
+        try:
+            r.status_code = int(self.redirects.pop(0))
+        except IndexError:
+            r.status_code = 200
+
+        r.headers = CaseInsensitiveDict({'Location': '/'})
+        r.raw = self._build_raw()
+        r.request = request
+        return r
+
+    def _build_raw(self):
+        string = StringIO.StringIO('')
+        setattr(string, 'release_conn', lambda *args: args)
+        return string
+
+
+class TestRedirects:
+    default_keyword_args = {
+        'stream': False,
+        'verify': True,
+        'cert': None,
+        'timeout': None,
+        'allow_redirects': False,
+        'proxies': None,
+    }
+
+    def test_requests_are_updated_each_time(self):
+        session = RedirectSession([303, 307])
+        prep = requests.Request('POST', 'http://httpbin.org/post').prepare()
+        r0 = session.send(prep)
+        assert r0.request.method == 'POST'
+        assert session.calls[-1] == SendCall((r0.request,), {})
+        redirect_generator = session.resolve_redirects(r0, prep)
+        for response in redirect_generator:
+            assert response.request.method == 'GET'
+            send_call = SendCall((response.request,),
+                                 TestRedirects.default_keyword_args)
+            assert session.calls[-1] == send_call
 
 
 if __name__ == '__main__':
