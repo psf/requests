@@ -11,6 +11,8 @@ Release History
 - New ``Response`` property ``is_redirect``, which is true when the
   library could have processed this response as a redirection (whether
   or not it actually did).
+- New ``Session`` method ``prepare_redirected_request``, constructs a
+  ``PreparedRequest`` to follow a single redirection.
 - The ``timeout`` parameter now affects requests with both ``stream=True`` and
   ``stream=False`` equally.
 
