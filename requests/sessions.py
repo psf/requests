@@ -221,22 +221,21 @@ class SessionRedirectMixin(object):
             environ_proxies = get_environ_proxies(url)
             scheme = urlparse(url).scheme
 
-            try:
+            proxy = environ_proxies.get(scheme)
+
+            if proxy:
                 new_proxies.setdefault(scheme, environ_proxies[scheme])
-            except KeyError:
-                pass
 
         if 'Proxy-Authorization' in headers:
             del headers['Proxy-Authorization']
 
         try:
             username, password = get_auth_from_url(new_proxies[scheme])
-            if username and password:
-                headers['Proxy-Authorization'] = _basic_auth_str(
-                    username, password
-                )
         except KeyError:
-            pass
+            username, password = None, None
+
+        if username and password:
+            headers['Proxy-Authorization'] = _basic_auth_str(username, password)
 
         return new_proxies
 
