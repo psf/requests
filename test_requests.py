@@ -17,6 +17,7 @@ from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import InvalidURL, MissingSchema
+from requests.models import PreparedRequest, Response
 from requests.structures import CaseInsensitiveDict
 
 try:
@@ -864,6 +865,22 @@ class RequestsTestCase(unittest.TestCase):
             req = requests.Request('GET', test_url)
             preq = req.prepare()
             assert test_url == preq.url
+
+    def test_auth_is_stripped_on_redirect_off_host(self):
+        r = requests.get(
+            httpbin('redirect-to'),
+            params={'url': 'http://www.google.co.uk'},
+            auth=('user', 'pass'),
+        )
+        assert r.history[0].request.headers['Authorization']
+        assert not r.request.headers.get('Authorization', '')
+
+    def test_auth_is_retained_for_redirect_on_host(self):
+        r = requests.get(httpbin('redirect/1'), auth=('user', 'pass'))
+        h1 = r.history[0].request.headers['Authorization']
+        h2 = r.request.headers['Authorization']
+
+        assert h1 == h2
 
 
 class TestContentEncodingDetection(unittest.TestCase):

@@ -12,6 +12,7 @@ import os
 from collections import Mapping
 from datetime import datetime
 
+from .auth import _basic_auth_str
 from .compat import cookielib, OrderedDict, urljoin, urlparse, builtin_str
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
@@ -23,7 +24,10 @@ from .structures import CaseInsensitiveDict
 
 from .adapters import HTTPAdapter
 
-from .utils import requote_uri, get_environ_proxies, get_netrc_auth
+from .utils import (
+    requote_uri, get_environ_proxies, get_netrc_auth, should_bypass_proxies,
+    get_auth_from_url
+)
 
 from .status_codes import codes
 
@@ -154,19 +158,9 @@ class SessionRedirectMixin(object):
             prepared_request._cookies.update(self.cookies)
             prepared_request.prepare_cookies(prepared_request._cookies)
 
-            if 'Authorization' in headers:
-                # If we get redirected to a new host, we should strip out any
-                # authentication headers.
-                original_parsed = urlparse(resp.request.url)
-                redirect_parsed = urlparse(url)
-
-                if (original_parsed.hostname != redirect_parsed.hostname):
-                    del headers['Authorization']
-
-            # .netrc might have more auth for us.
-            new_auth = get_netrc_auth(url) if self.trust_env else None
-            if new_auth is not None:
-                prepared_request.prepare_auth(new_auth)
+            # Rebuild auth and proxy information.
+            proxies = self.rebuild_proxies(prepared_request, proxies)
+            self.rebuild_auth(prepared_request, resp)
 
             resp = self.send(
                 prepared_request,
@@ -182,6 +176,68 @@ class SessionRedirectMixin(object):
 
             i += 1
             yield resp
+
+    def rebuild_auth(self, prepared_request, response):
+        """
+        When being redirected we may want to strip authentication from the
+        request to avoid leaking credentials. This method intelligently removes
+        and reapplies authentication where possible to avoid credential loss.
+        """
+        headers = prepared_request.headers
+        url = prepared_request.url
+
+        if 'Authorization' in headers:
+            # If we get redirected to a new host, we should strip out any
+            # authentication headers.
+            original_parsed = urlparse(response.request.url)
+            redirect_parsed = urlparse(url)
+
+            if (original_parsed.hostname != redirect_parsed.hostname):
+                del headers['Authorization']
+
+        # .netrc might have more auth for us on our new host.
+        new_auth = get_netrc_auth(url) if self.trust_env else None
+        if new_auth is not None:
+            prepared_request.prepare_auth(new_auth)
+
+        return
+
+    def rebuild_proxies(self, prepared_request, proxies):
+        """
+        This method re-evaluates the proxy configuration by considering the
+        environment variables. If we are redirected to a URL covered by
+        NO_PROXY, we strip the proxy configuration. Otherwise, we set missing
+        proxy keys for this URL (in case they were stripped by a previous
+        redirect).
+
+        This method also replaces the Proxy-Authorization header where
+        necessary.
+        """
+        headers = prepared_request.headers
+        url = prepared_request.url
+        new_proxies = {}
+
+        if not should_bypass_proxies(url):
+            environ_proxies = get_environ_proxies(url)
+            scheme = urlparse(url).scheme
+
+            proxy = environ_proxies.get(scheme)
+
+            if proxy:
+                new_proxies.setdefault(scheme, environ_proxies[scheme])
+
+        if 'Proxy-Authorization' in headers:
+            del headers['Proxy-Authorization']
+
+        try:
+            username, password = get_auth_from_url(new_proxies[scheme])
+        except KeyError:
+            username, password = None, None
+
+        if username and password:
+            headers['Proxy-Authorization'] = _basic_auth_str(username, password)
+
+        return new_proxies
 
 
 class Session(SessionRedirectMixin):
