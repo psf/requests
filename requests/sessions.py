@@ -162,8 +162,11 @@ class SessionRedirectMixin(object):
             proxies = self.rebuild_proxies(prepared_request, proxies)
             self.rebuild_auth(prepared_request, resp)
 
+            # Override the original request.
+            req = prepared_request
+
             resp = self.send(
-                prepared_request,
+                req,
                 stream=stream,
                 timeout=timeout,
                 verify=verify,
