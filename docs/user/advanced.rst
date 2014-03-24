@@ -145,6 +145,8 @@ applied, replace the call to :meth:`Request.prepare()
 
     print(resp.status_code)
 
+.. _verification:
+
 SSL Cert Verification
 ---------------------
 

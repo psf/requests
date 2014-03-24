@@ -3,6 +3,17 @@
 Release History
 ---------------
 
+2.3.0 (YYYY-MM-DD)
+++++++++++++++++++
+
+**API Changes**
+
+- New ``Response`` property ``is_redirect``, which is true when the
+  library could have processed this response as a redirection (whether
+  or not it actually did).
+- The ``timeout`` parameter now affects requests with both ``stream=True`` and
+  ``stream=False`` equally.
+
 2.2.1 (2014-01-23)
 ++++++++++++++++++
 
@@ -128,6 +139,8 @@ Release History
 1.2.1 (2013-05-20)
 ++++++++++++++++++
 
+- 301 and 302 redirects now change the verb to GET for all verbs, not just
+  POST, improving browser compatibility.
 - Python 3.3.2 compatibility
 - Always percent-encode location headers
 - Fix connection adapter matching to be most-specific first

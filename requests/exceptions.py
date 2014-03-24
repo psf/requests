@@ -14,14 +14,21 @@ class RequestException(IOError):
     """There was an ambiguous exception that occurred while handling your
     request."""
 
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize RequestException with `request` and `response` objects.
+        """
+        response = kwargs.pop('response', None)
+        self.response = response
+        self.request = kwargs.pop('request', None)
+        if (response is not None and not self.request and
+                hasattr(response, 'request')):
+            self.request = self.response.request
+        super(RequestException, self).__init__(*args, **kwargs)
+
 
 class HTTPError(RequestException):
     """An HTTP error occurred."""
-
-    def __init__(self, *args, **kwargs):
-        """ Initializes HTTPError with optional `response` object. """
-        self.response = kwargs.pop('response', None)
-        super(HTTPError, self).__init__(*args, **kwargs)
 
 
 class ConnectionError(RequestException):

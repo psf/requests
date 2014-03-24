@@ -17,6 +17,7 @@ from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import InvalidURL, MissingSchema
+from requests.models import PreparedRequest, Response
 from requests.structures import CaseInsensitiveDict
 
 try:
@@ -115,6 +116,8 @@ class RequestsTestCase(unittest.TestCase):
     def test_HTTP_302_ALLOW_REDIRECT_GET(self):
         r = requests.get(httpbin('redirect', '1'))
         assert r.status_code == 200
+        assert r.history[0].status_code == 302
+        assert r.history[0].is_redirect
 
     # def test_HTTP_302_ALLOW_REDIRECT_POST(self):
     #     r = requests.post(httpbin('status', '302'), data={'some': 'data'})
@@ -208,6 +211,14 @@ class RequestsTestCase(unittest.TestCase):
         urls = [r.url for r in resp.history]
         req_urls = [r.request.url for r in resp.history]
         assert urls == req_urls
+
+    def test_headers_on_session_with_None_are_not_sent(self):
+        """Do not send headers in Session.headers with None values."""
+        ses = requests.Session()
+        ses.headers['Accept-Encoding'] = None
+        req = requests.Request('GET', 'http://httpbin.org/get')
+        prep = ses.prepare_request(req)
+        assert 'Accept-Encoding' not in prep.headers
 
     def test_user_agent_transfers(self):
 
@@ -855,6 +866,22 @@ class RequestsTestCase(unittest.TestCase):
             preq = req.prepare()
             assert test_url == preq.url
 
+    def test_auth_is_stripped_on_redirect_off_host(self):
+        r = requests.get(
+            httpbin('redirect-to'),
+            params={'url': 'http://www.google.co.uk'},
+            auth=('user', 'pass'),
+        )
+        assert r.history[0].request.headers['Authorization']
+        assert not r.request.headers.get('Authorization', '')
+
+    def test_auth_is_retained_for_redirect_on_host(self):
+        r = requests.get(httpbin('redirect/1'), auth=('user', 'pass'))
+        h1 = r.history[0].request.headers['Authorization']
+        h2 = r.request.headers['Authorization']
+
+        assert h1 == h2
+
 
 class TestContentEncodingDetection(unittest.TestCase):
 
@@ -1167,6 +1194,14 @@ class TestMorselToCookieMaxAge(unittest.TestCase):
         morsel['max-age'] = 'woops'
         with pytest.raises(TypeError):
             morsel_to_cookie(morsel)
+
+
+class TestTimeout:
+    def test_stream_timeout(self):
+        try:
+            r = requests.get('https://httpbin.org/delay/10', timeout=5.0)
+        except requests.exceptions.Timeout as e:
+            assert 'Read timed out' in e.args[0].args[0]
 
 
 if __name__ == '__main__':

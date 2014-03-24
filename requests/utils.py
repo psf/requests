@@ -466,9 +466,10 @@ def is_valid_cidr(string_network):
     return True
 
 
-def get_environ_proxies(url):
-    """Return a dict of environment proxies."""
-
+def should_bypass_proxies(url):
+    """
+    Returns whether we should bypass proxies or not.
+    """
     get_proxy = lambda k: os.environ.get(k) or os.environ.get(k.upper())
 
     # First check whether no_proxy is defined. If it is, check that the URL
@@ -486,13 +487,13 @@ def get_environ_proxies(url):
             for proxy_ip in no_proxy:
                 if is_valid_cidr(proxy_ip):
                     if address_in_network(ip, proxy_ip):
-                        return {}
+                        return True
         else:
             for host in no_proxy:
                 if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
                     # The URL does match something in no_proxy, so we don't want
                     # to apply the proxies on this URL.
-                    return {}
+                    return True
 
     # If the system proxy settings indicate that this URL should be bypassed,
     # don't proxy.
@@ -506,12 +507,16 @@ def get_environ_proxies(url):
         bypass = False
 
     if bypass:
-        return {}
+        return True
 
-    # If we get here, we either didn't have no_proxy set or we're not going
-    # anywhere that no_proxy applies to, and the system settings don't require
-    # bypassing the proxy for the current URL.
-    return getproxies()
+    return False
+
+def get_environ_proxies(url):
+    """Return a dict of environment proxies."""
+    if should_bypass_proxies(url):
+        return {}
+    else:
+        return getproxies()
 
 
 def default_user_agent(name="python-requests"):
@@ -548,7 +553,7 @@ def default_user_agent(name="python-requests"):
 def default_headers():
     return CaseInsensitiveDict({
         'User-Agent': default_user_agent(),
-        'Accept-Encoding': ', '.join(('gzip', 'deflate', 'compress')),
+        'Accept-Encoding': ', '.join(('gzip', 'deflate')),
         'Accept': '*/*'
     })
 
