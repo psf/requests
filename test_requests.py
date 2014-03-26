@@ -1258,7 +1258,7 @@ class TestRedirects:
         'cert': None,
         'timeout': None,
         'allow_redirects': False,
-        'proxies': None,
+        'proxies': {},
     }
 
     def test_requests_are_updated_each_time(self):
