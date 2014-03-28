@@ -4,6 +4,7 @@
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
+import sys
 import socket
 from socket import timeout as SocketTimeout
 
@@ -38,6 +39,7 @@ from .exceptions import (
     ConnectTimeoutError,
 )
 from .packages.ssl_match_hostname import match_hostname
+from .packages import six
 from .util import (
     assert_fingerprint,
     resolve_cert_reqs,
@@ -53,27 +55,40 @@ port_by_scheme = {
 
 
 class HTTPConnection(_HTTPConnection, object):
+    """
+    Based on httplib.HTTPConnection but provides an extra constructor
+    backwards-compatibility layer between older and newer Pythons.
+    """
+
     default_port = port_by_scheme['http']
 
     # By default, disable Nagle's Algorithm.
     tcp_nodelay = 1
+
+    def __init__(self, *args, **kw):
+        if six.PY3:  # Python 3
+            kw.pop('strict', None)
+
+        if sys.version_info < (2, 7):  # Python 2.6 and earlier
+            kw.pop('source_address', None)
+            self.source_address = None
+
+        _HTTPConnection.__init__(self, *args, **kw)
 
     def _new_conn(self):
         """ Establish a socket connection and set nodelay settings on it
 
         :return: a new socket connection
         """
-        try:
-            conn = socket.create_connection(
-                (self.host, self.port),
-                self.timeout,
-                self.source_address,
-            )
-        except AttributeError: # Python 2.6
-            conn = socket.create_connection(
-                (self.host, self.port),
-                self.timeout,
-            )
+        extra_args = []
+        if self.source_address:  # Python 2.7+
+            extra_args.append(self.source_address)
+
+        conn = socket.create_connection(
+            (self.host, self.port),
+            self.timeout,
+            *extra_args
+        )
         conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY,
                         self.tcp_nodelay)
         return conn
@@ -95,10 +110,12 @@ class HTTPSConnection(HTTPConnection):
     def __init__(self, host, port=None, key_file=None, cert_file=None,
                  strict=None, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
                  source_address=None):
-        try:
-            HTTPConnection.__init__(self, host, port, strict, timeout, source_address)
-        except TypeError: # Python 2.6
-            HTTPConnection.__init__(self, host, port, strict, timeout)
+
+        HTTPConnection.__init__(self, host, port,
+                                strict=strict,
+                                timeout=timeout,
+                                source_address=source_address)
+
         self.key_file = key_file
         self.cert_file = cert_file
 
