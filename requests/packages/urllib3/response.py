@@ -9,6 +9,7 @@ import logging
 import zlib
 import io
 
+from ._collections import HTTPHeaderDict
 from .exceptions import DecodeError
 from .packages.six import string_types as basestring, binary_type
 from .util import is_fp_closed
@@ -79,7 +80,10 @@ class HTTPResponse(io.IOBase):
     def __init__(self, body='', headers=None, status=0, version=0, reason=None,
                  strict=0, preload_content=True, decode_content=True,
                  original_response=None, pool=None, connection=None):
-        self.headers = headers or {}
+
+        self.headers = HTTPHeaderDict()
+        if headers:
+            self.headers.update(headers)
         self.status = status
         self.version = version
         self.reason = reason
@@ -249,17 +253,9 @@ class HTTPResponse(io.IOBase):
         with ``original_response=r``.
         """
 
-        # Normalize headers between different versions of Python
-        headers = {}
+        headers = HTTPHeaderDict()
         for k, v in r.getheaders():
-            # Python 3: Header keys are returned capitalised
-            k = k.lower()
-
-            has_value = headers.get(k)
-            if has_value: # Python 3: Repeating header keys are unmerged.
-                v = ', '.join([has_value, v])
-
-            headers[k] = v
+            headers.add(k, v)
 
         # HTTPResponse objects in Python 3 don't have a .strict attribute
         strict = getattr(r, 'strict', 0)
