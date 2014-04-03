@@ -14,6 +14,11 @@ Release History
 - The ``timeout`` parameter now affects requests with both ``stream=True`` and
   ``stream=False`` equally.
 
+**Bugfixes**
+
+- No longer expose Authorization or Proxy-Authorization headers on redirect.
+  Fix CVE-2014-1829 and CVE-2014-1830 respectively.
+
 2.2.1 (2014-01-23)
 ++++++++++++++++++
 
