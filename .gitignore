@@ -21,3 +21,7 @@ env/
 t.py
 
 t2.py
+bin/
+local/
+include/
+lib/
