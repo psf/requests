@@ -1276,6 +1276,19 @@ class TestRedirects:
                                  TestRedirects.default_keyword_args)
             assert session.calls[-1] == send_call
 
+    def test_delete_maintained_over_redirects(self):
+        session = RedirectSession([302])
+        prp = requests.Request('DELETE', 'http://httpbin.org/delete').prepare()
+        r0 = session.send(prp)
+        assert r0.request.method == 'DELETE'
+        assert session.calls[-1] == SendCall((r0.request, ), {})
+        redirect_gen = session.resolve_redirects(r0, prp)
+        for response in redirect_gen:
+            assert response.request.method == 'DELETE'
+            send_call = SendCall((response.request,),
+                                 TestRedirects.default_keyword_args)
+            assert session.calls[-1] == send_call
+
 
 @pytest.fixture
 def list_of_tuples():
@@ -1300,7 +1313,7 @@ def test_data_argument_accepts_tuples(list_of_tuples):
             hooks=default_hooks()
         )
         assert p.body == urlencode(data)
-        
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -131,7 +131,8 @@ class SessionRedirectMixin(object):
 
             # Do what the browsers do, despite standards...
             # First, turn 302s into GETs.
-            if resp.status_code == codes.found and method != 'HEAD':
+            if (resp.status_code == codes.found and method != 'HEAD' and
+                    method != 'DELETE'):
                 method = 'GET'
 
             # Second, if a POST is responded to with a 301, turn it into a GET.
