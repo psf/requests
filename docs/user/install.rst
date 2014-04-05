@@ -10,13 +10,13 @@ The first step to using any software package is getting it properly installed.
 Distribute & Pip
 ----------------
 
-Installing Requests is simple with `pip <http://www.pip-installer.org/>`_::
+Installing Requests is simple with `pip <http://www.pip-installer.org/>`_, just run this in your terminal::
 
-    $ pip install requests
+    pip install requests
 
 or, with `easy_install <http://pypi.python.org/pypi/setuptools>`_::
 
-    $ easy_install requests
+    easy_install requests
 
 But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/other-tools.html#pip-compared-to-easy-install>`_.
 
@@ -26,9 +26,9 @@ Cheeseshop (PyPI) Mirror
 ------------------------
 
 If the Cheeseshop (a.k.a. PyPI) is down, you can also install Requests from one
-of the mirrors. `Crate.io <http://crate.io>`_ is one of them::
+of the mirrors. `Crate.io <http://crate.io>`_ is one of them. Run this in the terminal::
 
-    $ pip install -i http://simple.crate.io/ requests
+    pip install -i http://simple.crate.io/ requests
 
 
 Get the Code
@@ -41,16 +41,16 @@ You can either clone the public repository::
 
     git clone git://github.com/kennethreitz/requests.git
 
-Download the `tarball <https://github.com/kennethreitz/requests/tarball/master>`_::
+Download the `tarball <https://github.com/kennethreitz/requests/tarball/master>`_, run this in your terminal::
 
-    $ curl -OL https://github.com/kennethreitz/requests/tarball/master
+    curl -OL https://github.com/kennethreitz/requests/tarball/master
 
 Or, download the `zipball <https://github.com/kennethreitz/requests/zipball/master>`_::
 
-    $ curl -OL https://github.com/kennethreitz/requests/zipball/master
+    curl -OL https://github.com/kennethreitz/requests/zipball/master
 
 
 Once you have a copy of the source, you can embed it in your Python package,
-or install it into your site-packages easily::
+or install it into your site-packages easily, run this in your terminal::
 
-    $ python setup.py install
+    python setup.py install

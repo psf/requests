@@ -363,9 +363,9 @@ You can also configure proxies by setting the environment variables
 
 ::
 
-    $ export HTTP_PROXY="http://10.10.1.10:3128"
-    $ export HTTPS_PROXY="http://10.10.1.10:1080"
-    $ python
+    export HTTP_PROXY="http://10.10.1.10:3128"
+    export HTTPS_PROXY="http://10.10.1.10:1080"
+    python
     >>> import requests
     >>> requests.get("http://example.org")
 
