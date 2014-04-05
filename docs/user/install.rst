@@ -26,9 +26,11 @@ Cheeseshop (PyPI) Mirror
 ------------------------
 
 If the Cheeseshop (a.k.a. PyPI) is down, you can also install Requests from one
-of the mirrors. `Crate.io <http://crate.io>`_ is one of them::
+of the mirrors. `pypi.douban.com <http://pypi.douban.com>`_ is one of them::
 
-    $ pip install -i http://simple.crate.io/ requests
+    $ pip install -i http://pypi.douban.com/simple requests
+
+A `list of PyPI mirrors <http://www.pypi-mirrors.org>`_ is available.
 
 
 Get the Code
