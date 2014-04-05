@@ -10,13 +10,13 @@ The first step to using any software package is getting it properly installed.
 Distribute & Pip
 ----------------
 
-Installing Requests is simple with `pip <http://www.pip-installer.org/>`_::
+Installing Requests is simple with `pip <http://www.pip-installer.org/>`_, just run this in your terminal::
 
-    $ pip install requests
+    pip install requests
 
 or, with `easy_install <http://pypi.python.org/pypi/setuptools>`_::
 
-    $ easy_install requests
+    easy_install requests
 
 But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/other-tools.html#pip-compared-to-easy-install>`_.
 
