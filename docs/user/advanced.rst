@@ -39,7 +39,8 @@ is done by providing data to the properties on a Session object::
 
 Any dictionaries that you pass to a request method will be merged with the session-level values that are set. The method-level parameters override session parameters.
 
-.. admonition:: Remove a Value From a Dict Parameter
+Remove a Value From a Dict Parameter
+------------------------------------
 
     Sometimes you'll want to omit session-level keys from a dict parameter. To do this, you simply set that key's value to ``None`` in the method-level parameter. It will automatically be omitted.
 
