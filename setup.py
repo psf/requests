@@ -30,8 +30,6 @@ with open('README.rst') as f:
     readme = f.read()
 with open('HISTORY.rst') as f:
     history = f.read()
-with open('LICENSE') as f:
-    license = f.read()
 
 setup(
     name='requests',
@@ -46,7 +44,7 @@ setup(
     package_dir={'requests': 'requests'},
     include_package_data=True,
     install_requires=requires,
-    license=license,
+    license='Apache 2.0',
     zip_safe=False,
     classifiers=(
         'Development Status :: 5 - Production/Stable',

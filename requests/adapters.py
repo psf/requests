@@ -286,10 +286,6 @@ class HTTPAdapter(BaseAdapter):
         username, password = get_auth_from_url(proxy)
 
         if username and password:
-            # Proxy auth usernames and passwords will be urlencoded, we need
-            # to decode them.
-            username = unquote(username)
-            password = unquote(password)
             headers['Proxy-Authorization'] = _basic_auth_str(username,
                                                              password)
 
@@ -314,10 +310,7 @@ class HTTPAdapter(BaseAdapter):
 
         chunked = not (request.body is None or 'Content-Length' in request.headers)
 
-        if stream:
-            timeout = TimeoutSauce(connect=timeout)
-        else:
-            timeout = TimeoutSauce(connect=timeout, read=timeout)
+        timeout = TimeoutSauce(connect=timeout, read=timeout)
 
         try:
             if not chunked:
@@ -376,19 +369,19 @@ class HTTPAdapter(BaseAdapter):
                     conn._put_conn(low_conn)
 
         except socket.error as sockerr:
-            raise ConnectionError(sockerr)
+            raise ConnectionError(sockerr, request=request)
 
         except MaxRetryError as e:
-            raise ConnectionError(e)
+            raise ConnectionError(e, request=request)
 
         except _ProxyError as e:
             raise ProxyError(e)
 
         except (_SSLError, _HTTPError) as e:
             if isinstance(e, _SSLError):
-                raise SSLError(e)
+                raise SSLError(e, request=request)
             elif isinstance(e, TimeoutError):
-                raise Timeout(e)
+                raise Timeout(e, request=request)
             else:
                 raise
 

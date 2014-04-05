@@ -249,7 +249,9 @@ Behavioral Changes
 
 * Timeouts behave slightly differently. On streaming requests, the timeout
   only applies to the connection attempt. On regular requests, the timeout
-  is applied to the connection process and downloading the full body.
+  is applied to the connection process and on to all attempts to read data from
+  the underlying socket. It does *not* apply to the total download time for the
+  request.
 
   ::
 

@@ -19,6 +19,7 @@ except ImportError:
 
 from .exceptions import (
     ClosedPoolError,
+    ConnectionError,
     ConnectTimeoutError,
     EmptyPoolError,
     HostChangedError,
@@ -31,6 +32,7 @@ from .exceptions import (
 from .packages.ssl_match_hostname import CertificateError
 from .packages import six
 from .connection import (
+    port_by_scheme,
     DummyConnection,
     HTTPConnection, HTTPSConnection, VerifiedHTTPSConnection,
     HTTPException, BaseSSLError,
@@ -50,12 +52,6 @@ xrange = six.moves.xrange
 log = logging.getLogger(__name__)
 
 _Default = object()
-
-port_by_scheme = {
-    'http': 80,
-    'https': 443,
-}
-
 
 ## Pool objects
 
@@ -169,19 +165,20 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
     def _new_conn(self):
         """
-        Return a fresh :class:`httplib.HTTPConnection`.
+        Return a fresh :class:`HTTPConnection`.
         """
         self.num_connections += 1
         log.info("Starting new HTTP connection (%d): %s" %
                  (self.num_connections, self.host))
 
-        extra_params = {}
-        if not six.PY3:  # Python 2
-            extra_params['strict'] = self.strict
-
-        return self.ConnectionCls(host=self.host, port=self.port,
+        conn = self.ConnectionCls(host=self.host, port=self.port,
                                   timeout=self.timeout.connect_timeout,
-                                  **extra_params)
+                                  strict=self.strict)
+        if self.proxy is not None:
+            # Enable Nagle's algorithm for proxies, to avoid packet
+            # fragmentation.
+            conn.tcp_nodelay = 0
+        return conn
 
     def _get_conn(self, timeout=None):
         """
@@ -238,8 +235,9 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             pass
         except Full:
             # This should never happen if self.block == True
-            log.warning("HttpConnectionPool is full, discarding connection: %s"
-                        % self.host)
+            log.warning(
+                "Connection pool is full, discarding connection: %s" %
+                self.host)
 
         # Connection never got put back into the pool, close it.
         if conn:
@@ -260,7 +258,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
     def _make_request(self, conn, method, url, timeout=_Default,
                       **httplib_request_kw):
         """
-        Perform a request on a given httplib connection object taken from our
+        Perform a request on a given urllib connection object taken from our
         pool.
 
         :param conn:
@@ -414,10 +412,13 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         :param retries:
             Number of retries to allow before raising a MaxRetryError exception.
+            If `False`, then retries are disabled and any exception is raised
+            immediately.
 
         :param redirect:
             If True, automatically handle redirects (status codes 301, 302,
-            303, 307, 308). Each redirect counts as a retry.
+            303, 307, 308). Each redirect counts as a retry. Disabling retries
+            will disable redirect, too.
 
         :param assert_same_host:
             If ``True``, will make sure that the host of the pool requests is
@@ -451,7 +452,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         if headers is None:
             headers = self.headers
 
-        if retries < 0:
+        if retries < 0 and retries is not False:
             raise MaxRetryError(self, url)
 
         if release_conn is None:
@@ -469,6 +470,10 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         if self.scheme == 'http':
             headers = headers.copy()
             headers.update(self.proxy_headers)
+
+        # Must keep the exception bound to a separate variable or else Python 3
+        # complains about UnboundLocalError.
+        err = None
 
         try:
             # Request a connection from the queue
@@ -497,37 +502,40 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             #     ``response.read()``)
 
         except Empty:
-            # Timed out by queue
+            # Timed out by queue.
             raise EmptyPoolError(self, "No pool connections are available.")
 
-        except BaseSSLError as e:
+        except (BaseSSLError, CertificateError) as e:
+            # Release connection unconditionally because there is no way to
+            # close it externally in case of exception.
+            release_conn = True
             raise SSLError(e)
 
-        except CertificateError as e:
-            # Name mismatch
-            raise SSLError(e)
+        except (TimeoutError, HTTPException, SocketError) as e:
+            if conn:
+                # Discard the connection for these exceptions. It will be
+                # be replaced during the next _get_conn() call.
+                conn.close()
+                conn = None
 
-        except TimeoutError as e:
-            # Connection broken, discard.
-            conn = None
-            # Save the error off for retry logic.
-            err = e
+            if not retries:
+                if isinstance(e, TimeoutError):
+                    # TimeoutError is exempt from MaxRetryError-wrapping.
+                    # FIXME: ... Not sure why. Add a reason here.
+                    raise
 
-            if retries == 0:
-                raise
+                # Wrap unexpected exceptions with the most appropriate
+                # module-level exception and re-raise.
+                if isinstance(e, SocketError) and self.proxy:
+                    raise ProxyError('Cannot connect to proxy.', e)
 
-        except (HTTPException, SocketError) as e:
-            if isinstance(e, SocketError) and self.proxy is not None:
-                raise ProxyError('Cannot connect to proxy. '
-                                 'Socket error: %s.' % e)
+                if retries is False:
+                    raise ConnectionError('Connection failed.', e)
 
-            # Connection broken, discard. It will be replaced next _get_conn().
-            conn = None
-            # This is necessary so we can access e below
-            err = e
-
-            if retries == 0:
                 raise MaxRetryError(self, url, e)
+
+            # Keep track of the error for the retry warning.
+            err = e
 
         finally:
             if release_conn:
@@ -538,8 +546,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         if not conn:
             # Try again
-            log.warn("Retrying (%d attempts remain) after connection "
-                     "broken by '%r': %s" % (retries, err, url))
+            log.warning("Retrying (%d attempts remain) after connection "
+                        "broken by '%r': %s" % (retries, err, url))
             return self.urlopen(method, url, body, headers, retries - 1,
                                 redirect, assert_same_host,
                                 timeout=timeout, pool_timeout=pool_timeout,
@@ -547,7 +555,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         # Handle redirect?
         redirect_location = redirect and response.get_redirect_location()
-        if redirect_location:
+        if redirect_location and retries is not False:
             if response.status == 303:
                 method = 'GET'
             log.info("Redirecting %s -> %s" % (url, redirect_location))
@@ -565,7 +573,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
 
     When Python is compiled with the :mod:`ssl` module, then
     :class:`.VerifiedHTTPSConnection` is used, which *can* verify certificates,
-    instead of :class:`httplib.HTTPSConnection`.
+    instead of :class:`.HTTPSConnection`.
 
     :class:`.VerifiedHTTPSConnection` uses one of ``assert_fingerprint``,
     ``assert_hostname`` and ``host`` in this order to verify connections.
@@ -652,6 +660,10 @@ class HTTPSConnectionPool(HTTPConnectionPool):
         conn = self.ConnectionCls(host=actual_host, port=actual_port,
                                   timeout=self.timeout.connect_timeout,
                                   **extra_params)
+        if self.proxy is not None:
+            # Enable Nagle's algorithm for proxies, to avoid packet
+            # fragmentation.
+            conn.tcp_nodelay = 0
 
         return self._prepare_conn(conn)
 

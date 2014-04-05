@@ -4,7 +4,7 @@
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
-from collections import MutableMapping
+from collections import Mapping, MutableMapping
 try:
     from threading import RLock
 except ImportError: # Platform-specific: No threads available
@@ -20,9 +20,10 @@ try: # Python 2.7+
     from collections import OrderedDict
 except ImportError:
     from .packages.ordered_dict import OrderedDict
+from .packages.six import itervalues
 
 
-__all__ = ['RecentlyUsedContainer']
+__all__ = ['RecentlyUsedContainer', 'HTTPHeaderDict']
 
 
 _Null = object()
@@ -101,3 +102,104 @@ class RecentlyUsedContainer(MutableMapping):
     def keys(self):
         with self.lock:
             return self._container.keys()
+
+
+class HTTPHeaderDict(MutableMapping):
+    """
+    :param headers:
+        An iterable of field-value pairs. Must not contain multiple field names
+        when compared case-insensitively.
+
+    :param kwargs:
+        Additional field-value pairs to pass in to ``dict.update``.
+
+    A ``dict`` like container for storing HTTP Headers.
+
+    Field names are stored and compared case-insensitively in compliance with
+    RFC 2616. Iteration provides the first case-sensitive key seen for each
+    case-insensitive pair.
+
+    Using ``__setitem__`` syntax overwrites fields that compare equal
+    case-insensitively in order to maintain ``dict``'s api. For fields that
+    compare equal, instead create a new ``HTTPHeaderDict`` and use ``.add``
+    in a loop.
+
+    If multiple fields that are equal case-insensitively are passed to the
+    constructor or ``.update``, the behavior is undefined and some will be
+    lost.
+
+    >>> headers = HTTPHeaderDict()
+    >>> headers.add('Set-Cookie', 'foo=bar')
+    >>> headers.add('set-cookie', 'baz=quxx')
+    >>> headers['content-length'] = '7'
+    >>> headers['SET-cookie']
+    'foo=bar, baz=quxx'
+    >>> headers['Content-Length']
+    '7'
+
+    If you want to access the raw headers with their original casing
+    for debugging purposes you can access the private ``._data`` attribute
+    which is a normal python ``dict`` that maps the case-insensitive key to a
+    list of tuples stored as (case-sensitive-original-name, value). Using the
+    structure from above as our example:
+
+    >>> headers._data
+    {'set-cookie': [('Set-Cookie', 'foo=bar'), ('set-cookie', 'baz=quxx')],
+    'content-length': [('content-length', '7')]}
+    """
+
+    def __init__(self, headers=None, **kwargs):
+        self._data = {}
+        if headers is None:
+            headers = {}
+        self.update(headers, **kwargs)
+
+    def add(self, key, value):
+        """Adds a (name, value) pair, doesn't overwrite the value if it already
+        exists.
+
+        >>> headers = HTTPHeaderDict(foo='bar')
+        >>> headers.add('Foo', 'baz')
+        >>> headers['foo']
+        'bar, baz'
+        """
+        self._data.setdefault(key.lower(), []).append((key, value))
+
+    def getlist(self, key):
+        """Returns a list of all the values for the named field. Returns an
+        empty list if the key doesn't exist."""
+        return self[key].split(', ') if key in self else []
+
+    def copy(self):
+        h = HTTPHeaderDict()
+        for key in self._data:
+            for rawkey, value in self._data[key]:
+                h.add(rawkey, value)
+        return h
+
+    def __eq__(self, other):
+        if not isinstance(other, Mapping):
+            return False
+        other = HTTPHeaderDict(other)
+        return dict((k1, self[k1]) for k1 in self._data) == \
+                dict((k2, other[k2]) for k2 in other._data)
+
+    def __getitem__(self, key):
+        values = self._data[key.lower()]
+        return ', '.join(value[1] for value in values)
+
+    def __setitem__(self, key, value):
+        self._data[key.lower()] = [(key, value)]
+
+    def __delitem__(self, key):
+        del self._data[key.lower()]
+
+    def __len__(self):
+        return len(self._data)
+
+    def __iter__(self):
+        for headers in itervalues(self._data):
+            yield headers[0][0]
+
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__.__name__, dict(self.items()))

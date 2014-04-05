@@ -3,6 +3,30 @@
 Release History
 ---------------
 
+2.3.0 (YYYY-MM-DD)
+++++++++++++++++++
+
+**API Changes**
+
+- New ``Response`` property ``is_redirect``, which is true when the
+  library could have processed this response as a redirection (whether
+  or not it actually did).
+- The ``timeout`` parameter now affects requests with both ``stream=True`` and
+  ``stream=False`` equally.
+
+**Bugfixes**
+
+- No longer expose Authorization or Proxy-Authorization headers on redirect.
+  Fix CVE-2014-1829 and CVE-2014-1830 respectively.
+
+2.2.1 (2014-01-23)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Fixes incorrect parsing of proxy credentials that contain a literal or encoded '#' character.
+- Assorted urllib3 fixes.
+
 2.2.0 (2014-01-09)
 ++++++++++++++++++
 
@@ -14,7 +38,7 @@ Release History
 **Bugfixes**
 
 - Avoid many many exceptions from the buggy implementation of ``proxy_bypass`` on OS X in Python 2.6.
-- Avoid crashing when attempting to get authentication credentions from ~/.netrc when running as a user without a home directory.
+- Avoid crashing when attempting to get authentication credentials from ~/.netrc when running as a user without a home directory.
 - Use the correct pool size for pools of connections to proxies.
 - Fix iteration of ``CookieJar`` objects.
 - Ensure that cookies are persisted over redirect.
@@ -120,6 +144,8 @@ Release History
 1.2.1 (2013-05-20)
 ++++++++++++++++++
 
+- 301 and 302 redirects now change the verb to GET for all verbs, not just
+  POST, improving browser compatibility.
 - Python 3.3.2 compatibility
 - Always percent-encode location headers
 - Fix connection adapter matching to be most-specific first

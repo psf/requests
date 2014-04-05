@@ -8,7 +8,6 @@ This module contains the primary objects that power Requests.
 """
 
 import collections
-import logging
 import datetime
 
 from io import BytesIO, UnsupportedOperation
@@ -31,11 +30,19 @@ from .utils import (
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring, IncompleteRead)
+from .status_codes import codes
 
+#: The set of HTTP status codes that indicate an automatically
+#: processable redirect.
+REDIRECT_STATI = (
+    codes.moved,  # 301
+    codes.found,  # 302
+    codes.other,  # 303
+    codes.temporary_moved,  # 307
+)
+DEFAULT_REDIRECT_LIMIT = 30
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
-
-log = logging.getLogger(__name__)
 
 
 class RequestEncodingMixin(object):
@@ -401,9 +408,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         is_stream = all([
             hasattr(data, '__iter__'),
-            not isinstance(data, basestring),
-            not isinstance(data, list),
-            not isinstance(data, dict)
+            not isinstance(data, (basestring, list, tuple, dict))
         ])
 
         try:
@@ -517,7 +522,7 @@ class Response(object):
         self._content = False
         self._content_consumed = False
 
-        #: Integer Code of responded HTTP Status.
+        #: Integer Code of responded HTTP Status, e.g. 404 or 200.
         self.status_code = None
 
         #: Case-insensitive Dictionary of Response Headers.
@@ -541,6 +546,7 @@ class Response(object):
         #: up here. The list is sorted from the oldest to the most recent request.
         self.history = []
 
+        #: Textual reason of responded HTTP Status, e.g. "Not Found" or "OK".
         self.reason = None
 
         #: A CookieJar of Cookies the server sent back.
@@ -567,6 +573,7 @@ class Response(object):
 
         # pickled objects do not have .raw
         setattr(self, '_content_consumed', True)
+        setattr(self, 'raw', None)
 
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
@@ -592,9 +599,15 @@ class Response(object):
         return True
 
     @property
+    def is_redirect(self):
+        """True if this Response is a well-formed HTTP redirect that could have
+        been processed automatically (by :meth:`Session.resolve_redirects`).
+        """
+        return ('location' in self.headers and self.status_code in REDIRECT_STATI)
+
+    @property
     def apparent_encoding(self):
-        """The apparent encoding, provided by the lovely Charade library
-        (Thanks, Ian!)."""
+        """The apparent encoding, provided by the chardet library"""
         return chardet.detect(self.content)['encoding']
 
     def iter_content(self, chunk_size=1, decode_unicode=False):
@@ -612,8 +625,7 @@ class Response(object):
             try:
                 # Special case for urllib3.
                 try:
-                    for chunk in self.raw.stream(chunk_size,
-                                                 decode_content=True):
+                    for chunk in self.raw.stream(chunk_size, decode_content=True):
                         yield chunk
                 except IncompleteRead as e:
                     raise ChunkedEncodingError(e)
@@ -644,8 +656,7 @@ class Response(object):
 
         pending = None
 
-        for chunk in self.iter_content(chunk_size=chunk_size,
-                                       decode_unicode=decode_unicode):
+        for chunk in self.iter_content(chunk_size=chunk_size, decode_unicode=decode_unicode):
 
             if pending is not None:
                 chunk = pending + chunk
@@ -693,7 +704,7 @@ class Response(object):
         If Response.encoding is None, encoding will be guessed using
         ``chardet``.
 
-        The encoding of the response content is determined based soley on HTTP
+        The encoding of the response content is determined based solely on HTTP
         headers, following RFC 2616 to the letter. If you can take advantage of
         non-HTTP knowledge to make a better guess at the encoding, you should
         set ``r.encoding`` appropriately before accessing this property.
@@ -737,7 +748,14 @@ class Response(object):
             # a best guess).
             encoding = guess_json_utf(self.content)
             if encoding is not None:
-                return json.loads(self.content.decode(encoding), **kwargs)
+                try:
+                    return json.loads(self.content.decode(encoding), **kwargs)
+                except UnicodeDecodeError:
+                    # Wrong UTF codec detected; usually because it's not UTF-8
+                    # but some other 8-bit codec.  This is an RFC violation,
+                    # and the server didn't bother to tell us what codec *was*
+                    # used.
+                    pass
         return json.loads(self.text, **kwargs)
 
     @property

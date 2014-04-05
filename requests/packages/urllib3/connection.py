@@ -4,13 +4,14 @@
 # This module is part of urllib3 and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
+import sys
 import socket
 from socket import timeout as SocketTimeout
 
 try: # Python 3
-    from http.client import HTTPConnection, HTTPException
+    from http.client import HTTPConnection as _HTTPConnection, HTTPException
 except ImportError:
-    from httplib import HTTPConnection, HTTPException
+    from httplib import HTTPConnection as _HTTPConnection, HTTPException
 
 class DummyConnection(object):
     "Used to detect a failed ConnectionCls import."
@@ -24,9 +25,9 @@ try: # Compiled with SSL?
         pass
 
     try: # Python 3
-        from http.client import HTTPSConnection
+        from http.client import HTTPSConnection as _HTTPSConnection
     except ImportError:
-        from httplib import HTTPSConnection
+        from httplib import HTTPSConnection as _HTTPSConnection
 
     import ssl
     BaseSSLError = ssl.SSLError
@@ -38,12 +39,91 @@ from .exceptions import (
     ConnectTimeoutError,
 )
 from .packages.ssl_match_hostname import match_hostname
+from .packages import six
 from .util import (
     assert_fingerprint,
     resolve_cert_reqs,
     resolve_ssl_version,
     ssl_wrap_socket,
 )
+
+
+port_by_scheme = {
+    'http': 80,
+    'https': 443,
+}
+
+
+class HTTPConnection(_HTTPConnection, object):
+    """
+    Based on httplib.HTTPConnection but provides an extra constructor
+    backwards-compatibility layer between older and newer Pythons.
+    """
+
+    default_port = port_by_scheme['http']
+
+    # By default, disable Nagle's Algorithm.
+    tcp_nodelay = 1
+
+    def __init__(self, *args, **kw):
+        if six.PY3:  # Python 3
+            kw.pop('strict', None)
+
+        if sys.version_info < (2, 7):  # Python 2.6 and earlier
+            kw.pop('source_address', None)
+            self.source_address = None
+
+        _HTTPConnection.__init__(self, *args, **kw)
+
+    def _new_conn(self):
+        """ Establish a socket connection and set nodelay settings on it
+
+        :return: a new socket connection
+        """
+        extra_args = []
+        if self.source_address:  # Python 2.7+
+            extra_args.append(self.source_address)
+
+        conn = socket.create_connection(
+            (self.host, self.port),
+            self.timeout,
+            *extra_args
+        )
+        conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY,
+                        self.tcp_nodelay)
+        return conn
+
+    def _prepare_conn(self, conn):
+        self.sock = conn
+        if self._tunnel_host:
+            # TODO: Fix tunnel so it doesn't depend on self.sock state.
+            self._tunnel()
+
+    def connect(self):
+        conn = self._new_conn()
+        self._prepare_conn(conn)
+
+
+class HTTPSConnection(HTTPConnection):
+    default_port = port_by_scheme['https']
+
+    def __init__(self, host, port=None, key_file=None, cert_file=None,
+                 strict=None, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
+                 source_address=None):
+
+        HTTPConnection.__init__(self, host, port,
+                                strict=strict,
+                                timeout=timeout,
+                                source_address=source_address)
+
+        self.key_file = key_file
+        self.cert_file = cert_file
+
+    def connect(self):
+        conn = self._new_conn()
+        self._prepare_conn(conn)
+        self.sock = ssl.wrap_socket(conn, self.key_file, self.cert_file)
+
 
 class VerifiedHTTPSConnection(HTTPSConnection):
     """
@@ -73,9 +153,12 @@ class VerifiedHTTPSConnection(HTTPSConnection):
                 timeout=self.timeout,
             )
         except SocketTimeout:
-                raise ConnectTimeoutError(
-                    self, "Connection to %s timed out. (connect timeout=%s)" %
-                    (self.host, self.timeout))
+            raise ConnectTimeoutError(
+                self, "Connection to %s timed out. (connect timeout=%s)" %
+                (self.host, self.timeout))
+
+        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY,
+                        self.tcp_nodelay)
 
         resolved_cert_reqs = resolve_cert_reqs(self.cert_reqs)
         resolved_ssl_version = resolve_ssl_version(self.ssl_version)
@@ -107,4 +190,6 @@ class VerifiedHTTPSConnection(HTTPSConnection):
 
 
 if ssl:
+    # Make a copy for testing.
+    UnverifiedHTTPSConnection = HTTPSConnection
     HTTPSConnection = VerifiedHTTPSConnection

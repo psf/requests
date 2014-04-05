@@ -234,10 +234,10 @@ Requests makes it simple to upload Multipart-encoded files::
       ...
     }
 
-You can set the filename explicitly::
+You can set the filename, content_type and headers explicitly:
 
     >>> url = 'http://httpbin.org/post'
-    >>> files = {'file': ('report.xls', open('report.xls', 'rb'))}
+    >>> files = {'file': ('report.xls', open('report.xls', 'rb'), 'application/vnd.ms-excel', {'Expires': '0'})}
 
     >>> r = requests.post(url, files=files)
     >>> r.text
@@ -263,6 +263,12 @@ If you want, you can send strings to be received as files::
       },
       ...
     }
+
+In the event you are posting a very large file as a ``multipart/form-data`` 
+request, you may want to stream the request. By default, ``requests`` does not 
+support this, but there is a separate package which does - 
+``requests-toolbelt``. You should read `the toolbelt's documentation 
+<https://toolbelt.rtfd.org>`_ for more details about how to use it.
 
 
 Response Status Codes
