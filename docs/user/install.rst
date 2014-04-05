@@ -12,11 +12,11 @@ Distribute & Pip
 
 Installing Requests is simple with `pip <http://www.pip-installer.org/>`_, just run this in your terminal::
 
-    pip install requests
+    $ pip install requests
 
 or, with `easy_install <http://pypi.python.org/pypi/setuptools>`_::
 
-    easy_install requests
+    $ easy_install requests
 
 But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/other-tools.html#pip-compared-to-easy-install>`_.
 
@@ -39,7 +39,7 @@ Requests is actively developed on GitHub, where the code is
 
 You can either clone the public repository::
 
-    git clone git://github.com/kennethreitz/requests.git
+    $ git clone git://github.com/kennethreitz/requests.git
 
 Download the `tarball <https://github.com/kennethreitz/requests/tarball/master>`_::
 
