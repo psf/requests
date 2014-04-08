@@ -21,16 +21,6 @@ or, with `easy_install <http://pypi.python.org/pypi/setuptools>`_::
 But, you really `shouldn't do that <http://www.pip-installer.org/en/latest/other-tools.html#pip-compared-to-easy-install>`_.
 
 
-
-Cheeseshop (PyPI) Mirror
-------------------------
-
-If the Cheeseshop (a.k.a. PyPI) is down, you can also install Requests from one
-of the mirrors. `Crate.io <http://crate.io>`_ is one of them::
-
-    $ pip install -i http://simple.crate.io/ requests
-
-
 Get the Code
 ------------
 
