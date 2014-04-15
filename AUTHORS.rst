@@ -10,7 +10,7 @@ Core Contributors
 `````````````````
 
 - Cory Benfield <cory@lukasa.co.uk> `@lukasa <https://github.com/lukasa>`_
-- Ian Cordasco <graffatcolmingov@gmail.com> `@sigmavirus42 <https://github.com/lukasa>`_
+- Ian Cordasco <graffatcolmingov@gmail.com> `@sigmavirus42 <https://github.com/sigmavirus42>`_
 
 
 
