@@ -44,6 +44,11 @@ class ProxyError(HTTPError):
     pass
 
 
+class ConnectionError(HTTPError):
+    "Raised when a normal connection fails."
+    pass
+
+
 class DecodeError(HTTPError):
     "Raised when automatic decoding based on Content-Type fails."
     pass

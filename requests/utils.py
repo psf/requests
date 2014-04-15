@@ -61,7 +61,7 @@ def super_len(o):
             return os.fstat(fileno).st_size
 
     if hasattr(o, 'getvalue'):
-        # e.g. BytesIO, cStringIO.StringI
+        # e.g. BytesIO, cStringIO.StringIO
         return len(o.getvalue())
 
 
