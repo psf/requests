@@ -4,7 +4,14 @@ various contributors:
 Development Lead
 ````````````````
 
-- Kenneth Reitz <me@kennethreitz.com>
+- Kenneth Reitz <me@kennethreitz.org> @kennethreitz
+
+Core Contributors
+`````````````````
+
+- Cory Benfield <cory@lukasa.co.uk> @lukasa
+- Ian Cordasco <graffatcolmingov@gmail.com> @sigmavirus42
+
 
 
 Urllib3
