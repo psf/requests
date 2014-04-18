@@ -87,7 +87,6 @@ Patches and Suggestions
 - David Kemp
 - Brendon Crawford
 - Denis (Telofy)
-- Cory Benfield (Lukasa)
 - Matt Giuca
 - Adam Tauber
 - Honza Javorek
@@ -118,7 +117,6 @@ Patches and Suggestions
 - Leila Muhtasib
 - Matthias Rahlf <matthias@webding.de>
 - Jakub Roztocil <jakub@roztocil.name>
-- Ian Cordasco <graffatcolmingov@gmail.com> @sigmavirus24
 - Rhys Elsmore
 - André Graf (dergraf)
 - Stephen Zhuang (everbird)
