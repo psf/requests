@@ -1,4 +1,7 @@
-'''SSL with SNI_-support for Python 2.
+'''SSL with SNI_-support for Python 2. Follow these instructions if you would
+like to verify SSL certificates in Python 2. Note, the default libraries do
+*not* do certificate checking; you need to do additional work to validate
+certificates yourself.
 
 This needs the following packages installed:
 
@@ -6,9 +9,15 @@ This needs the following packages installed:
 * ndg-httpsclient (tested with 0.3.2)
 * pyasn1 (tested with 0.1.6)
 
-To activate it call :func:`~urllib3.contrib.pyopenssl.inject_into_urllib3`.
-This can be done in a ``sitecustomize`` module, or at any other time before
-your application begins using ``urllib3``, like this::
+You can install them with the following command:
+
+    pip install pyopenssl ndg-httpsclient pyasn1
+
+To activate certificate checking, call
+:func:`~urllib3.contrib.pyopenssl.inject_into_urllib3` from your Python code
+before you begin making HTTP requests. This can be done in a ``sitecustomize``
+module, or at any other time before your application begins using ``urllib3``,
+like this::
 
     try:
         import urllib3.contrib.pyopenssl
