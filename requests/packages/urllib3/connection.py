@@ -68,15 +68,17 @@ class HTTPConnection(_HTTPConnection, object):
     def __init__(self, *args, **kw):
         if six.PY3:  # Python 3
             kw.pop('strict', None)
-
-        if sys.version_info < (2, 7):  # Python 2.6 and earlier
+        if sys.version_info < (2, 7):  # Python 2.6 and older
             kw.pop('source_address', None)
-            self.source_address = None
 
-        _HTTPConnection.__init__(self, *args, **kw)
+        # Pre-set source_address in case we have an older Python like 2.6.
+        self.source_address = kw.get('source_address')
+
+        # Superclass also sets self.source_address in Python 2.7+.
+        _HTTPConnection.__init__(self, *args, **kw)  
 
     def _new_conn(self):
-        """ Establish a socket connection and set nodelay settings on it
+        """ Establish a socket connection and set nodelay settings on it.
 
         :return: a new socket connection
         """
@@ -85,12 +87,10 @@ class HTTPConnection(_HTTPConnection, object):
             extra_args.append(self.source_address)
 
         conn = socket.create_connection(
-            (self.host, self.port),
-            self.timeout,
-            *extra_args
-        )
-        conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY,
-                        self.tcp_nodelay)
+            (self.host, self.port), self.timeout, *extra_args)
+        conn.setsockopt(
+            socket.IPPROTO_TCP, socket.TCP_NODELAY, self.tcp_nodelay)
+
         return conn
 
     def _prepare_conn(self, conn):
@@ -108,16 +108,17 @@ class HTTPSConnection(HTTPConnection):
     default_port = port_by_scheme['https']
 
     def __init__(self, host, port=None, key_file=None, cert_file=None,
-                 strict=None, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
-                 source_address=None):
+                 strict=None, timeout=socket._GLOBAL_DEFAULT_TIMEOUT, **kw):
 
-        HTTPConnection.__init__(self, host, port,
-                                strict=strict,
-                                timeout=timeout,
-                                source_address=source_address)
+        HTTPConnection.__init__(self, host, port, strict=strict,
+                                timeout=timeout, **kw)
 
         self.key_file = key_file
         self.cert_file = cert_file
+
+        # Required property for Google AppEngine 1.9.0 which otherwise causes
+        # HTTPS requests to go out as HTTP. (See Issue #356)
+        self._protocol = 'https'
 
     def connect(self):
         conn = self._new_conn()
@@ -133,6 +134,7 @@ class VerifiedHTTPSConnection(HTTPSConnection):
     cert_reqs = None
     ca_certs = None
     ssl_version = None
+    conn_kw = {}
 
     def set_cert(self, key_file=None, cert_file=None,
                  cert_reqs=None, ca_certs=None,
@@ -147,11 +149,11 @@ class VerifiedHTTPSConnection(HTTPSConnection):
 
     def connect(self):
         # Add certificate verification
+
         try:
             sock = socket.create_connection(
-                address=(self.host, self.port),
-                timeout=self.timeout,
-            )
+                address=(self.host, self.port), timeout=self.timeout,
+                **self.conn_kw)
         except SocketTimeout:
             raise ConnectTimeoutError(
                 self, "Connection to %s timed out. (connect timeout=%s)" %
