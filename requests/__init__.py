@@ -52,8 +52,9 @@ __copyright__ = 'Copyright 2014 Kenneth Reitz'
 try:
     from .packages.urllib3.contrib import pyopenssl
     pyopenssl.inject_into_urllib3()
+    _ssl_backend = 'PyOpenSSL'
 except ImportError:
-    pass
+    _ssl_backend = 'stdlib'
 
 from . import utils
 from .models import Request, Response, PreparedRequest
