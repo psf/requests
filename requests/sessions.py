@@ -218,11 +218,11 @@ class SessionRedirectMixin(object):
         """
         headers = prepared_request.headers
         url = prepared_request.url
-        new_proxies = {}
+        scheme = urlparse(url).scheme
+        new_proxies = proxies.copy() if proxies is not None else {}
 
-        if not should_bypass_proxies(url):
+        if self.trust_env and not should_bypass_proxies(url):
             environ_proxies = get_environ_proxies(url)
-            scheme = urlparse(url).scheme
 
             proxy = environ_proxies.get(scheme)
 
