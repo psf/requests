@@ -64,14 +64,6 @@ To install Requests, simply:
 
     $ pip install requests
 
-Or, if you absolutely must:
-
-.. code-block:: bash
-
-    $ easy_install requests
-
-But, you really shouldn't do that.
-
 
 Documentation
 -------------
