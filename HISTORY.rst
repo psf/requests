@@ -3,7 +3,7 @@
 Release History
 ---------------
 
-2.3.0 (YYYY-MM-DD)
+X.X.X (YYYY-MM-DD)
 ++++++++++++++++++
 
 **API Changes**
