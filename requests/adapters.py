@@ -16,7 +16,7 @@ from .packages.urllib3.response import HTTPResponse
 from .packages.urllib3.util import Timeout as TimeoutSauce
 from .compat import urlparse, basestring, urldefrag, unquote
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
-                    except_on_missing_scheme, get_auth_from_url)
+                    prepend_scheme_if_needed, get_auth_from_url)
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import TimeoutError
@@ -203,7 +203,7 @@ class HTTPAdapter(BaseAdapter):
         proxy = proxies.get(urlparse(url.lower()).scheme)
 
         if proxy:
-            except_on_missing_scheme(proxy)
+            proxy = prepend_scheme_if_needed(proxy, 'http')
             proxy_headers = self.proxy_headers(proxy)
 
             if not proxy in self.proxy_manager:
