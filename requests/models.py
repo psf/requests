@@ -616,11 +616,10 @@ class Response(object):
         large responses.  The chunk size is the number of bytes it should
         read into memory.  This is not necessarily the length of each item
         returned as decoding can take place.
-        """
-        if self._content_consumed:
-            # simulate reading small chunks of the content
-            return iter_slices(self._content, chunk_size)
 
+        If decode_unicode is True, content will be decoded using the best
+        available encoding based on the response.
+        """
         def generate():
             try:
                 # Special case for urllib3.
@@ -641,12 +640,17 @@ class Response(object):
 
             self._content_consumed = True
 
-        gen = generate()
+        # simulate reading small chunks of the content
+        reused_chunks = iter_slices(self._content, chunk_size)
+
+        stream_chunks = generate()
+
+        chunks = reused_chunks if self._content_consumed else stream_chunks
 
         if decode_unicode:
-            gen = stream_decode_response_unicode(gen, self)
+            chunks = stream_decode_response_unicode(chunks, self)
 
-        return gen
+        return chunks
 
     def iter_lines(self, chunk_size=ITER_CHUNK_SIZE, decode_unicode=None):
         """Iterates over the response data, one line at a time.  When
