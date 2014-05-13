@@ -111,7 +111,7 @@ request. The simple recipe for this is the following::
 Since you are not doing anything special with the ``Request`` object, you
 prepare it immediately and modify the ``PreparedRequest`` object. You then
 send that with the other parameters you would have sent to ``requests.*`` or
-``Sesssion.*``.
+``Session.*``.
 
 However, the above code will lose some of the advantages of having a Requests
 :class:`Session <requests.Session>` object. In particular,
