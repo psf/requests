@@ -3,7 +3,7 @@
 Release History
 ---------------
 
-X.X.X (YYYY-MM-DD)
+2.3.0 (2014-05-12)
 ++++++++++++++++++
 
 **API Changes**
@@ -13,11 +13,24 @@ X.X.X (YYYY-MM-DD)
   or not it actually did).
 - The ``timeout`` parameter now affects requests with both ``stream=True`` and
   ``stream=False`` equally.
+- The change in v2.0.0 to mandate explicit proxy schemes has been reverted.
+  Proxy schemes now default to ``http://``.
+- The ``CaseInsensitiveDict`` used for HTTP headers now behaves like a normal
+  dictionary when printed as a string or in the interpreter.
 
 **Bugfixes**
 
 - No longer expose Authorization or Proxy-Authorization headers on redirect.
   Fix CVE-2014-1829 and CVE-2014-1830 respectively.
+- Authorization is re-evaluated each redirect.
+- On redirect, pass url as native strings.
+- Fall-back to autodetected encoding for JSON when Unicode detection fails.
+- Headers set to ``None`` on the ``Session`` are now correctly not sent.
+- Correctly honor ``decode_unicode`` even if it wasn't used earlier in the same
+  response.
+- Stop advertising ``compress`` as a supported Content-Encoding.
+- The ``Response.history`` parameter is now always a list.
+- Many, many ``urllib3`` bugfixes.
 
 2.2.1 (2014-01-23)
 ++++++++++++++++++
