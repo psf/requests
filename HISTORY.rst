@@ -3,7 +3,7 @@
 Release History
 ---------------
 
-2.3.0 (2014-05-12)
+2.3.0 (2014-05-16)
 ++++++++++++++++++
 
 **API Changes**
@@ -16,7 +16,7 @@ Release History
 - The change in v2.0.0 to mandate explicit proxy schemes has been reverted.
   Proxy schemes now default to ``http://``.
 - The ``CaseInsensitiveDict`` used for HTTP headers now behaves like a normal
-  dictionary when printed as a string or in the interpreter.
+  dictionary when references as string or viewd in the interpreter.
 
 **Bugfixes**
 
