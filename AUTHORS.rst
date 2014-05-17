@@ -152,3 +152,4 @@ Patches and Suggestions
 - Michael Becker <mike@beckerfuffle.com> @beckerfuffle
 - Erik Wickstrom <erik@erikwickstrom.com> @erikwickstrom
 - Константин Подшумок @podshumok
+- Ben Bass @codedstructure
