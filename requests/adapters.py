@@ -118,6 +118,24 @@ class HTTPAdapter(BaseAdapter):
         self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize,
                                        block=block)
 
+    def proxy_manager_for(self, proxy):
+        """Return urllib3 ProxyManager for the given proxy. This method should
+        not be called from user code, and is only exposed for use when
+        subclassing the :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
+
+        :param proxy: The proxy to return a urllib3 ProxyManager for.
+        """
+        if not proxy in self.proxy_manager:
+            proxy_headers = self.proxy_headers(proxy)
+            self.proxy_manager[proxy] = proxy_from_url(
+                                            proxy,
+                                            proxy_headers=proxy_headers,
+                                            num_pools=self._pool_connections,
+                                            maxsize=self._pool_maxsize,
+                                            block=self._pool_block)
+
+        return self.proxy_manager[proxy]
+
     def cert_verify(self, conn, url, verify, cert):
         """Verify a SSL certificate. This method should not be called from user
         code, and is only exposed for use when subclassing the
@@ -204,17 +222,8 @@ class HTTPAdapter(BaseAdapter):
 
         if proxy:
             proxy = prepend_scheme_if_needed(proxy, 'http')
-            proxy_headers = self.proxy_headers(proxy)
-
-            if not proxy in self.proxy_manager:
-                self.proxy_manager[proxy] = proxy_from_url(
-                                                proxy,
-                                                proxy_headers=proxy_headers,
-                                                num_pools=self._pool_connections,
-                                                maxsize=self._pool_maxsize,
-                                                block=self._pool_block)
-
-            conn = self.proxy_manager[proxy].connection_from_url(url)
+            proxy_manager = self.proxy_manager_for(proxy)
+            conn = proxy_manager.connection_from_url(url)
         else:
             # Only scheme should be lower case
             parsed = urlparse(url)
