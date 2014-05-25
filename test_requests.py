@@ -16,7 +16,7 @@ import pytest
 from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth
 from requests.compat import (
-    Morsel, cookielib, getproxies, str, urljoin, urlparse)
+    Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import InvalidURL, MissingSchema
 from requests.models import PreparedRequest, Response
@@ -29,6 +29,14 @@ try:
     import StringIO
 except ImportError:
     import io as StringIO
+
+if is_py3:
+    def u(s):
+        return s
+else:
+    def u(s):
+        return s.decode('unicode-escape')
+
 
 HTTPBIN = os.environ.get('HTTPBIN_URL', 'http://httpbin.org/')
 # Issue #1483: Make sure the URL always has a trailing slash
@@ -409,7 +417,7 @@ class RequestsTestCase(unittest.TestCase):
         url = httpbin('post')
         with open('requirements.txt') as f:
             pytest.raises(ValueError, "requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})")
-            pytest.raises(ValueError, "requests.post(url, data=u'[{\"some\": \"data\"}]', files={'some': f})")
+            pytest.raises(ValueError, "requests.post(url, data=u('[{\"some\": \"data\"}]'), files={'some': f})")
 
     def test_request_ok_set(self):
         r = requests.get(httpbin('status', '404'))
@@ -456,12 +464,12 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_unicode_multipart_post(self):
         r = requests.post(httpbin('post'),
-                          data={'stuff': u'ëlïxr'},
+                          data={'stuff': u('ëlïxr')},
                           files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
         r = requests.post(httpbin('post'),
-                          data={'stuff': u'ëlïxr'.encode('utf-8')},
+                          data={'stuff': u('ëlïxr').encode('utf-8')},
                           files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
@@ -488,7 +496,7 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_unicode_method_name(self):
         files = {'file': open('test_requests.py', 'rb')}
-        r = requests.request(method=u'POST', url=httpbin('post'), files=files)
+        r = requests.request(method=u('POST'), url=httpbin('post'), files=files)
         assert r.status_code == 200
 
     def test_custom_content_type(self):
@@ -865,7 +873,7 @@ class RequestsTestCase(unittest.TestCase):
         assert r.url == url
 
     def test_header_keys_are_native(self):
-        headers = {u'unicode': 'blah', 'byte'.encode('ascii'): 'blah'}
+        headers = {u('unicode'): 'blah', 'byte'.encode('ascii'): 'blah'}
         r = requests.Request('GET', httpbin('get'), headers=headers)
         p = r.prepare()
 
