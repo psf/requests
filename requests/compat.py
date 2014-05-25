@@ -75,7 +75,9 @@ is_solaris = ('solar==' in str(sys.platform).lower())   # Complete guess.
 
 try:
     import simplejson as json
-except ImportError:
+except (ImportError, SyntaxError):
+    # simplejson does not support Python 3.2, it thows a SyntaxError
+    # because of u'...' Unicode literals.
     import json
 
 # ---------
