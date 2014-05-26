@@ -556,6 +556,10 @@ class Response(object):
         #: and the arrival of the response (as a timedelta)
         self.elapsed = datetime.timedelta(0)
 
+        #: The :class:`PreparedRequest <PreparedRequest>` object to which this
+        #: is a response.
+        self.request = None
+
     def __getstate__(self):
         # Consume everything; accessing the content attribute makes
         # sure the content has been fully read.
