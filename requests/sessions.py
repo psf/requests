@@ -517,14 +517,15 @@ class Session(SessionRedirectMixin):
 
         return self.request('PATCH', url,  data=data, **kwargs)
 
-    def delete(self, url, **kwargs):
+    def delete(self, url, data=None, **kwargs):
         """Sends a DELETE request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
+        :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         """
 
-        return self.request('DELETE', url, **kwargs)
+        return self.request('DELETE', url, data=data, **kwargs)
 
     def send(self, request, **kwargs):
         """Send a given PreparedRequest."""
