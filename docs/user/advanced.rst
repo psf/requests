@@ -229,7 +229,7 @@ Streaming Uploads
 
 Requests supports streaming uploads, which allow you to send large streams or files without reading them into memory. To stream and upload, simply provide a file-like object for your body::
 
-    with open('massive-body') as f:
+    with open('massive-body', 'rb') as f:
         requests.post('http://some.url/streamed', data=f)
 
 
