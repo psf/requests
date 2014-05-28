@@ -433,7 +433,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 if data:
                     body = self._encode_params(data)
-                    if isinstance(data, str) or isinstance(data, builtin_str) or hasattr(data, 'read'):
+                    if isinstance(data, basestring) or isinstance(data, builtin_str) or hasattr(data, 'read'):
                         content_type = None
                     else:
                         content_type = 'application/x-www-form-urlencoded'
