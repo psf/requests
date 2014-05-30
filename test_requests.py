@@ -1369,6 +1369,34 @@ def test_data_argument_accepts_tuples(list_of_tuples):
         )
         assert p.body == urlencode(data)
 
+def assert_copy(p, p_copy):
+    for attr in ('method', 'url', 'headers', '_cookies', 'body', 'hooks'):
+        assert getattr(p, attr) == getattr(p_copy, attr)
+
+def test_prepared_request_empty_copy():
+    p = PreparedRequest()
+    assert_copy(p, p.copy())
+
+def test_prepared_request_no_cookies_copy():
+    p = PreparedRequest()
+    p.prepare(
+        method='GET',
+        url='http://www.example.com',
+        data='foo=bar',
+        hooks=default_hooks()
+    )
+    assert_copy(p, p.copy())
+
+def test_prepared_request_complete_copy():
+    p = PreparedRequest()
+    p.prepare(
+        method='GET',
+        url='http://www.example.com',
+        data='foo=bar',
+        hooks=default_hooks(),
+        cookies={'foo': 'bar'}
+    )
+    assert_copy(p, p.copy())
 
 if __name__ == '__main__':
     unittest.main()

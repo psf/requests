@@ -309,8 +309,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         p = PreparedRequest()
         p.method = self.method
         p.url = self.url
-        p.headers = self.headers.copy()
-        p._cookies = self._cookies.copy()
+        p.headers = self.headers.copy() if self.headers is not None else None
+        p._cookies = self._cookies.copy() if self._cookies is not None else None
         p.body = self.body
         p.hooks = self.hooks
         return p
