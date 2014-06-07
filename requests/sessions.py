@@ -118,7 +118,7 @@ class SessionRedirectMixin(object):
             parsed = urlparse(url)
             url = parsed.geturl()
 
-            # Facilitate non-RFC2616-compliant 'location' headers
+            # Facilitate relative 'location' headers, as allowed by RFC 7231.
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
             # Compliant with RFC3986, we percent encode the url.
             if not urlparse(url).netloc:
@@ -128,7 +128,7 @@ class SessionRedirectMixin(object):
 
             prepared_request.url = to_native_string(url)
 
-            # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
+            # http://tools.ietf.org/html/rfc7231#section-6.4.4
             if (resp.status_code == codes.see_other and
                     method != 'HEAD'):
                 method = 'GET'
