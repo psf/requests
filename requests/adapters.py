@@ -135,12 +135,12 @@ class HTTPAdapter(BaseAdapter):
         if not proxy in self.proxy_manager:
             proxy_headers = self.proxy_headers(proxy)
             self.proxy_manager[proxy] = proxy_from_url(
-                                            proxy,
-                                            proxy_headers=proxy_headers,
-                                            num_pools=self._pool_connections,
-                                            maxsize=self._pool_maxsize,
-                                            block=self._pool_block,
-                                            **proxy_kwargs)
+                proxy,
+                proxy_headers=proxy_headers,
+                num_pools=self._pool_connections,
+                maxsize=self._pool_maxsize,
+                block=self._pool_block,
+                **proxy_kwargs)
 
         return self.proxy_manager[proxy]
 
