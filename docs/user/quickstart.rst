@@ -325,8 +325,8 @@ We can view the server's response headers using a Python dictionary::
     }
 
 The dictionary is special, though: it's made just for HTTP headers. According to
-`RFC 2616 <http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html>`_, HTTP
-Headers are case-insensitive.
+`RFC 7230 <http://tools.ietf.org/html/rfc7230#section-3.2>`_, HTTP Header names
+are case-insensitive.
 
 So, we can access the headers using any capitalization we want::
 
