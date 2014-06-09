@@ -16,7 +16,7 @@ from base64 import b64encode
 
 from .compat import urlparse, str
 from .cookies import extract_cookies_to_jar
-from .utils import parse_dict_header
+from .utils import parse_dict_header, to_native_string
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
@@ -25,7 +25,11 @@ CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
 def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
 
-    return 'Basic ' + b64encode(('%s:%s' % (username, password)).encode('latin1')).strip().decode('latin1')
+    authstr = 'Basic ' + to_native_string(
+        b64encode(('%s:%s' % (username, password)).encode('latin1')).strip()
+    )
+
+    return authstr
 
 
 class AuthBase(object):

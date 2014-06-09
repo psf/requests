@@ -14,9 +14,9 @@ import io
 import requests
 import pytest
 from requests.adapters import HTTPAdapter
-from requests.auth import HTTPDigestAuth
+from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
-    Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3)
+    Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3, builtin_str)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import InvalidURL, MissingSchema
 from requests.models import PreparedRequest, Response
@@ -963,6 +963,11 @@ class RequestsTestCase(unittest.TestCase):
         url = httpbin('redirect/1')
         self._patch_adapter_gzipped_redirect(s, url)
         s.get(url)
+
+    def test_basic_auth_str_is_always_native(self):
+        s = _basic_auth_str("test", "test")
+        assert isinstance(s, builtin_str)
+        assert s == "Basic dGVzdDp0ZXN0"
 
 
 class TestContentEncodingDetection(unittest.TestCase):
