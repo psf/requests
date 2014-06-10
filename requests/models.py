@@ -39,6 +39,7 @@ REDIRECT_STATI = (
     codes.found,  # 302
     codes.other,  # 303
     codes.temporary_moved,  # 307
+    codes.resume, # 308
 )
 DEFAULT_REDIRECT_LIMIT = 30
 CONTENT_CHUNK_SIZE = 10 * 1024
