@@ -404,8 +404,8 @@ class RequestsTestCase(unittest.TestCase):
         assert post1.status_code == 200
 
         with open('requirements.txt') as f:
-            post2 = requests.post(
-                url, data={'some': 'data'}, files={'some': f})
+            post2 = requests.post(url,
+                data={'some': 'data'}, files={'some': f})
         assert post2.status_code == 200
 
         post4 = requests.post(url, data='[{"some": "json"}]')
@@ -460,34 +460,29 @@ class RequestsTestCase(unittest.TestCase):
         assert r.url == httpbin('get?test=foo&test=baz')
 
     def test_different_encodings_dont_break_post(self):
-        r = requests.post(
-            httpbin('post'),
+        r = requests.post(httpbin('post'),
             data={'stuff': json.dumps({'a': 123})},
             params={'blah': 'asdf1234'},
             files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
     def test_unicode_multipart_post(self):
-        r = requests.post(
-            httpbin('post'),
+        r = requests.post(httpbin('post'),
             data={'stuff': u('ëlïxr')},
             files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
-        r = requests.post(
-            httpbin('post'),
+        r = requests.post(httpbin('post'),
             data={'stuff': u('ëlïxr').encode('utf-8')},
             files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
-        r = requests.post(
-            httpbin('post'),
+        r = requests.post(httpbin('post'),
             data={'stuff': 'elixr'},
             files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
-        r = requests.post(
-            httpbin('post'),
+        r = requests.post(httpbin('post'),
             data={'stuff': 'elixr'.encode('utf-8')},
             files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
