@@ -55,10 +55,11 @@ Features
 - HTTP(S) proxy support
 
 
-Installation
+Installation 安装方法
 ------------
 
 To install Requests, simply:
+安装方法如此的简单：
 
 .. code-block:: bash
 
