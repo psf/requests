@@ -276,6 +276,10 @@ class Session(SessionRedirectMixin):
         #: :class:`Request <Request>`.
         self.auth = None
 
+        #: Float describing the default timeout of each
+        #: :class:`Request <Request>` in seconds.
+        self.timeout = None
+
         #: Dictionary mapping protocol to the URL of the proxy (e.g.
         #: {'http': 'foo.bar:3128'}) to be used on each
         #: :class:`Request <Request>`.
@@ -443,6 +447,7 @@ class Session(SessionRedirectMixin):
         stream = merge_setting(stream, self.stream)
         verify = merge_setting(verify, self.verify)
         cert = merge_setting(cert, self.cert)
+        timeout = merge_setting(timeout, self.timeout)
 
         # Send the request.
         send_kwargs = {
