@@ -1304,6 +1304,13 @@ class TestTimeout:
         except requests.exceptions.Timeout as e:
             assert 'Read timed out' in e.args[0].args[0]
 
+    def test_session_timeout(self):
+        try:
+            session = requests.Session()
+            session.timeout = 5.0
+        except requests.exceptions.Timeout as e:
+            assert 'Read timed out' in e.args[0].args[0]
+
 
 SendCall = collections.namedtuple('SendCall', ('args', 'kwargs'))
 
