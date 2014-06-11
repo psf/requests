@@ -30,7 +30,7 @@ _codes = {
     305: ('use_proxy',),
     306: ('switch_proxy',),
     307: ('temporary_redirect', 'temporary_moved', 'temporary'),
-    308: ('resume_incomplete', 'resume'),
+    308: ('permanent_redirect',),
 
     # Client Error.
     400: ('bad_request', 'bad'),
