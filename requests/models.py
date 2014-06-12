@@ -611,6 +611,11 @@ class Response(object):
         return ('location' in self.headers and self.status_code in REDIRECT_STATI)
 
     @property
+    def is_permanent_redirect(self):
+        """True if this Response one of the permanant versions of redirect"""
+        return ('location' in self.headers and self.status_code in (codes.moved_permanently, codes.permanent_redirect))
+
+    @property
     def apparent_encoding(self):
         """The apparent encoding, provided by the chardet library"""
         return chardet.detect(self.content)['encoding']
