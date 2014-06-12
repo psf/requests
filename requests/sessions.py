@@ -127,6 +127,9 @@ class SessionRedirectMixin(object):
                 url = requote_uri(url)
 
             prepared_request.url = to_native_string(url)
+            # cache the url
+            if resp.is_permanent_redirect:
+                self.redirect_cache[req.url] = prepared_request.url
 
             # http://tools.ietf.org/html/rfc7231#section-6.4.4
             if (resp.status_code == codes.see_other and
@@ -263,7 +266,7 @@ class Session(SessionRedirectMixin):
     __attrs__ = [
         'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
         'params', 'verify', 'cert', 'prefetch', 'adapters', 'stream',
-        'trust_env', 'max_redirects']
+        'trust_env', 'max_redirects', 'redirect_cache']
 
     def __init__(self):
 
@@ -315,6 +318,8 @@ class Session(SessionRedirectMixin):
         self.adapters = OrderedDict()
         self.mount('https://', HTTPAdapter())
         self.mount('http://', HTTPAdapter())
+
+        self.redirect_cache = {}
 
     def __enter__(self):
         return self
@@ -539,6 +544,9 @@ class Session(SessionRedirectMixin):
         # Guard against that specific failure case.
         if not isinstance(request, PreparedRequest):
             raise ValueError('You can only send PreparedRequests.')
+
+        while request.url in self.redirect_cache:
+            request.url = self.redirect_cache.get(request.url)
 
         # Set up variables needed for resolve_redirects and dispatching of hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
