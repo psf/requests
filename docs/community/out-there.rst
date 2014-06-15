@@ -30,4 +30,3 @@ Articles & Talks
 - `Issac Kelly's 'Consuming Web APIs' talk <http://issackelly.github.com/Consuming-Web-APIs-with-Python-Talk/slides/slides.html>`_
 - `Blog post about Requests via Yum <http://arunsag.wordpress.com/2011/08/17/new-package-python-requests-http-for-humans/>`_
 - `Russian blog post introducing Requests <http://habrahabr.ru/blogs/python/126262/>`_
-- `French blog post introducing Requests <http://www.nicosphere.net/requests-urllib2-de-python-simplifie-2432/>`_
