@@ -40,6 +40,10 @@ def request(method, url, **kwargs):
       <Response [200]>
     """
 
+    if method.lower() == 'head':
+        kwargs.setdefault('allow_redirects', False)
+    elif method.lower() in ['options', 'get']:
+        kwargs.setdefault('allow_redirects', True)
     session = sessions.Session()
     return session.request(method=method, url=url, **kwargs)
 
@@ -51,7 +55,6 @@ def get(url, **kwargs):
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     """
 
-    kwargs.setdefault('allow_redirects', True)
     return request('get', url, **kwargs)
 
 
@@ -62,7 +65,6 @@ def options(url, **kwargs):
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     """
 
-    kwargs.setdefault('allow_redirects', True)
     return request('options', url, **kwargs)
 
 
@@ -73,7 +75,6 @@ def head(url, **kwargs):
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     """
 
-    kwargs.setdefault('allow_redirects', False)
     return request('head', url, **kwargs)
 
 
