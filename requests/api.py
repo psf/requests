@@ -42,8 +42,6 @@ def request(method, url, **kwargs):
 
     if method.lower() == 'head':
         kwargs.setdefault('allow_redirects', False)
-    elif method.lower() in ['options', 'get']:
-        kwargs.setdefault('allow_redirects', True)
     session = sessions.Session()
     return session.request(method=method, url=url, **kwargs)
 
