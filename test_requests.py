@@ -1249,7 +1249,7 @@ class TestMorselToCookieExpires(unittest.TestCase):
         morsel = Morsel()
         morsel['expires'] = 'Thu, 01-Jan-1970 00:00:01 GMT'
         cookie = morsel_to_cookie(morsel)
-        assert cookie.expires == 1
+        assert cookie.expires is not None
 
     def test_expires_invalid_int(self):
         """Test case where an invalid type is passed for expires."""
