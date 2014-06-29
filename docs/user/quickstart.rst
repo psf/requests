@@ -391,7 +391,7 @@ redirection handling with the ``allow_redirects`` parameter::
 
 If you're using HEAD, you can enable redirection as well::
 
-    >>> r = requests.post('http://github.com', allow_redirects=True)
+    >>> r = requests.head('http://github.com', allow_redirects=True)
     >>> r.url
     'https://github.com/'
     >>> r.history
