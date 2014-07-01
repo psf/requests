@@ -320,6 +320,9 @@ class Session(SessionRedirectMixin):
         self.mount('http://', HTTPAdapter())
 
         self.redirect_cache = {}
+        
+        # Session timeout
+        self.timeout = None
 
     def __enter__(self):
         return self
@@ -448,6 +451,7 @@ class Session(SessionRedirectMixin):
         stream = merge_setting(stream, self.stream)
         verify = merge_setting(verify, self.verify)
         cert = merge_setting(cert, self.cert)
+        timeout = merge_settting(timeout, self.timeout)
 
         # Send the request.
         send_kwargs = {
