@@ -436,11 +436,11 @@ class Session(SessionRedirectMixin):
                 proxies.setdefault(k, v)
 
             # Look for configuration.
-            if not verify and verify is not False:
+            if verify is True or verify is None:
                 verify = os.environ.get('REQUESTS_CA_BUNDLE')
 
             # Curl compatibility.
-            if not verify and verify is not False:
+            if verify is True or verify is None:
                 verify = os.environ.get('CURL_CA_BUNDLE')
 
         # Merge all the kwargs.
