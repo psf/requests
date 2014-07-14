@@ -661,7 +661,7 @@ SSLv3:
                                            block=block,
                                            ssl_version=ssl.PROTOCOL_SSLv3)
 
-.. _`described here`: http://kennethreitz.org/exposures/the-future-of-python-http
+.. _`described here`: http://www.kennethreitz.org/essays/the-future-of-python-http
 .. _`urllib3`: https://github.com/shazow/urllib3
 
 Blocking Or Non-Blocking?
