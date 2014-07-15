@@ -362,11 +362,16 @@ parameter::
 Redirection and History
 -----------------------
 
-Requests will automatically perform location redirection for all verbs except
+By default Requests will perform location redirection for all verbs except
 HEAD.
 
-GitHub redirects all HTTP requests to HTTPS. We can use the ``history`` method
-of the Response object to track redirection. Let's see what GitHub does::
+We can use the ``history`` property of the Response object to track redirection.
+
+The :meth:`Response.history` list contains the :class:`Request` objects that
+were created in order to complete the request. The list is sorted from the
+oldest to the most recent request.
+
+For example, GitHub redirects all HTTP requests to HTTPS::
 
     >>> r = requests.get('http://github.com')
     >>> r.url
@@ -376,9 +381,6 @@ of the Response object to track redirection. Let's see what GitHub does::
     >>> r.history
     [<Response [301]>]
 
-The :class:`Response.history` list contains the :class:`Request` objects that
-were created in order to complete the request. The list is sorted from the
-oldest to the most recent request.
 
 If you're using GET, OPTIONS, POST, PUT, PATCH or DELETE, you can disable
 redirection handling with the ``allow_redirects`` parameter::
