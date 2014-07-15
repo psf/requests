@@ -47,8 +47,8 @@ Testimonials
 
 Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
 PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
-Post, Twitter, SoundCloud, Kippt, Readability, and Federal US Institutions use
-Requests internally. It has been downloaded over 16,000,000 times from PyPI.
+Post, Twitter, SoundCloud, Kippt, Readability, Sony, and Federal US Institutions
+use Requests internally. It has been downloaded over 16,000,000 times from PyPI.
 
 **Armin Ronacher**
     Requests is the perfect example how beautiful an API can be with the
