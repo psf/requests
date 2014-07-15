@@ -340,7 +340,7 @@ So, we can access the headers using any capitalization we want::
 Cookies
 -------
 
-If a response contains some Cookies, you can get quick access to them::
+If a response contains some Cookies, you can quickly access them::
 
     >>> url = 'http://example.com/some/cookie/setting/url'
     >>> r = requests.get(url)
@@ -424,7 +424,7 @@ Errors and Exceptions
 In the event of a network problem (e.g. DNS failure, refused connection, etc),
 Requests will raise a :class:`~requests.exceptions.ConnectionError` exception.
 
-In the event of the rare invalid HTTP response, Requests will raise an
+In the rare event of an invalid HTTP response, Requests will raise an
 :class:`~requests.exceptions.HTTPError` exception.
 
 If a request times out, a :class:`~requests.exceptions.Timeout` exception is
