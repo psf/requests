@@ -10,7 +10,8 @@ The first step to using any software package is getting it properly installed.
 Distribute & Pip
 ----------------
 
-Installing Requests is simple with `pip <http://www.pip-installer.org/>`_, just run this in your terminal::
+Installing Requests is simple with `pip <https://pip.pypa.io>`_, just run
+this in your terminal::
 
     $ pip install requests
 
