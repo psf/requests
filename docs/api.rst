@@ -53,6 +53,7 @@ Exceptions
 .. autoexception:: requests.exceptions.HTTPError
 .. autoexception:: requests.exceptions.URLRequired
 .. autoexception:: requests.exceptions.TooManyRedirects
+.. autoexception:: requests.exceptions.Timeout
 
 
 Status Code Lookup
