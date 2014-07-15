@@ -423,7 +423,7 @@ like so::
 We should confirm that GitHub responded correctly. If it has, we want to work
 out what type of content it is. Do this like so::
 
-    >>> if (r.status_code == requests.codes.ok):
+    >>> if r.status_code == requests.codes.ok:
     ...     print r.headers['content-type']
     ...
     application/json; charset=utf-8
