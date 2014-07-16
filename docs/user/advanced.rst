@@ -80,7 +80,7 @@ request, and then the request's headers::
 Prepared Requests
 -----------------
 
-Whenever you receive a :class:`Response <requests.models.Response>` object
+Whenever you receive a :class:`Response <requests.Response>` object
 from an API call or a Session call, the ``request`` attribute is actually the
 ``PreparedRequest`` that was used. In some cases you may wish to do some extra
 work to the body or headers (or anything else really) before sending a
@@ -117,7 +117,7 @@ However, the above code will lose some of the advantages of having a Requests
 :class:`Session <requests.Session>` object. In particular,
 :class:`Session <requests.Session>`-level state such as cookies will
 not get applied to your request. To get a
-:class:`PreparedRequest <requests.models.PreparedRequest>` with that state
+:class:`PreparedRequest <requests.PreparedRequest>` with that state
 applied, replace the call to :meth:`Request.prepare()
 <requests.Request.prepare>` with a call to
 :meth:`Session.prepare_request() <requests.Session.prepare_request>`, like this::
