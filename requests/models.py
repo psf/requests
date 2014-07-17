@@ -190,6 +190,7 @@ class Request(RequestHooksMixin):
     :param headers: dictionary of headers to send.
     :param files: dictionary of {filename: fileobject} files to multipart upload.
     :param data: the body to attach the request. If a dictionary is provided, form-encoding will take place.
+    :param json: json for the body to attach the request.
     :param params: dictionary of URL parameters to append to the URL.
     :param auth: Auth handler or (user, pass) tuple.
     :param cookies: dictionary or CookieJar of cookies to attach to this request.
@@ -209,6 +210,7 @@ class Request(RequestHooksMixin):
         headers=None,
         files=None,
         data=None,
+        json=None,
         params=None,
         auth=None,
         cookies=None,
@@ -216,6 +218,7 @@ class Request(RequestHooksMixin):
 
         # Default empty dicts for dict params.
         data = [] if data is None else data
+        json = [] if json is None else json
         files = [] if files is None else files
         headers = {} if headers is None else headers
         params = {} if params is None else params
@@ -230,6 +233,7 @@ class Request(RequestHooksMixin):
         self.headers = headers
         self.files = files
         self.data = data
+        self.json = json
         self.params = params
         self.auth = auth
         self.cookies = cookies
@@ -246,6 +250,7 @@ class Request(RequestHooksMixin):
             headers=self.headers,
             files=self.files,
             data=self.data,
+            json=self.json,
             params=self.params,
             auth=self.auth,
             cookies=self.cookies,
@@ -289,7 +294,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.hooks = default_hooks()
 
     def prepare(self, method=None, url=None, headers=None, files=None,
-                data=None, params=None, auth=None, cookies=None, hooks=None):
+                data=None, json=None, params=None, auth=None, cookies=None, hooks=None):
         """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)
@@ -397,7 +402,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         else:
             self.headers = CaseInsensitiveDict()
 
-    def prepare_body(self, data, files):
+    def prepare_body(self, data, files, _json=None):
         """Prepares the given HTTP body data."""
 
         # Check if file, fo, generator, iterator.
@@ -407,6 +412,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         body = None
         content_type = None
         length = None
+
+        if _json is not None:
+            content_type = 'application/json'
+            data = json.dumps(_json)
 
         is_stream = all([
             hasattr(data, '__iter__'),
@@ -435,10 +444,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 if data:
                     body = self._encode_params(data)
-                    if isinstance(data, basestring) or hasattr(data, 'read'):
-                        content_type = None
-                    else:
-                        content_type = 'application/x-www-form-urlencoded'
+                    if not _json:
+                        if isinstance(data, basestring) or hasattr(data, 'read'):
+                            content_type = None
+                        else:
+                            content_type = 'application/x-www-form-urlencoded'
 
             self.prepare_content_length(body)
 
