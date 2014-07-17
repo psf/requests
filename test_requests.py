@@ -986,6 +986,14 @@ class RequestsTestCase(unittest.TestCase):
             assert item.history == total[0:i]
             i=i+1
 
+    def test_json_param_post_content_type_works(self):
+        r = requests.post(
+            httpbin('post'),
+            json={'life': 42}
+        )
+        assert r.status_code == 200
+        assert 'application/json' in r.headers['Content-Type']
+
 
 class TestContentEncodingDetection(unittest.TestCase):
 
