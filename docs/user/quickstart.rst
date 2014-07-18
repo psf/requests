@@ -6,8 +6,7 @@ Quickstart
 .. module:: requests.models
 
 Eager to get started? This page gives a good introduction in how to get started
-with Requests. This assumes you already have Requests installed. If you do not,
-head over to the :ref:`Installation <install>` section.
+with Requests.
 
 First, make sure that:
 
