@@ -194,7 +194,7 @@ dictionary of data will automatically be form-encoded when the request is made::
 
     >>> payload = {'key1': 'value1', 'key2': 'value2'}
     >>> r = requests.post("http://httpbin.org/post", data=payload)
-    >>> print r.text
+    >>> print(r.text)
     {
       ...
       "form": {
@@ -264,10 +264,10 @@ If you want, you can send strings to be received as files::
       ...
     }
 
-In the event you are posting a very large file as a ``multipart/form-data`` 
-request, you may want to stream the request. By default, ``requests`` does not 
-support this, but there is a separate package which does - 
-``requests-toolbelt``. You should read `the toolbelt's documentation 
+In the event you are posting a very large file as a ``multipart/form-data``
+request, you may want to stream the request. By default, ``requests`` does not
+support this, but there is a separate package which does -
+``requests-toolbelt``. You should read `the toolbelt's documentation
 <https://toolbelt.rtfd.org>`_ for more details about how to use it.
 
 
