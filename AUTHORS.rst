@@ -139,7 +139,7 @@ Patches and Suggestions
 - Flavio Curella
 - David Pursehouse <david.pursehouse@gmail.com> (`@dpursehouse <https://github.com/dpursehouse>`_)
 - Jon Parise
-- Alexander Karpinsky
+- Alexander Karpinsky (`@homm86 <https://twitter.com/homm86>`_)
 - Marc Schlaich (`@schlamar <https://github.com/schlamar>`_)
 - Park Ilsu <daftonshady@gmail.com> (`@daftshady <https://github.com/daftshady>`_)
 - Matt Spitz (`@mattspitz <https://github.com/mattspitz>`_)
@@ -149,7 +149,7 @@ Patches and Suggestions
 - Jayson Vantuyl <jayson@aggressive.ly>
 - Pengfei.X <pengphy@gmail.com>
 - Kamil Madac <kamil.madac@gmail.com>
-- Michael Becker <mike@beckerfuffle.com>
+- Michael Becker <mike@beckerfuffle.com> (`@beckerfuffle <https://twitter.com/beckerfuffle>`_)
 - Erik Wickstrom <erik@erikwickstrom.com> (`@erikwickstrom <https://github.com/erikwickstrom>`_)
 - Константин Подшумок (`@podshumok <https://github.com/podshumok>`_)
 - Ben Bass (`@codedstructure <https://github.com/codedstructure>`_)
