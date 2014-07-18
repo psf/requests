@@ -37,13 +37,18 @@ is done by providing data to the properties on a Session object::
     s.get('http://httpbin.org/headers', headers={'x-test2': 'true'})
 
 
-Any dictionaries that you pass to a request method will be merged with the session-level values that are set. The method-level parameters override session parameters.
+Any dictionaries that you pass to a request method will be merged with the
+session-level values that are set. The method-level parameters override session
+parameters.
 
 .. admonition:: Remove a Value From a Dict Parameter
 
-    Sometimes you'll want to omit session-level keys from a dict parameter. To do this, you simply set that key's value to ``None`` in the method-level parameter. It will automatically be omitted.
+    Sometimes you'll want to omit session-level keys from a dict parameter. To
+    do this, you simply set that key's value to ``None`` in the method-level
+    parameter. It will automatically be omitted.
 
-All values that are contained within a session are directly available to you. See the :ref:`Session API Docs <sessionapi>` to learn more.
+All values that are contained within a session are directly available to you.
+See the :ref:`Session API Docs <sessionapi>` to learn more.
 
 Request and Response Objects
 ----------------------------
@@ -150,7 +155,8 @@ applied, replace the call to :meth:`Request.prepare()
 SSL Cert Verification
 ---------------------
 
-Requests can verify SSL certificates for HTTPS requests, just like a web browser. To check a host's SSL certificate, you can use the ``verify`` argument::
+Requests can verify SSL certificates for HTTPS requests, just like a web browser.
+To check a host's SSL certificate, you can use the ``verify`` argument::
 
     >>> requests.get('https://kennethreitz.com', verify=True)
     requests.exceptions.SSLError: hostname 'kennethreitz.com' doesn't match either of '*.herokuapp.com', 'herokuapp.com'
@@ -171,7 +177,9 @@ Requests can also ignore verifying the SSL certificate if you set ``verify`` to 
 
 By default, ``verify`` is set to True. Option ``verify`` only applies to host certs.
 
-You can also specify a local cert to use as client side certificate, as a single file (containing the private key and the certificate) or as a tuple of both file's path::
+You can also specify a local cert to use as client side certificate, as a single
+file (containing the private key and the certificate) or as a tuple of both
+file's path::
 
     >>> requests.get('https://kennethreitz.com', cert=('/path/server.crt', '/path/key'))
     <Response [200]>
@@ -193,13 +201,18 @@ attribute with the ``stream`` parameter::
     tarball_url = 'https://github.com/kennethreitz/requests/tarball/master'
     r = requests.get(tarball_url, stream=True)
 
-At this point only the response headers have been downloaded and the connection remains open, hence allowing us to make content retrieval conditional::
+At this point only the response headers have been downloaded and the connection
+remains open, hence allowing us to make content retrieval conditional::
 
     if int(r.headers['content-length']) < TOO_LONG:
       content = r.content
       ...
 
-You can further control the workflow by use of the :class:`Response.iter_content <requests.Response.iter_content>` and :class:`Response.iter_lines <requests.Response.iter_lines>` methods. Alternatively, you can read the undecoded body from the underlying urllib3 :class:`urllib3.HTTPResponse <urllib3.response.HTTPResponse>` at :class:`Response.raw <requests.Response.raw>`.
+You can further control the workflow by use of the :class:`Response.iter_content <requests.Response.iter_content>`
+and :class:`Response.iter_lines <requests.Response.iter_lines>` methods.
+Alternatively, you can read the undecoded body from the underlying
+urllib3 :class:`urllib3.HTTPResponse <urllib3.response.HTTPResponse>` at
+:class:`Response.raw <requests.Response.raw>`.
 
 If you set ``stream`` to ``True`` when making a request, Requests cannot
 release the connection back to the pool unless you consume all the data or call
@@ -219,15 +232,21 @@ consider using ``contextlib.closing`` (`documented here`_), like this::
 Keep-Alive
 ----------
 
-Excellent news — thanks to urllib3, keep-alive is 100% automatic within a session! Any requests that you make within a session will automatically reuse the appropriate connection!
+Excellent news — thanks to urllib3, keep-alive is 100% automatic within a session!
+Any requests that you make within a session will automatically reuse the appropriate
+connection!
 
-Note that connections are only released back to the pool for reuse once all body data has been read; be sure to either set ``stream`` to ``False`` or read the ``content`` property of the ``Response`` object.
+Note that connections are only released back to the pool for reuse once all body
+data has been read; be sure to either set ``stream`` to ``False`` or read the
+``content`` property of the ``Response`` object.
 
 
 Streaming Uploads
 -----------------
 
-Requests supports streaming uploads, which allow you to send large streams or files without reading them into memory. To stream and upload, simply provide a file-like object for your body::
+Requests supports streaming uploads, which allow you to send large streams or
+files without reading them into memory. To stream and upload, simply provide a
+file-like object for your body::
 
     with open('massive-body', 'rb') as f:
         requests.post('http://some.url/streamed', data=f)
@@ -236,7 +255,9 @@ Requests supports streaming uploads, which allow you to send large streams or fi
 Chunk-Encoded Requests
 ----------------------
 
-Requests also supports Chunked transfer encoding for outgoing and incoming requests. To send a chunk-encoded request, simply provide a generator (or any iterator without a length) for your body::
+Requests also supports Chunked transfer encoding for outgoing and incoming requests.
+To send a chunk-encoded request, simply provide a generator (or any iterator without
+a length) for your body::
 
 
     def gen():
@@ -579,9 +600,11 @@ kinds of exciting ways, 4995 more times.
 Link Headers
 ------------
 
-Many HTTP APIs feature Link headers. They make APIs more self describing and discoverable.
+Many HTTP APIs feature Link headers. They make APIs more self describing and
+discoverable.
 
-GitHub uses these for `pagination <http://developer.github.com/v3/#pagination>`_ in their API, for example::
+GitHub uses these for `pagination <http://developer.github.com/v3/#pagination>`_
+in their API, for example::
 
     >>> url = 'https://api.github.com/users/kennethreitz/repos?page=1&per_page=10'
     >>> r = requests.head(url=url)

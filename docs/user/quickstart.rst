@@ -204,7 +204,8 @@ dictionary of data will automatically be form-encoded when the request is made::
       ...
     }
 
-There are many times that you want to send data that is not form-encoded. If you pass in a ``string`` instead of a ``dict``, that data will be posted directly.
+There are many times that you want to send data that is not form-encoded. If
+you pass in a ``string`` instead of a ``dict``, that data will be posted directly.
 
 For example, the GitHub API v3 accepts JSON-Encoded POST/PATCH data::
 
