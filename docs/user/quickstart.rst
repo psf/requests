@@ -6,8 +6,7 @@ Quickstart
 .. module:: requests.models
 
 Eager to get started? This page gives a good introduction in how to get started
-with Requests. This assumes you already have Requests installed. If you do not,
-head over to the :ref:`Installation <install>` section.
+with Requests.
 
 First, make sure that:
 
@@ -32,8 +31,8 @@ timeline ::
 
     >>> r = requests.get('https://github.com/timeline.json')
 
-Now, we have a :class:`Response` object called ``r``. We can get all the
-information we need from this object.
+Now, we have a :class:`Request <requests.Request>` object called ``r``. We can
+get all the information we need from this object.
 
 Requests' simple API means that all forms of HTTP request are as obvious. For
 example, this is how you make an HTTP POST request::
@@ -286,8 +285,9 @@ reference::
     >>> r.status_code == requests.codes.ok
     True
 
-If we made a bad request (a 4XX client error or 5XX server error response), we can raise it with
-:class:`Response.raise_for_status()`::
+If we made a bad request (a 4XX client error or 5XX server error response), we
+can raise it with
+:meth:`Response.raise_for_status() <requests.Response.raise_for_status>`::
 
     >>> bad_r = requests.get('http://httpbin.org/status/404')
     >>> bad_r.status_code
