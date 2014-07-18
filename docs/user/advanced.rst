@@ -361,7 +361,7 @@ set ``stream`` to ``True`` and iterate over the response with
 
         # filter out keep-alive new lines
         if line:
-            print json.loads(line)
+            print(json.loads(line))
 
 
 Proxies
@@ -445,7 +445,7 @@ We should confirm that GitHub responded correctly. If it has, we want to work
 out what type of content it is. Do this like so::
 
     >>> if r.status_code == requests.codes.ok:
-    ...     print r.headers['content-type']
+    ...     print(r.headers['content-type'])
     ...
     application/json; charset=utf-8
 
@@ -455,11 +455,11 @@ So, GitHub returns JSON. That's great, we can use the :meth:`r.json
 ::
 
     >>> commit_data = r.json()
-    >>> print commit_data.keys()
+    >>> print(commit_data.keys())
     [u'committer', u'author', u'url', u'tree', u'sha', u'parents', u'message']
-    >>> print commit_data[u'committer']
+    >>> print(commit_data[u'committer'])
     {u'date': u'2012-05-10T11:10:50-07:00', u'email': u'me@kennethreitz.com', u'name': u'Kenneth Reitz'}
-    >>> print commit_data[u'message']
+    >>> print(commit_data[u'message'])
     makin' history
 
 So far, so simple. Well, let's investigate the GitHub API a little bit. Now,
@@ -482,7 +482,7 @@ headers, e.g.
 ::
 
     >>> verbs = requests.options('http://a-good-website.com/api/cats')
-    >>> print verbs.headers['allow']
+    >>> print(verbs.headers['allow'])
     GET,HEAD,POST,OPTIONS
 
 Turning to the documentation, we see that the only other method allowed for
@@ -499,9 +499,9 @@ already exists, we will use it as an example. Let's start by getting it.
     >>> r.status_code
     200
     >>> issue = json.loads(r.text)
-    >>> print issue[u'title']
+    >>> print(issue[u'title'])
     Feature any http verb in docs
-    >>> print issue[u'comments']
+    >>> print(issue[u'comments'])
     3
 
 Cool, we have three comments. Let's take a look at the last of them.
@@ -512,9 +512,9 @@ Cool, we have three comments. Let's take a look at the last of them.
     >>> r.status_code
     200
     >>> comments = r.json()
-    >>> print comments[0].keys()
+    >>> print(comments[0].keys())
     [u'body', u'url', u'created_at', u'updated_at', u'user', u'id']
-    >>> print comments[2][u'body']
+    >>> print(comments[2][u'body'])
     Probably in the "advanced" section
 
 Well, that seems like a silly place. Let's post a comment telling the poster
@@ -522,7 +522,7 @@ that he's silly. Who is the poster, anyway?
 
 ::
 
-    >>> print comments[2][u'user'][u'login']
+    >>> print(comments[2][u'user'][u'login'])
     kennethreitz
 
 OK, so let's tell this Kenneth guy that we think this example should go in the
@@ -549,7 +549,7 @@ the very common Basic Auth.
     >>> r.status_code
     201
     >>> content = r.json()
-    >>> print content[u'body']
+    >>> print(content[u'body'])
     Sounds great! I'll get right on it.
 
 Brilliant. Oh, wait, no! I meant to add that it would take me a while, because
@@ -559,7 +559,7 @@ that.
 
 ::
 
-    >>> print content[u"id"]
+    >>> print(content[u"id"])
     5804413
     >>> body = json.dumps({u"body": u"Sounds great! I'll get right on it once I feed my cat."})
     >>> url = u"https://api.github.com/repos/kennethreitz/requests/issues/comments/5804413"
@@ -588,7 +588,7 @@ headers.
 ::
 
     >>> r = requests.head(url=url, auth=auth)
-    >>> print r.headers
+    >>> print(r.headers)
     ...
     'x-ratelimit-remaining': '4995'
     'x-ratelimit-limit': '5000'
