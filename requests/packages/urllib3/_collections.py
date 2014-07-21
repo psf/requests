@@ -1,9 +1,3 @@
-# urllib3/_collections.py
-# Copyright 2008-2013 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
-#
-# This module is part of urllib3 and is released under
-# the MIT License: http://www.opensource.org/licenses/mit-license.php
-
 from collections import Mapping, MutableMapping
 try:
     from threading import RLock
@@ -116,7 +110,7 @@ class HTTPHeaderDict(MutableMapping):
     A ``dict`` like container for storing HTTP Headers.
 
     Field names are stored and compared case-insensitively in compliance with
-    RFC 2616. Iteration provides the first case-sensitive key seen for each
+    RFC 7230. Iteration provides the first case-sensitive key seen for each
     case-insensitive pair.
 
     Using ``__setitem__`` syntax overwrites fields that compare equal

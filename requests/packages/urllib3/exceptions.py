@@ -1,15 +1,14 @@
-# urllib3/exceptions.py
-# Copyright 2008-2013 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
-#
-# This module is part of urllib3 and is released under
-# the MIT License: http://www.opensource.org/licenses/mit-license.php
-
 
 ## Base Exceptions
 
 class HTTPError(Exception):
     "Base exception used by this module."
     pass
+
+class HTTPWarning(Warning):
+    "Base warning used by this module."
+    pass
+
 
 
 class PoolError(HTTPError):
@@ -44,14 +43,18 @@ class ProxyError(HTTPError):
     pass
 
 
-class ConnectionError(HTTPError):
-    "Raised when a normal connection fails."
-    pass
-
-
 class DecodeError(HTTPError):
     "Raised when automatic decoding based on Content-Type fails."
     pass
+
+
+class ProtocolError(HTTPError):
+    "Raised when something unexpected happens mid-request/response."
+    pass
+
+
+#: Renamed to ProtocolError but aliased for backwards compatibility.
+ConnectionError = ProtocolError
 
 
 ## Leaf Exceptions
@@ -64,7 +67,7 @@ class MaxRetryError(RequestError):
 
         message = "Max retries exceeded with url: %s" % url
         if reason:
-            message += " (Caused by %s: %s)" % (type(reason), reason)
+            message += " (Caused by %r)" % reason
         else:
             message += " (Caused by redirect)"
 
@@ -116,7 +119,12 @@ class ClosedPoolError(PoolError):
     pass
 
 
-class LocationParseError(ValueError, HTTPError):
+class LocationValueError(ValueError, HTTPError):
+    "Raised when there is something wrong with a given URL input."
+    pass
+
+
+class LocationParseError(LocationValueError):
     "Raised when get_host or similar fails to parse the URL input."
 
     def __init__(self, location):
@@ -124,3 +132,8 @@ class LocationParseError(ValueError, HTTPError):
         HTTPError.__init__(self, message)
 
         self.location = location
+
+
+class InsecureRequestWarning(HTTPWarning):
+    "Warned when making an unverified HTTPS request."
+    pass

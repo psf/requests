@@ -1,21 +1,13 @@
-# urllib3/response.py
-# Copyright 2008-2013 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
-#
-# This module is part of urllib3 and is released under
-# the MIT License: http://www.opensource.org/licenses/mit-license.php
-
-
-import logging
 import zlib
 import io
+from socket import timeout as SocketTimeout
 
 from ._collections import HTTPHeaderDict
-from .exceptions import DecodeError
+from .exceptions import ProtocolError, DecodeError, ReadTimeoutError
 from .packages.six import string_types as basestring, binary_type
-from .util import is_fp_closed
+from .connection import HTTPException, BaseSSLError
+from .util.response import is_fp_closed
 
-
-log = logging.getLogger(__name__)
 
 
 class DeflateDecoder(object):
@@ -91,10 +83,13 @@ class HTTPResponse(io.IOBase):
         self.decode_content = decode_content
 
         self._decoder = None
-        self._body = body if body and isinstance(body, basestring) else None
+        self._body = None
         self._fp = None
         self._original_response = original_response
         self._fp_bytes_read = 0
+
+        if body and isinstance(body, (basestring, binary_type)):
+            self._body = body
 
         self._pool = pool
         self._connection = connection
@@ -163,8 +158,8 @@ class HTTPResponse(io.IOBase):
             after having ``.read()`` the file object. (Overridden if ``amt`` is
             set.)
         """
-        # Note: content-encoding value should be case-insensitive, per RFC 2616
-        # Section 3.5
+        # Note: content-encoding value should be case-insensitive, per RFC 7230
+        # Section 3.2
         content_encoding = self.headers.get('content-encoding', '').lower()
         if self._decoder is None:
             if content_encoding in self.CONTENT_DECODERS:
@@ -178,23 +173,42 @@ class HTTPResponse(io.IOBase):
         flush_decoder = False
 
         try:
-            if amt is None:
-                # cStringIO doesn't like amt=None
-                data = self._fp.read()
-                flush_decoder = True
-            else:
-                cache_content = False
-                data = self._fp.read(amt)
-                if amt != 0 and not data:  # Platform-specific: Buggy versions of Python.
-                    # Close the connection when no data is returned
-                    #
-                    # This is redundant to what httplib/http.client _should_
-                    # already do.  However, versions of python released before
-                    # December 15, 2012 (http://bugs.python.org/issue16298) do not
-                    # properly close the connection in all cases. There is no harm
-                    # in redundantly calling close.
-                    self._fp.close()
+            try:
+                if amt is None:
+                    # cStringIO doesn't like amt=None
+                    data = self._fp.read()
                     flush_decoder = True
+                else:
+                    cache_content = False
+                    data = self._fp.read(amt)
+                    if amt != 0 and not data:  # Platform-specific: Buggy versions of Python.
+                        # Close the connection when no data is returned
+                        #
+                        # This is redundant to what httplib/http.client _should_
+                        # already do.  However, versions of python released before
+                        # December 15, 2012 (http://bugs.python.org/issue16298) do
+                        # not properly close the connection in all cases. There is
+                        # no harm in redundantly calling close.
+                        self._fp.close()
+                        flush_decoder = True
+
+            except SocketTimeout:
+                # FIXME: Ideally we'd like to include the url in the ReadTimeoutError but
+                # there is yet no clean way to get at it from this context.
+                raise ReadTimeoutError(self._pool, None, 'Read timed out.')
+
+            except BaseSSLError as e:
+                # FIXME: Is there a better way to differentiate between SSLErrors?
+                if not 'read operation timed out' in str(e):  # Defensive:
+                    # This shouldn't happen but just in case we're missing an edge
+                    # case, let's avoid swallowing SSL errors.
+                    raise
+
+                raise ReadTimeoutError(self._pool, None, 'Read timed out.')
+
+            except HTTPException as e:
+                # This includes IncompleteRead.
+                raise ProtocolError('Connection broken: %r' % e, e)
 
             self._fp_bytes_read += len(data)
 
@@ -204,8 +218,7 @@ class HTTPResponse(io.IOBase):
             except (IOError, zlib.error) as e:
                 raise DecodeError(
                     "Received response with content-encoding: %s, but "
-                    "failed to decode it." % content_encoding,
-                    e)
+                    "failed to decode it." % content_encoding, e)
 
             if flush_decoder and decode_content and self._decoder:
                 buf = self._decoder.decompress(binary_type())
@@ -241,7 +254,6 @@ class HTTPResponse(io.IOBase):
 
             if data:
                 yield data
-
 
     @classmethod
     def from_httplib(ResponseCls, r, **response_kw):
@@ -297,7 +309,7 @@ class HTTPResponse(io.IOBase):
         elif hasattr(self._fp, "fileno"):
             return self._fp.fileno()
         else:
-            raise IOError("The file-like object  this HTTPResponse is wrapped "
+            raise IOError("The file-like object this HTTPResponse is wrapped "
                           "around has no file descriptor")
 
     def flush(self):

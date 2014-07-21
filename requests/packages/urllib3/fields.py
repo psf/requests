@@ -1,9 +1,3 @@
-# urllib3/fields.py
-# Copyright 2008-2013 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
-#
-# This module is part of urllib3 and is released under
-# the MIT License: http://www.opensource.org/licenses/mit-license.php
-
 import email.utils
 import mimetypes
 
@@ -78,9 +72,10 @@ class RequestField(object):
         """
         A :class:`~urllib3.fields.RequestField` factory from old-style tuple parameters.
 
-        Supports constructing :class:`~urllib3.fields.RequestField` from parameter
-        of key/value strings AND key/filetuple. A filetuple is a (filename, data, MIME type)
-        tuple where the MIME type is optional. For example: ::
+        Supports constructing :class:`~urllib3.fields.RequestField` from
+        parameter of key/value strings AND key/filetuple. A filetuple is a
+        (filename, data, MIME type) tuple where the MIME type is optional.
+        For example::
 
             'foo': 'bar',
             'fakefile': ('foofile.txt', 'contents of foofile'),
@@ -125,8 +120,8 @@ class RequestField(object):
         'Content-Disposition' fields.
 
         :param header_parts:
-            A sequence of (k, v) typles or a :class:`dict` of (k, v) to format as
-            `k1="v1"; k2="v2"; ...`.
+            A sequence of (k, v) typles or a :class:`dict` of (k, v) to format
+            as `k1="v1"; k2="v2"; ...`.
         """
         parts = []
         iterable = header_parts
@@ -158,7 +153,8 @@ class RequestField(object):
         lines.append('\r\n')
         return '\r\n'.join(lines)
 
-    def make_multipart(self, content_disposition=None, content_type=None, content_location=None):
+    def make_multipart(self, content_disposition=None, content_type=None,
+                       content_location=None):
         """
         Makes this request field into a multipart request field.
 
@@ -172,6 +168,10 @@ class RequestField(object):
 
         """
         self.headers['Content-Disposition'] = content_disposition or 'form-data'
-        self.headers['Content-Disposition'] += '; '.join(['', self._render_parts((('name', self._name), ('filename', self._filename)))])
+        self.headers['Content-Disposition'] += '; '.join([
+            '', self._render_parts(
+                (('name', self._name), ('filename', self._filename))
+            )
+        ])
         self.headers['Content-Type'] = content_type
         self.headers['Content-Location'] = content_location
