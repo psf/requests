@@ -11,6 +11,7 @@ and maintain connections.
 import socket
 
 from .models import Response
+from .packages.urllib3 import Retry
 from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
 from .packages.urllib3.response import HTTPResponse
 from .packages.urllib3.util import Timeout as TimeoutSauce
@@ -323,7 +324,7 @@ class HTTPAdapter(BaseAdapter):
                     assert_same_host=False,
                     preload_content=False,
                     decode_content=False,
-                    retries=self.max_retries,
+                    retries=Retry(self.max_retries, read=False),
                     timeout=timeout
                 )
 
