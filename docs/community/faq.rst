@@ -75,7 +75,7 @@ Server-Name-Indication.
 
 `Server-Name-Indication`_, or SNI, is an official extension to SSL where the
 client tells the server what hostname it is contacting. This enables `virtual
-hosting`_ on SSL protected sites, the server being to able to respond with a
+hosting`_ on SSL protected sites, the server being able to respond with a
 certificate appropriate for the hostname the client is contacting.
 
 Python3's SSL module includes native support for SNI. This support has not been
