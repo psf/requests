@@ -74,9 +74,10 @@ you're using Python 2.6 or 2.7, a possible explanation is that you need
 Server-Name-Indication.
 
 `Server-Name-Indication`_, or SNI, is an official extension to SSL where the
-client tells the server what hostname it is contacting. This enables `virtual
-hosting`_ on SSL protected sites, the server being to able to respond with a
-certificate appropriate for the hostname the client is contacting.
+client tells the server what hostname it is contacting. This is important
+when servers are using `Virtual Hosting`_. When such servers are hosting
+more than one SSL site they need to be able to return the appropriate
+certificate based on the hostname the client is connecting to.
 
 Python3's SSL module includes native support for SNI. This support has not been
 back ported to Python2. For information on using SNI with Requests on Python2
