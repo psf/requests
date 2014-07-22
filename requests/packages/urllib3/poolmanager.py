@@ -1,9 +1,3 @@
-# urllib3/poolmanager.py
-# Copyright 2008-2014 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
-#
-# This module is part of urllib3 and is released under
-# the MIT License: http://www.opensource.org/licenses/mit-license.php
-
 import logging
 
 try:  # Python 3
@@ -14,8 +8,10 @@ except ImportError:
 from ._collections import RecentlyUsedContainer
 from .connectionpool import HTTPConnectionPool, HTTPSConnectionPool
 from .connectionpool import port_by_scheme
+from .exceptions import LocationValueError
 from .request import RequestMethods
-from .util import parse_url
+from .util.url import parse_url
+from .util.retry import Retry
 
 
 __all__ = ['PoolManager', 'ProxyManager', 'proxy_from_url']
@@ -49,7 +45,7 @@ class PoolManager(RequestMethods):
         Additional parameters are used to create fresh
         :class:`urllib3.connectionpool.ConnectionPool` instances.
 
-    Example: ::
+    Example::
 
         >>> manager = PoolManager(num_pools=2)
         >>> r = manager.request('GET', 'http://google.com/')
@@ -102,10 +98,11 @@ class PoolManager(RequestMethods):
         ``urllib3.connectionpool.port_by_scheme``.
         """
 
+        if not host:
+            raise LocationValueError("No host specified.")
+
         scheme = scheme or 'http'
-
         port = port or port_by_scheme.get(scheme, 80)
-
         pool_key = (scheme, host, port)
 
         with self.pools.lock:
@@ -118,6 +115,7 @@ class PoolManager(RequestMethods):
             # Make a fresh ConnectionPool of the desired type
             pool = self._new_pool(scheme, host, port)
             self.pools[pool_key] = pool
+
         return pool
 
     def connection_from_url(self, url):
@@ -161,13 +159,18 @@ class PoolManager(RequestMethods):
         # Support relative URLs for redirecting.
         redirect_location = urljoin(url, redirect_location)
 
-        # RFC 2616, Section 10.3.4
+        # RFC 7231, Section 6.4.4
         if response.status == 303:
             method = 'GET'
 
-        log.info("Redirecting %s -> %s" % (url, redirect_location))
-        kw['retries'] = kw.get('retries', 3) - 1  # Persist retries countdown
+        retries = kw.get('retries')
+        if not isinstance(retries, Retry):
+            retries = Retry.from_int(retries, redirect=redirect)
+
+        kw['retries'] = retries.increment(method, redirect_location)
         kw['redirect'] = redirect
+
+        log.info("Redirecting %s -> %s" % (url, redirect_location))
         return self.urlopen(method, redirect_location, **kw)
 
 
@@ -208,12 +211,16 @@ class ProxyManager(PoolManager):
         if not proxy.port:
             port = port_by_scheme.get(proxy.scheme, 80)
             proxy = proxy._replace(port=port)
+
+        assert proxy.scheme in ("http", "https"), \
+            'Not supported proxy scheme %s' % proxy.scheme
+
         self.proxy = proxy
         self.proxy_headers = proxy_headers or {}
-        assert self.proxy.scheme in ("http", "https"), \
-            'Not supported proxy scheme %s' % self.proxy.scheme
+
         connection_pool_kw['_proxy'] = self.proxy
         connection_pool_kw['_proxy_headers'] = self.proxy_headers
+
         super(ProxyManager, self).__init__(
             num_pools, headers, **connection_pool_kw)
 
@@ -248,10 +255,10 @@ class ProxyManager(PoolManager):
             # For proxied HTTPS requests, httplib sets the necessary headers
             # on the CONNECT to the proxy. For HTTP, we'll definitely
             # need to set 'Host' at the very least.
-            kw['headers'] = self._set_proxy_headers(url, kw.get('headers',
-                                                                self.headers))
+            headers = kw.get('headers', self.headers)
+            kw['headers'] = self._set_proxy_headers(url, headers)
 
-        return super(ProxyManager, self).urlopen(method, url, redirect, **kw)
+        return super(ProxyManager, self).urlopen(method, url, redirect=redirect, **kw)
 
 
 def proxy_from_url(url, **kw):

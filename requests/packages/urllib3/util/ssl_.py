@@ -34,10 +34,9 @@ def assert_fingerprint(cert, fingerprint):
     }
 
     fingerprint = fingerprint.replace(':', '').lower()
+    digest_length, odd = divmod(len(fingerprint), 2)
 
-    digest_length, rest = divmod(len(fingerprint), 2)
-
-    if rest or digest_length not in hashfunc_map:
+    if odd or digest_length not in hashfunc_map:
         raise SSLError('Fingerprint is of invalid length.')
 
     # We need encode() here for py32; works on py2 and p33.
