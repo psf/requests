@@ -728,7 +728,7 @@ class RequestsTestCase(unittest.TestCase):
             def stream(self, chunk_size, decode_content=None):
                 raise socket.error()
 
-        setattr(r, 'raw', RawMock())
+        r.raw = RawMock()
         with pytest.raises(ConnectionError):
             list(r.iter_content())
 
