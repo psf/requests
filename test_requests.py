@@ -18,7 +18,7 @@ from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3, builtin_str)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
-from requests.exceptions import InvalidURL, MissingSchema
+from requests.exceptions import InvalidURL, MissingSchema, ConnectionError
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -719,6 +719,18 @@ class RequestsTestCase(unittest.TestCase):
         r.raw = io
         assert next(iter(r))
         io.close()
+
+    def test_iter_content_handles_socket_error(self):
+        r = requests.Response()
+        import socket
+
+        class RawMock(object):
+            def stream(self, chunk_size, decode_content=None):
+                raise socket.error()
+
+        r.raw = RawMock()
+        with pytest.raises(ConnectionError):
+            list(r.iter_content())
 
     def test_response_decode_unicode(self):
         """

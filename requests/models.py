@@ -9,6 +9,7 @@ This module contains the primary objects that power Requests.
 
 import collections
 import datetime
+import socket
 
 from io import BytesIO, UnsupportedOperation
 from .hooks import default_hooks
@@ -22,7 +23,7 @@ from .packages.urllib3.util import parse_url
 from .packages.urllib3.exceptions import DecodeError
 from .exceptions import (
     HTTPError, RequestException, MissingSchema, InvalidURL,
-    ChunkedEncodingError, ContentDecodingError)
+    ChunkedEncodingError, ContentDecodingError, ConnectionError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
@@ -640,6 +641,8 @@ class Response(object):
                     raise ChunkedEncodingError(e)
                 except DecodeError as e:
                     raise ContentDecodingError(e)
+                except socket.error as e:
+                    raise ConnectionError(e)
             except AttributeError:
                 # Standard file-like object.
                 while True:
