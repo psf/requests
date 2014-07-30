@@ -720,18 +720,6 @@ class RequestsTestCase(unittest.TestCase):
         assert next(iter(r))
         io.close()
 
-    def test_iter_content_handles_socket_error(self):
-        r = requests.Response()
-        import socket
-
-        class RawMock(object):
-            def stream(self, chunk_size, decode_content=None):
-                raise socket.error()
-
-        r.raw = RawMock()
-        with pytest.raises(ConnectionError):
-            list(r.iter_content())
-
     def test_response_decode_unicode(self):
         """
         When called with decode_unicode, Response.iter_content should always
