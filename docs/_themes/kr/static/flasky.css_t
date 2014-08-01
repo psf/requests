@@ -529,40 +529,6 @@ a:hover tt {
 }
 
 
-/* scrollbars */
-
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-::-webkit-scrollbar-button:start:decrement,
-::-webkit-scrollbar-button:end:increment {
-    display: block;
-    height: 10px;
-}
-
-::-webkit-scrollbar-button:vertical:increment {
-    background-color: #fff;
-}
-
-::-webkit-scrollbar-track-piece {
-    background-color: #eee;
-    -webkit-border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:vertical {
-    height: 50px;
-    background-color: #ccc;
-    -webkit-border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:horizontal {
-    width: 50px;
-    background-color: #ccc;
-    -webkit-border-radius: 3px;
-}
-
 /* misc. */
 
 .revsys-inline {

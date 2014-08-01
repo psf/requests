@@ -1,41 +1,43 @@
-SHELL := /bin/bash
+.PHONY: docs
 
 init:
-	python setup.py develop
 	pip install -r requirements.txt
 
 test:
-	nosetests ./tests/*
+	py.test
 
-lazy:
-	nosetests --with-color tests/test_requests.py
-
-simple:
-	nosetests tests/test_requests.py
-
-server:
-	gunicorn httpbin:app --bind=0.0.0.0:7077 &
+coverage:
+	py.test --verbose --cov-report term --cov=requests test_requests.py
 
 ci: init
-	nosetests tests/test_requests.py --with-xunit --xunit-file=junit-report.xml
+	py.test --junitxml=junit.xml
 
-simpleci:
-	nosetests tests/test_requests.py --with-xunit --xunit-file=junit-report.xml
+certs:
+	curl http://ci.kennethreitz.org/job/ca-bundle/lastSuccessfulBuild/artifact/cacerts.pem -o requests/cacert.pem
 
-stats:
-	pyflakes requests | awk -F\: '{printf "%s:%s: [E]%s\n", $1, $2, $3}' > violations.pyflakes.txt
+deps: urllib3 chardet
 
-site:
-	cd docs; make dirhtml
-
-pyc:
-	find . -name "*.pyc" -exec rm '{}' ';'
-
-deps:
+urllib3:
 	rm -fr requests/packages/urllib3
 	git clone https://github.com/shazow/urllib3.git
-	cd urllib3 && git checkout release && cd ..
 	mv urllib3/urllib3 requests/packages/
 	rm -fr urllib3
 
-docs: site
+chardet:
+	rm -fr requests/packages/chardet
+	git clone https://github.com/chardet/chardet.git
+	mv chardet/chardet requests/packages/
+	rm -fr chardet
+
+publish:
+	python setup.py register
+	python setup.py sdist upload
+	python setup.py bdist_wheel upload
+
+
+docs-init:
+	pip install -r docs/requirements.txt
+
+docs:
+	cd docs && make html
+	@echo "\033[95m\n\nBuild successful! View the docs homepage at docs/_build/html/index.html.\n\033[0m"

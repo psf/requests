@@ -4,7 +4,14 @@ various contributors:
 Development Lead
 ````````````````
 
-- Kenneth Reitz <me@kennethreitz.com>
+- Kenneth Reitz <me@kennethreitz.org> `@kennethreitz <https://github.com/kennethreitz>`_
+
+Core Contributors
+`````````````````
+
+- Cory Benfield <cory@lukasa.co.uk> `@lukasa <https://github.com/lukasa>`_
+- Ian Cordasco <graffatcolmingov@gmail.com> `@sigmavirus24 <https://github.com/sigmavirus24>`_
+
 
 
 Urllib3
@@ -39,7 +46,7 @@ Patches and Suggestions
 - Peter Manser
 - Jeremy Selier
 - Jens Diemer
-- Alex <@alopatin>
+- Alex (`@alopatin <https://github.com/alopatin>`_)
 - Tom Hogans <tomhsx@gmail.com>
 - Armin Ronacher
 - Shrikant Sharat Kandula
@@ -76,12 +83,73 @@ Patches and Suggestions
 - Chase Sterling
 - Marty Alchin
 - takluyver
-- Ben Toews (mastahyeti)
+- Ben Toews (`@mastahyeti <https://github.com/mastahyeti>`_)
 - David Kemp
 - Brendon Crawford
-- Denis (Telofy)
-- Cory Benfield (Lukasa)
+- Denis (`@Telofy <https://github.com/Telofy>`_)
 - Matt Giuca
 - Adam Tauber
 - Honza Javorek
 - Brendan Maguire <maguire.brendan@gmail.com>
+- Chris Dary
+- Danver Braganza <danverbraganza@gmail.com>
+- Max Countryman
+- Nick Chadwick
+- Jonathan Drosdeck
+- Jiri Machalek
+- Steve Pulec
+- Michael Kelly
+- Michael Newman <newmaniese@gmail.com>
+- Jonty Wareing <jonty@jonty.co.uk>
+- Shivaram Lingamneni
+- Miguel Turner
+- Rohan Jain (`@crodjer <https://github.com/crodjer>`_)
+- Justin Barber <barber.justin@gmail.com>
+- Roman Haritonov (`@reclosedev <https://github.com/reclosedev>`_)
+- Josh Imhoff <joshimhoff13@gmail.com>
+- Arup Malakar <amalakar@gmail.com>
+- Danilo Bargen (`@dbrgn <https://github.com/dbrgn>`_)
+- Torsten Landschoff
+- Michael Holler (`@apotheos <https://github.com/apotheos>`_)
+- Timnit Gebru
+- Sarah Gonzalez
+- Victoria Mo
+- Leila Muhtasib
+- Matthias Rahlf <matthias@webding.de>
+- Jakub Roztocil <jakub@roztocil.name>
+- Rhys Elsmore
+- André Graf (`@dergraf <https://github.com/dergraf>`_)
+- Stephen Zhuang (`@everbird <https://github.com/everbird>`_)
+- Martijn Pieters
+- Jonatan Heyman
+- David Bonner <dbonner@gmail.com> (`@rascalking <https://github.com/rascalking>`_)
+- Vinod Chandru
+- Johnny Goodnow <j.goodnow29@gmail.com>
+- Denis Ryzhkov <denisr@denisr.com>
+- Wilfred Hughes <me@wilfred.me.uk>
+- Dmitry Medvinsky <me@dmedvinsky.name>
+- Bryce Boe <bbzbryce@gmail.com> (`@bboe <https://github.com/bboe>`_)
+- Colin Dunklau <colin.dunklau@gmail.com> (`@cdunklau <https://github.com/cdunklau>`_)
+- Bob Carroll <bob.carroll@alum.rit.edu> (`@rcarz <https://github.com/rcarz>`_)
+- Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar> (`@hobarrera <https://github.com/hobarrera>`_)
+- Łukasz Langa <lukasz@langa.pl>
+- Dave Shawley <daveshawley@gmail.com>
+- James Clarke (`@jam <https://github.com/jam>`_)
+- Kevin Burke <kev@inburke.com>
+- Flavio Curella
+- David Pursehouse <david.pursehouse@gmail.com> (`@dpursehouse <https://github.com/dpursehouse>`_)
+- Jon Parise
+- Alexander Karpinsky (`@homm86 <https://twitter.com/homm86>`_)
+- Marc Schlaich (`@schlamar <https://github.com/schlamar>`_)
+- Park Ilsu <daftonshady@gmail.com> (`@daftshady <https://github.com/daftshady>`_)
+- Matt Spitz (`@mattspitz <https://github.com/mattspitz>`_)
+- Vikram Oberoi (`@voberoi <https://github.com/voberoi>`_)
+- Can Ibanoglu <can.ibanoglu@gmail.com> (`@canibanoglu <https://github.com/canibanoglu>`_)
+- Thomas Weißschuh <thomas@t-8ch.de> (`@t-8ch <https://github.com/t-8ch>`_)
+- Jayson Vantuyl <jayson@aggressive.ly>
+- Pengfei.X <pengphy@gmail.com>
+- Kamil Madac <kamil.madac@gmail.com>
+- Michael Becker <mike@beckerfuffle.com> (`@beckerfuffle <https://twitter.com/beckerfuffle>`_)
+- Erik Wickstrom <erik@erikwickstrom.com> (`@erikwickstrom <https://github.com/erikwickstrom>`_)
+- Константин Подшумок (`@podshumok <https://github.com/podshumok>`_)
+- Ben Bass (`@codedstructure <https://github.com/codedstructure>`_)

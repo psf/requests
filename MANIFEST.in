@@ -1,1 +1,1 @@
-include README.rst LICENSE NOTICE HISTORY.rst test_requests.py
+include README.rst LICENSE NOTICE HISTORY.rst test_requests.py requirements.txt requests/cacert.pem

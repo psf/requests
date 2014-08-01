@@ -8,37 +8,47 @@ Requests: HTTP for Humans
 
 Release v\ |version|. (:ref:`Installation <install>`)
 
-Requests is an :ref:`ISC Licensed <isc>` HTTP library, written in Python, for human beings.
+Requests is an :ref:`Apache2 Licensed <apache2>` HTTP library, written in
+Python, for human beings.
 
 Python's standard **urllib2** module provides most of
 the HTTP capabilities you need, but the API is thoroughly **broken**.
-It was built for a different time — and a different web. It requires an *enormous* amount of work (even method overrides) to perform the simplest of tasks.
+It was built for a different time — and a different web. It requires an
+*enormous* amount of work (even method overrides) to perform the simplest of
+tasks.
 
 Things shouldn’t be this way. Not in Python.
 
 ::
 
-    >>> r = requests.get('https://api.github.com', auth=('user', 'pass'))
+    >>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
     >>> r.status_code
-    204
+    200
     >>> r.headers['content-type']
-    'application/json'
+    'application/json; charset=utf8'
+    >>> r.encoding
+    'utf-8'
     >>> r.text
-    ...
+    u'{"type":"User"...'
+    >>> r.json()
+    {u'private_gists': 419, u'total_private_repos': 77, ...}
 
-See `the same code, without Requests <https://gist.github.com/973705>`_.
+See `similar code, without Requests <https://gist.github.com/973705>`_.
 
-Requests takes all of the work out of Python HTTP — making your integration with web services seamless. There's no need to manually add query strings to your URLs, or to form-encode your POST data. Keep-alive and HTTP connection pooling are 100%  automatic, powered by `urllib3 <https://github.com/shazow/urllib3>`_, which is embedded within Requests.
+Requests takes all of the work out of Python HTTP/1.1 — making your integration
+with web services seamless. There's no need to manually add query strings to
+your URLs, or to form-encode your POST data. Keep-alive and HTTP connection
+pooling are 100%  automatic, powered by `urllib3 <https://github.com/shazow/urllib3>`_,
+which is embedded within Requests.
 
 
 Testimonials
 ------------
 
-`Native Instruments <http://www.native-instruments.com/>`_, `The Washington Post <http://www.washingtonpost.com/>`_,
-`Twitter, Inc <http://twitter.com>`_,
-`Readability <http://readability.com>`_, and
-Federal US Institutions
-use Requests internally. It has been installed over 100,000 times from PyPI.
+Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
+PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
+Post, Twitter, SoundCloud, Kippt, Readability, Sony, and Federal US Institutions
+use Requests internally. It has been downloaded over 16,000,000 times from PyPI.
 
 **Armin Ronacher**
     Requests is the perfect example how beautiful an API can be with the
@@ -73,6 +83,8 @@ Requests is ready for today's web.
 - Multipart File Uploads
 - Connection Timeouts
 - ``.netrc`` support
+- Python 2.6—3.4
+- Thread-safe.
 
 
 User Guide
@@ -89,6 +101,7 @@ instructions for getting the most out of Requests.
    user/install
    user/quickstart
    user/advanced
+   user/authentication
 
 
 Community Guide
@@ -117,8 +130,8 @@ this part of the documentation is for you.
    api
 
 
-Developer Guide
----------------
+Contributor Guide
+-----------------
 
 If you want to contribute to the project, this part of the documentation is for
 you.
@@ -126,6 +139,6 @@ you.
 .. toctree::
    :maxdepth: 1
 
-   dev/internals
+   dev/philosophy
    dev/todo
    dev/authors

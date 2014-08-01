@@ -54,30 +54,35 @@ Python 3 Support?
 Yes! Here's a list of Python platforms that are officially
 supported:
 
-* cPython 2.6
-* cPython 2.7
-* cPython 3.1
-* cPython 3.2
-* PyPy-c 1.4
-* PyPy-c 1.5
-* PyPy-c 1.6
-* PyPy-c 1.7
+* Python 2.6
+* Python 2.7
+* Python 3.1
+* Python 3.2
+* Python 3.3
+* Python 3.4
+* PyPy 1.9
+* PyPy 2.2
 
+What are "hostname doesn't match" errors?
+-----------------------------------------
 
-Keep-alive Support?
--------------------
+These errors occur when :ref:`SSL certificate verification <verification>`
+fails to match the certificate the server responds with to the hostname
+Requests thinks it's contacting. If you're certain the server's SSL setup is
+correct (for example, because you can visit the site with your browser) and
+you're using Python 2.6 or 2.7, a possible explanation is that you need
+Server-Name-Indication.
 
-Yep!
+`Server-Name-Indication`_, or SNI, is an official extension to SSL where the
+client tells the server what hostname it is contacting. This is important
+when servers are using `Virtual Hosting`_. When such servers are hosting
+more than one SSL site they need to be able to return the appropriate
+certificate based on the hostname the client is connecting to.
 
+Python3's SSL module includes native support for SNI. This support has not been
+back ported to Python2. For information on using SNI with Requests on Python2
+refer to this `Stack Overflow answer`_.
 
-Proxy Support?
---------------
-
-You bet!
-
-
-SSL Verification?
------------------
-
-Absolutely.
-
+.. _`Server-Name-Indication`: https://en.wikipedia.org/wiki/Server_Name_Indication
+.. _`virtual hosting`: https://en.wikipedia.org/wiki/Virtual_hosting
+.. _`Stack Overflow answer`: https://stackoverflow.com/questions/18578439/using-requests-with-tls-doesnt-give-sni-support/18579484#18579484

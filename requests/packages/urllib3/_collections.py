@@ -1,131 +1,199 @@
-# urllib3/_collections.py
-# Copyright 2008-2012 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
-#
-# This module is part of urllib3 and is released under
-# the MIT License: http://www.opensource.org/licenses/mit-license.php
+from collections import Mapping, MutableMapping
+try:
+    from threading import RLock
+except ImportError: # Platform-specific: No threads available
+    class RLock:
+        def __enter__(self):
+            pass
 
-from collections import deque
-
-from threading import RLock
-
-__all__ = ['RecentlyUsedContainer']
-
-
-class AccessEntry(object):
-    __slots__ = ('key', 'is_valid')
-
-    def __init__(self, key, is_valid=True):
-        self.key = key
-        self.is_valid = is_valid
+        def __exit__(self, exc_type, exc_value, traceback):
+            pass
 
 
-class RecentlyUsedContainer(dict):
+try: # Python 2.7+
+    from collections import OrderedDict
+except ImportError:
+    from .packages.ordered_dict import OrderedDict
+from .packages.six import itervalues
+
+
+__all__ = ['RecentlyUsedContainer', 'HTTPHeaderDict']
+
+
+_Null = object()
+
+
+class RecentlyUsedContainer(MutableMapping):
     """
-    Provides a dict-like that maintains up to ``maxsize`` keys while throwing
-    away the least-recently-used keys beyond ``maxsize``.
+    Provides a thread-safe dict-like container which maintains up to
+    ``maxsize`` keys while throwing away the least-recently-used keys beyond
+    ``maxsize``.
+
+    :param maxsize:
+        Maximum number of recent elements to retain.
+
+    :param dispose_func:
+        Every time an item is evicted from the container,
+        ``dispose_func(value)`` is called.  Callback which will get called
     """
 
-    # If len(self.access_log) exceeds self._maxsize * CLEANUP_FACTOR, then we
-    # will attempt to cleanup the invalidated entries in the access_log
-    # datastructure during the next 'get' operation.
-    CLEANUP_FACTOR = 10
+    ContainerCls = OrderedDict
 
-    def __init__(self, maxsize=10):
+    def __init__(self, maxsize=10, dispose_func=None):
         self._maxsize = maxsize
+        self.dispose_func = dispose_func
 
-        self._container = {}
-
-        # We use a deque to to store our keys ordered by the last access.
-        self.access_log = deque()
-        self.access_log_lock = RLock()
-
-        # We look up the access log entry by the key to invalidate it so we can
-        # insert a new authorative entry at the head without having to dig and
-        # find the old entry for removal immediately.
-        self.access_lookup = {}
-
-        # Trigger a heap cleanup when we get past this size
-        self.access_log_limit = maxsize * self.CLEANUP_FACTOR
-
-    def _invalidate_entry(self, key):
-        "If exists: Invalidate old entry and return it."
-        old_entry = self.access_lookup.get(key)
-        if old_entry:
-            old_entry.is_valid = False
-
-        return old_entry
-
-    def _push_entry(self, key):
-        "Push entry onto our access log, invalidate the old entry if exists."
-        self._invalidate_entry(key)
-
-        new_entry = AccessEntry(key)
-        self.access_lookup[key] = new_entry
-
-        self.access_log_lock.acquire()
-        self.access_log.appendleft(new_entry)
-        self.access_log_lock.release()
-
-    def _prune_entries(self, num):
-        "Pop entries from our access log until we popped ``num`` valid ones."
-        while num > 0:
-            self.access_log_lock.acquire()
-            p = self.access_log.pop()
-            self.access_log_lock.release()
-
-            if not p.is_valid:
-                continue # Invalidated entry, skip
-
-            dict.pop(self, p.key, None)
-            self.access_lookup.pop(p.key, None)
-            num -= 1
-
-    def _prune_invalidated_entries(self):
-        "Rebuild our access_log without the invalidated entries."
-        self.access_log_lock.acquire()
-        self.access_log = deque(e for e in self.access_log if e.is_valid)
-        self.access_log_lock.release()
-
-    def _get_ordered_access_keys(self):
-        "Return ordered access keys for inspection. Used for testing."
-        self.access_log_lock.acquire()
-        r = [e.key for e in self.access_log if e.is_valid]
-        self.access_log_lock.release()
-
-        return r
+        self._container = self.ContainerCls()
+        self.lock = RLock()
 
     def __getitem__(self, key):
-        item = dict.get(self, key)
+        # Re-insert the item, moving it to the end of the eviction line.
+        with self.lock:
+            item = self._container.pop(key)
+            self._container[key] = item
+            return item
 
-        if not item:
-            raise KeyError(key)
+    def __setitem__(self, key, value):
+        evicted_value = _Null
+        with self.lock:
+            # Possibly evict the existing value of 'key'
+            evicted_value = self._container.get(key, _Null)
+            self._container[key] = value
 
-        # Insert new entry with new high priority, also implicitly invalidates
-        # the old entry.
-        self._push_entry(key)
+            # If we didn't evict an existing value, we might have to evict the
+            # least recently used item from the beginning of the container.
+            if len(self._container) > self._maxsize:
+                _key, evicted_value = self._container.popitem(last=False)
 
-        if len(self.access_log) > self.access_log_limit:
-            # Heap is getting too big, try to clean up any tailing invalidated
-            # entries.
-            self._prune_invalidated_entries()
-
-        return item
-
-    def __setitem__(self, key, item):
-        # Add item to our container and access log
-        dict.__setitem__(self, key, item)
-        self._push_entry(key)
-
-        # Discard invalid and excess entries
-        self._prune_entries(len(self) - self._maxsize)
+        if self.dispose_func and evicted_value is not _Null:
+            self.dispose_func(evicted_value)
 
     def __delitem__(self, key):
-        self._invalidate_entry(key)
-        self.access_lookup.pop(key, None)
-        dict.__delitem__(self, key)
+        with self.lock:
+            value = self._container.pop(key)
 
-    def get(self, key, default=None):
-        try:
-            return self[key]
-        except KeyError:
-            return default
+        if self.dispose_func:
+            self.dispose_func(value)
+
+    def __len__(self):
+        with self.lock:
+            return len(self._container)
+
+    def __iter__(self):
+        raise NotImplementedError('Iteration over this class is unlikely to be threadsafe.')
+
+    def clear(self):
+        with self.lock:
+            # Copy pointers to all values, then wipe the mapping
+            # under Python 2, this copies the list of values twice :-|
+            values = list(self._container.values())
+            self._container.clear()
+
+        if self.dispose_func:
+            for value in values:
+                self.dispose_func(value)
+
+    def keys(self):
+        with self.lock:
+            return self._container.keys()
+
+
+class HTTPHeaderDict(MutableMapping):
+    """
+    :param headers:
+        An iterable of field-value pairs. Must not contain multiple field names
+        when compared case-insensitively.
+
+    :param kwargs:
+        Additional field-value pairs to pass in to ``dict.update``.
+
+    A ``dict`` like container for storing HTTP Headers.
+
+    Field names are stored and compared case-insensitively in compliance with
+    RFC 7230. Iteration provides the first case-sensitive key seen for each
+    case-insensitive pair.
+
+    Using ``__setitem__`` syntax overwrites fields that compare equal
+    case-insensitively in order to maintain ``dict``'s api. For fields that
+    compare equal, instead create a new ``HTTPHeaderDict`` and use ``.add``
+    in a loop.
+
+    If multiple fields that are equal case-insensitively are passed to the
+    constructor or ``.update``, the behavior is undefined and some will be
+    lost.
+
+    >>> headers = HTTPHeaderDict()
+    >>> headers.add('Set-Cookie', 'foo=bar')
+    >>> headers.add('set-cookie', 'baz=quxx')
+    >>> headers['content-length'] = '7'
+    >>> headers['SET-cookie']
+    'foo=bar, baz=quxx'
+    >>> headers['Content-Length']
+    '7'
+
+    If you want to access the raw headers with their original casing
+    for debugging purposes you can access the private ``._data`` attribute
+    which is a normal python ``dict`` that maps the case-insensitive key to a
+    list of tuples stored as (case-sensitive-original-name, value). Using the
+    structure from above as our example:
+
+    >>> headers._data
+    {'set-cookie': [('Set-Cookie', 'foo=bar'), ('set-cookie', 'baz=quxx')],
+    'content-length': [('content-length', '7')]}
+    """
+
+    def __init__(self, headers=None, **kwargs):
+        self._data = {}
+        if headers is None:
+            headers = {}
+        self.update(headers, **kwargs)
+
+    def add(self, key, value):
+        """Adds a (name, value) pair, doesn't overwrite the value if it already
+        exists.
+
+        >>> headers = HTTPHeaderDict(foo='bar')
+        >>> headers.add('Foo', 'baz')
+        >>> headers['foo']
+        'bar, baz'
+        """
+        self._data.setdefault(key.lower(), []).append((key, value))
+
+    def getlist(self, key):
+        """Returns a list of all the values for the named field. Returns an
+        empty list if the key doesn't exist."""
+        return self[key].split(', ') if key in self else []
+
+    def copy(self):
+        h = HTTPHeaderDict()
+        for key in self._data:
+            for rawkey, value in self._data[key]:
+                h.add(rawkey, value)
+        return h
+
+    def __eq__(self, other):
+        if not isinstance(other, Mapping):
+            return False
+        other = HTTPHeaderDict(other)
+        return dict((k1, self[k1]) for k1 in self._data) == \
+                dict((k2, other[k2]) for k2 in other._data)
+
+    def __getitem__(self, key):
+        values = self._data[key.lower()]
+        return ', '.join(value[1] for value in values)
+
+    def __setitem__(self, key, value):
+        self._data[key.lower()] = [(key, value)]
+
+    def __delitem__(self, key):
+        del self._data[key.lower()]
+
+    def __len__(self):
+        return len(self._data)
+
+    def __iter__(self):
+        for headers in itervalues(self._data):
+            yield headers[0][0]
+
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__.__name__, dict(self.items()))

@@ -24,7 +24,7 @@ import sys
 import types
 
 __author__ = "Benjamin Peterson <benjamin@python.org>"
-__version__ = "1.1.0"
+__version__ = "1.2.0"  # Revision 41c74fef2ded
 
 
 # True if we are running on Python 3.
@@ -45,19 +45,23 @@ else:
     text_type = unicode
     binary_type = str
 
-    # It's possible to have sizeof(long) != sizeof(Py_ssize_t).
-    class X(object):
-        def __len__(self):
-            return 1 << 31
-    try:
-        len(X())
-    except OverflowError:
-        # 32-bit
+    if sys.platform.startswith("java"):
+        # Jython always uses 32 bits.
         MAXSIZE = int((1 << 31) - 1)
     else:
-        # 64-bit
-        MAXSIZE = int((1 << 63) - 1)
-    del X
+        # It's possible to have sizeof(long) != sizeof(Py_ssize_t).
+        class X(object):
+            def __len__(self):
+                return 1 << 31
+        try:
+            len(X())
+        except OverflowError:
+            # 32-bit
+            MAXSIZE = int((1 << 31) - 1)
+        else:
+            # 64-bit
+            MAXSIZE = int((1 << 63) - 1)
+            del X
 
 
 def _add_doc(func, doc):
@@ -132,6 +136,7 @@ class _MovedItems(types.ModuleType):
 _moved_attributes = [
     MovedAttribute("cStringIO", "cStringIO", "io", "StringIO"),
     MovedAttribute("filter", "itertools", "builtins", "ifilter", "filter"),
+    MovedAttribute("input", "__builtin__", "builtins", "raw_input", "input"),
     MovedAttribute("map", "itertools", "builtins", "imap", "map"),
     MovedAttribute("reload_module", "__builtin__", "imp", "reload"),
     MovedAttribute("reduce", "__builtin__", "functools"),
@@ -178,7 +183,7 @@ for attr in _moved_attributes:
     setattr(_MovedItems, attr.name, attr)
 del attr
 
-moves = sys.modules["six.moves"] = _MovedItems("moves")
+moves = sys.modules[__name__ + ".moves"] = _MovedItems("moves")
 
 
 def add_move(move):
@@ -219,12 +224,19 @@ else:
     _iteritems = "iteritems"
 
 
+try:
+    advance_iterator = next
+except NameError:
+    def advance_iterator(it):
+        return it.next()
+next = advance_iterator
+
+
 if PY3:
     def get_unbound_function(unbound):
         return unbound
 
-
-    advance_iterator = next
+    Iterator = object
 
     def callable(obj):
         return any("__call__" in klass.__dict__ for klass in type(obj).__mro__)
@@ -232,9 +244,10 @@ else:
     def get_unbound_function(unbound):
         return unbound.im_func
 
+    class Iterator(object):
 
-    def advance_iterator(it):
-        return it.next()
+        def next(self):
+            return type(self).__next__(self)
 
     callable = callable
 _add_doc(get_unbound_function,
@@ -249,15 +262,15 @@ get_function_defaults = operator.attrgetter(_func_defaults)
 
 def iterkeys(d):
     """Return an iterator over the keys of a dictionary."""
-    return getattr(d, _iterkeys)()
+    return iter(getattr(d, _iterkeys)())
 
 def itervalues(d):
     """Return an iterator over the values of a dictionary."""
-    return getattr(d, _itervalues)()
+    return iter(getattr(d, _itervalues)())
 
 def iteritems(d):
     """Return an iterator over the (key, value) pairs of a dictionary."""
-    return getattr(d, _iteritems)()
+    return iter(getattr(d, _iteritems)())
 
 
 if PY3:
