@@ -1018,6 +1018,14 @@ class TestContentEncodingDetection(unittest.TestCase):
         encodings = requests.utils.get_encodings_from_content(content)
         assert encodings == ['HTML5', 'HTML4', 'XML']
 
+    def test_no_charset_in_http_headers(self):
+        '''
+        This website's server don't response a charset encoding in the http headers
+        It shall auto detected from content with <head>'s charset or content chardet
+        '''
+        response = requests.get('http://www.126.com/')
+        assert response.encoding == 'utf-8'
+
 
 class TestCaseInsensitiveDict(unittest.TestCase):
 
