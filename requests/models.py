@@ -27,7 +27,8 @@ from .exceptions import (
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, to_native_string)
+    iter_slices, guess_json_utf, super_len, to_native_string,
+    get_encodings_from_content)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring)
@@ -708,6 +709,16 @@ class Response(object):
 
             except AttributeError:
                 self._content = None
+
+            # Fallback to auto-detected encoding.
+            if self.encoding is None or self.encoding == 'ISO-8859-1':
+                encoding_check = get_encodings_from_content(str(self._content, errors='replace'))
+                if len(encoding_check):
+                    self.encoding = encoding_check[0]
+                else:
+                    encoding_check = chardet.detect(self._content)
+                    if encoding_check['confidence'] > 0.5:
+                        self.encoding = encoding_check['encoding']
 
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3
