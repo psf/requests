@@ -426,12 +426,25 @@ class Session(SessionRedirectMixin):
         )
         prep = self.prepare_request(req)
 
-        proxies = proxies or {}
+        send_kwargs = self.apply_send_params(prep,
+                                             proxies=proxies,
+                                             verify=verify,
+                                             stream=stream,
+                                             cert=cert,
+                                             timeout=timeout,
+                                             allow_redirects=allow_redirects)
+
+        return self.send(prep, **send_kwargs)
+
+    def apply_send_params(self, request, **kwargs):
+        """Retrieve the sending parameters for the session."""
+        proxies = kwargs.get('proxies') or {}
+        verify = kwargs.get('verify')
 
         # Gather clues from the surrounding environment.
         if self.trust_env:
             # Set environment's proxies.
-            env_proxies = get_environ_proxies(url) or {}
+            env_proxies = get_environ_proxies(request.url) or {}
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)
 
@@ -444,23 +457,15 @@ class Session(SessionRedirectMixin):
                 verify = os.environ.get('CURL_CA_BUNDLE')
 
         # Merge all the kwargs.
-        proxies = merge_setting(proxies, self.proxies)
-        stream = merge_setting(stream, self.stream)
-        verify = merge_setting(verify, self.verify)
-        cert = merge_setting(cert, self.cert)
+        kwargs['proxies'] = merge_setting(proxies, self.proxies)
+        kwargs['verify'] = merge_setting(verify, self.verify)
 
-        # Send the request.
-        send_kwargs = {
-            'stream': stream,
-            'timeout': timeout,
-            'verify': verify,
-            'cert': cert,
-            'proxies': proxies,
-            'allow_redirects': allow_redirects,
-        }
-        resp = self.send(prep, **send_kwargs)
+        if kwargs.get('stream') is None:
+            kwargs['stream'] = self.stream
+        if kwargs.get('cert') is None:
+            kwargs['cert'] = self.cert
 
-        return resp
+        return kwargs
 
     def get(self, url, **kwargs):
         """Sends a GET request. Returns :class:`Response` object.
