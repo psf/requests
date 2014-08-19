@@ -976,10 +976,11 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_requests_history_is_saved(self):
         r = requests.get('https://httpbin.org/redirect/5')
-        count = 0
+        total = r.history[-1].history
+        i = 0
         for item in r.history:
-            assert len(item.history) == count
-            count = count + 1
+            assert item.history == total[0:i]
+            i=i+1
 
 
 class TestContentEncodingDetection(unittest.TestCase):

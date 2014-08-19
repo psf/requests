@@ -97,7 +97,7 @@ class SessionRedirectMixin(object):
             prepared_request = req.copy()
 
             if i > 0:
-                #create deep copy of the history and keep track of redirects
+                #update history and keep track of redirects
                 hist.append(resp)
                 new_hist = list(hist)
                 resp.history = new_hist
