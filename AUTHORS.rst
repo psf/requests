@@ -153,4 +153,4 @@ Patches and Suggestions
 - Erik Wickstrom <erik@erikwickstrom.com> (`@erikwickstrom <https://github.com/erikwickstrom>`_)
 - Константин Подшумок (`@podshumok <https://github.com/podshumok>`_)
 - Ben Bass (`@codedstructure <https://github.com/codedstructure>`_)
-- Jonathan Wong <evolutionace@gmail.com> (`@ContinuousFunction https://github.com/ContinuousFunction>`_)
+- Jonathan Wong <evolutionace@gmail.com> (`@ContinuousFunction <https://github.com/ContinuousFunction>`_)
