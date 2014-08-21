@@ -974,6 +974,14 @@ class RequestsTestCase(unittest.TestCase):
         assert isinstance(s, builtin_str)
         assert s == "Basic dGVzdDp0ZXN0"
 
+    def test_requests_history_is_saved(self):
+        r = requests.get('https://httpbin.org/redirect/5')
+        total = r.history[-1].history
+        i = 0
+        for item in r.history:
+            assert item.history == total[0:i]
+            i=i+1
+
 
 class TestContentEncodingDetection(unittest.TestCase):
 
@@ -1362,6 +1370,7 @@ class TestRedirects:
             send_call = SendCall((response.request,),
                                  TestRedirects.default_keyword_args)
             assert session.calls[-1] == send_call
+
 
 
 @pytest.fixture
