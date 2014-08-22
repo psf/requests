@@ -27,7 +27,8 @@ from .exceptions import (
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, to_native_string)
+    parse_header_links_full, iter_slices, guess_json_utf, super_len,
+    to_native_string)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring)
@@ -776,13 +777,29 @@ class Response(object):
         return json.loads(self.text, **kwargs)
 
     @property
+    def links_multi(self):
+        """Returns the parsed header links of the response, if any.
+
+        Similar to :method:`links`, but returns a dictionary whose values are
+        lists, rather than single items, since there can be more than one link
+        for a given relation type.
+        """
+
+        result = CaseInsensitiveDict()
+
+        for link in parse_header_links_full(self.headers.get('link', '')):
+            for rel in link.attrs['rel'].split():
+                result.setdefault(rel, []).append(link)
+
+        return result
+
+    @property
     def links(self):
         """Returns the parsed header links of the response, if any."""
 
         header = self.headers.get('link')
 
-        # l = MultiDict()
-        l = {}
+        l = CaseInsensitiveDict()
 
         if header:
             links = parse_header_links(header)

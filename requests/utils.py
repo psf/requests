@@ -13,6 +13,7 @@ import cgi
 import codecs
 import collections
 import io
+import itertools
 import os
 import platform
 import re
@@ -558,37 +559,93 @@ def default_headers():
     })
 
 
+def tokenize(value):
+    """Tokenizes a string (e.g. a header value) according to RFC 2616, section 2.2.
+
+    Successfully interprets all valid inputs; however, for simplicity, most
+    handling of invalid strings is omitted.
+
+    >>> tokenize(r'foo, "bar, \"baz\""')
+    ['foo', ',', 'bar, "baz"']
+    """
+    in_quoted = False
+    previous_escape = False
+
+    current_token = ['']
+    tokens = []
+
+    def flush():
+        if len(current_token[0]) > 0:
+            tokens.append(current_token[0])
+            current_token[0] = ''
+
+    def append(char):
+        current_token[0] += char
+
+    for char in value:
+        if in_quoted:
+            if char == '\\' and not previous_escape:
+                previous_escape = True
+            else:
+                if char == '"' and not previous_escape:
+                    in_quoted = False
+                else:
+                    append(char)
+                previous_escape = False
+        elif char == '"':
+            in_quoted = True
+            flush()
+        elif char in '\r\n\t ':
+            flush()
+        elif char in r'()<>@,;:/[]?={}':
+            flush()
+            tokens.append(char)
+        else:
+            append(char)
+
+    flush()
+    return tokens
+
+
+Link = collections.namedtuple('Link', ['uri', 'attrs'])
+
+
+def parse_header_links_full(value):
+    """Parse a string containing links according to RFC 5988."""
+
+    def split(items, delimiter):
+        return (g for k, g in itertools.groupby(items, lambda i: i == delimiter) if not k)
+
+    def grab(items, delimiter=None):
+        return ''.join(itertools.takewhile(lambda i: i != delimiter, items))
+
+    links = []
+    for link in split(tokenize(value), ','):
+        next(link) # consume <
+        uri = grab(link, '>')
+
+        attrs = {}
+        for attr in split(link, ';'):
+            name = grab(attr, '=')
+            attrs[name] = grab(attr)
+
+        links.append(Link(uri=uri, attrs=attrs))
+
+    return links
+
+
 def parse_header_links(value):
-    """Return a dict of parsed link headers proxies.
+    """Return a list of parsed link headers.
 
     i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
 
     """
 
     links = []
-
-    replace_chars = " '\""
-
-    for val in value.split(","):
-        try:
-            url, params = val.split(";", 1)
-        except ValueError:
-            url, params = val, ''
-
-        link = {}
-
-        link["url"] = url.strip("<> '\"")
-
-        for param in params.split(";"):
-            try:
-                key, value = param.split("=")
-            except ValueError:
-                break
-
-            link[key.strip(replace_chars)] = value.strip(replace_chars)
-
-        links.append(link)
-
+    for link in parse_header_links_full(value):
+        result = link.attrs
+        result['url'] = link.uri
+        links.append(result)
     return links
 
 

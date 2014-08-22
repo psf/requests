@@ -596,6 +596,16 @@ class RequestsTestCase(unittest.TestCase):
         }
         assert r.links['next']['rel'] == 'next'
 
+    def test_links_multi(self):
+        from requests.utils import Link
+        r = requests.Response()
+        r.headers = {
+            'link': ('</one>; rel="foo bar"; title="a book", </two>; rel=bar'),
+        }
+        one = Link(uri='/one', attrs={'rel': 'foo bar', 'title': 'a book'})
+        two = Link(uri='/two', attrs={'rel': 'bar'})
+        assert r.links_multi == {'foo': [one], 'bar': [one, two]}
+
     def test_cookie_parameters(self):
         key = 'some_cookie'
         value = 'some_value'
@@ -1246,6 +1256,10 @@ class UtilsTestCase(unittest.TestCase):
         assert username == percent_encoding_test_chars
         assert password == percent_encoding_test_chars
 
+    def test_tokenize(self):
+        from requests.utils import tokenize
+        header = r'</path>; rel=next; title="Foo: \"Bar\""'
+        assert tokenize(header) == ['<', '/', 'path', '>', ';', 'rel', '=', 'next', ';', 'title', '=', 'Foo: "Bar"']
 
 class TestMorselToCookieExpires(unittest.TestCase):
 
