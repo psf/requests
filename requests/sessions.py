@@ -91,13 +91,13 @@ class SessionRedirectMixin(object):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
-        hist = [] #keep track of history
+        hist = [] # keep track of history
 
         while resp.is_redirect:
             prepared_request = req.copy()
 
             if i > 0:
-                #update history and keep track of redirects
+                # Update history and keep track of redirects.
                 hist.append(resp)
                 new_hist = list(hist)
                 resp.history = new_hist
