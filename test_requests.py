@@ -1312,6 +1312,20 @@ class TestTimeout:
         except requests.exceptions.Timeout as e:
             assert 'Read timed out' in e.args[0].args[0]
 
+    def test_bad_port(self):
+        """Testing failing behavior"""
+        import time
+        start = time.time()
+        try:
+            requests.get("http://www.google.com:81", timeout=3)
+        except Exception:
+            print("took "+ str(time.time() - start) + " seconds")
+            raise
+
+        requests.get("http://www.google.com:81", timeout=1)
+
+
+
 
 SendCall = collections.namedtuple('SendCall', ('args', 'kwargs'))
 
