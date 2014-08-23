@@ -15,17 +15,19 @@ from .packages.urllib3 import Retry
 from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
 from .packages.urllib3.response import HTTPResponse
 from .packages.urllib3.util import Timeout as TimeoutSauce
-from .compat import urlparse, basestring, urldefrag, unquote
+from .compat import urlparse, basestring, urldefrag
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     prepend_scheme_if_needed, get_auth_from_url)
 from .structures import CaseInsensitiveDict
-from .packages.urllib3.exceptions import MaxRetryError
-from .packages.urllib3.exceptions import TimeoutError
-from .packages.urllib3.exceptions import SSLError as _SSLError
+from .packages.urllib3.exceptions import ConnectTimeoutError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
+from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import ProxyError as _ProxyError
+from .packages.urllib3.exceptions import ReadTimeoutError
+from .packages.urllib3.exceptions import SSLError as _SSLError
 from .cookies import extract_cookies_to_jar
-from .exceptions import ConnectionError, Timeout, SSLError, ProxyError
+from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
+                         ProxyError)
 from .auth import _basic_auth_str
 
 DEFAULT_POOLBLOCK = False
@@ -315,6 +317,7 @@ class HTTPAdapter(BaseAdapter):
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
         :param stream: (optional) Whether to stream the request content.
         :param timeout: (optional) The timeout on the request.
+        :type timeout: float or tuple (connect timeout, read timeout), eg (3.1, 20)
         :param verify: (optional) Whether to verify SSL certificates.
         :param cert: (optional) Any user-provided SSL certificate to be trusted.
         :param proxies: (optional) The proxies dictionary to apply to the request.
@@ -328,7 +331,18 @@ class HTTPAdapter(BaseAdapter):
 
         chunked = not (request.body is None or 'Content-Length' in request.headers)
 
-        timeout = TimeoutSauce(connect=timeout, read=timeout)
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError as e:
+                # this may raise a string formatting error.
+                err = ("Invalid timeout {0}. Pass a (connect, read) "
+                       "timeout tuple, or a single float to set "
+                       "both timeouts to the same value".format(timeout))
+                raise ValueError(err)
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
 
         try:
             if not chunked:
@@ -390,6 +404,9 @@ class HTTPAdapter(BaseAdapter):
             raise ConnectionError(sockerr, request=request)
 
         except MaxRetryError as e:
+            if isinstance(e.reason, ConnectTimeoutError):
+                raise ConnectTimeout(e, request=request)
+
             raise ConnectionError(e, request=request)
 
         except _ProxyError as e:
@@ -398,8 +415,8 @@ class HTTPAdapter(BaseAdapter):
         except (_SSLError, _HTTPError) as e:
             if isinstance(e, _SSLError):
                 raise SSLError(e, request=request)
-            elif isinstance(e, TimeoutError):
-                raise Timeout(e, request=request)
+            elif isinstance(e, ReadTimeoutError):
+                raise ReadTimeout(e, request=request)
             else:
                 raise
 

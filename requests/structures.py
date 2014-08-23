@@ -23,7 +23,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
     case of the last key to be set, and ``iter(instance)``,
     ``keys()``, ``items()``, ``iterkeys()``, and ``iteritems()``
     will contain case-sensitive keys. However, querying and contains
-    testing is case insensitive:
+    testing is case insensitive::
 
         cid = CaseInsensitiveDict()
         cid['Accept'] = 'application/json'
@@ -35,7 +35,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
     of how the header name was originally stored.
 
     If the constructor, ``.update``, or equality comparison
-    operations are given keys that have equal ``.lower()``s, the
+    operations are given keys that have equal ``.lower()`` s, the
     behavior is undefined.
 
     """
