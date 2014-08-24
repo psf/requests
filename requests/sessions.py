@@ -593,7 +593,7 @@ class Session(SessionRedirectMixin):
         return r
 
     def merge_environment_settings(self, url, proxies, stream, verify, cert):
-        """Checks the environment and merges it with some settings."""
+        """Check the environment and merge it with some settings."""
         # Gather clues from the surrounding environment.
         if self.trust_env:
             # Set environment's proxies.
@@ -601,13 +601,11 @@ class Session(SessionRedirectMixin):
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)
 
-            # Look for configuration.
+            # Look for requests environment configuration and be compatible
+            # with cURL.
             if verify is True or verify is None:
-                verify = os.environ.get('REQUESTS_CA_BUNDLE')
-
-            # Curl compatibility.
-            if verify is True or verify is None:
-                verify = os.environ.get('CURL_CA_BUNDLE')
+                verify = (os.environ.get('REQUESTS_CA_BUNDLE') or
+                          os.environ.get('CURL_CA_BUNDLE'))
 
         # Merge all the kwargs.
         proxies = merge_setting(proxies, self.proxies)
