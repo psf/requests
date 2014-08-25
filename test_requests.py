@@ -1349,9 +1349,8 @@ class TestTimeout:
             requests.get(TARPIT, timeout=(0.1, None))
             assert False, "The connect() request should time out."
         except ConnectTimeout as e:
-            pass
-        assert isinstance(e, ConnectionError)
-        assert isinstance(e, Timeout)
+            assert isinstance(e, ConnectionError)
+            assert isinstance(e, Timeout)
 
     def test_total_timeout_connect(self):
         try:
