@@ -19,7 +19,7 @@ from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3, builtin_str)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (InvalidURL, MissingSchema, ConnectTimeout,
-                                 ReadTimeout)
+                                 ReadTimeout, ConnectionError, Timeout)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -1348,8 +1348,10 @@ class TestTimeout:
         try:
             requests.get(TARPIT, timeout=(0.1, None))
             assert False, "The connect() request should time out."
-        except ConnectTimeout:
+        except ConnectTimeout as e:
             pass
+        assert isinstance(e, ConnectionError)
+        assert isinstance(e, Timeout)
 
     def test_total_timeout_connect(self):
         try:
