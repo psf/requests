@@ -57,7 +57,7 @@ del NullHandler
 
 # Set security warning to only go off once by default.
 import warnings
-warnings.simplefilter('module', exceptions.InsecureRequestWarning)
+warnings.simplefilter('module', exceptions.SecurityWarning)
 
 def disable_warnings(category=exceptions.HTTPWarning):
     """
