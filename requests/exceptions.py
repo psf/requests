@@ -51,8 +51,8 @@ class Timeout(RequestException):
     """
 
 
-class ConnectTimeout(Timeout):
-    """ The request timed out while trying to connect to the server.
+class ConnectTimeout(ConnectionError, Timeout):
+    """The request timed out while trying to connect to the server.
 
     Requests that produce this error are safe to retry
     """
