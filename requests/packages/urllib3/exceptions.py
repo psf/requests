@@ -60,7 +60,14 @@ ConnectionError = ProtocolError
 ## Leaf Exceptions
 
 class MaxRetryError(RequestError):
-    "Raised when the maximum number of retries is exceeded."
+    """Raised when the maximum number of retries is exceeded.
+
+    :param pool: The connection pool
+    :type pool: :class:`~urllib3.connectionpool.HTTPConnectionPool`
+    :param string url: The requested Url
+    :param exceptions.Exception reason: The underlying error
+
+    """
 
     def __init__(self, pool, url, reason=None):
         self.reason = reason
@@ -134,6 +141,16 @@ class LocationParseError(LocationValueError):
         self.location = location
 
 
-class InsecureRequestWarning(HTTPWarning):
+class SecurityWarning(HTTPWarning):
+    "Warned when perfoming security reducing actions"
+    pass
+
+
+class InsecureRequestWarning(SecurityWarning):
     "Warned when making an unverified HTTPS request."
+    pass
+
+
+class SystemTimeWarning(SecurityWarning):
+    "Warned when system time is suspected to be wrong"
     pass

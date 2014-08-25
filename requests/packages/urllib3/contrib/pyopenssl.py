@@ -46,8 +46,12 @@ Module Variables
 
 '''
 
-from ndg.httpsclient.ssl_peer_verification import SUBJ_ALT_NAME_SUPPORT
-from ndg.httpsclient.subj_alt_name import SubjectAltName as BaseSubjectAltName
+try:
+    from ndg.httpsclient.ssl_peer_verification import SUBJ_ALT_NAME_SUPPORT
+    from ndg.httpsclient.subj_alt_name import SubjectAltName as BaseSubjectAltName
+except SyntaxError as e:
+    raise ImportError(e)
+
 import OpenSSL.SSL
 from pyasn1.codec.der import decoder as der_decoder
 from pyasn1.type import univ, constraint
@@ -155,18 +159,24 @@ def get_subj_alt_name(peer_cert):
 
 
 class WrappedSocket(object):
-    '''API-compatibility wrapper for Python OpenSSL's Connection-class.'''
+    '''API-compatibility wrapper for Python OpenSSL's Connection-class.
+
+    Note: _makefile_refs, _drop() and _reuse() are needed for the garbage
+    collector of pypy.
+    '''
 
     def __init__(self, connection, socket, suppress_ragged_eofs=True):
         self.connection = connection
         self.socket = socket
         self.suppress_ragged_eofs = suppress_ragged_eofs
+        self._makefile_refs = 0
 
     def fileno(self):
         return self.socket.fileno()
 
     def makefile(self, mode, bufsize=-1):
-        return _fileobject(self, mode, bufsize)
+        self._makefile_refs += 1
+        return _fileobject(self, mode, bufsize, close=True)
 
     def recv(self, *args, **kwargs):
         try:
@@ -180,7 +190,7 @@ class WrappedSocket(object):
             rd, wd, ed = select.select(
                 [self.socket], [], [], self.socket.gettimeout())
             if not rd:
-                raise timeout()
+                raise timeout('The read operation timed out')
             else:
                 return self.recv(*args, **kwargs)
         else:
@@ -193,7 +203,10 @@ class WrappedSocket(object):
         return self.connection.sendall(data)
 
     def close(self):
-        return self.connection.shutdown()
+        if self._makefile_refs < 1:
+            return self.connection.shutdown()
+        else:
+            self._makefile_refs -= 1
 
     def getpeercert(self, binary_form=False):
         x509 = self.connection.get_peer_certificate()
@@ -215,6 +228,15 @@ class WrappedSocket(object):
                 for value in get_subj_alt_name(x509)
             ]
         }
+
+    def _reuse(self):
+        self._makefile_refs += 1
+
+    def _drop(self):
+        if self._makefile_refs < 1:
+            self.close()
+        else:
+            self._makefile_refs -= 1
 
 
 def _verify_callback(cnx, x509, err_no, err_depth, return_code):
