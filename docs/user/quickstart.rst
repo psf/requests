@@ -29,7 +29,7 @@ Begin by importing the Requests module::
 Now, let's try to get a webpage. For this example, let's get GitHub's public
 timeline ::
 
-    >>> r = requests.get('https://github.com/timeline.json')
+    >>> r = requests.get('https://api.github.com/events')
 
 Now, we have a :class:`Request <requests.Request>` object called ``r``. We can
 get all the information we need from this object.
