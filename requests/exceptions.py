@@ -44,7 +44,22 @@ class SSLError(ConnectionError):
 
 
 class Timeout(RequestException):
-    """The request timed out."""
+    """The request timed out.
+
+    Catching this error will catch both :exc:`ConnectTimeout` and
+    :exc:`ReadTimeout` errors.
+    """
+
+
+class ConnectTimeout(ConnectionError, Timeout):
+    """The request timed out while trying to connect to the server.
+
+    Requests that produce this error are safe to retry
+    """
+
+
+class ReadTimeout(Timeout):
+    """The server did not send any data in the allotted amount of time."""
 
 
 class URLRequired(RequestException):
