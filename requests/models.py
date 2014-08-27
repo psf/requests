@@ -207,6 +207,7 @@ class Request(RequestHooksMixin):
         method=None,
         url=None,
         headers=None,
+        keep_alive=None,
         files=None,
         data=None,
         params=None,
@@ -228,6 +229,7 @@ class Request(RequestHooksMixin):
         self.method = method
         self.url = url
         self.headers = headers
+        self.keep_alive = keep_alive
         self.files = files
         self.data = data
         self.params = params
@@ -288,13 +290,13 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         #: dictionary of callback hooks, for internal usage.
         self.hooks = default_hooks()
 
-    def prepare(self, method=None, url=None, headers=None, files=None,
+    def prepare(self, method=None, url=None, headers=None, keep_alive=False, files=None,
                 data=None, params=None, auth=None, cookies=None, hooks=None):
         """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)
         self.prepare_url(url, params)
-        self.prepare_headers(headers)
+        self.prepare_headers(headers, keep_alive)
         self.prepare_cookies(cookies)
         self.prepare_body(data, files)
         self.prepare_auth(auth, url)
@@ -389,13 +391,16 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         url = requote_uri(urlunparse([scheme, netloc, path, None, query, fragment]))
         self.url = url
 
-    def prepare_headers(self, headers):
+    def prepare_headers(self, headers, keep_alive):
         """Prepares the given HTTP headers."""
 
         if headers:
             self.headers = CaseInsensitiveDict((to_native_string(name), value) for name, value in headers.items())
         else:
             self.headers = CaseInsensitiveDict()
+
+        if keep_alive:
+            self.headers['Connection'] = 'keep-alive'
 
     def prepare_body(self, data, files):
         """Prepares the given HTTP body data."""

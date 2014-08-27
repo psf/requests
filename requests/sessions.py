@@ -273,7 +273,7 @@ class Session(SessionRedirectMixin):
     __attrs__ = [
         'headers', 'cookies', 'auth', 'timeout', 'proxies', 'hooks',
         'params', 'verify', 'cert', 'prefetch', 'adapters', 'stream',
-        'trust_env', 'max_redirects', 'redirect_cache']
+        'trust_env', 'max_redirects', 'redirect_cache', 'keep-alive']
 
     def __init__(self):
 
@@ -307,6 +307,9 @@ class Session(SessionRedirectMixin):
 
         #: SSL certificate default.
         self.cert = None
+
+        #: Connection keep alive default
+        self.keep_alive = None
 
         #: Maximum number of redirects allowed. If the request exceeds this
         #: limit, a :class:`TooManyRedirects` exception is raised.
@@ -353,7 +356,6 @@ class Session(SessionRedirectMixin):
         merged_cookies = merge_cookies(
             merge_cookies(RequestsCookieJar(), self.cookies), cookies)
 
-
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
         if self.trust_env and not auth and not self.auth:
@@ -366,6 +368,7 @@ class Session(SessionRedirectMixin):
             files=request.files,
             data=request.data,
             headers=merge_setting(request.headers, self.headers, dict_class=CaseInsensitiveDict),
+            keep_alive=merge_setting(request.keep_alive, self.keep_alive),
             params=merge_setting(request.params, self.params),
             auth=merge_setting(auth, self.auth),
             cookies=merged_cookies,
@@ -377,6 +380,7 @@ class Session(SessionRedirectMixin):
         params=None,
         data=None,
         headers=None,
+        keep_alive=None,
         cookies=None,
         files=None,
         auth=None,
@@ -421,15 +425,16 @@ class Session(SessionRedirectMixin):
 
         # Create the Request.
         req = Request(
-            method = method.upper(),
-            url = url,
-            headers = headers,
-            files = files,
-            data = data or {},
-            params = params or {},
-            auth = auth,
-            cookies = cookies,
-            hooks = hooks,
+            method=method.upper(),
+            url=url,
+            headers=headers,
+            keep_alive=keep_alive,
+            files=files,
+            data=data or {},
+            params=params or {},
+            auth=auth,
+            cookies=cookies,
+            hooks=hooks,
         )
         prep = self.prepare_request(req)
 
