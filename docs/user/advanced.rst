@@ -241,9 +241,31 @@ data has been read; be sure to either set ``stream`` to ``False`` or read the
 ``content`` property of the ``Response`` object.
 
 For some older servers it may be necessary to manually set the
-``Connection: keep-alive`` header. This will request that the server keep the
-connection open. This does not guarantee that the connection will be kept open,
-and generally is not necessary.
+``keep_alive`` property.
+
+    >>> import requests
+    >>> requests.get("http://example.com", keep_alive=True)
+
+or
+
+    >>> import requests
+    >>> session = requests.Session()
+    >>> session.keep_alive = True
+    >>> session.get("http://example.com")
+
+in case of conflict between session and request parameter like the following example, the request parameter will prevail.
+
+    >>> import requests
+    >>> session = requests.Session()
+    >>> session.keep_alive = True
+    >>> session.get("http://example.com", keep_alive=False)
+
+ Note that this will only request that the server keep the
+connection open and thus, this does not guarantee that the connection will be kept open.
+
+Generally, this is not necessary and in order to insure compliance with big consumers, the value ``keep_alive=False``
+will stay at least until ``2.4.0`` or more likely until ``3.0.0``
+
 
 Streaming Uploads
 -----------------
