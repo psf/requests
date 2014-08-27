@@ -1372,6 +1372,27 @@ class TestRedirects:
             assert session.calls[-1] == send_call
 
 
+class TestKeepAlive(unittest.TestCase):
+    def test_no_keep_alive_by_default(self):
+        p = PreparedRequest()
+        p.prepare(
+            method='GET',
+            url='http://www.example.com',
+            hooks=default_hooks()
+        )
+        assert 'Connection' not in p.headers
+
+    def test_keep_alive_by_default(self):
+        p = PreparedRequest()
+        p.prepare(
+            method='GET',
+            url='http://www.example.com',
+            keep_alive=True,
+            hooks=default_hooks()
+        )
+        assert 'Connection' in p.headers
+
+
 
 @pytest.fixture
 def list_of_tuples():
