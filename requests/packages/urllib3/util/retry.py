@@ -83,7 +83,7 @@ class Retry(object):
         same state). See :attr:`Retry.DEFAULT_METHOD_WHITELIST`.
 
     :param iterable status_forcelist:
-        A set of HTTP status codes that we should force a retry on. 
+        A set of HTTP status codes that we should force a retry on.
 
         By default, this is disabled with ``None``.
 

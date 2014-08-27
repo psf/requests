@@ -5,9 +5,18 @@ def is_fp_closed(obj):
     :param obj:
         The file-like object to check.
     """
-    if hasattr(obj, 'fp'):
-        # Object is a container for another file-like object that gets released
-        # on exhaustion (e.g. HTTPResponse)
-        return obj.fp is None
 
-    return obj.closed
+    try:
+        # Check via the official file-like-object way.
+        return obj.closed
+    except AttributeError:
+        pass
+
+    try:
+        # Check if the object is a container for another file-like object that
+        # gets released on exhaustion (e.g. HTTPResponse).
+        return obj.fp is None
+    except AttributeError:
+        pass
+
+    raise ValueError("Unable to determine whether fp is closed.")
