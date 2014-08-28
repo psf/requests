@@ -301,7 +301,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.prepare_url(url, params)
         self.prepare_headers(headers)
         self.prepare_cookies(cookies)
-        self.prepare_body(data, files)
+        self.prepare_body(data, files, json)
         self.prepare_auth(auth, url)
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
@@ -442,7 +442,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if files:
                 (body, content_type) = self._encode_files(files, data)
             else:
-                if data:
+                if data and not _json:
                     body = self._encode_params(data)
                     if not _json:
                         if isinstance(data, basestring) or hasattr(data, 'read'):
