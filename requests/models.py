@@ -442,13 +442,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if files:
                 (body, content_type) = self._encode_files(files, data)
             else:
-                if data and not _json:
+                if data and _json is None:
                     body = self._encode_params(data)
-                    if not _json:
-                        if isinstance(data, basestring) or hasattr(data, 'read'):
-                            content_type = None
-                        else:
-                            content_type = 'application/x-www-form-urlencoded'
+                    if isinstance(data, basestring) or hasattr(data, 'read'):
+                        content_type = None
+                    else:
+                        content_type = 'application/x-www-form-urlencoded'
 
             self.prepare_content_length(body)
 
