@@ -291,6 +291,9 @@ class RequestsTestCase(unittest.TestCase):
         with pytest.raises(ConnectionError):
             requests.get("http://fooobarbangbazbing.httpbin.org")
 
+        with pytest.raises(ConnectionError):
+            requests.get("http://httpbin.org:1")
+
     def test_basicauth_with_netrc(self):
         auth = ('user', 'pass')
         wrong_auth = ('wronguser', 'wrongpass')
