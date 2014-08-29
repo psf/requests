@@ -250,7 +250,7 @@ API Changes
 
 
 Behavioural Changes
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 * Keys in the ``headers`` dictionary are now native strings on all Python
   versions, i.e. bytestrings on Python 2 and unicode on Python 3. If the
