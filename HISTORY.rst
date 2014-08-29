@@ -3,10 +3,21 @@
 Release History
 ---------------
 
-2.3.1 (?)
-+++++++++
+2.4.0 (2014-08-29)
+++++++++++++++++++
 
-- Allow copying of PreparedRequests without headers/cookies
+**Behavioral Changes**
+
+- ``Connection: keep-alive`` header is now sent automatically.
+
+**Improvements**
+
+- Support for connect timeouts! Timeout now accepts a tuple (connect, read) which is used to set individual connect and read timeouts.
+- Allow copying of PreparedRequests without headers/cookies.
+- Updated bundled urllib3 version.
+- Refactored settings loading from environment — new `Session.merge_environment_settings`.
+- Handle socket errors in iter_content.
+
 
 2.3.0 (2014-05-16)
 ++++++++++++++++++
