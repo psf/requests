@@ -993,7 +993,7 @@ class RequestsTestCase(unittest.TestCase):
         )
         assert r.status_code == 200
         assert 'application/json' in r.request.headers['Content-Type']
-        #assert {'life': 42} == r.json()['json']
+        assert {'life': 42} == r.json()['json']
 
 
 class TestContentEncodingDetection(unittest.TestCase):
