@@ -240,10 +240,6 @@ Note that connections are only released back to the pool for reuse once all body
 data has been read; be sure to either set ``stream`` to ``False`` or read the
 ``content`` property of the ``Response`` object.
 
-For some older servers it may be necessary to manually set the
-``Connection: keep-alive`` header. This will request that the server keep the
-connection open. This does not guarantee that the connection will be kept open,
-and generally is not necessary.
 
 Streaming Uploads
 -----------------
