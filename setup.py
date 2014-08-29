@@ -60,4 +60,7 @@ setup(
         'Programming Language :: Python :: 3.4'
 
     ),
+    extras_require={
+        'betterssl': ['pyOpenSSL', 'ndg-httpsclient', 'pyasn1'],
+    },
 )
