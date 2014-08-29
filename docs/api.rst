@@ -249,7 +249,7 @@ API Changes
       requests.get("http://example.org", proxies=proxies)
 
 
-Behavioral Changes
+Behavioural Changes
 ~~~~~~~~~~~~~~~~~~
 
 * Keys in the ``headers`` dictionary are now native strings on all Python
