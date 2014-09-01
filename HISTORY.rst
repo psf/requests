@@ -15,7 +15,7 @@ Release History
 - Support for connect timeouts! Timeout now accepts a tuple (connect, read) which is used to set individual connect and read timeouts.
 - Allow copying of PreparedRequests without headers/cookies.
 - Updated bundled urllib3 version.
-- Refactored settings loading from environment — new `Session.merge_environment_settings`.
+- Refactored settings loading from environment - new `Session.merge_environment_settings`.
 - Handle socket errors in iter_content.
 
 
