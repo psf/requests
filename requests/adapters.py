@@ -403,11 +403,8 @@ class HTTPAdapter(BaseAdapter):
                     # All is well, return the connection to the pool.
                     conn._put_conn(low_conn)
 
-        except socket.error as sockerr:
-            raise ConnectionError(sockerr, request=request)
-
-        except ProtocolError as e:
-            raise ConnectionError(e, request=request)
+        except (ProtocolError, socket.error) as err:
+            raise ConnectionError(err, request=request)
 
         except MaxRetryError as e:
             if isinstance(e.reason, ConnectTimeoutError):
