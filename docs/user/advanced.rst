@@ -746,7 +746,7 @@ CA Certificates
 ---------------
 
 By default Requests bundles a set of root CAs that it trusts, sourced from the
-Mozilla trust store. However, these are only updated once for each Requests
+`Mozilla trust store`_. However, these are only updated once for each Requests
 version. This means that if you pin a Requests version your certificates can
 become extremely out of date.
 
@@ -758,3 +758,4 @@ system.
 For the sake of security we recommend upgrading certifi frequently!
 
 .. _certifi: http://certifi.io/
+.. _Mozilla trust store: https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
