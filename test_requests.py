@@ -286,6 +286,14 @@ class RequestsTestCase(unittest.TestCase):
         r = s.get(url)
         assert r.status_code == 200
 
+    def test_connection_error(self):
+        """Connecting to an unknown domain should raise a ConnectionError"""
+        with pytest.raises(ConnectionError):
+            requests.get("http://fooobarbangbazbing.httpbin.org")
+
+        with pytest.raises(ConnectionError):
+            requests.get("http://httpbin.org:1")
+
     def test_basicauth_with_netrc(self):
         auth = ('user', 'pass')
         wrong_auth = ('wronguser', 'wrongpass')

@@ -23,6 +23,7 @@ from .packages.urllib3.exceptions import ConnectTimeoutError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .packages.urllib3.exceptions import MaxRetryError
 from .packages.urllib3.exceptions import ProxyError as _ProxyError
+from .packages.urllib3.exceptions import ProtocolError
 from .packages.urllib3.exceptions import ReadTimeoutError
 from .packages.urllib3.exceptions import SSLError as _SSLError
 from .cookies import extract_cookies_to_jar
@@ -402,8 +403,8 @@ class HTTPAdapter(BaseAdapter):
                     # All is well, return the connection to the pool.
                     conn._put_conn(low_conn)
 
-        except socket.error as sockerr:
-            raise ConnectionError(sockerr, request=request)
+        except (ProtocolError, socket.error) as err:
+            raise ConnectionError(err, request=request)
 
         except MaxRetryError as e:
             if isinstance(e.reason, ConnectTimeoutError):
