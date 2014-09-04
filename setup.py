@@ -5,6 +5,8 @@ import sys
 
 import requests
 
+from codecs import open
+
 try:
     from setuptools import setup
 except ImportError:
@@ -27,9 +29,9 @@ packages = [
 
 requires = ['certifi']
 
-with open('README.rst') as f:
+with open('README.rst', 'r', 'utf-8') as f:
     readme = f.read()
-with open('HISTORY.rst') as f:
+with open('HISTORY.rst', 'r', 'utf-8') as f:
     history = f.read()
 
 setup(
