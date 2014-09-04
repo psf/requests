@@ -27,7 +27,7 @@ packages = [
     'requests.packages.urllib3.packages.ssl_match_hostname',
 ]
 
-requires = ['certifi']
+requires = []
 
 with open('README.rst', 'r', 'utf-8') as f:
     readme = f.read()
