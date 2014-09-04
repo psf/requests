@@ -60,6 +60,8 @@ Exceptions
 .. autoexception:: requests.exceptions.HTTPError
 .. autoexception:: requests.exceptions.URLRequired
 .. autoexception:: requests.exceptions.TooManyRedirects
+.. autoexception:: requests.exceptions.ConnectTimeout
+.. autoexception:: requests.exceptions.ReadTimeout
 .. autoexception:: requests.exceptions.Timeout
 
 
@@ -247,29 +249,11 @@ API Changes
       requests.get("http://example.org", proxies=proxies)
 
 
-Behavioral Changes
-~~~~~~~~~~~~~~~~~~
+Behavioural Changes
+~~~~~~~~~~~~~~~~~~~~~~~
 
 * Keys in the ``headers`` dictionary are now native strings on all Python
   versions, i.e. bytestrings on Python 2 and unicode on Python 3. If the
   keys are not native strings (unicode on Python2 or bytestrings on Python 3)
   they will be converted to the native string type assuming UTF-8 encoding.
-
-* Timeouts behave slightly differently. On streaming requests, the timeout
-  only applies to the connection attempt. On regular requests, the timeout
-  is applied to the connection process and on to all attempts to read data from
-  the underlying socket. It does *not* apply to the total download time for the
-  request.
-
-  ::
-
-      tarball_url = 'https://github.com/kennethreitz/requests/tarball/master'
-
-      # One second timeout for the connection attempt
-      # Unlimited time to download the tarball
-      r = requests.get(tarball_url, stream=True, timeout=1)
-
-      # One second timeout for the connection attempt
-      # Another full second timeout to download the tarball
-      r = requests.get(tarball_url, timeout=1)
 

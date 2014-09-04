@@ -194,7 +194,7 @@ Body Content Workflow
 ---------------------
 
 By default, when you make a request, the body of the response is downloaded
-immediately. You can override this behavior and defer downloading the response
+immediately. You can override this behaviour and defer downloading the response
 body until you access the :class:`Response.content <requests.Response.content>`
 attribute with the ``stream`` parameter::
 

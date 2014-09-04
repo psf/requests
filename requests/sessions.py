@@ -400,13 +400,16 @@ class Session(SessionRedirectMixin):
             :class:`Request`.
         :param cookies: (optional) Dict or CookieJar object to send with the
             :class:`Request`.
-        :param files: (optional) Dictionary of 'filename': file-like-objects
+        :param files: (optional) Dictionary of ``'filename': file-like-objects``
             for multipart encoding upload.
         :param auth: (optional) Auth tuple or callable to enable
             Basic/Digest/Custom HTTP Auth.
-        :param timeout: (optional) Float describing the timeout of the
-            request in seconds.
-        :param allow_redirects: (optional) Boolean. Set to True by default.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a (`connect timeout, read
+            timeout <user/advanced.html#timeouts>`_) tuple.
+        :type timeout: float or tuple
+        :param allow_redirects: (optional) Set to True by default.
+        :type allow_redirects: bool
         :param proxies: (optional) Dictionary mapping protocol to the URL of
             the proxy.
         :param stream: (optional) whether to immediately download the response
