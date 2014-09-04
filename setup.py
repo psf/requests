@@ -61,6 +61,6 @@ setup(
 
     ),
     extras_require={
-        'betterssl': ['pyOpenSSL', 'ndg-httpsclient', 'pyasn1'],
+        'security': ['pyOpenSSL', 'ndg-httpsclient', 'pyasn1'],
     },
 )
