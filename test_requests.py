@@ -719,6 +719,12 @@ class RequestsTestCase(unittest.TestCase):
         total_seconds = ((td.microseconds + (td.seconds + td.days * 24 * 3600)
                          * 10**6) / 10**6)
         assert total_seconds > 0.0
+    
+    def test_time_elapsed_streaming_response(self):
+        # check that the download time of the whole body is included in 
+        # response.elapsed when stream=False
+        r = requests.get(httpbin('drip') + "?numbytes=512&duration=1&code=200", stream=False)
+        self.assertGreater(r.elapsed.total_seconds(), 0.9)
 
     def test_response_is_iterable(self):
         r = requests.Response()
