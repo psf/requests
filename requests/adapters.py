@@ -423,4 +423,12 @@ class HTTPAdapter(BaseAdapter):
             else:
                 raise
 
-        return self.build_response(request, resp)
+        r = self.build_response(request, resp)
+
+        if not stream and not r.is_redirect:
+            # Consume response body unless the response is to be streamed, and unless 
+            # this is a redirect response, in which case it will be consumed in 
+            # SessionRedirectMixin.resolve_redirects()
+            r.content
+
+        return r

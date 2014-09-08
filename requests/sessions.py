@@ -590,9 +590,6 @@ class Session(SessionRedirectMixin):
             r = history.pop()
             r.history = history
 
-        if not stream:
-            r.content
-
         return r
 
     def merge_environment_settings(self, url, proxies, stream, verify, cert):
