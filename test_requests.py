@@ -724,7 +724,8 @@ class RequestsTestCase(unittest.TestCase):
         # check that the download time of the whole body is included in 
         # response.elapsed when stream=False
         r = requests.get(httpbin('drip') + "?numbytes=512&duration=1&code=200", stream=False)
-        assert r.elapsed.total_seconds() > 0.9
+        seconds = r.elapsed.microseconds / float(10**6) + r.elapsed.seconds
+        assert seconds > 0.9
 
     def test_response_is_iterable(self):
         r = requests.Response()
