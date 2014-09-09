@@ -31,7 +31,7 @@ timeline ::
 
     >>> r = requests.get('https://api.github.com/events')
 
-Now, we have a :class:`Request <requests.Request>` object called ``r``. We can
+Now, we have a :class:`Response <requests.Response>` object called ``r``. We can
 get all the information we need from this object.
 
 Requests' simple API means that all forms of HTTP request are as obvious. For
