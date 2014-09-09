@@ -3,6 +3,15 @@
 Release History
 ---------------
 
+2.4.1 (2014-09-09)
+++++++++++++++++++
+
+- Now has a "security" package extras set, ``$ pip install requests[security]``
+- Requests will now use Certifi if it is available.
+- Capture and re-raise urllib3 ProtocolError
+- Bugfix for responses that attempt to redirect to themselves forever (wtf?).
+
+
 2.4.0 (2014-08-29)
 ++++++++++++++++++
 
