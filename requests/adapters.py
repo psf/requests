@@ -33,7 +33,7 @@ from .auth import _basic_auth_str
 
 DEFAULT_POOLBLOCK = False
 DEFAULT_POOLSIZE = 10
-DEFAULT_RETRIES = 0
+DEFAULT_RETRIES = object()
 
 
 class BaseAdapter(object):
@@ -79,7 +79,10 @@ class HTTPAdapter(BaseAdapter):
     def __init__(self, pool_connections=DEFAULT_POOLSIZE,
                  pool_maxsize=DEFAULT_POOLSIZE, max_retries=DEFAULT_RETRIES,
                  pool_block=DEFAULT_POOLBLOCK):
-        self.max_retries = max_retries
+        if max_retries is DEFAULT_RETRIES:
+            self.max_retries = Retry(0, read=False)
+        else:
+            self.max_retries = Retry.from_int(max_retries)
         self.config = {}
         self.proxy_manager = {}
 
@@ -360,7 +363,7 @@ class HTTPAdapter(BaseAdapter):
                     assert_same_host=False,
                     preload_content=False,
                     decode_content=False,
-                    retries=Retry(self.max_retries, read=False),
+                    retries=self.max_retries,
                     timeout=timeout
                 )
 
