@@ -396,7 +396,7 @@ To use HTTP Basic Auth with your proxy, use the `http://user:password@host/` syn
         "http": "http://user:pass@10.10.1.10:3128/",
     }
 
-Note that proxy URLs must include the scheme.
+The default scheme for proxy URLs is 'http'.
 
 Compliance
 ----------
