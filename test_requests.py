@@ -994,6 +994,17 @@ class RequestsTestCase(unittest.TestCase):
             assert item.history == total[0:i]
             i=i+1
 
+    def test_session_base_url(self):
+        s = requests.Session()
+        s.base_url = "https://httpbin.org/"
+        r = s.get("get")
+        assert r.url == "https://httpbin.org/get"
+
+    def test_session_base_url_override(self):
+        s = requests.Session()
+        s.base_url = "https://not.httpbin.org/"
+        r = s.get("https://httpbin.org/get")
+        assert r.url == "https://httpbin.org/get"
 
 class TestContentEncodingDetection(unittest.TestCase):
 
