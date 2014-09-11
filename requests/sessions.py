@@ -22,6 +22,7 @@ from .utils import to_key_val_list, default_headers, to_native_string
 from .exceptions import (
     TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError)
 from .structures import CaseInsensitiveDict
+from .packages.urlobject import URLObject
 
 from .adapters import HTTPAdapter
 
@@ -294,6 +295,9 @@ class Session(SessionRedirectMixin):
         #: Event-handling hooks.
         self.hooks = default_hooks()
 
+        #: Base URL that each :class:`Request <Request>` extends or overrides.
+        self.base_url = None
+
         #: Dictionary of querystring data to attach to each
         #: :class:`Request <Request>`. The dictionary values may be lists for
         #: representing multivalued query parameters.
@@ -421,6 +425,9 @@ class Session(SessionRedirectMixin):
         """
 
         method = builtin_str(method)
+
+        if self.base_url:
+            url = URLObject(self.base_url).relative(url)
 
         # Create the Request.
         req = Request(
