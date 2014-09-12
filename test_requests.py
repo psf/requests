@@ -922,7 +922,7 @@ class RequestsTestCase(unittest.TestCase):
 
         assert p.headers['Content-Length'] == length
 
-    def test_oddball_schemes_dont_check_URLs(self):
+    def test_nonhttp_schemes_dont_check_URLs(self):
         test_urls = (
             'data:image/gif;base64,R0lGODlhAQABAHAAACH5BAUAAAAALAAAAAABAAEAAAICRAEAOw==',
             'file:///etc/passwd',

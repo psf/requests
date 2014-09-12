@@ -334,7 +334,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         except UnicodeDecodeError:
             pass
 
-        # Don't do any URL preparation for oddball schemes
+        # Don't do any URL preparation for non-HTTP schemes like `mailto`,
+        # `data` etc to work around exceptions from `url_parse`, which
+        # handles RFC 3986 only.
         if ':' in url and not url.lower().startswith('http'):
             self.url = url
             return
