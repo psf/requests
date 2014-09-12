@@ -25,6 +25,7 @@ from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
+from requests.utils import prepend_scheme_if_needed
 
 try:
     import StringIO
@@ -1484,6 +1485,29 @@ def test_prepared_request_complete_copy():
         cookies={'foo': 'bar'}
     )
     assert_copy(p, p.copy())
+
+
+def test_prepend_scheme_if_needed():
+    assert prepend_scheme_if_needed(
+        'example.com', 'http') == 'http://example.com'
+
+    assert prepend_scheme_if_needed(
+        'https://example.com', 'http') == 'https://example.com'
+
+    assert prepend_scheme_if_needed(
+        'localhost:3128', 'http') == 'http://localhost:3128'
+
+    assert prepend_scheme_if_needed(
+        'localhost:3128/', 'http') == 'http://localhost:3128/'
+
+    assert prepend_scheme_if_needed(
+        'localhost', 'http') == 'http://localhost'
+
+    assert prepend_scheme_if_needed(
+        'localhost:3128/0', 'http') == 'http://localhost:3128/0'
+
+    assert prepend_scheme_if_needed(
+        'localhost/', 'http') == 'http://localhost/'
 
 if __name__ == '__main__':
     unittest.main()
