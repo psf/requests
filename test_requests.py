@@ -18,8 +18,9 @@ from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3, builtin_str)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
-from requests.exceptions import (InvalidURL, MissingSchema, ConnectTimeout,
-                                 ReadTimeout, ConnectionError, Timeout)
+from requests.exceptions import (ConnectionError, ConnectTimeout,
+                                 InvalidSchema, InvalidURL, MissingSchema,
+                                 ReadTimeout, Timeout)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -78,6 +79,12 @@ class RequestsTestCase(unittest.TestCase):
     def test_invalid_url(self):
         with pytest.raises(MissingSchema):
             requests.get('hiwpefhipowhefopw')
+        with pytest.raises(InvalidSchema):
+            requests.get('localhost:3128')
+        with pytest.raises(InvalidSchema):
+            requests.get('localhost.localdomain:3128/')
+        with pytest.raises(InvalidSchema):
+            requests.get('10.122.1.1:3128/')
         with pytest.raises(InvalidURL):
             requests.get('http://')
 
