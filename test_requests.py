@@ -434,8 +434,8 @@ class RequestsTestCase(unittest.TestCase):
             requests.post(url, files=['bad file data'])
 
     def test_conflicting_post_params(self):
-        url = httpbin('post')
-        with open('requirements.txt') as f:
+        url = httpbin('post')  # noqa
+        with open('requirements.txt') as f:  # noqa
             pytest.raises(ValueError, "requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})")
             pytest.raises(ValueError, "requests.post(url, data=u('[{\"some\": \"data\"}]'), files={'some': f})")
 
@@ -729,15 +729,15 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_response_is_iterable(self):
         r = requests.Response()
-        io = StringIO.StringIO('abc')
-        read_ = io.read
+        io_ = StringIO.StringIO('abc')
+        read_ = io_.read
 
         def read_mock(amt, decode_content=None):
             return read_(amt)
-        setattr(io, 'read', read_mock)
-        r.raw = io
+        setattr(io_, 'read', read_mock)
+        r.raw = io_
         assert next(iter(r))
-        io.close()
+        io_.close()
 
     def test_response_decode_unicode(self):
         """
