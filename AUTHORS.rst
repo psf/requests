@@ -154,3 +154,4 @@ Patches and Suggestions
 - Константин Подшумок (`@podshumok <https://github.com/podshumok>`_)
 - Ben Bass (`@codedstructure <https://github.com/codedstructure>`_)
 - Jonathan Wong <evolutionace@gmail.com> (`@ContinuousFunction <https://github.com/ContinuousFunction>`_)
+- Martin Jul (`@mjul <https://github.com/mjul>`_)

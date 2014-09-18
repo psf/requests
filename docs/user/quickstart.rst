@@ -270,6 +270,9 @@ support this, but there is a separate package which does -
 ``requests-toolbelt``. You should read `the toolbelt's documentation
 <https://toolbelt.rtfd.org>`_ for more details about how to use it.
 
+For sending multiple files in one request refer to the :ref:`advanced <advanced>`
+section.
+
 
 Response Status Codes
 ---------------------
