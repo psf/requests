@@ -667,9 +667,8 @@ class Response(object):
         if self._content_consumed and isinstance(self._content, bool):
             raise RuntimeError(
                         'The content for this response was already consumed')
-        else:
-            # simulate reading small chunks of the content
-            reused_chunks = iter_slices(self._content, chunk_size)
+        # simulate reading small chunks of the content
+        reused_chunks = iter_slices(self._content, chunk_size)
 
         stream_chunks = generate()
 
