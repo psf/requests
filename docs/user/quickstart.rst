@@ -369,9 +369,9 @@ HEAD.
 We can use the ``history`` property of the Response object to track redirection.
 
 The :meth:`Response.history <requests.Response.history>` list contains the
-:class:`Request <requests.Request>` objects that were created in order to
+:class:`Response <requests.Response>` objects that were created in order to
 complete the request. The list is sorted from the oldest to the most recent
-request.
+response.
 
 For example, GitHub redirects all HTTP requests to HTTPS::
 
