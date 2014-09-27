@@ -150,6 +150,14 @@ class HTTPDigestAuth(AuthBase):
 
         return 'Digest %s' % (base)
 
+    def handle_302(self, r, **kwargs):
+        """Reset num_401_calls counter on redirects."""
+        try:
+            delattr(self, 'num_401_calls')
+        except AttributeError:
+            pass
+        return r
+
     def handle_401(self, r, **kwargs):
         """Takes the given response and tries digest-auth, if needed."""
 
@@ -194,4 +202,5 @@ class HTTPDigestAuth(AuthBase):
         except AttributeError:
             pass
         r.register_hook('response', self.handle_401)
+        r.register_hook('response', self.handle_302)
         return r
