@@ -48,6 +48,13 @@ port_by_scheme = {
     'https': 443,
 }
 
+def needs_ssl(func):
+    def wrapper(*args,**kwargs):
+        if ssl is None:
+            raise BaseSSLError("To perform calling of func {} module ssl must be installed.".format(func))
+        return func(*args,**kwargs)
+    return wrapper
+
 RECENT_DATE = datetime.date(2014, 1, 1)
 
 
@@ -163,6 +170,7 @@ class HTTPSConnection(HTTPConnection):
         # HTTPS requests to go out as HTTP. (See Issue #356)
         self._protocol = 'https'
 
+    @needs_ssl
     def connect(self):
         conn = self._new_conn()
         self._prepare_conn(conn)
