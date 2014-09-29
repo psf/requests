@@ -155,3 +155,4 @@ Patches and Suggestions
 - Ben Bass (`@codedstructure <https://github.com/codedstructure>`_)
 - Jonathan Wong <evolutionace@gmail.com> (`@ContinuousFunction <https://github.com/ContinuousFunction>`_)
 - Martin Jul (`@mjul <https://github.com/mjul>`_)
+- Joe Alcorn (`@buttscicles <https://github.com/buttscicles>`_)
