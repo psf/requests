@@ -332,13 +332,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_url(self, url, params):
         """Prepares the given HTTP URL."""
         #: Accept objects that have string representations.
+        #: We're unable to blindy call unicode/str functions
+        #: as this will include the bytestring indicator (b'')
+        #: on python 3.x.
+        #: https://github.com/kennethreitz/requests/pull/2238
         try:
-            url = unicode(url)
-        except NameError:
-            # We're on Python 3.
-            url = str(url)
-        except UnicodeDecodeError:
-            pass
+            url = url.decode('utf8')
+        except AttributeError:
+            url = unicode(url) if is_py2 else str(url)
 
         # Don't do any URL preparation for non-HTTP schemes like `mailto`,
         # `data` etc to work around exceptions from `url_parse`, which

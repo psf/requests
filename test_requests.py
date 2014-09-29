@@ -591,6 +591,12 @@ class RequestsTestCase(unittest.TestCase):
         assert resp.json()['headers'][
             'Dummy-Auth-Test'] == 'dummy-auth-test-ok'
 
+    def test_prepare_request_with_bytestring_url(self):
+        req = requests.Request('GET', b'https://httpbin.org/')
+        s = requests.Session()
+        prep = s.prepare_request(req)
+        assert prep.url == "https://httpbin.org/"
+
     def test_links(self):
         r = requests.Response()
         r.headers = {
