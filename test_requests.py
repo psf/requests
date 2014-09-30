@@ -1001,6 +1001,31 @@ class RequestsTestCase(unittest.TestCase):
             assert item.history == total[0:i]
             i=i+1
 
+    def test_json(self):
+        url = httpbin('post')
+
+        r = requests.post(url, json=dict(foo='bar'))
+
+        assert r.status_code == 200
+        assert r.headers['content-type'] == 'application/json'
+
+    def test_json_overrides_data(self):
+        json_data = dict(foo='bar')
+        r = requests.Request('POST', httpbin('post'), data=dict(age=42),
+                             json=json_data)
+
+        pr = r.prepare()
+
+        assert pr.body == json.dumps(json_data)
+        assert pr.headers['content-type'] == 'application/json'
+
+    def test_json_raises_with_files(self):
+        url = httpbin('post')
+
+        with pytest.raises(NotImplementedError):
+            requests.post(url, json=dict(foo='bar'),
+                          files=dict(req=open('requirements.txt', 'rb')))
+
 
 class TestContentEncodingDetection(unittest.TestCase):
 

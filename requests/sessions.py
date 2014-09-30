@@ -364,6 +364,7 @@ class Session(SessionRedirectMixin):
             method=request.method.upper(),
             url=request.url,
             files=request.files,
+            json=request.json,
             data=request.data,
             headers=merge_setting(request.headers, self.headers, dict_class=CaseInsensitiveDict),
             params=merge_setting(request.params, self.params),
@@ -379,6 +380,7 @@ class Session(SessionRedirectMixin):
         headers=None,
         cookies=None,
         files=None,
+        json=None,
         auth=None,
         timeout=None,
         allow_redirects=True,
@@ -402,6 +404,8 @@ class Session(SessionRedirectMixin):
             :class:`Request`.
         :param files: (optional) Dictionary of ``'filename': file-like-objects``
             for multipart encoding upload.
+        :param json: (optional) Dictionary to send in the body as JSON object
+            of the :class:`Request`.
         :param auth: (optional) Auth tuple or callable to enable
             Basic/Digest/Custom HTTP Auth.
         :param timeout: (optional) How long to wait for the server to send
@@ -428,6 +432,7 @@ class Session(SessionRedirectMixin):
             url = url,
             headers = headers,
             files = files,
+            json = json,
             data = data or {},
             params = params or {},
             auth = auth,

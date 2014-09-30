@@ -25,6 +25,7 @@ def request(method, url, **kwargs):
     :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
     :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
     :param files: (optional) Dictionary of ``'name': file-like-objects`` (or ``{'name': ('filename', fileobj)}``) for multipart encoding upload.
+    :param json: (optional) Dictionary that would be converted to JSON object (careful: will override `data` param)
     :param auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.
     :param timeout: (optional) How long to wait for the server to send data
         before giving up, as a float, or a (`connect timeout, read timeout

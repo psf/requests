@@ -208,6 +208,7 @@ class Request(RequestHooksMixin):
         url=None,
         headers=None,
         files=None,
+        json=None,
         data=None,
         params=None,
         auth=None,
@@ -229,6 +230,7 @@ class Request(RequestHooksMixin):
         self.url = url
         self.headers = headers
         self.files = files
+        self.json = json
         self.data = data
         self.params = params
         self.auth = auth
@@ -245,6 +247,7 @@ class Request(RequestHooksMixin):
             url=self.url,
             headers=self.headers,
             files=self.files,
+            json=self.json,
             data=self.data,
             params=self.params,
             auth=self.auth,
@@ -288,7 +291,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         #: dictionary of callback hooks, for internal usage.
         self.hooks = default_hooks()
 
-    def prepare(self, method=None, url=None, headers=None, files=None,
+    def prepare(self, method=None, url=None, headers=None, files=None, json=None,
                 data=None, params=None, auth=None, cookies=None, hooks=None):
         """Prepares the entire request with the given parameters."""
 
@@ -296,7 +299,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.prepare_url(url, params)
         self.prepare_headers(headers)
         self.prepare_cookies(cookies)
-        self.prepare_body(data, files)
+        self.prepare_body(data, files, json)
         self.prepare_auth(auth, url)
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
@@ -399,8 +402,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         else:
             self.headers = CaseInsensitiveDict()
 
-    def prepare_body(self, data, files):
-        """Prepares the given HTTP body data."""
+    def prepare_body(self, data, files, _json):
+        """
+        Prepares the given HTTP body data.
+
+        `_json` would override `data` param if not `None`.
+        """
 
         # Check if file, fo, generator, iterator.
         # If not, run through normal process.
@@ -409,6 +416,13 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         body = None
         content_type = None
         length = None
+
+        # TODO: should we be able to do this?
+        if _json and files:
+            raise NotImplementedError('Unable to send files and json simultaneously.')
+
+        if _json:
+            data = json.dumps(_json)  # TODO: should we catch exceptions
 
         is_stream = all([
             hasattr(data, '__iter__'),
@@ -437,7 +451,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 if data:
                     body = self._encode_params(data)
-                    if isinstance(data, basestring) or hasattr(data, 'read'):
+                    if _json:
+                        content_type = 'application/json'
+                    elif isinstance(data, basestring) or hasattr(data, 'read'):
                         content_type = None
                     else:
                         content_type = 'application/x-www-form-urlencoded'
