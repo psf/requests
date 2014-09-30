@@ -430,7 +430,7 @@ class Session(SessionRedirectMixin):
             headers = headers,
             files = files,
             data = data or {},
-            json = json or {},
+            json = json,
             params = params or {},
             auth = auth,
             cookies = cookies,
