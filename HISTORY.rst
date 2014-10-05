@@ -3,6 +3,28 @@
 Release History
 ---------------
 
+2.4.2 (2014-10-05)
+++++++++++++++++++
+
+**Improvements**
+
+- FINALLY! Add json parameter for uploads! (`#2258 <https://github.com/kennethreitz/requests/pull/2258>`_)
+- Support for bytestring URLs on Python 3.x (`#2238 <https://github.com/kennethreitz/requests/pull/2238>`_)
+
+**Bugfixes**
+
+- Avoid getting stuck in a loop (`#2244 <https://github.com/kennethreitz/requests/pull/2244>`_)
+- Multiple calls to iter* fail with unhelpful error. (`#2240 <https://github.com/kennethreitz/requests/issues/2240>`_, `#2241 <https://github.com/kennethreitz/requests/issues/2241>`_)
+- Automatically defrag authentication schemes from host/pass URIs. (`#2249 <https://github.com/kennethreitz/requests/issues/2249>`_)
+
+**Documentation**
+
+- Correct redirection introduction (`#2245 <https://github.com/kennethreitz/requests/pull/2245/>`_)
+- Added example of how to send multiple files in one request. (`#2227 <https://github.com/kennethreitz/requests/pull/2227/>`_)
+- Clarify how to pass a custom set of CAs (`#2248 <https://github.com/kennethreitz/requests/pull/2248/>`_)
+
+
+
 2.4.1 (2014-09-09)
 ++++++++++++++++++
 
