@@ -213,11 +213,11 @@ class Request(RequestHooksMixin):
         headers=None,
         files=None,
         data=None,
-        json=None,
         params=None,
         auth=None,
         cookies=None,
-        hooks=None):
+        hooks=None,
+        json=None):
 
         # Default empty dicts for dict params.
         data = [] if data is None else data
