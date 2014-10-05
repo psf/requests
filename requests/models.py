@@ -22,8 +22,9 @@ from .packages.urllib3.util import parse_url
 from .packages.urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError)
 from .exceptions import (
-    HTTPError, RequestException, MissingSchema, InvalidURL,
-    ChunkedEncodingError, ContentDecodingError, ConnectionError)
+    HTTPError, RequestException, MissingSchema, InvalidURL, 
+    ChunkedEncodingError, ContentDecodingError, ConnectionError, 
+    StreamConsumedError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
@@ -667,6 +668,8 @@ class Response(object):
 
             self._content_consumed = True
 
+        if self._content_consumed and isinstance(self._content, bool):
+            raise StreamConsumedError()
         # simulate reading small chunks of the content
         reused_chunks = iter_slices(self._content, chunk_size)
 
