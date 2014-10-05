@@ -358,7 +358,7 @@ def get_unicode_from_response(r):
 
     """
 
-    tried_encodings = []
+    tried_encodings = set()
 
     # Try charset from content-type
     encoding = get_encoding_from_headers(r.headers)
@@ -367,7 +367,7 @@ def get_unicode_from_response(r):
         try:
             return str(r.content, encoding)
         except UnicodeError:
-            tried_encodings.append(encoding.lower())
+            tried_encodings.add(encoding.lower())
 
     # Try charsets from meta tags
     encodings = get_encodings_from_content(r.content)
@@ -379,7 +379,7 @@ def get_unicode_from_response(r):
             try:
                 return str(r.content, encoding)
             except UnicodeError:
-                tried_encodings.append(encoding.lower())
+                tried_encodings.add(encoding.lower())
 
     # Fall back:
     try:
