@@ -13,7 +13,7 @@ Requests is an HTTP library, written in Python, for human beings. Basic GET
 usage:
 
    >>> import requests
-   >>> r = requests.get('http://python.org')
+   >>> r = requests.get('https://www.python.org')
    >>> r.status_code
    200
    >>> 'Python is a programming language' in r.content
@@ -22,7 +22,7 @@ usage:
 ... or POST:
 
    >>> payload = dict(key1='value1', key2='value2')
-   >>> r = requests.post("http://httpbin.org/post", data=payload)
+   >>> r = requests.post('http://httpbin.org/post', data=payload)
    >>> print(r.text)
    {
      ...
@@ -42,8 +42,8 @@ is at <http://python-requests.org>.
 """
 
 __title__ = 'requests'
-__version__ = '2.4.1'
-__build__ = 0x020401
+__version__ = '2.4.2'
+__build__ = 0x020402
 __author__ = 'Kenneth Reitz'
 __license__ = 'Apache 2.0'
 __copyright__ = 'Copyright 2014 Kenneth Reitz'
