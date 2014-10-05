@@ -46,6 +46,8 @@ DEFAULT_REDIRECT_LIMIT = 30
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
 
+json_dumps = json.dumps
+
 
 class RequestEncodingMixin(object):
     @property
@@ -189,7 +191,8 @@ class Request(RequestHooksMixin):
     :param url: URL to send.
     :param headers: dictionary of headers to send.
     :param files: dictionary of {filename: fileobject} files to multipart upload.
-    :param data: the body to attach the request. If a dictionary is provided, form-encoding will take place.
+    :param data: the body to attach to the request. If a dictionary is provided, form-encoding will take place.
+    :param json: json for the body to attach to the request (if data is not specified).
     :param params: dictionary of URL parameters to append to the URL.
     :param auth: Auth handler or (user, pass) tuple.
     :param cookies: dictionary or CookieJar of cookies to attach to this request.
@@ -209,6 +212,7 @@ class Request(RequestHooksMixin):
         headers=None,
         files=None,
         data=None,
+        json=None,
         params=None,
         auth=None,
         cookies=None,
@@ -230,6 +234,7 @@ class Request(RequestHooksMixin):
         self.headers = headers
         self.files = files
         self.data = data
+        self.json = json
         self.params = params
         self.auth = auth
         self.cookies = cookies
@@ -246,6 +251,7 @@ class Request(RequestHooksMixin):
             headers=self.headers,
             files=self.files,
             data=self.data,
+            json=self.json,
             params=self.params,
             auth=self.auth,
             cookies=self.cookies,
@@ -289,14 +295,15 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.hooks = default_hooks()
 
     def prepare(self, method=None, url=None, headers=None, files=None,
-                data=None, params=None, auth=None, cookies=None, hooks=None):
+                data=None, params=None, auth=None, cookies=None, hooks=None,
+                json=None):
         """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)
         self.prepare_url(url, params)
         self.prepare_headers(headers)
         self.prepare_cookies(cookies)
-        self.prepare_body(data, files)
+        self.prepare_body(data, files, json)
         self.prepare_auth(auth, url)
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
@@ -400,7 +407,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         else:
             self.headers = CaseInsensitiveDict()
 
-    def prepare_body(self, data, files):
+    def prepare_body(self, data, files, json=None):
         """Prepares the given HTTP body data."""
 
         # Check if file, fo, generator, iterator.
@@ -410,6 +417,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         body = None
         content_type = None
         length = None
+
+        if json is not None:
+            content_type = 'application/json'
+            body = json_dumps(json)
 
         is_stream = all([
             hasattr(data, '__iter__'),
@@ -436,7 +447,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if files:
                 (body, content_type) = self._encode_files(files, data)
             else:
-                if data:
+                if data and json is None:
                     body = self._encode_params(data)
                     if isinstance(data, basestring) or hasattr(data, 'read'):
                         content_type = None
@@ -446,7 +457,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             self.prepare_content_length(body)
 
             # Add content-type if it wasn't explicitly provided.
-            if (content_type) and (not 'content-type' in self.headers):
+            if content_type and ('content-type' not in self.headers):
                 self.headers['Content-Type'] = content_type
 
         self.body = body
