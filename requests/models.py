@@ -338,9 +338,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         #: as this will include the bytestring indicator (b'')
         #: on python 3.x.
         #: https://github.com/kennethreitz/requests/pull/2238
-        try:
+        if isinstance(url, bytes):
             url = url.decode('utf8')
-        except AttributeError:
+        else:
             url = unicode(url) if is_py2 else str(url)
 
         # Don't do any URL preparation for non-HTTP schemes like `mailto`,
