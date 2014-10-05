@@ -351,10 +351,7 @@ def get_unicode_from_response(r):
     Tried:
 
     1. charset from content-type
-
-    2. every encodings from ``<meta ... charset=XXX>``
-
-    3. fall back and replace all unicode characters
+    2. fall back and replace all unicode characters
 
     """
 
