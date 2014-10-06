@@ -91,10 +91,8 @@ def resolve_ssl_version(candidate):
     return candidate
 
 
-if SSLContext is not None:  # Python 3.2+
-    def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
-                        ca_certs=None, server_hostname=None,
-                        ssl_version=None):
+def create_context(keyfile=None, certfile=None, cert_reqs=None,
+                   ca_certs=None, server_hostname=None, ssl_version=None):
         """
         All arguments except `server_hostname` have the same meaning as for
         :func:`ssl.wrap_socket`
@@ -119,14 +117,46 @@ if SSLContext is not None:  # Python 3.2+
         if certfile:
             # FIXME: This block needs a test.
             context.load_cert_chain(certfile, keyfile)
-        if HAS_SNI:  # Platform-specific: OpenSSL with enabled SNI
-            return context.wrap_socket(sock, server_hostname=server_hostname)
-        return context.wrap_socket(sock)
 
-else:  # Python 3.1 and earlier
-    def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
-                        ca_certs=None, server_hostname=None,
-                        ssl_version=None):
-        return wrap_socket(sock, keyfile=keyfile, certfile=certfile,
-                           ca_certs=ca_certs, cert_reqs=cert_reqs,
-                           ssl_version=ssl_version)
+        return context
+
+
+# if SSLContext is not None:  # Python 3.2+
+#     def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
+#                         ca_certs=None, server_hostname=None,
+#                         ssl_version=None):
+#         """
+#         All arguments except `server_hostname` have the same meaning as for
+#         :func:`ssl.wrap_socket`
+#
+#         :param server_hostname:
+#             Hostname of the expected certificate
+#         """
+#         context = SSLContext(ssl_version)
+#         context.verify_mode = cert_reqs
+#
+#         # Disable TLS compression to migitate CRIME attack (issue #309)
+#         OP_NO_COMPRESSION = 0x20000
+#         context.options |= OP_NO_COMPRESSION
+#
+#         if ca_certs:
+#             try:
+#                 context.load_verify_locations(ca_certs)
+#             # Py32 raises IOError
+#             # Py33 raises FileNotFoundError
+#             except Exception as e:  # Reraise as SSLError
+#                 raise SSLError(e)
+#         if certfile:
+#             # FIXME: This block needs a test.
+#             context.load_cert_chain(certfile, keyfile)
+#         if HAS_SNI:  # Platform-specific: OpenSSL with enabled SNI
+#             return context.wrap_socket(sock, server_hostname=server_hostname)
+#         return context.wrap_socket(sock)
+#
+# else:  # Python 3.1 and earlier
+#     def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
+#                         ca_certs=None, server_hostname=None,
+#                         ssl_version=None):
+#         return wrap_socket(sock, keyfile=keyfile, certfile=certfile,
+#                            ca_certs=ca_certs, cert_reqs=cert_reqs,
+#                            ssl_version=ssl_version)

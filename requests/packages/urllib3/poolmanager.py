@@ -1,4 +1,5 @@
 import logging
+import asyncio
 
 try:  # Python 3
     from urllib.parse import urljoin
@@ -61,8 +62,7 @@ class PoolManager(RequestMethods):
     def __init__(self, num_pools=10, headers=None, **connection_pool_kw):
         RequestMethods.__init__(self, headers)
         self.connection_pool_kw = connection_pool_kw
-        self.pools = RecentlyUsedContainer(num_pools,
-                                           dispose_func=lambda p: p.close())
+        self.pools = RecentlyUsedContainer(num_pools, dispose_func=lambda p: p.close())
 
     def _new_pool(self, scheme, host, port):
         """
@@ -130,6 +130,7 @@ class PoolManager(RequestMethods):
         u = parse_url(url)
         return self.connection_from_host(u.host, port=u.port, scheme=u.scheme)
 
+    @asyncio.coroutine
     def urlopen(self, method, url, redirect=True, **kw):
         """
         Same as :meth:`urllib3.connectionpool.HTTPConnectionPool.urlopen`
@@ -148,9 +149,9 @@ class PoolManager(RequestMethods):
             kw['headers'] = self.headers
 
         if self.proxy is not None and u.scheme == "http":
-            response = conn.urlopen(method, url, **kw)
+            response = yield from conn.urlopen(method, url, **kw)
         else:
-            response = conn.urlopen(method, u.request_uri, **kw)
+            response = yield from conn.urlopen(method, u.request_uri, **kw)
 
         redirect_location = redirect and response.get_redirect_location()
         if not redirect_location:
@@ -171,7 +172,8 @@ class PoolManager(RequestMethods):
         kw['redirect'] = redirect
 
         log.info("Redirecting %s -> %s" % (url, redirect_location))
-        return self.urlopen(method, redirect_location, **kw)
+        _d = yield from self.urlopen(method, redirect_location, **kw)
+        return _d
 
 
 class ProxyManager(PoolManager):
@@ -247,6 +249,7 @@ class ProxyManager(PoolManager):
             headers_.update(headers)
         return headers_
 
+    @asyncio.coroutine
     def urlopen(self, method, url, redirect=True, **kw):
         "Same as HTTP(S)ConnectionPool.urlopen, ``url`` must be absolute."
         u = parse_url(url)
@@ -258,7 +261,8 @@ class ProxyManager(PoolManager):
             headers = kw.get('headers', self.headers)
             kw['headers'] = self._set_proxy_headers(url, headers)
 
-        return super(ProxyManager, self).urlopen(method, url, redirect=redirect, **kw)
+        _d = yield from super(ProxyManager, self).urlopen(method, url, redirect=redirect, **kw)
+        return _d
 
 
 def proxy_from_url(url, **kw):

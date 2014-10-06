@@ -29,7 +29,7 @@ Now you can use :mod:`urllib3` as you normally would, and it will support SNI
 when the required modules are installed.
 
 Activating this module also has the positive side effect of disabling SSL/TLS
-encryption in Python 2 (see `CRIME attack`_).
+compression in Python 2 (see `CRIME attack`_).
 
 If you want to configure the default list of supported cipher suites, you can
 set the ``urllib3.contrib.pyopenssl.DEFAULT_SSL_CIPHER_LIST`` variable.
@@ -199,8 +199,21 @@ class WrappedSocket(object):
     def settimeout(self, timeout):
         return self.socket.settimeout(timeout)
 
+    def _send_until_done(self, data):
+        while True:
+            try:
+                return self.connection.send(data)
+            except OpenSSL.SSL.WantWriteError:
+                _, wlist, _ = select.select([], [self.socket], [],
+                                            self.socket.gettimeout())
+                if not wlist:
+                    raise timeout()
+                continue
+
     def sendall(self, data):
-        return self.connection.sendall(data)
+        while len(data):
+            sent = self._send_until_done(data)
+            data = data[sent:]
 
     def close(self):
         if self._makefile_refs < 1:

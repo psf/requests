@@ -511,8 +511,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_hooks(self, hooks):
         """Prepares the given hooks."""
-        for event in hooks:
-            self.register_hook(event, hooks[event])
+        if hooks:
+            for event in hooks:
+                self.register_hook(event, hooks[event])
 
 
 class Response(object):

@@ -8,7 +8,8 @@ from .ssl_ import (
     assert_fingerprint,
     resolve_cert_reqs,
     resolve_ssl_version,
-    ssl_wrap_socket,
+    #ssl_wrap_socket,
+    create_context,
 )
 from .timeout import (
     current_time,

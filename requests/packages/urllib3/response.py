@@ -1,6 +1,7 @@
 import zlib
 import io
-from socket import timeout as SocketTimeout
+#from socket import timeout as SocketTimeout
+from yieldfrom.httpclient import HTTPResponse as _HTTPResponse
 
 from ._collections import HTTPHeaderDict
 from .exceptions import ProtocolError, DecodeError, ReadTimeoutError
@@ -8,6 +9,7 @@ from .packages.six import string_types as basestring, binary_type
 from .connection import HTTPException, BaseSSLError
 from .util.response import is_fp_closed
 
+import asyncio
 
 
 class DeflateDecoder(object):
@@ -47,6 +49,8 @@ class HTTPResponse(io.IOBase):
     """
     HTTP Response container.
 
+    ### body is the original HTTPResponse
+
     Backwards-compatible to httplib's HTTPResponse but the response ``body`` is
     loaded and decoded on-demand when the ``data`` property is accessed.  This
     class is also compatible with the Python standard library's :mod:`io`
@@ -84,6 +88,7 @@ class HTTPResponse(io.IOBase):
         self.reason = reason
         self.strict = strict
         self.decode_content = decode_content
+        self.preload_content = preload_content
 
         self._decoder = None
         self._body = None
@@ -91,17 +96,24 @@ class HTTPResponse(io.IOBase):
         self._original_response = original_response
         self._fp_bytes_read = 0
 
-        if body and isinstance(body, (basestring, binary_type)):
-            self._body = body
+        if body:
+            if isinstance(body, (basestring, binary_type)):
+                self._body = body
+
+            #elif isinstance(body, _HTTPResponse):
+            #    self._fp = body.fp
+
+            elif hasattr(body, 'read'):
+                self._fp = body
 
         self._pool = pool
         self._connection = connection
 
-        if hasattr(body, 'read'):
-            self._fp = body
 
-        if preload_content and not self._body:
-            self._body = self.read(decode_content=decode_content)
+    @asyncio.coroutine
+    def init(self):
+        if self.preload_content and not self._body:
+            self._body = yield from self.read(decode_content=self.decode_content)
 
     def get_redirect_location(self):
         """
@@ -124,13 +136,15 @@ class HTTPResponse(io.IOBase):
         self._connection = None
 
     @property
+    @asyncio.coroutine
     def data(self):
         # For backwords-compat with earlier urllib3 0.4 and earlier.
         if self._body:
             return self._body
 
         if self._fp:
-            return self.read(cache_content=True)
+            _d = yield from self.read(cache_content=True)
+            return _d
 
     def tell(self):
         """
@@ -140,6 +154,7 @@ class HTTPResponse(io.IOBase):
         """
         return self._fp_bytes_read
 
+    @asyncio.coroutine
     def read(self, amt=None, decode_content=None, cache_content=False):
         """
         Similar to :meth:`httplib.HTTPResponse.read`, but with two additional
@@ -179,11 +194,11 @@ class HTTPResponse(io.IOBase):
             try:
                 if amt is None:
                     # cStringIO doesn't like amt=None
-                    data = self._fp.read()
+                    data = yield from self._fp.read()
                     flush_decoder = True
                 else:
                     cache_content = False
-                    data = self._fp.read(amt)
+                    data = yield from self._fp.read(amt)
                     if amt != 0 and not data:  # Platform-specific: Buggy versions of Python.
                         # Close the connection when no data is returned
                         #
@@ -195,7 +210,7 @@ class HTTPResponse(io.IOBase):
                         self._fp.close()
                         flush_decoder = True
 
-            except SocketTimeout:
+            except asyncio.TimeoutError:
                 # FIXME: Ideally we'd like to include the url in the ReadTimeoutError but
                 # there is yet no clean way to get at it from this context.
                 raise ReadTimeoutError(self._pool, None, 'Read timed out.')
@@ -236,11 +251,21 @@ class HTTPResponse(io.IOBase):
             if self._original_response and self._original_response.isclosed():
                 self.release_conn()
 
+    @asyncio.coroutine
     def stream(self, amt=2**16, decode_content=None):
         """
-        A generator wrapper for the read() method. A call will block until
-        ``amt`` bytes have been read from the connection or until the
-        connection is closed.
+        The original urllib3 has this as a generator, and feeds blocks
+        on the fly.
+
+        The use of coroutines for data reading blocks that usage, as
+        the same method cannot be both a coroutine and an iterator. So
+        this now just slurps the whole page, splits into blocks of the
+        desired size, and returns an iterable (a list) of the blocks.
+
+        So you can write similar usage:
+
+        for block in (yield from resp.stream):
+          # do something with block
 
         :param amt:
             How much of the content to read. The generator will return up to
@@ -252,13 +277,18 @@ class HTTPResponse(io.IOBase):
             If True, will attempt to decode the body based on the
             'content-encoding' header.
         """
-        while not is_fp_closed(self._fp):
-            data = self.read(amt=amt, decode_content=decode_content)
+        allData = yield from self.read(decode_content=decode_content)
 
-            if data:
-                yield data
+        dataBlocks = []
+        while allData:
+            block = allData[:amt]
+            dataBlocks.append(block)
+            allData = allData[amt:]
+
+        return iter(dataBlocks)
 
     @classmethod
+    @asyncio.coroutine
     def from_httplib(ResponseCls, r, **response_kw):
         """
         Given an :class:`httplib.HTTPResponse` instance ``r``, return a
@@ -274,7 +304,7 @@ class HTTPResponse(io.IOBase):
 
         # HTTPResponse objects in Python 3 don't have a .strict attribute
         strict = getattr(r, 'strict', 0)
-        return ResponseCls(body=r,
+        r = ResponseCls(body=r,
                            headers=headers,
                            status=r.status,
                            version=r.version,
@@ -282,6 +312,9 @@ class HTTPResponse(io.IOBase):
                            strict=strict,
                            original_response=r,
                            **response_kw)
+
+        yield from r.init()
+        return r
 
     # Backwards-compatibility methods for httplib.HTTPResponse
     def getheaders(self):
@@ -292,13 +325,20 @@ class HTTPResponse(io.IOBase):
 
     # Overrides from io.IOBase
     def close(self):
-        if not self.closed:
+        if self.closed:
+            return
+        if type(self._fp) == asyncio.StreamReader:
+            self._fp.feed_eof()
+            self._fp._buffer = b'' # empty buffer
+        else:
             self._fp.close()
 
     @property
     def closed(self):
         if self._fp is None:
             return True
+        elif type(self._fp) == asyncio.StreamReader:
+            return self._fp.at_eof()
         elif hasattr(self._fp, 'closed'):
             return self._fp.closed
         elif hasattr(self._fp, 'isclosed'):  # Python 2
@@ -323,11 +363,17 @@ class HTTPResponse(io.IOBase):
         # This method is required for `io` module compatibility.
         return True
 
+    @asyncio.coroutine
     def readinto(self, b):
         # This method is required for `io` module compatibility.
-        temp = self.read(len(b))
-        if len(temp) == 0:
-            return 0
-        else:
-            b[:len(temp)] = temp
-            return len(temp)
+        bLen = len(b)
+        bytes = yield from self._fp.read(bLen)
+        bytesLen = len(bytes)
+        b[:bytesLen] = bytes
+        return len(bytes)
+        # temp = yield from self.read(len(b))
+        # if len(temp) == 0:
+        #     return 0
+        # else:
+        #     b[:len(temp)] = temp
+        #     return len(temp)

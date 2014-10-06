@@ -1,3 +1,5 @@
+import asyncio
+
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -49,6 +51,7 @@ class RequestMethods(object):
         raise NotImplemented("Classes extending RequestMethods must implement "
                              "their own ``urlopen`` method.")
 
+    @asyncio.coroutine
     def request(self, method, url, fields=None, headers=None, **urlopen_kw):
         """
         Make a request using :meth:`urlopen` with the appropriate encoding of
@@ -63,14 +66,14 @@ class RequestMethods(object):
         method = method.upper()
 
         if method in self._encode_url_methods:
-            return self.request_encode_url(method, url, fields=fields,
-                                           headers=headers,
-                                           **urlopen_kw)
+            _d = yield from self.request_encode_url(method, url, fields=fields,
+                                                    headers=headers, **urlopen_kw)
         else:
-            return self.request_encode_body(method, url, fields=fields,
-                                            headers=headers,
-                                            **urlopen_kw)
+            _d = yield from self.request_encode_body(method, url, fields=fields,
+                                                     headers=headers, **urlopen_kw)
+        return _d
 
+    @asyncio.coroutine
     def request_encode_url(self, method, url, fields=None, **urlopen_kw):
         """
         Make a request using :meth:`urlopen` with the ``fields`` encoded in
@@ -78,8 +81,10 @@ class RequestMethods(object):
         """
         if fields:
             url += '?' + urlencode(fields)
-        return self.urlopen(method, url, **urlopen_kw)
+        _d = yield from self.urlopen(method, url, **urlopen_kw)
+        return _d
 
+    @asyncio.coroutine
     def request_encode_body(self, method, url, fields=None, headers=None,
                             encode_multipart=True, multipart_boundary=None,
                             **urlopen_kw):
@@ -131,5 +136,6 @@ class RequestMethods(object):
         headers_ = {'Content-Type': content_type}
         headers_.update(headers)
 
-        return self.urlopen(method, url, body=body, headers=headers_,
-                            **urlopen_kw)
+        _d = yield from self.urlopen(method, url, body=body, headers=headers_,
+                                     **urlopen_kw)
+        return _d

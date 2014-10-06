@@ -40,6 +40,48 @@ class Url(namedtuple('Url', url_attrs)):
             return '%s:%d' % (self.host, self.port)
         return self.host
 
+    @property
+    def url(self):
+        """
+        Convert self into a url
+
+        This function should more or less round-trip with :func:`.parse_url`. The
+        returned url may not be exactly the same as the url inputted to
+        :func:`.parse_url`, but it should be equivalent by the RFC (e.g., urls
+        with a blank port will have : removed).
+
+        Example: ::
+
+            >>> U = parse_url('http://google.com/mail/')
+            >>> U.url
+            'http://google.com/mail/'
+            >>> Url('http', 'username:password', 'host.com', 80,
+            ... '/path', 'query', 'fragment').url
+            'http://username:password@host.com:80/path?query#fragment'
+        """
+        scheme, auth, host, port, path, query, fragment = self
+        url = ''
+
+        # We use "is not None" we want things to happen with empty strings (or 0 port)
+        if scheme is not None:
+            url += scheme + '://'
+        if auth is not None:
+            url += auth + '@'
+        if host is not None:
+            url += host
+        if port is not None:
+            url += ':' + str(port)
+        if path is not None:
+            url += path
+        if query is not None:
+            url += '?' + query
+        if fragment is not None:
+            url += '#' + fragment
+
+        return url
+
+    def __str__(self):
+        return self.url
 
 def split_first(s, delims):
     """
@@ -84,7 +126,7 @@ def parse_url(url):
     Example::
 
         >>> parse_url('http://google.com/mail/')
-        Url(scheme='http', host='google.com', port=None, path='/', ...)
+        Url(scheme='http', host='google.com', port=None, path='/mail/', ...)
         >>> parse_url('google.com:80')
         Url(scheme=None, host='google.com', port=80, path=None, ...)
         >>> parse_url('/foo?bar')
@@ -161,7 +203,6 @@ def parse_url(url):
         path, query = path.split('?', 1)
 
     return Url(scheme, auth, host, port, path, query, fragment)
-
 
 def get_host(url):
     """

@@ -1,3 +1,5 @@
+import asyncio
+
 def is_fp_closed(obj):
     """
     Checks whether a given file-like object is closed.
@@ -5,6 +7,8 @@ def is_fp_closed(obj):
     :param obj:
         The file-like object to check.
     """
+    if type(obj) == asyncio.StreamReader:
+        return obj.at_eof()
 
     try:
         # Check via the official file-like-object way.
