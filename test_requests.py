@@ -1507,5 +1507,13 @@ def test_prepared_request_complete_copy():
     )
     assert_copy(p, p.copy())
 
+def test_prepare_unicode_url():
+    p = PreparedRequest()
+    p.prepare(
+        method='GET',
+        url=u('http://www.example.com/üniçø∂é')
+    )
+    assert_copy(p, p.copy())
+
 if __name__ == '__main__':
     unittest.main()
