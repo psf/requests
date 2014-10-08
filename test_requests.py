@@ -18,7 +18,7 @@ from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3, builtin_str)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
-from requests.exceptions import (ConnectionError, ConnectTimeout,
+from requests.exceptions import (ConnectionError, ConnectTimeout, DecodeError,
                                  InvalidSchema, InvalidURL, MissingSchema,
                                  ReadTimeout, Timeout)
 from requests.models import PreparedRequest
@@ -527,7 +527,7 @@ class RequestsTestCase(unittest.TestCase):
         assert not r.ok
 
     @async_test
-    def tst_decompress_gzip(self):
+    def test_decompress_gzip(self):
         r = yield from requests.get(httpbin('gzip'))
         rc = yield from r.content
         rc.decode('ascii')
@@ -543,7 +543,7 @@ class RequestsTestCase(unittest.TestCase):
 
     @async_test
     def test_unicode_header_name(self):
-        requests.put(
+        yield from requests.put(
             httpbin('put'),
             headers={str('Content-Type'): 'application/octet-stream'},
             data='\xff')  # compat.str is unicode.
@@ -589,7 +589,6 @@ class RequestsTestCase(unittest.TestCase):
             files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
-    @async_test
     def test_unicode_multipart_post_fieldnames(self):
         filename = os.path.splitext(__file__)[0] + '.py'
         r = requests.Request(method='POST',
@@ -619,7 +618,6 @@ class RequestsTestCase(unittest.TestCase):
         assert r.status_code == 200
         assert b"text/py-content-type" in r.request.body
 
-    @async_test
     def test_hook_receives_request_arguments(self):
         def hook(resp, **kwargs):
             assert resp is not None
@@ -627,7 +625,6 @@ class RequestsTestCase(unittest.TestCase):
 
         requests.Request('GET', HTTPBIN, hooks={'response': hook})
 
-    @async_test
     def test_session_hooks_are_used_with_no_request_hooks(self):
         hook = lambda x, *args, **kwargs: x
         s = requests.Session()
@@ -637,7 +634,6 @@ class RequestsTestCase(unittest.TestCase):
         assert prep.hooks['response'] != []
         assert prep.hooks['response'] == [hook]
 
-    @async_test
     def test_session_hooks_are_overriden_by_request_hooks(self):
         hook1 = lambda x, *args, **kwargs: x
         hook2 = lambda x, *args, **kwargs: x
@@ -1128,7 +1124,12 @@ class RequestsTestCase(unittest.TestCase):
         s = requests.Session()
         url = httpbin('redirect/1')
         self._patch_adapter_gzipped_redirect(s, url)
-        yield from s.get(url)
+        try:
+            yield from s.get(url)
+        except DecodeError:
+            pass
+        else:
+            self.fail('DecodeError not raised')
 
     def test_basic_auth_str_is_always_native(self):
         s = _basic_auth_str("test", "test")

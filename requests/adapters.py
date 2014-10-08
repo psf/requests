@@ -359,7 +359,7 @@ class HTTPAdapter(BaseAdapter):
                     redirect=False,
                     assert_same_host=False,
                     preload_content=False,
-                    decode_content=False,
+                    decode_content=True, #False,
                     retries=Retry(self.max_retries, read=False),
                     timeout=timeout
                 )
@@ -389,12 +389,12 @@ class HTTPAdapter(BaseAdapter):
                     low_conn.send(b'0\r\n\r\n')
 
                     r = low_conn.getresponse()
-                    resp = HTTPResponse.from_httplib(
+                    resp = yield from HTTPResponse.from_httplib(
                         r,
                         pool=conn,
                         connection=low_conn,
                         preload_content=False,
-                        decode_content=False
+                        decode_content=True, #False
                     )
                 except:
                     # If we hit any problems here, clean up the connection.
