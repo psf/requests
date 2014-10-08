@@ -26,6 +26,7 @@ from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
+from requests.utils import iter_slices
 import asyncio
 import functools
 
@@ -494,11 +495,22 @@ class RequestsTestCase(unittest.TestCase):
             yield from requests.post(url, files=['bad file data'])
 
     @async_test
-    def tst_conflicting_post_params(self):
+    def test_conflicting_post_params(self):
         url = httpbin('post')
         with open('requirements.txt') as f:
-            pytest.raises(ValueError, "requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})")
-            pytest.raises(ValueError, "requests.post(url, data=u('[{\"some\": \"data\"}]'), files={'some': f})")
+            try:
+                yield from requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})
+            except ValueError:
+                pass
+            else:
+                self.fail('did not raise %s' % ValueError)
+        with open('requirements.txt') as f:
+            try:
+                yield from requests.post(url, data=u('[{\"some\": \"data\"}]'), files={'some': f})
+            except ValueError:
+                pass
+            else:
+                self.fail('did not raise %s' % ValueError)
 
     @async_test
     def test_request_ok_set(self):
@@ -837,7 +849,7 @@ class RequestsTestCase(unittest.TestCase):
         io.close()
 
     @async_test
-    def tst_response_decode_unicode(self):
+    def test_response_decode_unicode(self):
         """
         When called with decode_unicode, Response.iter_content should always
         return unicode.
@@ -850,9 +862,17 @@ class RequestsTestCase(unittest.TestCase):
         chunks = yield from r.iter_content(decode_unicode=True)
         assert all(isinstance(chunk, str) for chunk in chunks)
 
+        class FakeIO():
+            def __init__(self, d):
+                self.d = d
+            def stream(self, size):
+                yield None
+                return iter_slices(self.d, size)
+
+
         # also for streaming
         r = requests.Response()
-        r.raw = asyncio.StreamReader(b'the content')
+        r.raw = FakeIO(b'the content')
         r.encoding = 'ascii'
         chunks = yield from r.iter_content(decode_unicode=True)
         assert all(isinstance(chunk, str) for chunk in chunks)
@@ -1110,7 +1130,6 @@ class RequestsTestCase(unittest.TestCase):
         self._patch_adapter_gzipped_redirect(s, url)
         yield from s.get(url)
 
-    @async_test
     def test_basic_auth_str_is_always_native(self):
         s = _basic_auth_str("test", "test")
         assert isinstance(s, builtin_str)
@@ -1139,12 +1158,10 @@ class RequestsTestCase(unittest.TestCase):
 
 class TestContentEncodingDetection(unittest.TestCase):
 
-    @async_test
     def test_none(self):
         encodings = requests.utils.get_encodings_from_content('')
         assert not len(encodings)
 
-    @async_test
     def test_html_charset(self):
         """HTML5 meta charset attribute"""
         content = '<meta charset="UTF-8">'
@@ -1152,7 +1169,6 @@ class TestContentEncodingDetection(unittest.TestCase):
         assert len(encodings) == 1
         assert encodings[0] == 'UTF-8'
 
-    @async_test
     def test_html4_pragma(self):
         """HTML4 pragma directive"""
         content = '<meta http-equiv="Content-type" content="text/html;charset=UTF-8">'
@@ -1160,7 +1176,6 @@ class TestContentEncodingDetection(unittest.TestCase):
         assert len(encodings) == 1
         assert encodings[0] == 'UTF-8'
 
-    @async_test
     def test_xhtml_pragma(self):
         """XHTML 1.x served with text/html MIME type"""
         content = '<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />'
@@ -1168,7 +1183,6 @@ class TestContentEncodingDetection(unittest.TestCase):
         assert len(encodings) == 1
         assert encodings[0] == 'UTF-8'
 
-    @async_test
     def test_xml(self):
         """XHTML 1.x served as XML"""
         content = '<?xml version="1.0" encoding="UTF-8"?>'
@@ -1176,7 +1190,6 @@ class TestContentEncodingDetection(unittest.TestCase):
         assert len(encodings) == 1
         assert encodings[0] == 'UTF-8'
 
-    @async_test
     def test_precedence(self):
         content = '''
         <?xml version="1.0" encoding="XML"?>
@@ -1189,47 +1202,40 @@ class TestContentEncodingDetection(unittest.TestCase):
 
 class TestCaseInsensitiveDict(unittest.TestCase):
 
-    @async_test
     def test_mapping_init(self):
         cid = CaseInsensitiveDict({'Foo': 'foo', 'BAr': 'bar'})
         assert len(cid) == 2
         assert 'foo' in cid
         assert 'bar' in cid
 
-    @async_test
     def test_iterable_init(self):
         cid = CaseInsensitiveDict([('Foo', 'foo'), ('BAr', 'bar')])
         assert len(cid) == 2
         assert 'foo' in cid
         assert 'bar' in cid
 
-    @async_test
     def test_kwargs_init(self):
         cid = CaseInsensitiveDict(FOO='foo', BAr='bar')
         assert len(cid) == 2
         assert 'foo' in cid
         assert 'bar' in cid
 
-    @async_test
     def test_docstring_example(self):
         cid = CaseInsensitiveDict()
         cid['Accept'] = 'application/json'
         assert cid['aCCEPT'] == 'application/json'
         assert list(cid) == ['Accept']
 
-    @async_test
     def test_len(self):
         cid = CaseInsensitiveDict({'a': 'a', 'b': 'b'})
         cid['A'] = 'a'
         assert len(cid) == 2
 
-    @async_test
     def test_getitem(self):
         cid = CaseInsensitiveDict({'Spam': 'blueval'})
         assert cid['spam'] == 'blueval'
         assert cid['SPAM'] == 'blueval'
 
-    @async_test
     def test_fixes_649(self):
         """__setitem__ should behave case-insensitively."""
         cid = CaseInsensitiveDict()
@@ -1241,7 +1247,6 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert cid['SPAM'] == 'blueval'
         assert list(cid.keys()) == ['SPAM']
 
-    @async_test
     def test_delitem(self):
         cid = CaseInsensitiveDict()
         cid['Spam'] = 'someval'
@@ -1249,7 +1254,6 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert 'spam' not in cid
         assert len(cid) == 0
 
-    @async_test
     def test_contains(self):
         cid = CaseInsensitiveDict()
         cid['Spam'] = 'someval'
@@ -1259,7 +1263,6 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert 'sPam' in cid
         assert 'notspam' not in cid
 
-    @async_test
     def test_get(self):
         cid = CaseInsensitiveDict()
         cid['spam'] = 'oneval'
@@ -1269,7 +1272,6 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert cid.get('sPam') == 'blueval'
         assert cid.get('notspam', 'default') == 'default'
 
-    @async_test
     def test_update(self):
         cid = CaseInsensitiveDict()
         cid['spam'] = 'blueval'
@@ -1281,19 +1283,16 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert cid['foo'] == 'anotherfoo'
         assert cid['bar'] == 'anotherbar'
 
-    @async_test
     def test_update_retains_unchanged(self):
         cid = CaseInsensitiveDict({'foo': 'foo', 'bar': 'bar'})
         cid.update({'foo': 'newfoo'})
         assert cid['bar'] == 'bar'
 
-    @async_test
     def test_iter(self):
         cid = CaseInsensitiveDict({'Spam': 'spam', 'Eggs': 'eggs'})
         keys = frozenset(['Spam', 'Eggs'])
         assert frozenset(iter(cid)) == keys
 
-    @async_test
     def test_equality(self):
         cid = CaseInsensitiveDict({'SPAM': 'blueval', 'Eggs': 'redval'})
         othercid = CaseInsensitiveDict({'spam': 'blueval', 'eggs': 'redval'})
@@ -1302,13 +1301,11 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert cid != othercid
         assert cid == {'spam': 'blueval', 'eggs': 'redval'}
 
-    @async_test
     def test_setdefault(self):
         cid = CaseInsensitiveDict({'Spam': 'blueval'})
         assert cid.setdefault('spam', 'notblueval') == 'blueval'
         assert cid.setdefault('notspam', 'notblueval') == 'notblueval'
 
-    @async_test
     def test_lower_items(self):
         cid = CaseInsensitiveDict({
             'Accept': 'application/json',
@@ -1318,7 +1315,6 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         lowerkeyset = frozenset(['accept', 'user-agent'])
         assert keyset == lowerkeyset
 
-    @async_test
     def test_preserve_key_case(self):
         cid = CaseInsensitiveDict({
             'Accept': 'application/json',
@@ -1329,7 +1325,6 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert frozenset(cid.keys()) == keyset
         assert frozenset(cid) == keyset
 
-    @async_test
     def test_preserve_last_key_case(self):
         cid = CaseInsensitiveDict({
             'Accept': 'application/json',
@@ -1345,7 +1340,6 @@ class TestCaseInsensitiveDict(unittest.TestCase):
 
 class UtilsTestCase(unittest.TestCase):
 
-    @async_test
     def test_super_len_io_streams(self):
         """ Ensures that we properly deal with different kinds of IO streams. """
         # uses StringIO or io.StringIO (see import above)
@@ -1368,7 +1362,6 @@ class UtilsTestCase(unittest.TestCase):
             assert super_len(
                 cStringIO.StringIO('but some how, some way...')) == 25
 
-    @async_test
     def test_get_environ_proxies_ip_ranges(self):
         """Ensures that IP addresses are correctly matches with ranges
         in no_proxy variable."""
@@ -1381,7 +1374,6 @@ class UtilsTestCase(unittest.TestCase):
         assert get_environ_proxies('http://192.168.1.1:5000/') != {}
         assert get_environ_proxies('http://192.168.1.1/') != {}
 
-    @async_test
     def test_get_environ_proxies(self):
         """Ensures that IP addresses are correctly matches with ranges
         in no_proxy variable."""
@@ -1391,33 +1383,28 @@ class UtilsTestCase(unittest.TestCase):
             'http://localhost.localdomain:5000/v1.0/') == {}
         assert get_environ_proxies('http://www.requests.com/') != {}
 
-    @async_test
     def test_is_ipv4_address(self):
         from requests.utils import is_ipv4_address
         assert is_ipv4_address('8.8.8.8')
         assert not is_ipv4_address('8.8.8.8.8')
         assert not is_ipv4_address('localhost.localdomain')
 
-    @async_test
     def test_is_valid_cidr(self):
         from requests.utils import is_valid_cidr
         assert not is_valid_cidr('8.8.8.8')
         assert is_valid_cidr('192.168.1.0/24')
 
-    @async_test
     def test_dotted_netmask(self):
         from requests.utils import dotted_netmask
         assert dotted_netmask(8) == '255.0.0.0'
         assert dotted_netmask(24) == '255.255.255.0'
         assert dotted_netmask(25) == '255.255.255.128'
 
-    @async_test
     def test_address_in_network(self):
         from requests.utils import address_in_network
         assert address_in_network('192.168.1.1', '192.168.1.0/24')
         assert not address_in_network('172.16.0.1', '192.168.1.0/24')
 
-    @async_test
     def test_get_auth_from_url(self):
         """Ensures that username and password in well-encoded URI as per
         RFC 3986 are correclty extracted."""
@@ -1437,7 +1424,6 @@ class TestMorselToCookieExpires(unittest.TestCase):
 
     """Tests for morsel_to_cookie when morsel contains expires."""
 
-    @async_test
     def test_expires_valid_str(self):
         """Test case where we convert expires from string time."""
 
@@ -1446,7 +1432,6 @@ class TestMorselToCookieExpires(unittest.TestCase):
         cookie = morsel_to_cookie(morsel)
         assert cookie.expires == 1
 
-    @async_test
     def test_expires_invalid_int(self):
         """Test case where an invalid type is passed for expires."""
 
@@ -1455,7 +1440,6 @@ class TestMorselToCookieExpires(unittest.TestCase):
         with pytest.raises(TypeError):
             morsel_to_cookie(morsel)
 
-    @async_test
     def test_expires_invalid_str(self):
         """Test case where an invalid string is input."""
 
@@ -1464,7 +1448,6 @@ class TestMorselToCookieExpires(unittest.TestCase):
         with pytest.raises(ValueError):
             morsel_to_cookie(morsel)
 
-    @async_test
     def test_expires_none(self):
         """Test case where expires is None."""
 
@@ -1478,7 +1461,6 @@ class TestMorselToCookieMaxAge(unittest.TestCase):
 
     """Tests for morsel_to_cookie when morsel contains max-age."""
 
-    @async_test
     def test_max_age_valid_int(self):
         """Test case where a valid max age in seconds is passed."""
 
@@ -1487,7 +1469,6 @@ class TestMorselToCookieMaxAge(unittest.TestCase):
         cookie = morsel_to_cookie(morsel)
         assert isinstance(cookie.expires, int)
 
-    @async_test
     def test_max_age_invalid_str(self):
         """Test case where a invalid max age is passed."""
 
@@ -1498,6 +1479,7 @@ class TestMorselToCookieMaxAge(unittest.TestCase):
 
 
 class TestTimeout:
+
     @async_test
     def test_stream_timeout(self):
         try:
@@ -1603,10 +1585,10 @@ class TestRedirects:
     def test_requests_are_updated_each_time(self):
         session = RedirectSession([303, 307])
         prep = requests.Request('POST', 'http://httpbin.org/post').prepare()
-        r0 = session.send(prep)
+        r0 = yield from session.send(prep)
         assert r0.request.method == 'POST'
         assert session.calls[-1] == SendCall((r0.request,), {})
-        redirect_generator = session.resolve_redirects(r0, prep)
+        redirect_generator = yield from session.resolve_redirects(r0, prep)
         for response in redirect_generator:
             assert response.request.method == 'GET'
             send_call = SendCall((response.request,),
@@ -1624,7 +1606,6 @@ def list_of_tuples():
         ]
 
 
-@async_test
 def test_data_argument_accepts_tuples(list_of_tuples):
     """
     Ensure that the data argument will accept tuples of strings
@@ -1646,13 +1627,11 @@ def assert_copy(p, p_copy):
         assert getattr(p, attr) == getattr(p_copy, attr)
 
 
-@async_test
 def test_prepared_request_empty_copy():
     p = PreparedRequest()
     assert_copy(p, p.copy())
 
 
-@async_test
 def test_prepared_request_no_cookies_copy():
     p = PreparedRequest()
     p.prepare(
@@ -1664,7 +1643,6 @@ def test_prepared_request_no_cookies_copy():
     assert_copy(p, p.copy())
 
 
-@async_test
 def test_prepared_request_complete_copy():
     p = PreparedRequest()
     p.prepare(
@@ -1676,7 +1654,6 @@ def test_prepared_request_complete_copy():
     )
     assert_copy(p, p.copy())
 
-@async_test
 def test_prepare_unicode_url():
     p = PreparedRequest()
     p.prepare(

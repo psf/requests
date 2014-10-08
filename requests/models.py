@@ -678,8 +678,11 @@ class Response(object):
         if self._content_consumed and isinstance(self._content, bool):
             raise StreamConsumedError()
 
-        d = yield from self.raw.stream()
-        return d
+        if self._content_consumed:
+            chunks = iter_slices(self._content, chunk_size)
+        else:
+            chunks = yield from self.raw.stream(chunk_size)
+            self._content_consumed = True
 
         # # simulate reading small chunks of the content
         # reused_chunks = iter_slices(self._content, chunk_size)
@@ -688,10 +691,10 @@ class Response(object):
         #
         # chunks = reused_chunks if self._content_consumed else stream_chunks
         #
-        # if decode_unicode:
-        #     chunks = stream_decode_response_unicode(chunks, self)
-        #
-        # return chunks
+        if decode_unicode:
+            chunks = stream_decode_response_unicode(chunks, self)
+
+        return chunks
 
     @asyncio.coroutine
     def iter_lines(self, chunk_size=ITER_CHUNK_SIZE, decode_unicode=None):

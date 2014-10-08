@@ -155,10 +155,10 @@ class HTTPDigestAuth(AuthBase):
     def handle_401(self, r, **kwargs):
         """Takes the given response and tries digest-auth, if needed."""
 
-        if self.pos is not None:
+        #if self.pos is not None:
             # Rewind the file position indicator of the body to where
             # it was to resend the request.
-            r.request.body.seek(self.pos)
+        #    r.request.body.seek(self.pos)
         num_401_calls = getattr(self, 'num_401_calls', 1)
         s_auth = r.headers.get('www-authenticate', '')
 
