@@ -33,6 +33,7 @@ from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, json, builtin_str, basestring)
 from .status_codes import codes
+import asyncio
 
 #: The set of HTTP status codes that indicate an automatically
 #: processable redirect.
@@ -582,7 +583,8 @@ class Response(object):
         # Consume everything; accessing the content attribute makes
         # sure the content has been fully read.
         if not self._content_consumed:
-            self.content
+            #self.content
+            raise NotImplementedError('need to load content before pickling')
 
         return dict(
             (attr, getattr(self, attr, None))
@@ -632,11 +634,14 @@ class Response(object):
         """True if this Response one of the permanant versions of redirect"""
         return ('location' in self.headers and self.status_code in (codes.moved_permanently, codes.permanent_redirect))
 
+    @asyncio.coroutine
     @property
     def apparent_encoding(self):
         """The apparent encoding, provided by the chardet library"""
-        return chardet.detect(self.content)['encoding']
+        c = yield from self.content
+        return chardet.detect(c)['encoding']
 
+    @asyncio.coroutine
     def iter_content(self, chunk_size=1, decode_unicode=False):
         """Iterates over the response data.  When stream=True is set on the
         request, this avoids reading the content at once into memory for
@@ -647,42 +652,48 @@ class Response(object):
         If decode_unicode is True, content will be decoded using the best
         available encoding based on the response.
         """
-        def generate():
-            try:
-                # Special case for urllib3.
-                try:
-                    for chunk in self.raw.stream(chunk_size, decode_content=True):
-                        yield chunk
-                except ProtocolError as e:
-                    raise ChunkedEncodingError(e)
-                except DecodeError as e:
-                    raise ContentDecodingError(e)
-                except ReadTimeoutError as e:
-                    raise ConnectionError(e)
-            except AttributeError:
-                # Standard file-like object.
-                while True:
-                    chunk = self.raw.read(chunk_size)
-                    if not chunk:
-                        break
-                    yield chunk
-
-            self._content_consumed = True
+        # def generate():
+        #     try:
+        #         # Special case for urllib3.
+        #         try:
+        #             for chunk in self.raw.stream(chunk_size, decode_content=True):
+        #                 chunk = self.raw.fp.read(chunk_size)
+        #                 yield chunk
+        #         except ProtocolError as e:
+        #             raise ChunkedEncodingError(e)
+        #         except DecodeError as e:
+        #             raise ContentDecodingError(e)
+        #         except ReadTimeoutError as e:
+        #             raise ConnectionError(e)
+        #     except AttributeError:
+        #         # Standard file-like object.
+        #         while True:
+        #             chunk = self.raw.read(chunk_size)
+        #             if not chunk:
+        #                 break
+        #             yield chunk
+        #
+        #     self._content_consumed = True
 
         if self._content_consumed and isinstance(self._content, bool):
             raise StreamConsumedError()
-        # simulate reading small chunks of the content
-        reused_chunks = iter_slices(self._content, chunk_size)
 
-        stream_chunks = generate()
+        d = yield from self.raw.stream()
+        return d
 
-        chunks = reused_chunks if self._content_consumed else stream_chunks
+        # # simulate reading small chunks of the content
+        # reused_chunks = iter_slices(self._content, chunk_size)
+        #
+        # stream_chunks = generate()
+        #
+        # chunks = reused_chunks if self._content_consumed else stream_chunks
+        #
+        # if decode_unicode:
+        #     chunks = stream_decode_response_unicode(chunks, self)
+        #
+        # return chunks
 
-        if decode_unicode:
-            chunks = stream_decode_response_unicode(chunks, self)
-
-        return chunks
-
+    @asyncio.coroutine
     def iter_lines(self, chunk_size=ITER_CHUNK_SIZE, decode_unicode=None):
         """Iterates over the response data, one line at a time.  When
         stream=True is set on the request, this avoids reading the
@@ -690,8 +701,10 @@ class Response(object):
         """
 
         pending = None
+        lines = []
 
-        for chunk in self.iter_content(chunk_size=chunk_size, decode_unicode=decode_unicode):
+        chunks = yield from self.iter_content(chunk_size=chunk_size, decode_unicode=decode_unicode)
+        for chunk in chunks:
 
             if pending is not None:
                 chunk = pending + chunk
@@ -702,13 +715,18 @@ class Response(object):
             else:
                 pending = None
 
-            for line in lines:
-                yield line
+            # for line in lines:
+            #     yield line
 
         if pending is not None:
-            yield pending
+            lines.append(pending)
+
+        return lines
+        #if pending is not None:
+        #    yield pending
 
     @property
+    @asyncio.coroutine
     def content(self):
         """Content of the response, in bytes."""
 
@@ -722,7 +740,8 @@ class Response(object):
                 if self.status_code == 0:
                     self._content = None
                 else:
-                    self._content = bytes().join(self.iter_content(CONTENT_CHUNK_SIZE)) or bytes()
+                    content = yield from self.iter_content(CONTENT_CHUNK_SIZE)
+                    self._content = bytes().join(content) or bytes()
 
             except AttributeError:
                 self._content = None
@@ -733,6 +752,7 @@ class Response(object):
         return self._content
 
     @property
+    @asyncio.coroutine
     def text(self):
         """Content of the response, in unicode.
 
@@ -749,7 +769,7 @@ class Response(object):
         content = None
         encoding = self.encoding
 
-        if not self.content:
+        if not (yield from self.content):
             return str('')
 
         # Fallback to auto-detected encoding.
@@ -757,8 +777,9 @@ class Response(object):
             encoding = self.apparent_encoding
 
         # Decode unicode from given encoding.
+        _content = yield from self.content
         try:
-            content = str(self.content, encoding, errors='replace')
+            content = str(_content, encoding, errors='replace')
         except (LookupError, TypeError):
             # A LookupError is raised if the encoding was not found which could
             # indicate a misspelling or similar mistake.
@@ -766,32 +787,35 @@ class Response(object):
             # A TypeError can be raised if encoding is None
             #
             # So we try blindly encoding.
-            content = str(self.content, errors='replace')
+            content = str(_content, errors='replace')
 
         return content
 
+    @asyncio.coroutine
     def json(self, **kwargs):
         """Returns the json-encoded content of a response, if any.
 
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
         """
 
-        if not self.encoding and len(self.content) > 3:
+        _content = yield from self.content
+        if not self.encoding and len(_content) > 3:
             # No encoding set. JSON RFC 4627 section 3 states we should expect
             # UTF-8, -16 or -32. Detect which one to use; If the detection or
             # decoding fails, fall back to `self.text` (using chardet to make
             # a best guess).
-            encoding = guess_json_utf(self.content)
+            encoding = guess_json_utf(_content)
             if encoding is not None:
                 try:
-                    return json.loads(self.content.decode(encoding), **kwargs)
+                    return json.loads(_content.decode(encoding), **kwargs)
                 except UnicodeDecodeError:
                     # Wrong UTF codec detected; usually because it's not UTF-8
                     # but some other 8-bit codec.  This is an RFC violation,
                     # and the server didn't bother to tell us what codec *was*
                     # used.
                     pass
-        return json.loads(self.text, **kwargs)
+        _text = yield from self.text
+        return json.loads(_text, **kwargs)
 
     @property
     def links(self):

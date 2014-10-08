@@ -30,6 +30,7 @@ from .cookies import extract_cookies_to_jar
 from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
                          ProxyError)
 from .auth import _basic_auth_str
+import asyncio
 
 DEFAULT_POOLBLOCK = False
 DEFAULT_POOLSIZE = 10
@@ -312,6 +313,7 @@ class HTTPAdapter(BaseAdapter):
 
         return headers
 
+    @asyncio.coroutine
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
         """Sends PreparedRequest object. Returns Response object.
 
@@ -349,7 +351,7 @@ class HTTPAdapter(BaseAdapter):
 
         try:
             if not chunked:
-                resp = conn.urlopen(
+                resp = yield from conn.urlopen(
                     method=request.method,
                     url=url,
                     body=request.body,

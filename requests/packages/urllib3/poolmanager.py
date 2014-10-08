@@ -23,7 +23,7 @@ pool_classes_by_scheme = {
     'https': HTTPSConnectionPool,
 }
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('one')
 
 SSL_KEYWORDS = ('key_file', 'cert_file', 'cert_reqs', 'ca_certs',
                 'ssl_version')

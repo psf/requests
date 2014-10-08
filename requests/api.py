@@ -46,7 +46,8 @@ def request(method, url, **kwargs):
     """
 
     session = sessions.Session()
-    return session.request(method=method, url=url, **kwargs)
+    r = yield from session.request(method=method, url=url, **kwargs)
+    return r
 
 
 def get(url, **kwargs):
@@ -57,7 +58,8 @@ def get(url, **kwargs):
     """
 
     kwargs.setdefault('allow_redirects', True)
-    return request('get', url, **kwargs)
+    r = yield from request('get', url, **kwargs)
+    return r
 
 
 def options(url, **kwargs):

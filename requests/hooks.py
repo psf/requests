@@ -12,7 +12,7 @@ Available hooks:
     The response generated from a Request.
 
 """
-
+import asyncio
 
 HOOKS = ['response']
 
@@ -25,7 +25,7 @@ def default_hooks():
 
 # TODO: response is the only one
 
-
+@asyncio.coroutine
 def dispatch_hook(key, hooks, hook_data, **kwargs):
     """Dispatches a hook dictionary on a given piece of data."""
 
@@ -38,7 +38,7 @@ def dispatch_hook(key, hooks, hook_data, **kwargs):
             hooks = [hooks]
 
         for hook in hooks:
-            _hook_data = hook(hook_data, **kwargs)
+            _hook_data = yield from hook(hook_data, **kwargs)
             if _hook_data is not None:
                 hook_data = _hook_data
 

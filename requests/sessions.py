@@ -31,6 +31,7 @@ from .utils import (
 )
 
 from .status_codes import codes
+import asyncio
 
 # formerly defined here, reexposed here for backward compatibility
 from .models import REDIRECT_STATI
@@ -86,12 +87,16 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 
 class SessionRedirectMixin(object):
+
+
+    @asyncio.coroutine
     def resolve_redirects(self, resp, req, stream=False, timeout=None,
                           verify=True, cert=None, proxies=None):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
         hist = [] # keep track of history
+        redir_responses = []
 
         while resp.is_redirect:
             prepared_request = req.copy()
@@ -103,9 +108,9 @@ class SessionRedirectMixin(object):
                 resp.history = new_hist
 
             try:
-                resp.content  # Consume socket so it can be released
+                yield from resp.content  # Consume socket so it can be released
             except (ChunkedEncodingError, ContentDecodingError, RuntimeError):
-                resp.raw.read(decode_content=False)
+                yield from resp.raw.read(decode_content=False)
 
             if i >= self.max_redirects:
                 raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects)
@@ -179,7 +184,7 @@ class SessionRedirectMixin(object):
             # Override the original request.
             req = prepared_request
 
-            resp = self.send(
+            resp = yield from self.send(
                 req,
                 stream=stream,
                 timeout=timeout,
@@ -192,7 +197,9 @@ class SessionRedirectMixin(object):
             extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
 
             i += 1
-            yield resp
+            redir_responses.append(resp)
+
+        return iter(redir_responses)
 
     def rebuild_auth(self, prepared_request, response):
         """
@@ -375,6 +382,7 @@ class Session(SessionRedirectMixin):
         )
         return p
 
+    @asyncio.coroutine
     def request(self, method, url,
         params=None,
         data=None,
@@ -454,7 +462,7 @@ class Session(SessionRedirectMixin):
             'allow_redirects': allow_redirects,
         }
         send_kwargs.update(settings)
-        resp = self.send(prep, **send_kwargs)
+        resp = yield from self.send(prep, **send_kwargs)
 
         return resp
 
@@ -466,7 +474,8 @@ class Session(SessionRedirectMixin):
         """
 
         kwargs.setdefault('allow_redirects', True)
-        return self.request('GET', url, **kwargs)
+        d = yield from self.request('GET', url, **kwargs)
+        return d
 
     def options(self, url, **kwargs):
         """Sends a OPTIONS request. Returns :class:`Response` object.
@@ -528,6 +537,7 @@ class Session(SessionRedirectMixin):
 
         return self.request('DELETE', url, **kwargs)
 
+    @asyncio.coroutine
     def send(self, request, **kwargs):
         """Send a given PreparedRequest."""
         # Set defaults that the hooks can utilize to ensure they always have
@@ -566,13 +576,13 @@ class Session(SessionRedirectMixin):
         start = datetime.utcnow()
 
         # Send the request
-        r = adapter.send(request, **kwargs)
+        r = yield from adapter.send(request, **kwargs)
 
         # Total elapsed time of the request (approximately)
         r.elapsed = datetime.utcnow() - start
 
         # Response manipulation hooks
-        r = dispatch_hook('response', hooks, r, **kwargs)
+        r = yield from dispatch_hook('response', hooks, r, **kwargs)
 
         # Persist cookies
         if r.history:
@@ -584,7 +594,7 @@ class Session(SessionRedirectMixin):
         extract_cookies_to_jar(self.cookies, request, r.raw)
 
         # Redirect resolving generator.
-        gen = self.resolve_redirects(r, request,
+        gen = yield from self.resolve_redirects(r, request,
             stream=stream,
             timeout=timeout,
             verify=verify,
@@ -603,7 +613,7 @@ class Session(SessionRedirectMixin):
             r.history = history
 
         if not stream:
-            r.content
+            yield from r.content
 
         return r
 

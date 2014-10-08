@@ -28,6 +28,7 @@ from .compat import (quote, urlparse, bytes, str, OrderedDict, unquote, is_py2,
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
 from .exceptions import InvalidURL
+import asyncio
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -342,7 +343,7 @@ def iter_slices(string, slice_length):
         yield string[pos:pos + slice_length]
         pos += slice_length
 
-
+@asyncio.coroutine
 def get_unicode_from_response(r):
     """Returns the requested content back in unicode.
 
@@ -362,15 +363,17 @@ def get_unicode_from_response(r):
 
     if encoding:
         try:
-            return str(r.content, encoding)
+            rc = yield from r.content
+            return str(rc, encoding)
         except UnicodeError:
             tried_encodings.append(encoding)
 
     # Fall back:
+    rc = yield from r.content
     try:
-        return str(r.content, encoding, errors='replace')
+        return str(rc, encoding, errors='replace')
     except TypeError:
-        return r.content
+        return rc
 
 
 # The unreserved URI characters (RFC 3986)

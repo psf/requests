@@ -17,6 +17,7 @@ from base64 import b64encode
 from .compat import urlparse, str
 from .cookies import extract_cookies_to_jar
 from .utils import parse_dict_header, to_native_string
+import asyncio
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
@@ -150,6 +151,7 @@ class HTTPDigestAuth(AuthBase):
 
         return 'Digest %s' % (base)
 
+    @asyncio.coroutine
     def handle_401(self, r, **kwargs):
         """Takes the given response and tries digest-auth, if needed."""
 
@@ -168,7 +170,7 @@ class HTTPDigestAuth(AuthBase):
 
             # Consume content and release the original connection
             # to allow our new request to reuse the same one.
-            r.content
+            yield from r.content
             r.raw.release_conn()
             prep = r.request.copy()
             extract_cookies_to_jar(prep._cookies, r.request, r.raw)
@@ -176,7 +178,7 @@ class HTTPDigestAuth(AuthBase):
 
             prep.headers['Authorization'] = self.build_digest_header(
                 prep.method, prep.url)
-            _r = r.connection.send(prep, **kwargs)
+            _r = yield from r.connection.send(prep, **kwargs)
             _r.history.append(r)
             _r.request = prep
 
