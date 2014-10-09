@@ -567,7 +567,7 @@ def parse_header_links(value):
 
     replace_chars = " '\""
 
-    for val in re.split(",\ *<",value):
+    for val in re.split(",\ *<", value):
         try:
             url, params = val.split(";", 1)
         except ValueError:
