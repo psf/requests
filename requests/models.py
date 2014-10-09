@@ -681,7 +681,7 @@ class Response(object):
         if self._content_consumed:
             chunks = iter_slices(self._content, chunk_size)
         else:
-            chunks = yield from self.raw.stream(chunk_size)
+            chunks = yield from self.raw.stream(chunk_size, decode_content=True)
             self._content_consumed = True
 
         # # simulate reading small chunks of the content
@@ -692,7 +692,7 @@ class Response(object):
         # chunks = reused_chunks if self._content_consumed else stream_chunks
         #
         if decode_unicode:
-            chunks = stream_decode_response_unicode(chunks, self)
+            chunks = list(stream_decode_response_unicode(chunks, self))
 
         return chunks
 

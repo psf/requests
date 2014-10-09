@@ -861,7 +861,7 @@ class RequestsTestCase(unittest.TestCase):
         class FakeIO():
             def __init__(self, d):
                 self.d = d
-            def stream(self, size):
+            def stream(self, size, decode_content=None):
                 yield None
                 return iter_slices(self.d, size)
 
@@ -882,6 +882,13 @@ class RequestsTestCase(unittest.TestCase):
 
         # verify we can pickle the response and that we have access to
         # the original request.
+        pr = pickle.loads(pickle.dumps(r))
+        assert r.request.url == pr.request.url
+        assert r.request.headers == pr.request.headers
+
+        # verify we can pickle the response and that we have access to
+        # the original request.
+        yield from r.content
         pr = pickle.loads(pickle.dumps(r))
         assert r.request.url == pr.request.url
         assert r.request.headers == pr.request.headers
