@@ -1,13 +1,11 @@
 import zlib
 import io
-#from socket import timeout as SocketTimeout
-from yieldfrom.httpclient import HTTPResponse as _HTTPResponse
+from yieldfrom.http.client import HTTPResponse as _HTTPResponse
 
 from ._collections import HTTPHeaderDict
 from .exceptions import ProtocolError, DecodeError, ReadTimeoutError
 from .packages.six import string_types as basestring, binary_type
 from .connection import HTTPException, BaseSSLError
-from .util.response import is_fp_closed
 
 import asyncio
 

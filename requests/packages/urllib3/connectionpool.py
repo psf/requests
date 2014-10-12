@@ -7,7 +7,8 @@ from socket import error as SocketError, timeout as SocketTimeout
 import socket
 import asyncio
 
-from queue import LifoQueue, Empty, Full
+#from queue import LifoQueue, Empty, Full
+from asyncio.queues import LifoQueue, QueueEmpty, QueueFull
 
 from .exceptions import (
     ClosedPoolError,
@@ -161,7 +162,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         # Fill the queue up so that doing get() on it will block properly
         for _ in xrange(maxsize):
-            self.pool.put(None)
+            self.pool.put_nowait(0)  # None fools coroutine handler
 
         # These are mostly for testing and debugging purposes.
         self.num_connections = 0
@@ -187,6 +188,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
                                   strict=self.strict, **self.conn_kw)
         return conn
 
+    @asyncio.coroutine
     def _get_conn(self, timeout=None):
         """
         Get a connection. Will return a pooled connection if one is available.
@@ -201,12 +203,18 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         """
         conn = None
         try:
-            conn = self.pool.get(block=self.block, timeout=timeout)
+            timeout = Timeout.from_float(timeout)
+            try:
+                conn = yield from asyncio.wait_for(self.pool.get(), timeout.connect_timeout)
+                pass
 
-        except AttributeError:  # self.pool is None
-            raise ClosedPoolError(self, "Pool is closed.")
+            except AttributeError:  # self.pool is None
+                raise ClosedPoolError(self, "Pool is closed.")
 
-        except Empty:
+            except asyncio.TimeoutError:
+                raise QueueEmpty
+
+        except QueueEmpty:
             if self.block:
                 raise EmptyPoolError(self,
                                      "Pool reached maximum size and no more "
@@ -240,12 +248,12 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         If the pool is closed, then the connection will be closed and discarded.
         """
         try:
-            self.pool.put(conn, block=False)
+            self.pool.put_nowait(conn or 0)
             return  # Everything is dandy, done.
         except AttributeError:
             # self.pool is None.
             pass
-        except Full:
+        except QueueFull:
             # This should never happen if self.block == True
             log.warning(
                 "Connection pool is full, discarding connection: %s" %
@@ -360,11 +368,11 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         try:
             while True:
-                conn = old_pool.get(block=False)
+                conn = old_pool.get_nowait()
                 if conn:
                     conn.close()
 
-        except Empty:
+        except QueueEmpty:
             pass  # Done.
 
     def is_same_host(self, url):
@@ -498,7 +506,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         try:
             # Request a connection from the queue.
-            conn = self._get_conn(timeout=pool_timeout)
+            conn = yield from self._get_conn(timeout=pool_timeout)
 
             # Make the request on the httplib connection object.
             httplib_response = yield from self._make_request(conn, method, url,
@@ -526,7 +534,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             #     ``response.release_conn()`` is called (implicitly by
             #     ``response.read()``)
 
-        except Empty:
+        except QueueEmpty:
             # Timed out by queue.
             raise EmptyPoolError(self, "No pool connections are available.")
 

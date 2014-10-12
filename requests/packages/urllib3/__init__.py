@@ -32,8 +32,7 @@ except ImportError:
         def emit(self, record):
             pass
 
-logger = logging.getLogger('one')  #.addHandler(NullHandler())
-logger.setLevel(logging.DEBUG)
+logging.getLogger(__name__).addHandler(NullHandler())
 
 def add_stderr_logger(level=logging.DEBUG):
     """
@@ -44,16 +43,13 @@ def add_stderr_logger(level=logging.DEBUG):
     """
     # This method needs to be in this __init__.py to get the __name__ correct
     # even if urllib3 is vendored within another package.
-    logger = logging.getLogger('one')
+    logger = logging.getLogger(__name__)
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
     logger.addHandler(handler)
     logger.setLevel(level)
     logger.debug('Added a stderr logging handler to logger: %s' % __name__)
     return handler
-
-add_stderr_logger(logging.DEBUG)
-#logger.debug('added stderr logger')
 
 # ... Clean up.
 del NullHandler

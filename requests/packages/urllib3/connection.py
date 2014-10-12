@@ -6,14 +6,8 @@ import warnings
 from .packages import six
 import asyncio
 
-
-from yieldfrom.httpclient import HTTPConnection as _HTTPConnection, HTTPSConnection as _HTTPSConnection, \
+from yieldfrom.http.client import HTTPConnection as _HTTPConnection, HTTPSConnection as _HTTPSConnection, \
     HTTPException, create_connection as _create_connection
-
-#try:  # Python 3
-#    from http.client import HTTPConnection as _HTTPConnection, HTTPException
-#except ImportError:
-#    from httplib import HTTPConnection as _HTTPConnection, HTTPException
 
 
 class DummyConnection(object):
