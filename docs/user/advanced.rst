@@ -19,10 +19,10 @@ Let's persist some cookies across requests::
 
     s = requests.Session()
 
-    s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
-    r = s.get("http://httpbin.org/cookies")
+    yield from s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
+    r = yield from s.get("http://httpbin.org/cookies")
 
-    print(r.text)
+    print((yield from r.text))
     # '{"cookies": {"sessioncookie": "123456789"}}'
 
 
@@ -34,7 +34,7 @@ is done by providing data to the properties on a Session object::
     s.headers.update({'x-test': 'true'})
 
     # both 'x-test' and 'x-test2' are sent
-    s.get('http://httpbin.org/headers', headers={'x-test2': 'true'})
+    yield from s.get('http://httpbin.org/headers', headers={'x-test2': 'true'})
 
 
 Any dictionaries that you pass to a request method will be merged with the
@@ -205,7 +205,7 @@ At this point only the response headers have been downloaded and the connection
 remains open, hence allowing us to make content retrieval conditional::
 
     if int(r.headers['content-length']) < TOO_LONG:
-      content = r.content
+      content = yield from r.content
       ...
 
 You can further control the workflow by use of the :class:`Response.iter_content <requests.Response.iter_content>`
@@ -282,7 +282,7 @@ To do that, just set files to a list of tuples of (form_field_name, file_info):
     >>> multiple_files = [('images', ('foo.png', open('foo.png', 'rb'), 'image/png')),
                           ('images', ('bar.png', open('bar.png', 'rb'), 'image/png'))]
     >>> r = yield from requests.post(url, files=multiple_files)
-    >>> r.text
+    >>> yield from r.text
     {
       ...
       'files': {'images': 'data:image/png;base64,iVBORw ....'}
@@ -478,7 +478,7 @@ So, GitHub returns JSON. That's great, we can use the :meth:`r.json
 
 ::
 
-    >>> commit_data = r.json()
+    >>> commit_data = yield from r.json()
     >>> print(commit_data.keys())
     [u'committer', u'author', u'url', u'tree', u'sha', u'parents', u'message']
     >>> print(commit_data[u'committer'])
@@ -522,7 +522,7 @@ already exists, we will use it as an example. Let's start by getting it.
     >>> r = yield from requests.get('https://api.github.com/repos/kennethreitz/requests/issues/482')
     >>> r.status_code
     200
-    >>> issue = json.loads(r.text)
+    >>> issue = json.loads((yield from r.text))
     >>> print(issue[u'title'])
     Feature any http verb in docs
     >>> print(issue[u'comments'])
@@ -535,7 +535,7 @@ Cool, we have three comments. Let's take a look at the last of them.
     >>> r = yield from requests.get(r.url + u'/comments')
     >>> r.status_code
     200
-    >>> comments = r.json()
+    >>> comments = yield from r.json()
     >>> print(comments[0].keys())
     [u'body', u'url', u'created_at', u'updated_at', u'user', u'id']
     >>> print(comments[2][u'body'])
@@ -572,7 +572,7 @@ the very common Basic Auth.
     >>> r = yield from requests.post(url=url, data=body, auth=auth)
     >>> r.status_code
     201
-    >>> content = r.json()
+    >>> content = yield from r.json()
     >>> print(content[u'body'])
     Sounds great! I'll get right on it.
 
@@ -587,7 +587,7 @@ that.
     5804413
     >>> body = json.dumps({u"body": u"Sounds great! I'll get right on it once I feed my cat."})
     >>> url = u"https://api.github.com/repos/kennethreitz/requests/issues/comments/5804413"
-    >>> r = requests.patch(url=url, data=body, auth=auth)
+    >>> r = yield from requests.patch(url=url, data=body, auth=auth)
     >>> r.status_code
     200
 
@@ -598,7 +598,7 @@ DELETE method. Let's get rid of it.
 
 ::
 
-    >>> r = requests.delete(url=url, auth=auth)
+    >>> r = yield from requests.delete(url=url, auth=auth)
     >>> r.status_code
     204
     >>> r.headers['status']
@@ -611,7 +611,7 @@ headers.
 
 ::
 
-    >>> r = requests.head(url=url, auth=auth)
+    >>> r = yield from requests.head(url=url, auth=auth)
     >>> print(r.headers)
     ...
     'x-ratelimit-remaining': '4995'
@@ -631,7 +631,7 @@ GitHub uses these for `pagination <http://developer.github.com/v3/#pagination>`_
 in their API, for example::
 
     >>> url = 'https://api.github.com/users/kennethreitz/repos?page=1&per_page=10'
-    >>> r = requests.head(url=url)
+    >>> r = yield from requests.head(url=url)
     >>> r.headers['link']
     '<https://api.github.com/users/kennethreitz/repos?page=2&per_page=10>; rel="next", <https://api.github.com/users/kennethreitz/repos?page=6&per_page=10>; rel="last"'
 

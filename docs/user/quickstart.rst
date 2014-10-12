@@ -82,7 +82,7 @@ again::
 
     >>> import requests
     >>> r = yield from requests.get('https://api.github.com/events')
-    >>> r.text
+    >>> yield from r.text
     u'[{"repository":{"open_issues":0,"url":"https://github.com/...
 
 Requests will automatically decode content from the server. Most unicode
@@ -115,7 +115,7 @@ Binary Response Content
 
 You can also access the response body as bytes, for non-text requests::
 
-    >>> r.content
+    >>> yield from r.content
     b'[{"repository":{"open_issues":0,"url":"https://github.com/...
 
 The ``gzip`` and ``deflate`` transfer-encodings are automatically decoded for you.
@@ -125,7 +125,7 @@ use the following code::
 
     >>> from PIL import Image
     >>> from StringIO import StringIO
-    >>> i = Image.open(StringIO(r.content))
+    >>> i = Image.open(StringIO((yield from r.content)))
 
 
 JSON Response Content
@@ -135,7 +135,7 @@ There's also a builtin JSON decoder, in case you're dealing with JSON data::
 
     >>> import requests
     >>> r = yield from requests.get('https://api.github.com/events')
-    >>> r.json()
+    >>> yield from r.json()
     [{u'repository': {u'open_issues': 0, u'url': 'https://github.com/...
 
 In case the JSON decoding fails, ``r.json`` raises an exception. For example, if
@@ -153,14 +153,14 @@ server, you can access ``r.raw``. If you want to do this, make sure you set
     >>> r = yield from requests.get('https://api.github.com/events', stream=True)
     >>> r.raw
     <yieldfrom.urllib3.response.HTTPResponse object at 0x101194810>
-    >>> r.raw.read(10)
+    >>> yield from r.raw.read(10)
     '\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03'
 
 In general, however, you should use a pattern like this to save what is being
 streamed to a file::
 
     with open(filename, 'wb') as fd:
-        for chunk in r.iter_content(chunk_size):
+        for chunk in yield from r.iter_content(chunk_size):
             fd.write(chunk)
 
 Using ``Response.iter_content`` will handle a lot of what you would otherwise
@@ -194,7 +194,7 @@ dictionary of data will automatically be form-encoded when the request is made::
 
     >>> payload = {'key1': 'value1', 'key2': 'value2'}
     >>> r = yield from requests.post("http://httpbin.org/post", data=payload)
-    >>> print(r.text)
+    >>> print((yield from r.text))
     {
       ...
       "form": {
@@ -225,7 +225,7 @@ Requests makes it simple to upload Multipart-encoded files::
     >>> files = {'file': open('report.xls', 'rb')}
 
     >>> r = yield from requests.post(url, files=files)
-    >>> r.text
+    >>> yield from r.text
     {
       ...
       "files": {
@@ -240,7 +240,7 @@ You can set the filename, content_type and headers explicitly:
     >>> files = {'file': ('report.xls', open('report.xls', 'rb'), 'application/vnd.ms-excel', {'Expires': '0'})}
 
     >>> r = yield from requests.post(url, files=files)
-    >>> r.text
+    >>> yield from r.text
     {
       ...
       "files": {
@@ -255,7 +255,7 @@ If you want, you can send strings to be received as files::
     >>> files = {'file': ('report.csv', 'some,data,to,send\nanother,row,to,send\n')}
 
     >>> r = yield from requests.post(url, files=files)
-    >>> r.text
+    >>> yield from r.text
     {
       ...
       "files": {
@@ -359,7 +359,7 @@ parameter::
     >>> cookies = dict(cookies_are='working')
 
     >>> r = yield from requests.get(url, cookies=cookies)
-    >>> r.text
+    >>> yield from r.text
     '{"cookies": {"cookies_are": "working"}}'
 
 

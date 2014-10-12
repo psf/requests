@@ -23,7 +23,7 @@ import struct
 from . import __version__
 from . import certs
 from .compat import parse_http_list as _parse_list_header
-from .compat import (quote, urlparse, bytes, str, OrderedDict, unquote, is_py2,
+from .compat import (quote, urlparse, bytes, str, OrderedDict, unquote,
                      builtin_str, getproxies, proxy_bypass, urlunparse)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
@@ -666,10 +666,7 @@ def to_native_string(string, encoding='ascii'):
     if isinstance(string, builtin_str):
         out = string
     else:
-        if is_py2:
-            out = string.encode(encoding)
-        else:
-            out = string.decode(encoding)
+        out = string.decode(encoding)
 
     return out
 

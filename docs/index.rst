@@ -28,9 +28,9 @@ Things shouldn’t be this way. Not in Python.
     'application/json; charset=utf8'
     >>> r.encoding
     'utf-8'
-    >>> r.text
+    >>> yield from r.text
     u'{"type":"User"...'
-    >>> r.json()
+    >>> yield from r.json()
     {u'private_gists': 419, u'total_private_repos': 77, ...}
 
 See `similar code, without Requests <https://gist.github.com/973705>`_.

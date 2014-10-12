@@ -134,7 +134,7 @@ API Changes
 
       import requests
       r = yield from requests.get('https://github.com/timeline.json')
-      r.json()   # This *call* raises an exception if JSON decoding fails
+      yield from r.json()   # This *call* raises an exception if JSON decoding fails
 
 * The ``Session`` API has changed. Sessions objects no longer take parameters.
   ``Session`` is also now capitalized, but it can still be
@@ -184,7 +184,7 @@ API Changes
 
       logging.basicConfig() # you need to initialize logging, otherwise you will not see anything from requests
       logging.getLogger().setLevel(logging.DEBUG)
-      requests_log = logging.getLogger("requests.packages.urllib3")
+      requests_log = logging.getLogger("yieldfrom.urllib3")
       requests_log.setLevel(logging.DEBUG)
       requests_log.propagate = True
 
