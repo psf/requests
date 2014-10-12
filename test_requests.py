@@ -9,10 +9,14 @@ import os
 import pickle
 import unittest
 import collections
-
+import asyncio
+import functools
 import io
-import requests
 import pytest
+import sys
+
+sys.path.insert(0, '.\yieldfrom')
+import requests
 from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
@@ -27,8 +31,6 @@ from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
 from requests.utils import iter_slices
-import asyncio
-import functools
 
 try:
     import StringIO

@@ -34,16 +34,11 @@ You'll need to install py.test in order to run the Requests' test suite::
 Runtime Environments
 --------------------
 
-Requests currently supports the following versions of Python:
+yieldfrom.Requests currently supports the following versions of Python:
 
-- Python 2.6
-- Python 2.7
-- Python 3.1
-- Python 3.2
-- Python 3.3
-- PyPy 1.9
+- Python 3.3 (presumably, but untested)
+- Python 3.4
 
-Support for Python 3.1 and 3.2 may be dropped at any time.
 
 Google App Engine will never be officially supported. Pull Requests for compatibility will be accepted, as long as they don't complicate the codebase.
 

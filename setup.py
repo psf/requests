@@ -3,7 +3,7 @@
 import os
 import sys
 
-#import requests
+import requests
 
 from codecs import open
 
@@ -19,16 +19,9 @@ if sys.argv[-1] == 'publish':
 packages = [
     'yieldfrom',
     'yieldfrom.requests',
-    #'yieldfrom.requests.packages',
-    #'yieldfrom.requests.packages.chardet',
-    #'yieldfrom.requests.packages.urllib3',
-    #'yieldfrom.requests.packages.urllib3.packages',
-    #'yieldfrom.requests.packages.urllib3.contrib',
-    #'yieldfrom.requests.packages.urllib3.util',
-    #'yieldfrom.requests.packages.urllib3.packages.ssl_match_hostname',
 ]
 
-requires = [] # TODO change this
+requires = ['chardet>=2.2.1', 'yieldfrom.http.client', 'yieldfrom.urllib3']
 
 with open('README.rst', 'r', 'utf-8') as f:
     readme = f.read()
@@ -37,7 +30,7 @@ with open('HISTORY.rst', 'r', 'utf-8') as f:
 
 setup(
     name='requests',
-    version='0.1',
+    version=requests.__version__,
     description='asyncio Python HTTP for Humans.',
     long_description=readme + '\n\n' + history,
 
