@@ -1,6 +1,11 @@
 Requests is written and maintained by Kenneth Reitz and
 various contributors:
 
+Port to Asyncio
+```````````````
+
+- David Keeney <dkeeney@rdbhost.com> `@rdbhost <https://github.com/rdbhost>`_
+
 Development Lead
 ````````````````
 
