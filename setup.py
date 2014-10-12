@@ -21,7 +21,7 @@ packages = [
     'yieldfrom.requests',
 ]
 
-requires = ['chardet>=2.2.1', 'yieldfrom.http.client', 'yieldfrom.urllib3']
+requires = ['chardet>=2.2.1', 'yieldfrom.http.client', 'yieldfrom.urllib3', 'setuptools']
 
 with open('README.rst', 'r', 'utf-8') as f:
     readme = f.read()
@@ -29,7 +29,7 @@ with open('HISTORY.rst', 'r', 'utf-8') as f:
     history = f.read()
 
 setup(
-    name='requests',
+    name='yieldfrom.requests',
     version=requests.__version__,
     description='asyncio Python HTTP for Humans.',
     long_description=readme + '\n\n' + history,
@@ -42,8 +42,8 @@ setup(
     url='http://github.com/rdbhost/yieldfromrequests',
 
     packages=packages,
-    package_data={'': ['LICENSE', 'NOTICE'], 'requests': ['*.pem']},
-    package_dir={'requests': 'requests'},
+    package_data={'': ['LICENSE', 'NOTICE'], 'yieldfrom.requests': ['*.pem']},
+    package_dir={'yieldfrom': 'yieldfrom'},
     include_package_data=True,
     namespace_packages=['yieldfrom'],
     install_requires=requires,
@@ -56,10 +56,6 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4'
-
+        'Programming Language :: Python :: 3.4',
     ),
-    extras_require={
-        'security': ['pyOpenSSL', 'ndg-httpsclient', 'pyasn1'],
-    },
 )
