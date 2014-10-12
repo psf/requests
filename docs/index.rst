@@ -21,7 +21,7 @@ Things shouldn’t be this way. Not in Python.
 
 ::
 
-    >>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
+    >>> r = yield from requests.get('https://api.github.com/user', auth=('user', 'pass'))
     >>> r.status_code
     200
     >>> r.headers['content-type']

@@ -133,7 +133,7 @@ API Changes
   ::
 
       import requests
-      r = requests.get('https://github.com/timeline.json')
+      r = yield from requests.get('https://github.com/timeline.json')
       r.json()   # This *call* raises an exception if JSON decoding fails
 
 * The ``Session`` API has changed. Sessions objects no longer take parameters.
@@ -162,7 +162,7 @@ API Changes
   ::
 
       # in 0.x, passing prefetch=False would accomplish the same thing
-      r = requests.get('https://github.com/timeline.json', stream=True)
+      r = yield from requests.get('https://github.com/timeline.json', stream=True)
       for chunk in r.iter_content(8192):
           ...
 
@@ -188,7 +188,7 @@ API Changes
       requests_log.setLevel(logging.DEBUG)
       requests_log.propagate = True
 
-      requests.get('http://httpbin.org/headers')
+      yield from requests.get('http://httpbin.org/headers')
 
 
 
@@ -230,7 +230,7 @@ API Changes
 
   ::
 
-      requests.get('http://%zz/')   # raises requests.exceptions.InvalidURL
+      yield from requests.get('http://%zz/')   # raises requests.exceptions.InvalidURL
 
   Lastly, ``httplib.IncompleteRead`` exceptions caused by incorrect chunked
   encoding will now raise a Requests ``ChunkedEncodingError`` instead.
@@ -246,7 +246,7 @@ API Changes
 
       # In requests 1.x, this was legal, in requests 2.x,
       #  this raises requests.exceptions.MissingSchema
-      requests.get("http://example.org", proxies=proxies)
+      yield from requests.get("http://example.org", proxies=proxies)
 
 
 Behavioural Changes

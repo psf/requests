@@ -4,7 +4,7 @@
 pythoncompat
 """
 
-from .packages import chardet
+import chardet
 
 import sys
 
@@ -91,7 +91,7 @@ if is_py2:
     import cookielib
     from Cookie import Morsel
     from StringIO import StringIO
-    from .packages.urllib3.packages.ordered_dict import OrderedDict
+    from yieldfrom.urllib3.packages.ordered_dict import OrderedDict
 
     builtin_str = str
     bytes = str

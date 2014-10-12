@@ -16,10 +16,10 @@ from .structures import CaseInsensitiveDict
 
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header
-from .packages.urllib3.fields import RequestField
-from .packages.urllib3.filepost import encode_multipart_formdata
-from .packages.urllib3.util import parse_url
-from .packages.urllib3.exceptions import (
+from yieldfrom.urllib3.fields import RequestField
+from yieldfrom.urllib3.filepost import encode_multipart_formdata
+from yieldfrom.urllib3.util import parse_url
+from yieldfrom.urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError)
 from .exceptions import (
     HTTPError, RequestException, MissingSchema, InvalidURL, 

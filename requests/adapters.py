@@ -11,21 +11,21 @@ and maintain connections.
 import socket
 
 from .models import Response
-from .packages.urllib3 import Retry
-from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
-from .packages.urllib3.response import HTTPResponse
-from .packages.urllib3.util import Timeout as TimeoutSauce
+from yieldfrom.urllib3 import Retry
+from yieldfrom.urllib3.poolmanager import PoolManager, proxy_from_url
+from yieldfrom.urllib3.response import HTTPResponse
+from yieldfrom.urllib3.util import Timeout as TimeoutSauce
 from .compat import urlparse, basestring
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     prepend_scheme_if_needed, get_auth_from_url, urldefragauth)
 from .structures import CaseInsensitiveDict
-from .packages.urllib3.exceptions import ConnectTimeoutError
-from .packages.urllib3.exceptions import HTTPError as _HTTPError
-from .packages.urllib3.exceptions import MaxRetryError
-from .packages.urllib3.exceptions import ProxyError as _ProxyError
-from .packages.urllib3.exceptions import ProtocolError
-from .packages.urllib3.exceptions import ReadTimeoutError
-from .packages.urllib3.exceptions import SSLError as _SSLError
+from yieldfrom.urllib3.exceptions import ConnectTimeoutError
+from yieldfrom.urllib3.exceptions import HTTPError as _HTTPError
+from yieldfrom.urllib3.exceptions import MaxRetryError
+from yieldfrom.urllib3.exceptions import ProxyError as _ProxyError
+from yieldfrom.urllib3.exceptions import ProtocolError
+from yieldfrom.urllib3.exceptions import ReadTimeoutError
+from yieldfrom.urllib3.exceptions import SSLError as _SSLError
 from .cookies import extract_cookies_to_jar
 from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
                          ProxyError)

@@ -22,7 +22,7 @@ usage:
 ... or POST:
 
    >>> payload = dict(key1='value1', key2='value2')
-   >>> r = requests.post('http://httpbin.org/post', data=payload)
+   >>> r = yield from requests.post('http://httpbin.org/post', data=payload)
    >>> print(r.text)
    {
      ...
@@ -50,7 +50,7 @@ __copyright__ = 'Copyright 2014 Kenneth Reitz'
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
-    from .packages.urllib3.contrib import pyopenssl
+    from yieldfrom.urllib3.contrib import pyopenssl
     pyopenssl.inject_into_urllib3()
 except ImportError:
     pass

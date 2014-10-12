@@ -61,7 +61,7 @@ The Response object contains all of the information returned by the server and
 also contains the ``Request`` object you created originally. Here is a simple
 request to get some very important information from Wikipedia's servers::
 
-    >>> r = requests.get('http://en.wikipedia.org/wiki/Monty_Python')
+    >>> r = yield from requests.get('http://en.wikipedia.org/wiki/Monty_Python')
 
 If we want to access the headers the server sent back to us, we do this::
 
@@ -158,12 +158,12 @@ SSL Cert Verification
 Requests can verify SSL certificates for HTTPS requests, just like a web browser.
 To check a host's SSL certificate, you can use the ``verify`` argument::
 
-    >>> requests.get('https://kennethreitz.com', verify=True)
+    >>> yield from requests.get('https://kennethreitz.com', verify=True)
     requests.exceptions.SSLError: hostname 'kennethreitz.com' doesn't match either of '*.herokuapp.com', 'herokuapp.com'
 
 I don't have SSL setup on this domain, so it fails. Excellent. GitHub does though::
 
-    >>> requests.get('https://github.com', verify=True)
+    >>> yield from requests.get('https://github.com', verify=True)
     <Response [200]>
 
 You can pass ``verify`` the path to a CA_BUNDLE file with certificates of trusted CAs. This list of trusted CAs can also be specified through the ``REQUESTS_CA_BUNDLE`` environment variable.
@@ -172,7 +172,7 @@ Requests can also ignore verifying the SSL certificate if you set ``verify`` to 
 
 ::
 
-    >>> requests.get('https://kennethreitz.com', verify=False)
+    >>> yield from requests.get('https://kennethreitz.com', verify=False)
     <Response [200]>
 
 By default, ``verify`` is set to True. Option ``verify`` only applies to host certs.
@@ -181,12 +181,12 @@ You can also specify a local cert to use as client side certificate, as a single
 file (containing the private key and the certificate) or as a tuple of both
 file's path::
 
-    >>> requests.get('https://kennethreitz.com', cert=('/path/server.crt', '/path/key'))
+    >>> yield from requests.get('https://kennethreitz.com', cert=('/path/server.crt', '/path/key'))
     <Response [200]>
 
 If you specify a wrong path or an invalid cert::
 
-    >>> requests.get('https://kennethreitz.com', cert='/wrong_path/server.pem')
+    >>> yield from requests.get('https://kennethreitz.com', cert='/wrong_path/server.pem')
     SSLError: [Errno 336265225] _ssl.c:347: error:140B0009:SSL routines:SSL_CTX_use_PrivateKey_file:PEM lib
 
 
@@ -199,7 +199,7 @@ body until you access the :class:`Response.content <requests.Response.content>`
 attribute with the ``stream`` parameter::
 
     tarball_url = 'https://github.com/kennethreitz/requests/tarball/master'
-    r = requests.get(tarball_url, stream=True)
+    r = yield from requests.get(tarball_url, stream=True)
 
 At this point only the response headers have been downloaded and the connection
 remains open, hence allowing us to make content retrieval conditional::
@@ -223,7 +223,7 @@ consider using ``contextlib.closing`` (`documented here`_), like this::
 
     from contextlib import closing
 
-    with closing(requests.get('http://httpbin.org/get', stream=True)) as r:
+    with closing(yield from requests.get('http://httpbin.org/get', stream=True)) as r:
         # Do things with the response here.
 
 .. _`documented here`: http://docs.python.org/2/library/contextlib.html#contextlib.closing
@@ -249,7 +249,7 @@ files without reading them into memory. To stream and upload, simply provide a
 file-like object for your body::
 
     with open('massive-body', 'rb') as f:
-        requests.post('http://some.url/streamed', data=f)
+        yield from requests.post('http://some.url/streamed', data=f)
 
 
 Chunk-Encoded Requests
@@ -264,7 +264,7 @@ a length) for your body::
         yield 'hi'
         yield 'there'
 
-    requests.post('http://some.url/chunked', data=gen())
+    yield from requests.post('http://some.url/chunked', data=gen())
 
 
 
@@ -281,7 +281,7 @@ To do that, just set files to a list of tuples of (form_field_name, file_info):
     >>> url = 'http://httpbin.org/post'
     >>> multiple_files = [('images', ('foo.png', open('foo.png', 'rb'), 'image/png')),
                           ('images', ('bar.png', open('bar.png', 'rb'), 'image/png'))]
-    >>> r = requests.post(url, files=multiple_files)
+    >>> r = yield from requests.post(url, files=multiple_files)
     >>> r.text
     {
       ...
@@ -325,7 +325,7 @@ anything, nothing else is effected.
 
 Let's print some request method arguments at runtime::
 
-    >>> requests.get('http://httpbin.org', hooks=dict(response=print_url))
+    >>> yield from requests.get('http://httpbin.org', hooks=dict(response=print_url))
     http://httpbin.org
     <Response [200]>
 
@@ -362,7 +362,7 @@ Let's pretend that we have a web service that will only respond if the
 
 Then, we can make a request using our Pizza Auth::
 
-    >>> requests.get('http://pizzabin.org/admin', auth=PizzaAuth('kenneth'))
+    >>> yield from requests.get('http://pizzabin.org/admin', auth=PizzaAuth('kenneth'))
     <Response [200]>
 
 .. _streaming-requests:
@@ -379,7 +379,7 @@ set ``stream`` to ``True`` and iterate over the response with
     import json
     import requests
 
-    r = requests.get('http://httpbin.org/stream/20', stream=True)
+    r = yield from requests.get('http://httpbin.org/stream/20', stream=True)
 
     for line in r.iter_lines():
 
@@ -401,7 +401,7 @@ If you need to use a proxy, you can configure individual requests with the
       "https": "http://10.10.1.10:1080",
     }
 
-    requests.get("http://example.org", proxies=proxies)
+    yield from requests.get("http://example.org", proxies=proxies)
 
 You can also configure proxies by setting the environment variables
 ``HTTP_PROXY`` and ``HTTPS_PROXY``.
@@ -412,7 +412,7 @@ You can also configure proxies by setting the environment variables
     $ export HTTPS_PROXY="http://10.10.1.10:1080"
     $ python
     >>> import requests
-    >>> requests.get("http://example.org")
+    >>> yield from requests.get("http://example.org")
 
 To use HTTP Basic Auth with your proxy, use the `http://user:password@host/` syntax::
 
@@ -463,7 +463,7 @@ from GitHub. Suppose we wanted commit ``a050faf`` on Requests. We would get it
 like so::
 
     >>> import requests
-    >>> r = requests.get('https://api.github.com/repos/kennethreitz/requests/git/commits/a050faf084662f3a352dd1a941f2c7c9f886d4ad')
+    >>> r = yield from requests.get('https://api.github.com/repos/kennethreitz/requests/git/commits/a050faf084662f3a352dd1a941f2c7c9f886d4ad')
 
 We should confirm that GitHub responded correctly. If it has, we want to work
 out what type of content it is. Do this like so::
@@ -519,7 +519,7 @@ already exists, we will use it as an example. Let's start by getting it.
 
 ::
 
-    >>> r = requests.get('https://api.github.com/repos/kennethreitz/requests/issues/482')
+    >>> r = yield from requests.get('https://api.github.com/repos/kennethreitz/requests/issues/482')
     >>> r.status_code
     200
     >>> issue = json.loads(r.text)
@@ -532,7 +532,7 @@ Cool, we have three comments. Let's take a look at the last of them.
 
 ::
 
-    >>> r = requests.get(r.url + u'/comments')
+    >>> r = yield from requests.get(r.url + u'/comments')
     >>> r.status_code
     200
     >>> comments = r.json()
@@ -557,7 +557,7 @@ is to POST to the thread. Let's do it.
 
     >>> body = json.dumps({u"body": u"Sounds great! I'll get right on it!"})
     >>> url = u"https://api.github.com/repos/kennethreitz/requests/issues/482/comments"
-    >>> r = requests.post(url=url, data=body)
+    >>> r = yield from requests.post(url=url, data=body)
     >>> r.status_code
     404
 
@@ -569,7 +569,7 @@ the very common Basic Auth.
 
     >>> from requests.auth import HTTPBasicAuth
     >>> auth = HTTPBasicAuth('fake@example.com', 'not_a_real_password')
-    >>> r = requests.post(url=url, data=body, auth=auth)
+    >>> r = yield from requests.post(url=url, data=body, auth=auth)
     >>> r.status_code
     201
     >>> content = r.json()
@@ -696,7 +696,7 @@ SSLv3:
     import ssl
 
     from requests.adapters import HTTPAdapter
-    from requests.packages.urllib3.poolmanager import PoolManager
+    from yieldfrom.urllib3.poolmanager import PoolManager
 
 
     class Ssl3HttpAdapter(HTTPAdapter):
@@ -749,12 +749,12 @@ time before the server sends the first byte).
 
 If you specify a single value for the timeout, like this::
 
-    r = requests.get('https://github.com', timeout=5)
+    r = yield from requests.get('https://github.com', timeout=5)
 
 The timeout value will be applied to both the ``connect`` and the ``read``
 timeouts. Specify a tuple if you would like to set the values separately::
 
-    r = requests.get('https://github.com', timeout=(3.05, 27))
+    r = yield from requests.get('https://github.com', timeout=(3.05, 27))
 
 If the remote server is very slow, you can tell Requests to wait forever for
 a response, by passing None as a timeout value and then retrieving a cup of
@@ -762,7 +762,7 @@ coffee.
 
 .. code-block:: python
 
-    r = requests.get('https://github.com', timeout=None)
+    r = yield from requests.get('https://github.com', timeout=None)
 
 .. _`connect()`: http://linux.die.net/man/2/connect
 

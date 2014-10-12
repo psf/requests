@@ -91,7 +91,7 @@ class RequestsTestCase(unittest.TestCase):
         requests.head
         requests.put
         requests.patch
-        requests.post
+        yield from requests.post
 
     @async_test
     def test_invalid_url(self):

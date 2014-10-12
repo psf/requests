@@ -19,13 +19,13 @@ the simplest kind, and Requests supports it straight out of the box.
 Making requests with HTTP Basic Auth is very simple::
 
     >>> from requests.auth import HTTPBasicAuth
-    >>> requests.get('https://api.github.com/user', auth=HTTPBasicAuth('user', 'pass'))
+    >>> yield from requests.get('https://api.github.com/user', auth=HTTPBasicAuth('user', 'pass'))
     <Response [200]>
 
 In fact, HTTP Basic Auth is so common that Requests provides a handy shorthand
 for using it::
 
-    >>> requests.get('https://api.github.com/user', auth=('user', 'pass'))
+    >>> yield from requests.get('https://api.github.com/user', auth=('user', 'pass'))
     <Response [200]>
 
 Providing the credentials in a tuple like this is exactly the same as the
@@ -51,7 +51,7 @@ and Requests supports this out of the box as well::
 
     >>> from requests.auth import HTTPDigestAuth
     >>> url = 'http://httpbin.org/digest-auth/auth/user/pass'
-    >>> requests.get(url, auth=HTTPDigestAuth('user', 'pass'))
+    >>> yield from requests.get(url, auth=HTTPDigestAuth('user', 'pass'))
     <Response [200]>
 
 
@@ -68,7 +68,7 @@ library allows Requests users to easily make OAuth authenticated requests::
     >>> auth = OAuth1('YOUR_APP_KEY', 'YOUR_APP_SECRET',
                       'USER_OAUTH_TOKEN', 'USER_OAUTH_TOKEN_SECRET')
 
-    >>> requests.get(url, auth=auth)
+    >>> yield from requests.get(url, auth=auth)
     <Response [200]>
 
 For more information on how to OAuth flow works, please see the official `OAuth`_ website.
@@ -109,7 +109,7 @@ To do so, subclass :class:`AuthBase <requests.auth.AuthBase>` and implement the
     ...         return r
     ...
     >>> url = 'http://httpbin.org/get'
-    >>> requests.get(url, auth=MyAuth())
+    >>> yield from requests.get(url, auth=MyAuth())
     <Response [200]>
 
 When an authentication handler is attached to a request,
