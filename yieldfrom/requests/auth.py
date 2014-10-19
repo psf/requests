@@ -171,7 +171,7 @@ class HTTPDigestAuth(AuthBase):
             # Consume content and release the original connection
             # to allow our new request to reuse the same one.
             yield from r.content
-            r.raw.release_conn()
+            r.raw.release_conn() # redundant
             prep = r.request.copy()
             extract_cookies_to_jar(prep._cookies, r.request, r.raw)
             prep.prepare_cookies(prep._cookies)
