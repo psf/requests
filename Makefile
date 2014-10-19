@@ -20,16 +20,10 @@ certs:
 deps: urllib3 chardet
 
 urllib3:
-	rm -fr requests/packages/urllib3
-	git clone https://github.com/shazow/urllib3.git
-	mv urllib3/urllib3 requests/packages/
-	rm -fr urllib3
+	git clone https://github.com/shazow/urllib3.git && rm -fr requests/packages/urllib3 && 	mv urllib3/urllib3 requests/packages/ && rm -fr urllib3
 
 chardet:
-	rm -fr requests/packages/chardet
-	git clone https://github.com/chardet/chardet.git
-	mv chardet/chardet requests/packages/
-	rm -fr chardet
+	git clone https://github.com/chardet/chardet.git && rm -fr requests/packages/chardet &&	mv chardet/chardet requests/packages/ && rm -fr chardet
 
 publish:
 	python setup.py register
