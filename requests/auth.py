@@ -153,9 +153,7 @@ class HTTPDigestAuth(AuthBase):
 
     def handle_redirect(self, r, **kwargs):
         """Reset num_401_calls counter on redirects."""
-        if r.status_code in (
-                codes.temporary_redirect,
-                codes.permanent_redirect):
+        if r.is_redirect:
             setattr(self, 'num_401_calls', 1)
 
     def handle_401(self, r, **kwargs):
