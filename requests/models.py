@@ -108,7 +108,7 @@ class RequestEncodingMixin(object):
         if parameters are supplied as a dict.
 
         """
-        if (not files):
+        if not files:
             raise ValueError("Files must be provided.")
         elif isinstance(data, basestring):
             raise ValueError("Data must not be a string.")

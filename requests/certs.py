@@ -22,4 +22,4 @@ except ImportError:
         return os.path.join(os.path.dirname(__file__), 'cacert.pem')
 
 if __name__ == '__main__':
-    print(where())
+    print where()
