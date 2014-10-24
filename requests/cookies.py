@@ -440,7 +440,7 @@ def merge_cookies(cookiejar, cookies):
     """
     if not isinstance(cookiejar, cookielib.CookieJar):
         raise ValueError('You can only merge into CookieJar')
-    
+
     if isinstance(cookies, dict):
         cookiejar = cookiejar_from_dict(
             cookies, cookiejar=cookiejar, overwrite=False)
