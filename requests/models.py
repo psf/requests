@@ -682,7 +682,7 @@ class Response(object):
 
         return chunks
 
-    def iter_lines(self, chunk_size=ITER_CHUNK_SIZE, decode_unicode=None, newline=None):
+    def iter_lines(self, chunk_size=ITER_CHUNK_SIZE, decode_unicode=None, delimiter=None):
         """Iterates over the response data, one line at a time.  When
         stream=True is set on the request, this avoids reading the
         content at once into memory for large responses.
@@ -695,8 +695,8 @@ class Response(object):
             if pending is not None:
                 chunk = pending + chunk
 
-            if newline:
-                lines = chunk.split(newline)
+            if delimiter:
+                lines = chunk.split(delimiter)
             else:
                 lines = chunk.splitlines()
 
