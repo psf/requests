@@ -480,7 +480,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         # If no Auth is explicitly provided, extract it from the URL first.
         if auth is None:
-            url_auth = get_auth_from_url(self.url)
+            url_auth = get_auth_from_url(url)
             auth = url_auth if any(url_auth) else None
 
         if auth:
