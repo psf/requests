@@ -157,12 +157,10 @@ class HTTPDigestAuth(AuthBase):
             # Rewind the file position indicator of the body to where
             # it was to resend the request.
             r.request.body.seek(self.pos)
-        num_401_calls = getattr(self, 'num_401_calls', 1)
         s_auth = r.headers.get('www-authenticate', '')
 
-        if 'digest' in s_auth.lower() and num_401_calls < 2:
-
-            setattr(self, 'num_401_calls', num_401_calls + 1)
+        if 'digest' in s_auth.lower() and getattr(self, 'retry_401', True):
+            setattr(self, 'retry_401', False)
             pat = re.compile(r'digest ', flags=re.IGNORECASE)
             self.chal = parse_dict_header(pat.sub('', s_auth, count=1))
 
@@ -176,13 +174,15 @@ class HTTPDigestAuth(AuthBase):
 
             prep.headers['Authorization'] = self.build_digest_header(
                 prep.method, prep.url)
-            _r = r.connection.send(prep, **kwargs)
-            _r.history.append(r)
-            _r.request = prep
+            _r = r
+            r = r.connection.send(prep, **kwargs)
+            r.history.append(_r)
+            r.request = prep
 
-            return _r
+            # Try again if it's a redirect
+            if r.status_code / 100 == 3:
+                setattr(self, 'retry_401', True)
 
-        setattr(self, 'num_401_calls', 1)
         return r
 
     def __call__(self, r):
