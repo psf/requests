@@ -22,8 +22,8 @@ from .packages.urllib3.util import parse_url
 from .packages.urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError)
 from .exceptions import (
-    HTTPError, RequestException, MissingSchema, InvalidURL, 
-    ChunkedEncodingError, ContentDecodingError, ConnectionError, 
+    HTTPError, RequestException, MissingSchema, InvalidURL,
+    ChunkedEncodingError, ContentDecodingError, ConnectionError,
     StreamConsumedError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -511,8 +511,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_hooks(self, hooks):
         """Prepares the given hooks."""
-        for event in hooks:
-            self.register_hook(event, hooks[event])
+        if hooks is not None:
+            for event in hooks:
+                self.register_hook(event, hooks[event])
 
 
 class Response(object):
