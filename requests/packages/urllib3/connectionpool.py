@@ -32,7 +32,7 @@ from .connection import (
     port_by_scheme,
     DummyConnection,
     HTTPConnection, HTTPSConnection, VerifiedHTTPSConnection,
-    HTTPException, BaseSSLError,
+    HTTPException, BaseSSLError, ConnectionError
 )
 from .request import RequestMethods
 from .response import HTTPResponse
@@ -542,7 +542,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             release_conn = True
             raise SSLError(e)
 
-        except (TimeoutError, HTTPException, SocketError) as e:
+        except (TimeoutError, HTTPException, SocketError, ConnectionError) as e:
             if conn:
                 # Discard the connection for these exceptions. It will be
                 # be replaced during the next _get_conn() call.

@@ -14,7 +14,7 @@ try: # Python 2.7+
     from collections import OrderedDict
 except ImportError:
     from .packages.ordered_dict import OrderedDict
-from .packages.six import itervalues
+from .packages.six import iterkeys, itervalues
 
 
 __all__ = ['RecentlyUsedContainer', 'HTTPHeaderDict']
@@ -85,8 +85,7 @@ class RecentlyUsedContainer(MutableMapping):
     def clear(self):
         with self.lock:
             # Copy pointers to all values, then wipe the mapping
-            # under Python 2, this copies the list of values twice :-|
-            values = list(self._container.values())
+            values = list(itervalues(self._container))
             self._container.clear()
 
         if self.dispose_func:
@@ -95,7 +94,7 @@ class RecentlyUsedContainer(MutableMapping):
 
     def keys(self):
         with self.lock:
-            return self._container.keys()
+            return list(iterkeys(self._container))
 
 
 class HTTPHeaderDict(MutableMapping):
