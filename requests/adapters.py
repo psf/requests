@@ -64,7 +64,9 @@ class HTTPAdapter(BaseAdapter):
         should attempt. Note, this applies only to failed DNS lookups, socket
         connections and connection timeouts, never to requests where data has
         made it to the server. By default, Requests does not retry failed
-        connections.
+        connections. If you need granular control over the conditions under
+        which we retry a request, import urllib3's ``Retry`` class and pass
+        that instead.
     :param pool_block: Whether the connection pool should block for connections.
 
     Usage::
