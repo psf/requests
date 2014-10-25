@@ -90,5 +90,10 @@ class ChunkedEncodingError(RequestException):
 class ContentDecodingError(RequestException, BaseHTTPError):
     """Failed to decode response content"""
 
+
 class StreamConsumedError(RequestException, TypeError):
     """The content for this response was already consumed"""
+
+
+class RetryError(RequestException):
+    """Custom retries logic failed"""

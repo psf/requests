@@ -20,7 +20,7 @@ from requests.compat import (
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (ConnectionError, ConnectTimeout,
                                  InvalidSchema, InvalidURL, MissingSchema,
-                                 ReadTimeout, Timeout)
+                                 ReadTimeout, Timeout, RetryError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -1520,6 +1520,7 @@ def test_prepared_request_complete_copy():
     )
     assert_copy(p, p.copy())
 
+
 def test_prepare_unicode_url():
     p = PreparedRequest()
     p.prepare(
@@ -1528,6 +1529,17 @@ def test_prepare_unicode_url():
         hooks=[]
     )
     assert_copy(p, p.copy())
+
+
+def test_urllib3_retries():
+    from requests.packages.urllib3.util import Retry
+    s = requests.Session()
+    s.mount('https://', HTTPAdapter(max_retries=Retry(
+        total=2, status_forcelist=[500]
+    )))
+
+    with pytest.raises(RetryError):
+        s.get('https://httpbin.org/status/500')
 
 if __name__ == '__main__':
     unittest.main()
