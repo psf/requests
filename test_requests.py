@@ -1511,7 +1511,8 @@ def test_prepare_unicode_url():
     p = PreparedRequest()
     p.prepare(
         method='GET',
-        url=u('http://www.example.com/üniçø∂é')
+        url=u('http://www.example.com/üniçø∂é'),
+        hooks=[]
     )
     assert_copy(p, p.copy())
 
