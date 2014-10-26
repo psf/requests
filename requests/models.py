@@ -22,8 +22,8 @@ from .packages.urllib3.util import parse_url
 from .packages.urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError)
 from .exceptions import (
-    HTTPError, RequestException, MissingSchema, InvalidURL, 
-    ChunkedEncodingError, ContentDecodingError, ConnectionError, 
+    HTTPError, RequestException, MissingSchema, InvalidURL,
+    ChunkedEncodingError, ContentDecodingError, ConnectionError,
     StreamConsumedError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -310,7 +310,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # such as OAuth to work on a fully prepared request.
 
         # This MUST go after prepare_auth. Authenticators could add a hook
-        self.prepare_hooks(hooks)
+        self.prepare_hooks(hooks if hooks is not None else [])
 
     def __repr__(self):
         return '<PreparedRequest [%s]>' % (self.method)
