@@ -49,6 +49,8 @@ Release History
 **Behavioral Changes**
 
 - ``Connection: keep-alive`` header is now sent automatically.
+- Read timeout errors will no longer be retried when you create a Session with
+  ``max_retries`` greater than zero.
 
 **Improvements**
 
