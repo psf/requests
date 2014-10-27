@@ -22,8 +22,8 @@ from .packages.urllib3.util import parse_url
 from .packages.urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError)
 from .exceptions import (
-    HTTPError, RequestException, MissingSchema, InvalidURL, 
-    ChunkedEncodingError, ContentDecodingError, ConnectionError, 
+    HTTPError, RequestException, MissingSchema, InvalidURL,
+    ChunkedEncodingError, ContentDecodingError, ConnectionError,
     StreamConsumedError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -108,7 +108,7 @@ class RequestEncodingMixin(object):
         if parameters are supplied as a dict.
 
         """
-        if (not files):
+        if not files:
             raise ValueError("Files must be provided.")
         elif isinstance(data, basestring):
             raise ValueError("Data must not be a string.")
@@ -480,7 +480,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         # If no Auth is explicitly provided, extract it from the URL first.
         if auth is None:
-            url_auth = get_auth_from_url(self.url)
+            url_auth = get_auth_from_url(url)
             auth = url_auth if any(url_auth) else None
 
         if auth:
