@@ -3,6 +3,7 @@ import sys
 import socket
 from socket import timeout as SocketTimeout
 import warnings
+from .packages import six
 
 try:  # Python 3
     from http.client import HTTPConnection as _HTTPConnection, HTTPException
@@ -26,12 +27,19 @@ except (ImportError, AttributeError):  # Platform-specific: No SSL.
         pass
 
 
+try:  # Python 3:
+    # Not a no-op, we're adding this to the namespace so it can be imported.
+    ConnectionError = ConnectionError
+except NameError:  # Python 2:
+    class ConnectionError(Exception):
+        pass
+
+
 from .exceptions import (
     ConnectTimeoutError,
     SystemTimeWarning,
 )
 from .packages.ssl_match_hostname import match_hostname
-from .packages import six
 
 from .util.ssl_ import (
     resolve_cert_reqs,
@@ -40,8 +48,8 @@ from .util.ssl_ import (
     assert_fingerprint,
 )
 
-from .util import connection
 
+from .util import connection
 
 port_by_scheme = {
     'http': 80,
