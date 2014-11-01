@@ -1389,6 +1389,11 @@ class TestTimeout:
         except ConnectTimeout:
             pass
 
+    def test_encoded_methods(self):
+        """See: https://github.com/kennethreitz/requests/issues/2316"""
+        r = requests.request(b'GET', httpbin('get'))
+        assert r.ok
+
 
 SendCall = collections.namedtuple('SendCall', ('args', 'kwargs'))
 
