@@ -21,6 +21,7 @@ from .hooks import default_hooks, dispatch_hook
 from .utils import to_key_val_list, default_headers, to_native_string
 from .exceptions import (
     TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError)
+from .packages.urllib3._collections import RecentlyUsedContainer
 from .structures import CaseInsensitiveDict
 
 from .adapters import HTTPAdapter
@@ -327,7 +328,8 @@ class Session(SessionRedirectMixin):
         self.mount('https://', HTTPAdapter())
         self.mount('http://', HTTPAdapter())
 
-        self.redirect_cache = {}
+        # Only store 1000 redirects to prevent using infinite memory
+        self.redirect_cache = RecentlyUsedContainer(1000)
 
     def __enter__(self):
         return self
