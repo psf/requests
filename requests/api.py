@@ -46,7 +46,12 @@ def request(method, url, **kwargs):
     """
 
     session = sessions.Session()
-    return session.request(method=method, url=url, **kwargs)
+    response = session.request(method=method, url=url, **kwargs)
+    # By explicitly closing the session, we avoid leaving sockets open which
+    # can trigger a ResourceWarning in some cases, and look like a memory leak
+    # in others.
+    session.close()
+    return response
 
 
 def get(url, **kwargs):
