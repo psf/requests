@@ -125,7 +125,7 @@ class HTTPAdapter(BaseAdapter):
         self._pool_block = block
 
         self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize,
-                                       block=block, **pool_kwargs)
+                                       block=block, strict=True, **pool_kwargs)
 
     def proxy_manager_for(self, proxy, **proxy_kwargs):
         """Return urllib3 ProxyManager for the given proxy.
