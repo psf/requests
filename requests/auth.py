@@ -198,7 +198,11 @@ class HTTPDigestAuth(AuthBase):
         try:
             self.pos = r.body.tell()
         except AttributeError:
-            pass
+            # In the case of HTTPDigestAuth being reused and the body of
+            # the previous request was a file-like object, pos has the
+            # file position of the previous body. Ensure it's set to
+            # None.
+            self.pos = None
         r.register_hook('response', self.handle_401)
         r.register_hook('response', self.handle_redirect)
         return r
