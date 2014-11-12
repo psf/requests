@@ -103,6 +103,14 @@ class RequestsTestCase(unittest.TestCase):
         head_req = requests.Request('HEAD', httpbin('head')).prepare()
         assert 'Content-Length' not in head_req.headers
 
+    def test_override_content_length(self):
+        headers = {
+            'Content-Length': 'not zero'
+        }
+        r = requests.Request('POST', httpbin('post'), headers=headers).prepare()
+        assert 'Content-Length' in r.headers
+        assert r.headers['Content-Length'] == 'not zero'
+
     def test_path_is_not_double_encoded(self):
         request = requests.Request('GET', "http://0.0.0.0/get/test case").prepare()
 
