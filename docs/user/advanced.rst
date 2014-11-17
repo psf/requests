@@ -5,6 +5,7 @@ Advanced Usage
 
 This document covers some of Requests more advanced features.
 
+.. _session-objects:
 
 Session Objects
 ---------------
@@ -50,6 +51,8 @@ parameters.
 All values that are contained within a session are directly available to you.
 See the :ref:`Session API Docs <sessionapi>` to learn more.
 
+.. _request-and-response-objects:
+
 Request and Response Objects
 ----------------------------
 
@@ -81,6 +84,8 @@ request, and then the request's headers::
     >>> r.request.headers
     {'Accept-Encoding': 'identity, deflate, compress, gzip',
     'Accept': '*/*', 'User-Agent': 'python-requests/1.2.0'}
+
+.. _prepared-requests:
 
 Prepared Requests
 -----------------
@@ -189,6 +194,7 @@ If you specify a wrong path or an invalid cert::
     >>> requests.get('https://kennethreitz.com', cert='/wrong_path/server.pem')
     SSLError: [Errno 336265225] _ssl.c:347: error:140B0009:SSL routines:SSL_CTX_use_PrivateKey_file:PEM lib
 
+.. _body-content-workflow:
 
 Body Content Workflow
 ---------------------
@@ -228,6 +234,7 @@ consider using ``contextlib.closing`` (`documented here`_), like this::
 
 .. _`documented here`: http://docs.python.org/2/library/contextlib.html#contextlib.closing
 
+.. _keep-alive:
 
 Keep-Alive
 ----------
@@ -240,6 +247,7 @@ Note that connections are only released back to the pool for reuse once all body
 data has been read; be sure to either set ``stream`` to ``False`` or read the
 ``content`` property of the ``Response`` object.
 
+.. _streaming-uploads:
 
 Streaming Uploads
 -----------------
@@ -251,6 +259,7 @@ file-like object for your body::
     with open('massive-body', 'rb') as f:
         requests.post('http://some.url/streamed', data=f)
 
+.. _chunk-encoding:
 
 Chunk-Encoded Requests
 ----------------------
@@ -267,6 +276,7 @@ a length) for your body::
     requests.post('http://some.url/chunked', data=gen())
 
 
+.. _multipart:
 
 POST Multiple Multipart-Encoded Files
 -------------------------------------
@@ -290,6 +300,7 @@ To do that, just set files to a list of tuples of (form_field_name, file_info):
       ...
     }
 
+.. _event-hooks:
 
 Event Hooks
 -----------
@@ -329,6 +340,7 @@ Let's print some request method arguments at runtime::
     http://httpbin.org
     <Response [200]>
 
+.. _custom-auth:
 
 Custom Authentication
 ---------------------
@@ -387,6 +399,7 @@ set ``stream`` to ``True`` and iterate over the response with
         if line:
             print(json.loads(line))
 
+.. _proxies:
 
 Proxies
 -------
