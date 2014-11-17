@@ -310,8 +310,8 @@ class RequestsTestCase(unittest.TestCase):
             requests.get("http://httpbin.org:1")
 
     def test_LocationParseError(self):
-        """Inputing a URL that cannot be parsed should raise a ConnectionError"""
-        with pytest.raises(ConnectionError):
+        """Inputing a URL that cannot be parsed should raise an InvalidURL error"""
+        with pytest.raises(InvalidURL):
             requests.get("http://fe80::5054:ff:fe5a:fc0")
 
     def test_basicauth_with_netrc(self):
