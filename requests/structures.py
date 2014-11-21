@@ -9,6 +9,7 @@ Data structures that power Requests.
 """
 
 import collections
+import random
 
 
 class CaseInsensitiveDict(collections.MutableMapping):
@@ -39,6 +40,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
     behavior is undefined.
 
     """
+
     def __init__(self, data=None, **kwargs):
         self._store = dict()
         if data is None:
@@ -85,6 +87,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
     def __repr__(self):
         return str(dict(self.items()))
 
+
 class LookupDict(dict):
     """Dictionary lookup object."""
 
@@ -102,3 +105,37 @@ class LookupDict(dict):
 
     def get(self, key, default=None):
         return self.__dict__.get(key, default)
+
+
+class RandomSelectFromListValue(dict):
+    """
+    Proxies with ability to select from a list of random
+    How its works:
+        >>> from requests.structures import RandomSelectFromListValue
+        >>> a = RandomSelectFromListValue({'k1': 1, 'k2' : range(1,3)})
+        >>> a.get('k1'), a['k2'] in range(1,3), a['k2'] in range(4,6)
+        (1, True, False)
+        >>> a.get('k2') in range(1,3)
+        True
+        >>> a.get('k3', 1)
+        1
+        >>> a['k3']
+        Traceback (most recent call last):
+        ...
+        KeyError: 'k3'
+        >>>
+    """
+    def __getitem__(self, key):
+        val = super(RandomSelectFromListValue, self).__getitem__(key)
+        if isinstance(val, (list, tuple, set)):
+            return random.choice(list(val))
+        return val
+
+    def get(self, key, default=None):
+        try:
+            return self.__getitem__(key) or default
+        except KeyError:
+            return default
+
+    def copy(self):
+        return RandomSelectFromListValue(self)

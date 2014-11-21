@@ -22,7 +22,7 @@ from .utils import to_key_val_list, default_headers, to_native_string
 from .exceptions import (
     TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError)
 from .packages.urllib3._collections import RecentlyUsedContainer
-from .structures import CaseInsensitiveDict
+from .structures import CaseInsensitiveDict, RandomSelectFromListValue
 
 from .adapters import HTTPAdapter
 
@@ -240,7 +240,6 @@ class SessionRedirectMixin(object):
             environ_proxies = get_environ_proxies(url)
 
             proxy = environ_proxies.get(scheme)
-
             if proxy:
                 new_proxies.setdefault(scheme, environ_proxies[scheme])
 
@@ -445,11 +444,9 @@ class Session(SessionRedirectMixin):
         prep = self.prepare_request(req)
 
         proxies = proxies or {}
-
         settings = self.merge_environment_settings(
             prep.url, proxies, stream, verify, cert
         )
-
         # Send the request.
         send_kwargs = {
             'timeout': timeout,
@@ -630,7 +627,7 @@ class Session(SessionRedirectMixin):
         verify = merge_setting(verify, self.verify)
         cert = merge_setting(cert, self.cert)
 
-        return {'verify': verify, 'proxies': proxies, 'stream': stream,
+        return {'verify': verify, 'proxies': RandomSelectFromListValue(proxies), 'stream': stream,
                 'cert': cert}
 
     def get_adapter(self, url):
