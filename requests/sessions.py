@@ -24,7 +24,7 @@ from .exceptions import (
 from .packages.urllib3._collections import RecentlyUsedContainer
 from .structures import CaseInsensitiveDict
 
-from .adapters import HTTPAdapter
+from .adapters import HTTPAdapter, UnixAdapter
 
 from .utils import (
     requote_uri, get_environ_proxies, get_netrc_auth, should_bypass_proxies,
@@ -327,6 +327,7 @@ class Session(SessionRedirectMixin):
         self.adapters = OrderedDict()
         self.mount('https://', HTTPAdapter())
         self.mount('http://', HTTPAdapter())
+        self.mount('http+unix://', UnixAdapter())
 
         # Only store 1000 redirects to prevent using infinite memory
         self.redirect_cache = RecentlyUsedContainer(1000)

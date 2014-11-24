@@ -12,10 +12,12 @@ import socket
 
 from .models import Response
 from .packages.urllib3 import Retry
+from .packages.urllib3.connection import HTTPConnection
+from .packages.urllib3.connectionpool import HTTPConnectionPool
 from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
 from .packages.urllib3.response import HTTPResponse
 from .packages.urllib3.util import Timeout as TimeoutSauce
-from .compat import urlparse, basestring
+from .compat import urlparse, basestring, unquote
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     prepend_scheme_if_needed, get_auth_from_url, urldefragauth)
 from .structures import CaseInsensitiveDict
@@ -426,3 +428,51 @@ class HTTPAdapter(BaseAdapter):
                 raise
 
         return self.build_response(request, resp)
+
+
+# The following was adapted from some code from docker-py
+# https://github.com/docker/docker-py/blob/master/docker/unixconn/unixconn.py
+class UnixHTTPConnection(HTTPConnection):
+    def __init__(self, unix_socket_url, timeout=60):
+        """Create an HTTP connection to a unix domain socket
+
+        :param unix_socket_url: A URL with a scheme of 'http+unix' and the
+        netloc is a percent-encoded path to a unix domain socket. E.g.:
+        'http+unix://%2Ftmp%2Fprofilesvc.sock/status/pid'
+        """
+        HTTPConnection.__init__(self, 'localhost', timeout=timeout)
+        self.unix_socket_url = unix_socket_url
+        self.timeout = timeout
+
+    def connect(self):
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        sock.settimeout(self.timeout)
+        socket_path = unquote(urlparse(self.unix_socket_url).netloc)
+        sock.connect(socket_path)
+        self.sock = sock
+
+    def request(self, method, url, **kwargs):
+        url = urlparse(url).path
+        HTTPConnection.request(self, method, url, **kwargs)
+
+
+class UnixHTTPConnectionPool(HTTPConnectionPool):
+    def __init__(self, socket_path, timeout=60):
+        HTTPConnectionPool.__init__(self, 'localhost', timeout=timeout)
+        self.socket_path = socket_path
+        self.timeout = timeout
+
+    def _new_conn(self):
+        return UnixHTTPConnection(self.socket_path, self.timeout)
+
+
+class UnixAdapter(HTTPAdapter):
+    def __init__(self, timeout=60):
+        self.timeout = timeout
+        super(UnixAdapter, self).__init__()
+
+    def get_connection(self, socket_path, proxies=None):
+        if proxies:
+            raise ValueError('%s does not support specifying proxies'
+                             % self.__class__.__name__)
+        return UnixHTTPConnectionPool(socket_path, self.timeout)
