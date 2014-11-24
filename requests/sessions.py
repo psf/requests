@@ -129,7 +129,7 @@ class SessionRedirectMixin(object):
             # Facilitate relative 'location' headers, as allowed by RFC 7231.
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
             # Compliant with RFC3986, we percent encode the url.
-            if not urlparse(url).netloc:
+            if not parsed.netloc:
                 url = urljoin(resp.url, requote_uri(url))
             else:
                 url = requote_uri(url)
