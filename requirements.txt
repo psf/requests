@@ -1,4 +1,5 @@
 py==1.4.12
 pytest==2.3.4
 pytest-cov==1.6
+waitress==0.8.9
 wheel

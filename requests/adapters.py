@@ -468,8 +468,8 @@ class UnixHTTPConnectionPool(HTTPConnectionPool):
 
 class UnixAdapter(HTTPAdapter):
     def __init__(self, timeout=60):
-        self.timeout = timeout
         super(UnixAdapter, self).__init__()
+        self.timeout = timeout
 
     def get_connection(self, socket_path, proxies=None):
         if proxies:
