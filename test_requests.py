@@ -4,11 +4,13 @@
 """Tests for Requests."""
 
 from __future__ import division
+import collections
 import json
+import multiprocessing
 import os
 import pickle
 import unittest
-import collections
+import uuid
 
 import io
 import requests
@@ -946,6 +948,57 @@ class RequestsTestCase(unittest.TestCase):
             req = requests.Request('GET', test_url)
             preq = req.prepare()
             assert test_url == preq.url
+
+    def test_unix_domain_adapter_ok(self):
+        from requests.compat import quote_plus
+        import waitress
+
+        def wsgiapp(environ, start_response):
+            start_response(
+                '200 OK',
+                [('X-Transport', 'unix domain socket'),
+                 ('X-Socket-Path', environ['SERVER_PORT']),
+                 ('X-Requested-Path', environ['PATH_INFO'])])
+            return ['Hello world!']
+
+        class UnixSocketServerProcess(multiprocessing.Process):
+            def __init__(self, *args, **kwargs):
+                super(UnixSocketServerProcess, self).__init__(*args, **kwargs)
+                self.unix_socket = self.get_tempfile_name()
+
+            def get_tempfile_name(self):
+                # I'd rather use tempfile.NamedTemporaryFile but IDNA limits
+                # the hostname to 63 characters and we'll get a "InvalidURL:
+                # URL has an invalid label" error if we exceed that.
+                args = (os.stat(__file__).st_ino,
+                        os.getpid(),
+                        uuid.uuid4().hex[-8:])
+                return '/tmp/test_requests.%s_%s_%s' % args
+
+            def run(self):
+                waitress.serve(wsgiapp, unix_socket=self.unix_socket)
+
+        process = UnixSocketServerProcess()
+        process.start()
+
+        try:
+            urlencoded_socket_name = quote_plus(process.unix_socket)
+            url = 'http+unix://%s/path/to/page' % urlencoded_socket_name
+            r = requests.get(url)
+            assert r.status_code == 200
+            assert r.headers['server'] == 'waitress'
+            assert r.headers['X-Transport'] == 'unix domain socket'
+            assert r.headers['X-Requested-Path'] == '/path/to/page'
+            assert r.headers['X-Socket-Path'] == process.unix_socket
+            assert isinstance(r.connection, requests.adapters.UnixAdapter)
+            assert r.url == url
+            assert r.text == 'Hello world!'
+        finally:
+            process.terminate()
+
+    def test_unix_domain_adapter_connection_error(self):
+        with pytest.raises(ConnectionError):
+            requests.get('http+unix://socket_does_not_exist/path/to/page')
 
     def test_auth_is_stripped_on_redirect_off_host(self):
         r = requests.get(
