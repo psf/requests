@@ -369,6 +369,7 @@ class Session(SessionRedirectMixin):
             files=request.files,
             data=request.data,
             json=request.json,
+            override_multipart_header=request.override_multipart_header,
             headers=merge_setting(request.headers, self.headers, dict_class=CaseInsensitiveDict),
             params=merge_setting(request.params, self.params),
             auth=merge_setting(auth, self.auth),
@@ -391,7 +392,8 @@ class Session(SessionRedirectMixin):
         stream=None,
         verify=None,
         cert=None,
-        json=None):
+        json=None,
+        override_multipart_header=False):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -441,6 +443,7 @@ class Session(SessionRedirectMixin):
             auth = auth,
             cookies = cookies,
             hooks = hooks,
+            override_multipart_header = override_multipart_header
         )
         prep = self.prepare_request(req)
 

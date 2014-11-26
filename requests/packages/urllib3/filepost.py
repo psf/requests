@@ -55,7 +55,7 @@ def iter_fields(fields):
     return ((k, v) for k, v in fields)
 
 
-def encode_multipart_formdata(fields, boundary=None):
+def encode_multipart_formdata(fields, boundary=None, override_multipart_header=False):
     """
     Encode a dictionary of ``fields`` using the multipart/form-data MIME format.
 
@@ -69,6 +69,9 @@ def encode_multipart_formdata(fields, boundary=None):
     body = BytesIO()
     if boundary is None:
         boundary = choose_boundary()
+
+    if override_multipart_header is False:
+        override_multipart_header = 'multipart/form-data'
 
     for field in iter_field_objects(fields):
         body.write(b('--%s\r\n' % (boundary)))
@@ -88,6 +91,6 @@ def encode_multipart_formdata(fields, boundary=None):
 
     body.write(b('--%s--\r\n' % (boundary)))
 
-    content_type = str('multipart/form-data; boundary=%s' % boundary)
+    content_type = str('%s; boundary=%s' % (override_multipart_header,boundary))
 
     return body.getvalue(), content_type
