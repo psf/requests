@@ -100,7 +100,7 @@ class RequestEncodingMixin(object):
             return data
 
     @staticmethod
-    def _encode_files(files, data):
+    def _encode_files(files, data, override_multipart_header=False):
         """Build the body for a multipart/form-data request.
 
         Will successfully encode files when passed as a dict or a list of
@@ -154,7 +154,7 @@ class RequestEncodingMixin(object):
             rf.make_multipart(content_type=ft)
             new_fields.append(rf)
 
-        body, content_type = encode_multipart_formdata(new_fields)
+        body, content_type = encode_multipart_formdata(new_fields, override_multipart_header=override_multipart_header)
 
         return body, content_type
 
@@ -198,6 +198,7 @@ class Request(RequestHooksMixin):
     :param auth: Auth handler or (user, pass) tuple.
     :param cookies: dictionary or CookieJar of cookies to attach to this request.
     :param hooks: dictionary of callback hooks, for internal usage.
+    :param override_multipart_header: False or string to use a different content type for multipart.
 
     Usage::
 
@@ -217,7 +218,8 @@ class Request(RequestHooksMixin):
         auth=None,
         cookies=None,
         hooks=None,
-        json=None):
+        json=None,
+        override_multipart_header=False):
 
         # Default empty dicts for dict params.
         data = [] if data is None else data
@@ -239,6 +241,7 @@ class Request(RequestHooksMixin):
         self.params = params
         self.auth = auth
         self.cookies = cookies
+        self.override_multipart_header = override_multipart_header
 
     def __repr__(self):
         return '<Request [%s]>' % (self.method)
@@ -294,12 +297,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.body = None
         #: dictionary of callback hooks, for internal usage.
         self.hooks = default_hooks()
+        self.override_multipart_header = False
 
     def prepare(self, method=None, url=None, headers=None, files=None,
                 data=None, params=None, auth=None, cookies=None, hooks=None,
-                json=None):
+                json=None,override_multipart_header=False):
         """Prepares the entire request with the given parameters."""
 
+        self.override_multipart_header = override_multipart_header
         self.prepare_method(method)
         self.prepare_url(url, params)
         self.prepare_headers(headers)
@@ -446,7 +451,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         else:
             # Multi-part file uploads.
             if files:
-                (body, content_type) = self._encode_files(files, data)
+                (body, content_type) = self._encode_files(files, data, self.override_multipart_header)
             else:
                 if data and json is None:
                     body = self._encode_params(data)
