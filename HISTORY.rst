@@ -3,6 +3,41 @@
 Release History
 ---------------
 
+2.5.0 (2014-12-01)
+++++++++++++++++++
+
+**Improvements**
+
+- Allow usage of urllib3's Retry object with HTTPAdapters (#2216)
+- The ``iter_lines`` method on a response now accepts a delimiter with which
+  to split the content (#2295)
+
+**Behavioural Changes**
+
+- Add deprecation warnings to functions in requests.utils that will be removed
+  in 3.0 (#2309)
+- Sessions used by the functional API are always closed (#2326)
+- Restrict requests to HTTP/1.1 and HTTP/1.0 (stop accepting HTTP/0.9) (#2323)
+
+**Bugfixes**
+
+- Only parse the URL once (#2353)
+- Allow Content-Length header to always be overriden (#2332)
+- Properly handle files in HTTPDigestAuth (#2333)
+- Cap redirect_cache size to prevent memory abuse (#2299)
+- Fix HTTPDigestAuth handling of redirects after authenticating successfully
+  (#2253)
+- Fix crash with custom method parameter to Session.request (#2317)
+- Fix how Link headers are parsed using the regular expression library (#2271)
+
+**Documentation**
+
+- Add more references for interlinking (#2348)
+- Update CSS for theme (#2290)
+- Update width of buttons and sidebar (#2289)
+- Replace references of Gittip with Gratipay (#2282)
+- Add link to changelog in sidebar (#2273)
+
 2.4.3 (2014-10-06)
 ++++++++++++++++++
 
