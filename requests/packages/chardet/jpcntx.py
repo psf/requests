@@ -177,6 +177,12 @@ class JapaneseContextAnalysis:
         return -1, 1
 
 class SJISContextAnalysis(JapaneseContextAnalysis):
+    def __init__(self):
+        self.charset_name = "SHIFT_JIS"
+
+    def get_charset_name(self):
+        return self.charset_name
+
     def get_order(self, aBuf):
         if not aBuf:
             return -1, 1
@@ -184,6 +190,8 @@ class SJISContextAnalysis(JapaneseContextAnalysis):
         first_char = wrap_ord(aBuf[0])
         if ((0x81 <= first_char <= 0x9F) or (0xE0 <= first_char <= 0xFC)):
             charLen = 2
+            if (first_char == 0x87) or (0xFA <= first_char <= 0xFC):
+                self.charset_name = "CP932"
         else:
             charLen = 1
 

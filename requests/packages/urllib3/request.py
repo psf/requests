@@ -118,18 +118,24 @@ class RequestMethods(object):
         which is used to compose the body of the request. The random boundary
         string can be explicitly set with the ``multipart_boundary`` parameter.
         """
-        if encode_multipart:
-            body, content_type = encode_multipart_formdata(
-                fields or {}, boundary=multipart_boundary)
-        else:
-            body, content_type = (urlencode(fields or {}),
-                                  'application/x-www-form-urlencoded')
-
         if headers is None:
             headers = self.headers
 
-        headers_ = {'Content-Type': content_type}
-        headers_.update(headers)
+        extra_kw = {'headers': {}}
 
-        return self.urlopen(method, url, body=body, headers=headers_,
-                            **urlopen_kw)
+        if fields:
+            if 'body' in urlopen_kw:
+                raise TypeError('request got values for both \'fields\' and \'body\', can only specify one.')
+
+            if encode_multipart:
+                body, content_type = encode_multipart_formdata(fields, boundary=multipart_boundary)
+            else:
+                body, content_type = urlencode(fields), 'application/x-www-form-urlencoded'
+
+            extra_kw['body'] = body
+            extra_kw['headers'] = {'Content-Type': content_type}
+
+        extra_kw['headers'].update(headers)
+        extra_kw.update(urlopen_kw)
+
+        return self.urlopen(method, url, **extra_kw)

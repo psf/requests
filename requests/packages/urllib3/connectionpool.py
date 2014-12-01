@@ -32,7 +32,7 @@ from .connection import (
     port_by_scheme,
     DummyConnection,
     HTTPConnection, HTTPSConnection, VerifiedHTTPSConnection,
-    HTTPException, BaseSSLError,
+    HTTPException, BaseSSLError, ConnectionError
 )
 from .request import RequestMethods
 from .response import HTTPResponse
@@ -278,6 +278,23 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             # can be removed later
             return Timeout.from_float(timeout)
 
+    def _raise_timeout(self, err, url, timeout_value):
+        """Is the error actually a timeout? Will raise a ReadTimeout or pass"""
+
+        if isinstance(err, SocketTimeout):
+            raise ReadTimeoutError(self, url, "Read timed out. (read timeout=%s)" % timeout_value)
+
+        # See the above comment about EAGAIN in Python 3. In Python 2 we have
+        # to specifically catch it and throw the timeout error
+        if hasattr(err, 'errno') and err.errno in _blocking_errnos:
+            raise ReadTimeoutError(self, url, "Read timed out. (read timeout=%s)" % timeout_value)
+
+        # Catch possible read timeouts thrown as SSL errors. If not the
+        # case, rethrow the original. We need to do this because of:
+        # http://bugs.python.org/issue10272
+        if 'timed out' in str(err) or 'did not complete (read)' in str(err):  # Python 2.6
+            raise ReadTimeoutError(self, url, "Read timed out. (read timeout=%s)" % timeout_value)
+
     def _make_request(self, conn, method, url, timeout=_Default,
                       **httplib_request_kw):
         """
@@ -301,7 +318,12 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         conn.timeout = timeout_obj.connect_timeout
 
         # Trigger any extra validation we need to do.
-        self._validate_conn(conn)
+        try:
+            self._validate_conn(conn)
+        except (SocketTimeout, BaseSSLError) as e:
+            # Py2 raises this as a BaseSSLError, Py3 raises it as socket timeout.
+            self._raise_timeout(err=e, url=url, timeout_value=conn.timeout)
+            raise
 
         # conn.request() calls httplib.*.request, not the method in
         # urllib3.request. It also calls makefile (recv) on the socket.
@@ -331,28 +353,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
                 httplib_response = conn.getresponse(buffering=True)
             except TypeError:  # Python 2.6 and older
                 httplib_response = conn.getresponse()
-        except SocketTimeout:
-            raise ReadTimeoutError(
-                self, url, "Read timed out. (read timeout=%s)" % read_timeout)
-
-        except BaseSSLError as e:
-            # Catch possible read timeouts thrown as SSL errors. If not the
-            # case, rethrow the original. We need to do this because of:
-            # http://bugs.python.org/issue10272
-            if 'timed out' in str(e) or \
-               'did not complete (read)' in str(e):  # Python 2.6
-                raise ReadTimeoutError(
-                        self, url, "Read timed out. (read timeout=%s)" % read_timeout)
-
-            raise
-
-        except SocketError as e:  # Platform-specific: Python 2
-            # See the above comment about EAGAIN in Python 3. In Python 2 we
-            # have to specifically catch it and throw the timeout error
-            if e.errno in _blocking_errnos:
-                raise ReadTimeoutError(
-                    self, url, "Read timed out. (read timeout=%s)" % read_timeout)
-
+        except (SocketTimeout, BaseSSLError, SocketError) as e:
+            self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
             raise
 
         # AppEngine doesn't have a version attr.
@@ -537,12 +539,15 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             raise EmptyPoolError(self, "No pool connections are available.")
 
         except (BaseSSLError, CertificateError) as e:
-            # Release connection unconditionally because there is no way to
-            # close it externally in case of exception.
-            release_conn = True
+            # Close the connection. If a connection is reused on which there
+            # was a Certificate error, the next request will certainly raise
+            # another Certificate error.
+            if conn:
+                conn.close()
+                conn = None
             raise SSLError(e)
 
-        except (TimeoutError, HTTPException, SocketError) as e:
+        except (TimeoutError, HTTPException, SocketError, ConnectionError) as e:
             if conn:
                 # Discard the connection for these exceptions. It will be
                 # be replaced during the next _get_conn() call.
@@ -725,8 +730,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
             warnings.warn((
                 'Unverified HTTPS request is being made. '
                 'Adding certificate verification is strongly advised. See: '
-                'https://urllib3.readthedocs.org/en/latest/security.html '
-                '(This warning will only appear once by default.)'),
+                'https://urllib3.readthedocs.org/en/latest/security.html'),
                 InsecureRequestWarning)
 
 
