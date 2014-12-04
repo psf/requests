@@ -266,6 +266,10 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         """
         pass
 
+    def _prepare_proxy(self, conn):
+        # Nothing to do for HTTP connections.
+        pass
+
     def _get_timeout(self, timeout):
         """ Helper that always returns a :class:`urllib3.util.Timeout` """
         if timeout is _Default:
@@ -510,11 +514,18 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         try:
             # Request a connection from the queue.
+            timeout_obj = self._get_timeout(timeout)
             conn = self._get_conn(timeout=pool_timeout)
+
+            conn.timeout = timeout_obj.connect_timeout
+
+            is_new_proxy_conn = self.proxy is not None and not getattr(conn, 'sock', None)
+            if is_new_proxy_conn:
+                self._prepare_proxy(conn)
 
             # Make the request on the httplib connection object.
             httplib_response = self._make_request(conn, method, url,
-                                                  timeout=timeout,
+                                                  timeout=timeout_obj,
                                                   body=body, headers=headers)
 
             # If we're going to release the connection in ``finally:``, then
@@ -673,23 +684,25 @@ class HTTPSConnectionPool(HTTPConnectionPool):
                           assert_fingerprint=self.assert_fingerprint)
             conn.ssl_version = self.ssl_version
 
-        if self.proxy is not None:
-            # Python 2.7+
-            try:
-                set_tunnel = conn.set_tunnel
-            except AttributeError:  # Platform-specific: Python 2.6
-                set_tunnel = conn._set_tunnel
-
-            if sys.version_info <= (2, 6, 4) and not self.proxy_headers:   # Python 2.6.4 and older
-                set_tunnel(self.host, self.port)
-            else:
-                set_tunnel(self.host, self.port, self.proxy_headers)
-
-            # Establish tunnel connection early, because otherwise httplib
-            # would improperly set Host: header to proxy's IP:port.
-            conn.connect()
-
         return conn
+
+    def _prepare_proxy(self, conn):
+        """
+        Establish tunnel connection early, because otherwise httplib
+        would improperly set Host: header to proxy's IP:port.
+        """
+        # Python 2.7+
+        try:
+            set_tunnel = conn.set_tunnel
+        except AttributeError:  # Platform-specific: Python 2.6
+            set_tunnel = conn._set_tunnel
+
+        if sys.version_info <= (2, 6, 4) and not self.proxy_headers:   # Python 2.6.4 and older
+            set_tunnel(self.host, self.port)
+        else:
+            set_tunnel(self.host, self.port, self.proxy_headers)
+
+        conn.connect()
 
     def _new_conn(self):
         """
