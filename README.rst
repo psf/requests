@@ -19,7 +19,7 @@ perform the simplest of tasks.
 
 Things shouldn't be this way. Not in Python.
 
-.. code-block:: pycon
+.. code-block:: python
 
     >>> r = requests.get('https://api.github.com', auth=('user', 'pass'))
     >>> r.status_code
