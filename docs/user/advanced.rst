@@ -384,7 +384,7 @@ Streaming Requests
 
 With :class:`requests.Response.iter_lines()` you can easily
 iterate over streaming APIs such as the `Twitter Streaming
-API <https://dev.twitter.com/docs/streaming-api>`_. Simply
+API <https://dev.twitter.com/streaming/overview>`_. Simply
 set ``stream`` to ``True`` and iterate over the response with
 :class:`~requests.Response.iter_lines()`::
 
