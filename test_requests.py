@@ -928,6 +928,14 @@ class RequestsTestCase(unittest.TestCase):
 
         assert 'multipart/form-data' in p.headers['Content-Type']
 
+    def test_can_send_file_object_with_non_string_filename(self):
+        f = io.BytesIO()
+        f.name = 2
+        r = requests.Request('POST', httpbin('post'), files={'f': f})
+        p = r.prepare()
+
+        assert 'multipart/form-data' in p.headers['Content-Type']
+
     def test_autoset_header_values_are_native(self):
         data = 'this is a string'
         length = '16'
