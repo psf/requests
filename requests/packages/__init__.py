@@ -1,9 +1,24 @@
 """
-pip._vendor is for vendoring dependencies of pip to prevent needing pip to
-depend on something external.
+Copyright (c) Donald Stufft, pip, and individual contributors
 
-Files inside of pip._vendor should be considered immutable and should only be
-updated to versions from upstream.
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 from __future__ import absolute_import
 
@@ -50,7 +65,7 @@ class VendorAlias(object):
             finally:
                 # Re-add any additions to sys.meta_path that were made while
                 # during the import we just did, otherwise things like
-                # pip._vendor.six.moves will fail.
+                # requests.packages.urllib3.poolmanager will fail.
                 for m in sys.meta_path:
                     if m not in real_meta_path:
                         real_meta_path.append(m)
