@@ -22,8 +22,8 @@ from .packages.urllib3.util import parse_url
 from .packages.urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError)
 from .exceptions import (
-    HTTPError, RequestException, MissingSchema, InvalidURL, 
-    ChunkedEncodingError, ContentDecodingError, ConnectionError, 
+    HTTPError, RequestException, MissingSchema, InvalidURL,
+    ChunkedEncodingError, ContentDecodingError, ConnectionError,
     StreamConsumedError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -681,6 +681,13 @@ class Response(object):
             chunks = stream_decode_response_unicode(chunks, self)
 
         return chunks
+
+    def save(self, filename, chunk_size=CONTENT_CHUNK_SIZE, decode_unicode=False):
+        with open(filename, 'wb') as f:
+            for chunk in self.iter_content(chunk_size, decode_unicode):
+                if chunk:
+                    f.write(chunk)
+                    f.flush()
 
     def iter_lines(self, chunk_size=ITER_CHUNK_SIZE, decode_unicode=None, delimiter=None):
         """Iterates over the response data, one line at a time.  When
