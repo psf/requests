@@ -825,15 +825,15 @@ class RequestsTestCase(unittest.TestCase):
         assert str(error) == 'message'
         assert error.response == response
 
-##    def test_session_pickling(self):
-##        r = requests.Request('GET', httpbin('get'))
-##        s = requests.Session()
-##
-##        s = pickle.loads(pickle.dumps(s))
-##        s.proxies = getproxies()
-##
-##        r = s.send(r.prepare())
-##        assert r.status_code == 200
+    def test_session_pickling(self):
+        r = requests.Request('GET', httpbin('get'))
+        s = requests.Session()
+
+        s = pickle.loads(pickle.dumps(s))
+        s.proxies = getproxies()
+
+        r = s.send(r.prepare())
+        assert r.status_code == 200
 
     def test_fixes_1329(self):
         """
