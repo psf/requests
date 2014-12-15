@@ -158,3 +158,4 @@ Patches and Suggestions
 - Joe Alcorn (`@buttscicles <https://github.com/buttscicles>`_)
 - Syed Suhail Ahmed <ssuhail.ahmed93@gmail.com> (`@syedsuhail <https://github.com/syedsuhail>`_)
 - Scott Sadler (`@ssadler <https://github.com/ssadler>`_)
+- Arthur Darcet (`@arthurdarcet <https://github.com/arthurdarcet>`_)

@@ -20,7 +20,7 @@ from requests.compat import (
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (ConnectionError, ConnectTimeout,
                                  InvalidSchema, InvalidURL, MissingSchema,
-                                 ReadTimeout, Timeout)
+                                 ReadTimeout, Timeout, RetryError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -258,7 +258,7 @@ class RequestsTestCase(unittest.TestCase):
         """Do not send headers in Session.headers with None values."""
         ses = requests.Session()
         ses.headers['Accept-Encoding'] = None
-        req = requests.Request('GET', 'http://httpbin.org/get')
+        req = requests.Request('GET', httpbin('get'))
         prep = ses.prepare_request(req)
         assert 'Accept-Encoding' not in prep.headers
 
@@ -933,6 +933,14 @@ class RequestsTestCase(unittest.TestCase):
 
         assert 'multipart/form-data' in p.headers['Content-Type']
 
+    def test_can_send_file_object_with_non_string_filename(self):
+        f = io.BytesIO()
+        f.name = 2
+        r = requests.Request('POST', httpbin('post'), files={'f': f})
+        p = r.prepare()
+
+        assert 'multipart/form-data' in p.headers['Content-Type']
+
     def test_autoset_header_values_are_native(self):
         data = 'this is a string'
         length = '16'
@@ -1013,12 +1021,12 @@ class RequestsTestCase(unittest.TestCase):
         assert s == "Basic dGVzdDp0ZXN0"
 
     def test_requests_history_is_saved(self):
-        r = requests.get('https://httpbin.org/redirect/5')
+        r = requests.get(httpbin('redirect/5'))
         total = r.history[-1].history
         i = 0
         for item in r.history:
             assert item.history == total[0:i]
-            i=i+1
+            i = i + 1
 
     def test_json_param_post_content_type_works(self):
         r = requests.post(
@@ -1355,7 +1363,7 @@ class TestMorselToCookieMaxAge(unittest.TestCase):
 class TestTimeout:
     def test_stream_timeout(self):
         try:
-            requests.get('https://httpbin.org/delay/10', timeout=2.0)
+            requests.get(httpbin('delay/10'), timeout=2.0)
         except requests.exceptions.Timeout as e:
             assert 'Read timed out' in e.args[0].args[0]
 
@@ -1455,7 +1463,7 @@ class TestRedirects:
 
     def test_requests_are_updated_each_time(self):
         session = RedirectSession([303, 307])
-        prep = requests.Request('POST', 'http://httpbin.org/post').prepare()
+        prep = requests.Request('POST', httpbin('post')).prepare()
         r0 = session.send(prep)
         assert r0.request.method == 'POST'
         assert session.calls[-1] == SendCall((r0.request,), {})
@@ -1525,6 +1533,7 @@ def test_prepared_request_complete_copy():
     )
     assert_copy(p, p.copy())
 
+
 def test_prepare_unicode_url():
     p = PreparedRequest()
     p.prepare(
@@ -1533,6 +1542,17 @@ def test_prepare_unicode_url():
         hooks=[]
     )
     assert_copy(p, p.copy())
+
+
+def test_urllib3_retries():
+    from requests.packages.urllib3.util import Retry
+    s = requests.Session()
+    s.mount('http://', HTTPAdapter(max_retries=Retry(
+        total=2, status_forcelist=[500]
+    )))
+
+    with pytest.raises(RetryError):
+        s.get(httpbin('status/500'))
 
 if __name__ == '__main__':
     unittest.main()

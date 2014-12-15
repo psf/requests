@@ -36,6 +36,8 @@ from .status_codes import codes
 # formerly defined here, reexposed here for backward compatibility
 from .models import REDIRECT_STATI
 
+REDIRECT_CACHE_SIZE = 1000
+
 
 def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
     """
@@ -129,7 +131,7 @@ class SessionRedirectMixin(object):
             # Facilitate relative 'location' headers, as allowed by RFC 7231.
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
             # Compliant with RFC3986, we percent encode the url.
-            if not urlparse(url).netloc:
+            if not parsed.netloc:
                 url = urljoin(resp.url, requote_uri(url))
             else:
                 url = requote_uri(url)
@@ -274,7 +276,7 @@ class Session(SessionRedirectMixin):
     __attrs__ = [
         'headers', 'cookies', 'auth', 'proxies', 'hooks', 'params', 'verify',
         'cert', 'prefetch', 'adapters', 'stream', 'trust_env',
-        'max_redirects', 'redirect_cache'
+        'max_redirects',
     ]
 
     def __init__(self):
@@ -329,7 +331,7 @@ class Session(SessionRedirectMixin):
         self.mount('http://', HTTPAdapter())
 
         # Only store 1000 redirects to prevent using infinite memory
-        self.redirect_cache = RecentlyUsedContainer(1000)
+        self.redirect_cache = RecentlyUsedContainer(REDIRECT_CACHE_SIZE)
 
     def __enter__(self):
         return self
@@ -660,11 +662,18 @@ class Session(SessionRedirectMixin):
             self.adapters[key] = self.adapters.pop(key)
 
     def __getstate__(self):
-        return dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
+        state = dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
+        state['redirect_cache'] = dict(self.redirect_cache)
+        return state
 
     def __setstate__(self, state):
+        redirect_cache = state.pop('redirect_cache', {})
         for attr, value in state.items():
             setattr(self, attr, value)
+
+        self.redirect_cache = RecentlyUsedContainer(REDIRECT_CACHE_SIZE)
+        for redirect, to in redirect_cache.items():
+            self.redirect_cache[redirect] = to
 
 
 def session():

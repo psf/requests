@@ -26,9 +26,10 @@ from .packages.urllib3.exceptions import ProxyError as _ProxyError
 from .packages.urllib3.exceptions import ProtocolError
 from .packages.urllib3.exceptions import ReadTimeoutError
 from .packages.urllib3.exceptions import SSLError as _SSLError
+from .packages.urllib3.exceptions import ResponseError
 from .cookies import extract_cookies_to_jar
 from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
-                         ProxyError)
+                         ProxyError, RetryError)
 from .auth import _basic_auth_str
 
 DEFAULT_POOLBLOCK = False
@@ -63,7 +64,9 @@ class HTTPAdapter(BaseAdapter):
         should attempt. Note, this applies only to failed DNS lookups, socket
         connections and connection timeouts, never to requests where data has
         made it to the server. By default, Requests does not retry failed
-        connections.
+        connections. If you need granular control over the conditions under
+        which we retry a request, import urllib3's ``Retry`` class and pass
+        that instead.
     :param pool_block: Whether the connection pool should block for connections.
 
     Usage::
@@ -79,7 +82,10 @@ class HTTPAdapter(BaseAdapter):
     def __init__(self, pool_connections=DEFAULT_POOLSIZE,
                  pool_maxsize=DEFAULT_POOLSIZE, max_retries=DEFAULT_RETRIES,
                  pool_block=DEFAULT_POOLBLOCK):
-        self.max_retries = max_retries
+        if max_retries == DEFAULT_RETRIES:
+            self.max_retries = Retry(0, read=False)
+        else:
+            self.max_retries = Retry.from_int(max_retries)
         self.config = {}
         self.proxy_manager = {}
 
@@ -360,7 +366,7 @@ class HTTPAdapter(BaseAdapter):
                     assert_same_host=False,
                     preload_content=False,
                     decode_content=False,
-                    retries=Retry(self.max_retries, read=False),
+                    retries=self.max_retries,
                     timeout=timeout
                 )
 
@@ -411,6 +417,9 @@ class HTTPAdapter(BaseAdapter):
         except MaxRetryError as e:
             if isinstance(e.reason, ConnectTimeoutError):
                 raise ConnectTimeout(e, request=request)
+
+            if isinstance(e.reason, ResponseError):
+                raise RetryError(e, request=request)
 
             raise ConnectionError(e, request=request)
 

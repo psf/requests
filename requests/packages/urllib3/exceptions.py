@@ -72,11 +72,8 @@ class MaxRetryError(RequestError):
     def __init__(self, pool, url, reason=None):
         self.reason = reason
 
-        message = "Max retries exceeded with url: %s" % url
-        if reason:
-            message += " (Caused by %r)" % reason
-        else:
-            message += " (Caused by redirect)"
+        message = "Max retries exceeded with url: %s (Caused by %r)" % (
+            url, reason)
 
         RequestError.__init__(self, pool, url, message)
 
@@ -139,6 +136,12 @@ class LocationParseError(LocationValueError):
         HTTPError.__init__(self, message)
 
         self.location = location
+
+
+class ResponseError(HTTPError):
+    "Used as a container for an error reason supplied in a MaxRetryError."
+    GENERIC_ERROR = 'too many error responses'
+    SPECIFIC_ERROR = 'too many {status_code} error responses'
 
 
 class SecurityWarning(HTTPWarning):

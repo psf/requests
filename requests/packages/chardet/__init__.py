@@ -15,7 +15,7 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-__version__ = "2.2.1"
+__version__ = "2.3.0"
 from sys import version_info
 
 

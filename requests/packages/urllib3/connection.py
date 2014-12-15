@@ -3,6 +3,7 @@ import sys
 import socket
 from socket import timeout as SocketTimeout
 import warnings
+from .packages import six
 
 try:  # Python 3
     from http.client import HTTPConnection as _HTTPConnection, HTTPException
@@ -26,12 +27,20 @@ except (ImportError, AttributeError):  # Platform-specific: No SSL.
         pass
 
 
+try:  # Python 3:
+    # Not a no-op, we're adding this to the namespace so it can be imported.
+    ConnectionError = ConnectionError
+except NameError:  # Python 2:
+    class ConnectionError(Exception):
+        pass
+
+
 from .exceptions import (
     ConnectTimeoutError,
     SystemTimeWarning,
+    SecurityWarning,
 )
 from .packages.ssl_match_hostname import match_hostname
-from .packages import six
 
 from .util.ssl_ import (
     resolve_cert_reqs,
@@ -40,8 +49,8 @@ from .util.ssl_ import (
     assert_fingerprint,
 )
 
-from .util import connection
 
+from .util import connection
 
 port_by_scheme = {
     'http': 80,
@@ -233,8 +242,15 @@ class VerifiedHTTPSConnection(HTTPSConnection):
                                self.assert_fingerprint)
         elif resolved_cert_reqs != ssl.CERT_NONE \
                 and self.assert_hostname is not False:
-            match_hostname(self.sock.getpeercert(),
-                           self.assert_hostname or hostname)
+            cert = self.sock.getpeercert()
+            if not cert.get('subjectAltName', ()):
+                warnings.warn((
+                    'Certificate has no `subjectAltName`, falling back to check for a `commonName` for now. '
+                    'This feature is being removed by major browsers and deprecated by RFC 2818. '
+                    '(See https://github.com/shazow/urllib3/issues/497 for details.)'),
+                    SecurityWarning
+                )
+            match_hostname(cert, self.assert_hostname or hostname)
 
         self.is_verified = (resolved_cert_reqs == ssl.CERT_REQUIRED
                             or self.assert_fingerprint is not None)
