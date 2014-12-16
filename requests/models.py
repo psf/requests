@@ -22,9 +22,8 @@ from .packages.urllib3.util import parse_url
 from .packages.urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError)
 from .exceptions import (
-    HTTPError, RequestException, MissingSchema, InvalidURL, 
-    ChunkedEncodingError, ContentDecodingError, ConnectionError, 
-    StreamConsumedError)
+    HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
+    ContentDecodingError, ConnectionError, StreamConsumedError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
@@ -615,7 +614,7 @@ class Response(object):
     def ok(self):
         try:
             self.raise_for_status()
-        except RequestException:
+        except HTTPError:
             return False
         return True
 
