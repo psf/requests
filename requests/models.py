@@ -20,7 +20,7 @@ from .packages.urllib3.fields import RequestField
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
 from .packages.urllib3.exceptions import (
-    DecodeError, ReadTimeoutError, ProtocolError)
+    DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
 from .exceptions import (
     HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
     ContentDecodingError, ConnectionError, StreamConsumedError)
@@ -350,7 +350,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             return
 
         # Support for unicode domain names and paths.
-        scheme, auth, host, port, path, query, fragment = parse_url(url)
+        try:
+            scheme, auth, host, port, path, query, fragment = parse_url(url)
+        except LocationParseError as e:
+            raise InvalidURL(e.message)
 
         if not scheme:
             raise MissingSchema("Invalid URL {0!r}: No schema supplied. "
