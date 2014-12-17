@@ -353,7 +353,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         try:
             scheme, auth, host, port, path, query, fragment = parse_url(url)
         except LocationParseError as e:
-            raise InvalidURL(e.message)
+            raise InvalidURL(*e.args)
 
         if not scheme:
             raise MissingSchema("Invalid URL {0!r}: No schema supplied. "
