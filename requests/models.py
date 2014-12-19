@@ -78,25 +78,36 @@ class RequestEncodingMixin(object):
         Will successfully encode parameters when passed as a dict or a list of
         2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
         if parameters are supplied as a dict.
+
+        Returns a pair of (encoded_data, did_encode_utf8)
         """
 
         if isinstance(data, (str, bytes)):
-            return data
+            return data, False
         elif hasattr(data, 'read'):
-            return data
+            return data, False
         elif hasattr(data, '__iter__'):
             result = []
+            did_encode_utf8 = False
             for k, vs in to_key_val_list(data):
+                if isinstance(k, str):
+                    k_encoded = k.encode('utf-8')
+                    did_encode_utf8 = True
+                else:
+                    k_encoded = k
                 if isinstance(vs, basestring) or not hasattr(vs, '__iter__'):
                     vs = [vs]
                 for v in vs:
                     if v is not None:
-                        result.append(
-                            (k.encode('utf-8') if isinstance(k, str) else k,
-                             v.encode('utf-8') if isinstance(v, str) else v))
-            return urlencode(result, doseq=True)
+                        if isinstance(v, str):
+                            v_encoded = v.encode('utf-8')
+                            did_encode_utf8 = True
+                        else:
+                            v_encoded = v
+                        result.append((k_encoded, v_encoded))
+            return urlencode(result, doseq=True), did_encode_utf8
         else:
-            return data
+            return data, False
 
     @staticmethod
     def _encode_files(files, data):
@@ -392,7 +403,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if isinstance(fragment, str):
                 fragment = fragment.encode('utf-8')
 
-        enc_params = self._encode_params(params)
+        enc_params, _ = self._encode_params(params)
         if enc_params:
             if query:
                 query = '%s&%s' % (query, enc_params)
@@ -451,9 +462,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 (body, content_type) = self._encode_files(files, data)
             else:
                 if data and json is None:
-                    body = self._encode_params(data)
+                    body, did_encode_utf8 = self._encode_params(data)
                     if isinstance(data, basestring) or hasattr(data, 'read'):
                         content_type = None
+                    elif did_encode_utf8:
+                        content_type = 'application/x-www-form-urlencoded; charset=UTF-8'
                     else:
                         content_type = 'application/x-www-form-urlencoded'
 
