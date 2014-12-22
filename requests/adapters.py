@@ -388,7 +388,10 @@ class HTTPAdapter(BaseAdapter):
                     low_conn.endheaders()
 
                     for i in request.body:
-                        low_conn.send(hex(len(i))[2:].encode('utf-8'))
+                        chunk_size = len(i)
+                        if chunk_size == 0:
+                            break
+                        low_conn.send(hex(chunk_size)[2:].encode('utf-8'))
                         low_conn.send(b'\r\n')
                         low_conn.send(i)
                         low_conn.send(b'\r\n')
