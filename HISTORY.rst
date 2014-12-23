@@ -3,6 +3,19 @@
 Release History
 ---------------
 
+2.5.1 (2014-12-23)
+++++++++++++++++++
+
+**Behavioural Changes**
+
+- Only catch HTTPErrors in raise_for_status (#2382)
+
+**Bugfixes**
+
+- Handle LocationParseError from urllib3 (#2344)
+- Handle file-like object filenames that are not strings (#2379)
+- Unbreak HTTPDigestAuth handler. Allow new nonces to be negotiated (#2389)
+
 2.5.0 (2014-12-01)
 ++++++++++++++++++
 
