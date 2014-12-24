@@ -165,7 +165,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     session.cookies to support dict operations.
 
     Requests does not use the dict interface internally; it's just for
-    compatibility with external client code. All `requests` code should work
+    compatibility with external client code. All requests code should work
     out of the box with externally provided instances of ``CookieJar``, e.g.
     ``LWPCookieJar`` and ``FileCookieJar``.
 
@@ -275,8 +275,9 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     def __getitem__(self, name):
         """Dict-like __getitem__() for compatibility with client code. Throws
         exception if there are more than one cookie with name. In that case,
-        use the more explicit get() method instead. Caution: operation is O(n),
-        not O(1)."""
+        use the more explicit get() method instead.
+
+        .. warning:: operation is O(n), not O(1)."""
 
         return self._find_no_duplicates(name)
 
@@ -320,11 +321,11 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         raise KeyError('name=%r, domain=%r, path=%r' % (name, domain, path))
 
     def _find_no_duplicates(self, name, domain=None, path=None):
-        """__get_item__ and get call _find_no_duplicates -- never used in
-        Requests internally. Takes as args name and optional domain and path.
-        Returns a cookie.value. Throws KeyError if cookie is not found and
-        CookieConflictError if there are multiple cookies that match name and
-        optionally domain and path."""
+        """Both ``__get_item__`` and ``get`` call this function: it's never
+        used elsewhere in Requests. Takes as args name and optional domain and
+        path. Returns a cookie.value. Throws KeyError if cookie is not found
+        and CookieConflictError if there are multiple cookies that match name
+        and optionally domain and path."""
         toReturn = None
         for cookie in iter(self):
             if cookie.name == name:
