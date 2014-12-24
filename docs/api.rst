@@ -88,6 +88,12 @@ Cookies
 .. autofunction:: requests.utils.cookiejar_from_dict
 .. autofunction:: requests.utils.add_dict_to_cookiejar
 
+.. autoclass:: requests.cookies.RequestsCookieJar
+   :inherited-members:
+
+.. autoclass:: requests.cookies.CookieConflictError
+   :inherited-members:
+
 
 Encodings
 ~~~~~~~~~
