@@ -46,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Requests'
-copyright = u'2014. A <a href="http://kennethreitz.com/pages/open-projects.html">Kenneth Reitz</a> Project'
+copyright = u'2015. A <a href="http://kennethreitz.com/pages/open-projects.html">Kenneth Reitz</a> Project'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
