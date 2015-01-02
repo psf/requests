@@ -1475,7 +1475,6 @@ class TestRedirects:
             assert session.calls[-1] == send_call
 
 
-
 @pytest.fixture
 def list_of_tuples():
     return [
