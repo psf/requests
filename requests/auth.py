@@ -124,13 +124,15 @@ class HTTPDigestAuth(AuthBase):
         s += os.urandom(8)
 
         cnonce = (hashlib.sha1(s).hexdigest()[:16])
-        noncebit = "%s:%s:%s:%s:%s" % (nonce, ncvalue, cnonce, qop, HA2)
         if _algorithm == 'MD5-SESS':
             HA1 = hash_utf8('%s:%s:%s' % (HA1, nonce, cnonce))
 
         if qop is None:
             respdig = KD(HA1, "%s:%s" % (nonce, HA2))
         elif qop == 'auth' or 'auth' in qop.split(','):
+            noncebit = "%s:%s:%s:%s:%s" % (
+                nonce, ncvalue, cnonce, 'auth', HA2
+                )
             respdig = KD(HA1, noncebit)
         else:
             # XXX handle auth-int.
