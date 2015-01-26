@@ -103,7 +103,8 @@ class HTTPDigestAuth(AuthBase):
         # XXX not implemented yet
         entdig = None
         p_parsed = urlparse(url)
-        path = p_parsed.path
+        #: path is request-uri defined in RFC 2616 which should not be empty
+        path = p_parsed.path or "/"
         if p_parsed.query:
             path += '?' + p_parsed.query
 
