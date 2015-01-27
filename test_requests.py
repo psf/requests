@@ -1327,6 +1327,22 @@ class UtilsTestCase(unittest.TestCase):
         assert username == percent_encoding_test_chars
         assert password == percent_encoding_test_chars
 
+    def test_requote_uri_with_unquoted_percents(self):
+        """Ensure we handle unquoted percent signs in redirects.
+
+        See: https://github.com/kennethreitz/requests/issues/2356
+        """
+        from requests.utils import requote_uri
+        bad_uri = 'http://example.com/fiz?buz=%ppicture'
+        quoted = 'http://example.com/fiz?buz=%25ppicture'
+        assert quoted == requote_uri(bad_uri)
+
+    def test_requote_uri_properly_requotes(self):
+        """Ensure requoting doesn't break expectations."""
+        from requests.utils import requote_uri
+        quoted = 'http://example.com/fiz?buz=%25ppicture'
+        assert quoted == requote_uri(quoted)
+
 
 class TestMorselToCookieExpires(unittest.TestCase):
 
