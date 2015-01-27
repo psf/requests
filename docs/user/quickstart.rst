@@ -168,23 +168,6 @@ have to handle when using ``Response.raw`` directly. When streaming a
 download, the above is the preferred and recommended way to retrieve the
 content.
 
-
-Custom Headers
---------------
-
-If you'd like to add HTTP headers to a request, simply pass in a ``dict`` to the
-``headers`` parameter.
-
-For example, we didn't specify our content-type in the previous example::
-
-    >>> import json
-    >>> url = 'https://api.github.com/some/endpoint'
-    >>> payload = {'some': 'data'}
-    >>> headers = {'content-type': 'application/json'}
-
-    >>> r = requests.post(url, data=json.dumps(payload), headers=headers)
-
-
 More complicated POST requests
 ------------------------------
 
@@ -272,6 +255,23 @@ support this, but there is a separate package which does -
 
 For sending multiple files in one request refer to the :ref:`advanced <advanced>`
 section.
+
+
+Custom Headers
+--------------
+
+If you'd like to add HTTP headers to a request, simply pass in a ``dict`` to the
+``headers`` parameter.
+
+For example, we didn't specify our content-type in the previous example::
+
+    >>> import json
+    >>> url = 'https://api.github.com/some/endpoint'
+    >>> payload = {'some': 'data'}
+    >>> headers = {'content-type': 'application/json'}
+
+    >>> r = requests.post(url, data=json.dumps(payload), headers=headers)
+
 
 
 Response Status Codes
