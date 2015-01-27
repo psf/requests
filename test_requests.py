@@ -1265,6 +1265,32 @@ class UtilsTestCase(unittest.TestCase):
             'http://localhost.localdomain:5000/v1.0/') == {}
         assert get_environ_proxies('http://www.requests.com/') != {}
 
+    def test_guess_filename_when_int(self):
+        from requests.utils import guess_filename
+        assert None is guess_filename(1)
+
+    def test_guess_filename_when_filename_is_an_int(self):
+        from requests.utils import guess_filename
+        fake = type('Fake', (object,), {'name': 1})()
+        assert None is guess_filename(fake)
+
+    def test_guess_filename_with_file_like_obj(self):
+        from requests.utils import guess_filename
+        from requests import compat
+        fake = type('Fake', (object,), {'name': b'value'})()
+        guessed_name = guess_filename(fake)
+        assert b'value' == guessed_name
+        assert isinstance(guessed_name, compat.bytes)
+
+    def test_guess_filename_with_unicode_name(self):
+        from requests.utils import guess_filename
+        from requests import compat
+        filename = b'value'.decode('utf-8')
+        fake = type('Fake', (object,), {'name': filename})()
+        guessed_name = guess_filename(fake)
+        assert filename == guessed_name
+        assert isinstance(guessed_name, compat.str)
+
     def test_is_ipv4_address(self):
         from requests.utils import is_ipv4_address
         assert is_ipv4_address('8.8.8.8')

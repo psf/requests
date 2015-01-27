@@ -99,7 +99,6 @@ if is_py2:
     basestring = basestring
     numeric_types = (int, long, float)
 
-
 elif is_py3:
     from urllib.parse import urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote, quote_plus, unquote_plus, urldefrag
     from urllib.request import parse_http_list, getproxies, proxy_bypass
