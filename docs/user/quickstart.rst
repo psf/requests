@@ -169,6 +169,21 @@ download, the above is the preferred and recommended way to retrieve the
 content.
 
 
+Custom Headers
+--------------
+
+If you'd like to add HTTP headers to a request, simply pass in a ``dict`` to the
+``headers`` parameter.
+
+For example, we didn't specify our content-type in the previous example::
+
+    >>> import json
+    >>> url = 'https://api.github.com/some/endpoint'
+    >>> headers = {'user-agent': 'Mozilla/5.0 (X11; U; SunOS i86pc; en-US; rv:1.7.5) Gecko/20041109 Firefox/1.0'}
+
+    >>> r = requests.post(url, headers=headers)
+
+
 More complicated POST requests
 ------------------------------
 
@@ -198,22 +213,6 @@ For example, the GitHub API v3 accepts JSON-Encoded POST/PATCH data::
     >>> payload = {'some': 'data'}
 
     >>> r = requests.post(url, data=json.dumps(payload))
-
-
-Custom Headers
---------------
-
-If you'd like to add HTTP headers to a request, simply pass in a ``dict`` to the
-``headers`` parameter.
-
-For example, we didn't specify our content-type in the previous example::
-
-    >>> import json
-    >>> url = 'https://api.github.com/some/endpoint'
-    >>> payload = {'some': 'data'}
-    >>> headers = {'content-type': 'application/json'}
-
-    >>> r = requests.post(url, data=json.dumps(payload), headers=headers)
 
 
 POST a Multipart-Encoded File
