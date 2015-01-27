@@ -175,7 +175,7 @@ Custom Headers
 If you'd like to add HTTP headers to a request, simply pass in a ``dict`` to the
 ``headers`` parameter.
 
-For example, we didn't specify our content-type in the previous example::
+For example, we can specify custom user agent like this::
 
     >>> url = 'https://api.github.com/some/endpoint'
     >>> headers = {'user-agent': 'Mozilla/5.0 (X11; U; SunOS i86pc; en-US; rv:1.7.5) Gecko/20041109 Firefox/1.0'}
