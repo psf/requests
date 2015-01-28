@@ -29,7 +29,7 @@ please email `sigmavirus24 <mailto:graffatcolmingov@gmail.com>`_ and
 `Lukasa <mailto:cory@lukasa.co.uk>`_ directly. **Do not file a public issue.**
 
 If English is not your first language, please try to describe the problem and
-its impact to the best of your ability. For greater detail please use your native
+its impact to the best of your ability. For greater detail, please use your native
 language and we will try our best to translate it using online services. Please
 also include the code you used to find the problem and the shortest amount of code
 necessar to reproduce it. Please do not disclose this to anyone else. We will
