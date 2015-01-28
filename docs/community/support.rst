@@ -17,8 +17,9 @@ Send a Tweet
 ------------
 
 If your question is less than 140 characters, feel free to send a tweet to
-`@kennethreitz <https://twitter.com/kennethreitz>`_ or
-`@sigmavirus24 <https://twitter.com/sigmavirus24>`_.
+`@kennethreitz <https://twitter.com/kennethreitz>`_,
+`@sigmavirus24 <https://twitter.com/sigmavirus24>`_, or
+`@lukasaoz <https://twitter.com/lukasaoz>`_.
 
 Vulnerability Disclosure
 ------------------------
@@ -26,6 +27,15 @@ Vulnerability Disclosure
 If you think you have found a potential security vulnerability in requests,
 please email `sigmavirus24 <mailto:graffatcolmingov@gmail.com>`_ and
 `Lukasa <mailto:cory@lukasa.co.uk>`_ directly. **Do not file a public issue.**
+
+If English is not your first language, please try to describe the problem and
+its impact to the best of your ability. For greater detail please use your native
+language and we will try our best to translate it using online services. Please
+also include the code you used to find the problem and the shortest amount of code
+necessar to reproduce it. Please do not disclose this to anyone else. We will
+retrieve a CVE identifier if necessary and give you full credit under whatever
+name or alias you provide. We will respect your privacy and will only publicize
+your involvement if you grant us permission.
 
 File an Issue
 -------------
