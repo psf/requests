@@ -689,23 +689,36 @@ class Response(object):
         stream=True is set on the request, this avoids reading the
         content at once into memory for large responses.
         """
-
         pending = None
 
-        for chunk in self.iter_content(chunk_size=chunk_size, decode_unicode=decode_unicode):
+        for chunk in self.iter_content(chunk_size=chunk_size,
+                                       decode_unicode=decode_unicode):
 
+            # Skip any null responses
+            if not chunk:
+                continue
+
+            # Consume any pending data
             if pending is not None:
                 chunk = pending + chunk
+                pending = None
 
+            # Either split on a line, or split on a specified delimiter
             if delimiter:
                 lines = chunk.split(delimiter)
             else:
                 lines = chunk.splitlines()
 
-            if lines and lines[-1] and chunk and lines[-1][-1] == chunk[-1]:
+            # The split(delimiter) will always end with whatever remains past
+            # the delimiter ('' if nothing more).  However splitlines() will
+            # not end with a '' if the final text is a line delimiter.
+
+            # Therefore, if we're in delimiter mode, always pop the final
+            # item to prepend to the next chunk. However, only do this for
+            # non-delimiter mode if the chunk does not match the end of the
+            # last line.
+            if delimiter or (lines[-1] and lines[-1][-1] == chunk[-1]):
                 pending = lines.pop()
-            else:
-                pending = None
 
             for line in lines:
                 yield line
