@@ -301,11 +301,13 @@ class RequestsTestCase(unittest.TestCase):
         r = s.get(url)
         assert r.status_code == 200
 
-    def test_connection_error(self):
+    def test_connection_error_invalid_domain(self):
         """Connecting to an unknown domain should raise a ConnectionError"""
         with pytest.raises(ConnectionError):
-            requests.get("http://fooobarbangbazbing.httpbin.org")
+            requests.get("http://doesnotexist.google.com")
 
+    def test_connection_error_invalid_port(self):
+        """Connecting to an invalid port should raise a ConnectionError"""
         with pytest.raises(ConnectionError):
             requests.get("http://httpbin.org:1")
 
