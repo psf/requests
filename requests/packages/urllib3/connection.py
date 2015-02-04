@@ -253,7 +253,8 @@ class VerifiedHTTPSConnection(HTTPSConnection):
             match_hostname(cert, self.assert_hostname or hostname)
 
         self.is_verified = (resolved_cert_reqs == ssl.CERT_REQUIRED
-                            or self.assert_fingerprint is not None)
+                            or self.assert_fingerprint is not None
+                            or self.cert_reqs == 'CERT_EXPLICITLY_NONE')
 
 
 if ssl:

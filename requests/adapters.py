@@ -183,7 +183,12 @@ class HTTPAdapter(BaseAdapter):
             conn.cert_reqs = 'CERT_REQUIRED'
             conn.ca_certs = cert_loc
         else:
-            conn.cert_reqs = 'CERT_NONE'
+            if verify is False:
+                # Forced by the caller
+                conn.cert_reqs = 'CERT_EXPLICITLY_NONE'
+            else:
+                # Happened to be none
+                conn.cert_reqs = 'CERT_NONE'
             conn.ca_certs = None
 
         if cert:
