@@ -129,7 +129,7 @@ def resolve_cert_reqs(candidate):
     If it's neither `None` nor a string we assume it is already the numeric
     constant which can directly be passed to wrap_socket.
     """
-    if candidate is None:
+    if candidate is None or candidate == 'CERT_EXPLICITLY_NONE':
         return CERT_NONE
 
     if isinstance(candidate, str):
