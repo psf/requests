@@ -275,7 +275,7 @@ In the event you are posting a very large file as a ``multipart/form-data``
 request, you may want to stream the request. By default, ``requests`` does not
 support this, but there is a separate package which does -
 ``requests-toolbelt``. You should read `the toolbelt's documentation
-<https://toolbelt.rtfd.org>`_ for more details about how to use it.
+<https://toolbelt.readthedocs.org>`_ for more details about how to use it.
 
 For sending multiple files in one request refer to the :ref:`advanced <advanced>`
 section.
