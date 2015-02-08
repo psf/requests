@@ -422,6 +422,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         length = None
 
         if json is not None:
+            if files is not None:
+                raise NotImplementedError('JSON data and files are mutually exclusive.')
             content_type = 'application/json'
             body = json_dumps(json)
 
@@ -456,6 +458,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                         content_type = None
                     else:
                         content_type = 'application/x-www-form-urlencoded'
+                elif data and json is not None:
+                    raise NotImplementedError('JSON data and generic body data are mutually exclusive.')
 
             self.prepare_content_length(body)
 
