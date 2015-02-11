@@ -1,7 +1,7 @@
 from collections import Mapping, MutableMapping
 try:
     from threading import RLock
-except ImportError: # Platform-specific: No threads available
+except ImportError:  # Platform-specific: No threads available
     class RLock:
         def __enter__(self):
             pass
@@ -10,7 +10,7 @@ except ImportError: # Platform-specific: No threads available
             pass
 
 
-try: # Python 2.7+
+try:  # Python 2.7+
     from collections import OrderedDict
 except ImportError:
     from .packages.ordered_dict import OrderedDict
@@ -161,7 +161,7 @@ class HTTPHeaderDict(MutableMapping):
     def getlist(self, key):
         """Returns a list of all the values for the named field. Returns an
         empty list if the key doesn't exist."""
-        return self[key].split(', ') if key in self else []
+        return [v for k, v in self._data.get(key.lower(), [])]
 
     def copy(self):
         h = HTTPHeaderDict()
@@ -196,3 +196,11 @@ class HTTPHeaderDict(MutableMapping):
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, dict(self.items()))
+
+    def update(self, *args, **kwds):
+        headers = args[0]
+        if isinstance(headers, HTTPHeaderDict):
+            for key in iterkeys(headers._data):
+                self._data.setdefault(key.lower(), []).extend(headers._data[key])
+        else:
+            super(HTTPHeaderDict, self).update(*args, **kwds)

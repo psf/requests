@@ -1,5 +1,5 @@
 from binascii import hexlify, unhexlify
-from hashlib import md5, sha1
+from hashlib import md5, sha1, sha256
 
 from ..exceptions import SSLError
 
@@ -96,7 +96,8 @@ def assert_fingerprint(cert, fingerprint):
     # this digest.
     hashfunc_map = {
         16: md5,
-        20: sha1
+        20: sha1,
+        32: sha256,
     }
 
     fingerprint = fingerprint.replace(':', '').lower()
@@ -211,7 +212,9 @@ def create_urllib3_context(ssl_version=None, cert_reqs=ssl.CERT_REQUIRED,
 
     context.verify_mode = cert_reqs
     if getattr(context, 'check_hostname', None) is not None:  # Platform-specific: Python 3.2
-        context.check_hostname = (context.verify_mode == ssl.CERT_REQUIRED)
+        # We do our own verification, including fingerprints and alternative
+        # hostnames. So disable it here
+        context.check_hostname = False
     return context
 
 

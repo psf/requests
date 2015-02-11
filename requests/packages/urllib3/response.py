@@ -2,12 +2,12 @@ import zlib
 import io
 from socket import timeout as SocketTimeout
 
+from .packages import six
 from ._collections import HTTPHeaderDict
 from .exceptions import ProtocolError, DecodeError, ReadTimeoutError
 from .packages.six import string_types as basestring, binary_type
 from .connection import HTTPException, BaseSSLError
 from .util.response import is_fp_closed
-
 
 
 class DeflateDecoder(object):
@@ -21,6 +21,9 @@ class DeflateDecoder(object):
         return getattr(self._obj, name)
 
     def decompress(self, data):
+        if not data:
+            return data
+
         if not self._first_try:
             return self._obj.decompress(data)
 
@@ -36,9 +39,23 @@ class DeflateDecoder(object):
                 self._data = None
 
 
+class GzipDecoder(object):
+
+    def __init__(self):
+        self._obj = zlib.decompressobj(16 + zlib.MAX_WBITS)
+
+    def __getattr__(self, name):
+        return getattr(self._obj, name)
+
+    def decompress(self, data):
+        if not data:
+            return data
+        return self._obj.decompress(data)
+
+
 def _get_decoder(mode):
     if mode == 'gzip':
-        return zlib.decompressobj(16 + zlib.MAX_WBITS)
+        return GzipDecoder()
 
     return DeflateDecoder()
 
@@ -202,7 +219,7 @@ class HTTPResponse(io.IOBase):
 
             except BaseSSLError as e:
                 # FIXME: Is there a better way to differentiate between SSLErrors?
-                if not 'read operation timed out' in str(e):  # Defensive:
+                if 'read operation timed out' not in str(e):  # Defensive:
                     # This shouldn't happen but just in case we're missing an edge
                     # case, let's avoid swallowing SSL errors.
                     raise
@@ -270,7 +287,16 @@ class HTTPResponse(io.IOBase):
 
         headers = HTTPHeaderDict()
         for k, v in r.getheaders():
-            headers.add(k, v)
+            if k.lower() != 'set-cookie':
+                headers.add(k, v)
+
+        if six.PY3:  # Python 3:
+            cookies = r.msg.get_all('set-cookie') or tuple()
+        else:  # Python 2:
+            cookies = r.msg.getheaders('set-cookie')
+
+        for cookie in cookies:
+            headers.add('set-cookie', cookie)
 
         # HTTPResponse objects in Python 3 don't have a .strict attribute
         strict = getattr(r, 'strict', 0)
