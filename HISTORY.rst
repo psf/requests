@@ -3,6 +3,53 @@
 Release History
 ---------------
 
+2.5.2 (2015-02-23)
+++++++++++++++++++
+
+**Features and Improvements**
+
+- Add sha256 fingerprint support. (`shazow/urllib3#540`_)
+
+- Improve the performance of headers. (`shazow/urllib3#544`_)
+
+**Bugfixes**
+
+- Copy pip's import machinery. When downstream redistributors remove
+  requests.packages.urllib3 the import machinery will continue to let those
+  same symbols work. Example usage in requests' documentation and 3rd-party
+  libraries relying on the vendored copies of urllib3 will work without having
+  to fallback to the system urllib3.
+
+- Attempt to quote parts of the URL on redirect if unquoting and then quoting
+  fails. (#2356)
+
+- Fix filename type check for multipart form-data uploads. (#2411)
+
+- Properly handle the case where a server issuing digest authentication
+  challenges provides both auth and auth-int qop-values. (#2408)
+
+- Fix a socket leak. (`shazow/urllib3#549`_)
+
+- Fix multiple ``Set-Cookie`` headers properly. (`shazow/urllib3#534`_)
+
+- Disable the built-in hostname verification. (`shazow/urllib3#526`_)
+
+- Fix the behaviour of decoding an exhausted stream. (`shazow/urllib3#535`_)
+
+**Security**
+
+- Pulled in an updated ``cacert.pem``.
+
+- Drop RC4 from the default cipher list. (`shazow/urllib3#551`_)
+
+.. _shazow/urllib3#551: https://github.com/shazow/urllib3/pull/551
+.. _shazow/urllib3#549: https://github.com/shazow/urllib3/pull/549
+.. _shazow/urllib3#544: https://github.com/shazow/urllib3/pull/544
+.. _shazow/urllib3#540: https://github.com/shazow/urllib3/pull/540
+.. _shazow/urllib3#535: https://github.com/shazow/urllib3/pull/535
+.. _shazow/urllib3#534: https://github.com/shazow/urllib3/pull/534
+.. _shazow/urllib3#526: https://github.com/shazow/urllib3/pull/526
+
 2.5.1 (2014-12-23)
 ++++++++++++++++++
 
