@@ -588,14 +588,13 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
                 conn.close()
                 conn = None
 
-            stacktrace = sys.exc_info()[2]
             if isinstance(e, SocketError) and self.proxy:
                 e = ProxyError('Cannot connect to proxy.', e)
             elif isinstance(e, (SocketError, HTTPException)):
                 e = ProtocolError('Connection aborted.', e)
 
-            retries = retries.increment(method, url, error=e,
-                                        _pool=self, _stacktrace=stacktrace)
+            retries = retries.increment(method, url, error=e, _pool=self,
+                                        _stacktrace=sys.exc_info()[2])
             retries.sleep()
 
             # Keep track of the error for the retry warning.

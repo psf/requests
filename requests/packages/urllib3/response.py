@@ -2,10 +2,9 @@ import zlib
 import io
 from socket import timeout as SocketTimeout
 
-from .packages import six
 from ._collections import HTTPHeaderDict
 from .exceptions import ProtocolError, DecodeError, ReadTimeoutError
-from .packages.six import string_types as basestring, binary_type
+from .packages.six import string_types as basestring, binary_type, PY3
 from .connection import HTTPException, BaseSSLError
 from .util.response import is_fp_closed
 
@@ -93,9 +92,10 @@ class HTTPResponse(io.IOBase):
                  strict=0, preload_content=True, decode_content=True,
                  original_response=None, pool=None, connection=None):
 
-        self.headers = HTTPHeaderDict()
-        if headers:
-            self.headers.update(headers)
+        if isinstance(headers, HTTPHeaderDict):
+            self.headers = headers
+        else:
+            self.headers = HTTPHeaderDict(headers)
         self.status = status
         self.version = version
         self.reason = reason
@@ -284,23 +284,16 @@ class HTTPResponse(io.IOBase):
         Remaining parameters are passed to the HTTPResponse constructor, along
         with ``original_response=r``.
         """
-
-        headers = HTTPHeaderDict()
-        for k, v in r.getheaders():
-            if k.lower() != 'set-cookie':
-                headers.add(k, v)
-
-        if six.PY3:  # Python 3:
-            cookies = r.msg.get_all('set-cookie') or tuple()
-        else:  # Python 2:
-            cookies = r.msg.getheaders('set-cookie')
-
-        for cookie in cookies:
-            headers.add('set-cookie', cookie)
+        headers = r.msg
+        if not isinstance(headers, HTTPHeaderDict):
+            if PY3: # Python 3
+                headers = HTTPHeaderDict(headers.items())
+            else: # Python 2
+                headers = HTTPHeaderDict.from_httplib(headers)
 
         # HTTPResponse objects in Python 3 don't have a .strict attribute
         strict = getattr(r, 'strict', 0)
-        return ResponseCls(body=r,
+        resp = ResponseCls(body=r,
                            headers=headers,
                            status=r.status,
                            version=r.version,
@@ -308,6 +301,7 @@ class HTTPResponse(io.IOBase):
                            strict=strict,
                            original_response=r,
                            **response_kw)
+        return resp
 
     # Backwards-compatibility methods for httplib.HTTPResponse
     def getheaders(self):

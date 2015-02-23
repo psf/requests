@@ -8,7 +8,7 @@ except ImportError:
 from ._collections import RecentlyUsedContainer
 from .connectionpool import HTTPConnectionPool, HTTPSConnectionPool
 from .connectionpool import port_by_scheme
-from .exceptions import LocationValueError
+from .exceptions import LocationValueError, MaxRetryError
 from .request import RequestMethods
 from .util.url import parse_url
 from .util.retry import Retry
@@ -175,7 +175,14 @@ class PoolManager(RequestMethods):
         if not isinstance(retries, Retry):
             retries = Retry.from_int(retries, redirect=redirect)
 
-        kw['retries'] = retries.increment(method, redirect_location)
+        try:
+            retries = retries.increment(method, url, response=response, _pool=conn)
+        except MaxRetryError:
+            if retries.raise_on_redirect:
+                raise
+            return response
+
+        kw['retries'] = retries
         kw['redirect'] = redirect
 
         log.info("Redirecting %s -> %s" % (url, redirect_location))
