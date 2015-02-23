@@ -64,6 +64,14 @@ class PoolManager(RequestMethods):
         self.pools = RecentlyUsedContainer(num_pools,
                                            dispose_func=lambda p: p.close())
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.clear()
+        # Return False to re-raise any potential exceptions
+        return False
+
     def _new_pool(self, scheme, host, port):
         """
         Create a new :class:`ConnectionPool` based on host, port and scheme.
