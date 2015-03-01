@@ -1598,5 +1598,12 @@ def test_urllib3_retries():
     with pytest.raises(RetryError):
         s.get(httpbin('status/500'))
 
+def test_vendor_aliases():
+    from requests.packages import urllib3
+    from requests.packages import chardet
+
+    with pytest.raises(ImportError):
+        from requests.packages import webbrowser
+
 if __name__ == '__main__':
     unittest.main()
