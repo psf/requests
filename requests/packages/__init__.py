@@ -27,9 +27,10 @@ import sys
 
 class VendorAlias(object):
 
-    def __init__(self):
+    def __init__(self, package_name):
+        self._package_name = package_name
         self._vendor_name = __name__
-        self._vendor_pkg = self._vendor_name + "."
+        self._vendor_pkg = self._vendor_name + "." + self._package_name
 
     def find_module(self, fullname, path=None):
         if fullname.startswith(self._vendor_pkg):
@@ -92,4 +93,4 @@ class VendorAlias(object):
         return module
 
 
-sys.meta_path.append(VendorAlias())
+sys.meta_path.extend([VendorAlias("urllib3"), VendorAlias("chardet")])
