@@ -937,7 +937,7 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_can_send_bytes_bytearray_objects_with_files(self):
         # Test bytes:
-        data = {'a': 0.0}
+        data = {'a': 'this is a string'}
         files = {'b': b'foo'}
         r = requests.Request('POST', httpbin('post'), data=data, files=files)
         p = r.prepare()
