@@ -145,7 +145,7 @@ class RequestEncodingMixin(object):
                 fp = v
             if isinstance(fp, str):
                 fp = StringIO(fp)
-            if isinstance(fp, bytes):
+            if isinstance(fp, (bytes, bytearray)):
                 fp = BytesIO(fp)
 
             rf = RequestField(name=k, data=fp.read(),

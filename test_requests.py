@@ -935,6 +935,19 @@ class RequestsTestCase(unittest.TestCase):
 
         assert 'multipart/form-data' in p.headers['Content-Type']
 
+    def test_can_send_bytes_bytearray_objects_with_files(self):
+        # Test bytes:
+        data = {'a': 'this is a string'}
+        files = {'b': b'foo'}
+        r = requests.Request('POST', httpbin('post'), data=data, files=files)
+        p = r.prepare()
+        assert 'multipart/form-data' in p.headers['Content-Type']
+        # Test bytearrays:
+        files = {'b': bytearray(b'foo')}
+        r = requests.Request('POST', httpbin('post'), data=data, files=files)
+        p = r.prepare()
+        assert 'multipart/form-data' in p.headers['Content-Type']
+
     def test_can_send_file_object_with_non_string_filename(self):
         f = io.BytesIO()
         f.name = 2
