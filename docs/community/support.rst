@@ -28,6 +28,12 @@ If you think you have found a potential security vulnerability in requests,
 please email `sigmavirus24 <mailto:graffatcolmingov@gmail.com>`_ and
 `Lukasa <mailto:cory@lukasa.co.uk>`_ directly. **Do not file a public issue.**
 
+Our PGP Key fingerprints are:
+
+- 0161 BB7E B208 B5E0 4FDC  9F81 D9DA 0A04 9113 F853 (@sigmavirus24)
+
+- (@lukasa)
+
 If English is not your first language, please try to describe the problem and
 its impact to the best of your ability. For greater detail, please use your native
 language and we will try our best to translate it using online services.
