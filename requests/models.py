@@ -143,12 +143,13 @@ class RequestEncodingMixin(object):
             else:
                 fn = guess_filename(v) or k
                 fp = v
-            if isinstance(fp, str):
-                fp = StringIO(fp)
-            if isinstance(fp, (bytes, bytearray)):
-                fp = BytesIO(fp)
 
-            rf = RequestField(name=k, data=fp.read(),
+            if isinstance(fp, (str, bytes, bytearray)):
+                fdata = fp
+            else:
+                fdata = fp.read()
+
+            rf = RequestField(name=k, data=fdata,
                               filename=fn, headers=fh)
             rf.make_multipart(content_type=ft)
             new_fields.append(rf)
