@@ -32,7 +32,7 @@ Our PGP Key fingerprints are:
 
 - 0161 BB7E B208 B5E0 4FDC  9F81 D9DA 0A04 9113 F853 (@sigmavirus24)
 
-- (@lukasa)
+- 90DC AE40 FEA7 4B14 9B70  662D F25F 2144 EEC1 373D (@lukasa)
 
 If English is not your first language, please try to describe the problem and
 its impact to the best of your ability. For greater detail, please use your native
