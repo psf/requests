@@ -541,6 +541,9 @@ class Response(object):
         self._content = False
         self._content_consumed = False
 
+        # Internal buffer of partially read lines for self.iter_lines()
+        self._pending = None
+
         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
         self.status_code = None
 
@@ -690,12 +693,10 @@ class Response(object):
         content at once into memory for large responses.
         """
 
-        pending = None
-
         for chunk in self.iter_content(chunk_size=chunk_size, decode_unicode=decode_unicode):
 
-            if pending is not None:
-                chunk = pending + chunk
+            if self._pending is not None:
+                chunk = self._pending + chunk
 
             if delimiter:
                 lines = chunk.split(delimiter)
@@ -703,15 +704,15 @@ class Response(object):
                 lines = chunk.splitlines()
 
             if lines and lines[-1] and chunk and lines[-1][-1] == chunk[-1]:
-                pending = lines.pop()
+                self._pending = lines.pop()
             else:
-                pending = None
+                self._pending = None
 
             for line in lines:
                 yield line
 
-        if pending is not None:
-            yield pending
+        if self._pending is not None:
+            yield self._pending
 
     @property
     def content(self):
