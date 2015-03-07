@@ -1052,6 +1052,23 @@ class RequestsTestCase(unittest.TestCase):
         assert 'application/json' in r.request.headers['Content-Type']
         assert {'life': 42} == r.json()['json']
 
+    def test_response_iter_lines(self):
+        r = requests.get(httpbin('stream/4'), stream=True)
+        assert r.status_code == 200
+
+        it = r.iter_lines()
+        next(it)
+        assert len(list(it)) == 3
+
+    @pytest.mark.xfail
+    def test_response_iter_lines_reentrant(self):
+        """Response.iter_lines() is not reentrant safe"""
+        r = requests.get(httpbin('stream/4'), stream=True)
+        assert r.status_code == 200
+
+        next(r.iter_lines())
+        assert len(list(r.iter_lines())) == 3
+
 
 class TestContentEncodingDetection(unittest.TestCase):
 

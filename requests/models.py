@@ -688,6 +688,8 @@ class Response(object):
         """Iterates over the response data, one line at a time.  When
         stream=True is set on the request, this avoids reading the
         content at once into memory for large responses.
+
+        .. note:: This method is not reentrant safe.
         """
 
         pending = None
