@@ -538,6 +538,18 @@ class RequestsTestCase(unittest.TestCase):
             method=u('POST'), url=httpbin('post'), files=files)
         assert r.status_code == 200
 
+    def test_unicode_method_name_string(self):
+        data = {'stuff': 'ëlïxr'}
+        files = {'file': ('test_requests.py', open(__file__, 'rb'))}
+
+        r = requests.Request(u'POST', httpbin('post'), data=data, files=files)
+        p = r.prepare()
+
+        s = requests.Session()
+        response = s.send(p)
+
+        assert response.status_code == 200
+
     def test_custom_content_type(self):
         r = requests.post(
             httpbin('post'),

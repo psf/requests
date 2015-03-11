@@ -229,7 +229,7 @@ class Request(RequestHooksMixin):
         for (k, v) in list(hooks.items()):
             self.register_hook(event=k, hook=v)
 
-        self.method = method
+        self.method = to_native_string(method)
         self.url = url
         self.headers = headers
         self.files = files
