@@ -681,6 +681,9 @@ def to_native_string(string, encoding='ascii'):
     """
     out = None
 
+    if not string:
+        return string
+
     if isinstance(string, builtin_str):
         out = string
     else:
