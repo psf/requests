@@ -159,3 +159,4 @@ Patches and Suggestions
 - Syed Suhail Ahmed <ssuhail.ahmed93@gmail.com> (`@syedsuhail <https://github.com/syedsuhail>`_)
 - Scott Sadler (`@ssadler <https://github.com/ssadler>`_)
 - Arthur Darcet (`@arthurdarcet <https://github.com/arthurdarcet>`_)
+- Ulrich Petri (`@ulope <https://github.com/ulope>`_)
