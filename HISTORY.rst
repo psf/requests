@@ -3,6 +3,36 @@
 Release History
 ---------------
 
+2.6.0 (2015-03-14)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Fix handling of cookies on redirect. Previously a cookie without a host
+  value set would use the hostname for the redirected URL exposing requests
+  users to session fixation attacks and potentially cookie stealing. This was
+  disclosed privately by Matthew Daley of `BugFuzz <https://bugfuzz.com>`_.
+  An CVE identifier has not yet been assigned for this. This affects all
+  versions of requests from v2.1.0 to v2.5.3 (inclusive on both ends).
+
+- Fix error when requests is an ``install_requires`` dependency and ``python
+  setup.py test`` is run. (#2462)
+
+- Fix error when urllib3 is unbundled and requests continues to use the
+  vendored import location.
+
+- Include fixes to ``urllib3``'s header handling.
+
+- Requests' handling of unvendored dependencies is now more restrictive.
+
+**Features and Improvements**
+
+- Support bytearrays when passed as parameters in the ``files`` argument.
+  (#2468)
+
+- Avoid data duplication when creating a request with ``str``, ``bytes``, or
+  ``bytearray`` input to the ``files`` argument.
+
 2.5.3 (2015-02-24)
 ++++++++++++++++++
 
