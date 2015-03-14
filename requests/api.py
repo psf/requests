@@ -16,7 +16,6 @@ from . import sessions
 
 def request(method, url, **kwargs):
     """Constructs and sends a :class:`Request <Request>`.
-    Returns :class:`Response <Response>` object.
 
     :param method: method for the new :class:`Request` object.
     :param url: URL for the new :class:`Request` object.
@@ -37,6 +36,8 @@ def request(method, url, **kwargs):
     :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.
     :param stream: (optional) if ``False``, the response content will be immediately downloaded.
     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+    :return: :class:`Response <Response>` object
+    :rtype: requests.Response
 
     Usage::
 
@@ -55,10 +56,12 @@ def request(method, url, **kwargs):
 
 
 def get(url, **kwargs):
-    """Sends a GET request. Returns :class:`Response` object.
+    """Sends a GET request.
 
     :param url: URL for the new :class:`Request` object.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
+    :return: :class:`Response <Response>` object
+    :rtype: requests.Response
     """
 
     kwargs.setdefault('allow_redirects', True)
@@ -66,10 +69,12 @@ def get(url, **kwargs):
 
 
 def options(url, **kwargs):
-    """Sends a OPTIONS request. Returns :class:`Response` object.
+    """Sends a OPTIONS request.
 
     :param url: URL for the new :class:`Request` object.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
+    :return: :class:`Response <Response>` object
+    :rtype: requests.Response
     """
 
     kwargs.setdefault('allow_redirects', True)
@@ -77,10 +82,12 @@ def options(url, **kwargs):
 
 
 def head(url, **kwargs):
-    """Sends a HEAD request. Returns :class:`Response` object.
+    """Sends a HEAD request.
 
     :param url: URL for the new :class:`Request` object.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
+    :return: :class:`Response <Response>` object
+    :rtype: requests.Response
     """
 
     kwargs.setdefault('allow_redirects', False)
@@ -88,44 +95,52 @@ def head(url, **kwargs):
 
 
 def post(url, data=None, json=None, **kwargs):
-    """Sends a POST request. Returns :class:`Response` object.
+    """Sends a POST request.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
     :param json: (optional) json data to send in the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
+    :return: :class:`Response <Response>` object
+    :rtype: requests.Response
     """
 
     return request('post', url, data=data, json=json, **kwargs)
 
 
 def put(url, data=None, **kwargs):
-    """Sends a PUT request. Returns :class:`Response` object.
+    """Sends a PUT request.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
+    :return: :class:`Response <Response>` object
+    :rtype: requests.Response
     """
 
     return request('put', url, data=data, **kwargs)
 
 
 def patch(url, data=None, **kwargs):
-    """Sends a PATCH request. Returns :class:`Response` object.
+    """Sends a PATCH request.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
+    :return: :class:`Response <Response>` object
+    :rtype: requests.Response
     """
 
     return request('patch', url,  data=data, **kwargs)
 
 
 def delete(url, **kwargs):
-    """Sends a DELETE request. Returns :class:`Response` object.
+    """Sends a DELETE request.
 
     :param url: URL for the new :class:`Request` object.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
+    :return: :class:`Response <Response>` object
+    :rtype: requests.Response
     """
 
     return request('delete', url, **kwargs)
