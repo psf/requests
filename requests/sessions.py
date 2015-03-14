@@ -171,7 +171,7 @@ class SessionRedirectMixin(object):
             except KeyError:
                 pass
 
-            extract_cookies_to_jar(prepared_request._cookies, prepared_request, resp.raw)
+            extract_cookies_to_jar(prepared_request._cookies, req, resp.raw)
             prepared_request._cookies.update(self.cookies)
             prepared_request.prepare_cookies(prepared_request._cookies)
 
