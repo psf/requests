@@ -171,6 +171,9 @@ class SessionRedirectMixin(object):
             except KeyError:
                 pass
 
+            # Extract any cookies sent on the response to the cookiejar
+            # in the new request. Because we've mutated our copied prepared
+            # request, use the old one that we haven't yet touched.
             extract_cookies_to_jar(prepared_request._cookies, req, resp.raw)
             prepared_request._cookies.update(self.cookies)
             prepared_request.prepare_cookies(prepared_request._cookies)
