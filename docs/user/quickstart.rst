@@ -186,10 +186,9 @@ For example, we didn't specify our content-type in the previous example::
 
     >>> import json
     >>> url = 'https://api.github.com/some/endpoint'
-    >>> payload = {'some': 'data'}
-    >>> headers = {'content-type': 'application/json'}
+    >>> headers = {'user-agent': 'my-app/0.0.1'}
 
-    >>> r = requests.post(url, data=json.dumps(payload), headers=headers)
+    >>> r = requests.get(url, headers=headers)
 
 
 More complicated POST requests
