@@ -186,7 +186,7 @@ For example, we didn't specify our content-type in the previous example::
 
     >>> import json
     >>> url = 'https://api.github.com/some/endpoint'
-    >>> headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36'}
+    >>> headers = {'user-agent': 'my-app/0.0.1'}
 
     >>> r = requests.get(url, headers=headers)
 
