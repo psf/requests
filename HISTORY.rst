@@ -8,12 +8,12 @@ Release History
 
 **Bugfixes**
 
-- Fix handling of cookies on redirect. Previously a cookie without a host
-  value set would use the hostname for the redirected URL exposing requests
-  users to session fixation attacks and potentially cookie stealing. This was
-  disclosed privately by Matthew Daley of `BugFuzz <https://bugfuzz.com>`_.
-  An CVE identifier has not yet been assigned for this. This affects all
-  versions of requests from v2.1.0 to v2.5.3 (inclusive on both ends).
+- CVE-2015-2296: Fix handling of cookies on redirect. Previously a cookie
+  without a host value set would use the hostname for the redirected URL
+  exposing requests users to session fixation attacks and potentially cookie
+  stealing. This was disclosed privately by Matthew Daley of
+  `BugFuzz <https://bugfuzz.com>`_. This affects all versions of requests from
+  v2.1.0 to v2.5.3 (inclusive on both ends).
 
 - Fix error when requests is an ``install_requires`` dependency and ``python
   setup.py test`` is run. (#2462)
