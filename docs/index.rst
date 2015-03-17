@@ -116,6 +116,7 @@ Requests ecosystem and community.
    community/faq
    community/out-there.rst
    community/support
+   community/vulnerabilities
    community/updates
 
 API Documentation
