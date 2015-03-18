@@ -39,7 +39,8 @@ Timeline
 
 When you report an issue, one of the project members will respond to you within
 two days *at the outside*. In most cases responses will be faster, usually
-within 12 hours. This initial response will confirm receipt of the report.
+within 12 hours. This initial response will at the very least confirm receipt
+of the report.
 
 If we were able to rapidly reproduce the issue, the initial response will also
 contain confirmation of the issue. If we are not, we will often ask for more
