@@ -63,9 +63,11 @@ also decide on a planned release date, and let you know when it is. This
 release date will *always* be on a weekday.
 
 At this point we will reach out to our major downstream packagers to notify
-them of an impending security-related patch so they can make arrangements.
-Currently the list of people we actively contact *ahead of a public release*
-is:
+them of an impending security-related patch so they can make arrangements. In
+addition, these packagers will be provided with the intended patch ahead of
+time, to ensure that they are able to promptly release their downstream
+packages. Currently the list of people we actively contact *ahead of a public
+release* is:
 
 - Ralph Bean, Red Hat (@ralphbean)
 - Daniele Tricoli, Debian (@eriol)
