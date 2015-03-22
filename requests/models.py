@@ -573,7 +573,11 @@ class Response(object):
         self.cookies = cookiejar_from_dict({})
 
         #: The amount of time elapsed between sending the request
-        #: and the arrival of the response (as a timedelta)
+        #: and the arrival of the response (as a timedelta).
+        #: This property specifically measures the time taken between sending
+        #: the first byte of the request and finishing parsing the headers. It
+        #: is therefore unaffected by consuming the response content or the
+        #: value of the ``stream`` keyword argument.
         self.elapsed = datetime.timedelta(0)
 
         #: The :class:`PreparedRequest <PreparedRequest>` object to which this
