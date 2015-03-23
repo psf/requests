@@ -161,4 +161,3 @@ Patches and Suggestions
 - Arthur Darcet (`@arthurdarcet <https://github.com/arthurdarcet>`_)
 - Ulrich Petri (`@ulope <https://github.com/ulope>`_)
 - Muhammad Yasoob Ullah Khalid <yasoob.khld@gmail.com> (`@yasoob <https://github.com/yasoob>`_)
-- Josh Brown (`@Montycarlo <https://github.com/Montycarlo>`_)
