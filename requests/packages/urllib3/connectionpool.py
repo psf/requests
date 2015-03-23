@@ -311,8 +311,14 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         # Catch possible read timeouts thrown as SSL errors. If not the
         # case, rethrow the original. We need to do this because of:
         # http://bugs.python.org/issue10272
-        if 'timed out' in str(err) or 'did not complete (read)' in str(err):  # Python 2.6
-            raise ReadTimeoutError(self, url, "Read timed out. (read timeout=%s)" % timeout_value)
+        # Wrapped in a try/catch because python 2.7 throws TypeError,
+        # SSLError doesn't override __str__
+        try:
+            if 'timed out' in str(err) or 'did not complete (read)' in str(err):  # Python 2.6
+                raise ReadTimeoutError(self, url, "Read timed out. (read timeout=%s)" % timeout_value)
+        except TypeError:
+            raise err
+
 
     def _make_request(self, conn, method, url, timeout=_Default,
                       **httplib_request_kw):
