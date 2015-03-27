@@ -30,12 +30,8 @@ requires = []
 
 version = ''
 with open('requests/__init__.py', 'r') as fd:
-    reg = re.compile(r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]')
-    for line in fd:
-        m = reg.match(line)
-        if m:
-            version = m.group(1)
-            break
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        fd.read(), re.MULTILINE).group(1)
 
 if not version:
     raise RuntimeError('Cannot find version information')
