@@ -7,6 +7,7 @@ requests.models
 This module contains the primary objects that power Requests.
 """
 
+import os
 import collections
 import datetime
 
@@ -654,24 +655,11 @@ class Response(object):
         available encoding based on the response.
         """
         def generate():
-            try:
-                # Special case for urllib3.
-                try:
-                    for chunk in self.raw.stream(chunk_size, decode_content=True):
-                        yield chunk
-                except ProtocolError as e:
-                    raise ChunkedEncodingError(e)
-                except DecodeError as e:
-                    raise ContentDecodingError(e)
-                except ReadTimeoutError as e:
-                    raise ConnectionError(e)
-            except AttributeError:
-                # Standard file-like object.
-                while True:
-                    chunk = self.raw.read(chunk_size)
-                    if not chunk:
-                        break
-                    yield chunk
+            while True:
+                chunk = os.read(self.raw.fileno(), chunk_size)
+                if not chunk:
+                    break
+                yield chunk
 
             self._content_consumed = True
 
