@@ -11,6 +11,7 @@ import os
 import re
 import time
 import hashlib
+import threading
 
 from base64 import b64encode
 
@@ -67,7 +68,7 @@ class HTTPDigestAuth(AuthBase):
         self.nonce_count = 0
         self.chal = {}
         self.pos = None
-        self.num_401_calls = 1
+        self.num_401_calls = threading.local()
 
     def build_digest_header(self, method, url):
 
@@ -157,7 +158,7 @@ class HTTPDigestAuth(AuthBase):
     def handle_redirect(self, r, **kwargs):
         """Reset num_401_calls counter on redirects."""
         if r.is_redirect:
-            self.num_401_calls = 1
+            self.num_401_calls.value = 1
 
     def handle_401(self, r, **kwargs):
         """Takes the given response and tries digest-auth, if needed."""
@@ -166,12 +167,12 @@ class HTTPDigestAuth(AuthBase):
             # Rewind the file position indicator of the body to where
             # it was to resend the request.
             r.request.body.seek(self.pos)
-        num_401_calls = getattr(self, 'num_401_calls', 1)
+        num_401_calls = getattr(self.num_401_calls, 'value', 1)
         s_auth = r.headers.get('www-authenticate', '')
 
         if 'digest' in s_auth.lower() and num_401_calls < 2:
 
-            self.num_401_calls += 1
+            self.num_401_calls.value += 1
             pat = re.compile(r'digest ', flags=re.IGNORECASE)
             self.chal = parse_dict_header(pat.sub('', s_auth, count=1))
 
@@ -191,7 +192,7 @@ class HTTPDigestAuth(AuthBase):
 
             return _r
 
-        self.num_401_calls = 1
+        self.num_401_calls.value = 1
         return r
 
     def __call__(self, r):
@@ -208,4 +209,6 @@ class HTTPDigestAuth(AuthBase):
             self.pos = None
         r.register_hook('response', self.handle_401)
         r.register_hook('response', self.handle_redirect)
+        self.num_401_calls.value = 1
+
         return r
