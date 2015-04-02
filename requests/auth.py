@@ -167,7 +167,7 @@ class HTTPDigestAuth(AuthBase):
             # Rewind the file position indicator of the body to where
             # it was to resend the request.
             r.request.body.seek(self.pos)
-        num_401_calls = getattr(self.num_401_calls, 'value', 1)
+        num_401_calls = self.num_401_calls.value
         s_auth = r.headers.get('www-authenticate', '')
 
         if 'digest' in s_auth.lower() and num_401_calls < 2:
