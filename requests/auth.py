@@ -66,14 +66,16 @@ class HTTPDigestAuth(AuthBase):
         self.password = password
         # Keep state in per-thread local storage
         self.tl = threading.local()
-        self.init_per_thread_state()
 
     def init_per_thread_state(self):
-        self.tl.last_nonce = ''
-        self.tl.nonce_count = 0
-        self.tl.chal = {}
-        self.tl.pos = None
-        self.tl.num_401_calls = None
+        # Ensure state is initialized just once per-thread
+        if not hasattr(self.tl, 'init'):
+            self.tl.init = True
+            self.tl.last_nonce = ''
+            self.tl.nonce_count = 0
+            self.tl.chal = {}
+            self.tl.pos = None
+            self.tl.num_401_calls = None
 
     def build_digest_header(self, method, url):
 
@@ -201,12 +203,8 @@ class HTTPDigestAuth(AuthBase):
         return r
 
     def __call__(self, r):
-        # When called from a thread other than the one that __init__'ed us
-        # per-thread state may be missing: initialize it if that's the case.
-        try:
-            self.tl.last_nonce
-        except AttributeError:
-            self.init_per_thread_state()
+        # Initialize per-thread state, if needed
+        self.init_per_thread_state()
         # If we have a saved nonce, skip the 401
         if self.tl.last_nonce:
             r.headers['Authorization'] = self.build_digest_header(r.method, r.url)
