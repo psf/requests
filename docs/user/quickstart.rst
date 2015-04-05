@@ -192,7 +192,7 @@ For example, we didn't specify our content-type in the previous example::
 
 Note: Custom headers are given less precedence than more specific sources of information. For instance:
 
-* Authorization headers will be overridden by any alternative auth source found.
+* Authorization headers will be overridden if credentials are passed via the ``auth`` parameter or are specified in a ``.netrc`` accessible in the environment.
 * Authorization headers will be removed if you get redirected off-host.
 * Proxy-Authorization headers will be overridden by proxy credentials provided in the URL.
 * Content-Length headers will be overridden when we can determine the length of the content.
