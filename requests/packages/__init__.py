@@ -104,4 +104,4 @@ class VendorAlias(object):
         return module
 
 
-sys.meta_path.append(VendorAlias(["urllib3", "chardet"]))
+sys.meta_path.insert(0, VendorAlias(["urllib3", "chardet"]))
