@@ -358,7 +358,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         if not scheme:
             raise MissingSchema("Invalid URL {0!r}: No schema supplied. "
-                                "Perhaps you meant http://{0}?".format(url.encode('utf8')))
+                                "Perhaps you meant http://{0}?".format(to_native_string(url,encoding='utf8')))
 
         if not host:
             raise InvalidURL("Invalid URL %r: No host supplied" % url)
