@@ -299,7 +299,9 @@ def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
         try:
             cnx.do_handshake()
         except OpenSSL.SSL.WantReadError:
-            select.select([sock], [], [])
+            rd, _, _ = select.select([sock], [], [], sock.gettimeout())
+            if not rd:
+                raise timeout('The read operation timed out')
             continue
         except OpenSSL.SSL.Error as e:
             raise ssl.SSLError('bad handshake', e)
