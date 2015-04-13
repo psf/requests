@@ -114,6 +114,7 @@ Requests ecosystem and community.
    :maxdepth: 1
 
    community/faq
+   community/recommended
    community/out-there.rst
    community/support
    community/vulnerabilities
