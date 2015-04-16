@@ -90,7 +90,7 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 class SessionRedirectMixin(object):
     def resolve_redirects(self, resp, req, stream=False, timeout=None,
-                          verify=True, cert=None, proxies=None):
+                          verify=True, cert=None, proxies=None, **adapter_kwargs):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
@@ -193,6 +193,7 @@ class SessionRedirectMixin(object):
                 cert=cert,
                 proxies=proxies,
                 allow_redirects=False,
+                **adapter_kwargs
             )
 
             extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
@@ -560,10 +561,6 @@ class Session(SessionRedirectMixin):
         # Set up variables needed for resolve_redirects and dispatching of hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
         stream = kwargs.get('stream')
-        timeout = kwargs.get('timeout')
-        verify = kwargs.get('verify')
-        cert = kwargs.get('cert')
-        proxies = kwargs.get('proxies')
         hooks = request.hooks
 
         # Get the appropriate adapter to use
@@ -591,12 +588,7 @@ class Session(SessionRedirectMixin):
         extract_cookies_to_jar(self.cookies, request, r.raw)
 
         # Redirect resolving generator.
-        gen = self.resolve_redirects(r, request,
-            stream=stream,
-            timeout=timeout,
-            verify=verify,
-            cert=cert,
-            proxies=proxies)
+        gen = self.resolve_redirects(r, request, **kwargs)
 
         # Resolve redirects if allowed.
         history = [resp for resp in gen] if allow_redirects else []
