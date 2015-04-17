@@ -6,19 +6,38 @@ Recommended Packages
 Requests has a great variety of powerful and useful third-party extensions.
 This page provides an overview of some of the best of them.
 
+Certifi CA Bundle
+-----------------
+
+`Certifi`_ is a carefully curated collection of Root Certificates for
+validating the trustworthiness of SSL certificates while verifying the
+identity of TLS hosts. It has been extracted from the Requests project.
+
+.. _Certifi: http://certifi.io/en/latest/
+
 CacheControl
 ------------
 
-`CacheControl`_ is an extension that adds a full HTTP cache to requests. This
+`CacheControl`_ is an extension that adds a full HTTP cache to Requests. This
 makes your web requests substantially more efficient, and should be used
 whenever you're making a lot of web requests.
 
 .. _CacheControl: https://cachecontrol.readthedocs.org/en/latest/
 
-Requests-Oauthlib
+Requests-Toolbelt
 -----------------
 
-`requests-oauthlib`_ makes it possible to do the OAuth dance from requests
+`Requests-Toolbelt`_ is a collection of utilities that some users of Requests may desire,
+but do not belong in Requests proper. This library is actively maintained
+by members of the Requests core team, and reflects the functionality most
+requested by users within the community.
+
+.. _Requests-Toolbelt: http://toolbelt.readthedocs.org/en/latest/index.html
+
+Requests-OAuthlib
+-----------------
+
+`requests-oauthlib`_ makes it possible to do the OAuth dance from Requests
 automatically. This is useful for the large number of websites that use OAuth
 to provide authentication. It also provides a lot of tweaks that handle ways
 that specific OAuth providers differ from the standard specifications.
