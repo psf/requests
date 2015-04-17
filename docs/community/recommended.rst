@@ -1,7 +1,7 @@
 .. _recommended:
 
-Recommended Packages
-====================
+Recommended Packages and Extensions
+===================================
 
 Requests has a great variety of powerful and useful third-party extensions.
 This page provides an overview of some of the best of them.
