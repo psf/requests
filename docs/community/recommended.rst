@@ -43,3 +43,15 @@ to provide authentication. It also provides a lot of tweaks that handle ways
 that specific OAuth providers differ from the standard specifications.
 
 .. _requests-oauthlib: https://requests-oauthlib.readthedocs.org/en/latest/
+
+
+Betamax
+-------
+
+`Betamax`_ records your HTTP interactions so the NSA does not have to.
+A VCR imitation designed only for Python-Requests.
+
+.. _betamax: https://github.com/sigmavirus24/betamax
+
+
+
