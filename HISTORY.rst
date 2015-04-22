@@ -8,8 +8,7 @@ Release History
 
 **Bugfixes**
 
-- Fix issue with import machinery to deal with an unvendored urllib3 and
-  chardet when operating from within a PyInstaller executable. (#2465 redux)
+- Remove VendorAlias import machinery introduced in v2.5.2.
 
 - Simplify the PreparedRequest.prepare API: We no longer require the user to
   pass an empty list to the hooks keyword argument. (c.f. #2552)
