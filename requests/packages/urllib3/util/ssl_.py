@@ -9,10 +9,10 @@ HAS_SNI = False
 create_default_context = None
 
 import errno
-import ssl
 import warnings
 
 try:  # Test for SSL features
+    import ssl
     from ssl import wrap_socket, CERT_NONE, PROTOCOL_SSLv23
     from ssl import HAS_SNI  # Has SNI?
 except ImportError:
@@ -25,14 +25,24 @@ except ImportError:
     OP_NO_SSLv2, OP_NO_SSLv3 = 0x1000000, 0x2000000
     OP_NO_COMPRESSION = 0x20000
 
-try:
-    from ssl import _DEFAULT_CIPHERS
-except ImportError:
-    _DEFAULT_CIPHERS = (
-        'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+HIGH:'
-        'DH+HIGH:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+HIGH:RSA+3DES:!aNULL:'
-        '!eNULL:!MD5'
-    )
+# A secure default.
+# Sources for more information on TLS ciphers:
+#
+# - https://wiki.mozilla.org/Security/Server_Side_TLS
+# - https://www.ssllabs.com/projects/best-practices/index.html
+# - https://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/
+#
+# The general intent is:
+# - Prefer cipher suites that offer perfect forward secrecy (DHE/ECDHE),
+# - prefer ECDHE over DHE for better performance,
+# - prefer any AES-GCM over any AES-CBC for better performance and security,
+# - use 3DES as fallback which is secure but slow,
+# - disable NULL authentication, MD5 MACs and DSS for security reasons.
+DEFAULT_CIPHERS = (
+    'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+HIGH:'
+    'DH+HIGH:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+HIGH:RSA+3DES:!aNULL:'
+    '!eNULL:!MD5'
+)
 
 try:
     from ssl import SSLContext  # Modern SSL?
@@ -40,7 +50,8 @@ except ImportError:
     import sys
 
     class SSLContext(object):  # Platform-specific: Python 2 & 3.1
-        supports_set_ciphers = sys.version_info >= (2, 7)
+        supports_set_ciphers = ((2, 7) <= sys.version_info < (3,) or
+                                (3, 2) <= sys.version_info)
 
         def __init__(self, protocol_version):
             self.protocol = protocol_version
@@ -167,7 +178,7 @@ def resolve_ssl_version(candidate):
     return candidate
 
 
-def create_urllib3_context(ssl_version=None, cert_reqs=ssl.CERT_REQUIRED,
+def create_urllib3_context(ssl_version=None, cert_reqs=None,
                            options=None, ciphers=None):
     """All arguments have the same meaning as ``ssl_wrap_socket``.
 
@@ -204,6 +215,9 @@ def create_urllib3_context(ssl_version=None, cert_reqs=ssl.CERT_REQUIRED,
     """
     context = SSLContext(ssl_version or ssl.PROTOCOL_SSLv23)
 
+    # Setting the default here, as we may have no ssl module on import
+    cert_reqs = ssl.CERT_REQUIRED if cert_reqs is None else cert_reqs
+
     if options is None:
         options = 0
         # SSLv2 is easily broken and is considered harmful and dangerous
@@ -217,7 +231,7 @@ def create_urllib3_context(ssl_version=None, cert_reqs=ssl.CERT_REQUIRED,
     context.options |= options
 
     if getattr(context, 'supports_set_ciphers', True):  # Platform-specific: Python 2.6
-        context.set_ciphers(ciphers or _DEFAULT_CIPHERS)
+        context.set_ciphers(ciphers or DEFAULT_CIPHERS)
 
     context.verify_mode = cert_reqs
     if getattr(context, 'check_hostname', None) is not None:  # Platform-specific: Python 3.2

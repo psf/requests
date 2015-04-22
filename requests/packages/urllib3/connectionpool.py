@@ -735,7 +735,6 @@ class HTTPSConnectionPool(HTTPConnectionPool):
                  % (self.num_connections, self.host))
 
         if not self.ConnectionCls or self.ConnectionCls is DummyConnection:
-            # Platform-specific: Python without ssl
             raise SSLError("Can't connect to HTTPS URL because the SSL "
                            "module is not available.")
 

@@ -55,9 +55,11 @@ def add_stderr_logger(level=logging.DEBUG):
 del NullHandler
 
 
-# Set security warning to always go off by default.
 import warnings
+# SecurityWarning's always go off by default.
 warnings.simplefilter('always', exceptions.SecurityWarning)
+# InsecurePlatformWarning's don't vary between requests, so we keep it default.
+warnings.simplefilter('default', exceptions.InsecurePlatformWarning)
 
 def disable_warnings(category=exceptions.HTTPWarning):
     """
