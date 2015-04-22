@@ -3,6 +3,28 @@
 Release History
 ---------------
 
+2.6.1 (2015-04-22)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Remove VendorAlias import machinery introduced in v2.5.2.
+
+- Simplify the PreparedRequest.prepare API: We no longer require the user to
+  pass an empty list to the hooks keyword argument. (c.f. #2552)
+
+- Resolve redirects now receives and forwards all of the original arguments to
+  the adapter. (#2503)
+
+- Handle UnicodeDecodeErrors when trying to deal with a unicode URL that
+  cannot be encoded in ASCII. (#2540)
+
+- Populate the parsed path of the URI field when performing Digest
+  Authentication. (#2426)
+
+- Copy a PreparedRequest's CookieJar more reliably when it is not an instance
+  of RequestsCookieJar. (#2527)
+
 2.6.0 (2015-03-14)
 ++++++++++++++++++
 

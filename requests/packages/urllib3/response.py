@@ -1,9 +1,15 @@
+try:
+    import http.client as httplib
+except ImportError:
+    import httplib
 import zlib
 import io
 from socket import timeout as SocketTimeout
 
 from ._collections import HTTPHeaderDict
-from .exceptions import ProtocolError, DecodeError, ReadTimeoutError
+from .exceptions import (
+    ProtocolError, DecodeError, ReadTimeoutError, ResponseNotChunked
+)
 from .packages.six import string_types as basestring, binary_type, PY3
 from .connection import HTTPException, BaseSSLError
 from .util.response import is_fp_closed
@@ -117,8 +123,17 @@ class HTTPResponse(io.IOBase):
         if hasattr(body, 'read'):
             self._fp = body
 
-        if preload_content and not self._body:
-            self._body = self.read(decode_content=decode_content)
+        # Are we using the chunked-style of transfer encoding?
+        self.chunked = False
+        self.chunk_left = None
+        tr_enc = self.headers.get('transfer-encoding', '')
+        if tr_enc.lower() == "chunked":
+            self.chunked = True
+
+        # We certainly don't want to preload content when the response is chunked.
+        if not self.chunked:
+            if preload_content and not self._body:
+                self._body = self.read(decode_content=decode_content)
 
     def get_redirect_location(self):
         """
@@ -269,11 +284,15 @@ class HTTPResponse(io.IOBase):
             If True, will attempt to decode the body based on the
             'content-encoding' header.
         """
-        while not is_fp_closed(self._fp):
-            data = self.read(amt=amt, decode_content=decode_content)
+        if self.chunked:
+            for line in self.read_chunked(amt):
+                yield line
+        else:
+            while not is_fp_closed(self._fp):
+                data = self.read(amt=amt, decode_content=decode_content)
 
-            if data:
-                yield data
+                if data:
+                    yield data
 
     @classmethod
     def from_httplib(ResponseCls, r, **response_kw):
@@ -351,3 +370,59 @@ class HTTPResponse(io.IOBase):
         else:
             b[:len(temp)] = temp
             return len(temp)
+
+    def read_chunked(self, amt=None):
+        # FIXME: Rewrite this method and make it a class with
+        #        a better structured logic.
+        if not self.chunked:
+            raise ResponseNotChunked("Response is not chunked. "
+                "Header 'transfer-encoding: chunked' is missing.")
+        while True:
+            # First, we'll figure out length of a chunk and then
+            # we'll try to read it from socket.
+            if self.chunk_left is None:
+                line = self._fp.fp.readline()
+                line = line.decode()
+                # See RFC 7230: Chunked Transfer Coding.
+                i = line.find(';')
+                if i >= 0:
+                    line = line[:i]  # Strip chunk-extensions.
+                try:
+                    self.chunk_left = int(line, 16)
+                except ValueError:
+                    # Invalid chunked protocol response, abort.
+                    self.close()
+                    raise httplib.IncompleteRead(''.join(line))
+                if self.chunk_left == 0:
+                    break
+            if amt is None:
+                chunk = self._fp._safe_read(self.chunk_left)
+                yield chunk
+                self._fp._safe_read(2)  # Toss the CRLF at the end of the chunk.
+                self.chunk_left = None
+            elif amt < self.chunk_left:
+                value = self._fp._safe_read(amt)
+                self.chunk_left = self.chunk_left - amt
+                yield value
+            elif amt == self.chunk_left:
+                value = self._fp._safe_read(amt)
+                self._fp._safe_read(2)  # Toss the CRLF at the end of the chunk.
+                self.chunk_left = None
+                yield value
+            else:  # amt > self.chunk_left
+                yield self._fp._safe_read(self.chunk_left)
+                self._fp._safe_read(2)  # Toss the CRLF at the end of the chunk.
+                self.chunk_left = None
+
+        # Chunk content ends with \r\n: discard it.
+        while True:
+            line = self._fp.fp.readline()
+            if not line:
+                # Some sites may not end with '\r\n'.
+                break
+            if line == b'\r\n':
+                break
+
+        # We read everything; close the "file".
+        self.release_conn()
+
