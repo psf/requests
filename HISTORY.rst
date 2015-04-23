@@ -3,6 +3,14 @@
 Release History
 ---------------
 
+2.6.2 (2015-04-23)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Fix regression where compressed data that was sent as chunked data was not
+  properly decompressed. (#2561)
+
 2.6.1 (2015-04-22)
 ++++++++++++++++++
 
