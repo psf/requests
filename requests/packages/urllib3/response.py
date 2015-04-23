@@ -172,6 +172,36 @@ class HTTPResponse(io.IOBase):
         """
         return self._fp_bytes_read
 
+    def _init_decoder(self):
+        """
+        Set-up the _decoder attribute if necessar.
+        """
+        # Note: content-encoding value should be case-insensitive, per RFC 7230
+        # Section 3.2
+        content_encoding = self.headers.get('content-encoding', '').lower()
+        if self._decoder is None:
+            if content_encoding in self.CONTENT_DECODERS:
+                self._decoder = _get_decoder(content_encoding)
+
+    def _decode(self, data, decode_content, flush_decoder):
+        """
+        Decode the data passed in and potentially flush the decoder.
+        """
+        try:
+            if decode_content and self._decoder:
+                data = self._decoder.decompress(data)
+        except (IOError, zlib.error) as e:
+            content_encoding = self.headers.get('content-encoding', '').lower()
+            raise DecodeError(
+                "Received response with content-encoding: %s, but "
+                "failed to decode it." % content_encoding, e)
+
+        if flush_decoder and decode_content and self._decoder:
+            buf = self._decoder.decompress(binary_type())
+            data += buf + self._decoder.flush()
+
+        return data
+
     def read(self, amt=None, decode_content=None, cache_content=False):
         """
         Similar to :meth:`httplib.HTTPResponse.read`, but with two additional
@@ -193,12 +223,7 @@ class HTTPResponse(io.IOBase):
             after having ``.read()`` the file object. (Overridden if ``amt`` is
             set.)
         """
-        # Note: content-encoding value should be case-insensitive, per RFC 7230
-        # Section 3.2
-        content_encoding = self.headers.get('content-encoding', '').lower()
-        if self._decoder is None:
-            if content_encoding in self.CONTENT_DECODERS:
-                self._decoder = _get_decoder(content_encoding)
+        self._init_decoder()
         if decode_content is None:
             decode_content = self.decode_content
 
@@ -247,17 +272,7 @@ class HTTPResponse(io.IOBase):
 
             self._fp_bytes_read += len(data)
 
-            try:
-                if decode_content and self._decoder:
-                    data = self._decoder.decompress(data)
-            except (IOError, zlib.error) as e:
-                raise DecodeError(
-                    "Received response with content-encoding: %s, but "
-                    "failed to decode it." % content_encoding, e)
-
-            if flush_decoder and decode_content and self._decoder:
-                buf = self._decoder.decompress(binary_type())
-                data += buf + self._decoder.flush()
+            data = self._decode(data, decode_content, flush_decoder)
 
             if cache_content:
                 self._body = data
@@ -284,9 +299,10 @@ class HTTPResponse(io.IOBase):
             If True, will attempt to decode the body based on the
             'content-encoding' header.
         """
+        self._init_decoder()
         if self.chunked:
             for line in self.read_chunked(amt):
-                yield line
+                yield self._decode(line, decode_content, True)
         else:
             while not is_fp_closed(self._fp):
                 data = self.read(amt=amt, decode_content=decode_content)
