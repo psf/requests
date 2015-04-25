@@ -4,12 +4,12 @@ Contributor's Guide
 ===================
 
 If you're reading this you're probably interested in contributing to
-``requests``. First, I'd like to say: thankyou! Open source projects
+``Requests``. First, I'd like to say: thankyou! Open source projects
 live-and-die based on the support they receive from others, and the fact that
-you're even *considering* supporting ``requests`` is incredibly generous of
+you're even *considering* supporting ``Requests`` is incredibly generous of
 you.
 
-This document lays out guidelines and advice for contributing to ``requests``.
+This document lays out guidelines and advice for contributing to ``Requests``.
 If you're thinking of contributing, start by reading this thoroughly and
 getting a feel for how contributing to the project works. If you've still got
 questions after reading this, you should go ahead and contact either
@@ -29,7 +29,7 @@ All Contributions
 Be Cordial Or Be On Your Way
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``requests`` has one very important guideline governing all forms of
+``Requests`` has one very important guideline governing all forms of
 contribution, including things like reporting bugs or requesting features. The
 guideline is `be cordial or be on your way`_. **All contributions are
 welcome**, but they come with an implicit social contract: everyone must be
@@ -47,7 +47,7 @@ subject to the following procedure:
 2. If the apology is not offered, any outstanding and future contributions from
    the violating contributor will be rejected immediately.
 
-Everyone involved in the ``requests`` project, the maintainers included, are
+Everyone involved in the ``Requests`` project, the maintainers included, are
 bound by this policy. Failing to abide by it leads to the offender being kicked
 off the project.
 
@@ -69,7 +69,7 @@ Contribution Suitability
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 The project maintainer has the last word on whether or not a contribution is
-suitable for ``requests``. All contributions will be considered, but from time
+suitable for ``Requests``. All contributions will be considered, but from time
 to time contributions will be rejected because they do not suit the project.
 
 If your contribution is rejected, don't despair! So long as you followed these
@@ -113,7 +113,7 @@ you must either apply the feedback or withdraw your contribution.
 New Contributors
 ~~~~~~~~~~~~~~~~
 
-If you are new or relatively new to Open Source, welcome! ``requests`` aims to
+If you are new or relatively new to Open Source, welcome! ``Requests`` aims to
 be a gentle introduction to the world of Open Source. If you're concerned about
 how best to contribute, please consider mailing a maintainer (listed above) and
 asking for help.
