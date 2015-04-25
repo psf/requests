@@ -26,8 +26,10 @@ contributors.
 All Contributions
 -----------------
 
-Be Cordial Or Be On Your Way
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Be Cordial
+~~~~~~~~~~
+
+**Be cordial or be on your way.**
 
 Requests has one very important rule governing all forms of contribution,
 including reporting bugs or requesting features. This golden rule is
