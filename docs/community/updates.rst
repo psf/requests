@@ -1,8 +1,6 @@
 .. _updates:
 
 
-
-
 Community Updates
 =================
 
@@ -24,8 +22,9 @@ The author, Kenneth Reitz, often tweets about new features and releases of Reque
 Follow `@kennethreitz <https://twitter.com/kennethreitz>`_ for updates.
 
 
-Software Updates
-================
+
+Release and Version History
+===========================
 
 .. include:: ../../HISTORY.rst
 
