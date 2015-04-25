@@ -4,16 +4,16 @@ Contributor's Guide
 ===================
 
 If you're reading this you're probably interested in contributing to
-``Requests``. First, I'd like to say: thankyou! Open source projects
+Requests. First, We'd like to say: thank you! Open source projects
 live-and-die based on the support they receive from others, and the fact that
-you're even *considering* supporting ``Requests`` is incredibly generous of
+you're even considering supporting Requests is very generous of
 you.
 
-This document lays out guidelines and advice for contributing to ``Requests``.
+This document lays out guidelines and advice for contributing to Requests.
 If you're thinking of contributing, start by reading this thoroughly and
-getting a feel for how contributing to the project works. If you've still got
-questions after reading this, you should go ahead and contact either
-`Ian Cordasco`_ or `Cory Benfield`_, the active maintainers.
+getting a feel for how contributing to the project works. If you have any
+questions, feel free to reach out to either `Ian Cordasco`_ or `Cory Benfield`_,
+the primary maintainers.
 
 The guide is split into sections based on the type of contribution you're
 thinking of making, with a section that covers general guidelines for all
@@ -29,27 +29,10 @@ All Contributions
 Be Cordial Or Be On Your Way
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``Requests`` has one very important guideline governing all forms of
-contribution, including things like reporting bugs or requesting features. The
-guideline is `be cordial or be on your way`_. **All contributions are
-welcome**, but they come with an implicit social contract: everyone must be
-treated with respect.
-
-This can be a difficult area to judge, so the maintainers will enforce the
-following policy. If any contributor acts rudely or aggressively towards any
-other contributor, **regardless of whether they perceive themselves to be
-acting in retaliation for an earlier breach of this guideline**, they will be
-subject to the following procedure:
-
-1. They must apologise. This apology must be genuine in nature: "I'm sorry you
-   were offended" is not sufficient. The judgement of 'genuine' is at the
-   discretion of the maintainers.
-2. If the apology is not offered, any outstanding and future contributions from
-   the violating contributor will be rejected immediately.
-
-Everyone involved in the ``Requests`` project, the maintainers included, are
-bound by this policy. Failing to abide by it leads to the offender being kicked
-off the project.
+Requests has one very important rule governing all forms of contribution,
+including reporting bugs or requesting features. This golden rule is
+`be cordial or be on your way`_. **All contributions are welcome**, as long as
+everyone involved is treated with respect.
 
 .. _be cordial or be on your way: http://kennethreitz.org/be-cordial-or-be-on-your-way/
 
@@ -69,7 +52,7 @@ Contribution Suitability
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 The project maintainer has the last word on whether or not a contribution is
-suitable for ``Requests``. All contributions will be considered, but from time
+suitable for Requests. All contributions will be considered, but from time
 to time contributions will be rejected because they do not suit the project.
 
 If your contribution is rejected, don't despair! So long as you followed these
@@ -96,8 +79,7 @@ When contributing code, you'll want to follow this checklist:
    the ones you just added*.
 6. Send a GitHub Pull Request to the main repository's ``master`` branch.
    GitHub Pull Requests are the expected method of code collaboration on this
-   project. If you object to the GitHub workflow, you may mail a patch to any
-   of the maintainers listed above.
+   project.
 
 The following sub-sections go into more detail on some of the points above.
 
@@ -113,7 +95,7 @@ you must either apply the feedback or withdraw your contribution.
 New Contributors
 ~~~~~~~~~~~~~~~~
 
-If you are new or relatively new to Open Source, welcome! ``Requests`` aims to
+If you are new or relatively new to Open Source, welcome! Requests aims to
 be a gentle introduction to the world of Open Source. If you're concerned about
 how best to contribute, please consider mailing a maintainer (listed above) and
 asking for help.
