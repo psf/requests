@@ -1,0 +1,11 @@
+3.0.0 (2015-xx-xx)
+++++++++++++++++++
+
+- Remove the ``__bool__`` and ``__nonzero__`` methods from a ``Response``
+  object.
+
+  This has been a planned feature for over a year. The behaviour is surprising
+  to most people and breaks most of the assumptions that people have about
+  Response objects. This resolves issue `#2002`_
+
+.. _#2002: https://github.com/kennethreitz/requests/issues/2002
