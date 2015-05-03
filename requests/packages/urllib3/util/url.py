@@ -15,6 +15,8 @@ class Url(namedtuple('Url', url_attrs)):
 
     def __new__(cls, scheme=None, auth=None, host=None, port=None, path=None,
                 query=None, fragment=None):
+        if path and not path.startswith('/'):
+            path = '/' + path
         return super(Url, cls).__new__(cls, scheme, auth, host, port, path,
                                        query, fragment)
 
