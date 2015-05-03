@@ -619,14 +619,6 @@ class Response(object):
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
 
-    def __bool__(self):
-        """Returns true if :attr:`status_code` is 'OK'."""
-        return self.ok
-
-    def __nonzero__(self):
-        """Returns true if :attr:`status_code` is 'OK'."""
-        return self.ok
-
     def __iter__(self):
         """Allows you to use a response as an iterator."""
         return self.iter_content(128)
