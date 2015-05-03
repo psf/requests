@@ -3,6 +3,17 @@
 Release History
 ---------------
 
+2.7.0 (2015-05-03)
+++++++++++++++++++
+
+This is the first release that follows our new release process. For more, see
+[our documentation](http://docs.python-requests.org/en/latest/community/release-process/).
+
+**Bugfixes**
+
+- Updated urllib3 to 1.10.4, resolving several bugs involving chunked transfer
+  encoding and response framing.
+
 2.6.2 (2015-04-23)
 ++++++++++++++++++
 
