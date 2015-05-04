@@ -7,7 +7,8 @@ Release History
 ++++++++++++++++++
 
 This is the first release that follows our new release process. For more, see
-[our documentation](http://docs.python-requests.org/en/latest/community/release-process/).
+`our documentation
+<http://docs.python-requests.org/en/latest/community/release-process/>`_.
 
 **Bugfixes**
 
