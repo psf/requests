@@ -227,20 +227,20 @@ class HTTPHeaderDict(dict):
                 # Need to convert the tuple to list for further extension
                 _dict_setitem(self, key_lower, [vals[0], vals[1], val])
 
-    def extend(*args, **kwargs):
+    def extend(self, *args, **kwargs):
         """Generic import function for any type of header-like object.
         Adapted version of MutableMapping.update in order to insert items
         with self.add instead of self.__setitem__
         """
-        if len(args) > 2:
-            raise TypeError("update() takes at most 2 positional "
+        if len(args) > 1:
+            raise TypeError("extend() takes at most 1 positional "
                             "arguments ({} given)".format(len(args)))
-        elif not args:
-            raise TypeError("update() takes at least 1 argument (0 given)")
-        self = args[0]
-        other = args[1] if len(args) >= 2 else ()
+        other = args[0] if len(args) >= 1 else ()
         
-        if isinstance(other, Mapping):
+        if isinstance(other, HTTPHeaderDict):
+            for key, val in other.iteritems():
+                self.add(key, val)
+        elif isinstance(other, Mapping):
             for key in other:
                 self.add(key, other[key])
         elif hasattr(other, "keys"):
@@ -304,17 +304,20 @@ class HTTPHeaderDict(dict):
         return list(self.iteritems())
 
     @classmethod
-    def from_httplib(cls, message, duplicates=('set-cookie',)): # Python 2
+    def from_httplib(cls, message): # Python 2
         """Read headers from a Python 2 httplib message object."""
-        ret = cls(message.items())
-        # ret now contains only the last header line for each duplicate.
-        # Importing with all duplicates would be nice, but this would
-        # mean to repeat most of the raw parsing already done, when the
-        # message object was created. Extracting only the headers of interest 
-        # separately, the cookies, should be faster and requires less
-        # extra code.
-        for key in duplicates:
-            ret.discard(key)
-            for val in message.getheaders(key):
-                ret.add(key, val)
-            return ret
+        # python2.7 does not expose a proper API for exporting multiheaders
+        # efficiently. This function re-reads raw lines from the message 
+        # object and extracts the multiheaders properly.
+        headers = []
+         
+        for line in message.headers:
+            if line.startswith((' ', '\t')):
+                key, value = headers[-1]
+                headers[-1] = (key, value + '\r\n' + line.rstrip())
+                continue
+    
+            key, value = line.split(':', 1)
+            headers.append((key, value.strip()))
+
+        return cls(headers)

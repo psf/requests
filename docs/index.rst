@@ -115,10 +115,11 @@ Requests ecosystem and community.
 
    community/faq
    community/recommended
-   community/out-there.rst
+   community/out-there
    community/support
    community/vulnerabilities
    community/updates
+   community/release-process
 
 API Documentation
 -----------------
@@ -141,6 +142,7 @@ you.
 .. toctree::
    :maxdepth: 1
 
+   dev/contributing
    dev/philosophy
    dev/todo
    dev/authors

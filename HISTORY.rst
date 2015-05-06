@@ -3,6 +3,48 @@
 Release History
 ---------------
 
+2.7.0 (2015-05-03)
+++++++++++++++++++
+
+This is the first release that follows our new release process. For more, see
+`our documentation
+<http://docs.python-requests.org/en/latest/community/release-process/>`_.
+
+**Bugfixes**
+
+- Updated urllib3 to 1.10.4, resolving several bugs involving chunked transfer
+  encoding and response framing.
+
+2.6.2 (2015-04-23)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Fix regression where compressed data that was sent as chunked data was not
+  properly decompressed. (#2561)
+
+2.6.1 (2015-04-22)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Remove VendorAlias import machinery introduced in v2.5.2.
+
+- Simplify the PreparedRequest.prepare API: We no longer require the user to
+  pass an empty list to the hooks keyword argument. (c.f. #2552)
+
+- Resolve redirects now receives and forwards all of the original arguments to
+  the adapter. (#2503)
+
+- Handle UnicodeDecodeErrors when trying to deal with a unicode URL that
+  cannot be encoded in ASCII. (#2540)
+
+- Populate the parsed path of the URI field when performing Digest
+  Authentication. (#2426)
+
+- Copy a PreparedRequest's CookieJar more reliably when it is not an instance
+  of RequestsCookieJar. (#2527)
+
 2.6.0 (2015-03-14)
 ++++++++++++++++++
 
