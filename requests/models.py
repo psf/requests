@@ -42,11 +42,10 @@ REDIRECT_STATI = (
     codes.temporary_redirect, # 307
     codes.permanent_redirect, # 308
 )
+
 DEFAULT_REDIRECT_LIMIT = 30
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
-
-json_dumps = json.dumps
 
 
 class RequestEncodingMixin(object):
@@ -425,7 +424,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         if json is not None:
             content_type = 'application/json'
-            body = json_dumps(json)
+            body = json.dumps(json)
 
         is_stream = all([
             hasattr(data, '__iter__'),
