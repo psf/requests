@@ -6,7 +6,7 @@
 #          /
 
 """
-requests HTTP library
+Requests HTTP library
 ~~~~~~~~~~~~~~~~~~~~~
 
 Requests is an HTTP library, written in Python, for human beings. Basic GET
