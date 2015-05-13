@@ -648,9 +648,10 @@ class Response(object):
         If decode_unicode is True, content will be decoded using the best
         available encoding based on the response.
         """
+
         def generate():
-            try:
-                # Special case for urllib3.
+            # Special case for urllib3.
+            if hasattr(self.raw, 'stream'):
                 try:
                     for chunk in self.raw.stream(chunk_size, decode_content=True):
                         yield chunk
@@ -660,7 +661,7 @@ class Response(object):
                     raise ContentDecodingError(e)
                 except ReadTimeoutError as e:
                     raise ConnectionError(e)
-            except AttributeError:
+            else:
                 # Standard file-like object.
                 while True:
                     chunk = self.raw.read(chunk_size)
