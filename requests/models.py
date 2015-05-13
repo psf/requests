@@ -30,7 +30,8 @@ from .utils import (
     iter_slices, guess_json_utf, super_len, to_native_string)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
-    is_py2, chardet, json, builtin_str, basestring)
+    is_py2, chardet, builtin_str, basestring)
+from .compat import json as complexjson
 from .status_codes import codes
 
 #: The set of HTTP status codes that indicate an automatically
@@ -415,7 +416,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         if json is not None:
             content_type = 'application/json'
-            body = json.dumps(json)
+            body = complexjson.dumps(json)
 
         is_stream = all([
             hasattr(data, '__iter__'),
