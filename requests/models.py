@@ -30,7 +30,8 @@ from .utils import (
     iter_slices, guess_json_utf, super_len, to_native_string)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
-    is_py2, chardet, json, builtin_str, basestring)
+    is_py2, chardet, builtin_str, basestring)
+from .compat import json as complexjson
 from .status_codes import codes
 
 #: The set of HTTP status codes that indicate an automatically
@@ -415,7 +416,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         if json is not None:
             content_type = 'application/json'
-            body = json.dumps(json)
+            body = complexjson.dumps(json)
 
         is_stream = all([
             hasattr(data, '__iter__'),
@@ -792,14 +793,16 @@ class Response(object):
             encoding = guess_json_utf(self.content)
             if encoding is not None:
                 try:
-                    return json.loads(self.content.decode(encoding), **kwargs)
+                    return complexjson.loads(
+                        self.content.decode(encoding), **kwargs
+                    )
                 except UnicodeDecodeError:
                     # Wrong UTF codec detected; usually because it's not UTF-8
                     # but some other 8-bit codec.  This is an RFC violation,
                     # and the server didn't bother to tell us what codec *was*
                     # used.
                     pass
-        return json.loads(self.text, **kwargs)
+        return complexjson.loads(self.text, **kwargs)
 
     @property
     def links(self):
