@@ -792,14 +792,16 @@ class Response(object):
             encoding = guess_json_utf(self.content)
             if encoding is not None:
                 try:
-                    return json.loads(self.content.decode(encoding), **kwargs)
+                    return complexjson.loads(
+                        self.content.decode(encoding), **kwargs
+                    )
                 except UnicodeDecodeError:
                     # Wrong UTF codec detected; usually because it's not UTF-8
                     # but some other 8-bit codec.  This is an RFC violation,
                     # and the server didn't bother to tell us what codec *was*
                     # used.
                     pass
-        return json.loads(self.text, **kwargs)
+        return complexjson.loads(self.text, **kwargs)
 
     @property
     def links(self):
