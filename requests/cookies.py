@@ -415,11 +415,14 @@ def morsel_to_cookie(morsel):
 
     expires = None
     if morsel['max-age']:
-        expires = time.time() + morsel['max-age']
+        try:
+            expires = int(time.time() + int(morsel['max-age']))
+        except ValueError:
+            raise TypeError('max-age: %s must be integer' % morsel['max-age'])
     elif morsel['expires']:
         time_template = '%a, %d-%b-%Y %H:%M:%S GMT'
-        expires = time.mktime(
-            time.strptime(morsel['expires'], time_template)) - time.timezone
+        expires = int(time.mktime(
+            time.strptime(morsel['expires'], time_template)) - time.timezone)
     return create_cookie(
         comment=morsel['comment'],
         comment_url=bool(morsel['comment']),
