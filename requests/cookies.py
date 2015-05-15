@@ -416,7 +416,7 @@ def morsel_to_cookie(morsel):
     expires = None
     if morsel['max-age']:
         try:
-            expires = time.time() + float(morsel['max-age'])
+            expires = time.time() + int(morsel['max-age'])
         except ValueError:
             raise TypeError('max-age: %s must be integer' % morsel['max-age'])
     elif morsel['expires']:
