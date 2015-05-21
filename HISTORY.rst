@@ -162,7 +162,7 @@ This is the first release that follows our new release process. For more, see
 **Bugfixes**
 
 - Only parse the URL once (#2353)
-- Allow Content-Length header to always be overriden (#2332)
+- Allow Content-Length header to always be overridden (#2332)
 - Properly handle files in HTTPDigestAuth (#2333)
 - Cap redirect_cache size to prevent memory abuse (#2299)
 - Fix HTTPDigestAuth handling of redirects after authenticating successfully
@@ -510,7 +510,7 @@ This is not a backwards compatible change.
 - Digest Authentication improvements.
 - Ensure proxy exclusions work properly.
 - Clearer UnicodeError exceptions.
-- Automatic casting of URLs to tsrings (fURL and such)
+- Automatic casting of URLs to strings (fURL and such)
 - Bugfixes.
 
 0.13.6 (2012-08-06)
@@ -562,7 +562,7 @@ This is not a backwards compatible change.
 
 - Removal of Requests.async in favor of `grequests <https://github.com/kennethreitz/grequests>`_
 - Allow disabling of cookie persistiance.
-- New implimentation of safe_mode
+- New implementation of safe_mode
 - cookies.get now supports default argument
 - Session cookies not saved when Session.request is called with return_response=False
 - Env: no_proxy support.
@@ -679,7 +679,7 @@ This is not a backwards compatible change.
 
 * ``Response.content`` is now bytes-only. (*Backwards Incompatible*)
 * New ``Response.text`` is unicode-only.
-* If no ``Response.encoding`` is specified and ``chardet`` is available, ``Respoonse.text`` will guess an encoding.
+* If no ``Response.encoding`` is specified and ``chardet`` is available, ``Response.text`` will guess an encoding.
 * Default to ISO-8859-1 (Western) encoding for "text" subtypes.
 * Removal of `decode_unicode`. (*Backwards Incompatible*)
 * New multiple-hooks system.
@@ -799,7 +799,7 @@ This is not a backwards compatible change.
 0.7.5 (2011-11-04)
 ++++++++++++++++++
 
-* Response.content = None if there was an invalid repsonse.
+* Response.content = None if there was an invalid response.
 * Redirection auth handling.
 
 0.7.4 (2011-10-26)
@@ -886,7 +886,7 @@ This is not a backwards compatible change.
 ++++++++++++++++++
 
 * New callback hook system
-* New persistient sessions object and context manager
+* New persistent sessions object and context manager
 * Transparent Dict-cookie handling
 * Status code reference object
 * Removed Response.cached
@@ -920,7 +920,7 @@ This is not a backwards compatible change.
 * Redirect Fixes
 * settings.verbose stream writing
 * Querystrings for all methods
-* URLErrors (Connection Refused, Timeout, Invalid URLs) are treated as explicity raised
+* URLErrors (Connection Refused, Timeout, Invalid URLs) are treated as explicitly raised
   ``r.requests.get('hwe://blah'); r.raise_for_status()``
 
 
