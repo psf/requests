@@ -136,7 +136,7 @@ of other contributors, and should be avoided as much as possible.
 Feature Requests
 ----------------
 
-Requests is in a perpeptual feature freeze. The maintainers believe that
+Requests is in a perpetual feature freeze. The maintainers believe that
 requests contains every major feature currently required by the vast majority
 of users.
 
