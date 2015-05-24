@@ -842,4 +842,7 @@ class Response(object):
 
         *Note: Should not normally need to be called explicitly.*
         """
+        if not self._content_consumed:
+            return self.raw.close()
+
         return self.raw.release_conn()
