@@ -9,6 +9,8 @@ import os
 import pickle
 import unittest
 import collections
+import contextlib
+import random
 
 import io
 import requests
@@ -1250,6 +1252,27 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert frozenset(i[0] for i in cid.items()) == keyset
         assert frozenset(cid.keys()) == keyset
         assert frozenset(cid) == keyset
+
+
+class TestSessionContextClosing(unittest.TestCase):
+
+    def _perform_session_without_consuming(self):
+        session = requests.Session()
+
+        urls = [
+            'http://reddit.com',
+            'http://github.com',
+            'http://bitbucket.org',
+        ]
+
+        for _ in range(25):
+            with contextlib.closing(session.get(random.choice(urls), stream=True)) as r:
+                pass
+
+        return "OK"
+
+    def test_stream_session_content_not_consumed(self):
+        self.assertEqual(self._perform_session_without_consuming(), "OK")
 
 
 class UtilsTestCase(unittest.TestCase):
