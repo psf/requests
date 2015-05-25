@@ -9,6 +9,7 @@ import os
 import pickle
 import unittest
 import collections
+import contextlib
 
 import io
 import requests
@@ -1059,6 +1060,15 @@ class RequestsTestCase(unittest.TestCase):
         it = r.iter_lines()
         next(it)
         assert len(list(it)) == 3
+
+    def test_unconsumed_session_response_closes_connection(self):
+        s = requests.session()
+
+        with contextlib.closing(s.get(httpbin('stream/4'), stream=True)) as response:
+            pass
+
+        self.assertEqual(response._content_consumed, False)
+        self.assertTrue(response.raw.closed, True)
 
     @pytest.mark.xfail
     def test_response_iter_lines_reentrant(self):
