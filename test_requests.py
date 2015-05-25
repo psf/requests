@@ -1068,7 +1068,7 @@ class RequestsTestCase(unittest.TestCase):
             pass
 
         self.assertEqual(response._content_consumed, False)
-        self.assertTrue(response.raw.closed, True)
+        self.assertEqual(response.raw.closed, True)
 
     @pytest.mark.xfail
     def test_response_iter_lines_reentrant(self):
