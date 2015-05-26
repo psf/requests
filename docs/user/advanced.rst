@@ -448,6 +448,8 @@ To use HTTP Basic Auth with your proxy, use the `http://user:password@host/` syn
 
 Note that proxy URLs must include the scheme.
 
+.. _compliance:
+
 Compliance
 ----------
 
@@ -473,6 +475,8 @@ that the default charset must be ``ISO-8859-1``. Requests follows the
 specification in this case. If you require a different encoding, you can
 manually set the :attr:`Response.encoding <requests.Response.encoding>`
 property, or use the raw :attr:`Response.content <requests.Response.content>`.
+
+.. _http-verbs:
 
 HTTP Verbs
 ----------
@@ -647,6 +651,8 @@ headers.
 Excellent. Time to write a Python program that abuses the GitHub API in all
 kinds of exciting ways, 4995 more times.
 
+.. _link-headers:
+
 Link Headers
 ------------
 
@@ -668,6 +674,8 @@ Requests will automatically parse these link headers and make them easily consum
 
     >>> r.links["last"]
     {'url': 'https://api.github.com/users/kennethreitz/repos?page=7&per_page=10', 'rel': 'last'}
+
+.. _transport-adapters:
 
 Transport Adapters
 ------------------
@@ -737,6 +745,8 @@ SSLv3:
 .. _`described here`: http://www.kennethreitz.org/essays/the-future-of-python-http
 .. _`urllib3`: https://github.com/shazow/urllib3
 
+.. _blocking-or-nonblocking:
+
 Blocking Or Non-Blocking?
 -------------------------
 
@@ -753,6 +763,8 @@ Two excellent examples are `grequests`_ and `requests-futures`_.
 
 .. _`grequests`: https://github.com/kennethreitz/grequests
 .. _`requests-futures`: https://github.com/ross/requests-futures
+
+.. _timeouts:
 
 Timeouts
 --------
@@ -791,6 +803,8 @@ coffee.
     r = requests.get('https://github.com', timeout=None)
 
 .. _`connect()`: http://linux.die.net/man/2/connect
+
+.. _ca-certificates:
 
 CA Certificates
 ---------------
