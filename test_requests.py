@@ -1067,8 +1067,8 @@ class RequestsTestCase(unittest.TestCase):
         with contextlib.closing(s.get(httpbin('stream/4'), stream=True)) as response:
             pass
 
-        self.assertEqual(response._content_consumed, False)
-        self.assertTrue(response.raw.closed, True)
+        self.assertFalse(response._content_consumed)
+        self.assertTrue(response.raw.closed)
 
     @pytest.mark.xfail
     def test_response_iter_lines_reentrant(self):
