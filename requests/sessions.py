@@ -432,9 +432,6 @@ class Session(SessionRedirectMixin):
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
         """
-
-        method = to_native_string(method)
-
         # Create the Request.
         req = Request(
             method = method.upper(),
