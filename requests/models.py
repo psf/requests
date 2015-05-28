@@ -216,6 +216,9 @@ class Request(RequestHooksMixin):
         params = {} if params is None else params
         hooks = {} if hooks is None else hooks
 
+        # Default empty string for method.
+        method = '' if method is None else method
+
         self.hooks = default_hooks()
         for (k, v) in list(hooks.items()):
             self.register_hook(event=k, hook=v)
