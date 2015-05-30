@@ -89,7 +89,7 @@ class RequestsTestCase(unittest.TestCase):
             requests.get('http://')
 
     def test_basic_building(self):
-        req = requests.Request()
+        req = requests.Request(method='GET')
         req.url = 'http://kennethreitz.org/'
         req.data = {'life': '42'}
 
@@ -813,7 +813,7 @@ class RequestsTestCase(unittest.TestCase):
         assert ('user', 'pass#pass') == requests.utils.get_auth_from_url(url)
 
     def test_cannot_send_unprepared_requests(self):
-        r = requests.Request(url=HTTPBIN)
+        r = requests.Request(method='GET', url=HTTPBIN)
         with pytest.raises(ValueError):
             requests.Session().send(r)
 
