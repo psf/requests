@@ -230,7 +230,7 @@ class Request(RequestHooksMixin):
         for (k, v) in list(hooks.items()):
             self.register_hook(event=k, hook=v)
 
-        self.method = to_native_string(method)
+        self.method = method
         self.url = url
         self.headers = headers
         self.files = files
@@ -328,8 +328,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_method(self, method):
         """Prepares the given HTTP method."""
         self.method = method
-        if self.method is not None:
-            self.method = self.method.upper()
+        if self.method is None:
+            raise ValueError('Request method cannot be "None"')
+        self.method = to_native_string(self.method).upper()
 
     def prepare_url(self, url, params):
         """Prepares the given HTTP URL."""
