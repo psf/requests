@@ -407,9 +407,6 @@ class HTTPAdapter(BaseAdapter):
                     # Then, reraise so that we can handle the actual exception.
                     low_conn.close()
                     raise
-                else:
-                    # All is well, return the connection to the pool.
-                    conn._put_conn(low_conn)
 
         except (ProtocolError, socket.error) as err:
             raise ConnectionError(err, request=request)
