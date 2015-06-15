@@ -26,7 +26,7 @@ packages = [
     'requests.packages.urllib3.packages.ssl_match_hostname',
 ]
 
-requires = []
+requires = ["six",]
 
 version = ''
 with open('requests/__init__.py', 'r') as fd:
