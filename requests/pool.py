@@ -17,7 +17,6 @@ import contextlib
 import sys
 import threading
 
-import six
 
 
 class ObjectPool(object):
@@ -35,7 +34,7 @@ class ObjectPool(object):
             self._lock = lock_generator()
         self._after_remove = after_remove
         max_size = max_size or 2 ** 31
-        if not isinstance(max_size, six.integer_types) or max_size < 0:
+        if not isinstance(max_size, int) or max_size < 0:
             raise ValueError('"max_size" must be a positive integer')
         self.max_size = max_size
 
@@ -52,13 +51,13 @@ class ObjectPool(object):
         obj = self.get()
         try:
             yield obj
-        except Exception:
+        except Exception as ex:
             exc_info = sys.exc_info()
             if not destroy_on_fail:
                 self.release(obj)
             else:
                 self.destroy(obj)
-            six.reraise(exc_info[0], exc_info[1], exc_info[2])
+            raise ex
         self.release(obj)
 
     def get(self):
