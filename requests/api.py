@@ -12,6 +12,24 @@ This module implements the Requests API.
 """
 
 from . import sessions
+from . import pool
+
+
+SESSION_RECYCLE_COUNT = 3000
+
+
+def _session_creater():
+    session = sessions.Session()
+    session._recycle_count = 0
+    return session
+
+
+def _session_after_remove(session):
+    session.close()
+
+
+SESSION_POOL = pool.ObjectPool(_session_creater,
+        after_remove=_session_after_remove)
 
 
 def request(method, url, **kwargs):
@@ -46,13 +64,16 @@ def request(method, url, **kwargs):
       <Response [200]>
     """
 
-    session = sessions.Session()
-    response = session.request(method=method, url=url, **kwargs)
-    # By explicitly closing the session, we avoid leaving sockets open which
-    # can trigger a ResourceWarning in some cases, and look like a memory leak
-    # in others.
-    session.close()
-    return response
+    session = SESSION_POOL.get()
+    try:
+        response = session.request(method=method, url=url, **kwargs)
+        return response
+    finally:
+        if session._recycle_count > SESSION_RECYCLE_COUNT:
+            SESSION_POOL.destroy(session)
+        else:
+            session._recycle_count += 1
+            SESSION_POOL.release(session)
 
 
 def get(url, params=None, **kwargs):
