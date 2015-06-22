@@ -158,3 +158,4 @@ Patches and Suggestions
 - Ulrich Petri (`@ulope <https://github.com/ulope>`_)
 - Muhammad Yasoob Ullah Khalid <yasoob.khld@gmail.com> (`@yasoob <https://github.com/yasoob>`_)
 - Paul van der Linden (`@pvanderlinden <https://github.com/pvanderlinden>`_)
+- Sabari Kumar Murugesan (`@neosab <https://github.com/neosab>`_)
