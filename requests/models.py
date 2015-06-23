@@ -828,10 +828,12 @@ class Response(object):
         http_error_msg = ''
 
         if 400 <= self.status_code < 500:
-            http_error_msg = '%s Client Error: %s for url: %s' % (self.status_code, self.reason, self.url)
+            http_error_msg = '{} Client Error: {} for url: {} Response: {}'.format(
+                self.status_code, self.reason, self.url, self.content)
 
         elif 500 <= self.status_code < 600:
-            http_error_msg = '%s Server Error: %s for url: %s' % (self.status_code, self.reason, self.url)
+            http_error_msg = '{} Server Error: {} for url: {} Response: {}'.format(
+                self.status_code, self.reason, self.url, self.content)
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)
