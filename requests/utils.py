@@ -67,7 +67,7 @@ def super_len(o):
         return len(o.getvalue())
 
 
-def get_netrc_auth(url):
+def get_netrc_auth(url, ignore_errors=True):
     """Returns the Requests tuple auth for a given url from netrc."""
 
     try:
@@ -106,7 +106,8 @@ def get_netrc_auth(url):
         except (NetrcParseError, IOError):
             # If there was a parsing error or a permissions issue reading the file,
             # we'll just skip netrc auth
-            pass
+            if not ignore_errors:
+                raise
 
     # AppEngine hackiness.
     except (ImportError, AttributeError):
