@@ -1224,7 +1224,7 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         del othercid['spam']
         assert cid != othercid
         assert cid == {'spam': 'blueval', 'eggs': 'redval'}
-        assert cid.__eq__(object()) == NotImplemented
+        assert cid != object()
 
     def test_setdefault(self):
         cid = CaseInsensitiveDict({'Spam': 'blueval'})
