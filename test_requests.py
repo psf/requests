@@ -1224,6 +1224,7 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         del othercid['spam']
         assert cid != othercid
         assert cid == {'spam': 'blueval', 'eggs': 'redval'}
+        assert cid.__eq__(object()) == NotImplemented
 
     def test_setdefault(self):
         cid = CaseInsensitiveDict({'Spam': 'blueval'})
@@ -1260,6 +1261,20 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert frozenset(i[0] for i in cid.items()) == keyset
         assert frozenset(cid.keys()) == keyset
         assert frozenset(cid) == keyset
+
+    def test_copy(self):
+        cid = CaseInsensitiveDict({
+            'Accept': 'application/json',
+            'user-Agent': 'requests',
+        })
+        assert cid == cid.copy()
+
+    def test_repr(self):
+        cid = CaseInsensitiveDict({
+            'Accept': 'application/json',
+            'user-Agent': 'requests',
+        })
+        assert repr(cid) == "{'Accept': 'application/json', 'user-Agent': 'requests'}"
 
 
 class UtilsTestCase(unittest.TestCase):
