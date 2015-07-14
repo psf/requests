@@ -1267,7 +1267,10 @@ class TestCaseInsensitiveDict(unittest.TestCase):
             'Accept': 'application/json',
             'user-Agent': 'requests',
         })
-        assert cid == cid.copy()
+        cid_copy = cid.copy()
+        assert cid == cid_copy
+        cid['changed'] = True
+        assert cid != cid_copy
 
     def test_repr(self):
         cid = CaseInsensitiveDict({
