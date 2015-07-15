@@ -7,6 +7,7 @@ env: HTTPBIN_URL=http://httpbin.org/
 script:
   - python test_requests.py
 install:
-  - pip install -r requirements.txt
+  - python setup.py install
+  - pip install -e .[extra]
 notifications:
   email: false
