@@ -4,7 +4,8 @@ python:
   - 2.7
   - 3.3
 env: HTTPBIN_URL=http://httpbin.org/
-script: invoke test
+script:
+  - python test_requests.py
 install:
   - pip install -r requirements.txt
 notifications:
