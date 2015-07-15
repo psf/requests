@@ -182,7 +182,7 @@ Custom Headers
 If you'd like to add HTTP headers to a request, simply pass in a ``dict`` to the
 ``headers`` parameter.
 
-For example, we didn't specify our content-type in the previous example::
+For example, we didn't specify our user-agent in the previous example::
 
     >>> import json
     >>> url = 'https://api.github.com/some/endpoint'
