@@ -1,0 +1,11 @@
+language: python
+python:
+  - 2.6
+  - 2.7
+  - 3.3
+env: HTTPBIN_URL=http://httpbin.org/
+script: invoke test
+install:
+  - pip install -r requirements.txt
+notifications:
+  email: false
