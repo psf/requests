@@ -1277,7 +1277,7 @@ class TestCaseInsensitiveDict(unittest.TestCase):
             'Accept': 'application/json',
             'user-Agent': 'requests',
         })
-        assert repr(cid) == "{'Accept': 'application/json', 'user-Agent': 'requests'}"
+        assert set(repr(cid).strip('{}').split(', ')) == set(["'Accept': 'application/json'", "'user-Agent': 'requests'"])
 
 
 class UtilsTestCase(unittest.TestCase):
