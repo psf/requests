@@ -19,6 +19,7 @@ from .compat import urlparse, basestring
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     prepend_scheme_if_needed, get_auth_from_url, urldefragauth)
 from .structures import CaseInsensitiveDict
+from .packages.urllib3.exceptions import ClosedPoolError
 from .packages.urllib3.exceptions import ConnectTimeoutError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
 from .packages.urllib3.exceptions import MaxRetryError
@@ -419,6 +420,9 @@ class HTTPAdapter(BaseAdapter):
             if isinstance(e.reason, ResponseError):
                 raise RetryError(e, request=request)
 
+            raise ConnectionError(e, request=request)
+
+        except ClosedPoolError as e:
             raise ConnectionError(e, request=request)
 
         except _ProxyError as e:
