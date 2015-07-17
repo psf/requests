@@ -693,6 +693,17 @@ def to_native_string(string, encoding='ascii'):
     return out
 
 
+def convert_to_string(obj):
+    """
+    Given a non-string object (neither unicode, nor bytes), returns a string
+    representation of that object.
+    """
+
+    if not isinstance(obj, basestring):
+        obj = str(obj)
+    return obj
+
+
 def urldefragauth(url):
     """
     Given a url remove the fragment and the authentication part
