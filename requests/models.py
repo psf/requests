@@ -25,7 +25,7 @@ from .exceptions import (
     HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
     ContentDecodingError, ConnectionError, StreamConsumedError)
 from .utils import (
-    guess_filename, get_auth_from_url, requote_uri,
+    convert_to_string, guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
     iter_slices, guess_json_utf, super_len, to_native_string)
 from .compat import (
@@ -399,7 +399,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepares the given HTTP headers."""
 
         if headers:
-            self.headers = CaseInsensitiveDict((to_native_string(name), value) for name, value in headers.items())
+            self.headers = CaseInsensitiveDict((
+                                to_native_string(name),
+                                convert_to_string(value)
+                            ) for name, value in headers.items())
         else:
             self.headers = CaseInsensitiveDict()
 

@@ -1079,6 +1079,13 @@ class RequestsTestCase(unittest.TestCase):
         next(r.iter_lines())
         assert len(list(r.iter_lines())) == 3
 
+    def test_request_with_float_header(self):
+        """Headers with float value should not result in error."""
+        header = {'wait': 2.5}
+        r = requests.get(httpbin('headers'), headers=header)
+        assert r.status_code == 200
+        assert str(header['wait']) in r.text
+
 
 class TestContentEncodingDetection(unittest.TestCase):
 
