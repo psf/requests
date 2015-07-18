@@ -2,6 +2,7 @@ try:
     import http.client as httplib
 except ImportError:
     import httplib
+from contextlib import contextmanager
 import zlib
 import io
 from socket import timeout as SocketTimeout
@@ -12,7 +13,7 @@ from .exceptions import (
 )
 from .packages.six import string_types as basestring, binary_type, PY3
 from .connection import HTTPException, BaseSSLError
-from .util.response import is_fp_closed
+from .util.response import is_fp_closed, is_response_to_head
 
 
 class DeflateDecoder(object):
@@ -202,6 +203,47 @@ class HTTPResponse(io.IOBase):
 
         return data
 
+    @contextmanager
+    def _error_catcher(self):
+        """
+        Catch low-level python exceptions, instead re-raising urllib3
+        variants, so that low-level exceptions are not leaked in the
+        high-level api.
+
+        On exit, release the connection back to the pool.
+        """
+        try:
+            try:
+                yield
+
+            except SocketTimeout:
+                # FIXME: Ideally we'd like to include the url in the ReadTimeoutError but
+                # there is yet no clean way to get at it from this context.
+                raise ReadTimeoutError(self._pool, None, 'Read timed out.')
+
+            except BaseSSLError as e:
+                # FIXME: Is there a better way to differentiate between SSLErrors?
+                if 'read operation timed out' not in str(e):  # Defensive:
+                    # This shouldn't happen but just in case we're missing an edge
+                    # case, let's avoid swallowing SSL errors.
+                    raise
+
+                raise ReadTimeoutError(self._pool, None, 'Read timed out.')
+
+            except HTTPException as e:
+                # This includes IncompleteRead.
+                raise ProtocolError('Connection broken: %r' % e, e)
+        except Exception:
+            # The response may not be closed but we're not going to use it anymore
+            # so close it now to ensure that the connection is released back to the pool.
+            if self._original_response and not self._original_response.isclosed():
+                self._original_response.close()
+
+            raise
+        finally:
+            if self._original_response and self._original_response.isclosed():
+                self.release_conn()
+
     def read(self, amt=None, decode_content=None, cache_content=False):
         """
         Similar to :meth:`httplib.HTTPResponse.read`, but with two additional
@@ -231,45 +273,28 @@ class HTTPResponse(io.IOBase):
             return
 
         flush_decoder = False
+        data = None
 
-        try:
-            try:
-                if amt is None:
-                    # cStringIO doesn't like amt=None
-                    data = self._fp.read()
+        with self._error_catcher():
+            if amt is None:
+                # cStringIO doesn't like amt=None
+                data = self._fp.read()
+                flush_decoder = True
+            else:
+                cache_content = False
+                data = self._fp.read(amt)
+                if amt != 0 and not data:  # Platform-specific: Buggy versions of Python.
+                    # Close the connection when no data is returned
+                    #
+                    # This is redundant to what httplib/http.client _should_
+                    # already do.  However, versions of python released before
+                    # December 15, 2012 (http://bugs.python.org/issue16298) do
+                    # not properly close the connection in all cases. There is
+                    # no harm in redundantly calling close.
+                    self._fp.close()
                     flush_decoder = True
-                else:
-                    cache_content = False
-                    data = self._fp.read(amt)
-                    if amt != 0 and not data:  # Platform-specific: Buggy versions of Python.
-                        # Close the connection when no data is returned
-                        #
-                        # This is redundant to what httplib/http.client _should_
-                        # already do.  However, versions of python released before
-                        # December 15, 2012 (http://bugs.python.org/issue16298) do
-                        # not properly close the connection in all cases. There is
-                        # no harm in redundantly calling close.
-                        self._fp.close()
-                        flush_decoder = True
 
-            except SocketTimeout:
-                # FIXME: Ideally we'd like to include the url in the ReadTimeoutError but
-                # there is yet no clean way to get at it from this context.
-                raise ReadTimeoutError(self._pool, None, 'Read timed out.')
-
-            except BaseSSLError as e:
-                # FIXME: Is there a better way to differentiate between SSLErrors?
-                if 'read operation timed out' not in str(e):  # Defensive:
-                    # This shouldn't happen but just in case we're missing an edge
-                    # case, let's avoid swallowing SSL errors.
-                    raise
-
-                raise ReadTimeoutError(self._pool, None, 'Read timed out.')
-
-            except HTTPException as e:
-                # This includes IncompleteRead.
-                raise ProtocolError('Connection broken: %r' % e, e)
-
+        if data:
             self._fp_bytes_read += len(data)
 
             data = self._decode(data, decode_content, flush_decoder)
@@ -277,11 +302,8 @@ class HTTPResponse(io.IOBase):
             if cache_content:
                 self._body = data
 
-            return data
+        return data
 
-        finally:
-            if self._original_response and self._original_response.isclosed():
-                self.release_conn()
 
     def stream(self, amt=2**16, decode_content=None):
         """
@@ -319,6 +341,7 @@ class HTTPResponse(io.IOBase):
         with ``original_response=r``.
         """
         headers = r.msg
+
         if not isinstance(headers, HTTPHeaderDict):
             if PY3: # Python 3
                 headers = HTTPHeaderDict(headers.items())
@@ -437,30 +460,29 @@ class HTTPResponse(io.IOBase):
             raise ResponseNotChunked("Response is not chunked. "
                 "Header 'transfer-encoding: chunked' is missing.")
 
-        if self._original_response and self._original_response._method.upper() == 'HEAD':
-            # Don't bother reading the body of a HEAD request.
-            # FIXME: Can we do this somehow without accessing private httplib _method?
+        # Don't bother reading the body of a HEAD request.
+        if self._original_response and is_response_to_head(self._original_response):
             self._original_response.close()
             return
 
-        while True:
-            self._update_chunk_length()
-            if self.chunk_left == 0:
-                break
-            chunk = self._handle_chunk(amt)
-            yield self._decode(chunk, decode_content=decode_content,
-                               flush_decoder=True)
+        with self._error_catcher():
+            while True:
+                self._update_chunk_length()
+                if self.chunk_left == 0:
+                    break
+                chunk = self._handle_chunk(amt)
+                yield self._decode(chunk, decode_content=decode_content,
+                                   flush_decoder=True)
 
-        # Chunk content ends with \r\n: discard it.
-        while True:
-            line = self._fp.fp.readline()
-            if not line:
-                # Some sites may not end with '\r\n'.
-                break
-            if line == b'\r\n':
-                break
+            # Chunk content ends with \r\n: discard it.
+            while True:
+                line = self._fp.fp.readline()
+                if not line:
+                    # Some sites may not end with '\r\n'.
+                    break
+                if line == b'\r\n':
+                    break
 
-        # We read everything; close the "file".
-        if self._original_response:
-            self._original_response.close()
-        self.release_conn()
+            # We read everything; close the "file".
+            if self._original_response:
+                self._original_response.close()
