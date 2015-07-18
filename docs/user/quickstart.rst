@@ -73,13 +73,12 @@ You can see that the URL has been correctly encoded by printing the URL::
 Note that any dictionary key whose value is ``None`` will not be added to the
 URL's query string.
 
-In order to pass a list of items as a value you must mark the key as
-referring to a list like string by appending ``[]`` to the key::
+You can also pass a list of items as a value::
 
-    >>> payload = {'key1': 'value1', 'key2[]': ['value2', 'value3']}
+    >>> payload = {'key1': 'value1', 'key2': ['value2', 'value3']}
     >>> r = requests.get("http://httpbin.org/get", params=payload)
     >>> print(r.url)
-    http://httpbin.org/get?key1=value1&key2%5B%5D=value2&key2%5B%5D=value3
+    http://httpbin.org/get?key1=value1&key2=value2&key2=value3
 
 Response Content
 ----------------
