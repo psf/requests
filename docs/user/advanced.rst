@@ -278,7 +278,8 @@ For chunked encoded responses, it's best to iterate over the data using
 :meth:`Response.iter_content() <requests.models.Response.iter_content>`. In
 an ideal situation you'll have set ``stream=True`` on the request, in which
 case you can iterate chunk-by-chunk by calling ``iter_content`` with a chunk
-size parameter of ``None``.
+size parameter of ``None``. If you want to set a maximum size of the chunk,
+you can set a chunk size parameter to any integer.
 
 
 .. _multipart:
