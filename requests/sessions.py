@@ -210,15 +210,6 @@ class SessionRedirectMixin(object):
         headers = prepared_request.headers
         url = prepared_request.url
 
-        if 'Authorization' in headers:
-            # If we get redirected to a new host, we should strip out any
-            # authentication headers.
-            original_parsed = urlparse(response.request.url)
-            redirect_parsed = urlparse(url)
-
-            if (original_parsed.hostname != redirect_parsed.hostname):
-                del headers['Authorization']
-
         # .netrc might have more auth for us on our new host.
         new_auth = get_netrc_auth(url) if self.trust_env else None
         if new_auth is not None:
