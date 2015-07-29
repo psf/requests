@@ -199,7 +199,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         Return a fresh :class:`HTTPConnection`.
         """
         self.num_connections += 1
-        log.info("Starting new HTTP connection (%d): %s" %
+        log.debug("Starting new HTTP connection (%d): %s" %
                  (self.num_connections, self.host))
 
         conn = self.ConnectionCls(host=self.host, port=self.port,
