@@ -125,6 +125,13 @@ class RequestsTestCase(unittest.TestCase):
             "http://example.com/path?key=value#fragment", params={"a": "b"}).prepare()
         assert request.url == "http://example.com/path?key=value&a=b#fragment"
 
+    def test_params_original_order_is_preserved_by_default(self):
+        param_ordered_dict = collections.OrderedDict((('z', 1), ('a', 1), ('k', 1), ('d', 1)))
+        session = requests.Session()
+        request = requests.Request('GET', 'http://example.com/', params=param_ordered_dict)
+        prep = session.prepare_request(request)
+        assert prep.url == 'http://example.com/?z=1&a=1&k=1&d=1'
+
     def test_mixed_case_scheme_acceptable(self):
         s = requests.Session()
         s.proxies = getproxies()
