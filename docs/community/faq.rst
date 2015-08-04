@@ -79,9 +79,9 @@ when servers are using `Virtual Hosting`_. When such servers are hosting
 more than one SSL site they need to be able to return the appropriate
 certificate based on the hostname the client is connecting to.
 
-Python3's SSL module includes native support for SNI. This support has not been
-back ported to Python2. For information on using SNI with Requests on Python2
-refer to this `Stack Overflow answer`_.
+Python3 and Python 2.7.9+ include native support for SNI in their SSL modules.
+For information on using SNI with Requests on Python < 2.7.9 refer to this
+`Stack Overflow answer`_.
 
 .. _`Server-Name-Indication`: https://en.wikipedia.org/wiki/Server_Name_Indication
 .. _`virtual hosting`: https://en.wikipedia.org/wiki/Virtual_hosting
