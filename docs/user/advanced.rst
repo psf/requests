@@ -42,6 +42,15 @@ Any dictionaries that you pass to a request method will be merged with the
 session-level values that are set. The method-level parameters override session
 parameters.
 
+Sessions can also be used as context managers::
+
+    with requests.Session() as s:
+        s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
+
+This will make sure the session is closed as soon as the ``with`` block is
+exited, even if unhandled exceptions occured.
+
+
 .. admonition:: Remove a Value From a Dict Parameter
 
     Sometimes you'll want to omit session-level keys from a dict parameter. To
