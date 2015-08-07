@@ -12,7 +12,10 @@ Session Objects
 
 The Session object allows you to persist certain parameters across
 requests. It also persists cookies across all requests made from the
-Session instance.
+Session instance, and will use ``urllib3``'s `connection pooling`_. So if
+you're making several requests to the same host, the underlying TCP
+connection will be reused, which can result in a significant performance
+increase (see `HTTP persistent connection`_).
 
 A Session object has all the methods of the main Requests API.
 
@@ -41,6 +44,15 @@ is done by providing data to the properties on a Session object::
 Any dictionaries that you pass to a request method will be merged with the
 session-level values that are set. The method-level parameters override session
 parameters.
+
+Sessions can also be used as context managers::
+
+    with requests.Session() as s:
+        s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
+
+This will make sure the session is closed as soon as the ``with`` block is
+exited, even if unhandled exceptions occured.
+
 
 .. admonition:: Remove a Value From a Dict Parameter
 
@@ -827,5 +839,7 @@ system.
 
 For the sake of security we recommend upgrading certifi frequently!
 
+.. _HTTP persistent connection: https://en.wikipedia.org/wiki/HTTP_persistent_connection
+.. _connection pooling: https://urllib3.readthedocs.org/en/latest/pools.html
 .. _certifi: http://certifi.io/
 .. _Mozilla trust store: https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
