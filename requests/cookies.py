@@ -157,6 +157,17 @@ class CookieConflictError(RuntimeError):
     Use .get and .set and include domain and path args in order to be more specific."""
 
 
+def requests_cookie_policy(**kwargs):
+    """Create a cookie policy with a strict domain policy.
+
+    This accepts all of the same kwargs as
+    :class:`cookielib.DefaultCookiePolicy`.
+    """
+    kwargs.setdefault('strict_ns_domain',
+                      cookielib.DefaultCookiePolicy.DomainStrict)
+    return cookielib.DefaultCookiePolicy(**kwargs)
+
+
 class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     """Compatibility class; is a cookielib.CookieJar, but exposes a dict
     interface.
@@ -174,6 +185,12 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
 
     .. warning:: dictionary operations that are normally O(1) may be O(n).
     """
+    def __init__(self, policy=None):
+        if policy is None:
+            policy = requests_cookie_policy()
+
+        super(RequestsCookieJar, self).__init__(policy)
+
     def get(self, name, default=None, domain=None, path=None):
         """Dict-like get() that also supports optional domain and path args in
         order to resolve naming collisions from using one cookie jar over
