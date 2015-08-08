@@ -45,6 +45,24 @@ Any dictionaries that you pass to a request method will be merged with the
 session-level values that are set. The method-level parameters override session
 parameters.
 
+Note, however, that method-level parameters will *not* be persisted across
+requests, even if using a session. This example will only send the cookies
+with the first request, but not the second::
+
+    s = requests.Session()
+    r = s.get('http://httpbin.org/cookies', cookies={'from-my': 'browser'})
+    print(r.text)
+    # '{"cookies": {"from-my": "browser"}}'
+
+    r = s.get('http://httpbin.org/cookies')
+    print(r.text)
+    # '{"cookies": {}}'
+
+
+If you want to manually add cookies to your session, use the
+:ref:`Cookie utility functions <api-cookies>` to manipulate
+:attr:`Session.cookies <requests.Session.cookies>`.
+
 Sessions can also be used as context managers::
 
     with requests.Session() as s:

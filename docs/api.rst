@@ -81,6 +81,8 @@ Status Code Lookup
     >>> requests.codes['\o/']
     200
 
+.. _api-cookies:
+
 Cookies
 ~~~~~~~
 
