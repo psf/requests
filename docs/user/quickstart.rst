@@ -230,8 +230,8 @@ For example, the GitHub API v3 accepts JSON-Encoded POST/PATCH data::
 
     >>> r = requests.post(url, data=json.dumps(payload))
     
-You can use the `json` parameter (added in version 2.4.2) to avoid encoding the
-data yourself:
+Instead of encoding the ``dict`` yourself, you can also pass it directly using
+the ``json`` parameter (added in version 2.4.2) and it will be encoded automatically:
 
     >>> import json
     >>> url = 'https://api.github.com/some/endpoint'
