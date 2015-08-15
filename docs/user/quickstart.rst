@@ -228,9 +228,9 @@ For example, the GitHub API v3 accepts JSON-Encoded POST/PATCH data::
     >>> payload = {'some': 'data'}
 
     >>> r = requests.post(url, data=json.dumps(payload))
-    
+
 Instead of encoding the ``dict`` yourself, you can also pass it directly using
-the ``json`` parameter (added in version 2.4.2) and it will be encoded automatically:
+the ``json`` parameter (added in version 2.4.2) and it will be encoded automatically::
 
     >>> import json
     >>> url = 'https://api.github.com/some/endpoint'
@@ -257,7 +257,7 @@ Requests makes it simple to upload Multipart-encoded files::
       ...
     }
 
-You can set the filename, content_type and headers explicitly:
+You can set the filename, content_type and headers explicitly::
 
     >>> url = 'http://httpbin.org/post'
     >>> files = {'file': ('report.xls', open('report.xls', 'rb'), 'application/vnd.ms-excel', {'Expires': '0'})}
