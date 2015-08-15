@@ -63,11 +63,9 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
     merged_setting.update(to_key_val_list(request_setting))
 
     # Remove keys that are set to None.
-    for (k, v) in request_setting.items():
+    for (k, v) in merged_setting.items():
         if v is None:
             del merged_setting[k]
-
-    merged_setting = dict((k, v) for (k, v) in merged_setting.items() if v is not None)
 
     return merged_setting
 
