@@ -159,3 +159,4 @@ Patches and Suggestions
 - Muhammad Yasoob Ullah Khalid <yasoob.khld@gmail.com> (`@yasoob <https://github.com/yasoob>`_)
 - Paul van der Linden (`@pvanderlinden <https://github.com/pvanderlinden>`_)
 - Colin Dickson (`@colindickson <https://github.com/colindickson>`_)
+- Smiley Barry (`@smiley <https://github.com/smiley>`_)
