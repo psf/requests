@@ -27,8 +27,8 @@ def request(method, url, **kwargs):
     :param files: (optional) Dictionary of ``'name': file-like-objects`` (or ``{'name': ('filename', fileobj)}``) for multipart encoding upload.
     :param auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.
     :param timeout: (optional) How long to wait for the server to send data
-        before giving up, as a float, or a (`connect timeout, read timeout
-        <user/advanced.html#timeouts>`_) tuple.
+        before giving up, as a float, or a :ref:`(connect timeout, read
+        timeout) <timeouts>` tuple.
     :type timeout: float or tuple
     :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
     :type allow_redirects: bool
