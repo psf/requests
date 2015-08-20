@@ -239,7 +239,8 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
         """
         proxies = proxies or {}
-        proxy = proxies.get(urlparse(url.lower()).scheme)
+        u = urlparse(url.lower())
+        proxy = proxies.get(u.scheme+'://'+u.hostname, proxies.get(u.scheme))
 
         if proxy:
             proxy = prepend_scheme_if_needed(proxy, 'http')
