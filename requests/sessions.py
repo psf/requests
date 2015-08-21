@@ -62,10 +62,11 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
     merged_setting = dict_class(to_key_val_list(session_setting))
     merged_setting.update(to_key_val_list(request_setting))
 
-    # Remove keys that are set to None.
-    for (k, v) in merged_setting.items():
-        if v is None:
-            del merged_setting[k]
+    # Remove keys that are set to None. Extract keys first to avoid altering
+    # the dictionary during iteration.
+    none_keys = [k for (k, v) in merged_setting.items() if v is None]
+    for key in none_keys:
+        del merged_setting[key]
 
     return merged_setting
 
