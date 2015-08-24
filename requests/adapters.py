@@ -310,7 +310,6 @@ class HTTPAdapter(BaseAdapter):
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         :param proxies: The url of the proxy being used for this request.
-        :param kwargs: Optional additional keyword arguments.
         """
         headers = {}
         username, password = get_auth_from_url(proxy)
