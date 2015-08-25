@@ -17,7 +17,9 @@ import pytest
 from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
-    Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3, builtin_str)
+    Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3,
+    builtin_str, OrderedDict
+    )
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (ConnectionError, ConnectTimeout,
                                  InvalidSchema, InvalidURL, MissingSchema,
@@ -126,7 +128,7 @@ class RequestsTestCase(unittest.TestCase):
         assert request.url == "http://example.com/path?key=value&a=b#fragment"
 
     def test_params_original_order_is_preserved_by_default(self):
-        param_ordered_dict = collections.OrderedDict((('z', 1), ('a', 1), ('k', 1), ('d', 1)))
+        param_ordered_dict = OrderedDict((('z', 1), ('a', 1), ('k', 1), ('d', 1)))
         session = requests.Session()
         request = requests.Request('GET', 'http://example.com/', params=param_ordered_dict)
         prep = session.prepare_request(request)
