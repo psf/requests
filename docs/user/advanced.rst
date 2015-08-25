@@ -459,17 +459,11 @@ If you need to use a proxy, you can configure individual requests with the
     import requests
 
     proxies = {
-      "http://10.20.1.128": "http://10.10.1.10:5323",
-      "https://10.20.1.140": "http://10.10.1.10:6431"
       "http": "http://10.10.1.10:3128",
       "https": "http://10.10.1.10:1080",
     }
 
     requests.get("http://example.org", proxies=proxies)
-
-A request's ``<scheme>://<hostname>`` is looked up in the proxies
-dictionary first, to provide host-specific proxies.  If no
-host-specific proxy is found, the request's scheme is looked up.
 
 You can also configure proxies by setting the environment variables
 ``HTTP_PROXY`` and ``HTTPS_PROXY``.
@@ -488,8 +482,15 @@ To use HTTP Basic Auth with your proxy, use the `http://user:password@host/` syn
         "http": "http://user:pass@10.10.1.10:3128/",
     }
 
-Note that proxy URLs must include the scheme.
+To give a proxy for a specific scheme and host, use the
+`scheme://host` form for the key::
 
+    proxies = {
+      "http://10.20.1.128": "http://10.10.1.10:5323",
+    }
+
+Note that proxy URLs must include the scheme.
+    
 .. _compliance:
 
 Compliance
