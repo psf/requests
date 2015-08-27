@@ -272,7 +272,7 @@ class HTTPAdapter(BaseAdapter):
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
-        :param proxies: A dictionary of schemes to proxy URLs.
+        :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs.
         """
         proxy = select_proxy(request.url, proxies)
         if proxy and not request.url.lower().startswith('https'):
