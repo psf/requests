@@ -275,7 +275,7 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs.
         """
         proxy = select_proxy(request.url, proxies)
-        scheme = urlparse(request.url.lower()).scheme
+        scheme = urlparse(request.url).scheme
         if proxy and scheme != 'https':
             url = urldefragauth(request.url)
         else:

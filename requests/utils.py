@@ -544,7 +544,7 @@ def select_proxy(url, proxies):
     :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs
     """
     proxies = proxies or {}
-    urlparts = urlparse(url.lower())
+    urlparts = urlparse(url)
     proxy = proxies.get(urlparts.scheme+'://'+urlparts.hostname)
     if proxy is None:
         proxy = proxies.get(urlparts.scheme)
