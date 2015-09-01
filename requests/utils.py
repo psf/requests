@@ -396,7 +396,15 @@ def unquote_unreserved(uri):
     """Un-escape any percent-escape sequences in a URI that are unreserved
     characters. This leaves all reserved, illegal and non-ASCII bytes encoded.
     """
-    parts = uri.split(b'%')
+    # Handle both bytestrings and unicode strings.
+    if isinstance(uri, bytes):
+        splitchar = b'%'
+        base = b''
+    else:
+        splitchar = u'%'
+        base = u''
+
+    parts = uri.split(splitchar)
     for i in range(1, len(parts)):
         h = parts[i][0:2]
         if len(h) == 2 and h.isalnum():
@@ -408,10 +416,10 @@ def unquote_unreserved(uri):
             if c in UNRESERVED_SET:
                 parts[i] = c + parts[i][2:]
             else:
-                parts[i] = '%' + parts[i]
+                parts[i] = splitchar + parts[i]
         else:
-            parts[i] = '%' + parts[i]
-    return ''.join(parts)
+            parts[i] = splitchar + parts[i]
+    return base.join(parts)
 
 
 def requote_uri(uri):
