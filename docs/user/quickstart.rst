@@ -368,10 +368,10 @@ times with different values, but requests combines them so they can be
 represented in the dictionary within a single mapping, as per
 `RFC 7230 <http://tools.ietf.org/html/rfc7230#section-3.2>`_:
 
-    > A recipient MAY combine multiple header fields with the same field name
-    > into one "field-name: field-value" pair, without changing the semantics
-    > of the message, by appending each subsequent field value to the combined
-    > field value in order, separated by a comma.
+    A recipient MAY combine multiple header fields with the same field name
+    into one "field-name: field-value" pair, without changing the semantics
+    of the message, by appending each subsequent field value to the combined
+    field value in order, separated by a comma.
 
 Cookies
 -------
