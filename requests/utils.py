@@ -537,6 +537,18 @@ def get_environ_proxies(url):
     else:
         return getproxies()
 
+def select_proxy(url, proxies):
+    """Select a proxy for the url, if applicable.
+
+    :param url: The url being for the request
+    :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs
+    """
+    proxies = proxies or {}
+    urlparts = urlparse(url)
+    proxy = proxies.get(urlparts.scheme+'://'+urlparts.hostname)
+    if proxy is None:
+        proxy = proxies.get(urlparts.scheme)
+    return proxy
 
 def default_user_agent(name="python-requests"):
     """Return a string representing the default user agent."""

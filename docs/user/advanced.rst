@@ -486,8 +486,18 @@ To use HTTP Basic Auth with your proxy, use the `http://user:password@host/` syn
         "http": "http://user:pass@10.10.1.10:3128/",
     }
 
-Note that proxy URLs must include the scheme.
+To give a proxy for a specific scheme and host, use the
+`scheme://hostname` form for the key.  This will match for
+any request to the given scheme and exact hostname.
 
+::
+
+    proxies = {
+      "http://10.20.1.128": "http://10.10.1.10:5323",
+    }
+
+Note that proxy URLs must include the scheme.
+    
 .. _compliance:
 
 Compliance

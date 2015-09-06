@@ -17,7 +17,8 @@ from .packages.urllib3.util import Timeout as TimeoutSauce
 from .packages.urllib3.util.retry import Retry
 from .compat import urlparse, basestring
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
-                    prepend_scheme_if_needed, get_auth_from_url, urldefragauth)
+                    prepend_scheme_if_needed, get_auth_from_url, urldefragauth,
+                    select_proxy)
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import ConnectTimeoutError
 from .packages.urllib3.exceptions import HTTPError as _HTTPError
@@ -238,8 +239,7 @@ class HTTPAdapter(BaseAdapter):
         :param url: The URL to connect to.
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
         """
-        proxies = proxies or {}
-        proxy = proxies.get(urlparse(url.lower()).scheme)
+        proxy = select_proxy(url, proxies)
 
         if proxy:
             proxy = prepend_scheme_if_needed(proxy, 'http')
@@ -272,12 +272,10 @@ class HTTPAdapter(BaseAdapter):
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
-        :param proxies: A dictionary of schemes to proxy URLs.
+        :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs.
         """
-        proxies = proxies or {}
+        proxy = select_proxy(request.url, proxies)
         scheme = urlparse(request.url).scheme
-        proxy = proxies.get(scheme)
-
         if proxy and scheme != 'https':
             url = urldefragauth(request.url)
         else:

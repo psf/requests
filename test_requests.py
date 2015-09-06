@@ -1327,6 +1327,15 @@ class UtilsTestCase(unittest.TestCase):
             'http://localhost.localdomain:5000/v1.0/') == {}
         assert get_environ_proxies('http://www.requests.com/') != {}
 
+    def test_select_proxies(self):
+        """Make sure we can select per-host proxies correctly."""
+        from requests.utils import select_proxy
+        proxies = {'http': 'http://http.proxy',
+                   'http://some.host': 'http://some.host.proxy'}
+        assert select_proxy('hTTp://u:p@Some.Host/path', proxies) == 'http://some.host.proxy'
+        assert select_proxy('hTTp://u:p@Other.Host/path', proxies) == 'http://http.proxy'
+        assert select_proxy('hTTps://Other.Host', proxies) is None
+
     def test_guess_filename_when_int(self):
         from requests.utils import guess_filename
         assert None is guess_filename(1)

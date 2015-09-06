@@ -299,9 +299,9 @@ class Session(SessionRedirectMixin):
         #: :class:`Request <Request>`.
         self.auth = None
 
-        #: Dictionary mapping protocol to the URL of the proxy (e.g.
-        #: {'http': 'foo.bar:3128'}) to be used on each
-        #: :class:`Request <Request>`.
+        #: Dictionary mapping protocol or protocol and host to the URL of the proxy
+        #: (e.g. {'http': 'foo.bar:3128', 'http://host.name': 'foo.bar:4012'}) to
+        #: be used on each :class:`Request <Request>`.
         self.proxies = {}
 
         #: Event-handling hooks.
@@ -428,8 +428,8 @@ class Session(SessionRedirectMixin):
         :type timeout: float or tuple
         :param allow_redirects: (optional) Set to True by default.
         :type allow_redirects: bool
-        :param proxies: (optional) Dictionary mapping protocol to the URL of
-            the proxy.
+        :param proxies: (optional) Dictionary mapping protocol or protocol and
+            hostname to the URL of the proxy.
         :param stream: (optional) whether to immediately download the response
             content. Defaults to ``False``.
         :param verify: (optional) if ``True``, the SSL cert will be verified.
