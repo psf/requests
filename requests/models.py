@@ -414,7 +414,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         content_type = None
         length = None
 
-        if json is not None:
+        if not data and json is not None:
             content_type = 'application/json'
             body = complexjson.dumps(json)
 
@@ -443,7 +443,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if files:
                 (body, content_type) = self._encode_files(files, data)
             else:
-                if data and json is None:
+                if data:
                     body = self._encode_params(data)
                     if isinstance(data, basestring) or hasattr(data, 'read'):
                         content_type = None
