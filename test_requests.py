@@ -1065,7 +1065,7 @@ class RequestsTestCase(unittest.TestCase):
     def test_json_param_post_should_not_override_data_param(self):
         r = requests.Request(method='POST', url='http://httpbin.org/post',
                              data={'stuff'.encode('utf-8'): 'elixr'},
-                             json={'music'.encode('utf-8'): 'flute'})
+                             json={'music': 'flute'})
         prep = r.prepare()
         assert 'stuff=elixr' == prep.body
 
