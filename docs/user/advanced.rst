@@ -69,7 +69,7 @@ Sessions can also be used as context managers::
         s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
 
 This will make sure the session is closed as soon as the ``with`` block is
-exited, even if unhandled exceptions occured.
+exited, even if unhandled exceptions occurred.
 
 
 .. admonition:: Remove a Value From a Dict Parameter
