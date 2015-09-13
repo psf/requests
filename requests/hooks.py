@@ -12,10 +12,7 @@ Available hooks:
     The response generated from a Request.
 
 """
-from collections import defaultdict
-
 HOOKS = ['response']
-
 
 def default_hooks():
     return dict((event, []) for event in HOOKS)
