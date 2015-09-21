@@ -416,7 +416,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         if json is not None:
             content_type = 'application/json'
-            body = complexjson.dumps(json)
+            body = complexjson.dumps(json, ensure_ascii=False)
 
         is_stream = all([
             hasattr(data, '__iter__'),
