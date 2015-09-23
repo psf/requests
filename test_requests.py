@@ -1508,6 +1508,19 @@ class TestTimeout:
         except ReadTimeout:
             pass
 
+    def test_read_timeout_chunked(self):
+        def chunked():
+            yield 'foo'
+            yield 'bar'
+
+        try:
+            # note: don't worry, according to HTTP/1.1 spec you actually can
+            #       issue a GET request with a message body
+            requests.get(httpbin('delay/10'), data=chunked(), timeout=(None, .1))
+            assert False, "The recv() request should time out."
+        except ReadTimeout:
+            pass
+
     def test_connect_timeout(self):
         try:
             requests.get(TARPIT, timeout=(0.1, None))

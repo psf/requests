@@ -392,7 +392,16 @@ class HTTPAdapter(BaseAdapter):
                         low_conn.send(b'\r\n')
                     low_conn.send(b'0\r\n\r\n')
 
-                    r = low_conn.getresponse()
+                    # Control timeout manually because we do not use
+                    # 'urlopen' but internal connection object.
+                    if hasattr(low_conn, 'sock'):
+                        low_conn.sock.settimeout(timeout.read_timeout)
+
+                    try:
+                        r = low_conn.getresponse()
+                    except (socket.error, socket.timeout) as err:
+                        conn._raise_timeout(err, url, timeout.read_timeout)
+
                     resp = HTTPResponse.from_httplib(
                         r,
                         pool=conn,
