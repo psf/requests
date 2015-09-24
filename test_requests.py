@@ -1510,8 +1510,8 @@ class TestTimeout:
 
     def test_read_timeout_chunked(self):
         def chunked():
-            yield 'foo'
-            yield 'bar'
+            yield 'foo'.encode()
+            yield 'bar'.encode()
 
         try:
             # note: don't worry, according to HTTP/1.1 spec you actually can
