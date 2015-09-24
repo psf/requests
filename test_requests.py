@@ -839,6 +839,27 @@ class RequestsTestCase(unittest.TestCase):
 
         assert r.status_code == 200
 
+    def test_prepared_request_with_hook_is_pickleable(self):
+        def print_url(r, *args, **kwargs):
+            print(r.url)
+
+        r = requests.Request('POST', httpbin('post'), hooks=dict(response=print_url))
+        p = r.prepare()
+
+        # Verify we can pickle the request.
+        assert pickle.dumps(p)
+        r = pickle.dumps(p)
+
+        # Verify we can use the pickled request.
+        assert pickle.loads(r)
+        r = pickle.loads(r)
+
+        # Verify we can use the unpickled request.
+        s = requests.Session()
+        r = s.send(r)
+
+        assert r.status_code == 200
+
     def test_get_auth_from_url(self):
         url = 'http://user:pass@complex.url.com/path?query=yes'
         assert ('user', 'pass') == requests.utils.get_auth_from_url(url)
