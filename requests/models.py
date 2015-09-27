@@ -403,7 +403,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         else:
             self.headers = CaseInsensitiveDict()
 
-    def prepare_body(self, data, files, json=None):
+    def prepare_body(self, data, files, json=None, **kwargs):
         """Prepares the given HTTP body data."""
 
         # Check if file, fo, generator, iterator.
@@ -416,7 +416,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         if json is not None:
             content_type = 'application/json'
-            body = complexjson.dumps(json, ensure_ascii=False)
+            body = complexjson.dumps(json, ensure_ascii=kwargs.get('ensure_ascii', False))
 
         is_stream = all([
             hasattr(data, '__iter__'),
