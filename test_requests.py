@@ -17,7 +17,7 @@ from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3,
-    builtin_str, OrderedDict)
+    builtin_str, OrderedDict, is_py2)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidScheme, InvalidURL, MissingScheme,
@@ -1603,6 +1603,7 @@ class RedirectSession(SessionRedirectMixin):
         self.max_redirects = 30
         self.cookies = {}
         self.trust_env = False
+        self.location = '/'
 
     def send(self, *args, **kwargs):
         self.calls.append(SendCall(args, kwargs))
@@ -1617,7 +1618,7 @@ class RedirectSession(SessionRedirectMixin):
         except IndexError:
             r.status_code = 200
 
-        r.headers = CaseInsensitiveDict({'Location': '/'})
+        r.headers = CaseInsensitiveDict({'Location': self.location})
         r.raw = self._build_raw()
         r.request = request
         return r
@@ -1651,6 +1652,18 @@ class TestRedirects:
                                  TestRedirects.default_keyword_args)
             assert session.calls[-1] == send_call
 
+    @pytest.mark.skipif(is_py2, reason="requires python 3")
+    def test_redirects_with_latin1_header(self):
+        """Test that redirect headers decoded with Latin 1 are correctly
+        followed"""
+        session = RedirectSession([303])
+        session.location = u'http://xn--n8jyd3c767qtje.xn--q9jyb4c/ã\x83\x96ã\x83\xadã\x82°/'
+        prep = requests.Request('GET', httpbin('get')).prepare()
+        r0 = session.send(prep)
+
+        responses = list(session.resolve_redirects(r0, prep))
+        assert len(responses) == 1
+        assert responses[0].request.url == u'http://xn--n8jyd3c767qtje.xn--q9jyb4c/%E3%83%96%E3%83%AD%E3%82%B0/'
 
 @pytest.fixture
 def list_of_tuples():
