@@ -13,6 +13,7 @@ import cgi
 import codecs
 import collections
 import io
+import functools
 import os
 import platform
 import re
@@ -26,7 +27,7 @@ from . import certs
 from .compat import parse_http_list as _parse_list_header
 from .compat import (quote, urlparse, bytes, str, OrderedDict, unquote, is_py2,
                      builtin_str, getproxies, proxy_bypass, urlunparse,
-                     basestring)
+                     basestring, is_py3)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
 from .exceptions import InvalidURL, FileModeWarning
@@ -422,13 +423,26 @@ def unquote_unreserved(uri):
     """Un-escape any percent-escape sequences in a URI that are unreserved
     characters. This leaves all reserved, illegal and non-ASCII bytes encoded.
     """
+    # This convert function is used to optionally convert the output of `chr`.
+    # In Python 3, `chr` returns a unicode string, while in Python 2 it returns
+    # a bytestring. Here we deal with that by optionally converting.
+    def _convert(is_bytes, c):
+        if is_py2 and not is_bytes:
+            return c.decode('ascii')
+        elif is_py3 and is_bytes:
+            return c.encode('ascii')
+        else:
+            return c
+
     # Handle both bytestrings and unicode strings.
     if isinstance(uri, bytes):
         splitchar = b'%'
         base = b''
+        convert = functools.partial(_convert, True)
     else:
         splitchar = u'%'
         base = u''
+        convert = functools.partial(_convert, False)
 
     parts = uri.split(splitchar)
     for i in range(1, len(parts)):
@@ -440,7 +454,7 @@ def unquote_unreserved(uri):
                 raise InvalidURL("Invalid percent-escape sequence: '%s'" % h)
 
             if c in UNRESERVED_SET:
-                parts[i] = c + parts[i][2:]
+                parts[i] = convert(c) + parts[i][2:]
             else:
                 parts[i] = splitchar + parts[i]
         else:
