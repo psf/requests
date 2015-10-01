@@ -1468,6 +1468,20 @@ class TestUtils:
         quoted = 'http://example.com/fiz?buz=%25ppicture'
         assert quoted == requote_uri(quoted)
 
+    def test_unquote_unreserved_handles_unicode(self):
+        """Unicode strings can be passed to unquote_unreserved"""
+        from requests.utils import unquote_unreserved
+        uri = u'http://example.com/fizz?buzz=%41%2C'
+        unquoted = u'http://example.com/fizz?buzz=A%2C'
+        assert unquoted == unquote_unreserved(uri)
+
+    def test_unquote_unreserved_handles_bytes(self):
+        """Bytestrings can be passed to unquote_unreserved"""
+        from requests.utils import unquote_unreserved
+        uri = b'http://example.com/fizz?buzz=%41%2C'
+        unquoted = b'http://example.com/fizz?buzz=A%2C'
+        assert unquoted == unquote_unreserved(uri)
+
 
 class TestMorselToCookieExpires:
     """Tests for morsel_to_cookie when morsel contains expires."""
