@@ -160,4 +160,4 @@ Patches and Suggestions
 - Paul van der Linden (`@pvanderlinden <https://github.com/pvanderlinden>`_)
 - Colin Dickson (`@colindickson <https://github.com/colindickson>`_)
 - Smiley Barry (`@smiley <https://github.com/smiley>`_)
-- Sumit Binnani (`@sumitbinnani <https://github.com/sumitbinnani>` _)
+- Sumit Binnani (`@sumitbinnani <https://github.com/sumitbinnani>`_)
