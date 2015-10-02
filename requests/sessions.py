@@ -325,7 +325,8 @@ class Session(SessionRedirectMixin):
         #: limit, a :class:`TooManyRedirects` exception is raised.
         self.max_redirects = DEFAULT_REDIRECT_LIMIT
 
-        #: Should we trust the environment?
+        #: Trust environement settings for proxy configuration, default
+        #: authentication and similar.
         self.trust_env = True
 
         #: A CookieJar containing all currently outstanding cookies set on this
