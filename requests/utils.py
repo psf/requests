@@ -426,7 +426,7 @@ def unquote_unreserved(uri):
     # This convert function is used to optionally convert the output of `chr`.
     # In Python 3, `chr` returns a unicode string, while in Python 2 it returns
     # a bytestring. Here we deal with that by optionally converting.
-    def _convert(is_bytes, c):
+    def convert(is_bytes, c):
         if is_py2 and not is_bytes:
             return c.decode('ascii')
         elif is_py3 and is_bytes:
@@ -435,14 +435,12 @@ def unquote_unreserved(uri):
             return c
 
     # Handle both bytestrings and unicode strings.
-    if isinstance(uri, bytes):
-        splitchar = b'%'
-        base = b''
-        convert = functools.partial(_convert, True)
-    else:
-        splitchar = u'%'
-        base = u''
-        convert = functools.partial(_convert, False)
+    is_bytes = isinstance(uri, bytes)
+    splitchar = u'%'
+    base = u''
+    if is_bytes:
+        splitchar = splitchar.encode('ascii')
+        base = base.encode('ascii')
 
     parts = uri.split(splitchar)
     for i in range(1, len(parts)):
@@ -454,7 +452,7 @@ def unquote_unreserved(uri):
                 raise InvalidURL("Invalid percent-escape sequence: '%s'" % h)
 
             if c in UNRESERVED_SET:
-                parts[i] = convert(c) + parts[i][2:]
+                parts[i] = convert(is_bytes, c) + parts[i][2:]
             else:
                 parts[i] = splitchar + parts[i]
         else:
