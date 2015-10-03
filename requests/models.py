@@ -616,8 +616,11 @@ class Response(object):
 
     @property
     def ok(self):
-        """True if the status code does *not* indicate an error, i.e. status code < 400."""
-        return self.status_code < 400
+        try:
+            self.raise_for_status()
+        except HTTPError:
+            return False
+        return True
 
     @property
     def is_redirect(self):
