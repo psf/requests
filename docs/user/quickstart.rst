@@ -151,8 +151,8 @@ attempting ``r.json`` raises ``ValueError: No JSON object could be decoded``.
 It should be noted that the success of the call to ``r.json`` does **not**
 indicate the success of the response. Some servers may return a JSON object in a
 failed response (e.g. error details with HTTP 500). Such JSON will be decoded
-and returned. To check that a request is successful, use ``r.ok == True`` or
-``r.raise_for_status()``.
+and returned. To check that a request is successful, use
+``r.raise_for_status()`` or check ``r.status_code`` is what you expect.
 
 
 Raw Response Content
