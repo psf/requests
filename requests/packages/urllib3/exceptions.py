@@ -112,6 +112,9 @@ class ConnectTimeoutError(TimeoutError):
     "Raised when a socket timeout occurs while connecting to a server"
     pass
 
+class NewConnectionError(ConnectTimeoutError, PoolError):
+    "Raised when we fail to establish a new connection. Usually ECONNREFUSED."
+    pass
 
 class EmptyPoolError(PoolError):
     "Raised when a pool runs out of connections and no more are allowed."

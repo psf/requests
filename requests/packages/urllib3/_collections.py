@@ -97,14 +97,7 @@ class RecentlyUsedContainer(MutableMapping):
             return list(iterkeys(self._container))
 
 
-_dict_setitem = dict.__setitem__
-_dict_getitem = dict.__getitem__
-_dict_delitem = dict.__delitem__
-_dict_contains = dict.__contains__
-_dict_setdefault = dict.setdefault
-
-
-class HTTPHeaderDict(dict):
+class HTTPHeaderDict(MutableMapping):
     """
     :param headers:
         An iterable of field-value pairs. Must not contain multiple field names
@@ -139,7 +132,8 @@ class HTTPHeaderDict(dict):
     """
 
     def __init__(self, headers=None, **kwargs):
-        dict.__init__(self)
+        super(HTTPHeaderDict, self).__init__()
+        self._container = {}
         if headers is not None:
             if isinstance(headers, HTTPHeaderDict):
                 self._copy_from(headers)
@@ -149,37 +143,43 @@ class HTTPHeaderDict(dict):
             self.extend(kwargs)
 
     def __setitem__(self, key, val):
-        return _dict_setitem(self, key.lower(), (key, val))
+        self._container[key.lower()] = (key, val)
+        return self._container[key.lower()]
 
     def __getitem__(self, key):
-        val = _dict_getitem(self, key.lower())
+        val = self._container[key.lower()]
         return ', '.join(val[1:])
 
     def __delitem__(self, key):
-        return _dict_delitem(self, key.lower())
+        del self._container[key.lower()]
 
     def __contains__(self, key):
-        return _dict_contains(self, key.lower())
+        return key.lower() in self._container
 
     def __eq__(self, other):
         if not isinstance(other, Mapping) and not hasattr(other, 'keys'):
             return False
         if not isinstance(other, type(self)):
             other = type(self)(other)
-        return dict((k1, self[k1]) for k1 in self) == dict((k2, other[k2]) for k2 in other)
+        return (dict((k.lower(), v) for k, v in self.itermerged()) ==
+                dict((k.lower(), v) for k, v in other.itermerged()))
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    values = MutableMapping.values
-    get = MutableMapping.get
-    update = MutableMapping.update
-    
     if not PY3: # Python 2
         iterkeys = MutableMapping.iterkeys
         itervalues = MutableMapping.itervalues
 
     __marker = object()
+
+    def __len__(self):
+        return len(self._container)
+
+    def __iter__(self):
+        # Only provide the originally cased names
+        for vals in self._container.values():
+            yield vals[0]
 
     def pop(self, key, default=__marker):
         '''D.pop(k[,d]) -> v, remove specified key and return the corresponding value.
@@ -216,7 +216,7 @@ class HTTPHeaderDict(dict):
         key_lower = key.lower()
         new_vals = key, val
         # Keep the common case aka no item present as fast as possible
-        vals = _dict_setdefault(self, key_lower, new_vals)
+        vals = self._container.setdefault(key_lower, new_vals)
         if new_vals is not vals:
             # new_vals was not inserted, as there was a previous one
             if isinstance(vals, list):
@@ -225,7 +225,7 @@ class HTTPHeaderDict(dict):
             else:
                 # vals should be a tuple then, i.e. only one item so far
                 # Need to convert the tuple to list for further extension
-                _dict_setitem(self, key_lower, [vals[0], vals[1], val])
+                self._container[key_lower] = [vals[0], vals[1], val]
 
     def extend(self, *args, **kwargs):
         """Generic import function for any type of header-like object.
@@ -236,7 +236,7 @@ class HTTPHeaderDict(dict):
             raise TypeError("extend() takes at most 1 positional "
                             "arguments ({} given)".format(len(args)))
         other = args[0] if len(args) >= 1 else ()
-        
+
         if isinstance(other, HTTPHeaderDict):
             for key, val in other.iteritems():
                 self.add(key, val)
@@ -257,7 +257,7 @@ class HTTPHeaderDict(dict):
         """Returns a list of all the values for the named field. Returns an
         empty list if the key doesn't exist."""
         try:
-            vals = _dict_getitem(self, key.lower())
+            vals = self._container[key.lower()]
         except KeyError:
             return []
         else:
@@ -276,11 +276,11 @@ class HTTPHeaderDict(dict):
 
     def _copy_from(self, other):
         for key in other:
-            val = _dict_getitem(other, key)
+            val = other.getlist(key)
             if isinstance(val, list):
                 # Don't need to convert tuples
                 val = list(val)
-            _dict_setitem(self, key, val)
+            self._container[key.lower()] = [key] + val
 
     def copy(self):
         clone = type(self)()
@@ -290,14 +290,14 @@ class HTTPHeaderDict(dict):
     def iteritems(self):
         """Iterate over all header lines, including duplicate ones."""
         for key in self:
-            vals = _dict_getitem(self, key)
+            vals = self._container[key.lower()]
             for val in vals[1:]:
                 yield vals[0], val
 
     def itermerged(self):
         """Iterate over all headers, merging duplicate ones together."""
         for key in self:
-            val = _dict_getitem(self, key)
+            val = self._container[key.lower()]
             yield val[0], ', '.join(val[1:])
 
     def items(self):
@@ -307,16 +307,16 @@ class HTTPHeaderDict(dict):
     def from_httplib(cls, message): # Python 2
         """Read headers from a Python 2 httplib message object."""
         # python2.7 does not expose a proper API for exporting multiheaders
-        # efficiently. This function re-reads raw lines from the message 
+        # efficiently. This function re-reads raw lines from the message
         # object and extracts the multiheaders properly.
         headers = []
-         
+
         for line in message.headers:
             if line.startswith((' ', '\t')):
                 key, value = headers[-1]
                 headers[-1] = (key, value + '\r\n' + line.rstrip())
                 continue
-    
+
             key, value = line.split(':', 1)
             headers.append((key, value.strip()))
 

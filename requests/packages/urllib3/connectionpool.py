@@ -22,10 +22,12 @@ from .exceptions import (
     LocationValueError,
     MaxRetryError,
     ProxyError,
+    ConnectTimeoutError,
     ReadTimeoutError,
     SSLError,
     TimeoutError,
     InsecureRequestWarning,
+    NewConnectionError,
 )
 from .packages.ssl_match_hostname import CertificateError
 from .packages import six
@@ -422,7 +424,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         # TODO: Add optional support for socket.gethostbyname checking.
         scheme, host, port = get_host(url)
- 
+
         # Use explicit default port for comparison when none is given
         if self.port and not port:
             port = port_by_scheme.get(scheme)
@@ -592,13 +594,13 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             release_conn = True
             raise
 
-        except (TimeoutError, HTTPException, SocketError, ConnectionError) as e:
+        except (TimeoutError, HTTPException, SocketError, ProtocolError) as e:
             # Discard the connection for these exceptions. It will be
             # be replaced during the next _get_conn() call.
             conn = conn and conn.close()
             release_conn = True
 
-            if isinstance(e, SocketError) and self.proxy:
+            if isinstance(e, (SocketError, NewConnectionError)) and self.proxy:
                 e = ProxyError('Cannot connect to proxy.', e)
             elif isinstance(e, (SocketError, HTTPException)):
                 e = ProtocolError('Connection aborted.', e)
@@ -675,10 +677,10 @@ class HTTPSConnectionPool(HTTPConnectionPool):
     ``assert_hostname`` and ``host`` in this order to verify connections.
     If ``assert_hostname`` is False, no verification is done.
 
-    The ``key_file``, ``cert_file``, ``cert_reqs``, ``ca_certs`` and
-    ``ssl_version`` are only used if :mod:`ssl` is available and are fed into
-    :meth:`urllib3.util.ssl_wrap_socket` to upgrade the connection socket
-    into an SSL socket.
+    The ``key_file``, ``cert_file``, ``cert_reqs``, ``ca_certs``,
+    ``ca_cert_dir``, and ``ssl_version`` are only used if :mod:`ssl` is
+    available and are fed into :meth:`urllib3.util.ssl_wrap_socket` to upgrade
+    the connection socket into an SSL socket.
     """
 
     scheme = 'https'
@@ -691,7 +693,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
                  key_file=None, cert_file=None, cert_reqs=None,
                  ca_certs=None, ssl_version=None,
                  assert_hostname=None, assert_fingerprint=None,
-                 **conn_kw):
+                 ca_cert_dir=None, **conn_kw):
 
         HTTPConnectionPool.__init__(self, host, port, strict, timeout, maxsize,
                                     block, headers, retries, _proxy, _proxy_headers,
@@ -704,6 +706,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
         self.cert_file = cert_file
         self.cert_reqs = cert_reqs
         self.ca_certs = ca_certs
+        self.ca_cert_dir = ca_cert_dir
         self.ssl_version = ssl_version
         self.assert_hostname = assert_hostname
         self.assert_fingerprint = assert_fingerprint
@@ -719,6 +722,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
                           cert_file=self.cert_file,
                           cert_reqs=self.cert_reqs,
                           ca_certs=self.ca_certs,
+                          ca_cert_dir=self.ca_cert_dir,
                           assert_hostname=self.assert_hostname,
                           assert_fingerprint=self.assert_fingerprint)
             conn.ssl_version = self.ssl_version

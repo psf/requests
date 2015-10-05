@@ -80,16 +80,16 @@ def create_connection(address, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
             sock.connect(sa)
             return sock
 
-        except socket.error as _:
-            err = _
+        except socket.error as e:
+            err = e
             if sock is not None:
                 sock.close()
                 sock = None
 
     if err is not None:
         raise err
-    else:
-        raise socket.error("getaddrinfo returns an empty list")
+
+    raise socket.error("getaddrinfo returns an empty list")
 
 
 def _set_socket_options(sock, options):
