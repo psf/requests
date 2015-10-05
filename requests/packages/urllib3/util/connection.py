@@ -60,6 +60,8 @@ def create_connection(address, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
     """
 
     host, port = address
+    if host.startswith('['):
+        host = host.strip('[]')
     err = None
     for res in socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM):
         af, socktype, proto, canonname, sa = res

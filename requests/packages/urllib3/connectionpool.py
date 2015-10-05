@@ -17,6 +17,7 @@ from .exceptions import (
     ClosedPoolError,
     ProtocolError,
     EmptyPoolError,
+    HeaderParsingError,
     HostChangedError,
     LocationValueError,
     MaxRetryError,
@@ -38,9 +39,10 @@ from .request import RequestMethods
 from .response import HTTPResponse
 
 from .util.connection import is_connection_dropped
+from .util.response import assert_header_parsing
 from .util.retry import Retry
 from .util.timeout import Timeout
-from .util.url import get_host
+from .util.url import get_host, Url
 
 
 xrange = six.moves.xrange
@@ -120,7 +122,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
     :param maxsize:
         Number of connections to save that can be reused. More than 1 is useful
-        in multithreaded situations. If ``block`` is set to false, more
+        in multithreaded situations. If ``block`` is set to False, more
         connections will be created but they will not be saved once they've
         been used.
 
@@ -381,7 +383,18 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         log.debug("\"%s %s %s\" %s %s" % (method, url, http_version,
                                           httplib_response.status,
                                           httplib_response.length))
+
+        try:
+            assert_header_parsing(httplib_response.msg)
+        except HeaderParsingError as hpe:  # Platform-specific: Python 3
+            log.warning(
+                'Failed to parse headers (url=%s): %s',
+                self._absolute_url(url), hpe, exc_info=True)
+
         return httplib_response
+
+    def _absolute_url(self, path):
+        return Url(scheme=self.scheme, host=self.host, port=self.port, path=path).url
 
     def close(self):
         """
@@ -409,7 +422,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         # TODO: Add optional support for socket.gethostbyname checking.
         scheme, host, port = get_host(url)
-
+ 
         # Use explicit default port for comparison when none is given
         if self.port and not port:
             port = port_by_scheme.get(scheme)
@@ -568,25 +581,22 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             # Close the connection. If a connection is reused on which there
             # was a Certificate error, the next request will certainly raise
             # another Certificate error.
-            if conn:
-                conn.close()
-                conn = None
+            conn = conn and conn.close()
+            release_conn = True
             raise SSLError(e)
 
         except SSLError:
             # Treat SSLError separately from BaseSSLError to preserve
             # traceback.
-            if conn:
-                conn.close()
-                conn = None
+            conn = conn and conn.close()
+            release_conn = True
             raise
 
         except (TimeoutError, HTTPException, SocketError, ConnectionError) as e:
-            if conn:
-                # Discard the connection for these exceptions. It will be
-                # be replaced during the next _get_conn() call.
-                conn.close()
-                conn = None
+            # Discard the connection for these exceptions. It will be
+            # be replaced during the next _get_conn() call.
+            conn = conn and conn.close()
+            release_conn = True
 
             if isinstance(e, SocketError) and self.proxy:
                 e = ProxyError('Cannot connect to proxy.', e)
@@ -626,6 +636,9 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
                 retries = retries.increment(method, url, response=response, _pool=self)
             except MaxRetryError:
                 if retries.raise_on_redirect:
+                    # Release the connection for this response, since we're not
+                    # returning it to be released manually.
+                    response.release_conn()
                     raise
                 return response
 
@@ -683,6 +696,10 @@ class HTTPSConnectionPool(HTTPConnectionPool):
         HTTPConnectionPool.__init__(self, host, port, strict, timeout, maxsize,
                                     block, headers, retries, _proxy, _proxy_headers,
                                     **conn_kw)
+
+        if ca_certs and cert_reqs is None:
+            cert_reqs = 'CERT_REQUIRED'
+
         self.key_file = key_file
         self.cert_file = cert_file
         self.cert_reqs = cert_reqs
