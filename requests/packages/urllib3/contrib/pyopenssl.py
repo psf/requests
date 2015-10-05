@@ -267,7 +267,7 @@ def _verify_callback(cnx, x509, err_no, err_depth, return_code):
 
 def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
                     ca_certs=None, server_hostname=None,
-                    ssl_version=None):
+                    ssl_version=None, ca_cert_dir=None):
     ctx = OpenSSL.SSL.Context(_openssl_versions[ssl_version])
     if certfile:
         keyfile = keyfile or certfile  # Match behaviour of the normal python ssl library
@@ -276,9 +276,9 @@ def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
         ctx.use_privatekey_file(keyfile)
     if cert_reqs != ssl.CERT_NONE:
         ctx.set_verify(_openssl_verify[cert_reqs], _verify_callback)
-    if ca_certs:
+    if ca_certs or ca_cert_dir:
         try:
-            ctx.load_verify_locations(ca_certs, None)
+            ctx.load_verify_locations(ca_certs, ca_cert_dir)
         except OpenSSL.SSL.Error as e:
             raise ssl.SSLError('bad ca_certs: %r' % ca_certs, e)
     else:

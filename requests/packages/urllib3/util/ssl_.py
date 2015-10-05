@@ -75,8 +75,11 @@ except ImportError:
             self.certfile = certfile
             self.keyfile = keyfile
 
-        def load_verify_locations(self, location):
-            self.ca_certs = location
+        def load_verify_locations(self, cafile=None, capath=None):
+            self.ca_certs = cafile
+
+            if capath is not None:
+                raise SSLError("CA directories not supported in older Pythons")
 
         def set_ciphers(self, cipher_suite):
             if not self.supports_set_ciphers:
@@ -240,10 +243,11 @@ def create_urllib3_context(ssl_version=None, cert_reqs=None,
 
 def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
                     ca_certs=None, server_hostname=None,
-                    ssl_version=None, ciphers=None, ssl_context=None):
+                    ssl_version=None, ciphers=None, ssl_context=None,
+                    ca_cert_dir=None):
     """
-    All arguments except for server_hostname and ssl_context have the same
-    meaning as they do when using :func:`ssl.wrap_socket`.
+    All arguments except for server_hostname, ssl_context, and ca_cert_dir have
+    the same meaning as they do when using :func:`ssl.wrap_socket`.
 
     :param server_hostname:
         When SNI is supported, the expected hostname of the certificate
@@ -253,15 +257,19 @@ def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
     :param ciphers:
         A string of ciphers we wish the client to support. This is not
         supported on Python 2.6 as the ssl module does not support it.
+    :param ca_cert_dir:
+        A directory containing CA certificates in multiple separate files, as
+        supported by OpenSSL's -CApath flag or the capath argument to
+        SSLContext.load_verify_locations().
     """
     context = ssl_context
     if context is None:
         context = create_urllib3_context(ssl_version, cert_reqs,
                                          ciphers=ciphers)
 
-    if ca_certs:
+    if ca_certs or ca_cert_dir:
         try:
-            context.load_verify_locations(ca_certs)
+            context.load_verify_locations(ca_certs, ca_cert_dir)
         except IOError as e:  # Platform-specific: Python 2.6, 2.7, 3.2
             raise SSLError(e)
         # Py33 raises FileNotFoundError which subclasses OSError
@@ -270,6 +278,7 @@ def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
             if e.errno == errno.ENOENT:
                 raise SSLError(e)
             raise
+
     if certfile:
         context.load_cert_chain(certfile, keyfile)
     if HAS_SNI:  # Platform-specific: OpenSSL with enabled SNI

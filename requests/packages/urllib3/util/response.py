@@ -1,7 +1,4 @@
-try:
-    import http.client as httplib
-except ImportError:
-    import httplib
+from ..packages.six.moves import http_client as httplib
 
 from ..exceptions import HeaderParsingError
 
