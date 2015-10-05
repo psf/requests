@@ -499,7 +499,9 @@ def should_bypass_proxies(url):
     if no_proxy:
         # We need to check whether we match here. We need to see if we match
         # the end of the netloc, both with and without the port.
-        no_proxy = no_proxy.replace(' ', '').split(',')
+        no_proxy = (
+            host for host in no_proxy.replace(' ', '').split(',') if host
+        )
 
         ip = netloc.split(':')[0]
         if is_ipv4_address(ip):
