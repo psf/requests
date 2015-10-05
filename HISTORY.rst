@@ -3,6 +3,41 @@
 Release History
 ---------------
 
+2.8.0 (2015-10-05)
+++++++++++++++++++
+
+**Minor Improvements** (Backwards Compatible)
+
+- Requests now supports per-host proxies. This allows the ``proxies``
+  dictionary to have entries of the form
+  ``{'<scheme>://<hostname>': '<proxy>'}``. Host-specific proxies will be used
+  in preference to the previously-supported scheme-specific ones, but the
+  previous syntax will continue to work.
+- ``Response.raise_for_status`` now prints the URL that failed as part of the
+  exception message.
+- ``requests.utils.get_netrc_auth`` now takes an ``raise_errors`` kwarg,
+  defaulting to ``False``. When ``True``, errors parsing ``.netrc`` files cause
+  exceptions to be thrown.
+- Change to bundled projects import logic to make it easier to unbundle
+  requests downstream.
+
+**Bugfixes**
+
+- The ``json`` parameter to ``post()`` and friends will now only be used if
+  neither ``data`` nor ``files`` are present, consistent with the
+  documentation.
+- We now ignore empty fields in the ``NO_PROXY`` enviroment variable.
+- Fixed problem where ``httplib.BadStatusLine`` would get raised if combining
+  ``stream=True`` with ``contextlib.closing``.
+- Prevented bugs where we would attempt to return the same connection back to
+  the connection pool twice when sending a Chunked body.
+- Miscellaneous minor internal changes.
+- Digest Auth support is now thread safe.
+
+**Updates**
+
+- Updated urllib3 to 1.12.
+
 2.7.0 (2015-05-03)
 ++++++++++++++++++
 
