@@ -1082,6 +1082,13 @@ class RequestsTestCase(unittest.TestCase):
         assert 'application/json' in r.request.headers['Content-Type']
         assert {'life': 42} == r.json()['json']
 
+    def test_json_param_post_should_not_override_data_param(self):
+        r = requests.Request(method='POST', url='http://httpbin.org/post',
+                             data={'stuff': 'elixr'},
+                             json={'music': 'flute'})
+        prep = r.prepare()
+        assert 'stuff=elixr' == prep.body
+
     def test_response_iter_lines(self):
         r = requests.get(httpbin('stream/4'), stream=True)
         assert r.status_code == 200
