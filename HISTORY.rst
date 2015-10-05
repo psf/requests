@@ -20,6 +20,8 @@ Release History
   exceptions to be thrown.
 - Change to bundled projects import logic to make it easier to unbundle
   requests downstream.
+- Changed the default User-Agent string to avoid leaking data on Linux: now
+  contains only the requests version.
 
 **Bugfixes**
 
