@@ -414,7 +414,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         content_type = None
         length = None
 
-        if data == {} and json is not None:
+        if not data and json is not None:
             content_type = 'application/json'
             body = complexjson.dumps(json)
 
