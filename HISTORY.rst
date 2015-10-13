@@ -3,6 +3,20 @@
 Release History
 ---------------
 
+2.8.1 (2015-10-13)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Update certificate bundle to match ``certifi`` 2015.9.6.2's weak certificate
+  bundle.
+- Fix a bug in 2.8.0 where requests would raise ``ConnectTimeout`` instead of
+  ``ConnectionError``
+- When using the PreparedRequest flow, requests will now correctly respect the
+  ``json`` parameter. Broken in 2.8.0.
+- When using the PreparedRequest flow, requests will now correctly handle a
+  Unicode-string method name on Python 2. Broken in 2.8.0.
+
 2.8.0 (2015-10-05)
 ++++++++++++++++++
 
