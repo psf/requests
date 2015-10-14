@@ -302,6 +302,14 @@ support this, but there is a separate package which does -
 For sending multiple files in one request refer to the :ref:`advanced <advanced>`
 section.
 
+.. warning:: It is strongly recommended that you open files in `binary mode`_.
+             This is because Requests may attempt to provide the
+             ``Content-Length`` header for you, and if it does this value will
+             be set to the number of *bytes* in the file. Errors may occur if
+             you open the file in *text mode*.
+
+.. _binary mode: https://docs.python.org/2/tutorial/inputoutput.html#reading-and-writing-files
+
 
 Response Status Codes
 ---------------------
