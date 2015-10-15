@@ -273,13 +273,13 @@ class Session(SessionRedirectMixin):
       >>> import requests
       >>> s = requests.Session()
       >>> s.get('http://httpbin.org/get')
-      200
+      <Response [200]>
 
     Or as a context manager::
 
       >>> with requests.Session() as s:
       >>>     s.get('http://httpbin.org/get')
-      200
+      <Response [200]>
     """
 
     __attrs__ = [
