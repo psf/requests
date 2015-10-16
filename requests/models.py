@@ -23,7 +23,8 @@ from .packages.urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
 from .exceptions import (
     HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
-    ContentDecodingError, ConnectionError, StreamConsumedError)
+    ContentDecodingError, ConnectionError, StreamConsumedError,
+    TruncatedContentError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
@@ -48,6 +49,7 @@ DEFAULT_REDIRECT_LIMIT = 30
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
 
+CONTENT_LENGTH = 'Content-Length'
 
 class RequestEncodingMixin(object):
     @property
@@ -435,7 +437,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 raise NotImplementedError('Streamed bodies and files are mutually exclusive.')
 
             if length is not None:
-                self.headers['Content-Length'] = builtin_str(length)
+                self.headers[CONTENT_LENGTH] = builtin_str(length)
             else:
                 self.headers['Transfer-Encoding'] = 'chunked'
         else:
@@ -461,14 +463,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_content_length(self, body):
         if hasattr(body, 'seek') and hasattr(body, 'tell'):
             body.seek(0, 2)
-            self.headers['Content-Length'] = builtin_str(body.tell())
+            self.headers[CONTENT_LENGTH] = builtin_str(body.tell())
             body.seek(0, 0)
         elif body is not None:
             l = super_len(body)
             if l:
-                self.headers['Content-Length'] = builtin_str(l)
-        elif (self.method not in ('GET', 'HEAD')) and (self.headers.get('Content-Length') is None):
-            self.headers['Content-Length'] = '0'
+                self.headers[CONTENT_LENGTH] = builtin_str(l)
+        elif (self.method not in ('GET', 'HEAD')) and (self.headers.get(CONTENT_LENGTH) is None):
+            self.headers[CONTENT_LENGTH] = '0'
 
     def prepare_auth(self, auth, url=''):
         """Prepares the given HTTP auth data."""
@@ -662,6 +664,17 @@ class Response(object):
                     raise ContentDecodingError(e)
                 except ReadTimeoutError as e:
                     raise ConnectionError(e)
+
+                if 'HEAD' != self.request.method:
+                    # HEAD may have non-zero Content-Length with empty
+                    # entity body. Other HTTP methods may have entity bodies.
+                    if CONTENT_LENGTH in self.headers:
+                        expected_len = int(self.headers[CONTENT_LENGTH])
+                        actual_len = self.raw.tell()
+                        if actual_len < expected_len:
+                            raise TruncatedContentError(
+                                'Expected: %r, got: %r' % (
+                                    expected_len, actual_len))
             else:
                 # Standard file-like object.
                 while True:
