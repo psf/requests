@@ -97,3 +97,7 @@ class StreamConsumedError(RequestException, TypeError):
 
 class RetryError(RequestException):
     """Custom retries logic failed"""
+
+
+class TruncatedContentError(RequestException):
+    """Content body received is shorter than declared Content-Length"""

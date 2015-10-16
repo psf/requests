@@ -12,6 +12,7 @@ import collections
 import contextlib
 
 import io
+import mock
 import requests
 import pytest
 from requests.adapters import HTTPAdapter
@@ -23,7 +24,8 @@ from requests.compat import (
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (ConnectionError, ConnectTimeout,
                                  InvalidSchema, InvalidURL, MissingSchema,
-                                 ReadTimeout, Timeout, RetryError)
+                                 ReadTimeout, Timeout, RetryError,
+                                 TruncatedContentError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -118,6 +120,31 @@ class RequestsTestCase(unittest.TestCase):
         r = requests.Request('POST', httpbin('post'), headers=headers).prepare()
         assert 'Content-Length' in r.headers
         assert r.headers['Content-Length'] == 'not zero'
+
+    def test_truncated_content(self):
+        req = requests.Request('GET')
+        res = requests.Response()
+        res.request = req
+        res.headers['Content-Length'] = '10'
+        res.raw = mock.MagicMock()
+        res.raw.tell.return_value = 5
+        res.raw.stream.return_value = ['12345']
+
+        with pytest.raises(TruncatedContentError):
+            res.content
+
+    def test_truncated_content_iter_lines(self):
+        req = requests.Request('GET')
+        res = requests.Response()
+        res.request = req
+        res.headers['Content-Length'] = '10'
+        res.raw = mock.MagicMock()
+        res.raw.tell.return_value = 8
+        res.raw.stream.return_value = ['1234', '5678']
+
+        with pytest.raises(TruncatedContentError):
+            for line in res.iter_lines():
+                pass
 
     def test_path_is_not_double_encoded(self):
         request = requests.Request('GET', "http://0.0.0.0/get/test case").prepare()
