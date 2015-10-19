@@ -455,6 +455,9 @@ class Session(SessionRedirectMixin):
 
         proxies = proxies or {}
 
+        if verify is None:
+            verify = self.verify
+
         settings = self.merge_environment_settings(
             prep.url, proxies, stream, verify, cert
         )
