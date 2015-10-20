@@ -11,7 +11,9 @@ import unittest
 import collections
 import contextlib
 
+from contextlib2 import ExitStack
 import io
+import mock
 import requests
 import pytest
 from requests.adapters import HTTPAdapter
@@ -1125,6 +1127,17 @@ class RequestsTestCase(unittest.TestCase):
 
         next(r.iter_lines())
         assert len(list(r.iter_lines())) == 3
+
+    def test_session_verify_with_env(self):
+        s = requests.Session()
+        s.verify = False
+
+        with ExitStack() as stack:
+            stack.enter_context(mock.patch.dict(os.environ, REQUESTS_CA_BUNDLE='/some/path'))
+            send = stack.enter_context(mock.patch.object(s, 'send'))
+            s.get('https://server.with.cert.error.test')
+
+        self.assertFalse(send.call_args[1]['verify'])
 
 
 class TestContentEncodingDetection(unittest.TestCase):
