@@ -68,6 +68,21 @@ def httpsbin_url(httpbin_secure):
     return inner
 
 
+class SendRecordingAdapter(HTTPAdapter):
+    """
+    A basic subclass of the HTTPAdapter that records the arguments used to
+    ``send``.
+    """
+    def __init__(self, *args, **kwargs):
+        super(SendRecordingAdapter, self).__init__(*args, **kwargs)
+
+        self.send_calls = []
+
+    def send(self, *args, **kwargs):
+        self.send_calls.append((args, kwargs))
+        return super(SendRecordingAdapter, self).send(*args, **kwargs)
+
+
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
 TARPIT = "http://10.255.255.1"
@@ -1141,6 +1156,43 @@ class TestRequests:
         next(r.iter_lines())
         assert len(list(r.iter_lines())) == 3
 
+    def test_environment_comes_after_session(self):
+        """The Session arguments should come before environment arguments."""
+        # We get proxies from the environment and verify from the argument.
+        s = requests.Session()
+        a = SendRecordingAdapter()
+        s.mount('http://', a)
+
+        # Both of these arguments are safe fallbacks that we can easily
+        # detect, but which will allow the request to succeed.
+        s.verify = False
+        s.proxies = {'http': None}
+
+        old_proxy = os.environ.get('HTTP_PROXY')
+        old_bundle = os.environ.get('REQUESTS_CA_BUNDLE')
+
+        try:
+            os.environ['HTTP_PROXY'] = '10.10.10.10:3128'
+            os.environ['REQUESTS_CA_BUNDLE'] = '/path/to/nowhere'
+
+            s.get(httpbin('get'), timeout=5)
+        finally:
+            if old_proxy is not None:
+                os.environ['HTTP_PROXY'] = old_proxy
+            else:
+                del os.environ['HTTP_PROXY']
+
+            if old_bundle is not None:
+                os.environ['REQUESTS_CA_BUNDLE'] = old_bundle
+            else:
+                del os.environ['REQUESTS_CA_BUNDLE']
+
+        call = a.send_calls[0]
+        assert call[1]['verify'] == False
+
+        proxies = call[1]['proxies']
+        with pytest.raises(KeyError):
+            proxies['http']
 
 class TestContentEncodingDetection:
 
