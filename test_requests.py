@@ -353,28 +353,33 @@ class TestRequests(object):
         wrong_auth = ('wronguser', 'wrongpass')
         url = httpbin('basic-auth', 'user', 'pass')
 
-        def get_netrc_auth_mock(url):
-            return auth
-        requests.sessions.get_netrc_auth = get_netrc_auth_mock
+        old_auth = requests.sessions.get_netrc_auth
 
-        # Should use netrc and work.
-        r = requests.get(url)
-        assert r.status_code == 200
+        try:
+            def get_netrc_auth_mock(url):
+                return auth
+            requests.sessions.get_netrc_auth = get_netrc_auth_mock
 
-        # Given auth should override and fail.
-        r = requests.get(url, auth=wrong_auth)
-        assert r.status_code == 401
+            # Should use netrc and work.
+            r = requests.get(url)
+            assert r.status_code == 200
 
-        s = requests.session()
+            # Given auth should override and fail.
+            r = requests.get(url, auth=wrong_auth)
+            assert r.status_code == 401
 
-        # Should use netrc and work.
-        r = s.get(url)
-        assert r.status_code == 200
+            s = requests.session()
 
-        # Given auth should override and fail.
-        s.auth = wrong_auth
-        r = s.get(url)
-        assert r.status_code == 401
+            # Should use netrc and work.
+            r = s.get(url)
+            assert r.status_code == 200
+
+            # Given auth should override and fail.
+            s.auth = wrong_auth
+            r = s.get(url)
+            assert r.status_code == 401
+        finally:
+            requests.sessions.get_netrc_auth = old_auth
 
     def test_DIGEST_HTTP_200_OK_GET(self):
 
