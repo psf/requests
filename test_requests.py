@@ -74,7 +74,7 @@ def httpsbin_url(httpbin_secure):
 # listening on that port)
 TARPIT = "http://10.255.255.1"
 
-class RequestsTestCase(unittest.TestCase):
+class TestRequests(object):
 
     _multiprocess_can_split_ = True
 
