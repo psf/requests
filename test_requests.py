@@ -1734,7 +1734,7 @@ def test_urllib3_pool_connection_closed(httpbin):
     try:
         s.get(httpbin('status/200'))
     except ConnectionError as e:
-        assert u"HTTPConnectionPool(host='httpbin.org', port=80): Pool is closed." in str(e)
+        assert u"Pool is closed." in str(e)
 
 def test_vendor_aliases():
     from requests.packages import urllib3
