@@ -181,13 +181,19 @@ class SessionRedirectMixin(object):
             proxies = self.rebuild_proxies(prepared_request, proxies)
             self.rebuild_auth(prepared_request, resp)
 
+            # Ask callable object the proper timeout according to url.
+            if callable(timeout):
+                timeout_ = timeout(prepared_request.url)
+            else:
+                timeout_ = timeout
+
             # Override the original request.
             req = prepared_request
 
             resp = self.send(
                 req,
                 stream=stream,
-                timeout=timeout,
+                timeout=timeout_,
                 verify=verify,
                 cert=cert,
                 proxies=proxies,
