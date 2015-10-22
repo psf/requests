@@ -161,8 +161,7 @@ class TestRequests(object):
         s = requests.Session()
         s.proxies = getproxies()
         parts = urlparse(httpbin('get'))
-        schemes = ['http://', 'HTTP://', 'hTTp://', 'HttP://',
-                   'https://', 'HTTPS://', 'hTTps://', 'HttPs://']
+        schemes = ['http://', 'HTTP://', 'hTTp://', 'HttP://']
         for scheme in schemes:
             url = scheme + parts.netloc + parts.path
             r = requests.Request('GET', url)
