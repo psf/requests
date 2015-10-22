@@ -48,18 +48,31 @@ else:
         return s.decode('unicode-escape')
 
 
+@pytest.fixture
+def httpbin(httpbin):
+    # Issue #1483: Make sure the URL always has a trailing slash
+    httpbin_url = httpbin.url.rstrip('/') + '/'
+
+    def inner(*suffix):
+        return urljoin(httpbin_url, '/'.join(suffix))
+
+    return inner
+
+
+@pytest.fixture
+def httpsbin_url(httpbin_secure):
+    # Issue #1483: Make sure the URL always has a trailing slash
+    httpbin_url = httpbin_secure.url.rstrip('/') + '/'
+
+    def inner(*suffix):
+        return urljoin(httpbin_url, '/'.join(suffix))
+
+    return inner
+
+
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
 TARPIT = "http://10.255.255.1"
-HTTPBIN = os.environ.get('HTTPBIN_URL', 'http://httpbin.org/')
-# Issue #1483: Make sure the URL always has a trailing slash
-HTTPBIN = HTTPBIN.rstrip('/') + '/'
-
-
-def httpbin(*suffix):
-    """Returns url for HTTPBIN resource."""
-    return urljoin(HTTPBIN, '/'.join(suffix))
-
 
 class RequestsTestCase(unittest.TestCase):
 
