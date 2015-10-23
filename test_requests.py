@@ -139,6 +139,11 @@ class RequestsTestCase(unittest.TestCase):
         prep = session.prepare_request(request)
         assert prep.url == 'http://example.com/?z=1&a=1&k=1&d=1'
 
+    def test_params_bytes_are_encoded(self):
+        request = requests.Request('GET', 'http://example.com',
+                                   params=b'test=foo').prepare()
+        assert request.url == 'http://example.com/?test=foo'
+
     def test_mixed_case_scheme_acceptable(self):
         s = requests.Session()
         s.proxies = getproxies()
