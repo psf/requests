@@ -1136,7 +1136,7 @@ class TestRequests(object):
         with contextlib.closing(s.get(httpbin('stream/4'), stream=True)) as response:
             pass
 
-        assert not response._content_consumed is False
+        assert response._content_consumed is False
         assert response.raw.closed
 
     @pytest.mark.xfail
