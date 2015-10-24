@@ -62,7 +62,8 @@ from .sessions import session, Session
 from .status_codes import codes
 from .exceptions import (
     RequestException, Timeout, URLRequired,
-    TooManyRedirects, HTTPError, ConnectionError
+    TooManyRedirects, HTTPError, ConnectionError,
+    FileModeWarning,
 )
 
 # Set default logging handler to avoid "No handler found" warnings.
@@ -75,3 +76,8 @@ except ImportError:
             pass
 
 logging.getLogger(__name__).addHandler(NullHandler())
+
+import warnings
+
+# FileModeWarnings go off per the default.
+warnings.simplefilter('default', FileModeWarning, append=True)

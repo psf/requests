@@ -97,3 +97,18 @@ class StreamConsumedError(RequestException, TypeError):
 
 class RetryError(RequestException):
     """Custom retries logic failed"""
+
+
+# Warnings
+
+
+class RequestsWarning(Warning):
+    """Base warning for Requests."""
+    pass
+
+
+class FileModeWarning(RequestsWarning, DeprecationWarning):
+    """
+    A file was opened in text mode, but Requests determined its binary length.
+    """
+    pass
