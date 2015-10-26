@@ -78,6 +78,7 @@ _codes = {
     507: ('insufficient_storage',),
     509: ('bandwidth_limit_exceeded', 'bandwidth'),
     510: ('not_extended',),
+    511: ('network_authentication_required', 'network_auth', 'network_authentication'),
 }
 
 codes = LookupDict(name='status_codes')
