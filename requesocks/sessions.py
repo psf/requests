@@ -18,8 +18,6 @@ from .packages.urllib3.poolmanager import PoolManager
 
 def merge_kwargs(local_kwarg, default_kwarg):
     """Merges kwarg dictionaries.
-
-    If a local key in the dictionary is set to None, it will be removed.
     """
 
     if default_kwarg is None:
@@ -38,11 +36,6 @@ def merge_kwargs(local_kwarg, default_kwarg):
     # Update new values.
     kwargs = default_kwarg.copy()
     kwargs.update(local_kwarg)
-
-    # Remove keys that are set to None.
-    for (k, v) in list(local_kwarg.items()):
-        if v is None:
-            del kwargs[k]
 
     return kwargs
 

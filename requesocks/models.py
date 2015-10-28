@@ -161,6 +161,11 @@ class Request(object):
             if k not in headers:
                 headers[k] = v
 
+        # Remove headers set to None.
+        for (k, v) in list(headers.items()):
+            if v is None:
+                del headers[k]
+
         self.headers = headers
         self._poolmanager = _poolmanager
 
