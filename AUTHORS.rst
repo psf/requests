@@ -161,3 +161,4 @@ Patches and Suggestions
 - Colin Dickson (`@colindickson <https://github.com/colindickson>`_)
 - Smiley Barry (`@smiley <https://github.com/smiley>`_)
 - Shagun Sodhani (`@shagunsodhani <https://github.com/shagunsodhani>`_)
+- Anthony Monthe <anthony.monthe@gmail.com> (`@ZuluPro <https://github.com/ZuluPro>`_)
