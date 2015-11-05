@@ -1133,6 +1133,13 @@ class TestRequests(object):
         next(r.iter_lines())
         assert len(list(r.iter_lines())) == 3
 
+    def test_chunked_upload(self, httpbin):
+        """Can safely send generators."""
+        data = (c for c in 'abc')
+        r = requests.post(httpbin('post'), data=data, stream=True)
+        assert r.status_code == 200
+        assert r.request.headers['Transfer-Encoding'] == 'chunked'
+
 
 class TestContentEncodingDetection(unittest.TestCase):
 

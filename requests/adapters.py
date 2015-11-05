@@ -398,10 +398,10 @@ class HTTPAdapter(BaseAdapter):
                     try:
                         # For Python 2.7+ versions, use buffering of HTTP
                         # responses
-                        r = conn.getresponse(buffering=True)
+                        r = low_conn.getresponse(buffering=True)
                     except TypeError:
                         # For compatibility with Python 2.6 versions and back
-                        r = conn.getresponse()
+                        r = low_conn.getresponse()
 
                     resp = HTTPResponse.from_httplib(
                         r,
