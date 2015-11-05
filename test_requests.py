@@ -341,7 +341,7 @@ class TestRequests(object):
     def test_connection_error_invalid_port(self):
         """Connecting to an invalid port should raise a ConnectionError"""
         with pytest.raises(ConnectionError):
-            requests.get("http://httpbin.org:1", timeout=1)
+            requests.get("http://localhost:1", timeout=1)
 
     def test_LocationParseError(self):
         """Inputing a URL that cannot be parsed should raise an InvalidURL error"""
