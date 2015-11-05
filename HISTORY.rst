@@ -3,6 +3,14 @@
 Release History
 ---------------
 
+dev (XXXX)
+++++++++++
+
+**Minor Improvements** (Backwards compatible)
+
+- The ``verify`` keyword argument now supports being passed a path to a
+  directory of CA certificates, not just a single-file bundle.
+
 2.8.1 (2015-10-13)
 ++++++++++++++++++
 
