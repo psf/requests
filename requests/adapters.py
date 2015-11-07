@@ -8,6 +8,7 @@ This module contains the transport adapters that Requests uses to define
 and maintain connections.
 """
 
+import os.path
 import socket
 
 from .models import Response
@@ -185,10 +186,15 @@ class HTTPAdapter(BaseAdapter):
                 raise Exception("Could not find a suitable SSL CA certificate bundle.")
 
             conn.cert_reqs = 'CERT_REQUIRED'
-            conn.ca_certs = cert_loc
+
+            if not os.path.isdir(cert_loc):
+                conn.ca_certs = cert_loc
+            else:
+                conn.ca_cert_dir = cert_loc
         else:
             conn.cert_reqs = 'CERT_NONE'
             conn.ca_certs = None
+            conn.ca_cert_dir = None
 
         if cert:
             if not isinstance(cert, basestring):

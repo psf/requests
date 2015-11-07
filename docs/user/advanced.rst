@@ -201,7 +201,7 @@ I don't have SSL setup on this domain, so it fails. Excellent. GitHub does thoug
     >>> requests.get('https://github.com', verify=True)
     <Response [200]>
 
-You can pass ``verify`` the path to a CA_BUNDLE file with certificates of trusted CAs::
+You can pass ``verify`` the path to a CA_BUNDLE file or directory with certificates of trusted CAs::
 
     >>> requests.get('https://github.com', verify='/path/to/certfile')
 
