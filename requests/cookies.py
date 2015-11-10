@@ -145,9 +145,11 @@ def remove_cookie_by_name(cookiejar, name, domain=None, path=None):
     for cookie in cookiejar:
         if cookie.name != name:
             continue
-        if domain is None or domain == cookie.domain:
-            if path is None or path == cookie.path:
-                clearables.append((cookie.domain, cookie.path, cookie.name))
+        if domain and domain != cookie.domain:
+            continue
+        if path and path != cookie.path:
+            continue
+        clearables.append((cookie.domain, cookie.path, cookie.name))
 
     for domain, path, name in clearables:
         cookiejar.clear(domain, path, name)
