@@ -1351,6 +1351,13 @@ class UtilsTestCase(unittest.TestCase):
             assert super_len(
                 cStringIO.StringIO('but some how, some way...')) == 25
 
+    def test_super_len_correctly_calculates_len_of_partially_read_file(self):
+        """Ensure that we handle partially consumed file like objects."""
+        from requests.utils import super_len
+        s = StringIO.StringIO()
+        s.write('foobarbogus')
+        assert super_len(s) == 0
+
     def test_get_environ_proxies_ip_ranges(self):
         """Ensures that IP addresses are correctly matches with ranges
         in no_proxy variable."""
@@ -1721,12 +1728,14 @@ def test_urllib3_pool_connection_closed(httpbin):
     except ConnectionError as e:
         assert u"Pool is closed." in str(e)
 
+
 def test_vendor_aliases():
     from requests.packages import urllib3
     from requests.packages import chardet
 
     with pytest.raises(ImportError):
         from requests.packages import webbrowser
+
 
 if __name__ == '__main__':
     unittest.main()
