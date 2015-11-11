@@ -48,19 +48,26 @@ def dict_to_sequence(d):
 
 
 def super_len(o):
+    total_length = 0
+    current_position = 0
+
     if hasattr(o, '__len__'):
-        return len(o)
+        total_length = len(o)
 
-    if hasattr(o, 'len'):
-        return o.len
+    elif hasattr(o, 'len'):
+        total_length = o.len
 
-    if hasattr(o, 'fileno'):
+    elif hasattr(o, 'getvalue'):
+        # e.g. BytesIO, cStringIO.StringIO
+        total_length = len(o.getvalue())
+
+    elif hasattr(o, 'fileno'):
         try:
             fileno = o.fileno()
         except io.UnsupportedOperation:
             pass
         else:
-            filesize = os.fstat(fileno).st_size
+            total_length = os.fstat(fileno).st_size
 
             # Having used fstat to determine the file length, we need to
             # confirm that this file was opened up in binary mode.
@@ -75,11 +82,10 @@ def super_len(o):
                     FileModeWarning
                 )
 
-            return filesize
+    if hasattr(o, 'tell'):
+        current_position = o.tell()
 
-    if hasattr(o, 'getvalue'):
-        # e.g. BytesIO, cStringIO.StringIO
-        return len(o.getvalue())
+    return max(0, total_length - current_position)
 
 
 def get_netrc_auth(url, raise_errors=False):
