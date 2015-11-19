@@ -69,6 +69,6 @@ setup(
         'Programming Language :: Python :: 3.5',
     ),
     extras_require={
-        'security': ['pyOpenSSL', 'ndg-httpsclient', 'pyasn1'],
+        'security': ['pyOpenSSL>=0.13', 'ndg-httpsclient', 'pyasn1'],
     },
 )
