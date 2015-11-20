@@ -47,6 +47,10 @@ Please be aware of the following things when filing bug reports:
      doesn't work" or "it fails". Tell us *how* it fails: do you get an
      exception? A hang? A non-200 status code? How was the actual result
      different from your expected result?
+   - Tell us **what version of Requests you're using**, and
+     **how you installed it**. Different versions of Requests behave
+     differently and have different bugs, and some distributors of Requests
+     ship patches on top of the code we supply.
 
    If you do not provide all of these things, it will take us much longer to
    fix your problem. If we ask you to clarify these and you never respond, we
