@@ -446,6 +446,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 if data:
                     body = self._encode_params(data)
                     if isinstance(data, basestring) or hasattr(data, 'read'):
+                        if hasattr(data, 'fileno') and length == 0:
+                            self.headers['Transfer-Encoding'] = 'chunked'
                         content_type = None
                     else:
                         content_type = 'application/x-www-form-urlencoded'
