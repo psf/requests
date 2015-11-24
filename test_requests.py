@@ -29,6 +29,8 @@ from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
+from dummyserver.server import Server
+import socket
 
 try:
     import StringIO
@@ -1736,6 +1738,23 @@ def test_vendor_aliases():
     with pytest.raises(ImportError):
         from requests.packages import webbrowser
 
+class TestDummyServer(unittest.TestCase):
+    def test_basic(self):
+        question = "sucess?"
+        answer = "yeah, success"
+        def handler(server_sock):
+            sock, _ = server_sock.accept()
+            text = sock.recv(1000)
+            assert text == question 
+            sock.send(answer)
+        
+        with Server(handler) as (host, port):
+            sock = socket.socket()
+            sock.connect((host, port))
+            sock.send(question)
+            text = sock.recv(1000)
+            assert text == answer
+            sock.close()
 
 if __name__ == '__main__':
     unittest.main()
