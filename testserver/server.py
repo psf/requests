@@ -14,16 +14,23 @@ class Server(threading.Thread):
         self.stop_event = threading.Event()
 
     def run(self):
+        try:
+            sock = self._create_socket_and_bind()
+            # in case self.port = 0
+            self.port = sock.getsockname()[1]
+            self.ready_event.set()
+            self.handler(sock)
+            
+        finally:
+            self.ready_event.set() # just in case of exception
+            self.stop_event.set()
+            sock.close()
+
+    def _create_socket_and_bind(self):
         sock = socket.socket()
         sock.bind((self.host, self.port))
-        
-        # update port in case self.port = 0
-        self.port = sock.getsockname()[1]
         sock.listen(0)
-        self.ready_event.set()
-        self.handler(sock)
-        self.stop_event.set()
-        sock.close()
+        return sock
 
     def __enter__(self):
        self.start()
