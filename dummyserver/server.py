@@ -4,11 +4,10 @@ import threading, socket
 
 
 
-"""
-Dummy server using for unit testing
-"""
 
 class Server(threading.Thread):
+    """ Dummy server using for unit testing """
+
     def __init__(self, handler, host='localhost', port=8021):
         threading.Thread.__init__(self)
         self.handler = handler
