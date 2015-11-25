@@ -1756,5 +1756,12 @@ class TestTestServer(unittest.TestCase):
             assert text == answer
             sock.close()
 
+    def test_basic_response(self):
+        with Server.basic_response_server() as (host, port):
+            r = requests.get('http://{}:{}'.format(host, port))
+            assert r.status_code == 200
+            assert r.text == ''
+            assert r.headers['Content-Length'] == '0'
+
 if __name__ == '__main__':
     unittest.main()

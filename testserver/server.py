@@ -13,6 +13,19 @@ class Server(threading.Thread):
         self.ready_event = threading.Event()
         self.stop_event = threading.Event()
 
+    @classmethod
+    def basic_response_server(cls, host='localhost', port=0):
+        def basic_response_handler(server_sock):
+            sock, _ = server_sock.accept()
+            sock.send(
+                b'HTTP/1.1 200 OK\r\n'
+                b'Content-Length: 0\r\n'
+                b'\r\n'
+            )
+
+        server = Server(basic_response_handler, host=host, port=port)
+        return server
+
     def run(self):
         try:
             sock = self._create_socket_and_bind()
