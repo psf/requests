@@ -1740,8 +1740,8 @@ def test_vendor_aliases():
 
 class TestDummyServer(unittest.TestCase):
     def test_basic(self):
-        question = "sucess?"
-        answer = "yeah, success"
+        question = b"sucess?"
+        answer = b"yeah, success"
         def handler(server_sock):
             sock, _ = server_sock.accept()
             text = sock.recv(1000)
