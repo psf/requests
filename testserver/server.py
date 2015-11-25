@@ -3,9 +3,9 @@
 import threading, socket
 
 class Server(threading.Thread):
-    """ Basic socket server used for unit testing """
+    """ Dummy server using for unit testing """
 
-    def __init__(self, handler, host='localhost', port=8021):
+    def __init__(self, handler, host='localhost', port=0):
         threading.Thread.__init__(self)
         self.handler = handler
         self.host = host
@@ -16,6 +16,9 @@ class Server(threading.Thread):
     def run(self):
         sock = socket.socket()
         sock.bind((self.host, self.port))
+        
+        # update port in case self.port = 0
+        self.port = sock.getsockname()[1]
         sock.listen(0)
         self.ready_event.set()
         self.handler(sock)
