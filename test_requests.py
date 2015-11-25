@@ -29,7 +29,7 @@ from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
-from dummyserver.server import Server
+from testserver.server import Server
 import socket
 
 try:
@@ -1738,7 +1738,7 @@ def test_vendor_aliases():
     with pytest.raises(ImportError):
         from requests.packages import webbrowser
 
-class TestDummyServer(unittest.TestCase):
+class TestTestServer(unittest.TestCase):
     def test_basic(self):
         question = b"sucess?"
         answer = b"yeah, success"

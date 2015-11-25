@@ -2,11 +2,8 @@
 
 import threading, socket
 
-
-
-
 class Server(threading.Thread):
-    """ Dummy server using for unit testing """
+    """ Basic socket server used for unit testing """
 
     def __init__(self, handler, host='localhost', port=8021):
         threading.Thread.__init__(self)
