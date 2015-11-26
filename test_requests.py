@@ -1760,11 +1760,11 @@ class TestTestServer(unittest.TestCase):
         with Server.basic_response_server() as (host, port):
             sock = socket.socket()
             sock.connect((host, port))
+            sock.close()
 
         with pytest.raises(socket.error):
             new_sock = socket.socket()
             new_sock.connect((host, port))
-        sock.close()
             
     def test_basic_response(self):
         with Server.basic_response_server() as (host, port):
