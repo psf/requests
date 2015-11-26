@@ -36,8 +36,8 @@ class Server(threading.Thread):
             
         finally:
             self.ready_event.set() # just in case of exception
-            self.stop_event.set()
             sock.close()
+            self.stop_event.set()
 
     def _create_socket_and_bind(self):
         sock = socket.socket()
