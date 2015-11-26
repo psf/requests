@@ -134,7 +134,7 @@ Patches and Suggestions
 - Kevin Burke <kev@inburke.com>
 - Flavio Curella
 - David Pursehouse <david.pursehouse@gmail.com> (`@dpursehouse <https://github.com/dpursehouse>`_)
-- Jon Parise
+- Jon Parise (`@jparise <https://github.com/jparise>`_)
 - Alexander Karpinsky (`@homm86 <https://twitter.com/homm86>`_)
 - Marc Schlaich (`@schlamar <https://github.com/schlamar>`_)
 - Park Ilsu <daftonshady@gmail.com> (`@daftshady <https://github.com/daftshady>`_)
