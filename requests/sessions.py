@@ -618,11 +618,13 @@ class Session(SessionRedirectMixin):
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)
 
-            # Look for requests environment configuration and be compatible
-            # with cURL.
+            # Look for requests CA_BUNDLE configuration in the environment. Be
+            # compatible with cURL and PEP 476 / OpenSSL.
             if verify is True or verify is None:
                 verify = (os.environ.get('REQUESTS_CA_BUNDLE') or
-                          os.environ.get('CURL_CA_BUNDLE'))
+                          os.environ.get('CURL_CA_BUNDLE') or
+                          os.environ.get('SSL_CERT_FILE') or
+                          os.environ.get('SSL_CERT_DIR'))
 
         # Merge all the kwargs.
         proxies = merge_setting(proxies, self.proxies)
