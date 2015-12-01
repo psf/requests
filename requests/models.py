@@ -324,7 +324,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_url(self, url, params):
         """Prepares the given HTTP URL."""
         #: Accept objects that have string representations.
-        #: We're unable to blindy call unicode/str functions
+        #: We're unable to blindly call unicode/str functions
         #: as this will include the bytestring indicator (b'')
         #: on python 3.x.
         #: https://github.com/kennethreitz/requests/pull/2238
@@ -631,7 +631,7 @@ class Response(object):
 
     @property
     def is_permanent_redirect(self):
-        """True if this Response one of the permanant versions of redirect"""
+        """True if this Response one of the permanent versions of redirect"""
         return ('location' in self.headers and self.status_code in (codes.moved_permanently, codes.permanent_redirect))
 
     @property

@@ -368,7 +368,7 @@ def _copy_cookie_jar(jar):
         return None
 
     if hasattr(jar, 'copy'):
-        # We're dealing with an instane of RequestsCookieJar
+        # We're dealing with an instance of RequestsCookieJar
         return jar.copy()
     # We're dealing with a generic CookieJar instance
     new_jar = copy.copy(jar)
