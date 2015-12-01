@@ -50,7 +50,7 @@ dev (XXXX)
 - The ``json`` parameter to ``post()`` and friends will now only be used if
   neither ``data`` nor ``files`` are present, consistent with the
   documentation.
-- We now ignore empty fields in the ``NO_PROXY`` enviroment variable.
+- We now ignore empty fields in the ``NO_PROXY`` environment variable.
 - Fixed problem where ``httplib.BadStatusLine`` would get raised if combining
   ``stream=True`` with ``contextlib.closing``.
 - Prevented bugs where we would attempt to return the same connection back to
@@ -533,7 +533,7 @@ This is not a backwards compatible change.
 - Improved mime-compatible JSON handling
 - Proxy fixes
 - Path hack fixes
-- Case-Insensistive Content-Encoding headers
+- Case-Insensitive Content-Encoding headers
 - Support for CJK parameters in form posts
 
 
@@ -620,7 +620,7 @@ This is not a backwards compatible change.
 +++++++++++++++++++
 
 - Removal of Requests.async in favor of `grequests <https://github.com/kennethreitz/grequests>`_
-- Allow disabling of cookie persistiance.
+- Allow disabling of cookie persistence.
 - New implementation of safe_mode
 - cookies.get now supports default argument
 - Session cookies not saved when Session.request is called with return_response=False

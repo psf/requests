@@ -612,7 +612,7 @@ class TestRequests(object):
         assert prep.hooks['response'] != []
         assert prep.hooks['response'] == [hook]
 
-    def test_session_hooks_are_overriden_by_request_hooks(self, httpbin):
+    def test_session_hooks_are_overridden_by_request_hooks(self, httpbin):
         hook1 = lambda x, *args, **kwargs: x
         hook2 = lambda x, *args, **kwargs: x
         assert hook1 is not hook2
