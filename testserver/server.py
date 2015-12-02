@@ -69,5 +69,10 @@ class Server(threading.Thread):
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is None:
             self.stop_event.wait()
+        else:
+            if self.wait_to_close_event:
+                # avoid server from blocking if an exception is found
+                # in the main thread
+                self.wait_to_close_event.set() 
         return False # allow exceptions to propagate 
     
