@@ -434,7 +434,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if files:
                 raise NotImplementedError('Streamed bodies and files are mutually exclusive.')
 
-            if length is not None:
+            if length:
                 self.headers['Content-Length'] = builtin_str(length)
             else:
                 self.headers['Transfer-Encoding'] = 'chunked'
