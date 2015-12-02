@@ -31,6 +31,8 @@ from requests.models import urlencode
 from requests.hooks import default_hooks
 from testserver.server import Server
 import socket
+import threading
+import time
 
 try:
     import StringIO
@@ -1179,6 +1181,24 @@ class TestContentEncodingDetection(unittest.TestCase):
         encodings = requests.utils.get_encodings_from_content(content)
         assert encodings == ['HTML5', 'HTML4', 'XML']
 
+    def test_chunked_upload(self):
+        """ can safely send generators """
+        block_server = threading.Event()
+        server = Server.basic_response_server(wait_to_close_event=block_server)
+        data = (i for i in [b'a', b'b', b'c']) 
+
+        with server as (host, port):
+            url = 'http://{}:{}/'.format(host, port)
+            r = requests.post(url, data=data, stream=True)
+            block_server.set() # release server block
+
+            assert r.status_code == 200
+            assert r.request.headers['Transfer-Encoding'] == 'chunked'
+
+            
+        
+
+
 
 class TestCaseInsensitiveDict(unittest.TestCase):
 
@@ -1742,8 +1762,7 @@ class TestTestServer(unittest.TestCase):
     def test_basic(self):
         question = b"sucess?"
         answer = b"yeah, success"
-        def handler(server_sock):
-            sock, _ = server_sock.accept()
+        def handler(sock):
             text = sock.recv(1000)
             assert text == question 
             sock.send(answer)
@@ -1772,6 +1791,17 @@ class TestTestServer(unittest.TestCase):
             assert r.status_code == 200
             assert r.text == ''
             assert r.headers['Content-Length'] == '0'
+
+    def test_basic_waiting_server(self):
+        block_server = threading.Event()
+
+        with Server.basic_response_server(wait_to_close_event=block_server) as (host, port):
+            sock = socket.socket()
+            sock.connect((host, port))
+            sock.send(b'send something')
+            time.sleep(2.5)
+            sock.send(b'still alive')
+            block_server.set() # release server block
 
 if __name__ == '__main__':
     unittest.main()
