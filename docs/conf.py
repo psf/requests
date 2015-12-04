@@ -20,6 +20,8 @@ sys.path.insert(0, os.path.abspath('..'))
 import requests
 from requests import __version__
 
+import alabaster
+
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -30,6 +32,7 @@ from requests import __version__
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
+    'alabaster'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -101,7 +104,9 @@ html_theme = 'default'
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+  'show_powered_by': False
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
@@ -242,7 +247,7 @@ texinfo_documents = [
 texinfo_appendices = []
 
 sys.path.append(os.path.abspath('_themes'))
-html_theme_path = ['_themes']
-html_theme = 'kr'
+html_theme_path =[alabaster.get_path()]
+html_theme = 'alabaster'
 
 intersphinx_mapping = {'urllib3': ('http://urllib3.readthedocs.org/en/latest', None)}
