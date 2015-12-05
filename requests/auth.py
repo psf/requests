@@ -136,7 +136,7 @@ class HTTPDigestAuth(AuthBase):
         if _algorithm == 'MD5-SESS':
             HA1 = hash_utf8('%s:%s:%s' % (HA1, nonce, cnonce))
 
-        if qop is None:
+        if not qop:
             respdig = KD(HA1, "%s:%s" % (nonce, HA2))
         elif qop == 'auth' or 'auth' in qop.split(','):
             noncebit = "%s:%s:%s:%s:%s" % (
