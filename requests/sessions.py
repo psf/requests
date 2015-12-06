@@ -327,7 +327,7 @@ class Session(SessionRedirectMixin):
         #: session. By default it is a
         #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but
         #: may be any other ``cookielib.CookieJar`` compatible object.
-        self.cookies = cookiejar_from_dict({})
+        self.cookies = RequestsCookieJar()
 
         # Default connection adapters.
         self.adapters = OrderedDict()
@@ -353,10 +353,11 @@ class Session(SessionRedirectMixin):
             session's settings.
         """
         cookies = request.cookies or {}
+        host = urlparse(request.url).netloc
 
         # Bootstrap CookieJar.
         if not isinstance(cookies, cookielib.CookieJar):
-            cookies = cookiejar_from_dict(cookies)
+            cookies = cookiejar_from_dict(cookies, host)
 
         # Merge with session cookies
         merged_cookies = merge_cookies(
