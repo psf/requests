@@ -444,6 +444,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 (body, content_type) = self._encode_files(files, data)
             else:
                 if data:
+                    # Check if data is encoded
+                    if isinstance(data, list) and isinstance(data[0], tuple):
+                        for item in data[0]:
+                              to_native_string(item)
+                    if isinstance(data, str):
+                        to_native_string(data)
                     body = self._encode_params(data)
                     if isinstance(data, basestring) or hasattr(data, 'read'):
                         content_type = None
