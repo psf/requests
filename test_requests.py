@@ -1817,5 +1817,22 @@ class TestTestServer(unittest.TestCase):
             sock.send(b'still alive')
             block_server.set() # release server block
 
+    def test_multiple_requests(self):
+        requests_to_handle = 5
+        
+        server = Server.basic_response_server(requests_to_handle=requests_to_handle)
+
+        with server as (host, port):
+            server_url = 'http://{}:{}'.format(host, port)
+            for _ in range(requests_to_handle):
+                r = requests.get(server_url)
+                assert r.status_code == 200
+
+            # the (n+1)th request fails
+            with pytest.raises(requests.exceptions.ConnectionError):
+                r = requests.get(server_url)
+
+
+
 if __name__ == '__main__':
     unittest.main()
