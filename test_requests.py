@@ -1779,6 +1779,7 @@ class TestTestServer(unittest.TestCase):
         with Server.basic_response_server() as (host, port):
             sock = socket.socket()
             sock.connect((host, port))
+
             sock.close()
 
         with pytest.raises(socket.error):
@@ -1797,7 +1798,7 @@ class TestTestServer(unittest.TestCase):
 
             assert r.status_code == 200
             assert r.text == 'roflol'
-            assert r.headers['Content-Length'] == '6'
+            assert r.headers['Content-Length'] == '6' 
             
     def test_basic_response(self):
         with Server.basic_response_server() as (host, port):
@@ -1832,6 +1833,25 @@ class TestTestServer(unittest.TestCase):
             with pytest.raises(requests.exceptions.ConnectionError):
                 r = requests.get(server_url)
 
+    def test_request_recovery(self):
+        server = Server.basic_response_server(requests_to_handle=2)
+        first_request = "put your hands up in the air"
+        second_request = "put your hand down in the floor"
+
+        with server as address:
+            sock1 = socket.socket()
+            sock2 = socket.socket()
+            
+            sock1.connect(address)
+            sock1.send(first_request.encode())
+            sock1.close()
+
+            sock2.connect(address)
+            sock2.send(second_request.encode())
+            sock2.close()
+
+        assert server.handler_results[0] == first_request
+        assert server.handler_results[1] == second_request
 
 
 if __name__ == '__main__':

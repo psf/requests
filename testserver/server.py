@@ -2,18 +2,35 @@
 
 import threading 
 import socket
+import select
 
-def consume_socket(sock, chunks=65536):
-    while not sock.recv(chunks).endswith(b'\r\n\r\n'):
-            pass
 
+def consume_socket_content(sock, chunks=65536, timeout=0.5):
+    content = ""
+    more_to_read = select.select([sock], [], [], timeout)[0]
+
+    while more_to_read:
+        new_content = sock.recv(chunks).decode("utf-8")
+
+        if len(new_content) == 0:
+            more_to_read = False # empty recv means the socket disconnected
+
+        else:
+            content += new_content 
+            # stop reading if no new data is received for a while 
+            more_to_read = select.select([sock], [], [], timeout)[0] 
+
+    return content
 
 class Server(threading.Thread):
     """ Dummy server using for unit testing """
 
     def __init__(self, handler, host='localhost', port=0, requests_to_handle=1, wait_to_close_event=None):
         threading.Thread.__init__(self)
+
         self.handler = handler
+        self.handler_results = []
+
         self.host = host
         self.port = port
         self.requests_to_handle = requests_to_handle
@@ -23,9 +40,13 @@ class Server(threading.Thread):
         self.stop_event = threading.Event()
 
     @classmethod
-    def text_response_server(cls, text, **kwargs):
+    def text_response_server(cls, text, request_timeout=0.5, **kwargs):
         def text_response_handler(sock):
+            request_content = consume_socket_content(sock, timeout=request_timeout)
             sock.send(text.encode())
+
+            return request_content
+
 
         server = Server(text_response_handler, **kwargs)
 
@@ -61,7 +82,9 @@ class Server(threading.Thread):
     def _handle_requests_and_close_server(self, server_sock):
         for _ in range(self.requests_to_handle):
             sock = server_sock.accept()[0]
-            self.handler(sock)
+            handler_result = self.handler(sock)
+
+            self.handler_results.append(handler_result)
         
         if self.wait_to_close_event:
             self.wait_to_close_event.wait()
