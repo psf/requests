@@ -23,17 +23,22 @@ class Server(threading.Thread):
         self.stop_event = threading.Event()
 
     @classmethod
-    def basic_response_server(cls, **kwargs):
-        def basic_response_handler(sock):
-            sock.send(
-                b'HTTP/1.1 200 OK\r\n'
-                b'Content-Length: 0\r\n'
-                b'\r\n'
-            )
+    def text_response_server(cls, text, **kwargs):
+        def text_response_handler(sock):
+            sock.send(text.encode())
 
-        server = Server(basic_response_handler, **kwargs)
+        server = Server(text_response_handler, **kwargs)
+
         return server
 
+    @classmethod
+    def basic_response_server(cls, **kwargs):
+        server = cls.text_response_server(
+            "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n\r\n", **kwargs
+        )
+
+        return server
 
     def run(self):
         try:
