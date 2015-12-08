@@ -1853,6 +1853,31 @@ class TestTestServer(unittest.TestCase):
         assert server.handler_results[0] == first_request
         assert server.handler_results[1] == second_request
 
+    def test_requests_after_timeout_are_not_received(self):
+        server = Server.basic_response_server(request_timeout=1)
+
+        with server as address:
+            sock = socket.socket()
+            sock.connect(address)
+            time.sleep(1.5)
+            sock.send(b"hehehe, not received")
+            sock.close()
+
+        assert server.handler_results[0] == ""
+
+
+    def test_request_recovery_with_bigger_timeout(self):
+        server = Server.basic_response_server(request_timeout=3)
+        data = "bananadine"
+
+        with server as address:
+            sock = socket.socket() 
+            sock.connect(address)
+            time.sleep(1.5)
+            sock.send(data.encode())
+            sock.close()
+            
+        assert server.handler_results[0] == data
 
 if __name__ == '__main__':
     unittest.main()
