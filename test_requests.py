@@ -1784,6 +1784,20 @@ class TestTestServer(unittest.TestCase):
         with pytest.raises(socket.error):
             new_sock = socket.socket()
             new_sock.connect((host, port))
+
+    def test_text_response(self):
+        server = Server.text_response_server(
+            "HTTP/1.1 200 OK\r\n" + 
+            "Content-Length: 6\r\n" +
+            "\r\nroflol"
+        )
+
+        with server as (host, port):
+            r = requests.get('http://{}:{}'.format(host, port))
+
+            assert r.status_code == 200
+            assert r.text == 'roflol'
+            assert r.headers['Content-Length'] == '6'
             
     def test_basic_response(self):
         with Server.basic_response_server() as (host, port):
