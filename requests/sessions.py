@@ -434,7 +434,7 @@ class Session(SessionRedirectMixin):
         :param stream: (optional) whether to immediately download the response
             content. Defaults to ``False``.
         :param verify: (optional) if ``True``, the SSL cert will be verified.
-            A CA_BUNDLE path can also be provided.
+            A CA_BUNDLE path can also be provided. Defaults to ``True``.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
         """
