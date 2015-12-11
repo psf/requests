@@ -162,3 +162,4 @@ Patches and Suggestions
 - Smiley Barry (`@smiley <https://github.com/smiley>`_)
 - Shagun Sodhani (`@shagunsodhani <https://github.com/shagunsodhani>`_)
 - Robin Linderborg (`@vienno <https://github.com/vienno>`_)
+- Brian Samek(`@bsamek <https://github.com/bsamek`_)

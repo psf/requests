@@ -400,8 +400,8 @@ class Session(SessionRedirectMixin):
         allow_redirects=True,
         proxies=None,
         hooks=None,
-        stream=None,
-        verify=None,
+        stream=False,
+        verify=True,
         cert=None,
         json=None):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
@@ -433,7 +433,7 @@ class Session(SessionRedirectMixin):
             hostname to the URL of the proxy.
         :param stream: (optional) whether to immediately download the response
             content. Defaults to ``False``.
-        :param verify: (optional) if ``True``, the SSL cert will be verified.
+        :param verify: (optional) whether the SSL cert will be verified.
             A CA_BUNDLE path can also be provided. Defaults to ``True``.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
