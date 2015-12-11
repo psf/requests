@@ -400,8 +400,8 @@ class Session(SessionRedirectMixin):
         allow_redirects=True,
         proxies=None,
         hooks=None,
-        stream=False,
-        verify=True,
+        stream=None,
+        verify=None,
         cert=None,
         json=None):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
