@@ -56,7 +56,7 @@ setup(
     install_requires=requires,
     license='Apache 2.0',
     zip_safe=False,
-    classifiers=(
+    classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Natural Language :: English',
@@ -67,7 +67,7 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
-    ),
+    ],
     extras_require={
         'security': ['pyOpenSSL>=0.13', 'ndg-httpsclient', 'pyasn1'],
     },
