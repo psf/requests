@@ -26,8 +26,9 @@ dev (XXXX)
   bodies.
 - We now handle being passed a query string as a bytestring on Python 3, by
   decoding it as UTF-8.
-- Sessions are now closed in a timely manner when using the function API,
-  rather than leaking and waiting for the garbage collector to clean them up.
+- Sessions are now closed in all cases (exceptional and not) when using the
+  functional API rather than leaking and waiting for the garbage collector to
+  clean them up.
 - Correctly handle digest auth headers with a malformed ``qop`` directive that
   contains no token, by treating it the same as if no ``qop`` directive was
   provided at all.
