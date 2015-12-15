@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import codecs
 
 from uuid import uuid4

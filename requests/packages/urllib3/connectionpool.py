@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import errno
 import logging
 import sys
@@ -10,7 +11,8 @@ try:  # Python 3
     from queue import LifoQueue, Empty, Full
 except ImportError:
     from Queue import LifoQueue, Empty, Full
-    import Queue as _  # Platform-specific: Windows
+    # Queue is imported for side effects on MS Windows
+    import Queue as _unused_module_Queue  # noqa: unused
 
 
 from .exceptions import (
@@ -22,7 +24,6 @@ from .exceptions import (
     LocationValueError,
     MaxRetryError,
     ProxyError,
-    ConnectTimeoutError,
     ReadTimeoutError,
     SSLError,
     TimeoutError,
@@ -35,7 +36,7 @@ from .connection import (
     port_by_scheme,
     DummyConnection,
     HTTPConnection, HTTPSConnection, VerifiedHTTPSConnection,
-    HTTPException, BaseSSLError, ConnectionError
+    HTTPException, BaseSSLError,
 )
 from .request import RequestMethods
 from .response import HTTPResponse
@@ -54,7 +55,7 @@ log = logging.getLogger(__name__)
 _Default = object()
 
 
-## Pool objects
+# Pool objects
 class ConnectionPool(object):
     """
     Base class for all connection pools, such as
@@ -68,8 +69,7 @@ class ConnectionPool(object):
         if not host:
             raise LocationValueError("No host specified.")
 
-        # httplib doesn't like it when we include brackets in ipv6 addresses
-        self.host = host.strip('[]')
+        self.host = host
         self.port = port
 
     def __str__(self):
@@ -645,22 +645,24 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
                 return response
 
             log.info("Redirecting %s -> %s" % (url, redirect_location))
-            return self.urlopen(method, redirect_location, body, headers,
-                    retries=retries, redirect=redirect,
-                    assert_same_host=assert_same_host,
-                    timeout=timeout, pool_timeout=pool_timeout,
-                    release_conn=release_conn, **response_kw)
+            return self.urlopen(
+                method, redirect_location, body, headers,
+                retries=retries, redirect=redirect,
+                assert_same_host=assert_same_host,
+                timeout=timeout, pool_timeout=pool_timeout,
+                release_conn=release_conn, **response_kw)
 
         # Check if we should retry the HTTP response.
         if retries.is_forced_retry(method, status_code=response.status):
             retries = retries.increment(method, url, response=response, _pool=self)
             retries.sleep()
             log.info("Forced retry: %s" % url)
-            return self.urlopen(method, url, body, headers,
-                    retries=retries, redirect=redirect,
-                    assert_same_host=assert_same_host,
-                    timeout=timeout, pool_timeout=pool_timeout,
-                    release_conn=release_conn, **response_kw)
+            return self.urlopen(
+                method, url, body, headers,
+                retries=retries, redirect=redirect,
+                assert_same_host=assert_same_host,
+                timeout=timeout, pool_timeout=pool_timeout,
+                release_conn=release_conn, **response_kw)
 
         return response
 
