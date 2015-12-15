@@ -10,6 +10,29 @@ dev (XXXX)
 
 - The ``verify`` keyword argument now supports being passed a path to a
   directory of CA certificates, not just a single-file bundle.
+- Warnings are now emitted when sending files opened in text mode.
+- Added the 511 Network Authentication Required status code to the status code
+  registry.
+
+**Bugfixes**
+
+- For file-like objects that are not seeked to the very beginning, we now
+  send the content length for the number of bytes we will actually read, rather
+  than the total size of the file, allowing partial file uploads.
+- When uploading file-like objects, if they are empty or have no obvious
+  content length we set ``Transfer-Encoding: chunked`` rather than
+  ``Content-Length: 0``.
+- We correctly receive the response in buffered mode when uploading chunked
+  bodies.
+- We now handle being passed a query string as a bytestring on Python 3, by
+  decoding it as UTF-8.
+- Sessions are now closed in all cases (exceptional and not) when using the
+  functional API rather than leaking and waiting for the garbage collector to
+  clean them up.
+- Correctly handle digest auth headers with a malformed ``qop`` directive that
+  contains no token, by treating it the same as if no ``qop`` directive was
+  provided at all.
+- Minor performance improvements when removing specific cookies by name.
 
 2.8.1 (2015-10-13)
 ++++++++++++++++++

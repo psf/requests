@@ -1,7 +1,12 @@
+from __future__ import absolute_import
+import errno
+import warnings
+import hmac
+
 from binascii import hexlify, unhexlify
 from hashlib import md5, sha1, sha256
 
-from ..exceptions import SSLError, InsecurePlatformWarning
+from ..exceptions import SSLError, InsecurePlatformWarning, SNIMissingWarning
 
 
 SSLContext = None
@@ -15,8 +20,23 @@ HASHFUNC_MAP = {
     64: sha256,
 }
 
-import errno
-import warnings
+
+def _const_compare_digest_backport(a, b):
+    """
+    Compare two digests of equal length in constant time.
+
+    The digests must be of type str/bytes.
+    Returns True if the digests match, and False otherwise.
+    """
+    result = abs(len(a) - len(b))
+    for l, r in zip(bytearray(a), bytearray(b)):
+        result |= l ^ r
+    return result == 0
+
+
+_const_compare_digest = getattr(hmac, 'compare_digest',
+                                _const_compare_digest_backport)
+
 
 try:  # Test for SSL features
     import ssl
@@ -134,7 +154,7 @@ def assert_fingerprint(cert, fingerprint):
 
     cert_digest = hashfunc(cert).digest()
 
-    if cert_digest != fingerprint_bytes:
+    if not _const_compare_digest(cert_digest, fingerprint_bytes):
         raise SSLError('Fingerprints did not match. Expected "{0}", got "{1}".'
                        .format(fingerprint, hexlify(cert_digest)))
 
@@ -283,4 +303,15 @@ def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
         context.load_cert_chain(certfile, keyfile)
     if HAS_SNI:  # Platform-specific: OpenSSL with enabled SNI
         return context.wrap_socket(sock, server_hostname=server_hostname)
+
+    warnings.warn(
+        'An HTTPS request has been made, but the SNI (Subject Name '
+        'Indication) extension to TLS is not available on this platform. '
+        'This may cause the server to present an incorrect TLS '
+        'certificate, which can cause validation failures. For more '
+        'information, see '
+        'https://urllib3.readthedocs.org/en/latest/security.html'
+        '#snimissingwarning.',
+        SNIMissingWarning
+    )
     return context.wrap_socket(sock)

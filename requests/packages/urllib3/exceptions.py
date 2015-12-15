@@ -1,14 +1,15 @@
+from __future__ import absolute_import
+# Base Exceptions
 
-## Base Exceptions
 
 class HTTPError(Exception):
     "Base exception used by this module."
     pass
 
+
 class HTTPWarning(Warning):
     "Base warning used by this module."
     pass
-
 
 
 class PoolError(HTTPError):
@@ -57,7 +58,7 @@ class ProtocolError(HTTPError):
 ConnectionError = ProtocolError
 
 
-## Leaf Exceptions
+# Leaf Exceptions
 
 class MaxRetryError(RequestError):
     """Raised when the maximum number of retries is exceeded.
@@ -112,9 +113,11 @@ class ConnectTimeoutError(TimeoutError):
     "Raised when a socket timeout occurs while connecting to a server"
     pass
 
+
 class NewConnectionError(ConnectTimeoutError, PoolError):
     "Raised when we fail to establish a new connection. Usually ECONNREFUSED."
     pass
+
 
 class EmptyPoolError(PoolError):
     "Raised when a pool runs out of connections and no more are allowed."
@@ -169,6 +172,11 @@ class SystemTimeWarning(SecurityWarning):
 
 class InsecurePlatformWarning(SecurityWarning):
     "Warned when certain SSL configuration is not available on a platform."
+    pass
+
+
+class SNIMissingWarning(HTTPWarning):
+    "Warned when making a HTTPS request without SNI available."
     pass
 
 
