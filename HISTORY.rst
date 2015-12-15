@@ -3,8 +3,8 @@
 Release History
 ---------------
 
-dev (XXXX)
-++++++++++
+2.9.0 (2015-12-15)
+++++++++++++++++++
 
 **Minor Improvements** (Backwards compatible)
 
