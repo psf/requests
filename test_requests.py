@@ -157,6 +157,11 @@ class TestRequests(object):
                                    params=b'test=foo').prepare()
         assert request.url == 'http://example.com/?test=foo'
 
+    def test_binary_put(self):
+        request = requests.Request('PUT', 'http://example.com',
+                                   data=u"ööö".encode("utf-8")).prepare()
+        assert isinstance(request.body, bytes)
+
     def test_mixed_case_scheme_acceptable(self, httpbin):
         s = requests.Session()
         s.proxies = getproxies()
