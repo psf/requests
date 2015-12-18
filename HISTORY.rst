@@ -3,6 +3,15 @@
 Release History
 ---------------
 
+2.9.1 (2015-12-21)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Resolve regression introduced in 2.9.0 that made it impossible to send binary
+  strings as bodies in Python 3.
+- Fixed errors when calculating cookie expiration dates in certain locales.
+
 2.9.0 (2015-12-15)
 ++++++++++++++++++
 
