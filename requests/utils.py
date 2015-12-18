@@ -116,7 +116,10 @@ def get_netrc_auth(url, raise_errors=False):
         ri = urlparse(url)
 
         # Strip port numbers from netloc
-        host = ri.netloc.split(':')[0]
+        if isinstance(url, str):
+            host = ri.netloc.split(u':')[0]
+        else:
+            host = ri.netloc.split(b':')[0]
 
         try:
             _netrc = netrc(netrc_path).authenticators(host)
