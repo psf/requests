@@ -1,8 +1,6 @@
 .. _updates:
 
 
-
-
 Community Updates
 =================
 
@@ -19,23 +17,14 @@ The best way to track the development of Requests is through
 Twitter
 -------
 
-I often tweet about new features and releases of Requests.
+The author, Kenneth Reitz, often tweets about new features and releases of Requests.
 
 Follow `@kennethreitz <https://twitter.com/kennethreitz>`_ for updates.
 
 
-Mailing List
-------------
 
-There's a low-volume mailing list for Requests. To subscribe to the
-mailing list, send an email to
-`requests@librelist.org <mailto:requests@librelist.org>`_.
-
-
-
-
-Software Updates
-================
+Release and Version History
+===========================
 
 .. include:: ../../HISTORY.rst
 

@@ -1,11 +1,13 @@
 Requests: HTTP for Humans
 =========================
 
-.. image:: https://badge.fury.io/py/requests.png
-    :target: http://badge.fury.io/py/requests
+.. image:: https://img.shields.io/pypi/v/requests.svg
+    :target: https://pypi.python.org/pypi/requests
 
-.. image:: https://pypip.in/d/requests/badge.png
-        :target: https://crate.io/packages/requests/
+.. image:: https://img.shields.io/pypi/dm/requests.svg
+        :target: https://pypi.python.org/pypi/requests
+
+
 
 
 Requests is an Apache2 Licensed HTTP library, written in Python, for human
@@ -19,7 +21,7 @@ perform the simplest of tasks.
 
 Things shouldn't be this way. Not in Python.
 
-.. code-block:: pycon
+.. code-block:: python
 
     >>> r = requests.get('https://api.github.com', auth=('user', 'pass'))
     >>> r.status_code
@@ -64,14 +66,6 @@ To install Requests, simply:
 
     $ pip install requests
 
-Or, if you absolutely must:
-
-.. code-block:: bash
-
-    $ easy_install requests
-
-But, you really shouldn't do that.
-
 
 Documentation
 -------------
@@ -83,7 +77,6 @@ Contribute
 ----------
 
 #. Check for open issues or open a fresh issue to start a discussion around a feature idea or a bug. There is a `Contributor Friendly`_ tag for issues that should be ideal for people who are not very familiar with the codebase yet.
-#. If you feel uncomfortable or uncertain about an issue or your changes, feel free to email @sigmavirus24 and he will happily help you via email, Skype, remote pairing or whatever you are comfortable with.
 #. Fork `the repository`_ on GitHub to start making your changes to the **master** branch (or branch off of it).
 #. Write a test which shows that the bug was fixed or that the feature works as expected.
 #. Send a pull request and bug the maintainer until it gets merged and published. :) Make sure to add yourself to AUTHORS_.

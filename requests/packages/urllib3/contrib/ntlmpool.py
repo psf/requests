@@ -1,14 +1,9 @@
-# urllib3/contrib/ntlmpool.py
-# Copyright 2008-2013 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
-#
-# This module is part of urllib3 and is released under
-# the MIT License: http://www.opensource.org/licenses/mit-license.php
-
 """
 NTLM authenticating pool, contributed by erikcederstran
 
 Issue #10, see: http://code.google.com/p/urllib3/issues/detail?id=10
 """
+from __future__ import absolute_import
 
 try:
     from http.client import HTTPSConnection

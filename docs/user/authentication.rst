@@ -99,7 +99,7 @@ If you can't find a good implementation of the form of authentication you
 want, you can implement it yourself. Requests makes it easy to add your own
 forms of authentication.
 
-To do so, subclass :class:`requests.auth.AuthBase` and implement the
+To do so, subclass :class:`AuthBase <requests.auth.AuthBase>` and implement the
 ``__call__()`` method::
 
     >>> import requests

@@ -1,14 +1,14 @@
-# urllib3/exceptions.py
-# Copyright 2008-2013 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
-#
-# This module is part of urllib3 and is released under
-# the MIT License: http://www.opensource.org/licenses/mit-license.php
+from __future__ import absolute_import
+# Base Exceptions
 
-
-## Base Exceptions
 
 class HTTPError(Exception):
     "Base exception used by this module."
+    pass
+
+
+class HTTPWarning(Warning):
+    "Base warning used by this module."
     pass
 
 
@@ -49,19 +49,32 @@ class DecodeError(HTTPError):
     pass
 
 
-## Leaf Exceptions
+class ProtocolError(HTTPError):
+    "Raised when something unexpected happens mid-request/response."
+    pass
+
+
+#: Renamed to ProtocolError but aliased for backwards compatibility.
+ConnectionError = ProtocolError
+
+
+# Leaf Exceptions
 
 class MaxRetryError(RequestError):
-    "Raised when the maximum number of retries is exceeded."
+    """Raised when the maximum number of retries is exceeded.
+
+    :param pool: The connection pool
+    :type pool: :class:`~urllib3.connectionpool.HTTPConnectionPool`
+    :param string url: The requested Url
+    :param exceptions.Exception reason: The underlying error
+
+    """
 
     def __init__(self, pool, url, reason=None):
         self.reason = reason
 
-        message = "Max retries exceeded with url: %s" % url
-        if reason:
-            message += " (Caused by %s: %s)" % (type(reason), reason)
-        else:
-            message += " (Caused by redirect)"
+        message = "Max retries exceeded with url: %s (Caused by %r)" % (
+            url, reason)
 
         RequestError.__init__(self, pool, url, message)
 
@@ -101,6 +114,11 @@ class ConnectTimeoutError(TimeoutError):
     pass
 
 
+class NewConnectionError(ConnectTimeoutError, PoolError):
+    "Raised when we fail to establish a new connection. Usually ECONNREFUSED."
+    pass
+
+
 class EmptyPoolError(PoolError):
     "Raised when a pool runs out of connections and no more are allowed."
     pass
@@ -111,7 +129,12 @@ class ClosedPoolError(PoolError):
     pass
 
 
-class LocationParseError(ValueError, HTTPError):
+class LocationValueError(ValueError, HTTPError):
+    "Raised when there is something wrong with a given URL input."
+    pass
+
+
+class LocationParseError(LocationValueError):
     "Raised when get_host or similar fails to parse the URL input."
 
     def __init__(self, location):
@@ -119,3 +142,60 @@ class LocationParseError(ValueError, HTTPError):
         HTTPError.__init__(self, message)
 
         self.location = location
+
+
+class ResponseError(HTTPError):
+    "Used as a container for an error reason supplied in a MaxRetryError."
+    GENERIC_ERROR = 'too many error responses'
+    SPECIFIC_ERROR = 'too many {status_code} error responses'
+
+
+class SecurityWarning(HTTPWarning):
+    "Warned when perfoming security reducing actions"
+    pass
+
+
+class SubjectAltNameWarning(SecurityWarning):
+    "Warned when connecting to a host with a certificate missing a SAN."
+    pass
+
+
+class InsecureRequestWarning(SecurityWarning):
+    "Warned when making an unverified HTTPS request."
+    pass
+
+
+class SystemTimeWarning(SecurityWarning):
+    "Warned when system time is suspected to be wrong"
+    pass
+
+
+class InsecurePlatformWarning(SecurityWarning):
+    "Warned when certain SSL configuration is not available on a platform."
+    pass
+
+
+class SNIMissingWarning(HTTPWarning):
+    "Warned when making a HTTPS request without SNI available."
+    pass
+
+
+class ResponseNotChunked(ProtocolError, ValueError):
+    "Response needs to be chunked in order to read it as chunks."
+    pass
+
+
+class ProxySchemeUnknown(AssertionError, ValueError):
+    "ProxyManager does not support the supplied scheme"
+    # TODO(t-8ch): Stop inheriting from AssertionError in v2.0.
+
+    def __init__(self, scheme):
+        message = "Not supported proxy scheme %s" % scheme
+        super(ProxySchemeUnknown, self).__init__(message)
+
+
+class HeaderParsingError(HTTPError):
+    "Raised by assert_header_parsing, but we convert it to a log.warning statement."
+    def __init__(self, defects, unparsed_data):
+        message = '%s, unparsed data: %r' % (defects or 'Unknown', unparsed_data)
+        super(HeaderParsingError, self).__init__(message)

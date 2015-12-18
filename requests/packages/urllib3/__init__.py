@@ -1,17 +1,9 @@
-# urllib3/__init__.py
-# Copyright 2008-2013 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
-#
-# This module is part of urllib3 and is released under
-# the MIT License: http://www.opensource.org/licenses/mit-license.php
-
 """
 urllib3 - Thread-safe connection pooling and re-using.
 """
 
-__author__ = 'Andrey Petrov (andrey.petrov@shazow.net)'
-__license__ = 'MIT'
-__version__ = 'dev'
-
+from __future__ import absolute_import
+import warnings
 
 from .connectionpool import (
     HTTPConnectionPool,
@@ -23,7 +15,10 @@ from . import exceptions
 from .filepost import encode_multipart_formdata
 from .poolmanager import PoolManager, ProxyManager, proxy_from_url
 from .response import HTTPResponse
-from .util import make_headers, get_host, Timeout
+from .util.request import make_headers
+from .util.url import get_host
+from .util.timeout import Timeout
+from .util.retry import Retry
 
 
 # Set default logging handler to avoid "No handler found" warnings.
@@ -35,7 +30,29 @@ except ImportError:
         def emit(self, record):
             pass
 
+__author__ = 'Andrey Petrov (andrey.petrov@shazow.net)'
+__license__ = 'MIT'
+__version__ = '1.13'
+
+__all__ = (
+    'HTTPConnectionPool',
+    'HTTPSConnectionPool',
+    'PoolManager',
+    'ProxyManager',
+    'HTTPResponse',
+    'Retry',
+    'Timeout',
+    'add_stderr_logger',
+    'connection_from_url',
+    'disable_warnings',
+    'encode_multipart_formdata',
+    'get_host',
+    'make_headers',
+    'proxy_from_url',
+)
+
 logging.getLogger(__name__).addHandler(NullHandler())
+
 
 def add_stderr_logger(level=logging.DEBUG):
     """
@@ -51,8 +68,26 @@ def add_stderr_logger(level=logging.DEBUG):
     handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
     logger.addHandler(handler)
     logger.setLevel(level)
-    logger.debug('Added an stderr logging handler to logger: %s' % __name__)
+    logger.debug('Added a stderr logging handler to logger: %s' % __name__)
     return handler
 
 # ... Clean up.
 del NullHandler
+
+
+# SecurityWarning's always go off by default.
+warnings.simplefilter('always', exceptions.SecurityWarning, append=True)
+# SubjectAltNameWarning's should go off once per host
+warnings.simplefilter('default', exceptions.SubjectAltNameWarning)
+# InsecurePlatformWarning's don't vary between requests, so we keep it default.
+warnings.simplefilter('default', exceptions.InsecurePlatformWarning,
+                      append=True)
+# SNIMissingWarnings should go off only once.
+warnings.simplefilter('default', exceptions.SNIMissingWarning)
+
+
+def disable_warnings(category=exceptions.HTTPWarning):
+    """
+    Helper for quickly disabling all urllib3 warnings.
+    """
+    warnings.simplefilter('ignore', category)

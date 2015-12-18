@@ -4,7 +4,9 @@ init:
 	pip install -r requirements.txt
 
 test:
-	py.test
+	# This runs all of the tests. To run an individual test, run py.test with
+	# the -k flag, like "py.test -k test_path_is_not_double_encoded"
+	py.test test_requests.py
 
 coverage:
 	py.test --verbose --cov-report term --cov=requests test_requests.py
@@ -18,16 +20,10 @@ certs:
 deps: urllib3 chardet
 
 urllib3:
-	rm -fr requests/packages/urllib3
-	git clone https://github.com/shazow/urllib3.git
-	mv urllib3/urllib3 requests/packages/
-	rm -fr urllib3
+	git clone https://github.com/shazow/urllib3.git && rm -fr requests/packages/urllib3 && 	mv urllib3/urllib3 requests/packages/ && rm -fr urllib3
 
 chardet:
-	rm -fr requests/packages/chardet
-	git clone https://github.com/chardet/chardet.git
-	mv chardet/chardet requests/packages/
-	rm -fr chardet
+	git clone https://github.com/chardet/chardet.git && rm -fr requests/packages/chardet &&	mv chardet/chardet requests/packages/ && rm -fr chardet
 
 publish:
 	python setup.py register

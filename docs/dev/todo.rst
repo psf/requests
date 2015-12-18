@@ -24,8 +24,7 @@ Development Dependencies
 You'll need to install py.test in order to run the Requests' test suite::
 
     $ pip install -r requirements.txt
-    $ invoke test
-    py.test
+    $ py.test
     platform darwin -- Python 2.7.3 -- pytest-2.3.4
     collected 25 items
 

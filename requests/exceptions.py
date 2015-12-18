@@ -14,14 +14,21 @@ class RequestException(IOError):
     """There was an ambiguous exception that occurred while handling your
     request."""
 
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize RequestException with `request` and `response` objects.
+        """
+        response = kwargs.pop('response', None)
+        self.response = response
+        self.request = kwargs.pop('request', None)
+        if (response is not None and not self.request and
+                hasattr(response, 'request')):
+            self.request = self.response.request
+        super(RequestException, self).__init__(*args, **kwargs)
+
 
 class HTTPError(RequestException):
     """An HTTP error occurred."""
-
-    def __init__(self, *args, **kwargs):
-        """ Initializes HTTPError with optional `response` object. """
-        self.response = kwargs.pop('response', None)
-        super(HTTPError, self).__init__(*args, **kwargs)
 
 
 class ConnectionError(RequestException):
@@ -37,7 +44,23 @@ class SSLError(ConnectionError):
 
 
 class Timeout(RequestException):
-    """The request timed out."""
+    """The request timed out.
+
+    Catching this error will catch both
+    :exc:`~requests.exceptions.ConnectTimeout` and
+    :exc:`~requests.exceptions.ReadTimeout` errors.
+    """
+
+
+class ConnectTimeout(ConnectionError, Timeout):
+    """The request timed out while trying to connect to the remote server.
+
+    Requests that produced this error are safe to retry.
+    """
+
+
+class ReadTimeout(Timeout):
+    """The server did not send any data in the allotted amount of time."""
 
 
 class URLRequired(RequestException):
@@ -66,3 +89,26 @@ class ChunkedEncodingError(RequestException):
 
 class ContentDecodingError(RequestException, BaseHTTPError):
     """Failed to decode response content"""
+
+
+class StreamConsumedError(RequestException, TypeError):
+    """The content for this response was already consumed"""
+
+
+class RetryError(RequestException):
+    """Custom retries logic failed"""
+
+
+# Warnings
+
+
+class RequestsWarning(Warning):
+    """Base warning for Requests."""
+    pass
+
+
+class FileModeWarning(RequestsWarning, DeprecationWarning):
+    """
+    A file was opened in text mode, but Requests determined its binary length.
+    """
+    pass

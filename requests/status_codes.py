@@ -30,7 +30,8 @@ _codes = {
     305: ('use_proxy',),
     306: ('switch_proxy',),
     307: ('temporary_redirect', 'temporary_moved', 'temporary'),
-    308: ('resume_incomplete', 'resume'),
+    308: ('permanent_redirect',
+          'resume_incomplete', 'resume',), # These 2 to be removed in 3.0
 
     # Client Error.
     400: ('bad_request', 'bad'),
@@ -77,11 +78,12 @@ _codes = {
     507: ('insufficient_storage',),
     509: ('bandwidth_limit_exceeded', 'bandwidth'),
     510: ('not_extended',),
+    511: ('network_authentication_required', 'network_auth', 'network_authentication'),
 }
 
 codes = LookupDict(name='status_codes')
 
-for (code, titles) in list(_codes.items()):
+for code, titles in _codes.items():
     for title in titles:
         setattr(codes, title, code)
         if not title.startswith('\\'):

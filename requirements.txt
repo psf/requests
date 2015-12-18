@@ -1,5 +1,6 @@
-py==1.4.12
-pytest==2.3.4
-pytest-cov==1.6
-invoke==0.2.0
+py==1.4.30
+pytest==2.8.1
+pytest-cov==2.1.0
+pytest-httpbin==0.0.7
+httpbin==0.4.0
 wheel

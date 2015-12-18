@@ -5,7 +5,7 @@ Developer Interface
 
 .. module:: requests
 
-This part of the documentation covers all the interfaces of Requests.  For
+This part of the documentation covers all the interfaces of Requests. For
 parts where Requests depends on external libraries, we document the most
 important right here and provide links to the canonical documentation.
 
@@ -44,6 +44,13 @@ Request Sessions
 .. autoclass:: requests.adapters.HTTPAdapter
    :inherited-members:
 
+Authentication
+--------------
+
+.. autoclass:: requests.auth.AuthBase
+.. autoclass:: requests.auth.HTTPBasicAuth
+.. autoclass:: requests.auth.HTTPProxyAuth
+.. autoclass:: requests.auth.HTTPDigestAuth
 
 Exceptions
 ~~~~~~~~~~
@@ -53,6 +60,9 @@ Exceptions
 .. autoexception:: requests.exceptions.HTTPError
 .. autoexception:: requests.exceptions.URLRequired
 .. autoexception:: requests.exceptions.TooManyRedirects
+.. autoexception:: requests.exceptions.ConnectTimeout
+.. autoexception:: requests.exceptions.ReadTimeout
+.. autoexception:: requests.exceptions.Timeout
 
 
 Status Code Lookup
@@ -71,12 +81,20 @@ Status Code Lookup
     >>> requests.codes['\o/']
     200
 
+.. _api-cookies:
+
 Cookies
 ~~~~~~~
 
 .. autofunction:: requests.utils.dict_from_cookiejar
 .. autofunction:: requests.utils.cookiejar_from_dict
 .. autofunction:: requests.utils.add_dict_to_cookiejar
+
+.. autoclass:: requests.cookies.RequestsCookieJar
+   :inherited-members:
+
+.. autoclass:: requests.cookies.CookieConflictError
+   :inherited-members:
 
 
 Encodings
@@ -239,27 +257,11 @@ API Changes
       requests.get("http://example.org", proxies=proxies)
 
 
-Behavioral Changes
-~~~~~~~~~~~~~~~~~~
+Behavioural Changes
+~~~~~~~~~~~~~~~~~~~~~~~
 
 * Keys in the ``headers`` dictionary are now native strings on all Python
   versions, i.e. bytestrings on Python 2 and unicode on Python 3. If the
   keys are not native strings (unicode on Python2 or bytestrings on Python 3)
   they will be converted to the native string type assuming UTF-8 encoding.
-
-* Timeouts behave slightly differently. On streaming requests, the timeout
-  only applies to the connection attempt. On regular requests, the timeout
-  is applied to the connection process and downloading the full body.
-
-  ::
-
-      tarball_url = 'https://github.com/kennethreitz/requests/tarball/master'
-
-      # One second timeout for the connection attempt
-      # Unlimited time to download the tarball
-      r = requests.get(tarball_url, stream=True, timeout=1)
-
-      # One second timeout for the connection attempt
-      # Another full second timeout to download the tarball
-      r = requests.get(tarball_url, timeout=1)
 
