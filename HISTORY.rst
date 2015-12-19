@@ -12,6 +12,10 @@ Release History
   strings as bodies in Python 3.
 - Fixed errors when calculating cookie expiration dates in certain locales.
 
+**Miscellaneous**
+
+- Updated bundled urllib3 to 1.13.1.
+
 2.9.0 (2015-12-15)
 ++++++++++++++++++
 
@@ -42,6 +46,10 @@ Release History
   contains no token, by treating it the same as if no ``qop`` directive was
   provided at all.
 - Minor performance improvements when removing specific cookies by name.
+
+**Miscellaneous**
+
+- Updated urllib3 to 1.13.
 
 2.8.1 (2015-10-13)
 ++++++++++++++++++
