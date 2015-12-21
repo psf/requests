@@ -37,7 +37,8 @@ netrc Authentication
 
 If no authentication method is given with the ``auth`` argument, Requests will
 attempt to get the authentication credentials for the URL's hostname from the
-user's netrc file.
+user's netrc file. The netrc file overrides raw HTTP authentication headers
+set with `headers=`.
 
 If credentials for the hostname are found, the request is sent with HTTP Basic
 Auth.
@@ -125,4 +126,3 @@ Further examples can be found under the `Requests organization`_ and in the
 .. _Kerberos: https://github.com/requests/requests-kerberos
 .. _NTLM: https://github.com/requests/requests-ntlm
 .. _Requests organization: https://github.com/requests
-
