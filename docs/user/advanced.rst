@@ -220,12 +220,12 @@ You can also specify a local cert to use as client side certificate, as a single
 file (containing the private key and the certificate) or as a tuple of both
 file's path::
 
-    >>> requests.get('https://kennethreitz.com', cert=('/path/server.crt', '/path/key'))
+    >>> requests.get('https://kennethreitz.com', cert=('/path/client.cert', '/path/client.key'))
     <Response [200]>
 
 If you specify a wrong path or an invalid cert::
 
-    >>> requests.get('https://kennethreitz.com', cert='/wrong_path/server.pem')
+    >>> requests.get('https://kennethreitz.com', cert='/wrong_path/client.pem')
     SSLError: [Errno 336265225] _ssl.c:347: error:140B0009:SSL routines:SSL_CTX_use_PrivateKey_file:PEM lib
 
 .. _ca-certificates:
