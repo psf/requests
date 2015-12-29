@@ -394,6 +394,8 @@ class HTTPAdapter(BaseAdapter):
                     low_conn.endheaders()
 
                     for i in request.body:
+                        if len(i) == 0:
+                            continue
                         low_conn.send(hex(len(i))[2:].encode('utf-8'))
                         low_conn.send(b'\r\n')
                         low_conn.send(i)
