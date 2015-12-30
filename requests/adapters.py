@@ -303,17 +303,16 @@ class HTTPAdapter(BaseAdapter):
         """
         proxy = select_proxy(request.url, proxies)
         scheme = urlparse(request.url).scheme
-        proxy_scheme = ''
-        if proxy:
-            proxy_scheme = urlparse(proxy).scheme
 
-        if proxy and proxy_scheme.lower().startswith('socks'):
-            # Socks proxies behave like the proxy isn't there at all.
-            url = request.path_url
-        elif proxy and scheme != 'https':
+        is_proxied_http_request = (proxy and scheme != 'https')
+        using_socks_proxy = False
+        if proxy:
+            proxy_scheme = urlparse(proxy).scheme.lower()
+            using_socks_proxy = proxy_scheme.startswith('socks')
+
+        url = request.path_url
+        if is_proxied_http_request and not using_socks_proxy:
             url = urldefragauth(request.url)
-        else:
-            url = request.path_url
 
         return url
 
