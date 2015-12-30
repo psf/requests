@@ -21,7 +21,7 @@ try:
     import socks
 except ImportError:
     import warnings
-    from urllib3.exceptions import DependencyWarning
+    from ..exceptions import DependencyWarning
 
     warnings.warn((
         'SOCKS support in urllib3 requires the installation of optional '
@@ -34,15 +34,15 @@ except ImportError:
 
 from socket import error as SocketError, timeout as SocketTimeout
 
-from urllib3.connection import (
+from ..connection import (
     HTTPConnection, HTTPSConnection
 )
-from urllib3.connectionpool import (
+from ..connectionpool import (
     HTTPConnectionPool, HTTPSConnectionPool
 )
-from urllib3.exceptions import ConnectTimeoutError, NewConnectionError
-from urllib3.poolmanager import PoolManager
-from urllib3.util.url import parse_url
+from ..exceptions import ConnectTimeoutError, NewConnectionError
+from ..poolmanager import PoolManager
+from ..util.url import parse_url
 
 try:
     import ssl
