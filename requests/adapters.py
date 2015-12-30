@@ -33,8 +33,14 @@ from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import ResponseError
 from .cookies import extract_cookies_to_jar
 from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
-                         ProxyError, RetryError)
+                         ProxyError, RetryError, InvalidSchema)
 from .auth import _basic_auth_str
+
+try:
+    from .packages.urllib3.contrib.socks import SOCKSProxyManager
+except ImportError:
+    def SOCKSProxyManager(*args, **kwargs):
+        raise InvalidSchema("Missing dependencies for SOCKS support.")
 
 DEFAULT_POOLBLOCK = False
 DEFAULT_POOLSIZE = 10
@@ -150,14 +156,26 @@ class HTTPAdapter(BaseAdapter):
         :returns: ProxyManager
         """
         if not proxy in self.proxy_manager:
-            proxy_headers = self.proxy_headers(proxy)
-            self.proxy_manager[proxy] = proxy_from_url(
-                proxy,
-                proxy_headers=proxy_headers,
-                num_pools=self._pool_connections,
-                maxsize=self._pool_maxsize,
-                block=self._pool_block,
-                **proxy_kwargs)
+            if proxy.lower().startswith('socks'):
+                username, password = get_auth_from_url(proxy)
+                self.proxy_manager[proxy] = SOCKSProxyManager(
+                    proxy,
+                    username=username,
+                    password=password,
+                    num_pools=self._pool_connections,
+                    maxsize=self._pool_maxsize,
+                    block=self._pool_block,
+                    **proxy_kwargs
+                )
+            else:
+                proxy_headers = self.proxy_headers(proxy)
+                self.proxy_manager[proxy] = proxy_from_url(
+                    proxy,
+                    proxy_headers=proxy_headers,
+                    num_pools=self._pool_connections,
+                    maxsize=self._pool_maxsize,
+                    block=self._pool_block,
+                    **proxy_kwargs)
 
         return self.proxy_manager[proxy]
 
@@ -284,7 +302,12 @@ class HTTPAdapter(BaseAdapter):
         """
         proxy = select_proxy(request.url, proxies)
         scheme = urlparse(request.url).scheme
-        if proxy and scheme != 'https':
+        proxy_scheme = urlparse(proxy).scheme
+
+        if proxy and proxy_scheme.lower().startswith('socks'):
+            # Socks proxies behave like the proxy isn't there at all.
+            url = request.path_url
+        elif proxy and scheme != 'https':
             url = urldefragauth(request.url)
         else:
             url = request.path_url
