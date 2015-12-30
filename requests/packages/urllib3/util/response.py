@@ -61,7 +61,7 @@ def assert_header_parsing(headers):
 
 def is_response_to_head(response):
     """
-    Checks, wether a the request of a response has been a HEAD-request.
+    Checks whether the request of a response has been a HEAD-request.
     Handles the quirks of AppEngine.
 
     :param conn:

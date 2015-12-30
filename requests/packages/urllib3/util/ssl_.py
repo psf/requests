@@ -110,7 +110,7 @@ except ImportError:
                 )
             self.ciphers = cipher_suite
 
-        def wrap_socket(self, socket, server_hostname=None):
+        def wrap_socket(self, socket, server_hostname=None, server_side=False):
             warnings.warn(
                 'A true SSLContext object is not available. This prevents '
                 'urllib3 from configuring SSL appropriately and may cause '
@@ -125,6 +125,7 @@ except ImportError:
                 'ca_certs': self.ca_certs,
                 'cert_reqs': self.verify_mode,
                 'ssl_version': self.protocol,
+                'server_side': server_side,
             }
             if self.supports_set_ciphers:  # Platform-specific: Python 2.7+
                 return wrap_socket(socket, ciphers=self.ciphers, **kwargs)

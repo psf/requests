@@ -144,7 +144,7 @@ class AppEngineManager(RequestMethods):
         if retries.is_forced_retry(method, status_code=http_response.status):
             retries = retries.increment(
                 method, url, response=http_response, _pool=self)
-            log.info("Forced retry: %s" % url)
+            log.info("Forced retry: %s", url)
             retries.sleep()
             return self.urlopen(
                 method, url,
@@ -164,6 +164,14 @@ class AppEngineManager(RequestMethods):
             if content_encoding == 'deflate':
                 del urlfetch_resp.headers['content-encoding']
 
+        transfer_encoding = urlfetch_resp.headers.get('transfer-encoding')
+        # We have a full response's content,
+        # so let's make sure we don't report ourselves as chunked data.
+        if transfer_encoding == 'chunked':
+            encodings = transfer_encoding.split(",")
+            encodings.remove('chunked')
+            urlfetch_resp.headers['transfer-encoding'] = ','.join(encodings)
+
         return HTTPResponse(
             # In order for decoding to work, we must present the content as
             # a file-like object.
@@ -177,7 +185,7 @@ class AppEngineManager(RequestMethods):
         if timeout is Timeout.DEFAULT_TIMEOUT:
             return 5  # 5s is the default timeout for URLFetch.
         if isinstance(timeout, Timeout):
-            if timeout.read is not timeout.connect:
+            if timeout._read is not timeout._connect:
                 warnings.warn(
                     "URLFetch does not support granular timeout settings, "
                     "reverting to total timeout.", AppEnginePlatformWarning)
