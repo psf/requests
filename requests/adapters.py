@@ -302,7 +302,8 @@ class HTTPAdapter(BaseAdapter):
         """
         proxy = select_proxy(request.url, proxies)
         scheme = urlparse(request.url).scheme
-        proxy_scheme = urlparse(proxy).scheme
+        if proxy:
+            proxy_scheme = urlparse(proxy).scheme
 
         if proxy and proxy_scheme.lower().startswith('socks'):
             # Socks proxies behave like the proxy isn't there at all.
