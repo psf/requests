@@ -19,7 +19,7 @@ from .packages.urllib3.util.retry import Retry
 from .compat import urlparse, basestring
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     prepend_scheme_if_needed, get_auth_from_url, urldefragauth,
-                    select_proxy)
+                    select_proxy, to_native_string)
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import ClosedPoolError
 from .packages.urllib3.exceptions import ConnectTimeoutError
@@ -155,29 +155,30 @@ class HTTPAdapter(BaseAdapter):
         :param proxy_kwargs: Extra keyword arguments used to configure the Proxy Manager.
         :returns: ProxyManager
         """
-        if not proxy in self.proxy_manager:
-            if proxy.lower().startswith('socks'):
-                username, password = get_auth_from_url(proxy)
-                self.proxy_manager[proxy] = SOCKSProxyManager(
-                    proxy,
-                    username=username,
-                    password=password,
-                    num_pools=self._pool_connections,
-                    maxsize=self._pool_maxsize,
-                    block=self._pool_block,
-                    **proxy_kwargs
-                )
-            else:
-                proxy_headers = self.proxy_headers(proxy)
-                self.proxy_manager[proxy] = proxy_from_url(
-                    proxy,
-                    proxy_headers=proxy_headers,
-                    num_pools=self._pool_connections,
-                    maxsize=self._pool_maxsize,
-                    block=self._pool_block,
-                    **proxy_kwargs)
+        if proxy in self.proxy_manager:
+            manager = self.proxy_manager[proxy]
+        elif proxy.lower().startswith('socks'):
+            username, password = get_auth_from_url(proxy)
+            manager = self.proxy_manager[proxy] = SOCKSProxyManager(
+                proxy,
+                username=username,
+                password=password,
+                num_pools=self._pool_connections,
+                maxsize=self._pool_maxsize,
+                block=self._pool_block,
+                **proxy_kwargs
+            )
+        else:
+            proxy_headers = self.proxy_headers(proxy)
+            manager = self.proxy_manager[proxy] = proxy_from_url(
+                proxy,
+                proxy_headers=proxy_headers,
+                num_pools=self._pool_connections,
+                maxsize=self._pool_maxsize,
+                block=self._pool_block,
+                **proxy_kwargs)
 
-        return self.proxy_manager[proxy]
+        return manager
 
     def cert_verify(self, conn, url, verify, cert):
         """Verify a SSL certificate. This method should not be called from user
@@ -302,6 +303,7 @@ class HTTPAdapter(BaseAdapter):
         """
         proxy = select_proxy(request.url, proxies)
         scheme = urlparse(request.url).scheme
+        proxy_scheme = ''
         if proxy:
             proxy_scheme = urlparse(proxy).scheme
 
