@@ -157,6 +157,17 @@ class CookieConflictError(RuntimeError):
     Use .get and .set and include domain and path args in order to be more specific."""
 
 
+def requests_cookie_policy(**kwargs):
+    """Create a cookie policy with a strict domain policy.
+
+    This accepts all of the same kwargs as
+    :class:`cookielib.DefaultCookiePolicy`.
+    """
+    kwargs.setdefault('strict_ns_domain',
+                      cookielib.DefaultCookiePolicy.DomainStrict)
+    return cookielib.DefaultCookiePolicy(**kwargs)
+
+
 class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     """Compatibility class; is a cookielib.CookieJar, but exposes a dict
     interface.
@@ -174,6 +185,12 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
 
     .. warning:: dictionary operations that are normally O(1) may be O(n).
     """
+    def __init__(self, policy=None):
+        if policy is None:
+            policy = requests_cookie_policy()
+
+        super(RequestsCookieJar, self).__init__(policy)
+
     def get(self, name, default=None, domain=None, path=None):
         """Dict-like get() that also supports optional domain and path args in
         order to resolve naming collisions from using one cookie jar over
@@ -190,14 +207,15 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         order to resolve naming collisions from using one cookie jar over
         multiple domains."""
         # support client code that unsets cookies by assignment of a None value:
+        domain = kwargs.pop('domain')
         if value is None:
-            remove_cookie_by_name(self, name, domain=kwargs.get('domain'), path=kwargs.get('path'))
+            remove_cookie_by_name(self, name, domain=domain, path=kwargs.get('path'))
             return
 
         if isinstance(value, Morsel):
             c = morsel_to_cookie(value)
         else:
-            c = create_cookie(name, value, **kwargs)
+            c = create_cookie(name, value, domain=domain, **kwargs)
         self.set_cookie(c)
         return c
 
@@ -286,8 +304,12 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         """Dict-like __setitem__ for compatibility with client code. Throws
         exception if there is already a cookie of that name in the jar. In that
         case, use the more explicit set() method instead."""
-
-        self.set(name, value)
+        if not isinstance(value, Cookie):
+            raise ValueError(
+                "Cookies can no longer be set without a domain attribute."
+                " Use the RequestsCookieJar.set method instead."
+            )
+        self.set_cookie(value)
 
     def __delitem__(self, name):
         """Deletes a cookie given a name. Wraps ``cookielib.CookieJar``'s
@@ -407,6 +429,9 @@ def create_cookie(name, value, **kwargs):
     result['domain_initial_dot'] = result['domain'].startswith('.')
     result['path_specified'] = bool(result['path'])
 
+    if not result['domain']:
+        raise ValueError('Cookies require a domain attribute.')
+
     return cookielib.Cookie(**result)
 
 
@@ -437,7 +462,7 @@ def morsel_to_cookie(morsel):
     )
 
 
-def cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True):
+def cookiejar_from_dict(cookie_dict, domain, cookiejar=None, overwrite=True):
     """Returns a CookieJar from a key/value dictionary.
 
     :param cookie_dict: Dict of key/values to insert into CookieJar.
@@ -452,7 +477,11 @@ def cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True):
         names_from_jar = [cookie.name for cookie in cookiejar]
         for name in cookie_dict:
             if overwrite or (name not in names_from_jar):
-                cookiejar.set_cookie(create_cookie(name, cookie_dict[name]))
+                cookiejar.set_cookie(create_cookie(
+                    name,
+                    cookie_dict[name],
+                    domain=domain,
+                ))
 
     return cookiejar
 

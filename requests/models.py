@@ -15,7 +15,7 @@ from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 
 from .auth import HTTPBasicAuth
-from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
+from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar, RequestsCookieJar
 from .packages.urllib3.fields import RequestField
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
@@ -584,7 +584,7 @@ class Response(object):
         self.reason = None
 
         #: A CookieJar of Cookies the server sent back.
-        self.cookies = cookiejar_from_dict({})
+        self.cookies = RequestsCookieJar()
 
         #: The amount of time elapsed between sending the request
         #: and the arrival of the response (as a timedelta).

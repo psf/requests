@@ -17,7 +17,12 @@ from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3, builtin_str)
-from requests.cookies import cookiejar_from_dict, morsel_to_cookie
+from requests.cookies import (
+    cookiejar_from_dict,
+    morsel_to_cookie,
+    requests_cookie_policy,
+    RequestsCookieJar,
+)
 from requests.exceptions import (ConnectionError, ConnectTimeout,
                                  InvalidScheme, InvalidURL, MissingScheme,
                                  ReadTimeout, Timeout, RetryError)
@@ -1636,6 +1641,26 @@ def test_urllib3_retries():
 
     with pytest.raises(RetryError):
         s.get(httpbin('status/500'))
+
+
+def test_cookie_policy_allows_overriding():
+    DomainLiberal = cookielib.DefaultCookiePolicy.DomainLiberal
+    policy = requests_cookie_policy(strict_ns_domain=DomainLiberal)
+    assert policy.strict_ns_domain == DomainLiberal
+
+
+def test_cookie_policy_defaults_to_strict():
+    policy = requests_cookie_policy()
+    assert isinstance(policy, cookielib.DefaultCookiePolicy)
+    DomainStrict = cookielib.DefaultCookiePolicy.DomainStrict
+    assert policy.strict_ns_domain == DomainStrict
+
+
+def test_cookiejar_policy_defaults_to_strict():
+    jar = RequestsCookieJar()
+    DomainStrict = cookielib.DefaultCookiePolicy.DomainStrict
+    assert jar._policy.strict_ns_domain == DomainStrict
+
 
 def test_vendor_aliases():
     from requests.packages import urllib3
