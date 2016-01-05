@@ -22,7 +22,7 @@ from .packages.urllib3.util import parse_url
 from .packages.urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
 from .exceptions import (
-    HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
+    HTTPError, MissingScheme, InvalidURL, ChunkedEncodingError,
     ContentDecodingError, ConnectionError, StreamConsumedError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -358,7 +358,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             raise InvalidURL(*e.args)
 
         if not scheme:
-            raise MissingSchema("Invalid URL {0!r}: No schema supplied. "
+            raise MissingScheme("Invalid URL {0!r}: No scheme supplied. "
                                 "Perhaps you meant http://{0}?".format(
                                     to_native_string(url, 'utf8')))
 
