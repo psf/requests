@@ -22,7 +22,7 @@ from requests.compat import (
     )
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (ConnectionError, ConnectTimeout,
-                                 InvalidSchema, InvalidURL, MissingSchema,
+                                 InvalidScheme, InvalidURL, MissingScheme,
                                  ReadTimeout, Timeout, RetryError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
@@ -98,13 +98,13 @@ class TestRequests(object):
         requests.post
 
     def test_invalid_url(self):
-        with pytest.raises(MissingSchema):
+        with pytest.raises(MissingScheme):
             requests.get('hiwpefhipowhefopw')
-        with pytest.raises(InvalidSchema):
+        with pytest.raises(InvalidScheme):
             requests.get('localhost:3128')
-        with pytest.raises(InvalidSchema):
+        with pytest.raises(InvalidScheme):
             requests.get('localhost.localdomain:3128/')
-        with pytest.raises(InvalidSchema):
+        with pytest.raises(InvalidScheme):
             requests.get('10.122.1.1:3128/')
         with pytest.raises(InvalidURL):
             requests.get('http://')
