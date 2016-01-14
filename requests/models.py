@@ -22,7 +22,7 @@ from .packages.urllib3.util import parse_url
 from .packages.urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
 from .exceptions import (
-    HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
+    HTTPError, MissingScheme, InvalidURL, ChunkedEncodingError,
     ContentDecodingError, ConnectionError, StreamConsumedError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -34,14 +34,14 @@ from .compat import (
 from .compat import json as complexjson
 from .status_codes import codes
 
-#: The set of HTTP status codes that indicate an automatically
-#: processable redirect.
+# : The set of HTTP status codes that indicate an automatically
+# : processable redirect.
 REDIRECT_STATI = (
-    codes.moved,              # 301
-    codes.found,              # 302
-    codes.other,              # 303
-    codes.temporary_redirect, # 307
-    codes.permanent_redirect, # 308
+    codes.moved,  # 301
+    codes.found,  # 302
+    codes.other,  # 303
+    codes.temporary_redirect,  # 307
+    codes.permanent_redirect,  # 308
 )
 
 DEFAULT_REDIRECT_LIMIT = 30
@@ -271,18 +271,18 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     """
 
     def __init__(self):
-        #: HTTP verb to send to the server.
+        # : HTTP verb to send to the server.
         self.method = None
-        #: HTTP URL to send the request to.
+        # : HTTP URL to send the request to.
         self.url = None
-        #: dictionary of HTTP headers.
+        # : dictionary of HTTP headers.
         self.headers = None
         # The `CookieJar` used to create the Cookie header will be stored here
         # after prepare_cookies is called
         self._cookies = None
-        #: request body to send to the server.
+        # : request body to send to the server.
         self.body = None
-        #: dictionary of callback hooks, for internal usage.
+        # : dictionary of callback hooks, for internal usage.
         self.hooks = default_hooks()
 
     def prepare(self, method=None, url=None, headers=None, files=None,
@@ -324,11 +324,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_url(self, url, params):
         """Prepares the given HTTP URL."""
-        #: Accept objects that have string representations.
-        #: We're unable to blindy call unicode/str functions
-        #: as this will include the bytestring indicator (b'')
-        #: on python 3.x.
-        #: https://github.com/kennethreitz/requests/pull/2238
+        # : Accept objects that have string representations.
+        # : We're unable to blindy call unicode/str functions
+        # : as this will include the bytestring indicator (b'')
+        # : on python 3.x.
+        # : https://github.com/kennethreitz/requests/pull/2238
         if isinstance(url, bytes):
             url = url.decode('utf8')
         else:
@@ -351,7 +351,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             error = ("Invalid URL {0!r}: No schema supplied. Perhaps you meant http://{0}?")
             error = error.format(to_native_string(url, 'utf8'))
 
-            raise MissingSchema(error)
+            raise MissingScheme(error)
 
         if not host:
             raise InvalidURL("Invalid URL %r: No host supplied" % url)
@@ -539,46 +539,46 @@ class Response(object):
         self._content = False
         self._content_consumed = False
 
-        #: Integer Code of responded HTTP Status, e.g. 404 or 200.
+        # : Integer Code of responded HTTP Status, e.g. 404 or 200.
         self.status_code = None
 
-        #: Case-insensitive Dictionary of Response Headers.
-        #: For example, ``headers['content-encoding']`` will return the
-        #: value of a ``'Content-Encoding'`` response header.
+        # : Case-insensitive Dictionary of Response Headers.
+        # : For example, ``headers['content-encoding']`` will return the
+        # : value of a ``'Content-Encoding'`` response header.
         self.headers = CaseInsensitiveDict()
 
-        #: File-like object representation of response (for advanced usage).
-        #: Use of ``raw`` requires that ``stream=True`` be set on the request.
+        # : File-like object representation of response (for advanced usage).
+        # : Use of ``raw`` requires that ``stream=True`` be set on the request.
         # This requirement does not apply for use internally to Requests.
         self.raw = None
 
-        #: Final URL location of Response.
+        # : Final URL location of Response.
         self.url = None
 
-        #: Encoding to decode with when accessing r.text.
+        # : Encoding to decode with when accessing r.text.
         self.encoding = None
 
-        #: A list of :class:`Response <Response>` objects from
-        #: the history of the Request. Any redirect responses will end
-        #: up here. The list is sorted from the oldest to the most recent request.
+        # : A list of :class:`Response <Response>` objects from
+        # : the history of the Request. Any redirect responses will end
+        # : up here. The list is sorted from the oldest to the most recent request.
         self.history = []
 
-        #: Textual reason of responded HTTP Status, e.g. "Not Found" or "OK".
+        # : Textual reason of responded HTTP Status, e.g. "Not Found" or "OK".
         self.reason = None
 
-        #: A CookieJar of Cookies the server sent back.
+        # : A CookieJar of Cookies the server sent back.
         self.cookies = cookiejar_from_dict({})
 
-        #: The amount of time elapsed between sending the request
-        #: and the arrival of the response (as a timedelta).
-        #: This property specifically measures the time taken between sending
-        #: the first byte of the request and finishing parsing the headers. It
-        #: is therefore unaffected by consuming the response content or the
-        #: value of the ``stream`` keyword argument.
+        # : The amount of time elapsed between sending the request
+        # : and the arrival of the response (as a timedelta).
+        # : This property specifically measures the time taken between sending
+        # : the first byte of the request and finishing parsing the headers. It
+        # : is therefore unaffected by consuming the response content or the
+        # : value of the ``stream`` keyword argument.
         self.elapsed = datetime.timedelta(0)
 
-        #: The :class:`PreparedRequest <PreparedRequest>` object to which this
-        #: is a response.
+        # : The :class:`PreparedRequest <PreparedRequest>` object to which this
+        # : is a response.
         self.request = None
 
     def __getstate__(self):
