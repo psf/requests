@@ -108,6 +108,7 @@ html_theme_options = {
   'show_powered_by': False,
   'github_user': 'kennethreitz',
   'github_repo': 'requests',
+  'github_banner': True
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
