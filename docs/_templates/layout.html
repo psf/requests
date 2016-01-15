@@ -1,10 +1,18 @@
 {%- extends "basic/layout.html" %}
 {%- block extrahead %}
+
   {{ super() }}
+
   {% if theme_touch_icon %}
     <link rel="apple-touch-icon" href="{{ pathto('_static/' ~ theme_touch_icon, 1) }}" />
   {% endif %}
+
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  <style type="text/css">
+      img.logo {margin-left: -20px!important;}
+  </style>
+
 {% endblock %}
 {%- block relbar2 %}{% endblock %}
 {%- block footer %}
