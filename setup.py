@@ -6,10 +6,8 @@ import sys
 
 from codecs import open
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup
+
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
