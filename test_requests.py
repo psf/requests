@@ -190,10 +190,11 @@ class TestRequests(object):
 
     def test_HTTP_302_TOO_MANY_REDIRECTS(self, httpbin):
         try:
-            requests.get(httpbin('redirect', '50'))
+            requests.get(httpbin('relative-redirect', '50'))
         except TooManyRedirects as e:
-            assert '/relative-redirect/20' in e.request.url
-            assert e.request.url == e.response.url
+            url = httpbin('relative-redirect', '20')
+            assert e.request.url == url
+            assert e.response.url == url
             assert len(e.response.history) == 30
         else:
             pytest.fail('Expected redirect to raise TooManyRedirects but it did not')
@@ -202,13 +203,14 @@ class TestRequests(object):
         s = requests.session()
         s.max_redirects = 5
         try:
-            s.get(httpbin('redirect', '50'))
+            s.get(httpbin('relative-redirect', '50'))
         except TooManyRedirects as e:
-            assert '/relative-redirect/45' in e.request.url
-            assert e.request.url == e.response.url
+            url = httpbin('relative-redirect', '45')
+            assert e.request.url == url
+            assert e.response.url == url
             assert len(e.response.history) == 5
         else:
-            pytest.fail('Expected redirect to raise TooManyRedirects but it did not')
+            pytest.fail('Expected custom max number of redirects to be respected but was not')
 
     # def test_HTTP_302_ALLOW_REDIRECT_POST(self):
     #     r = requests.post(httpbin('status', '302'), data={'some': 'data'})
