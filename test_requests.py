@@ -191,7 +191,7 @@ class TestRequests(object):
     def test_HTTP_302_TOO_MANY_REDIRECTS(self, httpbin):
         try:
             requests.get(httpbin('redirect', '50'))
-        except TooManyRedirects, e:
+        except TooManyRedirects as e:
             assert e.request is not None
             assert len(e.response.history) == DEFAULT_REDIRECT_LIMIT
         else:
@@ -202,7 +202,7 @@ class TestRequests(object):
         s.max_redirects = 5
         try:
             s.get(httpbin('redirect', '50'))
-        except TooManyRedirects, e:
+        except TooManyRedirects as e:
             assert e.request is not None
             assert len(e.response.history) == 5
         else:
