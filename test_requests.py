@@ -196,7 +196,7 @@ class TestRequests(object):
             assert e.request.url == e.response.url
             assert len(e.response.history) == 30
         else:
-            pytest.fail()
+            pytest.fail('Expected redirect to raise TooManyRedirects but it did not')
 
     def test_HTTP_302_TOO_MANY_REDIRECTS_WITH_PARAMS(self, httpbin):
         s = requests.session()
@@ -208,7 +208,7 @@ class TestRequests(object):
             assert e.request.url == e.response.url
             assert len(e.response.history) == 5
         else:
-            pytest.fail()
+            pytest.fail('Expected redirect to raise TooManyRedirects but it did not')
 
     # def test_HTTP_302_ALLOW_REDIRECT_POST(self):
     #     r = requests.post(httpbin('status', '302'), data={'some': 'data'})
