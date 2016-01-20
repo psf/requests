@@ -24,7 +24,7 @@ from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (ConnectionError, ConnectTimeout,
                                  InvalidSchema, InvalidURL, MissingSchema,
                                  ReadTimeout, Timeout, RetryError, TooManyRedirects)
-from requests.models import PreparedRequest, DEFAULT_REDIRECT_LIMIT
+from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
@@ -192,10 +192,11 @@ class TestRequests(object):
         try:
             requests.get(httpbin('redirect', '50'))
         except TooManyRedirects as e:
-            assert e.request is not None
-            assert len(e.response.history) == DEFAULT_REDIRECT_LIMIT
+            assert '/relative-redirect/20' in e.request.url
+            assert e.request.url == e.response.url
+            assert len(e.response.history) == 30
         else:
-            assert False
+            pytest.fail()
 
     def test_HTTP_302_TOO_MANY_REDIRECTS_WITH_PARAMS(self, httpbin):
         s = requests.session()
@@ -203,10 +204,11 @@ class TestRequests(object):
         try:
             s.get(httpbin('redirect', '50'))
         except TooManyRedirects as e:
-            assert e.request is not None
+            assert '/relative-redirect/45' in e.request.url
+            assert e.request.url == e.response.url
             assert len(e.response.history) == 5
         else:
-            assert False
+            pytest.fail()
 
     # def test_HTTP_302_ALLOW_REDIRECT_POST(self):
     #     r = requests.post(httpbin('status', '302'), data={'some': 'data'})
