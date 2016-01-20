@@ -110,7 +110,11 @@ class SessionRedirectMixin(object):
                 resp.raw.read(decode_content=False)
 
             if i >= self.max_redirects:
-                raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects)
+                raise TooManyRedirects(
+                    'Exceeded %s redirects.' % self.max_redirects,
+                    request=prepared_request,
+                    response=resp
+                )
 
             # Release the connection back into the pool.
             resp.close()

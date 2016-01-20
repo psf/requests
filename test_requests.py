@@ -23,8 +23,8 @@ from requests.compat import (
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (ConnectionError, ConnectTimeout,
                                  InvalidSchema, InvalidURL, MissingSchema,
-                                 ReadTimeout, Timeout, RetryError)
-from requests.models import PreparedRequest
+                                 ReadTimeout, Timeout, RetryError, TooManyRedirects)
+from requests.models import PreparedRequest, DEFAULT_REDIRECT_LIMIT
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
@@ -187,6 +187,26 @@ class TestRequests(object):
         assert r.status_code == 200
         assert r.history[0].status_code == 302
         assert r.history[0].is_redirect
+
+    def test_HTTP_302_TOO_MANY_REDIRECTS(self, httpbin):
+        try:
+            requests.get(httpbin('redirect', '50'))
+        except TooManyRedirects, e:
+            assert e.request is not None
+            assert len(e.response.history) == DEFAULT_REDIRECT_LIMIT
+        else:
+            assert False
+
+    def test_HTTP_302_TOO_MANY_REDIRECTS_WITH_PARAMS(self, httpbin):
+        s = requests.session()
+        s.max_redirects = 5
+        try:
+            s.get(httpbin('redirect', '50'))
+        except TooManyRedirects, e:
+            assert e.request is not None
+            assert len(e.response.history) == 5
+        else:
+            assert False
 
     # def test_HTTP_302_ALLOW_REDIRECT_POST(self):
     #     r = requests.post(httpbin('status', '302'), data={'some': 'data'})
