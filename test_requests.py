@@ -23,7 +23,7 @@ from requests.compat import (
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (ConnectionError, ConnectTimeout,
                                  InvalidSchema, InvalidURL, MissingSchema,
-                                 ReadTimeout, Timeout, RetryError)
+                                 ReadTimeout, Timeout, RetryError, TooManyRedirects)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -187,6 +187,30 @@ class TestRequests(object):
         assert r.status_code == 200
         assert r.history[0].status_code == 302
         assert r.history[0].is_redirect
+
+    def test_HTTP_302_TOO_MANY_REDIRECTS(self, httpbin):
+        try:
+            requests.get(httpbin('relative-redirect', '50'))
+        except TooManyRedirects as e:
+            url = httpbin('relative-redirect', '20')
+            assert e.request.url == url
+            assert e.response.url == url
+            assert len(e.response.history) == 30
+        else:
+            pytest.fail('Expected redirect to raise TooManyRedirects but it did not')
+
+    def test_HTTP_302_TOO_MANY_REDIRECTS_WITH_PARAMS(self, httpbin):
+        s = requests.session()
+        s.max_redirects = 5
+        try:
+            s.get(httpbin('relative-redirect', '50'))
+        except TooManyRedirects as e:
+            url = httpbin('relative-redirect', '45')
+            assert e.request.url == url
+            assert e.response.url == url
+            assert len(e.response.history) == 5
+        else:
+            pytest.fail('Expected custom max number of redirects to be respected but was not')
 
     # def test_HTTP_302_ALLOW_REDIRECT_POST(self):
     #     r = requests.post(httpbin('status', '302'), data={'some': 'data'})
