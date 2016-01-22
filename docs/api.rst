@@ -184,11 +184,13 @@ API Changes
       import requests
       import logging
 
-      # these two lines enable debugging at http.client level (requests->urllib3->http.client)
+      # Enabling debugging at http.client level (requests->urllib3->http.client)
       # you will see the REQUEST, including HEADERS and DATA, and RESPONSE with HEADERS but without DATA.
       # the only thing missing will be the response.body which is not logged.
-      from http.client import HTTPConnection # for Python 3
-      from httplib import HTTPConnection # for Python 2, httplib is former name of http.client.
+      try: # for Python 3
+          from http.client import HTTPConnection
+      except ImportError:
+          from httplib import HTTPConnection
       HTTPConnection.debuglevel = 1
 
       logging.basicConfig() # you need to initialize logging, otherwise you will not see anything from requests
