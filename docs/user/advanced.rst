@@ -228,6 +228,9 @@ If you specify a wrong path or an invalid cert::
     >>> requests.get('https://kennethreitz.com', cert='/wrong_path/client.pem')
     SSLError: [Errno 336265225] _ssl.c:347: error:140B0009:SSL routines:SSL_CTX_use_PrivateKey_file:PEM lib
 
+.. warning:: The private key to your local certificate *must* be unencrypted.
+   Currently, requests does not support using encrypted keys.
+
 .. _ca-certificates:
 
 CA Certificates
