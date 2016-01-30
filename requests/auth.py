@@ -51,7 +51,7 @@ class HTTPBasicAuth(AuthBase):
         return all([
             self.username == getattr(other, 'username', None),
             self.password == getattr(other, 'password', None)
-        ]
+        ])
 
     def __ne__(self, other):
         return not self == other
@@ -235,7 +235,7 @@ class HTTPDigestAuth(AuthBase):
         return all([
             self.username == getattr(other, 'username', None),
             self.password == getattr(other, 'password', None)
-        ]
+        ])
 
     def __ne__(self, other):
         return not self == other
