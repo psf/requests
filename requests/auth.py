@@ -48,9 +48,10 @@ class HTTPBasicAuth(AuthBase):
         self.password = password
 
     def __eq__(self, other):
-        if not isinstance(other, HTTPBasicAuth):
-            return NotImplemented
-        return self.username == other.username and self.password == other.password
+        return all([
+            self.username == getattr(other, 'username', None),
+            self.password == getattr(other, 'password', None)
+        ]
 
     def __ne__(self, other):
         return not self == other
@@ -231,15 +232,10 @@ class HTTPDigestAuth(AuthBase):
         return r
 
     def __eq__(self, other):
-        if not isinstance(other, HTTPDigestAuth):
-            return NotImplemented
-        return self.username == other.username and \
-            self.password == other.password and \
-            self.last_nonce == other.last_nonce and \
-            self.nonce_count == other.nonce_count and \
-            self.chal == other.chal and \
-            self.pos == other.pos and \
-            self.num_401_calls == other.num_401_calls
+        return all([
+            self.username == getattr(other, 'username', None),
+            self.password == getattr(other, 'password', None)
+        ]
 
     def __ne__(self, other):
         return not self == other
