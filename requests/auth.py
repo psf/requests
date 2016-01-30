@@ -47,6 +47,14 @@ class HTTPBasicAuth(AuthBase):
         self.username = username
         self.password = password
 
+    def __eq__(self, other):
+        if not isinstance(other, HTTPBasicAuth):
+            return NotImplemented
+        return self.username == other.username and self.password == other.password
+
+    def __ne__(self, other):
+        return not self == other
+
     def __call__(self, r):
         r.headers['Authorization'] = _basic_auth_str(self.username, self.password)
         return r
@@ -221,3 +229,17 @@ class HTTPDigestAuth(AuthBase):
         self._thread_local.num_401_calls = 1
 
         return r
+
+    def __eq__(self, other):
+        if not isinstance(other, HTTPDigestAuth):
+            return NotImplemented
+        return self.username == other.username and \
+            self.password == other.password and \
+            self.last_nonce == other.last_nonce and \
+            self.nonce_count == other.nonce_count and \
+            self.chal == other.chal and \
+            self.pos == other.pos and \
+            self.num_401_calls == other.num_401_calls
+
+    def __ne__(self, other):
+        return not self == other
