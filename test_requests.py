@@ -110,7 +110,7 @@ class TestRequests(object):
             requests.get('http://')
 
     def test_basic_building(self):
-        req = requests.Request()
+        req = requests.Request(method='GET')
         req.url = 'http://kennethreitz.org/'
         req.data = {'life': '42'}
 
@@ -166,7 +166,8 @@ class TestRequests(object):
         s = requests.Session()
         s.proxies = getproxies()
         parts = urlparse(httpbin('get'))
-        schemes = ['http://', 'HTTP://', 'hTTp://', 'HttP://']
+        schemes = ['http://', 'HTTP://', 'hTTp://', 'HttP://',
+                   'https://', 'HTTPS://', 'hTTps://', 'HttPs://']
         for scheme in schemes:
             url = scheme + parts.netloc + parts.path
             r = requests.Request('GET', url)
