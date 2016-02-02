@@ -88,40 +88,42 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 
 class SessionRedirectMixin(object):
-    def resolve_redirects(self, resp, stream=False, timeout=None,
+    def resolve_redirects(self, response, stream=False, timeout=None,
                           verify=True, cert=None, proxies=None, **adapter_kwargs):
         """Receives a Response. Returns a generator of Responses."""
 
-        i = 0
-        hist = [] # keep track of history
-        req = resp.request
+        redirect_count = 0
+        history = [] # keep track of history
+        request = response.request
 
-        while resp.is_redirect:
-            prepared_request = req.copy()
+        while response.is_redirect:
+            prepared_request = request.copy()
 
-            if i > 0:
-                # Update history and keep track of redirects.
-                hist.append(resp)
-                new_hist = list(hist)
-                resp.history = new_hist
+            if redirect_count > 0:
+
+                # Store this Response in local history.
+                history.append(response)
+
+                # Copy local history to Response.history.
+                response.history = list(history)
 
             try:
-                resp.content  # Consume socket so it can be released
+                response.content  # Consume socket so it can be released
             except (ChunkedEncodingError, ContentDecodingError, RuntimeError):
-                resp.raw.read(decode_content=False)
+                response.raw.read(decode_content=False)
 
-            if i >= self.max_redirects:
-                raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects, response=resp)
+            if redirect_count >= self.max_redirects:
+                raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects, response=response)
 
             # Release the connection back into the pool.
-            resp.close()
+            response.close()
 
-            url = resp.headers['location']
-            method = req.method
+            url = response.headers['location']
+            method = request.method
 
             # Handle redirection without scheme (see: RFC 1808 Section 4)
             if url.startswith('//'):
-                parsed_rurl = urlparse(resp.url)
+                parsed_rurl = urlparse(response.url)
                 url = '%s:%s' % (parsed_rurl.scheme, url)
 
             # The scheme should be lower case...
@@ -132,34 +134,34 @@ class SessionRedirectMixin(object):
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
             # Compliant with RFC3986, we percent encode the url.
             if not parsed.netloc:
-                url = urljoin(resp.url, requote_uri(url))
+                url = urljoin(response.url, requote_uri(url))
             else:
                 url = requote_uri(url)
 
             prepared_request.url = to_native_string(url)
             # Cache the url, unless it redirects to itself.
-            if resp.is_permanent_redirect and req.url != prepared_request.url:
-                self.redirect_cache[req.url] = prepared_request.url
+            if response.is_permanent_redirect and request.url != prepared_request.url:
+                self.redirect_cache[request.url] = prepared_request.url
 
             # http://tools.ietf.org/html/rfc7231#section-6.4.4
-            if (resp.status_code == codes.see_other and
+            if (response.status_code == codes.see_other and
                     method != 'HEAD'):
                 method = 'GET'
 
             # Do what the browsers do, despite standards...
             # First, turn 302s into GETs.
-            if resp.status_code == codes.found and method != 'HEAD':
+            if response.status_code == codes.found and method != 'HEAD':
                 method = 'GET'
 
             # Second, if a POST is responded to with a 301, turn it into a GET.
             # This bizarre behaviour is explained in Issue 1704.
-            if resp.status_code == codes.moved and method == 'POST':
+            if response.status_code == codes.moved and method == 'POST':
                 method = 'GET'
 
             prepared_request.method = method
 
             # https://github.com/kennethreitz/requests/issues/1084
-            if resp.status_code not in (codes.temporary_redirect, codes.permanent_redirect):
+            if response.status_code not in (codes.temporary_redirect, codes.permanent_redirect):
                 if 'Content-Length' in prepared_request.headers:
                     del prepared_request.headers['Content-Length']
 
@@ -174,19 +176,19 @@ class SessionRedirectMixin(object):
             # Extract any cookies sent on the response to the cookiejar
             # in the new request. Because we've mutated our copied prepared
             # request, use the old one that we haven't yet touched.
-            extract_cookies_to_jar(prepared_request._cookies, req, resp.raw)
+            extract_cookies_to_jar(prepared_request._cookies, request, response.raw)
             prepared_request._cookies.update(self.cookies)
             prepared_request.prepare_cookies(prepared_request._cookies)
 
             # Rebuild auth and proxy information.
             proxies = self.rebuild_proxies(prepared_request, proxies)
-            self.rebuild_auth(prepared_request, resp)
+            self.rebuild_auth(prepared_request, response)
 
             # Override the original request.
-            req = prepared_request
+            request = prepared_request
 
-            resp = self.send(
-                req,
+            response = self.send(
+                request,
                 stream=stream,
                 timeout=timeout,
                 verify=verify,
@@ -196,10 +198,10 @@ class SessionRedirectMixin(object):
                 **adapter_kwargs
             )
 
-            extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
+            extract_cookies_to_jar(self.cookies, prepared_request, response.raw)
 
-            i += 1
-            yield resp
+            redirect_count += 1
+            yield response
 
     def rebuild_auth(self, prepared_request, response):
         """
