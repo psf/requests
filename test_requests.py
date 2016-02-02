@@ -23,7 +23,7 @@ from requests.compat import (
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (ConnectionError, ConnectTimeout,
                                  InvalidScheme, InvalidURL, MissingScheme,
-                                 ReadTimeout, Timeout, RetryError)
+                                 ReadTimeout, Timeout, RetryError, TooManyRedirects)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -166,8 +166,7 @@ class TestRequests(object):
         s = requests.Session()
         s.proxies = getproxies()
         parts = urlparse(httpbin('get'))
-        schemes = ['http://', 'HTTP://', 'hTTp://', 'HttP://',
-                   'https://', 'HTTPS://', 'hTTps://', 'HttPs://']
+        schemes = ['http://', 'HTTP://', 'hTTp://', 'HttP://']
         for scheme in schemes:
             url = scheme + parts.netloc + parts.path
             r = requests.Request('GET', url)

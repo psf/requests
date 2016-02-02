@@ -351,7 +351,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             error = ("Invalid URL {0!r}: No scheme supplied. Perhaps you meant http://{0}?")
             error = error.format(to_native_string(url, 'utf8'))
 
-            raise MissingSchema(error)
+            raise MissingScheme(error)
 
         if not host:
             raise InvalidURL("Invalid URL %r: No host supplied" % url)
