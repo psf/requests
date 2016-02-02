@@ -1738,6 +1738,16 @@ def test_prepare_unicode_url():
     assert_copy(p, p.copy())
 
 
+def test_prepare_requires_a_request_method():
+    req = Request()
+    with pytest.raises(ValueError):
+        req.prepare()
+
+    prepped = PreparedRequest()
+    with pytest.raises(ValueError):
+        prepped.prepare()
+
+
 def test_urllib3_retries(httpbin):
     from requests.packages.urllib3.util import Retry
     s = requests.Session()
