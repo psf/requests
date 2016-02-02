@@ -17,5 +17,8 @@
 - Rename the ``resp`` argument from ``Session.resolve_redirects`` to
   ``response``.
 
+- New ``PreparedRequest.send`` method. Now, you can
+``Request().prepare().send()``.
+
 .. _#2002: https://github.com/kennethreitz/requests/issues/2002
 .. _#2631: https://github.com/kennethreitz/requests/issues/2631

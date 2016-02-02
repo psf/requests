@@ -14,6 +14,7 @@ from io import BytesIO, UnsupportedOperation
 from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 
+import requests
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
 from .packages.urllib3.fields import RequestField
@@ -524,6 +525,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         hooks = hooks or []
         for event in hooks:
             self.register_hook(event, hooks[event])
+
+    def send(self, session=None, **send_kwargs):
+        """Sends the PreparedRequest to the given Session.
+        If none is provided, one is created for you."""
+        session = requests.Session() if session is None else session
+
+        with session:
+            return session.send(self, **send_kwargs)
 
 
 class Response(object):
