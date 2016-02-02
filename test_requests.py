@@ -1072,7 +1072,7 @@ class TestRequests(object):
         s = requests.Session()
         r1 = s.get(httpbin('redirect/2'), allow_redirects=False, stream=True)
         assert r1.is_redirect
-        rg = s.resolve_redirects(r1, r1.request, stream=True)
+        rg = s.resolve_redirects(r1, stream=True)
 
         # read only the first eight bytes of the response body,
         # then follow the redirect
@@ -1661,7 +1661,7 @@ class TestRedirects:
         r0 = session.send(prep)
         assert r0.request.method == 'POST'
         assert session.calls[-1] == SendCall((r0.request,), {})
-        redirect_generator = session.resolve_redirects(r0, prep)
+        redirect_generator = session.resolve_redirects(r0)
         for response in redirect_generator:
             assert response.request.method == 'GET'
             send_call = SendCall((response.request,),

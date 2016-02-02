@@ -88,12 +88,13 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 
 class SessionRedirectMixin(object):
-    def resolve_redirects(self, resp, req, stream=False, timeout=None,
+    def resolve_redirects(self, resp, stream=False, timeout=None,
                           verify=True, cert=None, proxies=None, **adapter_kwargs):
         """Receives a Response. Returns a generator of Responses."""
 
         i = 0
         hist = [] # keep track of history
+        req = resp.request
 
         while resp.is_redirect:
             prepared_request = req.copy()
@@ -591,7 +592,7 @@ class Session(SessionRedirectMixin):
         extract_cookies_to_jar(self.cookies, request, r.raw)
 
         # Redirect resolving generator.
-        gen = self.resolve_redirects(r, request, **kwargs)
+        gen = self.resolve_redirects(r, **kwargs)
 
         # Resolve redirects if allowed.
         history = [resp for resp in gen] if allow_redirects else []
