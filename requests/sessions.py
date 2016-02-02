@@ -40,10 +40,9 @@ REDIRECT_CACHE_SIZE = 1000
 
 
 def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
-    """
-    Determines appropriate setting for a given request, taking into account the
-    explicit setting on that request, and the setting in the session. If a
-    setting is a dictionary, they will be merged together using `dict_class`
+    """Determines appropriate setting for a given request, taking into account
+    the explicit setting on that request, and the setting in the session. If a
+    setting is a dictionary, they will be merged together using `dict_class`.
     """
 
     if session_setting is None:
@@ -72,8 +71,7 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
 
 
 def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
-    """
-    Properly merges both requests and session hooks.
+    """Properly merges both requests and session hooks.
 
     This is necessary because when request_hooks == {'response': []}, the
     merge breaks Session hooks entirely.
@@ -90,7 +88,10 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 class SessionRedirectMixin(object):
     def resolve_redirects(self, response, stream=False, timeout=None,
                           verify=True, cert=None, proxies=None, **adapter_kwargs):
-        """Receives a Response. Returns a generator of Responses."""
+        """Given a Response, yields Responses until 'Location' header-based
+        redirection ceases, or the Session.max_redirects limit has been
+        reached.
+        """
 
         redirect_count = 0
         history = [] # keep track of history
@@ -204,8 +205,7 @@ class SessionRedirectMixin(object):
             yield response
 
     def rebuild_auth(self, prepared_request, response):
-        """
-        When being redirected we may want to strip authentication from the
+        """When being redirected, we may want to strip authentication from the
         request to avoid leaking credentials. This method intelligently removes
         and reapplies authentication where possible to avoid credential loss.
         """
@@ -229,12 +229,11 @@ class SessionRedirectMixin(object):
         return
 
     def rebuild_proxies(self, prepared_request, proxies):
-        """
-        This method re-evaluates the proxy configuration by considering the
-        environment variables. If we are redirected to a URL covered by
-        NO_PROXY, we strip the proxy configuration. Otherwise, we set missing
-        proxy keys for this URL (in case they were stripped by a previous
-        redirect).
+        """This method re-evaluates the proxy configuration by
+        considering the environment variables. If we are redirected to a
+        URL covered by NO_PROXY, we strip the proxy configuration.
+        Otherwise, we set missing proxy keys for this URL (in case they
+        were stripped by a previous redirect).
 
         This method also replaces the Proxy-Authorization header where
         necessary.
@@ -359,7 +358,7 @@ class Session(SessionRedirectMixin):
         :class:`Session`.
 
         :param request: :class:`Request` instance to prepare with this
-            session's settings.
+            Session's settings.
         """
         cookies = request.cookies or {}
 
@@ -407,7 +406,7 @@ class Session(SessionRedirectMixin):
         verify=None,
         cert=None,
         json=None):
-        """Constructs a :class:`Request <Request>`, prepares it and sends it.
+        """Constructs a :class:`Request <Request>`, prepares it, and sends it.
         Returns :class:`Response <Response>` object.
 
         :param method: method for the new :class:`Request` object.
@@ -556,6 +555,7 @@ class Session(SessionRedirectMixin):
         if not isinstance(request, PreparedRequest):
             raise ValueError('You can only send PreparedRequests.')
 
+        # Automatically skip a redirect chain if we've already followed it before.
         checked_urls = set()
         while request.url in self.redirect_cache:
             checked_urls.add(request.url)
@@ -564,24 +564,24 @@ class Session(SessionRedirectMixin):
                 break
             request.url = new_url
 
-        # Set up variables needed for resolve_redirects and dispatching of hooks
+        # Set-up variables for resolve_redirects and dispatching of hooks.
         allow_redirects = kwargs.pop('allow_redirects', True)
         stream = kwargs.get('stream')
         hooks = request.hooks
 
-        # Get the appropriate adapter to use
+        # Get the appropriate adapter to use.
         adapter = self.get_adapter(url=request.url)
 
-        # Start time (approximately) of the request
+        # Start time (approximately) of the request.
         start = datetime.utcnow()
 
         # Send the request
         r = adapter.send(request, **kwargs)
 
-        # Total elapsed time of the request (approximately)
+        # Total elapsed time of the request (approximately).
         r.elapsed = datetime.utcnow() - start
 
-        # Response manipulation hooks
+        # Response manipulation hooks.
         r = dispatch_hook('response', hooks, r, **kwargs)
 
         # Persist cookies
@@ -596,17 +596,21 @@ class Session(SessionRedirectMixin):
         # Redirect resolving generator.
         gen = self.resolve_redirects(r, **kwargs)
 
-        # Resolve redirects if allowed.
+        # Resolve redirects, if allowed.
         history = [resp for resp in gen] if allow_redirects else []
 
-        # Shuffle things around if there's history.
+        # Shuffle things around if there's redirection history.
         if history:
-            # Insert the first (original) request at the start
+            # Insert the first (original) Response at the start.
             history.insert(0, r)
-            # Get the last request made
+
+            # Remove the final response from history, use it as our Response.
             r = history.pop()
+
+            # Save redirection history to final Response object.
             r.history = history
 
+        # Automatically download response body, if not in streaming mode.
         if not stream:
             r.content
 
@@ -647,7 +651,7 @@ class Session(SessionRedirectMixin):
         raise InvalidScheme("No connection adapters were found for '%s'" % url)
 
     def close(self):
-        """Closes all adapters and as such the session"""
+        """Closes all adapters and, as such, the Session."""
         for v in self.adapters.values():
             v.close()
 
