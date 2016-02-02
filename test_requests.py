@@ -1739,7 +1739,7 @@ def test_prepare_unicode_url():
 
 
 def test_prepare_requires_a_request_method():
-    req = Request()
+    req = requests.Request()
     with pytest.raises(ValueError):
         req.prepare()
 
