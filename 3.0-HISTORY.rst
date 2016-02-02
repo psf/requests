@@ -8,4 +8,9 @@
   to most people and breaks most of the assumptions that people have about
   Response objects. This resolves issue `#2002`_
 
+- Skip over empty chunks in iterators. Empty chunks could prematurely signal 
+  the end of a request body's transmission, skipping them allows all of the 
+  data through. See `#2631`_ for more details.
+
 .. _#2002: https://github.com/kennethreitz/requests/issues/2002
+.. _#2631: https://github.com/kennethreitz/requests/issues/2631
