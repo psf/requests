@@ -159,6 +159,7 @@ Patches and Suggestions
 - Muhammad Yasoob Ullah Khalid <yasoob.khld@gmail.com> (`@yasoob <https://github.com/yasoob>`_)
 - Paul van der Linden (`@pvanderlinden <https://github.com/pvanderlinden>`_)
 - Colin Dickson (`@colindickson <https://github.com/colindickson>`_)
+- Sabari Kumar Murugesan (`@neosab <https://github.com/neosab>`_)
 - Smiley Barry (`@smiley <https://github.com/smiley>`_)
 - Shagun Sodhani (`@shagunsodhani <https://github.com/shagunsodhani>`_)
 - Robin Linderborg (`@vienno <https://github.com/vienno>`_)
