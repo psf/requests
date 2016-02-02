@@ -18,7 +18,7 @@
   ``response``.
 
 - New ``PreparedRequest.send`` method. Now, you can
-``Request().prepare().send()``.
+  ``Request().prepare().send()``.
 
 - All porcelain API functions (e.g. ``requests.get``, etc) now accept an
   optional ``session`` parameter. If provided, the session given will be used
