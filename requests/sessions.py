@@ -112,40 +112,40 @@ class SessionRedirectMixin(object):
             except (ChunkedEncodingError, ContentDecodingError, RuntimeError):
                 response.raw.read(decode_content=False)
 
+            # Don't exceed configured Session.max_redirects.
             if redirect_count >= self.max_redirects:
                 raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects, response=response)
 
             # Release the connection back into the pool.
             response.close()
 
-            url = response.headers['location']
+            location_url = response.headers['location']
             method = request.method
 
             # Handle redirection without scheme (see: RFC 1808 Section 4)
-            if url.startswith('//'):
+            if location_url.startswith('//'):
                 parsed_rurl = urlparse(response.url)
-                url = '%s:%s' % (parsed_rurl.scheme, url)
+                location_url = '%s:%s' % (parsed_rurl.scheme, location_url)
 
             # The scheme should be lower case...
-            parsed = urlparse(url)
-            url = parsed.geturl()
+            parsed = urlparse(location_url)
+            location_url = parsed.geturl()
 
             # Facilitate relative 'location' headers, as allowed by RFC 7231.
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
             # Compliant with RFC3986, we percent encode the url.
             if not parsed.netloc:
-                url = urljoin(response.url, requote_uri(url))
+                location_url = urljoin(response.url, requote_uri(location_url))
             else:
-                url = requote_uri(url)
+                location_url = requote_uri(location_url)
 
-            prepared_request.url = to_native_string(url)
+            prepared_request.url = to_native_string(location_url)
             # Cache the url, unless it redirects to itself.
             if response.is_permanent_redirect and request.url != prepared_request.url:
                 self.redirect_cache[request.url] = prepared_request.url
 
             # http://tools.ietf.org/html/rfc7231#section-6.4.4
-            if (response.status_code == codes.see_other and
-                    method != 'HEAD'):
+            if (response.status_code == codes.see_other and method != 'HEAD'):
                 method = 'GET'
 
             # Do what the browsers do, despite standards...
