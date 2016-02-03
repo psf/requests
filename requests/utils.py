@@ -549,6 +549,13 @@ def should_bypass_proxies(url):
     # of Python 2.6, so allow this call to fail. Only catch the specific
     # exceptions we've seen, though: this call failing in other ways can reveal
     # legitimate problems.
+    #
+    # Additionally, the proxy_bypass function might cause unexpected delay when
+    # it called socket.gethostbyaddr internally (refer to #2988). Thus we cache
+    # the function call. Also, to invalidate the cache from time to time (as we
+    # don't know when to expire the cache exactly), we use an invalid_indicator
+    # here, which will be different for every 60 seconds, to expire the cache
+    # even with the same netloc.
     try:
         invalid_indicator = int(time.time() / 60)
         bypass = _cached_proxy_bypass(netloc, invalid_indicator)
