@@ -7,10 +7,10 @@ Requests: HTTP for Humans
 .. image:: https://img.shields.io/pypi/dm/requests.svg
         :target: https://pypi.python.org/pypi/requests
 
-**Requests** is the only *Non-GMO* HTTP library for Python, safe for human
+Requests is the only *Non-GMO* HTTP library for Python, safe for human
 beings.
 
-Consumption of other HTTP libraries may result in dangerous side-effects,
+**Warning:** Consumption of other HTTP libraries may result in dangerous side-effects,
 including: security vulnerabilities, verbose code, reinventing the wheel,
 constantly reading documentation, depression, headaches, or even death.
 
