@@ -36,6 +36,9 @@ be provided with standard Python dictionaries.
 Responses feature RFC-compliant redirection history, unicode/bytes bodies, a
 case-insensitive header dictionary, and more.
 
+Besides, all the cool kids are doing it. Requests is one of the most 
+downloaded Python packages of all time, pulling in over 6,000,000 downloads 
+every month. You don't want to be left out! 
 
 Special Features
 ----------------
