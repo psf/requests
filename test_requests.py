@@ -19,9 +19,9 @@ from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3,
     builtin_str, OrderedDict)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
-from requests.exceptions import (ConnectionError, ConnectTimeout,
-                                 InvalidScheme, InvalidURL, MissingScheme,
-                                 ReadTimeout, Timeout, RetryError, TooManyRedirects)
+from requests.exceptions import (
+    ConnectionError, ConnectTimeout, InvalidScheme, InvalidURL, MissingScheme,
+    ReadTimeout, Timeout, RetryError, TooManyRedirects)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -88,10 +88,10 @@ class TestRequests:
 
     @pytest.mark.parametrize('exception, url',
         (
-            (MissingSchema, 'hiwpefhipowhefopw'),
-            (InvalidSchema, 'localhost:3128'),
-            (InvalidSchema, 'localhost.localdomain:3128/'),
-            (InvalidSchema, '10.122.1.1:3128/'),
+            (MissingScheme, 'hiwpefhipowhefopw'),
+            (InvalidScheme, 'localhost:3128'),
+            (InvalidScheme, 'localhost.localdomain:3128/'),
+            (InvalidScheme, '10.122.1.1:3128/'),
             (InvalidURL, 'http://'),
         )
     )
@@ -517,8 +517,7 @@ class TestRequests:
         r = requests.get(httpbin('gzip'))
         r.content.decode('ascii')
 
-    @pytest.mark.parametrize(
-        'url, params',
+    @pytest.mark.parametrize('url, params',
         (
             ('/get', {'foo': 'føø'}),
             ('/get', {'føø': 'føø'}),
@@ -552,8 +551,8 @@ class TestRequests:
             files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
-    @pytest.mark.parametrize(
-        'data', (
+    @pytest.mark.parametrize('data',
+        (
             {'stuff': u('ëlïxr')},
             {'stuff': u('ëlïxr').encode('utf-8')},
             {'stuff': 'elixr'},
@@ -1149,8 +1148,8 @@ class TestContentEncodingDetection:
         encodings = requests.utils.get_encodings_from_content('')
         assert not len(encodings)
 
-    @pytest.mark.parametrize(
-        'content', (
+    @pytest.mark.parametrize('content',
+        (
             # HTML5 meta charset attribute
             '<meta charset="UTF-8">',
             # HTML4 pragma directive
