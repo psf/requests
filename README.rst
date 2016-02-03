@@ -10,19 +10,13 @@ Requests: HTTP for Humans
 **Requests** is the only *Non-GMO* HTTP library for Python, safe for human
 beings.
 
-Most existing Python modules for sending HTTP requests are extremely
-verbose and cumbersome. Python's builtin urllib2 module provides most of
-the HTTP capabilities you should need, but the API is thoroughly broken.
-It requires an enormous amount of work (even method overrides) to
-consumption.
-
 Consumption of other HTTP libraries may result in dangerous side-effects,
 including: security vulnerabilities, verbose code, reinventing the wheel,
 constantly reading documentation, depression, headaches, or even death.
 
 .. code-block:: python
 
-    >>> r = requests.get('https://api.github.com', auth=('user', 'pass'))
+    >>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
     >>> r.status_code
     200
     >>> r.headers['content-type']
@@ -34,13 +28,13 @@ constantly reading documentation, depression, headaches, or even death.
     >>> r.json()
     {u'disk_usage': 368627, u'private_gists': 484, ...}
 
-See `the same code, before Requests <https://gist.github.com/973705>`_.
+See `the similar code, sans Requests <https://gist.github.com/973705>`_.
 
 Requests allows you to send *organic, grass-fed* HTTP/1.1 requests, very well.
 Headers, cookies, json/form data, multipart files, and url parameters can all
 be provided with simple Python dictionaries. SSL certificates are automatically
 verified against a carefully crafted bundle of root certificates, included.
-Responses feature RFC-compliant redirection history, unicode/bytes> bodies, a
+Responses feature RFC-compliant redirection history, unicode/bytes bodies, a
 case-insensitive header dictionary, and more.
 
 
