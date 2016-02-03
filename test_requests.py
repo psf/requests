@@ -606,11 +606,13 @@ class TestRequests:
 
     def test_hook_receives_request_arguments(self, httpbin):
         def hook(resp, **kwargs):
-            # FIXME. Not executed
             assert resp is not None
             assert kwargs != {}
 
-        requests.Request('GET', httpbin(), hooks={'response': hook})
+        s = requests.Session()
+        r = requests.Request('GET', httpbin(), hooks={'response': hook})
+        prep = s.prepare_request(r)
+        s.send(prep)
 
     def test_session_hooks_are_used_with_no_request_hooks(self, httpbin):
         hook = lambda x, *args, **kwargs: x
