@@ -14,6 +14,8 @@ consumption.
 including: security vulnerabilities, verbose code, reinventing the wheel,
 constantly reading documentation, depression, headaches, or even death.
 
+Behold, the power of Requests:
+
 .. code-block:: python
 
     >>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
