@@ -7,41 +7,39 @@ Requests: HTTP for Humans
 .. image:: https://img.shields.io/pypi/dm/requests.svg
         :target: https://pypi.python.org/pypi/requests
 
+**Requests** is the only *Non-GMO* HTTP library for Python, safe for human
+consumption.
 
-
-
-Requests is an Apache2 Licensed HTTP library, written in Python, for human
-beings.
-
-Most existing Python modules for sending HTTP requests are extremely
-verbose and cumbersome. Python's builtin urllib2 module provides most of
-the HTTP capabilities you should need, but the api is thoroughly broken.
-It requires an enormous amount of work (even method overrides) to
-perform the simplest of tasks.
-
-Things shouldn't be this way. Not in Python.
+Consumption of other HTTP libraries may result in dangerous side-effects,
+including: security vulnerabilities, verbose code, reinventing the wheel,
+constantly reading documentation, depression, headaches, or even death.
 
 .. code-block:: python
 
     >>> r = requests.get('https://api.github.com', auth=('user', 'pass'))
     >>> r.status_code
-    204
+    200
     >>> r.headers['content-type']
-    'application/json'
+    'application/json; charset=utf8'
+    >>> r.encoding
+    'utf-8'
     >>> r.text
-    ...
+    u'{"type":"User"...'
+    >>> r.json()
+    {u'disk_usage': 368627, u'private_gists': 484, ...}
 
-See `the same code, without Requests <https://gist.github.com/973705>`_.
+See `the same code, before Requests <https://gist.github.com/973705>`_.
 
-Requests allow you to send HTTP/1.1 requests. You can add headers, form data,
-multipart files, and parameters with simple Python dictionaries, and access the
-response data in the same way. It's powered by httplib and `urllib3
-<https://github.com/shazow/urllib3>`_, but it does all the hard work and crazy
-hacks for you.
+Requests allows you to send *organic, grass-fed* HTTP/1.1 requests, very well.
+Headers, cookies, json/form data, multipart files, and url parameters can all
+be provided with simple Python dictionaries. SSL certificates are automatically
+verified against a carefully crafted bundle of root certificates, included.
+Responses feature RFC-compliant redirection history, unicode/bytes> bodies, a
+case-insensitive header dictionary, and more.
 
 
-Features
---------
+Special Features
+----------------
 
 - International Domains and URLs
 - Keep-Alive & Connection Pooling
@@ -50,12 +48,14 @@ Features
 - Basic/Digest Authentication
 - Elegant Key/Value Cookies
 - Automatic Decompression
+- Automatic Content Decoding
 - Unicode Response Bodies
 - Multipart File Uploads
-- Connection Timeouts
-- Thread-safety
 - HTTP(S) proxy support
-
+- Connection Timeouts
+- Streaming Downloads
+- Chunked Requests
+- Thread-safety
 
 Installation
 ------------
