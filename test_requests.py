@@ -17,12 +17,11 @@ from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3,
-    builtin_str, OrderedDict
-    )
+    builtin_str, OrderedDict)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
-from requests.exceptions import (ConnectionError, ConnectTimeout,
-                                 InvalidSchema, InvalidURL, MissingSchema,
-                                 ReadTimeout, Timeout, RetryError, TooManyRedirects)
+from requests.exceptions import (
+    ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
+    MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -87,8 +86,7 @@ class TestRequests:
         requests.patch
         requests.post
 
-    @pytest.mark.parametrize(
-        'exception, url',
+    @pytest.mark.parametrize('exception, url',
         (
             (MissingSchema, 'hiwpefhipowhefopw'),
             (InvalidSchema, 'localhost:3128'),
@@ -128,8 +126,7 @@ class TestRequests:
 
         assert request.path_url == '/get/test%20case'
 
-    @pytest.mark.parametrize(
-        'url, expected',
+    @pytest.mark.parametrize('url, expected',
         (
             ('http://example.com/path#fragment', 'http://example.com/path?a=b#fragment'),
             ('http://example.com/path?key=value#fragment', 'http://example.com/path?key=value&a=b#fragment')
@@ -299,9 +296,7 @@ class TestRequests:
         assert urls == req_urls
 
     def test_history_is_always_a_list(self, httpbin):
-        """
-        Show that even with redirects, Response.history is always a list.
-        """
+        """Show that even with redirects, Response.history is always a list."""
         resp = requests.get(httpbin('get'))
         assert isinstance(resp.history, list)
         resp = requests.get(httpbin('redirect/1'))
@@ -349,8 +344,7 @@ class TestRequests:
         r = s.get(url)
         assert r.status_code == 200
 
-    @pytest.mark.parametrize(
-        'url, exception',
+    @pytest.mark.parametrize('url, exception',
         (
             # Connecting to an unknown domain should raise a ConnectionError
             ('http://doesnotexist.google.com', ConnectionError),
@@ -1184,8 +1178,7 @@ class TestContentEncodingDetection:
 
 class TestCaseInsensitiveDict:
 
-    @pytest.mark.parametrize(
-        'cid',
+    @pytest.mark.parametrize('cid',
         (
             CaseInsensitiveDict({'Foo': 'foo', 'BAr': 'bar'}),
             CaseInsensitiveDict([('Foo', 'foo'), ('BAr', 'bar')]),
@@ -1467,7 +1460,6 @@ class TestUtils:
 
 
 class TestMorselToCookieExpires:
-
     """Tests for morsel_to_cookie when morsel contains expires."""
 
     def test_expires_valid_str(self):
@@ -1478,8 +1470,7 @@ class TestMorselToCookieExpires:
         cookie = morsel_to_cookie(morsel)
         assert cookie.expires == 1
 
-    @pytest.mark.parametrize(
-        'value, exception',
+    @pytest.mark.parametrize('value, exception',
         (
             (100, TypeError),
             ('woops', ValueError),
@@ -1643,12 +1634,11 @@ def list_of_tuples():
         (('a', 'b'), ('c', 'd')),
         (('c', 'd'), ('a', 'b')),
         (('a', 'b'), ('c', 'd'), ('e', 'f')),
-        ]
+    ]
 
 
 def test_data_argument_accepts_tuples(list_of_tuples):
-    """
-    Ensure that the data argument will accept tuples of strings
+    """Ensure that the data argument will accept tuples of strings
     and properly encode them.
     """
     for data in list_of_tuples:
