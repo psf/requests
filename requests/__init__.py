@@ -36,17 +36,17 @@ usage:
 The other HTTP methods are supported - see `requests.api`. Full documentation
 is at <http://python-requests.org>.
 
-:copyright: (c) 2015 by Kenneth Reitz.
+:copyright: (c) 2016 by Kenneth Reitz.
 :license: Apache 2.0, see LICENSE for more details.
 
 """
 
 __title__ = 'requests'
-__version__ = '2.9.1'
-__build__ = 0x020901
+__version__ = '3.0.0'
+__build__ = 0x030000
 __author__ = 'Kenneth Reitz'
 __license__ = 'Apache 2.0'
-__copyright__ = 'Copyright 2015 Kenneth Reitz'
+__copyright__ = 'Copyright 2016 Kenneth Reitz'
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
