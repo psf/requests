@@ -12,6 +12,7 @@ that are also useful for external consumption.
 import cgi
 import codecs
 import collections
+import functools
 import io
 import os
 import platform
@@ -19,6 +20,7 @@ import re
 import sys
 import socket
 import struct
+import time
 import warnings
 
 from . import __version__
@@ -548,7 +550,8 @@ def should_bypass_proxies(url):
     # exceptions we've seen, though: this call failing in other ways can reveal
     # legitimate problems.
     try:
-        bypass = proxy_bypass(netloc)
+        invalid_indicator = int(time.time() / 60)
+        bypass = _cached_proxy_bypass(netloc, invalid_indicator)
     except (TypeError, socket.gaierror):
         bypass = False
 
@@ -556,6 +559,11 @@ def should_bypass_proxies(url):
         return True
 
     return False
+
+@functools.lru_cache(maxsize=64)
+def _cached_proxy_bypass(netloc, _):
+    """Use LRU to cache the proxy_bypass."""
+    return proxy_bypass(netloc)
 
 def get_environ_proxies(url):
     """Return a dict of environment proxies."""
