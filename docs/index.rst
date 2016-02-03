@@ -41,10 +41,6 @@ which is embedded within Requests.
 Testimonials
 ------------
 
-Besides, all the cool kids are doing it. Requests is one of the most
-downloaded Python packages of all time, pulling in over 6,000,000 downloads
-every month. You don't want to be left out!
-
 Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
 PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
 Post, Twitter, SoundCloud, Kippt, Readability, Sony, and Federal U.S.
@@ -66,6 +62,8 @@ Institutions that prefer to be unnamed claim to use Requests internally.
     Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful,
     simple, Pythonic.
 
+Requests is one of the most downloaded Python packages of all time, pulling in
+over 6,000,000 downloads every month. All the cool kids are doing it!
 
 Feature Support
 ---------------
