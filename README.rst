@@ -70,11 +70,11 @@ Satisfaction, gaurenteed.
 Documentation
 -------------
 
-Excellent documentation is available at http://docs.python-requests.org/.
+Fantastic documentation is available at http://docs.python-requests.org/, for a limited time only.
 
 
-Contribute
-----------
+How to Contribute
+-----------------
 
 #. Check for open issues or open a fresh issue to start a discussion around a feature idea or a bug. There is a `Contributor Friendly`_ tag for issues that should be ideal for people who are not very familiar with the codebase yet.
 #. Fork `the repository`_ on GitHub to start making your changes to the **master** branch (or branch off of it).
