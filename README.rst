@@ -70,7 +70,7 @@ Satisfaction, gaurenteed.
 Documentation
 -------------
 
-Documentation is available at http://docs.python-requests.org/.
+Excellent documentation is available at http://docs.python-requests.org/.
 
 
 Contribute
