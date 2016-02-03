@@ -551,7 +551,9 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
             is_new_proxy_conn = self.proxy is not None and not getattr(conn, 'sock', None)
             if is_new_proxy_conn:
-                self._prepare_proxy(conn)
+                proxy_conn_response = self._prepare_proxy(conn)
+                if proxy_conn_response:
+                    return proxy_conn_response
 
             # Make the request on the httplib connection object.
             httplib_response = self._make_request(conn, method, url,
@@ -747,7 +749,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
         else:
             set_tunnel(self.host, self.port, self.proxy_headers)
 
-        conn.connect()
+        return conn.connect()
 
     def _new_conn(self):
         """
