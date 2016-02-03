@@ -6,10 +6,10 @@ init:
 test:
 	# This runs all of the tests. To run an individual test, run py.test with
 	# the -k flag, like "py.test -k test_path_is_not_double_encoded"
-	py.test test_requests.py
+	python setup.py test -a "test_requests.py"
 
 coverage:
-	py.test --verbose --cov-report term --cov=requests test_requests.py
+	python setup.py test -a "--verbose --cov-report term --cov=requests test_requests.py"
 
 ci: init
 	py.test --junitxml=junit.xml

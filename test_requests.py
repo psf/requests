@@ -7,7 +7,6 @@ from __future__ import division
 import json
 import os
 import pickle
-import unittest
 import collections
 import contextlib
 
@@ -74,17 +73,8 @@ def httpsbin_url(httpbin_secure):
 # listening on that port)
 TARPIT = "http://10.255.255.1"
 
-class TestRequests(object):
 
-    _multiprocess_can_split_ = True
-
-    def setUp(self):
-        """Create simple data set with headers."""
-        pass
-
-    def tearDown(self):
-        """Teardown."""
-        pass
+class TestRequests:
 
     def test_entry_points(self):
 
@@ -97,17 +87,19 @@ class TestRequests(object):
         requests.patch
         requests.post
 
-    def test_invalid_url(self):
-        with pytest.raises(MissingSchema):
-            requests.get('hiwpefhipowhefopw')
-        with pytest.raises(InvalidSchema):
-            requests.get('localhost:3128')
-        with pytest.raises(InvalidSchema):
-            requests.get('localhost.localdomain:3128/')
-        with pytest.raises(InvalidSchema):
-            requests.get('10.122.1.1:3128/')
-        with pytest.raises(InvalidURL):
-            requests.get('http://')
+    @pytest.mark.parametrize(
+        'exception, url',
+        (
+            (MissingSchema, 'hiwpefhipowhefopw'),
+            (InvalidSchema, 'localhost:3128'),
+            (InvalidSchema, 'localhost.localdomain:3128/'),
+            (InvalidSchema, '10.122.1.1:3128/'),
+            (InvalidURL, 'http://'),
+        )
+    )
+    def test_invalid_url(self, exception, url):
+        with pytest.raises(exception):
+            requests.get(url)
 
     def test_basic_building(self):
         req = requests.Request()
@@ -118,11 +110,10 @@ class TestRequests(object):
         assert pr.url == req.url
         assert pr.body == 'life=42'
 
-    def test_no_content_length(self, httpbin):
-        get_req = requests.Request('GET', httpbin('get')).prepare()
-        assert 'Content-Length' not in get_req.headers
-        head_req = requests.Request('HEAD', httpbin('head')).prepare()
-        assert 'Content-Length' not in head_req.headers
+    @pytest.mark.parametrize('method', ('GET', 'HEAD'))
+    def test_no_content_length(self, httpbin, method):
+        req = requests.Request(method, httpbin(method.lower())).prepare()
+        assert 'Content-Length' not in req.headers
 
     def test_override_content_length(self, httpbin):
         headers = {
@@ -137,13 +128,16 @@ class TestRequests(object):
 
         assert request.path_url == '/get/test%20case'
 
-    def test_params_are_added_before_fragment(self):
-        request = requests.Request('GET',
-            "http://example.com/path#fragment", params={"a": "b"}).prepare()
-        assert request.url == "http://example.com/path?a=b#fragment"
-        request = requests.Request('GET',
-            "http://example.com/path?key=value#fragment", params={"a": "b"}).prepare()
-        assert request.url == "http://example.com/path?key=value&a=b#fragment"
+    @pytest.mark.parametrize(
+        'url, expected',
+        (
+            ('http://example.com/path#fragment', 'http://example.com/path?a=b#fragment'),
+            ('http://example.com/path?key=value#fragment', 'http://example.com/path?key=value&a=b#fragment')
+        )
+    )
+    def test_params_are_added_before_fragment(self, url, expected):
+        request = requests.Request('GET', url, params={"a": "b"}).prepare()
+        assert request.url == expected
 
     def test_params_original_order_is_preserved_by_default(self):
         param_ordered_dict = OrderedDict((('z', 1), ('a', 1), ('k', 1), ('d', 1)))
@@ -162,16 +156,15 @@ class TestRequests(object):
                                    data=u"ööö".encode("utf-8")).prepare()
         assert isinstance(request.body, bytes)
 
-    def test_mixed_case_scheme_acceptable(self, httpbin):
+    @pytest.mark.parametrize('scheme', ('http://', 'HTTP://', 'hTTp://', 'HttP://'))
+    def test_mixed_case_scheme_acceptable(self, httpbin, scheme):
         s = requests.Session()
         s.proxies = getproxies()
         parts = urlparse(httpbin('get'))
-        schemes = ['http://', 'HTTP://', 'hTTp://', 'HttP://']
-        for scheme in schemes:
-            url = scheme + parts.netloc + parts.path
-            r = requests.Request('GET', url)
-            r = s.send(r.prepare())
-            assert r.status_code == 200, 'failed for scheme {0}'.format(scheme)
+        url = scheme + parts.netloc + parts.path
+        r = requests.Request('GET', url)
+        r = s.send(r.prepare())
+        assert r.status_code == 200, 'failed for scheme {0}'.format(scheme)
 
     def test_HTTP_200_OK_GET_ALTERNATIVE(self, httpbin):
         r = requests.Request('GET', httpbin('get'))
@@ -323,21 +316,15 @@ class TestRequests(object):
         prep = ses.prepare_request(req)
         assert 'Accept-Encoding' not in prep.headers
 
-    def test_user_agent_transfers(self, httpbin):
+    @pytest.mark.parametrize('key', ('User-agent', 'user-agent'))
+    def test_user_agent_transfers(self, httpbin, key):
 
         heads = {
-            'User-agent': 'Mozilla/5.0 (github.com/kennethreitz/requests)'
+            key: 'Mozilla/5.0 (github.com/kennethreitz/requests)'
         }
 
         r = requests.get(httpbin('user-agent'), headers=heads)
-        assert heads['User-agent'] in r.text
-
-        heads = {
-            'user-agent': 'Mozilla/5.0 (github.com/kennethreitz/requests)'
-        }
-
-        r = requests.get(httpbin('user-agent'), headers=heads)
-        assert heads['user-agent'] in r.text
+        assert heads[key] in r.text
 
     def test_HTTP_200_OK_HEAD(self, httpbin):
         r = requests.head(httpbin('get'))
@@ -362,20 +349,20 @@ class TestRequests(object):
         r = s.get(url)
         assert r.status_code == 200
 
-    def test_connection_error_invalid_domain(self):
-        """Connecting to an unknown domain should raise a ConnectionError"""
-        with pytest.raises(ConnectionError):
-            requests.get("http://doesnotexist.google.com")
-
-    def test_connection_error_invalid_port(self):
-        """Connecting to an invalid port should raise a ConnectionError"""
-        with pytest.raises(ConnectionError):
-            requests.get("http://localhost:1", timeout=1)
-
-    def test_LocationParseError(self):
-        """Inputing a URL that cannot be parsed should raise an InvalidURL error"""
-        with pytest.raises(InvalidURL):
-            requests.get("http://fe80::5054:ff:fe5a:fc0")
+    @pytest.mark.parametrize(
+        'url, exception',
+        (
+            # Connecting to an unknown domain should raise a ConnectionError
+            ('http://doesnotexist.google.com', ConnectionError),
+            # Connecting to an invalid port should raise a ConnectionError
+            ('http://localhost:1', ConnectionError),
+            # Inputing a URL that cannot be parsed should raise an InvalidURL error
+            ('http://fe80::5054:ff:fe5a:fc0', InvalidURL)
+        )
+    )
+    def test_errors(self, url, exception):
+        with pytest.raises(exception):
+            requests.get(url, timeout=1)
 
     def test_basicauth_with_netrc(self, httpbin):
         auth = ('user', 'pass')
@@ -480,7 +467,7 @@ class TestRequests(object):
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
 
         url = httpbin('post')
-        post1 = requests.post(url).raise_for_status()
+        requests.post(url).raise_for_status()
 
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
@@ -498,7 +485,7 @@ class TestRequests(object):
     def test_POSTBIN_GET_POST_FILES_WITH_DATA(self, httpbin):
 
         url = httpbin('post')
-        post1 = requests.post(url).raise_for_status()
+        requests.post(url).raise_for_status()
 
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
@@ -536,13 +523,18 @@ class TestRequests(object):
         r = requests.get(httpbin('gzip'))
         r.content.decode('ascii')
 
-    def test_unicode_get(self, httpbin):
-        url = httpbin('/get')
-        requests.get(url, params={'foo': 'føø'})
-        requests.get(url, params={'føø': 'føø'})
-        requests.get(url, params={'føø': 'føø'})
-        requests.get(url, params={'foo': 'foo'})
-        requests.get(httpbin('ø'), params={'foo': 'foo'})
+    @pytest.mark.parametrize(
+        'url, params',
+        (
+            ('/get', {'foo': 'føø'}),
+            ('/get', {'føø': 'føø'}),
+            ('/get', {'føø': 'føø'}),
+            ('/get', {'foo': 'foo'}),
+            ('ø', {'foo': 'foo'}),
+        )
+    )
+    def test_unicode_get(self, httpbin, url, params):
+        requests.get(httpbin(url), params=params)
 
     def test_unicode_header_name(self, httpbin):
         requests.put(
@@ -566,24 +558,17 @@ class TestRequests(object):
             files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
-    def test_unicode_multipart_post(self, httpbin):
+    @pytest.mark.parametrize(
+        'data', (
+            {'stuff': u('ëlïxr')},
+            {'stuff': u('ëlïxr').encode('utf-8')},
+            {'stuff': 'elixr'},
+            {'stuff': 'elixr'.encode('utf-8')},
+        )
+    )
+    def test_unicode_multipart_post(self, httpbin, data):
         r = requests.post(httpbin('post'),
-            data={'stuff': u('ëlïxr')},
-            files={'file': ('test_requests.py', open(__file__, 'rb'))})
-        assert r.status_code == 200
-
-        r = requests.post(httpbin('post'),
-            data={'stuff': u('ëlïxr').encode('utf-8')},
-            files={'file': ('test_requests.py', open(__file__, 'rb'))})
-        assert r.status_code == 200
-
-        r = requests.post(httpbin('post'),
-            data={'stuff': 'elixr'},
-            files={'file': ('test_requests.py', open(__file__, 'rb'))})
-        assert r.status_code == 200
-
-        r = requests.post(httpbin('post'),
-            data={'stuff': 'elixr'.encode('utf-8')},
+            data=data,
             files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
@@ -627,6 +612,7 @@ class TestRequests(object):
 
     def test_hook_receives_request_arguments(self, httpbin):
         def hook(resp, **kwargs):
+            # FIXME. Not executed
             assert resp is not None
             assert kwargs != {}
 
@@ -1118,7 +1104,7 @@ class TestRequests(object):
         i = 0
         for item in r.history:
             assert item.history == total[0:i]
-            i = i + 1
+            i += 1
 
     def test_json_param_post_content_type_works(self, httpbin):
         r = requests.post(
@@ -1163,36 +1149,25 @@ class TestRequests(object):
         assert len(list(r.iter_lines())) == 3
 
 
-class TestContentEncodingDetection(unittest.TestCase):
+class TestContentEncodingDetection:
 
     def test_none(self):
         encodings = requests.utils.get_encodings_from_content('')
         assert not len(encodings)
 
-    def test_html_charset(self):
-        """HTML5 meta charset attribute"""
-        content = '<meta charset="UTF-8">'
-        encodings = requests.utils.get_encodings_from_content(content)
-        assert len(encodings) == 1
-        assert encodings[0] == 'UTF-8'
-
-    def test_html4_pragma(self):
-        """HTML4 pragma directive"""
-        content = '<meta http-equiv="Content-type" content="text/html;charset=UTF-8">'
-        encodings = requests.utils.get_encodings_from_content(content)
-        assert len(encodings) == 1
-        assert encodings[0] == 'UTF-8'
-
-    def test_xhtml_pragma(self):
-        """XHTML 1.x served with text/html MIME type"""
-        content = '<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />'
-        encodings = requests.utils.get_encodings_from_content(content)
-        assert len(encodings) == 1
-        assert encodings[0] == 'UTF-8'
-
-    def test_xml(self):
-        """XHTML 1.x served as XML"""
-        content = '<?xml version="1.0" encoding="UTF-8"?>'
+    @pytest.mark.parametrize(
+        'content', (
+            # HTML5 meta charset attribute
+            '<meta charset="UTF-8">',
+            # HTML4 pragma directive
+            '<meta http-equiv="Content-type" content="text/html;charset=UTF-8">',
+            # XHTML 1.x served with text/html MIME type
+            '<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />',
+            # XHTML 1.x served as XML
+            '<?xml version="1.0" encoding="UTF-8"?>',
+        )
+    )
+    def test_pragmas(self, content):
         encodings = requests.utils.get_encodings_from_content(content)
         assert len(encodings) == 1
         assert encodings[0] == 'UTF-8'
@@ -1207,22 +1182,17 @@ class TestContentEncodingDetection(unittest.TestCase):
         assert encodings == ['HTML5', 'HTML4', 'XML']
 
 
-class TestCaseInsensitiveDict(unittest.TestCase):
+class TestCaseInsensitiveDict:
 
-    def test_mapping_init(self):
-        cid = CaseInsensitiveDict({'Foo': 'foo', 'BAr': 'bar'})
-        assert len(cid) == 2
-        assert 'foo' in cid
-        assert 'bar' in cid
-
-    def test_iterable_init(self):
-        cid = CaseInsensitiveDict([('Foo', 'foo'), ('BAr', 'bar')])
-        assert len(cid) == 2
-        assert 'foo' in cid
-        assert 'bar' in cid
-
-    def test_kwargs_init(self):
-        cid = CaseInsensitiveDict(FOO='foo', BAr='bar')
+    @pytest.mark.parametrize(
+        'cid',
+        (
+            CaseInsensitiveDict({'Foo': 'foo', 'BAr': 'bar'}),
+            CaseInsensitiveDict([('Foo', 'foo'), ('BAr', 'bar')]),
+            CaseInsensitiveDict(FOO='foo', BAr='bar'),
+        )
+    )
+    def test_init(self, cid):
         assert len(cid) == 2
         assert 'foo' in cid
         assert 'bar' in cid
@@ -1356,7 +1326,7 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert cid != cid_copy
 
 
-class UtilsTestCase(unittest.TestCase):
+class TestUtils:
 
     def test_super_len_io_streams(self):
         """ Ensures that we properly deal with different kinds of IO streams. """
@@ -1467,7 +1437,7 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_get_auth_from_url(self):
         """Ensures that username and password in well-encoded URI as per
-        RFC 3986 are correclty extracted."""
+        RFC 3986 are correctly extracted."""
         from requests.utils import get_auth_from_url
         from requests.compat import quote
         percent_encoding_test_chars = "%!*'();:@&=+$,/?#[] "
@@ -1496,7 +1466,7 @@ class UtilsTestCase(unittest.TestCase):
         assert quoted == requote_uri(quoted)
 
 
-class TestMorselToCookieExpires(unittest.TestCase):
+class TestMorselToCookieExpires:
 
     """Tests for morsel_to_cookie when morsel contains expires."""
 
@@ -1508,20 +1478,18 @@ class TestMorselToCookieExpires(unittest.TestCase):
         cookie = morsel_to_cookie(morsel)
         assert cookie.expires == 1
 
-    def test_expires_invalid_int(self):
+    @pytest.mark.parametrize(
+        'value, exception',
+        (
+            (100, TypeError),
+            ('woops', ValueError),
+        )
+    )
+    def test_expires_invalid_int(self, value, exception):
         """Test case where an invalid type is passed for expires."""
-
         morsel = Morsel()
-        morsel['expires'] = 100
-        with pytest.raises(TypeError):
-            morsel_to_cookie(morsel)
-
-    def test_expires_invalid_str(self):
-        """Test case where an invalid string is input."""
-
-        morsel = Morsel()
-        morsel['expires'] = 'woops'
-        with pytest.raises(ValueError):
+        morsel['expires'] = value
+        with pytest.raises(exception):
             morsel_to_cookie(morsel)
 
     def test_expires_none(self):
@@ -1533,7 +1501,7 @@ class TestMorselToCookieExpires(unittest.TestCase):
         assert cookie.expires is None
 
 
-class TestMorselToCookieMaxAge(unittest.TestCase):
+class TestMorselToCookieMaxAge:
 
     """Tests for morsel_to_cookie when morsel contains max-age."""
 
@@ -1585,14 +1553,14 @@ class TestTimeout:
     def test_read_timeout(self, httpbin):
         try:
             requests.get(httpbin('delay/10'), timeout=(None, 0.1))
-            assert False, "The recv() request should time out."
+            pytest.fail('The recv() request should time out.')
         except ReadTimeout:
             pass
 
     def test_connect_timeout(self):
         try:
             requests.get(TARPIT, timeout=(0.1, None))
-            assert False, "The connect() request should time out."
+            pytest.fail('The connect() request should time out.')
         except ConnectTimeout as e:
             assert isinstance(e, ConnectionError)
             assert isinstance(e, Timeout)
@@ -1600,7 +1568,7 @@ class TestTimeout:
     def test_total_timeout_connect(self):
         try:
             requests.get(TARPIT, timeout=(0.1, 0.1))
-            assert False, "The connect() request should time out."
+            pytest.fail('The connect() request should time out.')
         except ConnectTimeout:
             pass
 
@@ -1667,7 +1635,6 @@ class TestRedirects:
             send_call = SendCall((response.request,),
                                  TestRedirects.default_keyword_args)
             assert session.calls[-1] == send_call
-
 
 
 @pytest.fixture
@@ -1764,7 +1731,3 @@ def test_vendor_aliases():
 
     with pytest.raises(ImportError):
         from requests.packages import webbrowser
-
-
-if __name__ == '__main__':
-    unittest.main()
