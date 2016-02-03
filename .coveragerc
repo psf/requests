@@ -1,7 +1,0 @@
-[run]
-omit = */packages/*
-
-[report]
-show_missing = true
-precision = 2
-exclude_lines = pytest.fail
