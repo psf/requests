@@ -11,9 +11,6 @@ from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
 
-JYTHON = platform.system() == 'Java'
-
-
 class PyTest(TestCommand):
     user_options = [('pytest-args=', 'a', "Arguments to pass into py.test")]
 
@@ -49,10 +46,7 @@ packages = [
 ]
 
 requires = []
-test_requirements = ['pytest>=2.8.0', 'pytest-httpbin==0.0.7']
-
-if not JYTHON:
-    test_requirements.append('pytest-cov')
+test_requirements = ['pytest>=2.8.0', 'pytest-httpbin==0.0.7', 'pytest-cov']
 
 with open('requests/__init__.py', 'r') as fd:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
@@ -94,8 +88,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Programming Language :: Python :: Implementation :: Jython',
+        'Programming Language :: Python :: Implementation :: PyPy'
     ),
     cmdclass={'test': PyTest},
     tests_require=test_requirements,
