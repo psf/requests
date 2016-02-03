@@ -36,11 +36,6 @@ URLs, or to form-encode your POST data. Keep-alive and HTTP connection pooling
 are 100% automatic, powered by `urllib3 <https://github.com/shazow/urllib3>`_,
 which is embedded within Requests.
 
-But wait, there's more! Headers, cookies, json/form data, multipart files, and
-url parameters can all be provided with standard Python dictionaries.
-Responses feature RFC-compliant redirection history, unicode/bytes bodies, a
-case-insensitive header dictionary, and more.
-
 Besides, all the cool kids are doing it. Requests is one of the most
 downloaded Python packages of all time, pulling in over 6,000,000 downloads
 every month. You don't want to be left out!
