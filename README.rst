@@ -30,18 +30,25 @@ constantly reading documentation, depression, headaches, or even death.
 
 See `the similar code, sans Requests <https://gist.github.com/973705>`_.
 
-Requests allows you to send *organic, grass-fed* HTTP/1.1 requests, all day.
-Headers, cookies, json/form data, multipart files, and url parameters can all
-be provided with standard Python dictionaries. 
+Requests allows you to send *organic, grass-fed* HTTP/1.1 requests, without the
+need for manual labor. There's no need to manually add query strings to your
+URLs, or to form-encode your POST data. Keep-alive and HTTP connection pooling
+are 100% automatic, powered by `urllib3 <https://github.com/shazow/urllib3>`_,
+which is embedded within Requests.
+
+But wait, there's more! Headers, cookies, json/form data, multipart files, and
+url parameters can all be provided with standard Python dictionaries.
 Responses feature RFC-compliant redirection history, unicode/bytes bodies, a
 case-insensitive header dictionary, and more.
 
-Besides, all the cool kids are doing it. Requests is one of the most 
-downloaded Python packages of all time, pulling in over 6,000,000 downloads 
-every month. You don't want to be left out! 
+Besides, all the cool kids are doing it. Requests is one of the most
+downloaded Python packages of all time, pulling in over 6,000,000 downloads
+every month. You don't want to be left out!
 
-Special Features
-----------------
+Feature Support
+---------------
+
+Requests is ready for today's web.
 
 - International Domains and URLs
 - Keep-Alive & Connection Pooling
@@ -53,11 +60,14 @@ Special Features
 - Automatic Content Decoding
 - Unicode Response Bodies
 - Multipart File Uploads
-- HTTP(S) proxy support
+- HTTP(S) Proxy Support
 - Connection Timeouts
 - Streaming Downloads
+- ``.netrc`` Support
 - Chunked Requests
 - Thread-safety
+
+Requests supports Python 2.6 — 3.5, and runs great on PyPy.
 
 Installation
 ------------
@@ -68,7 +78,7 @@ To install Requests, simply:
 
     $ pip install requests
 
-Satisfaction, guaranteed. 
+Satisfaction, guaranteed.
 
 Documentation
 -------------

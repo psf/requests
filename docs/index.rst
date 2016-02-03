@@ -8,16 +8,12 @@ Requests: HTTP for Humans
 
 Release v\ |version|. (:ref:`Installation <install>`)
 
-Requests is an :ref:`Apache2 Licensed <apache2>` HTTP library, written in
-Python, for human beings.
+Requests is the only *Non-GMO* HTTP library for Python, safe for human
+consumption.
 
-Python's standard **urllib2** module provides most of
-the HTTP capabilities you need, but the API is thoroughly **broken**.
-It was built for a different time — and a different web. It requires an
-*enormous* amount of work (even method overrides) to perform the simplest of
-tasks.
-
-Things shouldn’t be this way. Not in Python.
+**Warning:** Recreational use of other HTTP libraries may result in dangerous side-effects,
+including: security vulnerabilities, verbose code, reinventing the wheel,
+constantly reading documentation, depression, headaches, or even death.
 
 ::
 
@@ -33,22 +29,31 @@ Things shouldn’t be this way. Not in Python.
     >>> r.json()
     {u'private_gists': 419, u'total_private_repos': 77, ...}
 
-See `similar code, without Requests <https://gist.github.com/973705>`_.
+See `similar code, sans Requests <https://gist.github.com/973705>`_.
 
-Requests takes all of the work out of Python HTTP/1.1 — making your integration
-with web services seamless. There's no need to manually add query strings to
-your URLs, or to form-encode your POST data. Keep-alive and HTTP connection
-pooling are 100%  automatic, powered by `urllib3 <https://github.com/shazow/urllib3>`_,
+
+Requests allows you to send *organic, grass-fed* HTTP/1.1 requests, without the
+need for manual labor. There's no need to manually add query strings to your
+URLs, or to form-encode your POST data. Keep-alive and HTTP connection pooling
+are 100% automatic, powered by `urllib3 <https://github.com/shazow/urllib3>`_,
 which is embedded within Requests.
 
+But wait, there's more! Headers, cookies, json/form data, multipart files, and
+url parameters can all be provided with standard Python dictionaries.
+Responses feature RFC-compliant redirection history, unicode/bytes bodies, a
+case-insensitive header dictionary, and more.
+
+Besides, all the cool kids are doing it. Requests is one of the most
+downloaded Python packages of all time, pulling in over 6,000,000 downloads
+every month. You don't want to be left out!
 
 Testimonials
 ------------
 
 Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
 PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
-Post, Twitter, SoundCloud, Kippt, Readability, Sony, and Federal US Institutions that prefer to be unnamed
-use Requests internally. It has been downloaded over 60,000,000 times from PyPI.
+Post, Twitter, SoundCloud, Kippt, Readability, Sony, and Federal U.S.
+Institutions that prefer to be unnamed claim to use Requests internally.
 
 **Armin Ronacher**
     Requests is the perfect example how beautiful an API can be with the
@@ -79,12 +84,17 @@ Requests is ready for today's web.
 - Basic/Digest Authentication
 - Elegant Key/Value Cookies
 - Automatic Decompression
+- Automatic Content Decoding
 - Unicode Response Bodies
 - Multipart File Uploads
+- HTTP(S) Proxy Support
 - Connection Timeouts
-- ``.netrc`` support
-- Python 2.6—3.5
-- Thread-safe.
+- Streaming Downloads
+- ``.netrc`` Support
+- Chunked Requests
+- Thread-safety
+
+Requests supports Python 2.6 — 3.5, and runs great on PyPy.
 
 
 User Guide
