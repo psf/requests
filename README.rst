@@ -8,6 +8,12 @@ Requests: HTTP for Humans
         :target: https://pypi.python.org/pypi/requests
 
 **Requests** is the only *Non-GMO* HTTP library for Python, safe for human
+beings.
+
+Most existing Python modules for sending HTTP requests are extremely
+verbose and cumbersome. Python's builtin urllib2 module provides most of
+the HTTP capabilities you should need, but the API is thoroughly broken.
+It requires an enormous amount of work (even method overrides) to
 consumption.
 
 Consumption of other HTTP libraries may result in dangerous side-effects,
