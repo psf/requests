@@ -65,6 +65,7 @@ To install Requests, simply:
 
     $ pip install requests
 
+Satisfaction, gaurenteed. 
 
 Documentation
 -------------
