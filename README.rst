@@ -32,7 +32,7 @@ See `the similar code, sans Requests <https://gist.github.com/973705>`_.
 
 Requests allows you to send *organic, grass-fed* HTTP/1.1 requests, very well.
 Headers, cookies, json/form data, multipart files, and url parameters can all
-be provided with simple Python dictionaries. SSL certificates are automatically
+be provided with standard Python dictionaries. SSL certificates are automatically
 verified against a carefully crafted bundle of root certificates, included.
 Responses feature RFC-compliant redirection history, unicode/bytes bodies, a
 case-insensitive header dictionary, and more.
