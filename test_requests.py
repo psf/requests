@@ -566,6 +566,20 @@ class TestRequests:
             files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
+    def test_unicode_prepare_data_in_session_send(self, httpbin):
+        r = requests.Request(method='GET', url='https://httpbin.org/get')
+        r.data = u'x=føø'
+        with pytest.raises(UnicodeEncodeError):
+            prepared = r.prepare()
+            requests.Session().send(prepared)
+
+    def test_unicode_prepare_data_list_in_session_send(self, httpbin):
+        r = requests.Request(method='GET', url='https://httpbin.org/get')
+        r.data = [(u'x', u'føø')]
+        with pytest.raises(UnicodeEncodeError):
+            prepared = r.prepare()
+            session_sent = requests.Session().send(prepared)
+
     def test_unicode_multipart_post_fieldnames(self, httpbin):
         filename = os.path.splitext(__file__)[0] + '.py'
         r = requests.Request(method='POST',
