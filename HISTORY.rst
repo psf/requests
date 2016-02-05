@@ -3,6 +3,13 @@
 Release History
 ---------------
 
+2.9.2 (???)
++++++++++++
+
+**Bugfixes**
+
+- Don't use redirect_cache if allow_redirects=False
+
 2.9.1 (2015-12-21)
 ++++++++++++++++++
 
