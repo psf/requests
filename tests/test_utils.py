@@ -20,12 +20,10 @@ class TestSuperLen:
         'stream, value', (
             (StringIO.StringIO, 'Test'),
             (BytesIO, b'Test'),
-            pytest.mark.skipif('cStringIO is None')(
-                (cStringIO, 'Test')
-            ),
+            pytest.mark.skipif('cStringIO is None')((cStringIO, 'Test')),
         ))
     def test_io_streams(self, stream, value):
-        """ Ensures that we properly deal with different kinds of IO streams. """
+        """Ensures that we properly deal with different kinds of IO streams."""
         assert super_len(stream()) == 0
         assert super_len(stream(value)) == 4
 
@@ -38,7 +36,7 @@ class TestSuperLen:
 
 class TestGetEnvironProxies:
     """Ensures that IP addresses are correctly matches with ranges
-        in no_proxy variable."""
+    in no_proxy variable."""
 
     @pytest.yield_fixture(scope='class', autouse=True, params=['no_proxy', 'NO_PROXY'])
     def no_proxy(self, request):
@@ -53,8 +51,7 @@ class TestGetEnvironProxies:
             'http://172.16.1.1/',
             'http://172.16.1.1:5000/',
             'http://localhost.localdomain:5000/v1.0/',
-        )
-    )
+        ))
     def test_bypass(self, url):
         assert get_environ_proxies(url) == {}
 
@@ -63,8 +60,7 @@ class TestGetEnvironProxies:
             'http://192.168.1.1:5000/',
             'http://192.168.1.1/',
             'http://www.requests.com/',
-        )
-    )
+        ))
     def test_not_bypass(self, url):
         assert get_environ_proxies(url) != {}
 
@@ -91,8 +87,7 @@ class TestIsValidCIDR:
             '192.168.1.0/128',
             '192.168.1.0/-1',
             '192.168.1.999/24',
-        )
-    )
+        ))
     def test_invalid(self, value):
         assert not is_valid_cidr(value)
 
@@ -118,8 +113,7 @@ class TestGuessFilename:
         'value, expected_type', (
             (b'value', compat.bytes),
             (b'value'.decode('utf-8'), compat.str)
-        )
-    )
+        ))
     def test_guess_filename_valid(self, value, expected_type):
         obj = type('Fake', (object,), {'name': value})()
         result = guess_filename(obj)
@@ -143,8 +137,7 @@ class TestContentEncodingDetection:
             '<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />',
             # XHTML 1.x served as XML
             '<?xml version="1.0" encoding="UTF-8"?>',
-        )
-    )
+        ))
     def test_pragmas(self, content):
         encodings = get_encodings_from_content(content)
         assert len(encodings) == 1
@@ -191,8 +184,7 @@ ENCODED_PASSWORD = compat.quote(PASSWORD, '')
             'http://user:pass%23pass@complex.url.com/path?query=yes',
             ('user', 'pass#pass')
         ),
-    )
-)
+    ))
 def test_get_auth_from_url(url, auth):
     assert get_auth_from_url(url) == auth
 
@@ -209,8 +201,7 @@ def test_get_auth_from_url(url, auth):
             'http://example.com/fiz?buz=%ppicture',
             'http://example.com/fiz?buz=%25ppicture',
         ),
-    )
-)
+    ))
 def test_requote_uri_with_unquoted_percents(uri, expected):
     """See: https://github.com/kennethreitz/requests/issues/2356
     """
@@ -222,8 +213,7 @@ def test_requote_uri_with_unquoted_percents(uri, expected):
         (8, '255.0.0.0'),
         (24, '255.255.255.0'),
         (25, '255.255.255.128'),
-    )
-)
+    ))
 def test_dotted_netmask(mask, expected):
     assert dotted_netmask(mask) == expected
 
@@ -233,8 +223,7 @@ def test_dotted_netmask(mask, expected):
         ('hTTp://u:p@Some.Host/path', 'http://some.host.proxy'),
         ('hTTp://u:p@Other.Host/path', 'http://http.proxy'),
         ('hTTps://Other.Host', None),
-    )
-)
+    ))
 def test_select_proxies(url, expected):
     """Make sure we can select per-host proxies correctly."""
     proxies = {'http': 'http://http.proxy',

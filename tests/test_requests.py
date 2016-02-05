@@ -32,7 +32,7 @@ from .compat import StringIO, u
 
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
-TARPIT = "http://10.255.255.1"
+TARPIT = 'http://10.255.255.1'
 
 
 class TestRequests:
@@ -48,15 +48,14 @@ class TestRequests:
         requests.patch
         requests.post
 
-    @pytest.mark.parametrize('exception, url',
-        (
+    @pytest.mark.parametrize(
+        'exception, url', (
             (MissingSchema, 'hiwpefhipowhefopw'),
             (InvalidSchema, 'localhost:3128'),
             (InvalidSchema, 'localhost.localdomain:3128/'),
             (InvalidSchema, '10.122.1.1:3128/'),
             (InvalidURL, 'http://'),
-        )
-    )
+        ))
     def test_invalid_url(self, exception, url):
         with pytest.raises(exception):
             requests.get(url)
@@ -88,12 +87,11 @@ class TestRequests:
 
         assert request.path_url == '/get/test%20case'
 
-    @pytest.mark.parametrize('url, expected',
-        (
+    @pytest.mark.parametrize(
+        'url, expected', (
             ('http://example.com/path#fragment', 'http://example.com/path?a=b#fragment'),
             ('http://example.com/path?key=value#fragment', 'http://example.com/path?key=value&a=b#fragment')
-        )
-    )
+        ))
     def test_params_are_added_before_fragment(self, url, expected):
         request = requests.Request('GET', url, params={"a": "b"}).prepare()
         assert request.url == expected
@@ -276,9 +274,7 @@ class TestRequests:
     @pytest.mark.parametrize('key', ('User-agent', 'user-agent'))
     def test_user_agent_transfers(self, httpbin, key):
 
-        heads = {
-            key: 'Mozilla/5.0 (github.com/kennethreitz/requests)'
-        }
+        heads = {key: 'Mozilla/5.0 (github.com/kennethreitz/requests)'}
 
         r = requests.get(httpbin('user-agent'), headers=heads)
         assert heads[key] in r.text
@@ -314,8 +310,7 @@ class TestRequests:
             ('http://localhost:1', ConnectionError),
             # Inputing a URL that cannot be parsed should raise an InvalidURL error
             ('http://fe80::5054:ff:fe5a:fc0', InvalidURL)
-        )
-    )
+        ))
     def test_errors(self, url, exception):
         with pytest.raises(exception):
             requests.get(url, timeout=1)
@@ -480,15 +475,13 @@ class TestRequests:
         r.content.decode('ascii')
 
     @pytest.mark.parametrize(
-        'url, params',
-        (
+        'url, params', (
             ('/get', {'foo': 'føø'}),
             ('/get', {'føø': 'føø'}),
             ('/get', {'føø': 'føø'}),
             ('/get', {'foo': 'foo'}),
             ('ø', {'foo': 'foo'}),
-        )
-    )
+        ))
     def test_unicode_get(self, httpbin, url, params):
         requests.get(httpbin(url), params=params)
 
@@ -520,8 +513,7 @@ class TestRequests:
             {'stuff': u('ëlïxr').encode('utf-8')},
             {'stuff': 'elixr'},
             {'stuff': 'elixr'.encode('utf-8')},
-        )
-    )
+        ))
     def test_unicode_multipart_post(self, httpbin, data):
         r = requests.post(httpbin('post'),
             data=data,
@@ -530,11 +522,10 @@ class TestRequests:
 
     def test_unicode_multipart_post_fieldnames(self, httpbin):
         filename = os.path.splitext(__file__)[0] + '.py'
-        r = requests.Request(method='POST',
-                             url=httpbin('post'),
-                             data={'stuff'.encode('utf-8'): 'elixr'},
-                             files={'file': ('test_requests.py',
-                                             open(filename, 'rb'))})
+        r = requests.Request(
+            method='POST', url=httpbin('post'),
+            data={'stuff'.encode('utf-8'): 'elixr'},
+            files={'file': ('test_requests.py', open(filename, 'rb'))})
         prep = r.prepare()
         assert b'name="stuff"' in prep.body
         assert b'name="b\'stuff\'"' not in prep.body
@@ -548,10 +539,10 @@ class TestRequests:
     def test_unicode_method_name_with_request_object(self, httpbin):
         files = {'file': open(__file__, 'rb')}
         s = requests.Session()
-        req = requests.Request(u("POST"), httpbin('post'), files=files)
+        req = requests.Request(u('POST'), httpbin('post'), files=files)
         prep = s.prepare_request(req)
         assert isinstance(prep.method, builtin_str)
-        assert prep.method == "POST"
+        assert prep.method == 'POST'
 
         resp = s.send(prep)
         assert resp.status_code == 200
@@ -560,9 +551,10 @@ class TestRequests:
         r = requests.post(
             httpbin('post'),
             data={'stuff': json.dumps({'a': 123})},
-            files={'file1': ('test_requests.py', open(__file__, 'rb')),
-                   'file2': ('test_requests', open(__file__, 'rb'),
-                             'text/py-content-type')})
+            files={
+                'file1': ('test_requests.py', open(__file__, 'rb')),
+                'file2': ('test_requests', open(__file__, 'rb'),
+                    'text/py-content-type')})
         assert r.status_code == 200
         assert b"text/py-content-type" in r.request.body
 
@@ -1081,8 +1073,7 @@ class TestCaseInsensitiveDict:
             CaseInsensitiveDict({'Foo': 'foo', 'BAr': 'bar'}),
             CaseInsensitiveDict([('Foo', 'foo'), ('BAr', 'bar')]),
             CaseInsensitiveDict(FOO='foo', BAr='bar'),
-        )
-    )
+        ))
     def test_init(self, cid):
         assert len(cid) == 2
         assert 'foo' in cid
@@ -1232,8 +1223,7 @@ class TestMorselToCookieExpires:
         'value, exception', (
             (100, TypeError),
             ('woops', ValueError),
-        )
-    )
+        ))
     def test_expires_invalid_int(self, value, exception):
         """Test case where an invalid type is passed for expires."""
         morsel = Morsel()
@@ -1283,8 +1273,7 @@ class TestTimeout:
         'timeout, error_text', (
             ((3, 4, 5), '(connect, read)'),
             ('foo', 'must be an int or float'),
-        )
-    )
+        ))
     def test_invalid_timeout(self, httpbin, timeout, error_text):
         with pytest.raises(ValueError) as e:
             requests.get(httpbin('get'), timeout=timeout)
@@ -1391,8 +1380,7 @@ def test_requests_are_updated_each_time(httpbin):
         (('a', 'b'), ('c', 'd')),
         (('c', 'd'), ('a', 'b')),
         (('a', 'b'), ('c', 'd'), ('e', 'f')),
-    )
-)
+    ))
 def test_data_argument_accepts_tuples(data):
     """Ensure that the data argument will accept tuples of strings
     and properly encode them.
@@ -1427,8 +1415,7 @@ def test_data_argument_accepts_tuples(data):
             'method': 'GET',
             'url': u('http://www.example.com/üniçø∂é')
         },
-    )
-)
+    ))
 def test_prepared_copy(kwargs):
     p = PreparedRequest()
     if kwargs:
