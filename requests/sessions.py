@@ -553,18 +553,20 @@ class Session(SessionRedirectMixin):
         if not isinstance(request, PreparedRequest):
             raise ValueError('You can only send PreparedRequests.')
 
-        checked_urls = set()
-        while request.url in self.redirect_cache:
-            checked_urls.add(request.url)
-            new_url = self.redirect_cache.get(request.url)
-            if new_url in checked_urls:
-                break
-            request.url = new_url
-
         # Set up variables needed for resolve_redirects and dispatching of hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
         stream = kwargs.get('stream')
         hooks = request.hooks
+
+        # Resolve URL in redirect cache, if available.
+        if allow_redirects:
+            checked_urls = set()
+            while request.url in self.redirect_cache:
+                checked_urls.add(request.url)
+                new_url = self.redirect_cache.get(request.url)
+                if new_url in checked_urls:
+                    break
+                request.url = new_url
 
         # Get the appropriate adapter to use
         adapter = self.get_adapter(url=request.url)
