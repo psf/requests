@@ -524,6 +524,22 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         for event in hooks:
             self.register_hook(event, hooks[event])
 
+    def pprint(self, body=True):
+        """Prints the HTTP traffic of `PreparedRequest` object in 
+        a human-readable format
+
+        :param body: If True, prints the body of the response
+
+        """
+
+        s = ""
+        s += "%s %s HTTP/1.1" % (self.method, self.path_url)
+        for header,value in self.headers.items():
+            s += "\n%s: %s" % (header, value)
+        if self.body is not None and body:
+            s += "\n%s\n" % self.body
+        print(s)
+
 
 class Response(object):
     """The :class:`Response <Response>` object, which contains a
@@ -849,3 +865,19 @@ class Response(object):
             return self.raw.close()
 
         return self.raw.release_conn()
+
+    def pprint(self, body=True):
+        """Prints the HTTP traffic of `Response` object in a human-
+        readable format
+
+        :param body: If True, prints the body of the response
+
+        """
+
+        s = ""
+        s += "HTTP/1.1 %s %s" % (self.status_code, self.reason)
+        for header, value in self.headers.items():
+            s += "\n%s: %s" % (header, value)
+        if self.text is not None and body:
+            s += "\n\n%s" % self.text
+        print(s)
