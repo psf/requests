@@ -10,7 +10,11 @@ requests (cookies, auth, proxies).
 """
 import os
 from collections import Mapping
-from datetime import datetime
+from datetime import timedelta
+try:
+    from time import monotonic
+except:
+    from time import time as monotonic
 
 from .auth import _basic_auth_str
 from .compat import cookielib, OrderedDict, urljoin, urlparse
@@ -572,13 +576,13 @@ class Session(SessionRedirectMixin):
         adapter = self.get_adapter(url=request.url)
 
         # Start time (approximately) of the request
-        start = datetime.utcnow()
+        start = monotonic()
 
         # Send the request
         r = adapter.send(request, **kwargs)
 
         # Total elapsed time of the request (approximately)
-        r.elapsed = datetime.utcnow() - start
+        r.elapsed = timedelta(seconds=monotonic() - start)
 
         # Response manipulation hooks
         r = dispatch_hook('response', hooks, r, **kwargs)
