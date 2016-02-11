@@ -29,7 +29,7 @@ publish:
 	python setup.py register
 	python setup.py sdist upload
 	python setup.py bdist_wheel --universal upload 
-	rm -fr dist .egg
+	rm -fr build dist .egg requests.egg-info
 
 
 docs-init:
