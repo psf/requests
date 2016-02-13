@@ -1,4 +1,4 @@
-3.0.0 (2015-xx-xx)
+3.0.0 (2016-xx-xx)
 ++++++++++++++++++
 
 - Remove the ``__bool__`` and ``__nonzero__`` methods from a ``Response``
