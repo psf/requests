@@ -14,6 +14,7 @@ from io import BytesIO, UnsupportedOperation
 from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 
+from . import __version__
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
 from .packages.urllib3.fields import RequestField
@@ -523,6 +524,20 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         hooks = hooks or []
         for event in hooks:
             self.register_hook(event, hooks[event])
+
+    def render(self, body=True):
+        """Returns a string representation of the ``PreparedRequest``;
+        useful for debugging."""
+
+        r = ('REQUESTS/{version} {method} {url}\n{headers}'.format(
+            version=__version__,
+            method=self.method,
+            url=self.url,
+            headers='\n'.join('{}: {}'.format(k, v) for k, v in self.headers.items()),
+        ))
+        if body and self.body:
+            r += '\n\n{body}'.format(body=self.body)
+        return r
 
 
 class Response(object):
