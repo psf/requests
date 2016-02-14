@@ -525,7 +525,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         for event in hooks:
             self.register_hook(event, hooks[event])
 
-    def render(self, body=True):
+    def dump(self, body=True):
         """Returns a string representation of the ``PreparedRequest``;
         useful for debugging."""
 
