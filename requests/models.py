@@ -864,16 +864,3 @@ class Response(object):
             return self.raw.close()
 
         return self.raw.release_conn()
-
-    def render(self, body=True):
-        """Returns a string representation of the ``Response``;
-        useful for debugging."""
-
-        r = ('REQUESTS/{version} {status}\n{headers}'.format(
-            version=__version__,
-            status=self.status_code,
-            headers='\n'.join('{}: {}'.format(k, v) for k, v in self.headers.items()),
-        ))
-        if body:
-            r += '\n\n{body}'.format(body=self.content)
-        return r
