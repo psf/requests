@@ -16,7 +16,7 @@ from .structures import CaseInsensitiveDict
 
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
-from .packages import colored as colors
+from .packages import colored
 from .packages.urllib3.fields import RequestField
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
@@ -413,7 +413,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Check if file, fo, generator, iterator.
         # If not, run through normal process.
 
-        # Nottin' on you.
+        # Nottin' on you. (I was listening to B.o.B. at the time #flatearth)
         body = None
         content_type = None
         length = None
@@ -525,36 +525,23 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         for event in hooks:
             self.register_hook(event, hooks[event])
 
-    def dumps(self, body=True):
-        """Returns a string representation of the ``PreparedRequest``.
-        Useful for debugging.
+    def pretty(self, body=True, colors=True):
+        """Returns a beautiful string representation of the
+        ``PreparedRequest`` object. Useful for debugging.
 
         :param body: Whether or not to include the body in output.
+        :param colors: Whether or not to include colors in output.
         """
-        return self.dump(body=body, show=False)
-
-    def dump(self, body=True, colored=None, show=True):
-        """Presents a beautiful string representation of the
-        ``PreparedRequest``. Useful for debugging.
-
-        :param body: Whether or not to include the body in output.
-        :param colored: Whether or not to include colors in output.
-        :param show: if ``False``, returns dump instead of printing it.
-        """
-
-        # Turn magical coloring on automaticaly only when auto-printing.
-        if colored is None and show:
-            colored = True
 
         # Disable beautiful colors for those that so desire.
-        if not colored:
+        if not colors:
             colors.DISABLE_COLOR = True
 
         repr_ = '<PreparedRequest [{0}\n]>'
 
         # Prepare and format the introduction line.
         intro = '{0} {1}'.format(self.method, self.url)
-        intro = colors.yellow(intro).color_str
+        intro = colored.yellow(intro).color_str
 
         # Collection to collect the dump output.
         dump_ = ['', intro]
@@ -562,8 +549,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Prepare headers for dump.
         for (key, value) in self.headers.items():
             # Color the header name and value.
-            key = colors.green(key).color_str
-            value = colors.cyan(value).color_str
+            key = colored.green(key).color_str
+            value = colored.cyan(value).color_str
 
             # Add the formatted header to our collection.
             header = '{0}: {1}'.format(key, value)
@@ -583,7 +570,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 # Warn that PreparedRequest.body is not string-like
                 # Colored output to stand out from the rest.
-                dump_.append(colors.red(
+                dump_.append(colored.red(
                     '\b\b! Body content is not string-like. '
                     'Using repr() instead:'
                 ).color_str)
@@ -596,17 +583,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         dump_ = '\n    '.join(dump_.split('\n'))
 
         # Restore colored module to initial state.
-        if not colored:
-            colors.DISABLE_COLOR = False
+        if not colors:
+            colored.DISABLE_COLOR = False
 
         # Final representation of the dump.
         final_dump = repr_.format(dump_)
 
-        # Print to screen if auto-printing, else return the string.
-        if show:
-            print(final_dump)
-        else:
-            return final_dump
+        # Return the pretty string.
+        return final_dump
 
 
 class Response(object):
@@ -934,36 +918,24 @@ class Response(object):
 
         return self.raw.release_conn()
 
-    def dumps(self, body=True):
-        """Returns a string representation of the ``Response``. Useful
-        for debugging.
+
+    def pretty(self, body=True, colors=True):
+        """Returns a beautiful string representation of the
+        ``Response`` object. Useful for debugging.
 
         :param body: Whether or not to include the body in output.
+        :param colors: Whether or not to include colors in output.
         """
-        return self.dump(body=body, show=False)
-
-    def dump(self, body=True, colored=None, show=True):
-        """Presents a beautiful string representation of the
-        ``Response``. Useful for debugging.
-
-        :param body: Whether or not to include the body in output.
-        :param colored: Whether or not to include colors in output.
-        :param show: if ``False``, returns dump instead of printing it.
-        """
-
-        # Turn magical coloring on automaticaly only when auto-printing.
-        if colored is None and show:
-            colored = True
 
         # Disable beautiful colors for those that so desire.
-        if not colored:
+        if not colors:
             colors.DISABLE_COLOR = True
 
         repr_ = '<Response [{0}\n]>'
 
         # Prepare and format the introduction line.
         intro = '{0} {1}'.format(self.status_code, self.reason)
-        intro = colors.yellow(intro).color_str
+        intro = colored.yellow(intro).color_str
 
         # Collection to collect the dump output.
         dump_ = ['', intro]
@@ -971,8 +943,8 @@ class Response(object):
         # Prepare headers for dump.
         for (key, value) in self.headers.items():
             # Color the header name and value.
-            key = colors.green(key).color_str
-            value = colors.cyan(value).color_str
+            key = colored.green(key).color_str
+            value = colored.cyan(value).color_str
 
             # Add the formatted header to our collection.
             header = '{0}: {1}'.format(key, value)
@@ -996,14 +968,11 @@ class Response(object):
         dump_ = '\n    '.join(dump_.split('\n'))
 
         # Restore colored module to initial state.
-        if not colored:
-            colors.DISABLE_COLOR = False
+        if not colors:
+            colored.DISABLE_COLOR = False
 
         # Final representation of the dump.
         final_dump = repr_.format(dump_)
 
-        # Print to screen if auto-printing, else return the string.
-        if show:
-            print(final_dump)
-        else:
-            return final_dump
+        # Return the pretty string.
+        return final_dump
