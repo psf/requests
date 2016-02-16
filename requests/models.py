@@ -525,9 +525,13 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         for event in hooks:
             self.register_hook(event, hooks[event])
 
-    def dump(self, body=True, colored=True):
+    def dump(self, body=True, colored=None, auto_print=True):
         """Returns a string representation of the ``PreparedRequest``;
         useful for debugging."""
+
+        # Turn magical coloring on automaticaly only when auto-printing.
+        if colored is None and auto_print:
+            colored = True
 
         # Disable beautiful colors for those that so desire.
         if not colored:
@@ -582,7 +586,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if not colored:
             colors.DISABLE_COLOR = False
 
-        return repr_.format(dump_)
+        # Final representation of the dump.
+        final_dump = repr_.format(dump_)
+
+        # Print to screen if auto-printing, else return the string.
+        if auto_print:
+            print(final_dump)
+        else:
+            return final_dump
 
 
 class Response(object):
