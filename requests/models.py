@@ -539,7 +539,19 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Prepare body for dump.
         if body and self.body:
             dump_.append('')
-            dump_.append(self.body)
+
+            compare = basestring if is_py2 else str
+
+            if isinstance(self.body, compare):
+                dump_.append(self.body)
+            else:
+                # Warn that PreparedRequest.body is not string-like
+                # Colored output to stand out from the rest.
+                dump_.append(
+                    '\b\b\033[93m! Body content is not string-like. '
+                    'Using repr() instead:\033[0m'
+                )
+                dump_.append(repr(self.body))
 
         # Create full dump output.
         dump_ = '\n'.join(dump_)
