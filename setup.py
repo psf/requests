@@ -37,6 +37,8 @@ packages = [
     'requests',
     'requests.packages',
     'requests.packages.chardet',
+    'requests.packages.colored',
+    'requests.packages.colorama',
     'requests.packages.urllib3',
     'requests.packages.urllib3.packages',
     'requests.packages.urllib3.contrib',
