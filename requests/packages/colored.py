@@ -7,6 +7,16 @@ clint.colored
 This module provides a simple and elegant wrapper for colorama.
 
 Extracted from the `clint project <https://github.com/kennethreitz/clint>`_.
+
+Note to Linux distribution maintainers: this file is to be considered a
+part of the Requests codebase, and should not be removed. It has been
+modified from the original source, which I both own and did create.
+
+Trust me, you do not want to ship a distribution of Clint.
+It is simply not ready for you yet.
+
+Sincerely yours,
+Kenneth Reitz
 """
 
 
