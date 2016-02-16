@@ -16,6 +16,7 @@ from .structures import CaseInsensitiveDict
 
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
+from .packages import colored as colors
 from .packages.urllib3.fields import RequestField
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
@@ -524,33 +525,51 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         for event in hooks:
             self.register_hook(event, hooks[event])
 
-    def dump(self, body=True):
+    def dump(self, body=True, colored=True):
         """Returns a string representation of the ``PreparedRequest``;
         useful for debugging."""
 
+        # Disable beautiful colors for those that so desire.
+        if not colored:
+            colors.DISABLE_COLOR = True
+
         repr_ = '<PreparedRequest [{0}\n]>'
-        dump_ = ['', '{0} {1}'.format(self.method, self.url)]
+
+        # Prepare and format the introduction line.
+        intro = '{0} {1}'.format(self.method, self.url)
+        intro = colors.yellow(intro).color_str
+
+        # Collection to collect the dump output.
+        dump_ = ['', intro]
 
         # Prepare headers for dump.
         for (key, value) in self.headers.items():
+            # Color the header name and value.
+            key = colors.green(key).color_str
+            value = colors.cyan(value).color_str
+
+            # Add the formatted header to our collection.
             header = '{0}: {1}'.format(key, value)
             dump_.append(header)
 
         # Prepare body for dump.
         if body and self.body:
+            # Add an extra newline; gotta keep 'em seperated!
             dump_.append('')
 
+            # Slightly differing behavior for Python 3's stubbornness.
             compare = basestring if is_py2 else str
 
+            # Throw the body into the dump if it's string-like.
             if isinstance(self.body, compare):
                 dump_.append(self.body)
             else:
                 # Warn that PreparedRequest.body is not string-like
                 # Colored output to stand out from the rest.
-                dump_.append(
-                    '\b\b\033[93m! Body content is not string-like. '
-                    'Using repr() instead:\033[0m'
-                )
+                dump_.append(colors.red(
+                    '\b\b! Body content is not string-like. '
+                    'Using repr() instead:'
+                ).color_str)
                 dump_.append(repr(self.body))
 
         # Create full dump output.
@@ -558,6 +577,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         # Indent full dump output.
         dump_ = '\n    '.join(dump_.split('\n'))
+
+        # Restore colored module to initial state.
+        if not colored:
+            colors.DISABLE_COLOR = False
 
         return repr_.format(dump_)
 
