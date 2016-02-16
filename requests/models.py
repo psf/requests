@@ -986,16 +986,7 @@ class Response(object):
             # Slightly differing behavior for Python 3's stubbornness.
             compare = basestring if is_py2 else str
 
-            # Throw the body into the dump if it's string-like.
-            # if isinstance(self.body, compare):
-                # dump_.append(self.body)
-            # else:
-                # Warn that PreparedRequest.body is not string-like
-                # Colored output to stand out from the rest.
-                # dump_.append(colors.red(
-                    # '\b\b! Body content is not string-like. '
-                    # 'Using repr() instead:'
-                # ).color_str)
+            # Add the Response body to the dump.
             dump_.append(self.content)
 
         # Create full dump output.
