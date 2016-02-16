@@ -14,7 +14,6 @@ from io import BytesIO, UnsupportedOperation
 from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 
-from . import __version__
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
 from .packages.urllib3.fields import RequestField
@@ -529,15 +528,26 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Returns a string representation of the ``PreparedRequest``;
         useful for debugging."""
 
-        r = ('REQUESTS/{version} {method} {url}\n{headers}'.format(
-            version=__version__,
-            method=self.method,
-            url=self.url,
-            headers='\n'.join('{}: {}'.format(k, v) for k, v in self.headers.items()),
-        ))
+        repr_ = '<PreparedRequest [{0}\n]>'
+        dump_ = ['', '{0} {1}'.format(self.method, self.url)]
+
+        # Prepare headers for dump.
+        for (key, value) in self.headers.items():
+            header = '{0}: {1}'.format(key, value)
+            dump_.append(header)
+
+        # Prepare body for dump.
         if body and self.body:
-            r += '\n\n{body}'.format(body=self.body)
-        return r
+            dump_.append('')
+            dump_.append(self.body)
+
+        # Create full dump output.
+        dump_ = '\n'.join(dump_)
+
+        # Indent full dump output.
+        dump_ = '\n    '.join(dump_.split('\n'))
+
+        return repr_.format(dump_)
 
 
 class Response(object):
