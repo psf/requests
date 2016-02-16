@@ -525,12 +525,25 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         for event in hooks:
             self.register_hook(event, hooks[event])
 
-    def dump(self, body=True, colored=None, auto_print=True):
-        """Returns a string representation of the ``PreparedRequest``;
-        useful for debugging."""
+    def dumps(self, body=True):
+        """Returns a string representation of the ``PreparedRequest``.
+        Useful for debugging.
+
+        :param body: Whether or not to include the body in output.
+        """
+        return self.dump(body=body, show=False)
+
+    def dump(self, body=True, colored=None, show=True):
+        """Presents a beautiful string representation of the
+        ``PreparedRequest``. Useful for debugging.
+
+        :param body: Whether or not to include the body in output.
+        :param colored: Whether or not to include colors in output.
+        :param show: if ``False``, returns dump instead of printing it.
+        """
 
         # Turn magical coloring on automaticaly only when auto-printing.
-        if colored is None and auto_print:
+        if colored is None and show:
             colored = True
 
         # Disable beautiful colors for those that so desire.
@@ -590,7 +603,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         final_dump = repr_.format(dump_)
 
         # Print to screen if auto-printing, else return the string.
-        if auto_print:
+        if show:
             print(final_dump)
         else:
             return final_dump
