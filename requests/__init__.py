@@ -55,6 +55,7 @@ try:
 except ImportError:
     pass
 
+from . import exceptions
 from . import utils
 from .models import Request, Response, PreparedRequest
 from .api import request, get, head, post, patch, put, delete, options
