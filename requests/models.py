@@ -558,7 +558,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         # Prepare body for dump.
         if body and self.body:
-            # Add an extra newline; gotta keep 'em seperated!
+            # Add an extra newline; gotta keep 'em separated!
             dump_.append('')
 
             # Slightly differing behavior for Python 3's stubbornness.
