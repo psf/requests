@@ -24,5 +24,7 @@
   optional ``session`` parameter. If provided, the session given will be used
   for the request, in place of one being created for you.
 
+- URLs are now automatically stripped of leading/trailing whitespace.
+
 .. _#2002: https://github.com/kennethreitz/requests/issues/2002
 .. _#2631: https://github.com/kennethreitz/requests/issues/2631
