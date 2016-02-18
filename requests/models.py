@@ -335,6 +335,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         else:
             url = unicode(url) if is_py2 else str(url)
 
+        # Ignore any leading and trailing whitespace characters.
+        url = url.strip()
+
         # Don't do any URL preparation for non-HTTP schemes like `mailto`,
         # `data` etc to work around exceptions from `url_parse`, which
         # handles RFC 3986 only.

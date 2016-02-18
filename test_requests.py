@@ -1317,6 +1317,17 @@ class TestCaseInsensitiveDict:
         cid['changed'] = True
         assert cid != cid_copy
 
+    def test_url_surrounding_whitespace(self, httpbin):
+        """Test case with URLs surrounded by whitespace characters."""
+        get_url = httpbin('get')
+        # All surrounding whitespaces are supposed to be ignored:
+        assert requests.get(get_url + ' ').status_code == 200
+        assert requests.get(' ' + get_url).status_code == 200
+        assert requests.get(get_url + ' \t ').status_code == 200
+        assert requests.get('  \t' + get_url).status_code == 200
+        assert requests.get(get_url + '\n').status_code == 200
+        # The whitespaces can't be in the middle of the URL though:
+        assert requests.get(get_url + ' abc').status_code == 404
 
 class TestUtils:
 

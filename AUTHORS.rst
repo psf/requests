@@ -165,3 +165,4 @@ Patches and Suggestions
 - Robin Linderborg (`@vienno <https://github.com/vienno>`_)
 - Brian Samek (`@bsamek <https://github.com/bsamek>`_)
 - Dmitry Dygalo (`@Stranger6667 <https://github.com/Stranger6667>`_)
+- Tomáš Heger (`@geckon <https://github.com/geckon>`_)
