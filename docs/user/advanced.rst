@@ -167,15 +167,15 @@ applied, replace the call to :meth:`Request.prepare()
     from requests import Request, Session
 
     s = Session()
-    req = Request('GET',  url,
-        data=data
-        headers=headers
-    )
+    req = Request('GET',  url, data=data, headers=headers)
 
     prepped = s.prepare_request(req)
 
     # do something with prepped.body
+    prepped.body = 'Seriously, send exactly these bytes.'
+
     # do something with prepped.headers
+    prepped.headers['Keep-Dead'] = 'parrot'
 
     resp = s.send(prepped,
         stream=stream,
@@ -362,11 +362,12 @@ upload image files to an HTML form with a multiple file field 'images'::
 
     <input type="file" name="images" multiple="true" required="true"/>
 
-To do that, just set files to a list of tuples of ``(form_field_name, file_info)``:
+To do that, just set files to a list of tuples of ``(form_field_name, file_info)``::
 
     >>> url = 'http://httpbin.org/post'
-    >>> multiple_files = [('images', ('foo.png', open('foo.png', 'rb'), 'image/png')),
-                          ('images', ('bar.png', open('bar.png', 'rb'), 'image/png'))]
+    >>> multiple_files = [
+            ('images', ('foo.png', open('foo.png', 'rb'), 'image/png')),
+            ('images', ('bar.png', open('bar.png', 'rb'), 'image/png'))]
     >>> r = requests.post(url, files=multiple_files)
     >>> r.text
     {
