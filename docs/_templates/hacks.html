@@ -2,8 +2,21 @@
 
 <!-- CSS Adjustments (I'm very picky.) -->
 <style type="text/css">
+
+  /* Rezzy requires precise alignment. */
   img.logo {margin-left: -20px!important;}
+
+  /* "Quick Search" should be capitalized. */
   div#searchbox h3 {text-transform: capitalize;}
+
+  /* Make the document a little wider, less code is cut-off. */
+  div.document {width: 1008px;}
+
+  /* Remain Responsive! */
+  @media screen and (max-width: 1008px) {
+    div.sphinxsidebar {display: none;}
+    div.document {width: 100%!important;}
+  }
 </style>
 
 <!-- Analytics tracking for Kenneth. -->
@@ -21,3 +34,7 @@
     s.parentNode.insertBefore(t, s);
   })();
 </script>
+
+<!-- There are no more hacks. -->
+<!--         இڿڰۣ-ڰۣ—         -->
+<!--   Love, Kenneth Reitz    -->
