@@ -68,8 +68,8 @@ accepted.
 Code Contributions
 ------------------
 
-Steps
-~~~~~
+Steps for Submitting Code
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When contributing code, you'll want to follow this checklist:
 
@@ -106,6 +106,30 @@ how best to contribute, please consider mailing a maintainer (listed above) and
 asking for help.
 
 Please also check the :ref:`early-feedback` section.
+
+Code Style
+~~~~~~~~~~
+
+The Requests codebase uses the `PEP8`_ code style.
+
+In addition to the standards outlined in PEP8, we have a few guidelines:
+
+- Line-length can exceed 79 characters, to 100, when convenient.
+- Line-length can exceed 100 characters, when doing otherwise would be *terribly* inconvenient.
+- Always use single-quoted strings (e.g. ``'#flatearth'``), unless a single-quote occurs within the string.
+
+Additionally, one of the few style recommendations PEP8 makes for
+`line continuations`_ lacks all sense of taste, and is not to  be found within
+the Requests codebase::
+
+    # Aligned with opening delimiter.
+    foo = long_function_name(var_one, var_two,
+                             var_three, var_four)
+
+Just don't. Ever.
+
+.. _PEP8: https://www.python.org/dev/peps/pep-0008/
+.. _line continuations: https://www.python.org/dev/peps/pep-0008/#indentation
 
 Documentation Contributions
 ---------------------------
