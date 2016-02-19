@@ -22,12 +22,8 @@ contributors.
 .. _Ian Cordasco: http://www.coglib.com/~icordasc/
 .. _Cory Benfield: https://lukasa.co.uk/about
 
-
-All Contributions
------------------
-
 Be Cordial
-~~~~~~~~~~
+----------
 
 **Be cordial or be on your way.**
 
@@ -41,7 +37,7 @@ everyone involved is treated with respect.
 .. _early-feedback:
 
 Get Early Feedback
-~~~~~~~~~~~~~~~~~~
+------------------
 
 If you are contributing, do not feel the need to sit on your contribution until
 it is perfectly polished and complete. It helps everyone involved for you to
@@ -51,7 +47,7 @@ getting that contribution accepted, and can save you from putting a lot of work
 into a contribution that is not suitable for the project.
 
 Contribution Suitability
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 The project maintainer has the last word on whether or not a contribution is
 suitable for Requests. All contributions will be considered, but from time
@@ -115,6 +111,9 @@ documentation.
 When contributing documentation, please attempt to follow the style of the
 documentation files. This means a soft-limit of 79 characters wide in your text
 files and a semi-formal prose style.
+
+When presenting Python code, use single-quoted strings (``'hello'`` instead of
+``"hello"``).
 
 .. _reStructuredText: http://docutils.sourceforge.net/rst.html
 .. _Sphinx: http://sphinx-doc.org/index.html
