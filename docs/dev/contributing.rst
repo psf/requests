@@ -144,7 +144,7 @@ Docstrings are to follow the following syntaxes::
         """
 
 All functions, methods, and classes are to contain docstrings. Object data
-model methods (e.g. ``__repr__``) are usually an exception to this rule.
+model methods (e.g. ``__repr__``) are typically the exception to this rule.
 
 Thanks for helping to make the world a better place!
 
