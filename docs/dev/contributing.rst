@@ -108,8 +108,8 @@ asking for help.
 
 Please also check the :ref:`early-feedback` section.
 
-Code Style
-~~~~~~~~~~
+Kenneth Reitz's Code Style
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Requests codebase uses the `PEP8`_ code style.
 
