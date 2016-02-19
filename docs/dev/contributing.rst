@@ -3,33 +3,38 @@
 Contributor's Guide
 ===================
 
-If you're reading this you're probably interested in contributing to
-Requests. First, We'd like to say: thank you! Open source projects
-live-and-die based on the support they receive from others, and the fact that
-you're even considering supporting Requests is very generous of
-you.
+If you're reading this, you're probably interested in contributing to Requests.
+Thank you very much! Open source projects live-and-die based on the support
+they receive from others, and the fact that you're even considering
+contributing to the Requests project is *very* generous of you.
 
-This document lays out guidelines and advice for contributing to Requests.
-If you're thinking of contributing, start by reading this thoroughly and
-getting a feel for how contributing to the project works. If you have any
+This document lays out guidelines and advice for contributing to this project.
+If you're thinking of contributing, please start by reading this document and
+getting a feel for how contributing to this project works. If you have any
 questions, feel free to reach out to either `Ian Cordasco`_ or `Cory Benfield`_,
 the primary maintainers.
+
+.. _Ian Cordasco: http://www.coglib.com/~icordasc/
+.. _Cory Benfield: https://lukasa.co.uk/about
+
+If you have non-technical feedback, philisophical ponderings, crazy ideas, or
+other general thoughts about Requests or its position within the Python
+ecosystem, the BDFL, `Kenneth Reitz`_, would love to hear from you.
 
 The guide is split into sections based on the type of contribution you're
 thinking of making, with a section that covers general guidelines for all
 contributors.
 
-.. _Ian Cordasco: http://www.coglib.com/~icordasc/
-.. _Cory Benfield: https://lukasa.co.uk/about
+.. _Kenneth Reitz: mailto:me@kennethreitz.org
 
 Be Cordial
 ----------
 
-**Be cordial or be on your way.**
+    **Be cordial or be on your way**. *—Kenneth Reitz*
 
 Requests has one very important rule governing all forms of contribution,
 including reporting bugs or requesting features. This golden rule is
-`be cordial or be on your way`_. **All contributions are welcome**, as long as
+"`be cordial or be on your way`_". **All contributions are welcome**, as long as
 everyone involved is treated with respect.
 
 .. _be cordial or be on your way: http://kennethreitz.org/be-cordial-or-be-on-your-way/
@@ -108,9 +113,9 @@ the ``docs/`` directory of the codebase. They're written in
 `reStructuredText`_, and use `Sphinx`_ to generate the full suite of
 documentation.
 
-When contributing documentation, please attempt to follow the style of the
+When contributing documentation, please do your best to follow the style of the
 documentation files. This means a soft-limit of 79 characters wide in your text
-files and a semi-formal prose style.
+files and a semi-formal, yet friendly and approachable, prose style.
 
 When presenting Python code, use single-quoted strings (``'hello'`` instead of
 ``"hello"``).
@@ -135,9 +140,13 @@ of other contributors, and should be avoided as much as possible.
 Feature Requests
 ----------------
 
-Requests is in a perpetual feature freeze. The maintainers believe that
-requests contains every major feature currently required by the vast majority
-of users.
+Requests is in a perpetual feature freeze, only the BDFL can add or approve of
+new features. The maintainers believe that Requests is a feature-complete
+peice of software at this time.
+
+One of the most important skills to have while maintaining a largely-used
+open source project is learning the ability to say "no" to suggested changes,
+while keeping an open ear and mind.
 
 If you believe there is a feature missing, feel free to raise a feature
 request, but please do be aware that the overwhelming likelihood is that your
