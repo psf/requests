@@ -142,6 +142,8 @@ Docstrings are to follow the following syntaxes::
         nisi ut aliquip ex ea commodo consequat.
         """
 
+Thanks for helping to make the world a better place!
+
 .. _PEP8: https://www.python.org/dev/peps/pep-0008/
 .. _line continuations: https://www.python.org/dev/peps/pep-0008/#indentation
 
