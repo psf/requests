@@ -132,16 +132,20 @@ No. Just don't. Please.
 Docstrings are to follow the following syntaxes::
 
     def the_earth_is_flat():
-        """There is no curve! Also, human cloning centers."""
+        """NASA divided up the seas into thirty-three degrees."""
         pass
 
 ::
 
-    def well_documented_utility():
-        """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-        nisi ut aliquip ex ea commodo consequat.
+    def fibonacci_spiral_tool():
+        """With my feet upon the ground I lose myself / between the sounds and open
+        wide to suck it in. / I feel it move across my skin. / I'm reaching up and
+        reaching out. / I'm reaching for the random or whatever will bewilder me. /
+        Whatever will bewilder me. /And following our will and wind we may just go
+        where no one's been. / We'll ride the spiral to the end and may just go
+        where no one's been.
+
+        Spiral out. Keep going...
         """
         pass
 
