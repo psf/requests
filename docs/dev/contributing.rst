@@ -56,13 +56,14 @@ into a contribution that is not suitable for the project.
 Contribution Suitability
 ------------------------
 
-The project maintainer has the last word on whether or not a contribution is
-suitable for Requests. All contributions will be considered, but from time
-to time contributions will be rejected because they do not suit the project.
+Our project maintainers have the last word on whether or not a contribution is
+suitable for Requests. All contributions will be considered carefully, but from
+time to time, contributions will be rejected because they do not suit the
+current goals or needs of the project.
 
-If your contribution is rejected, don't despair! So long as you followed these
-guidelines, you'll have a much better chance of getting your next contribution
-accepted.
+If your contribution is rejected, don't despair! As long as you followed these
+guidelines, you will have a much better chance of getting your next
+contribution accepted.
 
 
 Code Contributions
