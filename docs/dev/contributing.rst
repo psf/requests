@@ -17,7 +17,7 @@ the primary maintainers.
 .. _Ian Cordasco: http://www.coglib.com/~icordasc/
 .. _Cory Benfield: https://lukasa.co.uk/about
 
-If you have non-technical feedback, philisophical ponderings, crazy ideas, or
+If you have non-technical feedback, philosophical ponderings, crazy ideas, or
 other general thoughts about Requests or its position within the Python
 ecosystem, the BDFL, `Kenneth Reitz`_, would love to hear from you.
 
