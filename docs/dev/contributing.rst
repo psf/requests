@@ -142,6 +142,9 @@ Docstrings are to follow the following syntaxes::
         nisi ut aliquip ex ea commodo consequat.
         """
 
+All functions, methods, and classes are to contain docstrings. Object data
+model methods (e.g. ``__repr__``) are usually an exception to this rule.
+
 Thanks for helping to make the world a better place!
 
 .. _PEP8: https://www.python.org/dev/peps/pep-0008/
