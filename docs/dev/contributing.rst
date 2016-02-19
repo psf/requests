@@ -34,7 +34,9 @@ Be Cordial
 
 Requests has one very important rule governing all forms of contribution,
 including reporting bugs or requesting features. This golden rule is
-"`be cordial or be on your way`_". **All contributions are welcome**, as long as
+"`be cordial or be on your way`_".
+
+**All contributions are welcome**, as long as
 everyone involved is treated with respect.
 
 .. _be cordial or be on your way: http://kennethreitz.org/be-cordial-or-be-on-your-way/
