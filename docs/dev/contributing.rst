@@ -126,7 +126,21 @@ the Requests codebase::
     foo = long_function_name(var_one, var_two,
                              var_three, var_four)
 
-Just don't. Ever.
+No.
+
+Docstrings are to follow the following syntaxes::
+
+    def the_earth_is_flat():
+        """There is no curve! Also, human cloning centers."""
+
+::
+
+    def well_documented_utility():
+        """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+        nisi ut aliquip ex ea commodo consequat.
+        """
 
 .. _PEP8: https://www.python.org/dev/peps/pep-0008/
 .. _line continuations: https://www.python.org/dev/peps/pep-0008/#indentation
