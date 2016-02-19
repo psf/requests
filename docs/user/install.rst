@@ -7,8 +7,8 @@ This part of the documentation covers the installation of Requests.
 The first step to using any software package is getting it properly installed.
 
 
-Pip Install
------------
+Pip Install Requests
+--------------------
 
 To install Requests, simply run this simple command in your terminal of choice::
 
@@ -18,8 +18,8 @@ If you don't have `pip <https://pip.pypa.io>`_ installed (tisk tisk!),
 `this Python installation guide <http://docs.python-guide.org/en/latest/starting/installation/>`_
 can guide you through the process.
 
-Get the Code
-------------
+Get the Source Code
+-------------------
 
 Requests is actively developed on GitHub, where the code is
 `always available <https://github.com/kennethreitz/requests>`_.
