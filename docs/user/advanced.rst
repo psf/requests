@@ -24,7 +24,7 @@ Let's persist some cookies across requests::
     s = requests.Session()
 
     s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
-    r = s.get("http://httpbin.org/cookies")
+    r = s.get('http://httpbin.org/cookies')
 
     print(r.text)
     # '{"cookies": {"sessioncookie": "123456789"}}'
@@ -50,6 +50,7 @@ requests, even if using a session. This example will only send the cookies
 with the first request, but not the second::
 
     s = requests.Session()
+
     r = s.get('http://httpbin.org/cookies', cookies={'from-my': 'browser'})
     print(r.text)
     # '{"cookies": {"from-my": "browser"}}'
@@ -129,14 +130,15 @@ request. The simple recipe for this is the following::
     from requests import Request, Session
 
     s = Session()
-    req = Request('GET', url,
-        data=data,
-        headers=header
-    )
+
+    req = Request('POST', url, data=data, headers=headers)
     prepped = req.prepare()
 
     # do something with prepped.body
+    prepped.body = 'No, I want exactly this as the body.'
+
     # do something with prepped.headers
+    del prepped.headers['Content-Type']
 
     resp = s.send(prepped,
         stream=stream,
@@ -491,7 +493,9 @@ set ``stream`` to ``True`` and iterate over the response with
 
         lines = r.iter_lines()
         # Save the first line for later or just skip it
+
         first_line = next(lines)
+
         for line in lines:
             print(line)
 
@@ -506,11 +510,11 @@ If you need to use a proxy, you can configure individual requests with the
     import requests
 
     proxies = {
-      "http": "http://10.10.1.10:3128",
-      "https": "http://10.10.1.10:1080",
+      'http': 'http://10.10.1.10:3128',
+      'https': 'http://10.10.1.10:1080',
     }
 
-    requests.get("http://example.org", proxies=proxies)
+    requests.get('http://example.org', proxies=proxies)
 
 You can also configure proxies by setting the environment variables
 ``HTTP_PROXY`` and ``HTTPS_PROXY``.
@@ -522,12 +526,12 @@ You can also configure proxies by setting the environment variables
 
     $ python
     >>> import requests
-    >>> requests.get("http://example.org")
+    >>> requests.get('http://example.org')
 
 To use HTTP Basic Auth with your proxy, use the `http://user:password@host/` syntax::
 
     proxies = {
-        "http": "http://user:pass@10.10.1.10:3128/",
+        'http': 'http://user:pass@10.10.1.10:3128/',
     }
 
 To give a proxy for a specific scheme and host, use the
@@ -537,7 +541,7 @@ any request to the given scheme and exact hostname.
 ::
 
     proxies = {
-      "http://10.20.1.128": "http://10.10.1.10:5323",
+      'http://10.20.1.128': 'http://10.10.1.10:5323',
     }
 
 Note that proxy URLs must include the scheme.
@@ -603,10 +607,13 @@ So, GitHub returns JSON. That's great, we can use the :meth:`r.json
 ::
 
     >>> commit_data = r.json()
+
     >>> print(commit_data.keys())
     [u'committer', u'author', u'url', u'tree', u'sha', u'parents', u'message']
+
     >>> print(commit_data[u'committer'])
     {u'date': u'2012-05-10T11:10:50-07:00', u'email': u'me@kennethreitz.com', u'name': u'Kenneth Reitz'}
+
     >>> print(commit_data[u'message'])
     makin' history
 
@@ -646,9 +653,12 @@ already exists, we will use it as an example. Let's start by getting it.
     >>> r = requests.get('https://api.github.com/repos/kennethreitz/requests/issues/482')
     >>> r.status_code
     200
+
     >>> issue = json.loads(r.text)
+
     >>> print(issue[u'title'])
     Feature any http verb in docs
+
     >>> print(issue[u'comments'])
     3
 
@@ -659,9 +669,12 @@ Cool, we have three comments. Let's take a look at the last of them.
     >>> r = requests.get(r.url + u'/comments')
     >>> r.status_code
     200
+
     >>> comments = r.json()
+
     >>> print(comments[0].keys())
     [u'body', u'url', u'created_at', u'updated_at', u'user', u'id']
+
     >>> print(comments[2][u'body'])
     Probably in the "advanced" section
 
@@ -681,6 +694,7 @@ is to POST to the thread. Let's do it.
 
     >>> body = json.dumps({u"body": u"Sounds great! I'll get right on it!"})
     >>> url = u"https://api.github.com/repos/kennethreitz/requests/issues/482/comments"
+
     >>> r = requests.post(url=url, data=body)
     >>> r.status_code
     404
@@ -693,9 +707,11 @@ the very common Basic Auth.
 
     >>> from requests.auth import HTTPBasicAuth
     >>> auth = HTTPBasicAuth('fake@example.com', 'not_a_real_password')
+
     >>> r = requests.post(url=url, data=body, auth=auth)
     >>> r.status_code
     201
+
     >>> content = r.json()
     >>> print(content[u'body'])
     Sounds great! I'll get right on it.
@@ -709,8 +725,10 @@ that.
 
     >>> print(content[u"id"])
     5804413
+
     >>> body = json.dumps({u"body": u"Sounds great! I'll get right on it once I feed my cat."})
     >>> url = u"https://api.github.com/repos/kennethreitz/requests/issues/comments/5804413"
+
     >>> r = requests.patch(url=url, data=body, auth=auth)
     >>> r.status_code
     200
@@ -831,10 +849,9 @@ SSLv3:
         """"Transport adapter" that allows us to use SSLv3."""
 
         def init_poolmanager(self, connections, maxsize, block=False):
-            self.poolmanager = PoolManager(num_pools=connections,
-                                           maxsize=maxsize,
-                                           block=block,
-                                           ssl_version=ssl.PROTOCOL_SSLv3)
+            self.poolmanager = PoolManager(
+                num_pools=connections, maxsize=maxsize,
+                block=block, ssl_version=ssl.PROTOCOL_SSLv3)
 
 .. _`described here`: http://www.kennethreitz.org/essays/the-future-of-python-http
 .. _`urllib3`: https://github.com/shazow/urllib3
