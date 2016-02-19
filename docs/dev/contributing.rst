@@ -119,8 +119,8 @@ In addition to the standards outlined in PEP8, we have a few guidelines:
 - Line-length can exceed 100 characters, when doing otherwise would be *terribly* inconvenient.
 - Always use single-quoted strings (e.g. ``'#flatearth'``), unless a single-quote occurs within the string.
 
-Additionally, one of the few style recommendations PEP8 makes for
-`line continuations`_ lacks all sense of taste, and is not to  be found within
+Additionally, one of the styles that PEP8 recommends for `line continuations`_
+completely lacks all sense of taste, and is not to be permitted within
 the Requests codebase::
 
     # Aligned with opening delimiter.
