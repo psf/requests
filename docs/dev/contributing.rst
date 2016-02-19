@@ -184,7 +184,7 @@ Feature Requests
 
 Requests is in a perpetual feature freeze, only the BDFL can add or approve of
 new features. The maintainers believe that Requests is a feature-complete
-peice of software at this time.
+piece of software at this time.
 
 One of the most important skills to have while maintaining a largely-used
 open source project is learning the ability to say "no" to suggested changes,
