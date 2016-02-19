@@ -124,8 +124,8 @@ Requests ecosystem and community.
    community/updates
    community/release-process
 
-API Documentation
------------------
+API Documentation / Guide
+-------------------------
 
 If you are looking for information on a specific function, class or method,
 this part of the documentation is for you.
@@ -143,9 +143,12 @@ If you want to contribute to the project, this part of the documentation is for
 you.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    dev/contributing
    dev/philosophy
    dev/todo
    dev/authors
+
+There are no more guides. You are now guideless.
+Good luck.
