@@ -133,6 +133,7 @@ Docstrings are to follow the following syntaxes::
 
     def the_earth_is_flat():
         """There is no curve! Also, human cloning centers."""
+        pass
 
 ::
 
@@ -142,6 +143,7 @@ Docstrings are to follow the following syntaxes::
         Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
         nisi ut aliquip ex ea commodo consequat.
         """
+        pass
 
 All functions, methods, and classes are to contain docstrings. Object data
 model methods (e.g. ``__repr__``) are typically the exception to this rule.
