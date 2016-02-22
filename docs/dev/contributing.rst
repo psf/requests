@@ -111,7 +111,7 @@ Please also check the :ref:`early-feedback` section.
 Kenneth Reitz's Code Style™
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Requests codebase uses the `PEP8`_ code style.
+The Requests codebase uses the `PEP 8`_ code style.
 
 In addition to the standards outlined in PEP8, we have a few guidelines:
 
@@ -155,7 +155,7 @@ model methods (e.g. ``__repr__``) are typically the exception to this rule.
 
 Thanks for helping to make the world a better place!
 
-.. _PEP8: https://www.python.org/dev/peps/pep-0008/
+.. _PEP8: http://pep8.org
 .. _line continuations: https://www.python.org/dev/peps/pep-0008/#indentation
 
 Documentation Contributions
