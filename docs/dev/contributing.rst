@@ -113,7 +113,7 @@ Kenneth Reitz's Code Style™
 
 The Requests codebase uses the `PEP 8`_ code style.
 
-In addition to the standards outlined in PEP8, we have a few guidelines:
+In addition to the standards outlined in PEP 8, we have a few guidelines:
 
 - Line-length can exceed 79 characters, to 100, when convenient.
 - Line-length can exceed 100 characters, when doing otherwise would be *terribly* inconvenient.
