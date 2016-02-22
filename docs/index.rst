@@ -38,8 +38,8 @@ URLs, or to form-encode your POST data. Keep-alive and HTTP connection pooling
 are 100% automatic, powered by `urllib3 <https://github.com/shazow/urllib3>`_,
 which is embedded within Requests.
 
-Testimonials
-------------
+User Testimonials
+-----------------
 
 Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
 PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
@@ -65,8 +65,8 @@ Institutions that prefer to be unnamed claim to use Requests internally.
 Requests is one of the most downloaded Python packages of all time, pulling in
 over 7,000,000 downloads every month. All the cool kids are doing it!
 
-Feature Support
----------------
+Supported Features
+------------------
 
 Requests is ready for today's web.
 
@@ -90,8 +90,8 @@ Requests is ready for today's web.
 Requests supports Python 2.6 — 3.5, and runs great on PyPy.
 
 
-User Guide
-----------
+The User Guide
+--------------
 
 This part of the documentation, which is mostly prose, begins with some
 background information about Requests, then focuses on step-by-step
@@ -107,8 +107,8 @@ instructions for getting the most out of Requests.
    user/authentication
 
 
-Community Guide
------------------
+The Community Guide
+-------------------
 
 This part of the documentation, which is mostly prose, details the
 Requests ecosystem and community.
@@ -124,10 +124,10 @@ Requests ecosystem and community.
    community/updates
    community/release-process
 
-API Documentation / Guide
--------------------------
+The API Documentation / Guide
+-----------------------------
 
-If you are looking for information on a specific function, class or method,
+If you are looking for information on a specific function, class, or method,
 this part of the documentation is for you.
 
 .. toctree::
@@ -136,8 +136,8 @@ this part of the documentation is for you.
    api
 
 
-Contributor Guide
------------------
+The Contributor Guide
+---------------------
 
 If you want to contribute to the project, this part of the documentation is for
 you.
