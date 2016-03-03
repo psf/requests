@@ -1182,14 +1182,16 @@ class TestContentEncodingDetection(unittest.TestCase):
         assert encodings == ['HTML5', 'HTML4', 'XML']
 
     def test_chunked_upload(self):
-        """ can safely send generators """
+        """can safely send generators"""
         block_server = threading.Event()
         server = Server.basic_response_server(wait_to_close_event=block_server)
         data = (i for i in [b'a', b'b', b'c']) 
+
         with server as (host, port):
             url = 'http://{}:{}/'.format(host, port)
             r = requests.post(url, data=data, stream=True)
             block_server.set() # release server block
+
         assert r.status_code == 200
         assert r.request.headers['Transfer-Encoding'] == 'chunked'
 
