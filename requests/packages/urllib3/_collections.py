@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from collections import Mapping, MutableMapping
 try:
     from threading import RLock
@@ -167,7 +168,7 @@ class HTTPHeaderDict(MutableMapping):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    if not PY3: # Python 2
+    if not PY3:  # Python 2
         iterkeys = MutableMapping.iterkeys
         itervalues = MutableMapping.itervalues
 
@@ -234,7 +235,7 @@ class HTTPHeaderDict(MutableMapping):
         """
         if len(args) > 1:
             raise TypeError("extend() takes at most 1 positional "
-                            "arguments ({} given)".format(len(args)))
+                            "arguments ({0} given)".format(len(args)))
         other = args[0] if len(args) >= 1 else ()
 
         if isinstance(other, HTTPHeaderDict):
@@ -304,7 +305,7 @@ class HTTPHeaderDict(MutableMapping):
         return list(self.iteritems())
 
     @classmethod
-    def from_httplib(cls, message): # Python 2
+    def from_httplib(cls, message):  # Python 2
         """Read headers from a Python 2 httplib message object."""
         # python2.7 does not expose a proper API for exporting multiheaders
         # efficiently. This function re-reads raw lines from the message

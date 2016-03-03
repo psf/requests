@@ -1,4 +1,6 @@
+from __future__ import absolute_import
 import datetime
+import os
 import sys
 import socket
 from socket import error as SocketError, timeout as SocketTimeout
@@ -6,18 +8,13 @@ import warnings
 from .packages import six
 
 try:  # Python 3
-    from http.client import HTTPConnection as _HTTPConnection, HTTPException
+    from http.client import HTTPConnection as _HTTPConnection
+    from http.client import HTTPException  # noqa: unused in this module
 except ImportError:
-    from httplib import HTTPConnection as _HTTPConnection, HTTPException
-
-
-class DummyConnection(object):
-    "Used to detect a failed ConnectionCls import."
-    pass
-
+    from httplib import HTTPConnection as _HTTPConnection
+    from httplib import HTTPException  # noqa: unused in this module
 
 try:  # Compiled with SSL?
-    HTTPSConnection = DummyConnection
     import ssl
     BaseSSLError = ssl.SSLError
 except (ImportError, AttributeError):  # Platform-specific: No SSL.
@@ -59,6 +56,11 @@ port_by_scheme = {
 }
 
 RECENT_DATE = datetime.date(2014, 1, 1)
+
+
+class DummyConnection(object):
+    """Used to detect a failed ConnectionCls import."""
+    pass
 
 
 class HTTPConnection(_HTTPConnection, object):
@@ -205,10 +207,10 @@ class VerifiedHTTPSConnection(HTTPSConnection):
         self.key_file = key_file
         self.cert_file = cert_file
         self.cert_reqs = cert_reqs
-        self.ca_certs = ca_certs
-        self.ca_cert_dir = ca_cert_dir
         self.assert_hostname = assert_hostname
         self.assert_fingerprint = assert_fingerprint
+        self.ca_certs = ca_certs and os.path.expanduser(ca_certs)
+        self.ca_cert_dir = ca_cert_dir and os.path.expanduser(ca_cert_dir)
 
     def connect(self):
         # Add certificate verification
@@ -263,10 +265,19 @@ class VerifiedHTTPSConnection(HTTPSConnection):
                     'for details.)'.format(hostname)),
                     SubjectAltNameWarning
                 )
-            match_hostname(cert, self.assert_hostname or hostname)
 
-        self.is_verified = (resolved_cert_reqs == ssl.CERT_REQUIRED
-                            or self.assert_fingerprint is not None)
+            # In case the hostname is an IPv6 address, strip the square
+            # brackets from it before using it to validate. This is because
+            # a certificate with an IPv6 address in it won't have square
+            # brackets around that address. Sadly, match_hostname won't do this
+            # for us: it expects the plain host part without any extra work
+            # that might have been done to make it palatable to httplib.
+            asserted_hostname = self.assert_hostname or hostname
+            asserted_hostname = asserted_hostname.strip('[]')
+            match_hostname(cert, asserted_hostname)
+
+        self.is_verified = (resolved_cert_reqs == ssl.CERT_REQUIRED or
+                            self.assert_fingerprint is not None)
 
 
 if ssl:

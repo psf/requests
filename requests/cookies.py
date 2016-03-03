@@ -8,6 +8,7 @@ requests.utils imports from here, so be careful with imports.
 
 import copy
 import time
+import calendar
 import collections
 from .compat import cookielib, urlparse, urlunparse, Morsel
 
@@ -368,7 +369,7 @@ def _copy_cookie_jar(jar):
         return None
 
     if hasattr(jar, 'copy'):
-        # We're dealing with an instane of RequestsCookieJar
+        # We're dealing with an instance of RequestsCookieJar
         return jar.copy()
     # We're dealing with a generic CookieJar instance
     new_jar = copy.copy(jar)
@@ -424,8 +425,9 @@ def morsel_to_cookie(morsel):
             raise TypeError('max-age: %s must be integer' % morsel['max-age'])
     elif morsel['expires']:
         time_template = '%a, %d-%b-%Y %H:%M:%S GMT'
-        expires = int(time.mktime(
-            time.strptime(morsel['expires'], time_template)) - time.timezone)
+        expires = calendar.timegm(
+            time.strptime(morsel['expires'], time_template)
+        )
     return create_cookie(
         comment=morsel['comment'],
         comment_url=bool(morsel['comment']),

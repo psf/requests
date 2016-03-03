@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from ..packages.six.moves import http_client as httplib
 
 from ..exceptions import HeaderParsingError
@@ -44,7 +45,7 @@ def assert_header_parsing(headers):
     # This will fail silently if we pass in the wrong kind of parameter.
     # To make debugging easier add an explicit check.
     if not isinstance(headers, httplib.HTTPMessage):
-        raise TypeError('expected httplib.Message, got {}.'.format(
+        raise TypeError('expected httplib.Message, got {0}.'.format(
             type(headers)))
 
     defects = getattr(headers, 'defects', None)

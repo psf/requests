@@ -65,7 +65,7 @@ class HTTPAdapter(BaseAdapter):
 
     :param pool_connections: The number of urllib3 connection pools to cache.
     :param pool_maxsize: The maximum number of connections to save in the pool.
-    :param int max_retries: The maximum number of retries each connection
+    :param max_retries: The maximum number of retries each connection
         should attempt. Note, this applies only to failed DNS lookups, socket
         connections and connection timeouts, never to requests where data has
         made it to the server. By default, Requests does not retry failed
@@ -108,7 +108,7 @@ class HTTPAdapter(BaseAdapter):
 
     def __setstate__(self, state):
         # Can't handle by adding 'proxy_manager' to self.__attrs__ because
-        # because self.poolmanager uses a lambda function, which isn't pickleable.
+        # self.poolmanager uses a lambda function, which isn't pickleable.
         self.proxy_manager = {}
         self.config = {}
 

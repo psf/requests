@@ -134,7 +134,7 @@ Patches and Suggestions
 - Kevin Burke <kev@inburke.com>
 - Flavio Curella
 - David Pursehouse <david.pursehouse@gmail.com> (`@dpursehouse <https://github.com/dpursehouse>`_)
-- Jon Parise
+- Jon Parise (`@jparise <https://github.com/jparise>`_)
 - Alexander Karpinsky (`@homm86 <https://twitter.com/homm86>`_)
 - Marc Schlaich (`@schlamar <https://github.com/schlamar>`_)
 - Park Ilsu <daftonshady@gmail.com> (`@daftshady <https://github.com/daftshady>`_)
@@ -162,3 +162,5 @@ Patches and Suggestions
 - Smiley Barry (`@smiley <https://github.com/smiley>`_)
 - Shagun Sodhani (`@shagunsodhani <https://github.com/shagunsodhani>`_)
 - Robin Linderborg (`@vienno <https://github.com/vienno>`_)
+- Brian Samek (`@bsamek <https://github.com/bsamek>`_)
+- Dmitry Dygalo (`@Stranger6667 <https://github.com/Stranger6667>`_)

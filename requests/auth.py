@@ -47,6 +47,15 @@ class HTTPBasicAuth(AuthBase):
         self.username = username
         self.password = password
 
+    def __eq__(self, other):
+        return all([
+            self.username == getattr(other, 'username', None),
+            self.password == getattr(other, 'password', None)
+        ])
+
+    def __ne__(self, other):
+        return not self == other
+
     def __call__(self, r):
         r.headers['Authorization'] = _basic_auth_str(self.username, self.password)
         return r
@@ -136,7 +145,7 @@ class HTTPDigestAuth(AuthBase):
         if _algorithm == 'MD5-SESS':
             HA1 = hash_utf8('%s:%s:%s' % (HA1, nonce, cnonce))
 
-        if qop is None:
+        if not qop:
             respdig = KD(HA1, "%s:%s" % (nonce, HA2))
         elif qop == 'auth' or 'auth' in qop.split(','):
             noncebit = "%s:%s:%s:%s:%s" % (
@@ -221,3 +230,12 @@ class HTTPDigestAuth(AuthBase):
         self._thread_local.num_401_calls = 1
 
         return r
+
+    def __eq__(self, other):
+        return all([
+            self.username == getattr(other, 'username', None),
+            self.password == getattr(other, 'password', None)
+        ])
+
+    def __ne__(self, other):
+        return not self == other

@@ -3,13 +3,60 @@
 Release History
 ---------------
 
-dev (XXXX)
-++++++++++
+2.9.2 (???)
++++++++++++
+
+**Bugfixes**
+
+- Don't use redirect_cache if allow_redirects=False
+
+2.9.1 (2015-12-21)
+++++++++++++++++++
+
+**Bugfixes**
+
+- Resolve regression introduced in 2.9.0 that made it impossible to send binary
+  strings as bodies in Python 3.
+- Fixed errors when calculating cookie expiration dates in certain locales.
+
+**Miscellaneous**
+
+- Updated bundled urllib3 to 1.13.1.
+
+2.9.0 (2015-12-15)
+++++++++++++++++++
 
 **Minor Improvements** (Backwards compatible)
 
 - The ``verify`` keyword argument now supports being passed a path to a
   directory of CA certificates, not just a single-file bundle.
+- Warnings are now emitted when sending files opened in text mode.
+- Added the 511 Network Authentication Required status code to the status code
+  registry.
+
+**Bugfixes**
+
+- For file-like objects that are not seeked to the very beginning, we now
+  send the content length for the number of bytes we will actually read, rather
+  than the total size of the file, allowing partial file uploads.
+- When uploading file-like objects, if they are empty or have no obvious
+  content length we set ``Transfer-Encoding: chunked`` rather than
+  ``Content-Length: 0``.
+- We correctly receive the response in buffered mode when uploading chunked
+  bodies.
+- We now handle being passed a query string as a bytestring on Python 3, by
+  decoding it as UTF-8.
+- Sessions are now closed in all cases (exceptional and not) when using the
+  functional API rather than leaking and waiting for the garbage collector to
+  clean them up.
+- Correctly handle digest auth headers with a malformed ``qop`` directive that
+  contains no token, by treating it the same as if no ``qop`` directive was
+  provided at all.
+- Minor performance improvements when removing specific cookies by name.
+
+**Miscellaneous**
+
+- Updated urllib3 to 1.13.
 
 2.8.1 (2015-10-13)
 ++++++++++++++++++
@@ -50,7 +97,7 @@ dev (XXXX)
 - The ``json`` parameter to ``post()`` and friends will now only be used if
   neither ``data`` nor ``files`` are present, consistent with the
   documentation.
-- We now ignore empty fields in the ``NO_PROXY`` enviroment variable.
+- We now ignore empty fields in the ``NO_PROXY`` environment variable.
 - Fixed problem where ``httplib.BadStatusLine`` would get raised if combining
   ``stream=True`` with ``contextlib.closing``.
 - Prevented bugs where we would attempt to return the same connection back to
@@ -533,7 +580,7 @@ This is not a backwards compatible change.
 - Improved mime-compatible JSON handling
 - Proxy fixes
 - Path hack fixes
-- Case-Insensistive Content-Encoding headers
+- Case-Insensitive Content-Encoding headers
 - Support for CJK parameters in form posts
 
 
@@ -620,7 +667,7 @@ This is not a backwards compatible change.
 +++++++++++++++++++
 
 - Removal of Requests.async in favor of `grequests <https://github.com/kennethreitz/grequests>`_
-- Allow disabling of cookie persistiance.
+- Allow disabling of cookie persistence.
 - New implementation of safe_mode
 - cookies.get now supports default argument
 - Session cookies not saved when Session.request is called with return_response=False

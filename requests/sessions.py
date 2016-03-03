@@ -110,7 +110,7 @@ class SessionRedirectMixin(object):
                 resp.raw.read(decode_content=False)
 
             if i >= self.max_redirects:
-                raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects)
+                raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects, response=resp)
 
             # Release the connection back into the pool.
             resp.close()
@@ -325,7 +325,7 @@ class Session(SessionRedirectMixin):
         #: limit, a :class:`TooManyRedirects` exception is raised.
         self.max_redirects = DEFAULT_REDIRECT_LIMIT
 
-        #: Trust environement settings for proxy configuration, default
+        #: Trust environment settings for proxy configuration, default
         #: authentication and similar.
         self.trust_env = True
 
@@ -433,8 +433,8 @@ class Session(SessionRedirectMixin):
             hostname to the URL of the proxy.
         :param stream: (optional) whether to immediately download the response
             content. Defaults to ``False``.
-        :param verify: (optional) if ``True``, the SSL cert will be verified.
-            A CA_BUNDLE path can also be provided.
+        :param verify: (optional) whether the SSL cert will be verified.
+            A CA_BUNDLE path can also be provided. Defaults to ``True``.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
         """
@@ -553,18 +553,20 @@ class Session(SessionRedirectMixin):
         if not isinstance(request, PreparedRequest):
             raise ValueError('You can only send PreparedRequests.')
 
-        checked_urls = set()
-        while request.url in self.redirect_cache:
-            checked_urls.add(request.url)
-            new_url = self.redirect_cache.get(request.url)
-            if new_url in checked_urls:
-                break
-            request.url = new_url
-
         # Set up variables needed for resolve_redirects and dispatching of hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
         stream = kwargs.get('stream')
         hooks = request.hooks
+
+        # Resolve URL in redirect cache, if available.
+        if allow_redirects:
+            checked_urls = set()
+            while request.url in self.redirect_cache:
+                checked_urls.add(request.url)
+                new_url = self.redirect_cache.get(request.url)
+                if new_url in checked_urls:
+                    break
+                request.url = new_url
 
         # Get the appropriate adapter to use
         adapter = self.get_adapter(url=request.url)
@@ -634,7 +636,7 @@ class Session(SessionRedirectMixin):
                 'cert': cert}
 
     def get_adapter(self, url):
-        """Returns the appropriate connnection adapter for the given URL."""
+        """Returns the appropriate connection adapter for the given URL."""
         for (prefix, adapter) in self.adapters.items():
 
             if url.lower().startswith(prefix):

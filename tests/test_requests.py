@@ -7,7 +7,6 @@ from __future__ import division
 import json
 import os
 import pickle
-import unittest
 import collections
 import contextlib
 
@@ -17,78 +16,25 @@ import pytest
 from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
-    Morsel, cookielib, getproxies, str, urljoin, urlparse, is_py3,
-    builtin_str, OrderedDict
-    )
+    Morsel, cookielib, getproxies, str, urlparse,
+    builtin_str, OrderedDict)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
-from requests.exceptions import (ConnectionError, ConnectTimeout,
-                                 InvalidSchema, InvalidURL, MissingSchema,
-                                 ReadTimeout, Timeout, RetryError)
+from requests.exceptions import (
+    ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
+    MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
-from testserver.server import Server
-import socket
-import threading
-import time
-
-try:
-    import StringIO
-except ImportError:
-    import io as StringIO
-
-try:
-    from multiprocessing.pool import ThreadPool
-except ImportError:
-    ThreadPool = None
-
-if is_py3:
-    def u(s):
-        return s
-else:
-    def u(s):
-        return s.decode('unicode-escape')
-
-
-@pytest.fixture
-def httpbin(httpbin):
-    # Issue #1483: Make sure the URL always has a trailing slash
-    httpbin_url = httpbin.url.rstrip('/') + '/'
-
-    def inner(*suffix):
-        return urljoin(httpbin_url, '/'.join(suffix))
-
-    return inner
-
-
-@pytest.fixture
-def httpsbin_url(httpbin_secure):
-    # Issue #1483: Make sure the URL always has a trailing slash
-    httpbin_url = httpbin_secure.url.rstrip('/') + '/'
-
-    def inner(*suffix):
-        return urljoin(httpbin_url, '/'.join(suffix))
-
-    return inner
-
+from .compat import StringIO, u
 
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
-TARPIT = "http://10.255.255.1"
+TARPIT = 'http://10.255.255.1'
 
-class TestRequests(object):
 
-    _multiprocess_can_split_ = True
-
-    def setUp(self):
-        """Create simple data set with headers."""
-        pass
-
-    def tearDown(self):
-        """Teardown."""
-        pass
+class TestRequests:
 
     def test_entry_points(self):
 
@@ -101,17 +47,17 @@ class TestRequests(object):
         requests.patch
         requests.post
 
-    def test_invalid_url(self):
-        with pytest.raises(MissingSchema):
-            requests.get('hiwpefhipowhefopw')
-        with pytest.raises(InvalidSchema):
-            requests.get('localhost:3128')
-        with pytest.raises(InvalidSchema):
-            requests.get('localhost.localdomain:3128/')
-        with pytest.raises(InvalidSchema):
-            requests.get('10.122.1.1:3128/')
-        with pytest.raises(InvalidURL):
-            requests.get('http://')
+    @pytest.mark.parametrize(
+        'exception, url', (
+            (MissingSchema, 'hiwpefhipowhefopw'),
+            (InvalidSchema, 'localhost:3128'),
+            (InvalidSchema, 'localhost.localdomain:3128/'),
+            (InvalidSchema, '10.122.1.1:3128/'),
+            (InvalidURL, 'http://'),
+        ))
+    def test_invalid_url(self, exception, url):
+        with pytest.raises(exception):
+            requests.get(url)
 
     def test_basic_building(self):
         req = requests.Request()
@@ -122,11 +68,10 @@ class TestRequests(object):
         assert pr.url == req.url
         assert pr.body == 'life=42'
 
-    def test_no_content_length(self, httpbin):
-        get_req = requests.Request('GET', httpbin('get')).prepare()
-        assert 'Content-Length' not in get_req.headers
-        head_req = requests.Request('HEAD', httpbin('head')).prepare()
-        assert 'Content-Length' not in head_req.headers
+    @pytest.mark.parametrize('method', ('GET', 'HEAD'))
+    def test_no_content_length(self, httpbin, method):
+        req = requests.Request(method, httpbin(method.lower())).prepare()
+        assert 'Content-Length' not in req.headers
 
     def test_override_content_length(self, httpbin):
         headers = {
@@ -141,13 +86,14 @@ class TestRequests(object):
 
         assert request.path_url == '/get/test%20case'
 
-    def test_params_are_added_before_fragment(self):
-        request = requests.Request('GET',
-            "http://example.com/path#fragment", params={"a": "b"}).prepare()
-        assert request.url == "http://example.com/path?a=b#fragment"
-        request = requests.Request('GET',
-            "http://example.com/path?key=value#fragment", params={"a": "b"}).prepare()
-        assert request.url == "http://example.com/path?key=value&a=b#fragment"
+    @pytest.mark.parametrize(
+        'url, expected', (
+            ('http://example.com/path#fragment', 'http://example.com/path?a=b#fragment'),
+            ('http://example.com/path?key=value#fragment', 'http://example.com/path?key=value&a=b#fragment')
+        ))
+    def test_params_are_added_before_fragment(self, url, expected):
+        request = requests.Request('GET', url, params={"a": "b"}).prepare()
+        assert request.url == expected
 
     def test_params_original_order_is_preserved_by_default(self):
         param_ordered_dict = OrderedDict((('z', 1), ('a', 1), ('k', 1), ('d', 1)))
@@ -161,16 +107,20 @@ class TestRequests(object):
                                    params=b'test=foo').prepare()
         assert request.url == 'http://example.com/?test=foo'
 
-    def test_mixed_case_scheme_acceptable(self, httpbin):
+    def test_binary_put(self):
+        request = requests.Request('PUT', 'http://example.com',
+                                   data=u"ööö".encode("utf-8")).prepare()
+        assert isinstance(request.body, bytes)
+
+    @pytest.mark.parametrize('scheme', ('http://', 'HTTP://', 'hTTp://', 'HttP://'))
+    def test_mixed_case_scheme_acceptable(self, httpbin, scheme):
         s = requests.Session()
         s.proxies = getproxies()
         parts = urlparse(httpbin('get'))
-        schemes = ['http://', 'HTTP://', 'hTTp://', 'HttP://']
-        for scheme in schemes:
-            url = scheme + parts.netloc + parts.path
-            r = requests.Request('GET', url)
-            r = s.send(r.prepare())
-            assert r.status_code == 200, 'failed for scheme {0}'.format(scheme)
+        url = scheme + parts.netloc + parts.path
+        r = requests.Request('GET', url)
+        r = s.send(r.prepare())
+        assert r.status_code == 200, 'failed for scheme {0}'.format(scheme)
 
     def test_HTTP_200_OK_GET_ALTERNATIVE(self, httpbin):
         r = requests.Request('GET', httpbin('get'))
@@ -186,6 +136,30 @@ class TestRequests(object):
         assert r.status_code == 200
         assert r.history[0].status_code == 302
         assert r.history[0].is_redirect
+
+    def test_HTTP_302_TOO_MANY_REDIRECTS(self, httpbin):
+        try:
+            requests.get(httpbin('relative-redirect', '50'))
+        except TooManyRedirects as e:
+            url = httpbin('relative-redirect', '20')
+            assert e.request.url == url
+            assert e.response.url == url
+            assert len(e.response.history) == 30
+        else:
+            pytest.fail('Expected redirect to raise TooManyRedirects but it did not')
+
+    def test_HTTP_302_TOO_MANY_REDIRECTS_WITH_PARAMS(self, httpbin):
+        s = requests.session()
+        s.max_redirects = 5
+        try:
+            s.get(httpbin('relative-redirect', '50'))
+        except TooManyRedirects as e:
+            url = httpbin('relative-redirect', '45')
+            assert e.request.url == url
+            assert e.response.url == url
+            assert len(e.response.history) == 5
+        else:
+            pytest.fail('Expected custom max number of redirects to be respected but was not')
 
     # def test_HTTP_302_ALLOW_REDIRECT_POST(self):
     #     r = requests.post(httpbin('status', '302'), data={'some': 'data'})
@@ -281,9 +255,7 @@ class TestRequests(object):
         assert urls == req_urls
 
     def test_history_is_always_a_list(self, httpbin):
-        """
-        Show that even with redirects, Response.history is always a list.
-        """
+        """Show that even with redirects, Response.history is always a list."""
         resp = requests.get(httpbin('get'))
         assert isinstance(resp.history, list)
         resp = requests.get(httpbin('redirect/1'))
@@ -298,21 +270,13 @@ class TestRequests(object):
         prep = ses.prepare_request(req)
         assert 'Accept-Encoding' not in prep.headers
 
-    def test_user_agent_transfers(self, httpbin):
+    @pytest.mark.parametrize('key', ('User-agent', 'user-agent'))
+    def test_user_agent_transfers(self, httpbin, key):
 
-        heads = {
-            'User-agent': 'Mozilla/5.0 (github.com/kennethreitz/requests)'
-        }
-
-        r = requests.get(httpbin('user-agent'), headers=heads)
-        assert heads['User-agent'] in r.text
-
-        heads = {
-            'user-agent': 'Mozilla/5.0 (github.com/kennethreitz/requests)'
-        }
+        heads = {key: 'Mozilla/5.0 (github.com/kennethreitz/requests)'}
 
         r = requests.get(httpbin('user-agent'), headers=heads)
-        assert heads['user-agent'] in r.text
+        assert heads[key] in r.text
 
     def test_HTTP_200_OK_HEAD(self, httpbin):
         r = requests.head(httpbin('get'))
@@ -337,20 +301,18 @@ class TestRequests(object):
         r = s.get(url)
         assert r.status_code == 200
 
-    def test_connection_error_invalid_domain(self):
-        """Connecting to an unknown domain should raise a ConnectionError"""
-        with pytest.raises(ConnectionError):
-            requests.get("http://doesnotexist.google.com")
-
-    def test_connection_error_invalid_port(self):
-        """Connecting to an invalid port should raise a ConnectionError"""
-        with pytest.raises(ConnectionError):
-            requests.get("http://localhost:1", timeout=1)
-
-    def test_LocationParseError(self):
-        """Inputing a URL that cannot be parsed should raise an InvalidURL error"""
-        with pytest.raises(InvalidURL):
-            requests.get("http://fe80::5054:ff:fe5a:fc0")
+    @pytest.mark.parametrize(
+        'url, exception', (
+            # Connecting to an unknown domain should raise a ConnectionError
+            ('http://doesnotexist.google.com', ConnectionError),
+            # Connecting to an invalid port should raise a ConnectionError
+            ('http://localhost:1', ConnectionError),
+            # Inputing a URL that cannot be parsed should raise an InvalidURL error
+            ('http://fe80::5054:ff:fe5a:fc0', InvalidURL)
+        ))
+    def test_errors(self, url, exception):
+        with pytest.raises(exception):
+            requests.get(url, timeout=1)
 
     def test_basicauth_with_netrc(self, httpbin):
         auth = ('user', 'pass')
@@ -455,7 +417,7 @@ class TestRequests(object):
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
 
         url = httpbin('post')
-        post1 = requests.post(url).raise_for_status()
+        requests.post(url).raise_for_status()
 
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
@@ -473,7 +435,7 @@ class TestRequests(object):
     def test_POSTBIN_GET_POST_FILES_WITH_DATA(self, httpbin):
 
         url = httpbin('post')
-        post1 = requests.post(url).raise_for_status()
+        requests.post(url).raise_for_status()
 
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
@@ -511,13 +473,16 @@ class TestRequests(object):
         r = requests.get(httpbin('gzip'))
         r.content.decode('ascii')
 
-    def test_unicode_get(self, httpbin):
-        url = httpbin('/get')
-        requests.get(url, params={'foo': 'føø'})
-        requests.get(url, params={'føø': 'føø'})
-        requests.get(url, params={'føø': 'føø'})
-        requests.get(url, params={'foo': 'foo'})
-        requests.get(httpbin('ø'), params={'foo': 'foo'})
+    @pytest.mark.parametrize(
+        'url, params', (
+            ('/get', {'foo': 'føø'}),
+            ('/get', {'føø': 'føø'}),
+            ('/get', {'føø': 'føø'}),
+            ('/get', {'foo': 'foo'}),
+            ('ø', {'foo': 'foo'}),
+        ))
+    def test_unicode_get(self, httpbin, url, params):
+        requests.get(httpbin(url), params=params)
 
     def test_unicode_header_name(self, httpbin):
         requests.put(
@@ -525,8 +490,8 @@ class TestRequests(object):
             headers={str('Content-Type'): 'application/octet-stream'},
             data='\xff')  # compat.str is unicode.
 
-    def test_pyopenssl_redirect(self, httpsbin_url, httpbin_ca_bundle):
-        requests.get(httpsbin_url('status', '301'), verify=httpbin_ca_bundle)
+    def test_pyopenssl_redirect(self, httpbin_secure, httpbin_ca_bundle):
+        requests.get(httpbin_secure('status', '301'), verify=httpbin_ca_bundle)
 
     def test_urlencoded_get_query_multivalued_param(self, httpbin):
 
@@ -541,51 +506,42 @@ class TestRequests(object):
             files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
-    def test_unicode_multipart_post(self, httpbin):
+    @pytest.mark.parametrize(
+        'data', (
+            {'stuff': u('ëlïxr')},
+            {'stuff': u('ëlïxr').encode('utf-8')},
+            {'stuff': 'elixr'},
+            {'stuff': 'elixr'.encode('utf-8')},
+        ))
+    def test_unicode_multipart_post(self, httpbin, data):
         r = requests.post(httpbin('post'),
-            data={'stuff': u('ëlïxr')},
-            files={'file': ('test_requests.py', open(__file__, 'rb'))})
-        assert r.status_code == 200
-
-        r = requests.post(httpbin('post'),
-            data={'stuff': u('ëlïxr').encode('utf-8')},
-            files={'file': ('test_requests.py', open(__file__, 'rb'))})
-        assert r.status_code == 200
-
-        r = requests.post(httpbin('post'),
-            data={'stuff': 'elixr'},
-            files={'file': ('test_requests.py', open(__file__, 'rb'))})
-        assert r.status_code == 200
-
-        r = requests.post(httpbin('post'),
-            data={'stuff': 'elixr'.encode('utf-8')},
+            data=data,
             files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
     def test_unicode_multipart_post_fieldnames(self, httpbin):
         filename = os.path.splitext(__file__)[0] + '.py'
-        r = requests.Request(method='POST',
-                             url=httpbin('post'),
-                             data={'stuff'.encode('utf-8'): 'elixr'},
-                             files={'file': ('test_requests.py',
-                                             open(filename, 'rb'))})
+        r = requests.Request(
+            method='POST', url=httpbin('post'),
+            data={'stuff'.encode('utf-8'): 'elixr'},
+            files={'file': ('test_requests.py', open(filename, 'rb'))})
         prep = r.prepare()
         assert b'name="stuff"' in prep.body
         assert b'name="b\'stuff\'"' not in prep.body
 
     def test_unicode_method_name(self, httpbin):
-        files = {'file': open('test_requests.py', 'rb')}
+        files = {'file': open(__file__, 'rb')}
         r = requests.request(
             method=u('POST'), url=httpbin('post'), files=files)
         assert r.status_code == 200
 
     def test_unicode_method_name_with_request_object(self, httpbin):
-        files = {'file': open('test_requests.py', 'rb')}
+        files = {'file': open(__file__, 'rb')}
         s = requests.Session()
-        req = requests.Request(u("POST"), httpbin('post'), files=files)
+        req = requests.Request(u('POST'), httpbin('post'), files=files)
         prep = s.prepare_request(req)
         assert isinstance(prep.method, builtin_str)
-        assert prep.method == "POST"
+        assert prep.method == 'POST'
 
         resp = s.send(prep)
         assert resp.status_code == 200
@@ -594,9 +550,10 @@ class TestRequests(object):
         r = requests.post(
             httpbin('post'),
             data={'stuff': json.dumps({'a': 123})},
-            files={'file1': ('test_requests.py', open(__file__, 'rb')),
-                   'file2': ('test_requests', open(__file__, 'rb'),
-                             'text/py-content-type')})
+            files={
+                'file1': ('test_requests.py', open(__file__, 'rb')),
+                'file2': ('test_requests', open(__file__, 'rb'),
+                    'text/py-content-type')})
         assert r.status_code == 200
         assert b"text/py-content-type" in r.request.body
 
@@ -605,7 +562,10 @@ class TestRequests(object):
             assert resp is not None
             assert kwargs != {}
 
-        requests.Request('GET', httpbin(), hooks={'response': hook})
+        s = requests.Session()
+        r = requests.Request('GET', httpbin(), hooks={'response': hook})
+        prep = s.prepare_request(r)
+        s.send(prep)
 
     def test_session_hooks_are_used_with_no_request_hooks(self, httpbin):
         hook = lambda x, *args, **kwargs: x
@@ -616,7 +576,7 @@ class TestRequests(object):
         assert prep.hooks['response'] != []
         assert prep.hooks['response'] == [hook]
 
-    def test_session_hooks_are_overriden_by_request_hooks(self, httpbin):
+    def test_session_hooks_are_overridden_by_request_hooks(self, httpbin):
         hook1 = lambda x, *args, **kwargs: x
         hook2 = lambda x, *args, **kwargs: x
         assert hook1 is not hook2
@@ -844,26 +804,6 @@ class TestRequests(object):
         assert r.request.url == pr.request.url
         assert r.request.headers == pr.request.headers
 
-    def test_get_auth_from_url(self):
-        url = 'http://user:pass@complex.url.com/path?query=yes'
-        assert ('user', 'pass') == requests.utils.get_auth_from_url(url)
-
-    def test_get_auth_from_url_encoded_spaces(self):
-        url = 'http://user:pass%20pass@complex.url.com/path?query=yes'
-        assert ('user', 'pass pass') == requests.utils.get_auth_from_url(url)
-
-    def test_get_auth_from_url_not_encoded_spaces(self):
-        url = 'http://user:pass pass@complex.url.com/path?query=yes'
-        assert ('user', 'pass pass') == requests.utils.get_auth_from_url(url)
-
-    def test_get_auth_from_url_percent_chars(self):
-        url = 'http://user%25user:pass@complex.url.com/path?query=yes'
-        assert ('user%user', 'pass') == requests.utils.get_auth_from_url(url)
-
-    def test_get_auth_from_url_encoded_hashes(self):
-        url = 'http://user:pass%23pass@complex.url.com/path?query=yes'
-        assert ('user', 'pass#pass') == requests.utils.get_auth_from_url(url)
-
     def test_cannot_send_unprepared_requests(self, httpbin):
         r = requests.Request(url=httpbin())
         with pytest.raises(ValueError):
@@ -979,23 +919,10 @@ class TestRequests(object):
         assert 'unicode' in p.headers.keys()
         assert 'byte' in p.headers.keys()
 
-    def test_can_send_nonstring_objects_with_files(self, httpbin):
-        data = {'a': 0.0}
-        files = {'b': 'foo'}
-        r = requests.Request('POST', httpbin('post'), data=data, files=files)
-        p = r.prepare()
-
-        assert 'multipart/form-data' in p.headers['Content-Type']
-
-    def test_can_send_bytes_bytearray_objects_with_files(self, httpbin):
-        # Test bytes:
+    @pytest.mark.parametrize('files', ('foo', b'foo', bytearray(b'foo')))
+    def test_can_send_objects_with_files(self, httpbin, files):
         data = {'a': 'this is a string'}
-        files = {'b': b'foo'}
-        r = requests.Request('POST', httpbin('post'), data=data, files=files)
-        p = r.prepare()
-        assert 'multipart/form-data' in p.headers['Content-Type']
-        # Test bytearrays:
-        files = {'b': bytearray(b'foo')}
+        files = {'b': files}
         r = requests.Request('POST', httpbin('post'), data=data, files=files)
         p = r.prepare()
         assert 'multipart/form-data' in p.headers['Content-Type']
@@ -1093,7 +1020,7 @@ class TestRequests(object):
         i = 0
         for item in r.history:
             assert item.history == total[0:i]
-            i = i + 1
+            i += 1
 
     def test_json_param_post_content_type_works(self, httpbin):
         r = requests.post(
@@ -1138,79 +1065,15 @@ class TestRequests(object):
         assert len(list(r.iter_lines())) == 3
 
 
-class TestContentEncodingDetection(unittest.TestCase):
+class TestCaseInsensitiveDict:
 
-    def test_none(self):
-        encodings = requests.utils.get_encodings_from_content('')
-        assert not len(encodings)
-
-    def test_html_charset(self):
-        """HTML5 meta charset attribute"""
-        content = '<meta charset="UTF-8">'
-        encodings = requests.utils.get_encodings_from_content(content)
-        assert len(encodings) == 1
-        assert encodings[0] == 'UTF-8'
-
-    def test_html4_pragma(self):
-        """HTML4 pragma directive"""
-        content = '<meta http-equiv="Content-type" content="text/html;charset=UTF-8">'
-        encodings = requests.utils.get_encodings_from_content(content)
-        assert len(encodings) == 1
-        assert encodings[0] == 'UTF-8'
-
-    def test_xhtml_pragma(self):
-        """XHTML 1.x served with text/html MIME type"""
-        content = '<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />'
-        encodings = requests.utils.get_encodings_from_content(content)
-        assert len(encodings) == 1
-        assert encodings[0] == 'UTF-8'
-
-    def test_xml(self):
-        """XHTML 1.x served as XML"""
-        content = '<?xml version="1.0" encoding="UTF-8"?>'
-        encodings = requests.utils.get_encodings_from_content(content)
-        assert len(encodings) == 1
-        assert encodings[0] == 'UTF-8'
-
-    def test_precedence(self):
-        content = '''
-        <?xml version="1.0" encoding="XML"?>
-        <meta charset="HTML5">
-        <meta http-equiv="Content-type" content="text/html;charset=HTML4" />
-        '''.strip()
-        encodings = requests.utils.get_encodings_from_content(content)
-        assert encodings == ['HTML5', 'HTML4', 'XML']
-
-    def test_chunked_upload(self):
-        """can safely send generators"""
-        block_server = threading.Event()
-        server = Server.basic_response_server(wait_to_close_event=block_server)
-        data = (i for i in [b'a', b'b', b'c']) 
-
-        with server as (host, port):
-            url = 'http://{}:{}/'.format(host, port)
-            r = requests.post(url, data=data, stream=True)
-            block_server.set() # release server block
-
-        assert r.status_code == 200
-        assert r.request.headers['Transfer-Encoding'] == 'chunked'
-
-class TestCaseInsensitiveDict(unittest.TestCase):
-
-    def test_mapping_init(self):
-        cid = CaseInsensitiveDict({'Foo': 'foo', 'BAr': 'bar'})
-        assert len(cid) == 2
-        assert 'foo' in cid
-        assert 'bar' in cid
-
-    def test_iterable_init(self):
-        cid = CaseInsensitiveDict([('Foo', 'foo'), ('BAr', 'bar')])
-        assert len(cid) == 2
-        assert 'foo' in cid
-        assert 'bar' in cid
-
-    def test_kwargs_init(self):
-        cid = CaseInsensitiveDict(FOO='foo', BAr='bar')
+    @pytest.mark.parametrize(
+        'cid', (
+            CaseInsensitiveDict({'Foo': 'foo', 'BAr': 'bar'}),
+            CaseInsensitiveDict([('Foo', 'foo'), ('BAr', 'bar')]),
+            CaseInsensitiveDict(FOO='foo', BAr='bar'),
+        ))
+    def test_init(self, cid):
         assert len(cid) == 2
         assert 'foo' in cid
         assert 'bar' in cid
@@ -1344,148 +1207,7 @@ class TestCaseInsensitiveDict(unittest.TestCase):
         assert cid != cid_copy
 
 
-class UtilsTestCase(unittest.TestCase):
-
-    def test_super_len_io_streams(self):
-        """ Ensures that we properly deal with different kinds of IO streams. """
-        # uses StringIO or io.StringIO (see import above)
-        from io import BytesIO
-        from requests.utils import super_len
-
-        assert super_len(StringIO.StringIO()) == 0
-        assert super_len(
-            StringIO.StringIO('with so much drama in the LBC')) == 29
-
-        assert super_len(BytesIO()) == 0
-        assert super_len(
-            BytesIO(b"it's kinda hard bein' snoop d-o-double-g")) == 40
-
-        try:
-            import cStringIO
-        except ImportError:
-            pass
-        else:
-            assert super_len(
-                cStringIO.StringIO('but some how, some way...')) == 25
-
-    def test_super_len_correctly_calculates_len_of_partially_read_file(self):
-        """Ensure that we handle partially consumed file like objects."""
-        from requests.utils import super_len
-        s = StringIO.StringIO()
-        s.write('foobarbogus')
-        assert super_len(s) == 0
-
-    def test_get_environ_proxies_ip_ranges(self):
-        """Ensures that IP addresses are correctly matches with ranges
-        in no_proxy variable."""
-        from requests.utils import get_environ_proxies
-        os.environ['no_proxy'] = "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1"
-        assert get_environ_proxies('http://192.168.0.1:5000/') == {}
-        assert get_environ_proxies('http://192.168.0.1/') == {}
-        assert get_environ_proxies('http://172.16.1.1/') == {}
-        assert get_environ_proxies('http://172.16.1.1:5000/') == {}
-        assert get_environ_proxies('http://192.168.1.1:5000/') != {}
-        assert get_environ_proxies('http://192.168.1.1/') != {}
-
-    def test_get_environ_proxies(self):
-        """Ensures that IP addresses are correctly matches with ranges
-        in no_proxy variable."""
-        from requests.utils import get_environ_proxies
-        os.environ['no_proxy'] = "127.0.0.1,localhost.localdomain,192.168.0.0/24,172.16.1.1"
-        assert get_environ_proxies(
-            'http://localhost.localdomain:5000/v1.0/') == {}
-        assert get_environ_proxies('http://www.requests.com/') != {}
-
-    def test_select_proxies(self):
-        """Make sure we can select per-host proxies correctly."""
-        from requests.utils import select_proxy
-        proxies = {'http': 'http://http.proxy',
-                   'http://some.host': 'http://some.host.proxy'}
-        assert select_proxy('hTTp://u:p@Some.Host/path', proxies) == 'http://some.host.proxy'
-        assert select_proxy('hTTp://u:p@Other.Host/path', proxies) == 'http://http.proxy'
-        assert select_proxy('hTTps://Other.Host', proxies) is None
-
-    def test_guess_filename_when_int(self):
-        from requests.utils import guess_filename
-        assert None is guess_filename(1)
-
-    def test_guess_filename_when_filename_is_an_int(self):
-        from requests.utils import guess_filename
-        fake = type('Fake', (object,), {'name': 1})()
-        assert None is guess_filename(fake)
-
-    def test_guess_filename_with_file_like_obj(self):
-        from requests.utils import guess_filename
-        from requests import compat
-        fake = type('Fake', (object,), {'name': b'value'})()
-        guessed_name = guess_filename(fake)
-        assert b'value' == guessed_name
-        assert isinstance(guessed_name, compat.bytes)
-
-    def test_guess_filename_with_unicode_name(self):
-        from requests.utils import guess_filename
-        from requests import compat
-        filename = b'value'.decode('utf-8')
-        fake = type('Fake', (object,), {'name': filename})()
-        guessed_name = guess_filename(fake)
-        assert filename == guessed_name
-        assert isinstance(guessed_name, compat.str)
-
-    def test_is_ipv4_address(self):
-        from requests.utils import is_ipv4_address
-        assert is_ipv4_address('8.8.8.8')
-        assert not is_ipv4_address('8.8.8.8.8')
-        assert not is_ipv4_address('localhost.localdomain')
-
-    def test_is_valid_cidr(self):
-        from requests.utils import is_valid_cidr
-        assert not is_valid_cidr('8.8.8.8')
-        assert is_valid_cidr('192.168.1.0/24')
-
-    def test_dotted_netmask(self):
-        from requests.utils import dotted_netmask
-        assert dotted_netmask(8) == '255.0.0.0'
-        assert dotted_netmask(24) == '255.255.255.0'
-        assert dotted_netmask(25) == '255.255.255.128'
-
-    def test_address_in_network(self):
-        from requests.utils import address_in_network
-        assert address_in_network('192.168.1.1', '192.168.1.0/24')
-        assert not address_in_network('172.16.0.1', '192.168.1.0/24')
-
-    def test_get_auth_from_url(self):
-        """Ensures that username and password in well-encoded URI as per
-        RFC 3986 are correclty extracted."""
-        from requests.utils import get_auth_from_url
-        from requests.compat import quote
-        percent_encoding_test_chars = "%!*'();:@&=+$,/?#[] "
-        url_address = "request.com/url.html#test"
-        url = "http://" + quote(
-            percent_encoding_test_chars, '') + ':' + quote(
-            percent_encoding_test_chars, '') + '@' + url_address
-        (username, password) = get_auth_from_url(url)
-        assert username == percent_encoding_test_chars
-        assert password == percent_encoding_test_chars
-
-    def test_requote_uri_with_unquoted_percents(self):
-        """Ensure we handle unquoted percent signs in redirects.
-
-        See: https://github.com/kennethreitz/requests/issues/2356
-        """
-        from requests.utils import requote_uri
-        bad_uri = 'http://example.com/fiz?buz=%ppicture'
-        quoted = 'http://example.com/fiz?buz=%25ppicture'
-        assert quoted == requote_uri(bad_uri)
-
-    def test_requote_uri_properly_requotes(self):
-        """Ensure requoting doesn't break expectations."""
-        from requests.utils import requote_uri
-        quoted = 'http://example.com/fiz?buz=%25ppicture'
-        assert quoted == requote_uri(quoted)
-
-
-class TestMorselToCookieExpires(unittest.TestCase):
-
+class TestMorselToCookieExpires:
     """Tests for morsel_to_cookie when morsel contains expires."""
 
     def test_expires_valid_str(self):
@@ -1496,20 +1218,16 @@ class TestMorselToCookieExpires(unittest.TestCase):
         cookie = morsel_to_cookie(morsel)
         assert cookie.expires == 1
 
-    def test_expires_invalid_int(self):
+    @pytest.mark.parametrize(
+        'value, exception', (
+            (100, TypeError),
+            ('woops', ValueError),
+        ))
+    def test_expires_invalid_int(self, value, exception):
         """Test case where an invalid type is passed for expires."""
-
         morsel = Morsel()
-        morsel['expires'] = 100
-        with pytest.raises(TypeError):
-            morsel_to_cookie(morsel)
-
-    def test_expires_invalid_str(self):
-        """Test case where an invalid string is input."""
-
-        morsel = Morsel()
-        morsel['expires'] = 'woops'
-        with pytest.raises(ValueError):
+        morsel['expires'] = value
+        with pytest.raises(exception):
             morsel_to_cookie(morsel)
 
     def test_expires_none(self):
@@ -1521,7 +1239,7 @@ class TestMorselToCookieExpires(unittest.TestCase):
         assert cookie.expires is None
 
 
-class TestMorselToCookieMaxAge(unittest.TestCase):
+class TestMorselToCookieMaxAge:
 
     """Tests for morsel_to_cookie when morsel contains max-age."""
 
@@ -1543,20 +1261,22 @@ class TestMorselToCookieMaxAge(unittest.TestCase):
 
 
 class TestTimeout:
+
     def test_stream_timeout(self, httpbin):
         try:
             requests.get(httpbin('delay/10'), timeout=2.0)
         except requests.exceptions.Timeout as e:
             assert 'Read timed out' in e.args[0].args[0]
 
-    def test_invalid_timeout(self, httpbin):
+    @pytest.mark.parametrize(
+        'timeout, error_text', (
+            ((3, 4, 5), '(connect, read)'),
+            ('foo', 'must be an int or float'),
+        ))
+    def test_invalid_timeout(self, httpbin, timeout, error_text):
         with pytest.raises(ValueError) as e:
-            requests.get(httpbin('get'), timeout=(3, 4, 5))
-        assert '(connect, read)' in str(e)
-
-        with pytest.raises(ValueError) as e:
-            requests.get(httpbin('get'), timeout="foo")
-        assert 'must be an int or float' in str(e)
+            requests.get(httpbin('get'), timeout=timeout)
+        assert error_text in str(e)
 
     def test_none_timeout(self, httpbin):
         """ Check that you can set None as a valid timeout value.
@@ -1573,14 +1293,14 @@ class TestTimeout:
     def test_read_timeout(self, httpbin):
         try:
             requests.get(httpbin('delay/10'), timeout=(None, 0.1))
-            assert False, "The recv() request should time out."
+            pytest.fail('The recv() request should time out.')
         except ReadTimeout:
             pass
 
     def test_connect_timeout(self):
         try:
             requests.get(TARPIT, timeout=(0.1, None))
-            assert False, "The connect() request should time out."
+            pytest.fail('The connect() request should time out.')
         except ConnectTimeout as e:
             assert isinstance(e, ConnectionError)
             assert isinstance(e, Timeout)
@@ -1588,7 +1308,7 @@ class TestTimeout:
     def test_total_timeout_connect(self):
         try:
             requests.get(TARPIT, timeout=(0.1, 0.1))
-            assert False, "The connect() request should time out."
+            pytest.fail('The connect() request should time out.')
         except ConnectTimeout:
             pass
 
@@ -1633,7 +1353,13 @@ class RedirectSession(SessionRedirectMixin):
         return string
 
 
-class TestRedirects:
+def test_requests_are_updated_each_time(httpbin):
+    session = RedirectSession([303, 307])
+    prep = requests.Request('POST', httpbin('post')).prepare()
+    r0 = session.send(prep)
+    assert r0.request.method == 'POST'
+    assert session.calls[-1] == SendCall((r0.request,), {})
+    redirect_generator = session.resolve_redirects(r0, prep)
     default_keyword_args = {
         'stream': False,
         'verify': True,
@@ -1642,87 +1368,60 @@ class TestRedirects:
         'allow_redirects': False,
         'proxies': {},
     }
-
-    def test_requests_are_updated_each_time(self, httpbin):
-        session = RedirectSession([303, 307])
-        prep = requests.Request('POST', httpbin('post')).prepare()
-        r0 = session.send(prep)
-        assert r0.request.method == 'POST'
-        assert session.calls[-1] == SendCall((r0.request,), {})
-        redirect_generator = session.resolve_redirects(r0, prep)
-        for response in redirect_generator:
-            assert response.request.method == 'GET'
-            send_call = SendCall((response.request,),
-                                 TestRedirects.default_keyword_args)
-            assert session.calls[-1] == send_call
+    for response in redirect_generator:
+        assert response.request.method == 'GET'
+        send_call = SendCall((response.request,), default_keyword_args)
+        assert session.calls[-1] == send_call
 
 
-
-@pytest.fixture
-def list_of_tuples():
-    return [
+@pytest.mark.parametrize(
+    'data', (
         (('a', 'b'), ('c', 'd')),
         (('c', 'd'), ('a', 'b')),
         (('a', 'b'), ('c', 'd'), ('e', 'f')),
-        ]
-
-
-def test_data_argument_accepts_tuples(list_of_tuples):
-    """
-    Ensure that the data argument will accept tuples of strings
+    ))
+def test_data_argument_accepts_tuples(data):
+    """Ensure that the data argument will accept tuples of strings
     and properly encode them.
     """
-    for data in list_of_tuples:
-        p = PreparedRequest()
-        p.prepare(
-            method='GET',
-            url='http://www.example.com',
-            data=data,
-            hooks=default_hooks()
-        )
-        assert p.body == urlencode(data)
-
-
-def assert_copy(p, p_copy):
-    for attr in ('method', 'url', 'headers', '_cookies', 'body', 'hooks'):
-        assert getattr(p, attr) == getattr(p_copy, attr)
-
-
-def test_prepared_request_empty_copy():
-    p = PreparedRequest()
-    assert_copy(p, p.copy())
-
-
-def test_prepared_request_no_cookies_copy():
     p = PreparedRequest()
     p.prepare(
         method='GET',
         url='http://www.example.com',
-        data='foo=bar',
+        data=data,
         hooks=default_hooks()
     )
-    assert_copy(p, p.copy())
+    assert p.body == urlencode(data)
 
 
-def test_prepared_request_complete_copy():
+@pytest.mark.parametrize(
+    'kwargs', (
+        None,
+        {
+            'method': 'GET',
+            'url': 'http://www.example.com',
+            'data': 'foo=bar',
+            'hooks': default_hooks()
+        },
+        {
+            'method': 'GET',
+            'url': 'http://www.example.com',
+            'data': 'foo=bar',
+            'hooks': default_hooks(),
+            'cookies': {'foo': 'bar'}
+        },
+        {
+            'method': 'GET',
+            'url': u('http://www.example.com/üniçø∂é')
+        },
+    ))
+def test_prepared_copy(kwargs):
     p = PreparedRequest()
-    p.prepare(
-        method='GET',
-        url='http://www.example.com',
-        data='foo=bar',
-        hooks=default_hooks(),
-        cookies={'foo': 'bar'}
-    )
-    assert_copy(p, p.copy())
-
-
-def test_prepare_unicode_url():
-    p = PreparedRequest()
-    p.prepare(
-        method='GET',
-        url=u('http://www.example.com/üniçø∂é'),
-    )
-    assert_copy(p, p.copy())
+    if kwargs:
+        p.prepare(**kwargs)
+    copy = p.copy()
+    for attr in ('method', 'url', 'headers', '_cookies', 'body', 'hooks'):
+        assert getattr(p, attr) == getattr(copy, attr)
 
 
 def test_urllib3_retries(httpbin):
@@ -1753,126 +1452,7 @@ def test_vendor_aliases():
     with pytest.raises(ImportError):
         from requests.packages import webbrowser
 
-class TestTestServer(unittest.TestCase):
-    def test_basic(self):
-        question = b"sucess?"
-        answer = b"yeah, success"
-        def handler(sock):
-            text = sock.recv(1000)
-            assert text == question 
-            sock.send(answer)
-        
-        with Server(handler) as (host, port):
-            sock = socket.socket()
-            sock.connect((host, port))
-            sock.send(question)
-            text = sock.recv(1000)
-            assert text == answer
-            sock.close()
 
-    def test_server_closes(self):
-        with Server.basic_response_server() as (host, port):
-            sock = socket.socket()
-            sock.connect((host, port))
-
-            sock.close()
-
-        with pytest.raises(socket.error):
-            new_sock = socket.socket()
-            new_sock.connect((host, port))
-
-    def test_text_response(self):
-        server = Server.text_response_server(
-            "HTTP/1.1 200 OK\r\n" + 
-            "Content-Length: 6\r\n" +
-            "\r\nroflol"
-        )
-
-        with server as (host, port):
-            r = requests.get('http://{}:{}'.format(host, port))
-
-            assert r.status_code == 200
-            assert r.text == 'roflol'
-            assert r.headers['Content-Length'] == '6' 
-            
-    def test_basic_response(self):
-        with Server.basic_response_server() as (host, port):
-            r = requests.get('http://{}:{}'.format(host, port))
-            assert r.status_code == 200
-            assert r.text == ''
-            assert r.headers['Content-Length'] == '0'
-
-    def test_basic_waiting_server(self):
-        block_server = threading.Event()
-
-        with Server.basic_response_server(wait_to_close_event=block_server) as (host, port):
-            sock = socket.socket()
-            sock.connect((host, port))
-            sock.send(b'send something')
-            time.sleep(2.5)
-            sock.send(b'still alive')
-            block_server.set() # release server block
-
-    def test_multiple_requests(self):
-        requests_to_handle = 5
-        
-        server = Server.basic_response_server(requests_to_handle=requests_to_handle)
-
-        with server as (host, port):
-            server_url = 'http://{}:{}'.format(host, port)
-            for _ in range(requests_to_handle):
-                r = requests.get(server_url)
-                assert r.status_code == 200
-
-            # the (n+1)th request fails
-            with pytest.raises(requests.exceptions.ConnectionError):
-                r = requests.get(server_url)
-
-    def test_request_recovery(self):
-        server = Server.basic_response_server(requests_to_handle=2)
-        first_request = "put your hands up in the air"
-        second_request = "put your hand down in the floor"
-
-        with server as address:
-            sock1 = socket.socket()
-            sock2 = socket.socket()
-            
-            sock1.connect(address)
-            sock1.send(first_request.encode())
-            sock1.close()
-
-            sock2.connect(address)
-            sock2.send(second_request.encode())
-            sock2.close()
-
-        assert server.handler_results[0] == first_request
-        assert server.handler_results[1] == second_request
-
-    def test_requests_after_timeout_are_not_received(self):
-        server = Server.basic_response_server(request_timeout=1)
-
-        with server as address:
-            sock = socket.socket()
-            sock.connect(address)
-            time.sleep(1.5)
-            sock.send(b"hehehe, not received")
-            sock.close()
-
-        assert server.handler_results[0] == ""
-
-
-    def test_request_recovery_with_bigger_timeout(self):
-        server = Server.basic_response_server(request_timeout=3)
-        data = "bananadine"
-
-        with server as address:
-            sock = socket.socket() 
-            sock.connect(address)
-            time.sleep(1.5)
-            sock.send(data.encode())
-            sock.close()
-            
-        assert server.handler_results[0] == data
 
 if __name__ == '__main__':
     unittest.main()

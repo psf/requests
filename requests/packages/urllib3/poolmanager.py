@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import logging
 
 try:  # Python 3
@@ -25,7 +26,7 @@ pool_classes_by_scheme = {
 log = logging.getLogger(__name__)
 
 SSL_KEYWORDS = ('key_file', 'cert_file', 'cert_reqs', 'ca_certs',
-                'ssl_version')
+                'ssl_version', 'ca_cert_dir')
 
 
 class PoolManager(RequestMethods):

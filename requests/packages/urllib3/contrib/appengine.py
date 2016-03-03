@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import logging
 import os
 import warnings
@@ -60,7 +61,7 @@ class AppEngineManager(RequestMethods):
             raise AppEnginePlatformError(
                 "URLFetch is not available in this environment.")
 
-        if is_prod_appengine_v2():
+        if is_prod_appengine_mvms():
             raise AppEnginePlatformError(
                 "Use normal urllib3.PoolManager instead of AppEngineManager"
                 "on Managed VMs, as using URLFetch is not necessary in "
@@ -108,14 +109,14 @@ class AppEngineManager(RequestMethods):
             raise TimeoutError(self, e)
 
         except urlfetch.InvalidURLError as e:
-            if 'too large' in e.message:
+            if 'too large' in str(e):
                 raise AppEnginePlatformError(
                     "URLFetch request too large, URLFetch only "
                     "supports requests up to 10mb in size.", e)
             raise ProtocolError(e)
 
         except urlfetch.DownloadError as e:
-            if 'Too many redirects' in e.message:
+            if 'Too many redirects' in str(e):
                 raise MaxRetryError(self, url, reason=e)
             raise ProtocolError(e)
 
@@ -155,7 +156,7 @@ class AppEngineManager(RequestMethods):
 
     def _urlfetch_response_to_http_response(self, urlfetch_resp, **response_kw):
 
-        if is_prod_appengine_v1():
+        if is_prod_appengine():
             # Production GAE handles deflate encoding automatically, but does
             # not remove the encoding header.
             content_encoding = urlfetch_resp.headers.get('content-encoding')
@@ -176,7 +177,7 @@ class AppEngineManager(RequestMethods):
         if timeout is Timeout.DEFAULT_TIMEOUT:
             return 5  # 5s is the default timeout for URLFetch.
         if isinstance(timeout, Timeout):
-            if not timeout.read is timeout.connect:
+            if timeout.read is not timeout.connect:
                 warnings.warn(
                     "URLFetch does not support granular timeout settings, "
                     "reverting to total timeout.", AppEnginePlatformWarning)
@@ -199,12 +200,12 @@ class AppEngineManager(RequestMethods):
 
 def is_appengine():
     return (is_local_appengine() or
-            is_prod_appengine_v1() or
-            is_prod_appengine_v2())
+            is_prod_appengine() or
+            is_prod_appengine_mvms())
 
 
 def is_appengine_sandbox():
-    return is_appengine() and not is_prod_appengine_v2()
+    return is_appengine() and not is_prod_appengine_mvms()
 
 
 def is_local_appengine():
@@ -212,11 +213,11 @@ def is_local_appengine():
             'Development/' in os.environ['SERVER_SOFTWARE'])
 
 
-def is_prod_appengine_v1():
+def is_prod_appengine():
     return ('APPENGINE_RUNTIME' in os.environ and
             'Google App Engine/' in os.environ['SERVER_SOFTWARE'] and
-            not is_prod_appengine_v2())
+            not is_prod_appengine_mvms())
 
 
-def is_prod_appengine_v2():
+def is_prod_appengine_mvms():
     return os.environ.get('GAE_VM', False) == 'true'

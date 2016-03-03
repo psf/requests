@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import socket
 try:
     from select import poll, POLLIN

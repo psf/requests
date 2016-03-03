@@ -25,9 +25,30 @@ They all return an instance of the :class:`Response <Response>` object.
 .. autofunction:: patch
 .. autofunction:: delete
 
+Exceptions
+----------
+
+.. autoexception:: requests.RequestException
+.. autoexception:: requests.ConnectionError
+.. autoexception:: requests.HTTPError
+.. autoexception:: requests.URLRequired
+.. autoexception:: requests.TooManyRedirects
+.. autoexception:: requests.ConnectTimeout
+.. autoexception:: requests.ReadTimeout
+.. autoexception:: requests.Timeout
+
+
+Request Sessions
+----------------
+
+.. _sessionapi:
+
+.. autoclass:: Session
+   :inherited-members:
+
 
 Lower-Level Classes
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 .. autoclass:: requests.Request
    :inherited-members:
@@ -35,10 +56,11 @@ Lower-Level Classes
 .. autoclass:: Response
    :inherited-members:
 
-Request Sessions
-----------------
 
-.. autoclass:: Session
+Lower-Lower-Level Classes
+-------------------------
+
+.. autoclass:: requests.PreparedRequest
    :inherited-members:
 
 .. autoclass:: requests.adapters.HTTPAdapter
@@ -52,21 +74,35 @@ Authentication
 .. autoclass:: requests.auth.HTTPProxyAuth
 .. autoclass:: requests.auth.HTTPDigestAuth
 
-Exceptions
-~~~~~~~~~~
 
-.. autoexception:: requests.exceptions.RequestException
-.. autoexception:: requests.exceptions.ConnectionError
-.. autoexception:: requests.exceptions.HTTPError
-.. autoexception:: requests.exceptions.URLRequired
-.. autoexception:: requests.exceptions.TooManyRedirects
-.. autoexception:: requests.exceptions.ConnectTimeout
-.. autoexception:: requests.exceptions.ReadTimeout
-.. autoexception:: requests.exceptions.Timeout
+
+Encodings
+---------
+
+.. autofunction:: requests.utils.get_encodings_from_content
+.. autofunction:: requests.utils.get_encoding_from_headers
+.. autofunction:: requests.utils.get_unicode_from_response
+
+
+.. _api-cookies:
+
+Cookies
+-------
+
+.. autofunction:: requests.utils.dict_from_cookiejar
+.. autofunction:: requests.utils.cookiejar_from_dict
+.. autofunction:: requests.utils.add_dict_to_cookiejar
+
+.. autoclass:: requests.cookies.RequestsCookieJar
+   :inherited-members:
+
+.. autoclass:: requests.cookies.CookieConflictError
+   :inherited-members:
+
 
 
 Status Code Lookup
-~~~~~~~~~~~~~~~~~~
+------------------
 
 .. autofunction:: requests.codes
 
@@ -81,49 +117,6 @@ Status Code Lookup
     >>> requests.codes['\o/']
     200
 
-.. _api-cookies:
-
-Cookies
-~~~~~~~
-
-.. autofunction:: requests.utils.dict_from_cookiejar
-.. autofunction:: requests.utils.cookiejar_from_dict
-.. autofunction:: requests.utils.add_dict_to_cookiejar
-
-.. autoclass:: requests.cookies.RequestsCookieJar
-   :inherited-members:
-
-.. autoclass:: requests.cookies.CookieConflictError
-   :inherited-members:
-
-
-Encodings
-~~~~~~~~~
-
-.. autofunction:: requests.utils.get_encodings_from_content
-.. autofunction:: requests.utils.get_encoding_from_headers
-.. autofunction:: requests.utils.get_unicode_from_response
-
-
-Classes
-~~~~~~~
-
-.. autoclass:: requests.Response
-   :inherited-members:
-
-.. autoclass:: requests.Request
-   :inherited-members:
-
-.. autoclass:: requests.PreparedRequest
-   :inherited-members:
-
-.. _sessionapi:
-
-.. autoclass:: requests.Session
-   :inherited-members:
-
-.. autoclass:: requests.adapters.HTTPAdapter
-   :inherited-members:
 
 
 Migrating to 1.x
@@ -184,11 +177,14 @@ API Changes
       import requests
       import logging
 
-      # these two lines enable debugging at httplib level (requests->urllib3->httplib)
+      # Enabling debugging at http.client level (requests->urllib3->http.client)
       # you will see the REQUEST, including HEADERS and DATA, and RESPONSE with HEADERS but without DATA.
       # the only thing missing will be the response.body which is not logged.
-      import httplib
-      httplib.HTTPConnection.debuglevel = 1
+      try: # for Python 3
+          from http.client import HTTPConnection
+      except ImportError:
+          from httplib import HTTPConnection
+      HTTPConnection.debuglevel = 1
 
       logging.basicConfig() # you need to initialize logging, otherwise you will not see anything from requests
       logging.getLogger().setLevel(logging.DEBUG)
