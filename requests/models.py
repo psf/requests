@@ -445,6 +445,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             # Multi-part file uploads.
             if files:
                 (body, content_type) = self._encode_files(files, data)
+                self.headers['Content-Type'] = content_type
             else:
                 if data:
                     body = self._encode_params(data)
@@ -454,7 +455,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                         content_type = 'application/x-www-form-urlencoded'
 
             self.prepare_content_length(body)
-            self.headers['Content-Type'] = content_type
+            # Add content-type if it wasn't explicitly provided.
+            if content_type and ('content-type' not in self.headers):
+                self.headers['Content-Type'] = content_type
 
         self.body = body
 
