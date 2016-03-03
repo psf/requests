@@ -454,10 +454,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                         content_type = 'application/x-www-form-urlencoded'
 
             self.prepare_content_length(body)
-
-            # Add content-type if it wasn't explicitly provided.
-            if content_type and ('content-type' not in self.headers):
-                self.headers['Content-Type'] = content_type
+            self.headers['Content-Type'] = content_type
 
         self.body = body
 
