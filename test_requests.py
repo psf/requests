@@ -1186,19 +1186,12 @@ class TestContentEncodingDetection(unittest.TestCase):
         block_server = threading.Event()
         server = Server.basic_response_server(wait_to_close_event=block_server)
         data = (i for i in [b'a', b'b', b'c']) 
-
         with server as (host, port):
             url = 'http://{}:{}/'.format(host, port)
             r = requests.post(url, data=data, stream=True)
             block_server.set() # release server block
-
-            assert r.status_code == 200
-            assert r.request.headers['Transfer-Encoding'] == 'chunked'
-
-            
-        
-
-
+        assert r.status_code == 200
+        assert r.request.headers['Transfer-Encoding'] == 'chunked'
 
 class TestCaseInsensitiveDict(unittest.TestCase):
 

@@ -5,20 +5,20 @@ import socket
 import select
 
 
-def consume_socket_content(sock, chunks=65536, timeout=0.5):
+def consume_socket_content(sock, timeout=0.5):
+    chunks = 65536
     content = ""
     more_to_read = select.select([sock], [], [], timeout)[0]
 
     while more_to_read:
         new_content = sock.recv(chunks).decode("utf-8")
 
-        if len(new_content) == 0:
-            more_to_read = False # empty recv means the socket disconnected
+        if not new_content:
+            break
 
-        else:
-            content += new_content 
-            # stop reading if no new data is received for a while 
-            more_to_read = select.select([sock], [], [], timeout)[0] 
+        content += new_content 
+        # stop reading if no new data is received for a while 
+        more_to_read = select.select([sock], [], [], timeout)[0] 
 
     return content
 
@@ -49,7 +49,6 @@ class Server(threading.Thread):
 
 
         server = Server(text_response_handler, **kwargs)
-
         return server
 
     @classmethod
@@ -58,7 +57,6 @@ class Server(threading.Thread):
             "HTTP/1.1 200 OK\r\n" +
             "Content-Length: 0\r\n\r\n", **kwargs
         )
-
         return server
 
     def run(self):
