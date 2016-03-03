@@ -11,7 +11,7 @@ def consume_socket_content(sock, timeout=0.5):
     more_to_read = select.select([sock], [], [], timeout)[0]
 
     while more_to_read:
-        new_content = sock.recv(chunks).decode("utf-8")
+        new_content = sock.recv(chunks)
 
         if not new_content:
             break
@@ -22,8 +22,11 @@ def consume_socket_content(sock, timeout=0.5):
 
     return content
 
+
+
 class Server(threading.Thread):
     """ Dummy server using for unit testing """
+    WAIT_EVENT_TIMEOUT = 5
 
     def __init__(self, handler, host='localhost', port=0, requests_to_handle=1, wait_to_close_event=None):
         threading.Thread.__init__(self)
@@ -43,7 +46,7 @@ class Server(threading.Thread):
     def text_response_server(cls, text, request_timeout=0.5, **kwargs):
         def text_response_handler(sock):
             request_content = consume_socket_content(sock, timeout=request_timeout)
-            sock.send(text.encode())
+            sock.send(text.encode('utf-8'))
 
             return request_content
 
@@ -65,7 +68,10 @@ class Server(threading.Thread):
             # in case self.port = 0
             self.port = sock.getsockname()[1]
             self.ready_event.set()
-            self._handle_requests_and_close_server(sock)
+            self._handle_requests(sock)
+
+            if self.wait_to_close_event:
+                self.wait_to_close_event.wait(self.WAIT_EVENT_TIMEOUT)
         finally:
             self.ready_event.set() # just in case of exception
             sock.close()
@@ -77,28 +83,25 @@ class Server(threading.Thread):
         sock.listen(0)
         return sock
 
-    def _handle_requests_and_close_server(self, server_sock):
+    def _handle_requests(self, server_sock):
         for _ in range(self.requests_to_handle):
             sock = server_sock.accept()[0]
             handler_result = self.handler(sock)
 
             self.handler_results.append(handler_result)
         
-        if self.wait_to_close_event:
-            self.wait_to_close_event.wait()
-        
     def __enter__(self):
        self.start()
-       self.ready_event.wait()
+       self.ready_event.wait(self.WAIT_EVENT_TIMEOUT)
        return self.host, self.port
       
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is None:
-            self.stop_event.wait()
+            self.stop_event.wait(self.WAIT_EVENT_TIMEOUT)
         else:
             if self.wait_to_close_event:
-                # avoid server from blocking if an exception is found
-                # in the main thread
+                # avoid server from waiting for event timeouts 
+                # if an exception is found in the main thread 
                 self.wait_to_close_event.set() 
         return False # allow exceptions to propagate 
     
