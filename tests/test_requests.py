@@ -1467,11 +1467,3 @@ def test_chunked_upload():
 
     assert r.status_code == 200
     assert r.request.headers['Transfer-Encoding'] == 'chunked'
-
-
-
-
-
-
-if __name__ == '__main__':
-    unittest.main()
