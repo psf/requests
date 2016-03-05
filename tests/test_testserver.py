@@ -8,6 +8,7 @@ from testserver.server import Server
 
 class TestTestServer:
     def test_basic(self):
+        """messages are sent and received properly"""
         question = b"sucess?"
         answer = b"yeah, success"
         def handler(sock):
@@ -24,6 +25,7 @@ class TestTestServer:
             sock.close()
 
     def test_server_closes(self):
+        """the server closes when leaving the context manager"""
         with Server.basic_response_server() as (host, port):
             sock = socket.socket()
             sock.connect((host, port))
@@ -35,6 +37,7 @@ class TestTestServer:
             new_sock.connect((host, port))
 
     def test_text_response(self):
+        """the text_response_server sends the given text"""
         server = Server.text_response_server(
             "HTTP/1.1 200 OK\r\n" + 
             "Content-Length: 6\r\n" +
@@ -49,6 +52,7 @@ class TestTestServer:
             assert r.headers['Content-Length'] == '6' 
             
     def test_basic_response(self):
+        """the basic response server returns an empty http response"""
         with Server.basic_response_server() as (host, port):
             r = requests.get('http://{0}:{1}'.format(host, port))
             assert r.status_code == 200
@@ -56,6 +60,7 @@ class TestTestServer:
             assert r.headers['Content-Length'] == '0'
 
     def test_basic_waiting_server(self):
+        """the server waits for the block_server event to be set before closing"""
         block_server = threading.Event()
 
         with Server.basic_response_server(wait_to_close_event=block_server) as (host, port):
@@ -67,6 +72,7 @@ class TestTestServer:
             block_server.set() # release server block
 
     def test_multiple_requests(self):
+        """multiple requests can be served"""
         requests_to_handle = 5
         
         server = Server.basic_response_server(requests_to_handle=requests_to_handle)
@@ -82,6 +88,7 @@ class TestTestServer:
                 r = requests.get(server_url)
 
     def test_request_recovery(self):
+        """can check the requests content"""
         server = Server.basic_response_server(requests_to_handle=2)
         first_request = "put your hands up in the air"
         second_request = "put your hand down in the floor"
@@ -102,6 +109,7 @@ class TestTestServer:
         assert server.handler_results[1] == second_request
 
     def test_requests_after_timeout_are_not_received(self):
+        """the basic response handler times out when receiving requests"""
         server = Server.basic_response_server(request_timeout=1)
 
         with server as address:
@@ -115,6 +123,7 @@ class TestTestServer:
 
 
     def test_request_recovery_with_bigger_timeout(self):
+        """a biggest timeout can be specified"""
         server = Server.basic_response_server(request_timeout=3)
         data = "bananadine"
 
