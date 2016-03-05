@@ -45,14 +45,14 @@ class TestTestServer:
             r = requests.get('http://{0}:{1}'.format(host, port))
 
             assert r.status_code == 200
-            assert r.text == 'roflol'
+            assert r.text == u'roflol'
             assert r.headers['Content-Length'] == '6' 
             
     def test_basic_response(self):
         with Server.basic_response_server() as (host, port):
             r = requests.get('http://{0}:{1}'.format(host, port))
             assert r.status_code == 200
-            assert r.text == ''
+            assert r.text == u''
             assert r.headers['Content-Length'] == '0'
 
     def test_basic_waiting_server(self):
@@ -111,7 +111,7 @@ class TestTestServer:
             sock.sendall(b"hehehe, not received")
             sock.close()
 
-        assert server.handler_results[0] == ""
+        assert server.handler_results[0] == ''
 
 
     def test_request_recovery_with_bigger_timeout(self):
