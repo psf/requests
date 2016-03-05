@@ -13,12 +13,12 @@ class TestTestServer:
         def handler(sock):
             text = sock.recv(1000)
             assert text == question 
-            sock.send(answer)
+            sock.sendall(answer)
         
         with Server(handler) as (host, port):
             sock = socket.socket()
             sock.connect((host, port))
-            sock.send(question)
+            sock.sendall(question)
             text = sock.recv(1000)
             assert text == answer
             sock.close()
@@ -61,9 +61,9 @@ class TestTestServer:
         with Server.basic_response_server(wait_to_close_event=block_server) as (host, port):
             sock = socket.socket()
             sock.connect((host, port))
-            sock.send(b'send something')
+            sock.sendall(b'send something')
             time.sleep(2.5)
-            sock.send(b'still alive')
+            sock.sendall(b'still alive')
             block_server.set() # release server block
 
     def test_multiple_requests(self):
@@ -91,11 +91,11 @@ class TestTestServer:
             sock2 = socket.socket()
             
             sock1.connect(address)
-            sock1.send(first_request.encode())
+            sock1.sendall(first_request.encode())
             sock1.close()
 
             sock2.connect(address)
-            sock2.send(second_request.encode())
+            sock2.sendall(second_request.encode())
             sock2.close()
 
         assert server.handler_results[0] == first_request
@@ -108,7 +108,7 @@ class TestTestServer:
             sock = socket.socket()
             sock.connect(address)
             time.sleep(1.5)
-            sock.send(b"hehehe, not received")
+            sock.sendall(b"hehehe, not received")
             sock.close()
 
         assert server.handler_results[0] == ""
@@ -122,7 +122,7 @@ class TestTestServer:
             sock = socket.socket() 
             sock.connect(address)
             time.sleep(1.5)
-            sock.send(data.encode())
+            sock.sendall(data.encode())
             sock.close()
             
         assert server.handler_results[0] == data
