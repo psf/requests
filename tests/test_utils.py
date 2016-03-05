@@ -13,7 +13,6 @@ from requests.utils import (
 
 from .compat import StringIO, cStringIO
 
-from testserver.server import Server
 
 
 class TestSuperLen:
@@ -230,3 +229,4 @@ def test_select_proxies(url, expected):
     proxies = {'http': 'http://http.proxy',
                'http://some.host': 'http://some.host.proxy'}
     assert select_proxy(url, proxies) == expected
+
