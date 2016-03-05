@@ -2,6 +2,7 @@ import threading
 import socket
 import select
 
+
 def consume_socket_content(sock, timeout=0.5):
     chunks = 65536
     content = ""
@@ -18,6 +19,7 @@ def consume_socket_content(sock, timeout=0.5):
         more_to_read = select.select([sock], [], [], timeout)[0] 
 
     return content
+
 
 class Server(threading.Thread):
     """Dummy server using for unit testing"""
