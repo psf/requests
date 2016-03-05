@@ -27,8 +27,8 @@ from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
-from .compat import StringIO, u
 
+from .compat import StringIO, u
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
 TARPIT = 'http://10.255.255.1'
