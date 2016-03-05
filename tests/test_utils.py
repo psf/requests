@@ -14,7 +14,6 @@ from requests.utils import (
 from .compat import StringIO, cStringIO
 
 
-
 class TestSuperLen:
 
     @pytest.mark.parametrize(
@@ -152,6 +151,7 @@ class TestContentEncodingDetection:
         '''.strip()
         assert get_encodings_from_content(content) == ['HTML5', 'HTML4', 'XML']
 
+
 USER = PASSWORD = "%!*'();:@&=+$,/?#[] "
 ENCODED_USER = compat.quote(USER, '')
 ENCODED_PASSWORD = compat.quote(PASSWORD, '')
@@ -229,4 +229,3 @@ def test_select_proxies(url, expected):
     proxies = {'http': 'http://http.proxy',
                'http://some.host': 'http://some.host.proxy'}
     assert select_proxy(url, proxies) == expected
-
