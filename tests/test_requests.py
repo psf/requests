@@ -9,7 +9,6 @@ import os
 import pickle
 import collections
 import contextlib
-import threading
 
 import io
 import requests
@@ -28,7 +27,6 @@ from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
-from testserver.server import Server
 from .compat import StringIO, u
 
 # Requests to this URL should always fail with a connection timeout (nothing
@@ -1453,17 +1451,3 @@ def test_vendor_aliases():
 
     with pytest.raises(ImportError):
         from requests.packages import webbrowser
-
-def test_chunked_upload():
-    """can safely send generators"""
-    block_server = threading.Event()
-    server = Server.basic_response_server(wait_to_close_event=block_server)
-    data = (i for i in [b'a', b'b', b'c']) 
-
-    with server as (host, port):
-        url = 'http://{0}:{1}/'.format(host, port)
-        r = requests.post(url, data=data, stream=True)
-        block_server.set() # release server block
-
-    assert r.status_code == 200
-    assert r.request.headers['Transfer-Encoding'] == 'chunked'
