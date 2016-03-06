@@ -767,7 +767,7 @@ class TestRequests:
         items = jar.items()
         assert len(items) == 2
 
-    def test_cookie_duplicte_names_raises_cookie_conflict_error(self):
+    def test_cookie_duplicate_names_raises_cookie_conflict_error(self):
         key = 'some_cookie'
         value = 'some_value'
         path = 'some_path'
