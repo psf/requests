@@ -20,6 +20,7 @@ import sys
 import socket
 import struct
 import warnings
+import email.header  # For RFC2047 decoding.
 
 from . import __version__
 from . import certs
@@ -349,6 +350,21 @@ def get_encoding_from_headers(headers):
 
     if 'text' in content_type:
         return 'ISO-8859-1'
+
+
+def get_rfc2047_text_as_unicode(text):
+    """Returns unicode value of text encoded using RF2047 (MIME for Text)
+
+    RFC2616 specifies that header values and reason phrases are
+    encoded in this manner. RFC7230, which obsoletes RC2616,
+    recommends treating non-ASCII header values as 'opaque data'.
+    In the case of the reason phrase, we should try to decode it
+    due to its possible localization and intent for display to the user.
+
+    :params text: bytestring within ISO-8859-1/Latin1 or encoded with RC2047.
+    """
+    unmimed, encoding = email.header.decode_header(text)[0]
+    return unmimed.decode(encoding or 'ISO-8859-1')
 
 
 def stream_decode_response_unicode(iterator, r):

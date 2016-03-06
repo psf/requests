@@ -9,6 +9,7 @@ This module contains the primary objects that power Requests.
 
 import collections
 import datetime
+import codecs
 
 from io import BytesIO, UnsupportedOperation
 from .hooks import default_hooks
@@ -830,11 +831,16 @@ class Response(object):
 
         http_error_msg = ''
 
+        def encode(s):
+            return codecs.encode(s, 'unicode_escape')
+
         if 400 <= self.status_code < 500:
-            http_error_msg = '%s Client Error: %s for url: %s' % (self.status_code, self.reason, self.url)
+            http_error_msg = '%s Client Error: %s for url: %s' % (
+                self.status_code, encode(self.reason), encode(self.url))
 
         elif 500 <= self.status_code < 600:
-            http_error_msg = '%s Server Error: %s for url: %s' % (self.status_code, self.reason, self.url)
+            http_error_msg = '%s Server Error: %s for url: %s' % (
+                self.status_code, encode(self.reason), encode(self.url))
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)
