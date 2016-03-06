@@ -767,6 +767,14 @@ class TestRequests:
         items = jar.items()
         assert len(items) == 2
 
+        # Verify that CookieConflictError is raised if domain is not specified
+        with pytest.raises(requests.cookies.CookieConflictError):
+            jar.get(key)
+
+        # Verify that CookieConflictError is not raised if domain is specified
+        cookie = jar.get(key, domain=domain1)
+        assert cookie == value
+
     def test_cookie_duplicate_names_raises_cookie_conflict_error(self):
         key = 'some_cookie'
         value = 'some_value'
