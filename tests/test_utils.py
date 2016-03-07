@@ -44,7 +44,7 @@ class TestSuperLen:
             def tell(self):
                 raise error()
 
-        assert super_len(BoomFile()) == 5
+        assert super_len(BoomFile()) == 0
 
 
 class TestGetEnvironProxies:
