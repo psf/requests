@@ -1,7 +1,7 @@
 import threading
 import requests
 
-from testserver.server import Server
+from tests.testserver.server import Server
 
 
 def test_chunked_upload():

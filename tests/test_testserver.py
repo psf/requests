@@ -4,7 +4,7 @@ import time
 
 import pytest
 import requests
-from testserver.server import Server
+from tests.testserver.server import Server
 
 class TestTestServer:
     def test_basic(self):
@@ -90,19 +90,19 @@ class TestTestServer:
     def test_request_recovery(self):
         """can check the requests content"""
         server = Server.basic_response_server(requests_to_handle=2)
-        first_request = "put your hands up in the air"
-        second_request = "put your hand down in the floor"
+        first_request = b'put your hands up in the air'
+        second_request = b'put your hand down in the floor'
 
         with server as address:
             sock1 = socket.socket()
             sock2 = socket.socket()
             
             sock1.connect(address)
-            sock1.sendall(first_request.encode())
+            sock1.sendall(first_request)
             sock1.close()
 
             sock2.connect(address)
-            sock2.sendall(second_request.encode())
+            sock2.sendall(second_request)
             sock2.close()
 
         assert server.handler_results[0] == first_request
@@ -116,22 +116,22 @@ class TestTestServer:
             sock = socket.socket()
             sock.connect(address)
             time.sleep(1.5)
-            sock.sendall(b"hehehe, not received")
+            sock.sendall(b'hehehe, not received')
             sock.close()
 
-        assert server.handler_results[0] == ''
+        assert server.handler_results[0] == b''
 
 
     def test_request_recovery_with_bigger_timeout(self):
         """a biggest timeout can be specified"""
         server = Server.basic_response_server(request_timeout=3)
-        data = "bananadine"
+        data = b'bananadine'
 
         with server as address:
             sock = socket.socket() 
             sock.connect(address)
             time.sleep(1.5)
-            sock.sendall(data.encode())
+            sock.sendall(data)
             sock.close()
             
         assert server.handler_results[0] == data
