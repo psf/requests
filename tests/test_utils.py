@@ -15,7 +15,6 @@ from .compat import StringIO, cStringIO
 
 
 class TestSuperLen:
-
     @pytest.mark.parametrize(
         'stream, value', (
             (StringIO.StringIO, 'Test'),
@@ -32,6 +31,20 @@ class TestSuperLen:
         s = StringIO.StringIO()
         s.write('foobarbogus')
         assert super_len(s) == 0
+
+    @pytest.mark.parametrize('error', [IOError, OSError])
+    def test_super_len_handles_files_raising_weird_errors_in_tell(self, error):
+        """
+        If tell() raises errors, assume the cursor is at position zero.
+        """
+        class BoomFile(object):
+            def __len__(self):
+                return 5
+
+            def tell(self):
+                raise error()
+
+        assert super_len(BoomFile()) == 5
 
 
 class TestGetEnvironProxies:
