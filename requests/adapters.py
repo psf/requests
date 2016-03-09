@@ -173,7 +173,14 @@ class HTTPAdapter(BaseAdapter):
         """
         if url.lower().startswith('https') and verify:
 
-            cert_loc = DEFAULT_CA_BUNDLE_PATH
+            cert_loc = None
+
+            # Allow self-specified cert location.
+            if verify is not True:
+                cert_loc = verify
+
+            if not cert_loc:
+                cert_loc = DEFAULT_CA_BUNDLE_PATH
 
             if not cert_loc:
                 raise Exception("Could not find a suitable SSL CA certificate bundle.")
