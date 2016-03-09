@@ -144,11 +144,10 @@ def remove_cookie_by_name(cookiejar, name, domain=None, path=None):
     """
     clearables = []
     for cookie in cookiejar:
-        if cookie.name != name:
-            continue
-        if domain is not None and domain != cookie.domain:
-            continue
-        if path is not None and path != cookie.path:
+        bool_cookie = (cookie.name != name)
+        bool_domain = (domain is not None and domain != cookie.domain)
+        bool_path = (path is not None and path != cookie.path)
+        if bool_cookie or bool_domain or bool_path:
             continue
         clearables.append((cookie.domain, cookie.path, cookie.name))
 
@@ -242,19 +241,11 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
 
     def list_domains(self):
         """Utility method to list all the domains in the jar."""
-        domains = []
-        for cookie in iter(self):
-            if cookie.domain not in domains:
-                domains.append(cookie.domain)
-        return domains
+        return list(set([cookie.domain for cookie in iter(self)]))
 
     def list_paths(self):
         """Utility method to list all the paths in the jar."""
-        paths = []
-        for cookie in iter(self):
-            if cookie.path not in paths:
-                paths.append(cookie.path)
-        return paths
+        return list(set([cookie.path for cookie in iter(self)]))
 
     def multiple_domains(self):
         """Returns True if there are multiple domains in the jar.

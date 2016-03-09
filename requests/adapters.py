@@ -198,8 +198,7 @@ class HTTPAdapter(BaseAdapter):
 
         if cert:
             if not isinstance(cert, basestring):
-                conn.cert_file = cert[0]
-                conn.key_file = cert[1]
+                conn.cert_file, conn.key_file = cert[0], cert[1]
             else:
                 conn.cert_file = cert
 
