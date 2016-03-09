@@ -164,3 +164,4 @@ Patches and Suggestions
 - Robin Linderborg (`@vienno <https://github.com/vienno>`_)
 - Brian Samek (`@bsamek <https://github.com/bsamek>`_)
 - Dmitry Dygalo (`@Stranger6667 <https://github.com/Stranger6667>`_)
+- Tushar Makkar <tusharmakkar08@gmail.com>(`@tusharmakkar08 <https://github.com/tusharmakkar08>`_)
