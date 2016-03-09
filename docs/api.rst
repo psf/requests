@@ -104,7 +104,7 @@ Cookies
 Status Code Lookup
 ------------------
 
-.. autofunction:: requests.codes
+.. autoclass:: requests.codes
 
 ::
 
