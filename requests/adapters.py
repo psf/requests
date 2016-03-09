@@ -173,14 +173,7 @@ class HTTPAdapter(BaseAdapter):
         """
         if url.lower().startswith('https') and verify:
 
-            cert_loc = None
-
-            # Allow self-specified cert location.
-            if verify is not True:
-                cert_loc = verify
-
-            if not cert_loc:
-                cert_loc = DEFAULT_CA_BUNDLE_PATH
+            cert_loc = DEFAULT_CA_BUNDLE_PATH
 
             if not cert_loc:
                 raise Exception("Could not find a suitable SSL CA certificate bundle.")
@@ -197,11 +190,7 @@ class HTTPAdapter(BaseAdapter):
             conn.ca_cert_dir = None
 
         if cert:
-            if not isinstance(cert, basestring):
-                conn.cert_file = cert[0]
-                conn.key_file = cert[1]
-            else:
-                conn.cert_file = cert
+            conn.cert_file, conn.key_file = (cert[0], cert[1]) if not isinstance(cert, basestring) else (cert, None)
 
     def build_response(self, req, resp):
         """Builds a :class:`Response <requests.Response>` object from a urllib3
