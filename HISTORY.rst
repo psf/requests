@@ -9,6 +9,8 @@ Release History
 **Bugfixes**
 
 - Don't use redirect_cache if allow_redirects=False
+- When passed objects that throw exceptions from ``tell()``, send them via
+  chunked transfer encoding instead of failing.
 
 2.9.1 (2015-12-21)
 ++++++++++++++++++

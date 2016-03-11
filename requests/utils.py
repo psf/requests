@@ -83,7 +83,14 @@ def super_len(o):
                 )
 
     if hasattr(o, 'tell'):
-        current_position = o.tell()
+        try:
+            current_position = o.tell()
+        except (OSError, IOError):
+            # This can happen in some weird situations, such as when the file
+            # is actually a special file descriptor like stdin. In this
+            # instance, we don't know what the length is, so set it to zero and
+            # let requests chunk it instead.
+            current_position = total_length
 
     return max(0, total_length - current_position)
 
