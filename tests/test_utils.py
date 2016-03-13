@@ -38,6 +38,20 @@ class TestSuperLen:
         s.write('foobarbogus')
         assert super_len(s) == 0
 
+    @pytest.mark.parametrize('error', [IOError, OSError])
+    def test_super_len_handles_files_raising_weird_errors_in_tell(self, error):
+        """
+        If tell() raises errors, assume the cursor is at position zero.
+        """
+        class BoomFile(object):
+            def __len__(self):
+                return 5
+
+            def tell(self):
+                raise error()
+
+        assert super_len(BoomFile()) == 0
+
     def test_string(self):
         assert super_len('Test') == 4
 
