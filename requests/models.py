@@ -439,7 +439,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
             if length:
                 self.headers['Content-Length'] = builtin_str(length)
-            else:
+            elif 'Content-Length' not in self.headers:
                 self.headers['Transfer-Encoding'] = 'chunked'
         else:
             # Multi-part file uploads.
