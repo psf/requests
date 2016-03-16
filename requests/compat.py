@@ -5,7 +5,7 @@ pythoncompat
 """
 
 from .packages import chardet
-import json
+
 import sys
 
 # -------

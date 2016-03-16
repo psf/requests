@@ -31,7 +31,7 @@ from .utils import (
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, builtin_str, basestring)
-from .compat import json as complexjson
+import json as complexjson
 from .status_codes import codes
 
 #: The set of HTTP status codes that indicate an automatically
