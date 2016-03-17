@@ -192,15 +192,16 @@ applied, replace the call to :meth:`Request.prepare()
 SSL Cert Verification
 ---------------------
 
-Requests can verify SSL certificates for HTTPS requests, just like a web browser.
-To check a host's SSL certificate, you can use the ``verify`` argument::
+Requests verifies SSL certificates for HTTPS requests, just like a web browser.
+By default, SSL verification is enabled, and requests will throw a SSLError if
+it's unable to verify the certificate::
 
-    >>> requests.get('https://kennethreitz.com', verify=True)
-    requests.exceptions.SSLError: hostname 'kennethreitz.com' doesn't match either of '*.herokuapp.com', 'herokuapp.com'
+    >>> requests.get('https://requestb.in')
+    requests.exceptions.SSLError: hostname 'requestb.in' doesn't match either of '*.herokuapp.com', 'herokuapp.com'
 
-I don't have SSL setup on this domain, so it fails. Excellent. GitHub does though::
+I don't have SSL setup on this domain, so it throws an exception. Excellent. GitHub does though::
 
-    >>> requests.get('https://github.com', verify=True)
+    >>> requests.get('https://github.com')
     <Response [200]>
 
 You can pass ``verify`` the path to a CA_BUNDLE file or directory with certificates of trusted CAs::
@@ -225,7 +226,7 @@ file's path::
     >>> requests.get('https://kennethreitz.com', cert=('/path/client.cert', '/path/client.key'))
     <Response [200]>
 
-If you specify a wrong path or an invalid cert::
+If you specify a wrong path or an invalid cert, you'll get a SSLError::
 
     >>> requests.get('https://kennethreitz.com', cert='/wrong_path/client.pem')
     SSLError: [Errno 336265225] _ssl.c:347: error:140B0009:SSL routines:SSL_CTX_use_PrivateKey_file:PEM lib
