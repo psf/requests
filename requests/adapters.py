@@ -434,6 +434,9 @@ class HTTPAdapter(BaseAdapter):
             if isinstance(e.reason, ResponseError):
                 raise RetryError(e, request=request)
 
+            if isinstance(e.reason, _ProxyError):
+                raise ProxyError(e, request=request)
+
             raise ConnectionError(e, request=request)
 
         except ClosedPoolError as e:
