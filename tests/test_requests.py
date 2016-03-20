@@ -162,6 +162,49 @@ class TestRequests:
         else:
             pytest.fail('Expected custom max number of redirects to be respected but was not')
 
+    def test_http_301_changes_post_to_get(self, httpbin):
+        r = requests.post(httpbin('status', '301'))
+        assert r.status_code == 200
+        assert r.request.method == 'GET'
+        assert r.history[0].status_code == 301
+        assert r.history[0].is_redirect
+
+    def test_http_301_doesnt_change_head_to_get(self, httpbin):
+        r = requests.head(httpbin('status', '301'), allow_redirects=True)
+        print(r.content)
+        assert r.status_code == 200
+        assert r.request.method == 'HEAD'
+        assert r.history[0].status_code == 301
+        assert r.history[0].is_redirect
+
+    def test_http_302_changes_post_to_get(self, httpbin):
+        r = requests.post(httpbin('status', '302'))
+        assert r.status_code == 200
+        assert r.request.method == 'GET'
+        assert r.history[0].status_code == 302
+        assert r.history[0].is_redirect
+
+    def test_http_302_doesnt_change_head_to_get(self, httpbin):
+        r = requests.head(httpbin('status', '302'), allow_redirects=True)
+        assert r.status_code == 200
+        assert r.request.method == 'HEAD'
+        assert r.history[0].status_code == 302
+        assert r.history[0].is_redirect
+
+    def test_http_303_changes_post_to_get(self, httpbin):
+        r = requests.post(httpbin('status', '303'))
+        assert r.status_code == 200
+        assert r.request.method == 'GET'
+        assert r.history[0].status_code == 303
+        assert r.history[0].is_redirect
+
+    def test_http_303_doesnt_change_head_to_get(self, httpbin):
+        r = requests.head(httpbin('status', '303'), allow_redirects=True)
+        assert r.status_code == 200
+        assert r.request.method == 'HEAD'
+        assert r.history[0].status_code == 303
+        assert r.history[0].is_redirect
+
     # def test_HTTP_302_ALLOW_REDIRECT_POST(self):
     #     r = requests.post(httpbin('status', '302'), data={'some': 'data'})
     #     self.assertEqual(r.status_code, 200)
