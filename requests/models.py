@@ -103,8 +103,10 @@ class RequestEncodingMixin(object):
         """Build the body for a multipart/form-data request.
 
         Will successfully encode files when passed as a dict or a list of
-        2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
+        tuples. Order is retained if data is a list of tuples but arbitrary
         if parameters are supplied as a dict.
+        The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, contentype)
+        or 4-tuples (filename, fileobj, contentype, custom_headers).
 
         """
         if (not files):
