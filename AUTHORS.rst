@@ -171,3 +171,4 @@ Patches and Suggestions
 - Nate Prewitt <nate.prewitt@gmail.com> (`@nateprewitt <https://github.com/nateprewitt>`_)
 - Maik Himstedt
 - Michael Hunsinger
+- Jeremy Cline <jcline@redhat.com> (`@jeremycline <https://github.com/jeremycline>`_)
