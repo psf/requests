@@ -14,9 +14,7 @@ import codecs
 import collections
 import io
 import os
-import platform
 import re
-import sys
 import socket
 import struct
 import warnings
@@ -564,12 +562,14 @@ def should_bypass_proxies(url):
 
     return False
 
+
 def get_environ_proxies(url):
     """Return a dict of environment proxies."""
     if should_bypass_proxies(url):
         return {}
     else:
         return getproxies()
+
 
 def select_proxy(url, proxies):
     """Select a proxy for the url, if applicable.
@@ -583,6 +583,7 @@ def select_proxy(url, proxies):
     if proxy is None:
         proxy = proxies.get(urlparts.scheme)
     return proxy
+
 
 def default_user_agent(name="python-requests"):
     """Return a string representing the default user agent."""
@@ -607,21 +608,19 @@ def parse_header_links(value):
 
     links = []
 
-    replace_chars = " '\""
+    replace_chars = ' \'"'
 
-    for val in re.split(", *<", value):
+    for val in re.split(', *<', value):
         try:
-            url, params = val.split(";", 1)
+            url, params = val.split(';', 1)
         except ValueError:
             url, params = val, ''
 
-        link = {}
+        link = {'url': url.strip('<> \'"')}
 
-        link["url"] = url.strip("<> '\"")
-
-        for param in params.split(";"):
+        for param in params.split(';'):
             try:
-                key, value = param.split("=")
+                key, value = param.split('=')
             except ValueError:
                 break
 
@@ -668,8 +667,8 @@ def guess_json_utf(data):
 
 
 def prepend_scheme_if_needed(url, new_scheme):
-    '''Given a URL that may or may not have a scheme, prepend the given scheme.
-    Does not replace a present scheme with the one provided as an argument.'''
+    """Given a URL that may or may not have a scheme, prepend the given scheme.
+    Does not replace a present scheme with the one provided as an argument."""
     scheme, netloc, path, params, query, fragment = urlparse(url, new_scheme)
 
     # urlparse is a finicky beast, and sometimes decides that there isn't a
@@ -700,8 +699,6 @@ def to_native_string(string, encoding='ascii'):
     string in the native string type, encoding and decoding where necessary.
     This assumes ASCII unless told otherwise.
     """
-    out = None
-
     if isinstance(string, builtin_str):
         out = string
     else:
