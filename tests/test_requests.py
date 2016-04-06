@@ -21,7 +21,8 @@ from requests.compat import (
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
-    MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects)
+    MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
+    ProxyError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -357,6 +358,11 @@ class TestRequests:
     def test_errors(self, url, exception):
         with pytest.raises(exception):
             requests.get(url, timeout=1)
+
+    def test_proxy_error(self):
+        # any proxy related error (address resolution, no route to host, etc) should result in a ProxyError
+        with pytest.raises(ProxyError):
+            requests.get('http://localhost:1', proxies={'http': 'non-resolvable-address'})
 
     def test_basicauth_with_netrc(self, httpbin):
         auth = ('user', 'pass')
