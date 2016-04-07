@@ -13,7 +13,6 @@ import cgi
 import codecs
 import collections
 import io
-import functools
 import os
 import platform
 import re
