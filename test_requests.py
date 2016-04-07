@@ -1156,7 +1156,7 @@ class TestRequests:
         next(r.iter_lines())
         assert len(list(r.iter_lines())) == 3
 
-    def test_environment_comes_after_session(self):
+    def test_environment_comes_after_session(self, httpbin):
         """The Session arguments should come before environment arguments."""
         # We get proxies from the environment and verify from the argument.
         s = requests.Session()
