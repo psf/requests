@@ -136,8 +136,8 @@ class SessionRedirectMixin(object):
             # urlparse in requote_uri will encode it with UTF-8 before quoting.
             # Because of this insanity, we need to fix it up ourselves by
             # sending the URL back to bytes ourselves.
-            if is_py3 and isinstance(url, str):
-                url = url.encode('latin1')
+            if is_py3 and isinstance(location_url, str):
+                location_url = location_url.encode('latin1')
 
             # Facilitate relative 'location' headers, as allowed by RFC 7231.
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')

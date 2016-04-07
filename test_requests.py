@@ -1653,7 +1653,7 @@ class TestRedirects:
             assert session.calls[-1] == send_call
 
     @pytest.mark.skipif(is_py2, reason="requires python 3")
-    def test_redirects_with_latin1_header(self):
+    def test_redirects_with_latin1_header(self, httpbin):
         """Test that redirect headers decoded with Latin 1 are correctly
         followed"""
         session = RedirectSession([303])
