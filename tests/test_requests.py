@@ -482,6 +482,51 @@ class TestRequests:
         with pytest.raises(ValueError):
             requests.post(url, files=['bad file data'])
 
+    def test_POSTBIN_SEEKED_OBJECT_WITH_NO_ITER(self, httpbin):
+
+        class BufferedStream(object):
+            def __init__(self, data):
+                if isinstance(data, buffer):
+                    self.data = data
+                else:
+                    self.data = buffer(data)
+                self.length = len(self.data)
+                self.index = 0
+
+            def __len__(self):
+                return self.length
+
+            def read(self, size=None):
+                if size:
+                    ret = buffer(self.data, self.index, size)
+                    self.index += size
+                else:
+                    ret = buffer(self.data, self.index)
+                    self.index = self.length
+                return ret
+
+            def tell(self):
+                return self.index
+
+            def seek(self, offset, where=0):
+                if where == 0:
+                    self.index = offset
+                elif where == 1:
+                    self.index += offset
+                elif where == 2:
+                    self.index = self.length + offset
+
+        test = BufferedStream('test')
+        post1 = requests.post(httpbin('post'), data=test)
+        assert post1.status_code == 200
+        assert post1.json()['data'] == 'test'
+
+        test = BufferedStream('test')
+        test.seek(2)
+        post2 = requests.post(httpbin('post'), data=test)
+        assert post2.status_code == 200
+        assert post2.json()['data'] == 'st'
+
     def test_POSTBIN_GET_POST_FILES_WITH_DATA(self, httpbin):
 
         url = httpbin('post')
