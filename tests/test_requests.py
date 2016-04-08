@@ -484,12 +484,9 @@ class TestRequests:
 
     def test_POSTBIN_SEEKED_OBJECT_WITH_NO_ITER(self, httpbin):
 
-        class BufferedStream(object):
+        class TestStream(object):
             def __init__(self, data):
-                if isinstance(data, buffer):
-                    self.data = data
-                else:
-                    self.data = buffer(data)
+                self.data = data.encode()
                 self.length = len(self.data)
                 self.index = 0
 
@@ -498,10 +495,10 @@ class TestRequests:
 
             def read(self, size=None):
                 if size:
-                    ret = buffer(self.data, self.index, size)
+                    ret = self.data[self.index:self.index + size]
                     self.index += size
                 else:
-                    ret = buffer(self.data, self.index)
+                    ret = self.data[self.index:]
                     self.index = self.length
                 return ret
 
@@ -516,12 +513,12 @@ class TestRequests:
                 elif where == 2:
                     self.index = self.length + offset
 
-        test = BufferedStream('test')
+        test = TestStream('test')
         post1 = requests.post(httpbin('post'), data=test)
         assert post1.status_code == 200
         assert post1.json()['data'] == 'test'
 
-        test = BufferedStream('test')
+        test = TestStream('test')
         test.seek(2)
         post2 = requests.post(httpbin('post'), data=test)
         assert post2.status_code == 200
