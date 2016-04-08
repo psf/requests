@@ -465,9 +465,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_content_length(self, body):
         if hasattr(body, 'seek') and hasattr(body, 'tell'):
+            curr_pos = body.tell()
             body.seek(0, 2)
-            self.headers['Content-Length'] = builtin_str(body.tell())
-            body.seek(0, 0)
+            end_pos = body.tell()
+            self.headers['Content-Length'] = builtin_str(max(0, end_pos - curr_pos))
+            body.seek(curr_pos, 0)
         elif body is not None:
             l = super_len(body)
             if l:
