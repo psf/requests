@@ -1,4 +1,4 @@
-import threading 
+import threading
 import socket
 import select
 
@@ -14,9 +14,9 @@ def consume_socket_content(sock, timeout=0.5):
         if not new_content:
             break
 
-        content += new_content 
+        content += new_content
         # stop reading if no new data is received for a while
-        more_to_read = select.select([sock], [], [], timeout)[0] 
+        more_to_read = select.select([sock], [], [], timeout)[0]
 
     return content
 
@@ -34,7 +34,7 @@ class Server(threading.Thread):
         self.host = host
         self.port = port
         self.requests_to_handle = requests_to_handle
- 
+
         self.wait_to_close_event = wait_to_close_event
         self.ready_event = threading.Event()
         self.stop_event = threading.Event()
@@ -54,7 +54,7 @@ class Server(threading.Thread):
     def basic_response_server(cls, **kwargs):
         return cls.text_response_server(
             "HTTP/1.1 200 OK\r\n" +
-            "Content-Length: 0\r\n\r\n", 
+            "Content-Length: 0\r\n\r\n",
             **kwargs
         )
 
@@ -85,19 +85,18 @@ class Server(threading.Thread):
             handler_result = self.handler(sock)
 
             self.handler_results.append(handler_result)
-        
+
     def __enter__(self):
-       self.start()
-       self.ready_event.wait(self.WAIT_EVENT_TIMEOUT)
-       return self.host, self.port
-      
+        self.start()
+        self.ready_event.wait(self.WAIT_EVENT_TIMEOUT)
+        return self.host, self.port
+
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is None:
             self.stop_event.wait(self.WAIT_EVENT_TIMEOUT)
         else:
             if self.wait_to_close_event:
-                # avoid server from waiting for event timeouts 
-                # if an exception is found in the main thread 
-                self.wait_to_close_event.set() 
-        return False # allow exceptions to propagate 
-    
+                # avoid server from waiting for event timeouts
+                # if an exception is found in the main thread
+                self.wait_to_close_event.set()
+        return False # allow exceptions to propagate
