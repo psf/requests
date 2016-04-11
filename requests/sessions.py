@@ -443,7 +443,8 @@ class Session(SessionRedirectMixin):
             A CA_BUNDLE path can also be provided. Defaults to ``True``.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
-        """
+        :rtype: requests.Response
+	"""
         # Create the Request.
         req = Request(
             method = method.upper(),
