@@ -264,10 +264,12 @@ class HTTPAdapter(BaseAdapter):
     def close(self):
         """Disposes of any internal state.
 
-        Currently, this just closes the PoolManager, which closes pooled
-        connections.
+        Currently, this closes the PoolManager and any active ProxyManager,
+        which closes any pooled connections.
         """
         self.poolmanager.clear()
+        for proxy in self.proxy_manager.values():
+            proxy.clear()
 
     def request_url(self, request, proxies):
         """Obtain the url to use when making the final request.

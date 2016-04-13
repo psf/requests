@@ -1188,6 +1188,17 @@ class TestRequests:
         next(r.iter_lines())
         assert len(list(r.iter_lines())) == 3
 
+    def test_session_close_proxy_clear(self, mocker):
+        proxies = {
+          'one': mocker.Mock(),
+          'two': mocker.Mock(),
+        }
+        session = requests.Session()
+        mocker.patch.dict(session.adapters['http://'].proxy_manager, proxies)
+        session.close()
+        proxies['one'].clear.assert_called_once_with()
+        proxies['two'].clear.assert_called_once_with()
+
 
 class TestCaseInsensitiveDict:
 
