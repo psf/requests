@@ -148,7 +148,7 @@ def guess_filename(obj):
     """Tries to guess the filename of the given object."""
     name = getattr(obj, 'name', None)
     if (name and isinstance(name, basestring) and name[0] != '<' and
-            name[-1] != '>'):
+                name[-1] != '>'):
         return os.path.basename(name)
 
 
@@ -229,6 +229,40 @@ def parse_list_header(value):
             item = unquote_header_value(item[1:-1])
         result.append(item)
     return result
+
+
+def _parse_raw(value, data_type):
+    ret = {}
+    value = value.replace(' ', '')
+    for i in value.split(data_type):
+        j = i.split('=')
+        try:
+            ret[j[0]] = j[1]
+        except IndexError:
+            continue
+    return ret
+
+
+def parse_rawpostdata_to_dict(value):
+    """Parse raw postdata string to dict
+    >>>print parse_rawcookies_to_dict('user=a&a=b&c=1')
+    >>>
+    {'user': 'a','a':'b','c':'1'}
+    :param value: a raw post data string
+    :rtype  dict
+    """
+    return _parse_raw(value, '&')
+
+
+def parse_rawcookies_to_dict(value):
+    """Parse raw cookie string to dict
+    >>>print parse_rawcookies_to_dict('user=a;a=b;c=1')
+    >>>
+    {'user': 'a','a':'b','c':'1'}
+    :param value: a raw cookie string
+    :rtype  dict
+    """
+    return _parse_raw(value, ';')
 
 
 # From mitsuhiko/werkzeug (used with permission).
@@ -579,7 +613,7 @@ def select_proxy(url, proxies):
     """
     proxies = proxies or {}
     urlparts = urlparse(url)
-    proxy = proxies.get(urlparts.scheme+'://'+urlparts.hostname)
+    proxy = proxies.get(urlparts.scheme + '://' + urlparts.hostname)
     if proxy is None:
         proxy = proxies.get(urlparts.scheme)
     return proxy
@@ -643,26 +677,26 @@ def guess_json_utf(data):
     # determine the encoding. Also detect a BOM, if present.
     sample = data[:4]
     if sample in (codecs.BOM_UTF32_LE, codecs.BOM32_BE):
-        return 'utf-32'     # BOM included
+        return 'utf-32'  # BOM included
     if sample[:3] == codecs.BOM_UTF8:
         return 'utf-8-sig'  # BOM included, MS style (discouraged)
     if sample[:2] in (codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE):
-        return 'utf-16'     # BOM included
+        return 'utf-16'  # BOM included
     nullcount = sample.count(_null)
     if nullcount == 0:
         return 'utf-8'
     if nullcount == 2:
-        if sample[::2] == _null2:   # 1st and 3rd are null
+        if sample[::2] == _null2:  # 1st and 3rd are null
             return 'utf-16-be'
         if sample[1::2] == _null2:  # 2nd and 4th are null
             return 'utf-16-le'
-        # Did not detect 2 valid UTF-16 ascii-range characters
+            # Did not detect 2 valid UTF-16 ascii-range characters
     if nullcount == 3:
         if sample[:3] == _null3:
             return 'utf-32-be'
         if sample[1:] == _null3:
             return 'utf-32-le'
-        # Did not detect a valid UTF-32 ascii-range character
+            # Did not detect a valid UTF-32 ascii-range character
     return None
 
 
