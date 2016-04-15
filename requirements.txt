@@ -13,6 +13,7 @@ Pygments==2.1.1
 pytest==2.8.7
 pytest-cov==2.2.1
 pytest-httpbin==0.2.0
+pytest-mock==0.11.0
 pytz==2015.7
 six==1.10.0
 snowballstemmer==1.2.1
