@@ -318,11 +318,11 @@ class TestRequests:
     def test_headers_preserve_order(self, httpbin):
         """Preserve order when headers provided as OrderedDict."""
         ses = requests.Session()
-        ses.headers = collections.OrderedDict()
+        ses.headers = OrderedDict()
         ses.headers['Accept-Encoding'] = 'identity'
         ses.headers['First'] = '1'
         ses.headers['Second'] = '2'
-        headers = collections.OrderedDict([('Third', '3'), ('Fourth', '4')])
+        headers = OrderedDict([('Third', '3'), ('Fourth', '4')])
         headers['Fifth'] = '5'
         headers['Second'] = '222'
         req = requests.Request('GET', httpbin('get'), headers = headers)
