@@ -618,24 +618,33 @@ class Session(SessionRedirectMixin):
 
     def merge_environment_settings(self, url, proxies, stream, verify, cert):
         """Check the environment and merge it with some settings."""
-        # Gather clues from the surrounding environment.
-        if self.trust_env:
-            # Set environment's proxies.
-            env_proxies = get_environ_proxies(url) or {}
-            for (k, v) in env_proxies.items():
-                proxies.setdefault(k, v)
+        # Merge all the kwargs except for proxies.
+        stream = merge_setting(stream, self.stream)
+        verify = merge_setting(verify, self.verify)
+        cert = merge_setting(cert, self.cert)
 
+        # Gather clues from the surrounding environment.
+        # We do this after merging the Session values to make sure we don't
+        # accidentally exclude them.
+        if self.trust_env:
             # Look for requests environment configuration and be compatible
             # with cURL.
             if verify is True or verify is None:
                 verify = (os.environ.get('REQUESTS_CA_BUNDLE') or
                           os.environ.get('CURL_CA_BUNDLE'))
 
-        # Merge all the kwargs.
-        proxies = merge_setting(proxies, self.proxies)
-        stream = merge_setting(stream, self.stream)
-        verify = merge_setting(verify, self.verify)
-        cert = merge_setting(cert, self.cert)
+        # Now we handle proxies.
+        # Proxies need to be built up backwards. This is because None values
+        # can delete proxy information, which can then be re-added by a more
+        # specific layer. So we begin by getting the environment's proxies,
+        # then add the Session, then add the request.
+        env_proxies = {}
+
+        if self.trust_env:
+            env_proxies = get_environ_proxies(url) or {}
+
+        new_proxies = merge_setting(self.proxies, env_proxies)
+        proxies = merge_setting(proxies, new_proxies)
 
         return {'verify': verify, 'proxies': proxies, 'stream': stream,
                 'cert': cert}
