@@ -13,7 +13,7 @@ from collections import Mapping
 from datetime import datetime
 
 from .auth import _basic_auth_str
-from .compat import cookielib, OrderedDict, urljoin, urlparse
+from .compat import cookielib, OrderedDict, urljoin, urlparse, is_py3, str
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
@@ -131,6 +131,13 @@ class SessionRedirectMixin(object):
             # The scheme should be lower case...
             parsed = urlparse(location_url)
             location_url = parsed.geturl()
+
+            # On Python 3, the location header was decoded using Latin 1, but
+            # urlparse in requote_uri will encode it with UTF-8 before quoting.
+            # Because of this insanity, we need to fix it up ourselves by
+            # sending the URL back to bytes ourselves.
+            if is_py3 and isinstance(location_url, str):
+                location_url = location_url.encode('latin1')
 
             # Facilitate relative 'location' headers, as allowed by RFC 7231.
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
