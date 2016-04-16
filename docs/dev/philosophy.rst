@@ -33,8 +33,6 @@ Requests has no *active* plans to be included in the standard library. This deci
 
 Essentially, the standard library is where a library goes to die. It is appropriate for a module to be included when active development is no longer necessary.
 
-Requests just reached v1.0.0. This huge milestone marks a major step in the right direction.
-
 Linux Distro Packages
 ~~~~~~~~~~~~~~~~~~~~~
 
