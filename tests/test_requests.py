@@ -325,9 +325,9 @@ class TestRequests:
         headers = OrderedDict([('Third', '3'), ('Fourth', '4')])
         headers['Fifth'] = '5'
         headers['Second'] = '222'
-        req = requests.Request('GET', httpbin('get'), headers = headers)
+        req = requests.Request('GET', httpbin('get'), headers=headers)
         prep = ses.prepare_request(req)
-        items = prep.headers.items()
+        items = list(prep.headers.items())
         assert items[0] == ('Accept-Encoding', 'identity')
         assert items[1] == ('First', '1')
         assert items[2] == ('Second', '222')
