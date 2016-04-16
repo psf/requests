@@ -12,7 +12,6 @@ that are also useful for external consumption.
 import cgi
 import codecs
 import collections
-import functools
 import io
 import os
 import platform
@@ -39,6 +38,92 @@ NETRC_FILES = ('.netrc', '_netrc')
 
 DEFAULT_CA_BUNDLE_PATH = certs.where()
 
+
+class _ListNode(object):
+    def __init__(self, key, val, expired_at, prev=None, nxt=None):
+        self.key = key
+        self.val = val
+        self.expired_at = expired_at
+        self.prev = prev
+        self.nxt = nxt
+
+    def is_expired(self):
+        return time.time() > self.expired_at
+
+    def link_to(self, former, latter):
+        # Return: former <-> self <-> latter
+        self.prev = former
+        self.nxt = latter
+        if former is not None:
+            former.nxt = self
+        if latter is not None:
+            latter.prev = self
+
+    def unlink_self(self):
+        # Original: prev.prev <-> prev <-> self <-> nxt
+        # Returned: prev.prev <-> prev <-> nxt
+        self.prev.link_to(self.prev.prev, self.nxt)
+
+    @staticmethod
+    def dummy_node():
+        return _ListNode(key=None, val=None, expired_at=None)
+
+
+class TTLCache(object):
+    def __init__(self, ttl=3600, maxitems=64):
+        self.ttl = ttl
+        self.key_to_node = {}
+        self.maxitems = maxitems
+
+        self.list_head = _ListNode.dummy_node()
+        self.list_tail = _ListNode.dummy_node()
+
+        self.list_head.link_to(None, self.list_tail)
+        self.list_tail.link_to(self.list_head, None)
+
+
+    def set(self, key, val):
+        if key in self.key_to_node:
+            # update the node value
+            node = self.key_to_node[key]
+            node.val = val
+            node.expired_at = int(time.time()) + self.ttl
+
+            # move the node to the beginning of the list
+            node.unlink_self()
+            node.link_to(self.list_head, self.list_head.nxt)
+
+        else:
+            # insert the node to the beginning of the list
+            node = _ListNode(key=key, val=val, expired_at=int(time.time())+self.ttl)
+            node.link_to(self.list_head, self.list_head.nxt)
+
+            self.key_to_node[key] = node
+
+            if len(self.key_to_node) > self.maxitems:
+                to_remove = self.list_tail.prev
+                to_remove.unlink_self()
+                del self.key_to_node[to_remove.key]
+
+
+    def get(self, key):
+        if key not in self.key_to_node:
+            return None
+
+        node = self.key_to_node[key]
+
+        if node.is_expired():
+            node.unlink_self()
+            del self.key_to_node[node.key]
+            return None
+
+        # move the node to the beginning of the list
+        node.unlink_self()
+        node.link_to(self.list_head, self.list_head.nxt)
+
+        return node.val
+
+proxy_bypass_cacher = TTLCache()
 
 def dict_to_sequence(d):
     """Returns an internal sequence dictionary update."""
@@ -543,6 +628,7 @@ def should_bypass_proxies(url):
                     # to apply the proxies on this URL.
                     return True
 
+
     # If the system proxy settings indicate that this URL should be bypassed,
     # don't proxy.
     # The proxy_bypass function is incredibly buggy on OS X in early versions
@@ -553,12 +639,12 @@ def should_bypass_proxies(url):
     # Additionally, the proxy_bypass function might cause unexpected delay when
     # it called socket.gethostbyaddr internally (refer to #2988). Thus we cache
     # the function call. Also, to invalidate the cache from time to time (as we
-    # don't know when to expire the cache exactly), we use an invalid_indicator
-    # here, which will be different for every 60 seconds, to expire the cache
-    # even with the same netloc.
+    # don't know when to expire the cache exactly), we use the TTLCache
+    # mechanism here.
     try:
-        invalid_indicator = int(time.time() / 60)
-        bypass = _cached_proxy_bypass(netloc, invalid_indicator)
+        bypass = proxy_bypass_cacher.get(netloc)
+        if bypass is None:
+            bypass = proxy_bypass_cacher.set(netloc, proxy_bypass(netloc))
     except (TypeError, socket.gaierror):
         bypass = False
 
@@ -566,11 +652,6 @@ def should_bypass_proxies(url):
         return True
 
     return False
-
-@functools.lru_cache(maxsize=64)
-def _cached_proxy_bypass(netloc, _):
-    """Use LRU to cache the proxy_bypass."""
-    return proxy_bypass(netloc)
 
 def get_environ_proxies(url):
     """Return a dict of environment proxies."""
@@ -734,3 +815,6 @@ def urldefragauth(url):
     netloc = netloc.rsplit('@', 1)[-1]
 
     return urlunparse((scheme, netloc, path, params, query, ''))
+
+def ttl_cache(func, ttl, maxsize=64):
+    pass
