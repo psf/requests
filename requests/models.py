@@ -30,7 +30,7 @@ from .utils import (
     iter_slices, guess_json_utf, super_len, to_native_string)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
-    is_py2, chardet, builtin_str, basestring)
+    is_py2, chardet, builtin_str, basestring, quote, quote_plus)
 from .compat import json as complexjson
 from .status_codes import codes
 
@@ -48,6 +48,8 @@ DEFAULT_REDIRECT_LIMIT = 30
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
 
+DEFAULT_QUOTE_VIA = quote_plus  # Can be quote or quote_plus
+DEFAULT_SAFE=''                 # These won't get quoted
 
 class RequestEncodingMixin(object):
     @property
@@ -94,7 +96,7 @@ class RequestEncodingMixin(object):
                         result.append(
                             (k.encode('utf-8') if isinstance(k, str) else k,
                              v.encode('utf-8') if isinstance(v, str) else v))
-            return urlencode(result, doseq=True)
+            return urlencode(result, doseq=True, safe=DEFAULT_SAFE, quote_via=DEFAULT_QUOTE_VIA)
         else:
             return data
 
