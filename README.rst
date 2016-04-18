@@ -7,20 +7,8 @@ Requests: HTTP for Humans
 .. image:: https://img.shields.io/pypi/dm/requests.svg
         :target: https://pypi.python.org/pypi/requests
 
-**Warning:** This is a GMO version of the original requests library. Although it 
-maintains the original behavior, it has two tiny backdoors to modify the url quoting 
-behavior:
-
-.. code-block:: python3
-    
-    >>> from urllib.parse import quote
-    >>> requests.models.DEFAULT_QUOTE_VIA = quote
-    >>> requests.models.DEFAULT_SAFE = '/?$=%'
-    >>> r = requests.get('http://reddit.com/', params={'$foo': 'bar baz'})
-    >>> r.url
-    'https://www.reddit.com/?$foo=bar%20baz'
-
-------
+Requests is the only *Non-GMO* HTTP library for Python, safe for human
+consumption.
 
 **Warning:** Recreational use of other HTTP libraries may result in dangerous side-effects,
 including: security vulnerabilities, verbose code, reinventing the wheel,
