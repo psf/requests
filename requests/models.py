@@ -30,7 +30,7 @@ from .utils import (
     iter_slices, guess_json_utf, super_len, to_native_string)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
-    is_py2, chardet, builtin_str, basestring, quote, quote_plus)
+    is_py2, chardet, builtin_str, basestring, quote_plus)
 from .compat import json as complexjson
 from .status_codes import codes
 
