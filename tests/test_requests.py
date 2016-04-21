@@ -638,6 +638,14 @@ class TestRequests:
         resp = s.send(prep)
         assert resp.status_code == 200
 
+    def test_non_prepared_request_error(self):
+        s = requests.Session()
+        req = requests.Request(u('POST'), '/')
+
+        with pytest.raises(ValueError) as e:
+            s.send(req)
+        assert str(e.value) == 'You can only send PreparedRequests.'
+
     def test_custom_content_type(self, httpbin):
         r = requests.post(
             httpbin('post'),

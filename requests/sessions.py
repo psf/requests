@@ -557,7 +557,7 @@ class Session(SessionRedirectMixin):
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
-        if not isinstance(request, PreparedRequest):
+        if isinstance(request, Request):
             raise ValueError('You can only send PreparedRequests.')
 
         # Set up variables needed for resolve_redirects and dispatching of hooks
