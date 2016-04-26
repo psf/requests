@@ -325,6 +325,7 @@ def test_dotted_netmask(mask, expected):
         ('hTTp://u:p@Some.Host/path', 'http://some.host.proxy'),
         ('hTTp://u:p@Other.Host/path', 'http://http.proxy'),
         ('hTTps://Other.Host', None),
+        ('file:///etc/motd', None),
     ))
 def test_select_proxies(url, expected):
     """Make sure we can select per-host proxies correctly."""

@@ -579,7 +579,10 @@ def select_proxy(url, proxies):
     """
     proxies = proxies or {}
     urlparts = urlparse(url)
-    proxy = proxies.get(urlparts.scheme+'://'+urlparts.hostname)
+    if urlparts.hostname is None:
+        proxy = None
+    else:
+        proxy = proxies.get(urlparts.scheme+'://'+urlparts.hostname)
     if proxy is None:
         proxy = proxies.get(urlparts.scheme)
     return proxy
