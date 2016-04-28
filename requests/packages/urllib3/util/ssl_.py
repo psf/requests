@@ -115,7 +115,7 @@ except ImportError:
                 'A true SSLContext object is not available. This prevents '
                 'urllib3 from configuring SSL appropriately and may cause '
                 'certain SSL connections to fail. For more information, see '
-                'https://urllib3.readthedocs.org/en/latest/security.html'
+                'https://urllib3.readthedocs.io/en/latest/security.html'
                 '#insecureplatformwarning.',
                 InsecurePlatformWarning
             )
@@ -310,7 +310,7 @@ def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
         'This may cause the server to present an incorrect TLS '
         'certificate, which can cause validation failures. For more '
         'information, see '
-        'https://urllib3.readthedocs.org/en/latest/security.html'
+        'https://urllib3.readthedocs.io/en/latest/security.html'
         '#snimissingwarning.',
         SNIMissingWarning
     )

@@ -376,4 +376,4 @@ epub_exclude_files = ['search.html']
 # If false, no index is generated.
 #epub_use_index = True
 
-intersphinx_mapping = {'urllib3': ('http://urllib3.readthedocs.org/en/latest', None)}
+intersphinx_mapping = {'urllib3': ('http://urllib3.readthedocs.io/en/latest', None)}
