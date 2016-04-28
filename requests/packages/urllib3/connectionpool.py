@@ -787,7 +787,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
             warnings.warn((
                 'Unverified HTTPS request is being made. '
                 'Adding certificate verification is strongly advised. See: '
-                'https://urllib3.readthedocs.org/en/latest/security.html'),
+                'https://urllib3.readthedocs.io/en/latest/security.html'),
                 InsecureRequestWarning)
 
 
