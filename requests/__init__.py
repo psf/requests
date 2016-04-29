@@ -36,14 +36,14 @@ usage:
 The other HTTP methods are supported - see `requests.api`. Full documentation
 is at <http://python-requests.org>.
 
-:copyright: (c) 2015 by Kenneth Reitz.
+:copyright: (c) 2016 by Kenneth Reitz.
 :license: Apache 2.0, see LICENSE for more details.
 
 """
 
 __title__ = 'requests'
-__version__ = '2.9.2'
-__build__ = 0x020902
+__version__ = '2.10.0'
+__build__ = 0x021000
 __author__ = 'Kenneth Reitz'
 __license__ = 'Apache 2.0'
 __copyright__ = 'Copyright 2016 Kenneth Reitz'
