@@ -221,6 +221,8 @@ class HTTPResponse(io.IOBase):
 
         On exit, release the connection back to the pool.
         """
+        clean_exit = False
+
         try:
             try:
                 yield
@@ -243,20 +245,27 @@ class HTTPResponse(io.IOBase):
                 # This includes IncompleteRead.
                 raise ProtocolError('Connection broken: %r' % e, e)
 
-        except Exception:
-            # The response may not be closed but we're not going to use it anymore
-            # so close it now to ensure that the connection is released back to the pool.
-            if self._original_response and not self._original_response.isclosed():
-                self._original_response.close()
-
-            # Closing the response may not actually be sufficient to close
-            # everything, so if we have a hold of the connection close that
-            # too.
-            if self._connection is not None:
-                self._connection.close()
-
-            raise
+            # If no exception is thrown, we should avoid cleaning up
+            # unnecessarily.
+            clean_exit = True
         finally:
+            # If we didn't terminate cleanly, we need to throw away our
+            # connection.
+            if not clean_exit:
+                # The response may not be closed but we're not going to use it
+                # anymore so close it now to ensure that the connection is
+                # released back to the pool.
+                if self._original_response:
+                    self._original_response.close()
+
+                # Closing the response may not actually be sufficient to close
+                # everything, so if we have a hold of the connection close that
+                # too.
+                if self._connection:
+                    self._connection.close()
+
+            # If we hold the original response but it's closed now, we should
+            # return the connection back to the pool.
             if self._original_response and self._original_response.isclosed():
                 self.release_conn()
 
@@ -386,6 +395,9 @@ class HTTPResponse(io.IOBase):
     def close(self):
         if not self.closed:
             self._fp.close()
+
+        if self._connection:
+            self._connection.close()
 
     @property
     def closed(self):

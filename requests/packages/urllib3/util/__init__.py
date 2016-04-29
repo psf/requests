@@ -6,6 +6,7 @@ from .response import is_fp_closed
 from .ssl_ import (
     SSLContext,
     HAS_SNI,
+    IS_PYOPENSSL,
     assert_fingerprint,
     resolve_cert_reqs,
     resolve_ssl_version,
@@ -26,6 +27,7 @@ from .url import (
 
 __all__ = (
     'HAS_SNI',
+    'IS_PYOPENSSL',
     'SSLContext',
     'Retry',
     'Timeout',
