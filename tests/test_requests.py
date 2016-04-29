@@ -315,6 +315,26 @@ class TestRequests:
         prep = ses.prepare_request(req)
         assert 'Accept-Encoding' not in prep.headers
 
+    def test_headers_preserve_order(self, httpbin):
+        """Preserve order when headers provided as OrderedDict."""
+        ses = requests.Session()
+        ses.headers = OrderedDict()
+        ses.headers['Accept-Encoding'] = 'identity'
+        ses.headers['First'] = '1'
+        ses.headers['Second'] = '2'
+        headers = OrderedDict([('Third', '3'), ('Fourth', '4')])
+        headers['Fifth'] = '5'
+        headers['Second'] = '222'
+        req = requests.Request('GET', httpbin('get'), headers=headers)
+        prep = ses.prepare_request(req)
+        items = list(prep.headers.items())
+        assert items[0] == ('Accept-Encoding', 'identity')
+        assert items[1] == ('First', '1')
+        assert items[2] == ('Second', '222')
+        assert items[3] == ('Third', '3')
+        assert items[4] == ('Fourth', '4')
+        assert items[5] == ('Fifth', '5')
+
     @pytest.mark.parametrize('key', ('User-agent', 'user-agent'))
     def test_user_agent_transfers(self, httpbin, key):
 
