@@ -1,7 +1,6 @@
 """
 urllib3 - Thread-safe connection pooling and re-using.
 """
-
 from __future__ import absolute_import
 import warnings
 
@@ -32,7 +31,7 @@ except ImportError:
 
 __author__ = 'Andrey Petrov (andrey.petrov@shazow.net)'
 __license__ = 'MIT'
-__version__ = '1.13.1'
+__version__ = 'dev'
 
 __all__ = (
     'HTTPConnectionPool',
@@ -68,7 +67,7 @@ def add_stderr_logger(level=logging.DEBUG):
     handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
     logger.addHandler(handler)
     logger.setLevel(level)
-    logger.debug('Added a stderr logging handler to logger: %s' % __name__)
+    logger.debug('Added a stderr logging handler to logger: %s', __name__)
     return handler
 
 # ... Clean up.

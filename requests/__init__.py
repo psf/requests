@@ -55,6 +55,12 @@ try:
 except ImportError:
     pass
 
+import warnings
+
+# urllib3's DependencyWarnings should be silenced.
+from .packages.urllib3.exceptions import DependencyWarning
+warnings.simplefilter('ignore', DependencyWarning)
+
 from . import utils
 from .models import Request, Response, PreparedRequest
 from .api import request, get, head, post, patch, put, delete, options

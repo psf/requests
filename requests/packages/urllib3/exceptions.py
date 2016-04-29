@@ -180,6 +180,14 @@ class SNIMissingWarning(HTTPWarning):
     pass
 
 
+class DependencyWarning(HTTPWarning):
+    """
+    Warned when an attempt is made to import a module with missing optional
+    dependencies.
+    """
+    pass
+
+
 class ResponseNotChunked(ProtocolError, ValueError):
     "Response needs to be chunked in order to read it as chunks."
     pass

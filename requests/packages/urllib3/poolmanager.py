@@ -18,15 +18,15 @@ from .util.retry import Retry
 __all__ = ['PoolManager', 'ProxyManager', 'proxy_from_url']
 
 
-pool_classes_by_scheme = {
-    'http': HTTPConnectionPool,
-    'https': HTTPSConnectionPool,
-}
-
 log = logging.getLogger(__name__)
 
 SSL_KEYWORDS = ('key_file', 'cert_file', 'cert_reqs', 'ca_certs',
                 'ssl_version', 'ca_cert_dir')
+
+pool_classes_by_scheme = {
+    'http': HTTPConnectionPool,
+    'https': HTTPSConnectionPool,
+}
 
 
 class PoolManager(RequestMethods):
@@ -65,6 +65,9 @@ class PoolManager(RequestMethods):
         self.pools = RecentlyUsedContainer(num_pools,
                                            dispose_func=lambda p: p.close())
 
+        # Locally set the pool classes so other PoolManagers can override them.
+        self.pool_classes_by_scheme = pool_classes_by_scheme
+
     def __enter__(self):
         return self
 
@@ -81,7 +84,7 @@ class PoolManager(RequestMethods):
         by :meth:`connection_from_url` and companion methods. It is intended
         to be overridden for customization.
         """
-        pool_cls = pool_classes_by_scheme[scheme]
+        pool_cls = self.pool_classes_by_scheme[scheme]
         kwargs = self.connection_pool_kw
         if scheme == 'http':
             kwargs = self.connection_pool_kw.copy()
@@ -186,7 +189,7 @@ class PoolManager(RequestMethods):
         kw['retries'] = retries
         kw['redirect'] = redirect
 
-        log.info("Redirecting %s -> %s" % (url, redirect_location))
+        log.info("Redirecting %s -> %s", url, redirect_location)
         return self.urlopen(method, redirect_location, **kw)
 
 

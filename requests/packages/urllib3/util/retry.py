@@ -153,7 +153,7 @@ class Retry(object):
 
         redirect = bool(redirect) and None
         new_retries = cls(retries, redirect=redirect)
-        log.debug("Converted retries value: %r -> %r" % (retries, new_retries))
+        log.debug("Converted retries value: %r -> %r", retries, new_retries)
         return new_retries
 
     def get_backoff_time(self):
@@ -272,7 +272,7 @@ class Retry(object):
         if new_retry.is_exhausted():
             raise MaxRetryError(_pool, url, error or ResponseError(cause))
 
-        log.debug("Incremented Retry for (url='%s'): %r" % (url, new_retry))
+        log.debug("Incremented Retry for (url='%s'): %r", url, new_retry)
 
         return new_retry
 
