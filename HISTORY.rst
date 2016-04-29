@@ -3,8 +3,13 @@
 Release History
 ---------------
 
-2.9.2 (???)
-+++++++++++
+2.9.2 (04-29-2016)
+++++++++++++++++++
+
+**Improvements**
+
+- Change built-in CaseInsensitiveDict (used for headers) to use OrderedDict
+  as its underlying datastore.
 
 **Bugfixes**
 
