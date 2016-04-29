@@ -3,7 +3,7 @@
 Release History
 ---------------
 
-2.10.0 (04-29-2016)
+2.10.0 (2016-04-29)
 +++++++++++++++++++
 
 **New Features**
@@ -14,7 +14,7 @@ Release History
 
 - Updated bundled urllib3 to 1.15.1.
 
-2.9.2 (04-29-2016)
+2.9.2 (2016-04-29)
 ++++++++++++++++++
 
 **Improvements**
