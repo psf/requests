@@ -3,6 +3,17 @@
 Release History
 ---------------
 
+2.10.0 (04-29-2016)
++++++++++++++++++++
+
+**New Features**
+
+- SOCKS Proxy Support! (requires PySocks; $ pip install requests[socks])
+
+**Miscellaneous**
+
+- Updated bundled urllib3 to 1.15.1.
+
 2.9.2 (04-29-2016)
 ++++++++++++++++++
 
