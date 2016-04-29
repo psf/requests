@@ -93,6 +93,7 @@ class HTTPDigestAuth(AuthBase):
         qop = self._thread_local.chal.get('qop')
         algorithm = self._thread_local.chal.get('algorithm')
         opaque = self._thread_local.chal.get('opaque')
+        hash_utf8 = None
 
         if algorithm is None:
             _algorithm = 'MD5'
