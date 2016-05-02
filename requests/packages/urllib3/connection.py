@@ -1,22 +1,20 @@
+from __future__ import absolute_import
 import datetime
+import os
 import sys
 import socket
-from socket import timeout as SocketTimeout
+from socket import error as SocketError, timeout as SocketTimeout
 import warnings
+from .packages import six
 
 try:  # Python 3
-    from http.client import HTTPConnection as _HTTPConnection, HTTPException
+    from http.client import HTTPConnection as _HTTPConnection
+    from http.client import HTTPException  # noqa: unused in this module
 except ImportError:
-    from httplib import HTTPConnection as _HTTPConnection, HTTPException
-
-
-class DummyConnection(object):
-    "Used to detect a failed ConnectionCls import."
-    pass
-
+    from httplib import HTTPConnection as _HTTPConnection
+    from httplib import HTTPException  # noqa: unused in this module
 
 try:  # Compiled with SSL?
-    HTTPSConnection = DummyConnection
     import ssl
     BaseSSLError = ssl.SSLError
 except (ImportError, AttributeError):  # Platform-specific: No SSL.
@@ -26,12 +24,21 @@ except (ImportError, AttributeError):  # Platform-specific: No SSL.
         pass
 
 
+try:  # Python 3:
+    # Not a no-op, we're adding this to the namespace so it can be imported.
+    ConnectionError = ConnectionError
+except NameError:  # Python 2:
+    class ConnectionError(Exception):
+        pass
+
+
 from .exceptions import (
+    NewConnectionError,
     ConnectTimeoutError,
+    SubjectAltNameWarning,
     SystemTimeWarning,
 )
 from .packages.ssl_match_hostname import match_hostname
-from .packages import six
 
 from .util.ssl_ import (
     resolve_cert_reqs,
@@ -40,8 +47,8 @@ from .util.ssl_ import (
     assert_fingerprint,
 )
 
-from .util import connection
 
+from .util import connection
 
 port_by_scheme = {
     'http': 80,
@@ -49,6 +56,11 @@ port_by_scheme = {
 }
 
 RECENT_DATE = datetime.date(2014, 1, 1)
+
+
+class DummyConnection(object):
+    """Used to detect a failed ConnectionCls import."""
+    pass
 
 
 class HTTPConnection(_HTTPConnection, object):
@@ -124,10 +136,14 @@ class HTTPConnection(_HTTPConnection, object):
             conn = connection.create_connection(
                 (self.host, self.port), self.timeout, **extra_kw)
 
-        except SocketTimeout:
+        except SocketTimeout as e:
             raise ConnectTimeoutError(
                 self, "Connection to %s timed out. (connect timeout=%s)" %
                 (self.host, self.timeout))
+
+        except SocketError as e:
+            raise NewConnectionError(
+                self, "Failed to establish a new connection: %s" % e)
 
         return conn
 
@@ -176,19 +192,25 @@ class VerifiedHTTPSConnection(HTTPSConnection):
     """
     cert_reqs = None
     ca_certs = None
+    ca_cert_dir = None
     ssl_version = None
     assert_fingerprint = None
 
     def set_cert(self, key_file=None, cert_file=None,
                  cert_reqs=None, ca_certs=None,
-                 assert_hostname=None, assert_fingerprint=None):
+                 assert_hostname=None, assert_fingerprint=None,
+                 ca_cert_dir=None):
+
+        if (ca_certs or ca_cert_dir) and cert_reqs is None:
+            cert_reqs = 'CERT_REQUIRED'
 
         self.key_file = key_file
         self.cert_file = cert_file
         self.cert_reqs = cert_reqs
-        self.ca_certs = ca_certs
         self.assert_hostname = assert_hostname
         self.assert_fingerprint = assert_fingerprint
+        self.ca_certs = ca_certs and os.path.expanduser(ca_certs)
+        self.ca_cert_dir = ca_cert_dir and os.path.expanduser(ca_cert_dir)
 
     def connect(self):
         # Add certificate verification
@@ -225,6 +247,7 @@ class VerifiedHTTPSConnection(HTTPSConnection):
         self.sock = ssl_wrap_socket(conn, self.key_file, self.cert_file,
                                     cert_reqs=resolved_cert_reqs,
                                     ca_certs=self.ca_certs,
+                                    ca_cert_dir=self.ca_cert_dir,
                                     server_hostname=hostname,
                                     ssl_version=resolved_ssl_version)
 
@@ -233,14 +256,33 @@ class VerifiedHTTPSConnection(HTTPSConnection):
                                self.assert_fingerprint)
         elif resolved_cert_reqs != ssl.CERT_NONE \
                 and self.assert_hostname is not False:
-            match_hostname(self.sock.getpeercert(),
-                           self.assert_hostname or hostname)
+            cert = self.sock.getpeercert()
+            if not cert.get('subjectAltName', ()):
+                warnings.warn((
+                    'Certificate for {0} has no `subjectAltName`, falling back to check for a '
+                    '`commonName` for now. This feature is being removed by major browsers and '
+                    'deprecated by RFC 2818. (See https://github.com/shazow/urllib3/issues/497 '
+                    'for details.)'.format(hostname)),
+                    SubjectAltNameWarning
+                )
 
-        self.is_verified = (resolved_cert_reqs == ssl.CERT_REQUIRED
-                            or self.assert_fingerprint is not None)
+            # In case the hostname is an IPv6 address, strip the square
+            # brackets from it before using it to validate. This is because
+            # a certificate with an IPv6 address in it won't have square
+            # brackets around that address. Sadly, match_hostname won't do this
+            # for us: it expects the plain host part without any extra work
+            # that might have been done to make it palatable to httplib.
+            asserted_hostname = self.assert_hostname or hostname
+            asserted_hostname = asserted_hostname.strip('[]')
+            match_hostname(cert, asserted_hostname)
+
+        self.is_verified = (resolved_cert_reqs == ssl.CERT_REQUIRED or
+                            self.assert_fingerprint is not None)
 
 
 if ssl:
     # Make a copy for testing.
     UnverifiedHTTPSConnection = HTTPSConnection
     HTTPSConnection = VerifiedHTTPSConnection
+else:
+    HTTPSConnection = DummyConnection

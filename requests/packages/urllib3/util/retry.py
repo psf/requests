@@ -1,11 +1,13 @@
+from __future__ import absolute_import
 import time
 import logging
 
 from ..exceptions import (
-    ProtocolError,
     ConnectTimeoutError,
-    ReadTimeoutError,
     MaxRetryError,
+    ProtocolError,
+    ReadTimeoutError,
+    ResponseError,
 )
 from ..packages import six
 
@@ -35,7 +37,6 @@ class Retry(object):
 
     Errors will be wrapped in :class:`~urllib3.exceptions.MaxRetryError` unless
     retries are disabled, in which case the causing exception will be raised.
-
 
     :param int total:
         Total number of retries to allow. Takes precedence over other counts.
@@ -94,7 +95,7 @@ class Retry(object):
 
         seconds. If the backoff_factor is 0.1, then :func:`.sleep` will sleep
         for [0.1s, 0.2s, 0.4s, ...] between retries. It will never be longer
-        than :attr:`Retry.MAX_BACKOFF`.
+        than :attr:`Retry.BACKOFF_MAX`.
 
         By default, backoff is disabled (set to 0).
 
@@ -126,7 +127,7 @@ class Retry(object):
         self.method_whitelist = method_whitelist
         self.backoff_factor = backoff_factor
         self.raise_on_redirect = raise_on_redirect
-        self._observed_errors = _observed_errors # TODO: use .history instead?
+        self._observed_errors = _observed_errors  # TODO: use .history instead?
 
     def new(self, **kw):
         params = dict(
@@ -184,13 +185,13 @@ class Retry(object):
         return isinstance(err, ConnectTimeoutError)
 
     def _is_read_error(self, err):
-        """ Errors that occur after the request has been started, so we can't
-        assume that the server did not process any of it.
+        """ Errors that occur after the request has been started, so we should
+        assume that the server began processing it.
         """
         return isinstance(err, (ReadTimeoutError, ProtocolError))
 
     def is_forced_retry(self, method, status_code):
-        """ Is this method/response retryable? (Based on method/codes whitelists)
+        """ Is this method/status code retryable? (Based on method/codes whitelists)
         """
         if self.method_whitelist and method.upper() not in self.method_whitelist:
             return False
@@ -198,8 +199,7 @@ class Retry(object):
         return self.status_forcelist and status_code in self.status_forcelist
 
     def is_exhausted(self):
-        """ Are we out of retries?
-        """
+        """ Are we out of retries? """
         retry_counts = (self.total, self.connect, self.read, self.redirect)
         retry_counts = list(filter(None, retry_counts))
         if not retry_counts:
@@ -207,7 +207,8 @@ class Retry(object):
 
         return min(retry_counts) < 0
 
-    def increment(self, method=None, url=None, response=None, error=None, _pool=None, _stacktrace=None):
+    def increment(self, method=None, url=None, response=None, error=None,
+                  _pool=None, _stacktrace=None):
         """ Return a new Retry object with incremented retry counters.
 
         :param response: A response object, or None, if the server did not
@@ -230,6 +231,7 @@ class Retry(object):
         connect = self.connect
         read = self.read
         redirect = self.redirect
+        cause = 'unknown'
 
         if error and self._is_connection_error(error):
             # Connect retry?
@@ -251,10 +253,16 @@ class Retry(object):
             # Redirect retry?
             if redirect is not None:
                 redirect -= 1
+            cause = 'too many redirects'
 
         else:
-            # FIXME: Nothing changed, scenario doesn't make sense.
+            # Incrementing because of a server error like a 500 in
+            # status_forcelist and a the given method is in the whitelist
             _observed_errors += 1
+            cause = ResponseError.GENERIC_ERROR
+            if response and response.status:
+                cause = ResponseError.SPECIFIC_ERROR.format(
+                    status_code=response.status)
 
         new_retry = self.new(
             total=total,
@@ -262,12 +270,11 @@ class Retry(object):
             _observed_errors=_observed_errors)
 
         if new_retry.is_exhausted():
-            raise MaxRetryError(_pool, url, error)
+            raise MaxRetryError(_pool, url, error or ResponseError(cause))
 
         log.debug("Incremented Retry for (url='%s'): %r" % (url, new_retry))
 
         return new_retry
-
 
     def __repr__(self):
         return ('{cls.__name__}(total={self.total}, connect={self.connect}, '

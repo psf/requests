@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -71,14 +72,22 @@ class RequestMethods(object):
                                             headers=headers,
                                             **urlopen_kw)
 
-    def request_encode_url(self, method, url, fields=None, **urlopen_kw):
+    def request_encode_url(self, method, url, fields=None, headers=None,
+                           **urlopen_kw):
         """
         Make a request using :meth:`urlopen` with the ``fields`` encoded in
         the url. This is useful for request methods like GET, HEAD, DELETE, etc.
         """
+        if headers is None:
+            headers = self.headers
+
+        extra_kw = {'headers': headers}
+        extra_kw.update(urlopen_kw)
+
         if fields:
             url += '?' + urlencode(fields)
-        return self.urlopen(method, url, **urlopen_kw)
+
+        return self.urlopen(method, url, **extra_kw)
 
     def request_encode_body(self, method, url, fields=None, headers=None,
                             encode_multipart=True, multipart_boundary=None,
@@ -118,18 +127,25 @@ class RequestMethods(object):
         which is used to compose the body of the request. The random boundary
         string can be explicitly set with the ``multipart_boundary`` parameter.
         """
-        if encode_multipart:
-            body, content_type = encode_multipart_formdata(
-                fields or {}, boundary=multipart_boundary)
-        else:
-            body, content_type = (urlencode(fields or {}),
-                                  'application/x-www-form-urlencoded')
-
         if headers is None:
             headers = self.headers
 
-        headers_ = {'Content-Type': content_type}
-        headers_.update(headers)
+        extra_kw = {'headers': {}}
 
-        return self.urlopen(method, url, body=body, headers=headers_,
-                            **urlopen_kw)
+        if fields:
+            if 'body' in urlopen_kw:
+                raise TypeError(
+                    "request got values for both 'fields' and 'body', can only specify one.")
+
+            if encode_multipart:
+                body, content_type = encode_multipart_formdata(fields, boundary=multipart_boundary)
+            else:
+                body, content_type = urlencode(fields), 'application/x-www-form-urlencoded'
+
+            extra_kw['body'] = body
+            extra_kw['headers'] = {'Content-Type': content_type}
+
+        extra_kw['headers'].update(headers)
+        extra_kw.update(urlopen_kw)
+
+        return self.urlopen(method, url, **extra_kw)

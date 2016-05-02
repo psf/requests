@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import socket
 try:
     from select import poll, POLLIN
@@ -60,6 +61,8 @@ def create_connection(address, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
     """
 
     host, port = address
+    if host.startswith('['):
+        host = host.strip('[]')
     err = None
     for res in socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM):
         af, socktype, proto, canonname, sa = res
@@ -78,15 +81,16 @@ def create_connection(address, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
             sock.connect(sa)
             return sock
 
-        except socket.error as _:
-            err = _
+        except socket.error as e:
+            err = e
             if sock is not None:
                 sock.close()
+                sock = None
 
     if err is not None:
         raise err
-    else:
-        raise socket.error("getaddrinfo returns an empty list")
+
+    raise socket.error("getaddrinfo returns an empty list")
 
 
 def _set_socket_options(sock, options):
