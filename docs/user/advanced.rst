@@ -208,6 +208,9 @@ You can pass ``verify`` the path to a CA_BUNDLE file or directory with certifica
 
     >>> requests.get('https://github.com', verify='/path/to/certfile')
 
+.. note:: If ``verify`` is set to a path to a directory, the directory must have been processed using 
+  the c_rehash utility supplied with OpenSSL.
+
 This list of trusted CAs can also be specified through the ``REQUESTS_CA_BUNDLE`` environment variable.
 
 Requests can also ignore verifying the SSL certificate if you set ``verify`` to False.
