@@ -88,7 +88,7 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 
 class SessionRedirectMixin(object):
-    def resolve_redirects(self, resp, req, stream=False, timeout=None,
+    def resolve_redirects(self, resp, req, headers_to_delete, stream=False, timeout=None,
                           verify=True, cert=None, proxies=None, **adapter_kwargs):
         """Receives a Response. Returns a generator of Responses."""
 
@@ -149,10 +149,11 @@ class SessionRedirectMixin(object):
                 prepared_request.body = None
 
             headers = prepared_request.headers
-            try:
-                del headers['Cookie']
-            except KeyError:
-                pass
+            for header in headers_to_delete:
+                try:
+                    del headers[header]
+                except KeyError:
+                    pass
 
             # Extract any cookies sent on the response to the cookiejar
             # in the new request. Because we've mutated our copied prepared
@@ -326,6 +327,10 @@ class Session(SessionRedirectMixin):
 
         #: SSL certificate default.
         self.cert = None
+
+        #: List of headers to delete at redirect
+        self.headers_to_delete = ['Cookie']
+
 
         #: Maximum number of redirects allowed. If the request exceeds this
         #: limit, a :class:`TooManyRedirects` exception is raised.
@@ -562,6 +567,7 @@ class Session(SessionRedirectMixin):
 
         # Set up variables needed for resolve_redirects and dispatching of hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
+        headers_to_delete = kwargs.pop('headers_to_delete', self.headers_to_delete)
         stream = kwargs.get('stream')
         hooks = request.hooks
 
@@ -600,7 +606,7 @@ class Session(SessionRedirectMixin):
         extract_cookies_to_jar(self.cookies, request, r.raw)
 
         # Redirect resolving generator.
-        gen = self.resolve_redirects(r, request, **kwargs)
+        gen = self.resolve_redirects(r, request, headers_to_delete, **kwargs)
 
         # Resolve redirects if allowed.
         history = [resp for resp in gen] if allow_redirects else []
