@@ -1523,7 +1523,7 @@ def test_json_encodes_as_bytes():
     p.prepare(
         method='GET',
         url='https://www.example.com/',
-        json='body'
+        json=body
     )
     assert isinstance(p.body, bytes)
 
