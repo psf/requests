@@ -423,8 +423,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             # When urllib3 uses pyOpenSSL, it can only resume large uploads
             # properly if receiving a bytes-like object. In Python 2, json.dumps()
             # returns just that, but Python 3 returns a Unicode string.
-            content_type = 'application/json; charset=utf-8'
-            body = complexjson.dumps(json).encode('utf-8')
+            content_type = 'application/json'
+            body = complexjson.dumps(json)
+            if not isinstance(body, bytes):
+                body = body.encode('utf-8')
 
         is_stream = all([
             hasattr(data, '__iter__'),
