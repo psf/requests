@@ -547,6 +547,29 @@ any request to the given scheme and exact hostname.
 
 Note that proxy URLs must include the scheme.
 
+SOCKS
+^^^^^
+
+.. versionadded:: 2.10.0
+
+In addition to basic HTTP proxies, requests also supports proxies using the
+SOCKS protocol. This is an optional feature that requires that additional
+third-party libraries be installed before use.
+
+You can get the dependencies for this feature from ``pip``:
+
+.. code-block:: bash
+
+    $ pip install requests[socks]
+
+Once you've installed those dependencies, using a SOCKS proxy is just as easy
+as using a HTTP one::
+
+    proxies = {
+        'http': 'socks5://user:pass@host:port',
+        'https': 'socks5://user:pass@host:port'
+    }
+
 .. _compliance:
 
 Compliance
