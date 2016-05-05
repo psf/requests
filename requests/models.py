@@ -420,9 +420,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         length = None
 
         if not data and json is not None:
-            # When urllib3 uses pyOpenSSL, it can only resume large uploads
-            # properly if receiving a bytes-like object. In Python 2, json.dumps()
-            # returns just that, but Python 3 returns a Unicode string.
+            # urllib3 requires a bytes-like body. Python 2's json.dumps
+            # provides this natively, but Python 3 gives a Unicode string.
             content_type = 'application/json'
             body = complexjson.dumps(json)
             if not isinstance(body, bytes):
