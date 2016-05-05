@@ -792,7 +792,7 @@ class Response(object):
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
         """
 
-        if not self.encoding and len(self.content) > 3:
+        if not self.encoding and self.content and len(self.content) > 3:
             # No encoding set. JSON RFC 4627 section 3 states we should expect
             # UTF-8, -16 or -32. Detect which one to use; If the detection or
             # decoding fails, fall back to `self.text` (using chardet to make
