@@ -1227,6 +1227,17 @@ class TestRequests:
         proxies['one'].clear.assert_called_once_with()
         proxies['two'].clear.assert_called_once_with()
 
+    def test_response_json_when_content_is_None(self, httpbin):
+        r = requests.get(httpbin('/status/204'))
+        # Make sure r.content is None
+        r.status_code = 0
+        r._content = False
+        r._content_consumed = False
+
+        assert r.content is None
+        with pytest.raises(ValueError):
+            r.json()
+
 
 class TestCaseInsensitiveDict:
 
