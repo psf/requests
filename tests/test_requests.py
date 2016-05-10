@@ -1548,6 +1548,42 @@ def test_requests_are_updated_each_time(httpbin):
         assert session.calls[-1] == send_call
 
 
+@contextlib.contextmanager
+def override_environ(**kwargs):
+    save_env = dict(os.environ)
+    for key, value in kwargs.items():
+        if value is None:
+            del os.environ[key]
+        else:
+            os.environ[key] = value
+    try:
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(save_env)
+
+
+@pytest.mark.parametrize("var,url,proxy", [
+    ('http_proxy', 'http://example.com', 'socks5://proxy.com:9876'),
+    ('https_proxy', 'https://example.com', 'socks5://proxy.com:9876'),
+    ('all_proxy', 'http://example.com', 'socks5://proxy.com:9876'),
+    ('all_proxy', 'https://example.com', 'socks5://proxy.com:9876'),
+])
+def test_proxy_env_vars_override_default(var, url, proxy):
+    session = requests.Session()
+    prep = PreparedRequest()
+    prep.prepare(method='GET', url=url)
+
+    kwargs = {
+        var: proxy
+    }
+    scheme = urlparse(url).scheme
+    with override_environ(**kwargs):
+        proxies = session.rebuild_proxies(prep, {})
+        assert scheme in proxies
+        assert proxies[scheme] == proxy
+
+
 @pytest.mark.parametrize(
     'data', (
         (('a', 'b'), ('c', 'd')),

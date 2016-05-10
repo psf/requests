@@ -228,10 +228,10 @@ class SessionRedirectMixin(object):
         if self.trust_env and not should_bypass_proxies(url):
             environ_proxies = get_environ_proxies(url)
 
-            proxy = environ_proxies.get(scheme)
+            proxy = environ_proxies.get('all', environ_proxies.get(scheme))
 
             if proxy:
-                new_proxies.setdefault(scheme, environ_proxies[scheme])
+                new_proxies.setdefault(scheme, proxy)
 
         if 'Proxy-Authorization' in headers:
             del headers['Proxy-Authorization']
