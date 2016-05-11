@@ -1250,7 +1250,7 @@ class TestRequests:
         assert 'Transfer-Encoding' in prepared_request.headers
         assert 'Content-Length' not in prepared_request.headers
 
-    def test_stream_with_auth_does_not_set_transfer_encdoding_header(self, httpbin):
+    def test_stream_with_auth_does_not_set_transfer_encoding_header(self, httpbin):
         """Ensure that a byte stream with size > 0 will not set both a Content-Length
         and Transfer-Encoding header"""
         auth = ('user', 'pass')
