@@ -1716,6 +1716,14 @@ class TestRequests:
         assert 'Transfer-Encoding' not in prepared_request.headers
         assert 'Content-Length' in prepared_request.headers
 
+    def test_chunked_upload_does_not_set_content_length_header(self, httpbin):
+        data = (i for i in [b'a', b'b', b'c'])
+        url = httpbin('post')
+        r = requests.Request('POST', url, data=data)
+        prepared_request = r.prepare()
+        assert 'Transfer-Encoding' in prepared_request.headers
+        assert 'Content-Length' not in prepared_request.headers
+
 
 class TestCaseInsensitiveDict:
 
