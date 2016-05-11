@@ -32,12 +32,14 @@ from .packages.urllib3.exceptions import (
     LocationParseError, ConnectionError)
 from .exceptions import (
     HTTPError, MissingScheme, InvalidURL, ChunkedEncodingError,
-    ContentDecodingError, ConnectionError, StreamConsumedError)
+    ContentDecodingError, ConnectionError, StreamConsumedError,
+    ConflictingHeaderError)
 from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, check_header_validity)
+    iter_slices, guess_json_utf, super_len, check_header_validity,
+    determine_if_stream)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, builtin_str, basestring)
@@ -466,15 +468,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if not isinstance(body, bytes):
                 body = body.encode('utf-8')
 
-        is_stream = all([
-            hasattr(data, '__iter__'),
-            not isinstance(data, (basestring, list, tuple, collections.Mapping))
-        ])
-
-        try:
-            length = super_len(data)
-        except (TypeError, AttributeError, UnsupportedOperation):
-            length = None
+        is_stream = determine_if_stream(data)
 
         if is_stream:
             body = data
@@ -493,10 +487,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if files:
                 raise NotImplementedError('Streamed bodies and files are mutually exclusive.')
 
-            if length:
-                self.headers['Content-Length'] = builtin_str(length)
-            else:
-                self.headers['Transfer-Encoding'] = 'chunked'
         else:
             # Multi-part file uploads.
             if files:
@@ -509,26 +499,38 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                     else:
                         content_type = 'application/x-www-form-urlencoded'
 
-            self.prepare_content_length(body)
-
             # Add content-type if it wasn't explicitly provided.
             if content_type and ('content-type' not in self.headers):
                 self.headers['Content-Type'] = content_type
 
+        self.prepare_content_length(body)
         self.body = body
 
     def prepare_content_length(self, body):
-        """Prepare Content-Length header based on request method and body"""
+        """Prepares Content-Length header.
+        
+        If the length of the body of the request can be computed, Content-Length is set using
+        super_len. If user has manually set either a Transfer-Encoding or Content-Length header
+        when it should not be set (they should be mutually exclusive) an ConflictingHeaderError
+        error will be raised.
+        """
         if body is not None:
-            length = super_len(body)
+            is_stream = determine_if_stream(body)
+
+            try:
+                length = super_len(body)
+            except (TypeError, AttributeError, UnsupportedOperation):
+                length = None
+
             if length:
-                # If length exists, set it. Otherwise, we fallback
-                # to Transfer-Encoding: chunked.
                 self.headers['Content-Length'] = builtin_str(length)
-        elif self.method not in ('GET', 'HEAD') and self.headers.get('Content-Length') is None:
-            # Set Content-Length to 0 for methods that can have a body
-            # but don't provide one. (i.e. not GET or HEAD)
+            elif is_stream and not length:
+                self.headers['Transfer-Encoding'] = 'chunked'
+        elif (self.method not in ('GET', 'HEAD')) and (self.headers.get('Content-Length') is None):
             self.headers['Content-Length'] = '0'
+
+        if 'Transfer-Encoding' in self.headers and 'Content-Length' in self.headers:
+            raise ConflictingHeaderError('Transfer-Encoding and Content-Length headers both set')
 
     def prepare_auth(self, auth, url=''):
         """Prepares the given HTTP auth data."""

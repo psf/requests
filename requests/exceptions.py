@@ -107,6 +107,10 @@ class RetryError(RequestException):
 class UnrewindableBodyError(RequestException):
     """Requests encountered an error when trying to rewind a body"""
 
+class ConflictingHeaderError(RequestException):
+    """Mutually exclusive request headers set"""
+
+
 # Warnings
 
 
