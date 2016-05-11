@@ -165,3 +165,4 @@ Patches and Suggestions
 - Brian Samek (`@bsamek <https://github.com/bsamek>`_)
 - Dmitry Dygalo (`@Stranger6667 <https://github.com/Stranger6667>`_)
 - piotrjurkiewicz
+- Casey Davidson (`@davidsoncasey <https://github.com/davidsoncasey>`_)

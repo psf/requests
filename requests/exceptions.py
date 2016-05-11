@@ -98,6 +98,9 @@ class StreamConsumedError(RequestException, TypeError):
 class RetryError(RequestException):
     """Custom retries logic failed"""
 
+class ConflictingHeaderError(RequestException):
+    """Mutually exclusive request headers set"""
+
 
 # Warnings
 
