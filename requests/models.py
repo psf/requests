@@ -439,9 +439,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if files:
                 raise NotImplementedError('Streamed bodies and files are mutually exclusive.')
 
-            if length:
-                self.headers['Content-Length'] = builtin_str(length)
-            else:
+            if not length:
                 self.headers['Transfer-Encoding'] = 'chunked'
         else:
             # Multi-part file uploads.
@@ -455,16 +453,17 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                     else:
                         content_type = 'application/x-www-form-urlencoded'
 
-            self.prepare_content_length(body)
-
             # Add content-type if it wasn't explicitly provided.
             if content_type and ('content-type' not in self.headers):
                 self.headers['Content-Type'] = content_type
 
+        self.prepare_content_length(body)
         self.body = body
 
     def prepare_content_length(self, body):
-        if hasattr(body, 'seek') and hasattr(body, 'tell'):
+        if 'Transfer-Encoding' in self.headers:
+            return
+        elif hasattr(body, 'seek') and hasattr(body, 'tell'):
             curr_pos = body.tell()
             body.seek(0, 2)
             end_pos = body.tell()
