@@ -444,7 +444,7 @@ class Session(SessionRedirectMixin):
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
         :rtype: requests.Response
-	"""
+        """
         # Create the Request.
         req = Request(
             method = method.upper(),
