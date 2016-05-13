@@ -30,6 +30,7 @@ from requests.models import urlencode
 from requests.hooks import default_hooks
 
 from .compat import StringIO, u
+from .utils import override_environ
 
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
@@ -1546,21 +1547,6 @@ def test_requests_are_updated_each_time(httpbin):
         assert response.request.method == 'GET'
         send_call = SendCall((response.request,), default_keyword_args)
         assert session.calls[-1] == send_call
-
-
-@contextlib.contextmanager
-def override_environ(**kwargs):
-    save_env = dict(os.environ)
-    for key, value in kwargs.items():
-        if value is None:
-            del os.environ[key]
-        else:
-            os.environ[key] = value
-    try:
-        yield
-    finally:
-        os.environ.clear()
-        os.environ.update(save_env)
 
 
 @pytest.mark.parametrize("var,url,proxy", [

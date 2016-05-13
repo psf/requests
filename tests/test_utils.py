@@ -320,17 +320,28 @@ def test_dotted_netmask(mask, expected):
     assert dotted_netmask(mask) == expected
 
 
+http_proxies = {'http': 'http://http.proxy',
+                'http://some.host': 'http://some.host.proxy'}
+all_proxies = {'all': 'socks5://http.proxy',
+               'all://some.host': 'socks5://some.host.proxy'}
 @pytest.mark.parametrize(
-    'url, expected', (
-        ('hTTp://u:p@Some.Host/path', 'http://some.host.proxy'),
-        ('hTTp://u:p@Other.Host/path', 'http://http.proxy'),
-        ('hTTps://Other.Host', None),
-        ('file:///etc/motd', None),
+    'url, expected, proxies', (
+        ('hTTp://u:p@Some.Host/path', 'http://some.host.proxy', http_proxies),
+        ('hTTp://u:p@Other.Host/path', 'http://http.proxy', http_proxies),
+        ('hTTp:///path', 'http://http.proxy', http_proxies),
+        ('hTTps://Other.Host', None, http_proxies),
+        ('file:///etc/motd', None, http_proxies),
+
+        ('hTTp://u:p@Some.Host/path', 'socks5://some.host.proxy', all_proxies),
+        ('hTTp://u:p@Other.Host/path', 'socks5://http.proxy', all_proxies),
+        ('hTTp:///path', 'socks5://http.proxy', all_proxies),
+        ('hTTps://Other.Host', 'socks5://http.proxy', all_proxies),
+
+        # XXX: unsure whether this is reasonable behavior
+        ('file:///etc/motd', 'socks5://http.proxy', all_proxies),
     ))
-def test_select_proxies(url, expected):
+def test_select_proxies(url, expected, proxies):
     """Make sure we can select per-host proxies correctly."""
-    proxies = {'http': 'http://http.proxy',
-               'http://some.host': 'http://some.host.proxy'}
     assert select_proxy(url, proxies) == expected
 
 
