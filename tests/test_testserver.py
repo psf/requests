@@ -135,3 +135,17 @@ class TestTestServer:
             sock.close()
             
         assert server.handler_results[0] == data
+
+    def test_server_finishes_on_error(self):
+        """the server thread exits even if an exception exits the context manager"""
+        server = Server.basic_response_server()
+        try:
+            with server:
+                raise Exception()
+        except Exception:
+            pass
+
+        assert len(server.handler_results) == 0
+
+        # if the server thread fails to finish, the test suite will hang
+        # and get killed by the jenkins timeout.

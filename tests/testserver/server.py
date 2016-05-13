@@ -39,6 +39,10 @@ class Server(threading.Thread):
         self.ready_event = threading.Event()
         self.stop_event = threading.Event()
 
+        self.server_sock = self._create_socket_and_bind()
+        # in case self.port = 0
+        self.port = self.server_sock.getsockname()[1]
+
     @classmethod
     def text_response_server(cls, text, request_timeout=0.5, **kwargs):
         def text_response_handler(sock):
@@ -60,17 +64,14 @@ class Server(threading.Thread):
 
     def run(self):
         try:
-            sock = self._create_socket_and_bind()
-            # in case self.port = 0
-            self.port = sock.getsockname()[1]
             self.ready_event.set()
-            self._handle_requests(sock)
+            self._handle_requests()
 
             if self.wait_to_close_event:
                 self.wait_to_close_event.wait(self.WAIT_EVENT_TIMEOUT)
         finally:
             self.ready_event.set() # just in case of exception
-            sock.close()
+            self._close_server_sock_ignore_errors()
             self.stop_event.set()
 
     def _create_socket_and_bind(self):
@@ -79,12 +80,31 @@ class Server(threading.Thread):
         sock.listen(0)
         return sock
 
-    def _handle_requests(self, server_sock):
+    def _close_server_sock_ignore_errors(self):
+        try:
+            self.server_sock.close()
+        except IOError:
+            pass
+
+    def _handle_requests(self):
         for _ in range(self.requests_to_handle):
-            sock = server_sock.accept()[0]
+            sock = self._accept_connection()
+            if not sock:
+                break
+
             handler_result = self.handler(sock)
 
             self.handler_results.append(handler_result)
+
+    def _accept_connection(self):
+        try:
+            ready, _, _ = select.select([self.server_sock], [], [])
+            if not ready:
+                return None
+
+            return self.server_sock.accept()[0]
+        except (select.error, socket.error):
+            return None
 
     def __enter__(self):
         self.start()
@@ -95,8 +115,12 @@ class Server(threading.Thread):
         if exc_type is None:
             self.stop_event.wait(self.WAIT_EVENT_TIMEOUT)
         else:
+            self._close_server_sock_ignore_errors()
+
             if self.wait_to_close_event:
                 # avoid server from waiting for event timeouts
                 # if an exception is found in the main thread
                 self.wait_to_close_event.set()
+
+        self.join()
         return False # allow exceptions to propagate
