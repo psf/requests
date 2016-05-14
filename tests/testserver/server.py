@@ -115,12 +115,12 @@ class Server(threading.Thread):
         if exc_type is None:
             self.stop_event.wait(self.WAIT_EVENT_TIMEOUT)
         else:
-            self._close_server_sock_ignore_errors()
-
             if self.wait_to_close_event:
                 # avoid server from waiting for event timeouts
                 # if an exception is found in the main thread
                 self.wait_to_close_event.set()
 
+        # ensure server thread doesn't get stuck waiting for connections
+        self._close_server_sock_ignore_errors()
         self.join()
         return False # allow exceptions to propagate
