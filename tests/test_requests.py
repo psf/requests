@@ -570,6 +570,14 @@ class TestRequests:
             pytest.raises(ValueError, "requests.post(url, data=u('[{\"some\": \"data\"}]'), files={'some': f})")
 
     def test_request_ok_set(self, httpbin):
+        r = requests.get(httpbin('status', '200'))
+        assert r.ok
+
+    def test_request_ok_304(self, httpbin):
+        r = requests.get(httpbin('status', '304'))
+        assert not r.ok
+
+    def test_request_ok_404(self, httpbin):
         r = requests.get(httpbin('status', '404'))
         assert not r.ok
 

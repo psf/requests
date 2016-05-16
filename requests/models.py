@@ -623,11 +623,7 @@ class Response(object):
 
     @property
     def ok(self):
-        try:
-            self.raise_for_status()
-        except HTTPError:
-            return False
-        return True
+        return self.status_code in codes.success
 
     @property
     def is_redirect(self):
