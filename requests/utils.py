@@ -539,6 +539,10 @@ def should_bypass_proxies(url):
                 if is_valid_cidr(proxy_ip):
                     if address_in_network(ip, proxy_ip):
                         return True
+                elif ip == proxy_ip:
+                    # If no_proxy ip was defined in plain IP notation instead of cidr notation &
+                    # matches the IP of the index
+                    return True
         else:
             for host in no_proxy:
                 if netloc.endswith(host) or netloc.split(':')[0].endswith(host):

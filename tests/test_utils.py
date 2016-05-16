@@ -11,7 +11,7 @@ from requests.utils import (
     guess_filename, guess_json_utf, is_ipv4_address,
     is_valid_cidr, iter_slices, parse_dict_header,
     parse_header_links, prepend_scheme_if_needed,
-    requote_uri, select_proxy, super_len,
+    requote_uri, select_proxy, should_bypass_proxies, super_len,
     to_key_val_list, to_native_string,
     unquote_header_value, unquote_unreserved,
     urldefragauth)
@@ -428,3 +428,23 @@ def test_to_native_string(value, expected):
     ))
 def test_urldefragauth(url, expected):
     assert urldefragauth(url) == expected
+
+
+@pytest.mark.parametrize(
+    'url, expected', (
+            ('http://192.168.0.1:5000/', True),
+            ('http://192.168.0.1/', True),
+            ('http://172.16.1.1/', True),
+            ('http://172.16.1.1:5000/', True),
+            ('http://localhost.localdomain:5000/v1.0/', True),
+            ('http://172.16.1.12/', False),
+            ('http://172.16.1.12:5000/', False),
+            ('http://google.com:5000/v1.0/', False),
+    ))
+def test_should_bypass_proxies(url, expected, monkeypatch):
+    """
+    Tests for function should_bypass_proxies to check if proxy can be bypassed or not
+    """
+    monkeypatch.setenv('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
+    monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
+    assert should_bypass_proxies(url) == expected
