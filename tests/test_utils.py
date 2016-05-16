@@ -131,42 +131,6 @@ class TestGetEnvironProxies:
         assert get_environ_proxies(url) != {}
 
 
-class TestShouldBypassProxies:
-    """
-    Tests for should_bypass_proxies function
-    """
-
-    @pytest.mark.parametrize(
-        'url, expected', (
-                ('http://192.168.0.1:5000/', True),
-                ('http://192.168.0.1/', True),
-                ('http://172.16.1.1/', True),
-                ('http://172.16.1.1:5000/', True),
-                ('http://localhost.localdomain:5000/v1.0/', True),
-        ))
-    def test_should_bypass_proxies(self, url, expected, monkeypatch):
-        """
-        Test to check if proxy is bypassed
-        """
-        monkeypatch.setenv('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
-        monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
-        assert should_bypass_proxies(url) == expected
-
-    @pytest.mark.parametrize(
-        'url, expected', (
-                ('http://172.16.1.12/', False),
-                ('http://172.16.1.12:5000/', False),
-                ('http://google.com:5000/v1.0/', False),
-        ))
-    def test_should_bypass_proxies(self, url, expected, monkeypatch):
-        """
-        Test to check if proxy is not bypassed
-        """
-        monkeypatch.setenv('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
-        monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
-        assert should_bypass_proxies(url) == expected
-
-
 class TestIsIPv4Address:
 
     def test_valid(self):
@@ -464,3 +428,23 @@ def test_to_native_string(value, expected):
     ))
 def test_urldefragauth(url, expected):
     assert urldefragauth(url) == expected
+
+
+@pytest.mark.parametrize(
+    'url, expected', (
+            ('http://192.168.0.1:5000/', True),
+            ('http://192.168.0.1/', True),
+            ('http://172.16.1.1/', True),
+            ('http://172.16.1.1:5000/', True),
+            ('http://localhost.localdomain:5000/v1.0/', True),
+            ('http://172.16.1.12/', False),
+            ('http://172.16.1.12:5000/', False),
+            ('http://google.com:5000/v1.0/', False),
+    ))
+def test_should_bypass_proxies(url, expected, monkeypatch):
+    """
+    Tests for function should_bypass_proxies to check if proxy can be bypassed or not
+    """
+    monkeypatch.setenv('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
+    monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
+    assert should_bypass_proxies(url) == expected
