@@ -39,10 +39,6 @@ class Server(threading.Thread):
         self.ready_event = threading.Event()
         self.stop_event = threading.Event()
 
-        self.server_sock = self._create_socket_and_bind()
-        # in case self.port = 0
-        self.port = self.server_sock.getsockname()[1]
-
     @classmethod
     def text_response_server(cls, text, request_timeout=0.5, **kwargs):
         def text_response_handler(sock):
@@ -64,6 +60,9 @@ class Server(threading.Thread):
 
     def run(self):
         try:
+            self.server_sock = self._create_socket_and_bind()
+            # in case self.port = 0
+            self.port = self.server_sock.getsockname()[1]
             self.ready_event.set()
             self._handle_requests()
 
@@ -98,7 +97,7 @@ class Server(threading.Thread):
 
     def _accept_connection(self):
         try:
-            ready, _, _ = select.select([self.server_sock], [], [])
+            ready, _, _ = select.select([self.server_sock], [], [], self.WAIT_EVENT_TIMEOUT)
             if not ready:
                 return None
 
