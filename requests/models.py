@@ -461,14 +461,24 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.body = body
 
     def prepare_content_length(self, body):
+        """Prepares Content-Length header.
+        
+        If Transfer-Encoding header has been set, we want to make sure that Content-Length
+        header is not set. If setting Content-Length, we will strip Transfer-Encoding header.
+        """
+
         if 'Transfer-Encoding' in self.headers:
-            return
-        elif body is not None:
-            l = super_len(body)
-            if l:
-                self.headers['Content-Length'] = builtin_str(l)
-        elif (self.method not in ('GET', 'HEAD')) and (self.headers.get('Content-Length') is None):
-            self.headers['Content-Length'] = '0'
+            if 'Content-Length' in self.headers:
+                del headers['Content-Length']
+        else:
+            if body is not None:
+                l = super_len(body)
+                if l:
+                    self.headers['Content-Length'] = builtin_str(l)
+            elif (self.method not in ('GET', 'HEAD')) and (self.headers.get('Content-Length') is None):
+                self.headers['Content-Length'] = '0'
+            if 'Transfer-Encoding' in self.headers:
+                del headers['Transfer-Encoding']
 
     def prepare_auth(self, auth, url=''):
         """Prepares the given HTTP auth data."""
