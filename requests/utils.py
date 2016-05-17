@@ -584,11 +584,20 @@ def select_proxy(url, proxies):
     proxies = proxies or {}
     urlparts = urlparse(url)
     if urlparts.hostname is None:
-        proxy = None
-    else:
-        proxy = proxies.get(urlparts.scheme+'://'+urlparts.hostname)
-    if proxy is None:
-        proxy = proxies.get(urlparts.scheme)
+        return proxies.get('all', proxies.get(urlparts.scheme))
+
+    proxy_keys = [
+        'all://' + urlparts.hostname,
+        'all',
+        urlparts.scheme + '://' + urlparts.hostname,
+        urlparts.scheme,
+    ]
+    proxy = None
+    for proxy_key in proxy_keys:
+        if proxy_key in proxies:
+            proxy = proxies[proxy_key]
+            break
+
     return proxy
 
 

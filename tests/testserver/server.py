@@ -25,10 +25,10 @@ class Server(threading.Thread):
     """Dummy server using for unit testing"""
     WAIT_EVENT_TIMEOUT = 5
 
-    def __init__(self, handler, host='localhost', port=0, requests_to_handle=1, wait_to_close_event=None):
+    def __init__(self, handler=None, host='localhost', port=0, requests_to_handle=1, wait_to_close_event=None):
         super(Server, self).__init__()
 
-        self.handler = handler
+        self.handler = handler or consume_socket_content
         self.handler_results = []
 
         self.host = host
