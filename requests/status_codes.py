@@ -90,7 +90,7 @@ for code, titles in _codes.items():
         if not title.startswith('\\'):
             setattr(codes, title.upper(), code)
 
-_success = {
+success = set([
     200,
     201,
     202,
@@ -101,6 +101,4 @@ _success = {
     207,
     208,
     226,
-}
-
-setattr(codes, 'success', _success)
+])
