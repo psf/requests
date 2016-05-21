@@ -21,8 +21,8 @@ from requests.compat import (
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
-    MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError)
+    MissingSchema, ReadTimeout, Timeout, RetryError, InvalidHeaderError,
+    TooManyRedirects, ProxyError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -1260,6 +1260,37 @@ class TestRequests:
         prepared_request = r.prepare()
         assert 'Transfer-Encoding' not in prepared_request.headers
         assert 'Content-Length' in prepared_request.headers
+
+    def test_chunked_upload_does_not_set_content_length_header(self, httpbin):
+        data = (i for i in [b'a', b'b', b'c'])
+        url = httpbin('post')
+        r = requests.Request('POST', url, data=data)
+        prepared_request = r.prepare()
+        assert 'Transfer-Encoding' in prepared_request.headers
+        assert 'Content-Length' not in prepared_request.headers
+
+    def test_chunked_upload_with_manually_set_content_length_header_raises_error(self, httpbin):
+        """Ensure that if a user manually sets a content length header when the data
+        is chunked that an InvalidHeaderError is raised"""
+        data = (i for i in [b'a', b'b', b'c']) 
+        url = httpbin('post')
+        with pytest.raises(InvalidHeaderError):
+            r = requests.post(url, data=data, headers={'Content-Length': 'foo'})
+
+    def test_content_length_with_manually_set_transfer_encoding_raises_error(self, httpbin):
+        """Ensure that if a user manually sets a Transfer-Encoding header when data is not chunked
+        that an InvalidHeaderError is raised"""
+        data = 'test data'
+        url = httpbin('post')
+        with pytest.raises(InvalidHeaderError):
+            r = requests.post(url, data=data, headers={'Transfer-Encoding': 'chunked'})
+
+    def test_null_body_does_not_raise_error(self, httpbin):
+        url = httpbin('post')
+        try:
+            requests.post(url, data=None)
+        except InvalidHeaderError:
+            pytest.fail('InvalidHeaderError raised')
 
 class TestCaseInsensitiveDict:
 
