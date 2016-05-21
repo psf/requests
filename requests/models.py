@@ -23,7 +23,7 @@ from .packages.urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
 from .exceptions import (
     HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
-    ContentDecodingError, ConnectionError, StreamConsumedError)
+    ContentDecodingError, ConnectionError, StreamConsumedError, InvalidHeaderError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
@@ -463,22 +463,20 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_content_length(self, body):
         """Prepares Content-Length header.
         
-        If Transfer-Encoding header has been set, we want to make sure that Content-Length
-        header is not set. If setting Content-Length, we will strip Transfer-Encoding header.
+        If the length of the body of the request can be computed, Content-Length is set using
+        super_len. If user has manually set either a Transfer-Encoding or Content-Length header
+        when it should not be set (they should be mutually exclusive) an InvalidHeaderError
+        error will be raised.
         """
+        if body is not None:
+            l = super_len(body)
+            if l:
+                self.headers['Content-Length'] = builtin_str(l)
+        elif (self.method not in ('GET', 'HEAD')) and (self.headers.get('Content-Length') is None):
+            self.headers['Content-Length'] = '0'
 
-        if 'Transfer-Encoding' in self.headers:
-            if 'Content-Length' in self.headers:
-                del headers['Content-Length']
-        else:
-            if body is not None:
-                l = super_len(body)
-                if l:
-                    self.headers['Content-Length'] = builtin_str(l)
-            elif (self.method not in ('GET', 'HEAD')) and (self.headers.get('Content-Length') is None):
-                self.headers['Content-Length'] = '0'
-            if 'Transfer-Encoding' in self.headers:
-                del headers['Transfer-Encoding']
+        if 'Transfer-Encoding' in self.headers and 'Content-Length' in self.headers:
+            raise InvalidHeaderError('Transfer-Encoding and Content-Length headers both set')
 
     def prepare_auth(self, auth, url=''):
         """Prepares the given HTTP auth data."""
