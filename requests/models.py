@@ -27,7 +27,7 @@ from .exceptions import (
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, to_native_string)
+    iter_slices, guess_json_utf, super_len, to_native_string, determine_if_stream)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, builtin_str, basestring)
@@ -423,15 +423,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             content_type = 'application/json'
             body = complexjson.dumps(json)
 
-        is_stream = all([
-            hasattr(data, '__iter__'),
-            not isinstance(data, (basestring, list, tuple, dict))
-        ])
-
-        try:
-            length = super_len(data)
-        except (TypeError, AttributeError, UnsupportedOperation):
-            length = None
+        is_stream = determine_if_stream(data)
 
         if is_stream:
             body = data
@@ -439,8 +431,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if files:
                 raise NotImplementedError('Streamed bodies and files are mutually exclusive.')
 
-            if not length:
-                self.headers['Transfer-Encoding'] = 'chunked'
         else:
             # Multi-part file uploads.
             if files:
@@ -469,9 +459,17 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         error will be raised.
         """
         if body is not None:
-            l = super_len(body)
-            if l:
-                self.headers['Content-Length'] = builtin_str(l)
+            is_stream = determine_if_stream(body)
+
+            try:
+                length = super_len(body)
+            except (TypeError, AttributeError, UnsupportedOperation):
+                length = None
+
+            if length:
+                self.headers['Content-Length'] = builtin_str(length)
+            elif is_stream and not length:
+                self.headers['Transfer-Encoding'] = 'chunked'
         elif (self.method not in ('GET', 'HEAD')) and (self.headers.get('Content-Length') is None):
             self.headers['Content-Length'] = '0'
 
