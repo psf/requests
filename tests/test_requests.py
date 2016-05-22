@@ -1528,6 +1528,18 @@ class RedirectSession(SessionRedirectMixin):
         return string
 
 
+def test_json_encodes_as_bytes():
+    # urllib3 expects bodies as bytes-like objects
+    body = {"key": "value"}
+    p = PreparedRequest()
+    p.prepare(
+        method='GET',
+        url='https://www.example.com/',
+        json=body
+    )
+    assert isinstance(p.body, bytes)
+
+
 def test_requests_are_updated_each_time(httpbin):
     session = RedirectSession([303, 307])
     prep = requests.Request('POST', httpbin('post')).prepare()

@@ -420,8 +420,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         length = None
 
         if not data and json is not None:
+            # urllib3 requires a bytes-like body. Python 2's json.dumps
+            # provides this natively, but Python 3 gives a Unicode string.
             content_type = 'application/json'
             body = complexjson.dumps(json)
+            if not isinstance(body, bytes):
+                body = body.encode('utf-8')
 
         is_stream = all([
             hasattr(data, '__iter__'),
