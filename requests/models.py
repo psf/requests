@@ -500,8 +500,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             # Update self to reflect the auth changes.
             self.__dict__.update(r.__dict__)
 
-            # Recompute Content-Length
-            self.prepare_content_length(self.body)
+            # Recompute Content-Length, assuming that no Transfer-Encoding header has been set
+            if 'Transfer-Encoding' not in self.headers:
+                self.prepare_content_length(self.body)
 
     def prepare_cookies(self, cookies):
         """Prepares the given HTTP cookie data.
