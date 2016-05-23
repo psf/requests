@@ -71,7 +71,7 @@ class BaseAdapter(object):
         raise NotImplementedError
 
     def close(self):
-       """Disposes of any internal state."""
+        """Disposes of any internal state."""
         raise NotImplementedError
 
 
