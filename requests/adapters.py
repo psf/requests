@@ -54,7 +54,8 @@ class BaseAdapter(object):
     def __init__(self):
         super(BaseAdapter, self).__init__()
 
-    def send(self):
+    def send(self, request, stream=False, timeout=None, verify=True,
+             cert=None, proxies=None):
         raise NotImplementedError
 
     def close(self):
