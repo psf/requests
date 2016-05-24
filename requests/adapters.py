@@ -71,7 +71,7 @@ class BaseAdapter(object):
         raise NotImplementedError
 
     def close(self):
-        """Disposes of any internal state."""
+        """Cleans up adapter specific items."""
         raise NotImplementedError
 
 
