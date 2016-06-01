@@ -329,6 +329,8 @@ class Session(SessionRedirectMixin):
 
         #: Maximum number of redirects allowed. If the request exceeds this
         #: limit, a :class:`TooManyRedirects` exception is raised.
+        #: This defaults to requests.models.DEFAULT_REDIRECT_LIMIT, which is
+        #: 30.
         self.max_redirects = DEFAULT_REDIRECT_LIMIT
 
         #: Trust environment settings for proxy configuration, default
