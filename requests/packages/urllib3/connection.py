@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import datetime
+import logging
 import os
 import sys
 import socket
@@ -38,7 +39,7 @@ from .exceptions import (
     SubjectAltNameWarning,
     SystemTimeWarning,
 )
-from .packages.ssl_match_hostname import match_hostname
+from .packages.ssl_match_hostname import match_hostname, CertificateError
 
 from .util.ssl_ import (
     resolve_cert_reqs,
@@ -49,6 +50,10 @@ from .util.ssl_ import (
 
 
 from .util import connection
+
+from ._collections import HTTPHeaderDict
+
+log = logging.getLogger(__name__)
 
 port_by_scheme = {
     'http': 80,
@@ -162,6 +167,38 @@ class HTTPConnection(_HTTPConnection, object):
         conn = self._new_conn()
         self._prepare_conn(conn)
 
+    def request_chunked(self, method, url, body=None, headers=None):
+        """
+        Alternative to the common request method, which sends the
+        body with chunked encoding and not as one block
+        """
+        headers = HTTPHeaderDict(headers if headers is not None else {})
+        skip_accept_encoding = 'accept-encoding' in headers
+        self.putrequest(method, url, skip_accept_encoding=skip_accept_encoding)
+        for header, value in headers.items():
+            self.putheader(header, value)
+        if 'transfer-encoding' not in headers:
+            self.putheader('Transfer-Encoding', 'chunked')
+        self.endheaders()
+
+        if body is not None:
+            stringish_types = six.string_types + (six.binary_type,)
+            if isinstance(body, stringish_types):
+                body = (body,)
+            for chunk in body:
+                if not chunk:
+                    continue
+                if not isinstance(chunk, six.binary_type):
+                    chunk = chunk.encode('utf8')
+                len_str = hex(len(chunk))[2:]
+                self.send(len_str.encode('utf-8'))
+                self.send(b'\r\n')
+                self.send(chunk)
+                self.send(b'\r\n')
+
+        # After the if clause, to always have a closed body
+        self.send(b'0\r\n\r\n')
+
 
 class HTTPSConnection(HTTPConnection):
     default_port = port_by_scheme['https']
@@ -265,19 +302,24 @@ class VerifiedHTTPSConnection(HTTPSConnection):
                     'for details.)'.format(hostname)),
                     SubjectAltNameWarning
                 )
-
-            # In case the hostname is an IPv6 address, strip the square
-            # brackets from it before using it to validate. This is because
-            # a certificate with an IPv6 address in it won't have square
-            # brackets around that address. Sadly, match_hostname won't do this
-            # for us: it expects the plain host part without any extra work
-            # that might have been done to make it palatable to httplib.
-            asserted_hostname = self.assert_hostname or hostname
-            asserted_hostname = asserted_hostname.strip('[]')
-            match_hostname(cert, asserted_hostname)
+            _match_hostname(cert, self.assert_hostname or hostname)
 
         self.is_verified = (resolved_cert_reqs == ssl.CERT_REQUIRED or
                             self.assert_fingerprint is not None)
+
+
+def _match_hostname(cert, asserted_hostname):
+    try:
+        match_hostname(cert, asserted_hostname)
+    except CertificateError as e:
+        log.error(
+            'Certificate did not match expected hostname: %s. '
+            'Certificate: %s', asserted_hostname, cert
+        )
+        # Add cert to exception and reraise so client code can inspect
+        # the cert when catching the exception, if they want to
+        e._peer_cert = cert
+        raise
 
 
 if ssl:

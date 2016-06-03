@@ -104,8 +104,10 @@ class RequestEncodingMixin(object):
         """Build the body for a multipart/form-data request.
 
         Will successfully encode files when passed as a dict or a list of
-        2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
+        tuples. Order is retained if data is a list of tuples but arbitrary
         if parameters are supplied as a dict.
+        The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, contentype)
+        or 4-tuples (filename, fileobj, contentype, custom_headers).
 
         """
         if (not files):
@@ -423,8 +425,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         length = None
 
         if not data and json is not None:
+            # urllib3 requires a bytes-like body. Python 2's json.dumps
+            # provides this natively, but Python 3 gives a Unicode string.
             content_type = 'application/json'
             body = complexjson.dumps(json)
+            if not isinstance(body, bytes):
+                body = body.encode('utf-8')
 
         is_stream = all([
             hasattr(data, '__iter__'),
@@ -468,9 +474,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_content_length(self, body):
         if hasattr(body, 'seek') and hasattr(body, 'tell'):
+            curr_pos = body.tell()
             body.seek(0, 2)
-            self.headers['Content-Length'] = builtin_str(body.tell())
-            body.seek(0, 0)
+            end_pos = body.tell()
+            self.headers['Content-Length'] = builtin_str(max(0, end_pos - curr_pos))
+            body.seek(curr_pos, 0)
         elif body is not None:
             l = super_len(body)
             if l:
@@ -793,7 +801,7 @@ class Response(object):
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
         """
 
-        if not self.encoding and len(self.content) > 3:
+        if not self.encoding and self.content and len(self.content) > 3:
             # No encoding set. JSON RFC 4627 section 3 states we should expect
             # UTF-8, -16 or -32. Detect which one to use; If the detection or
             # decoding fails, fall back to `self.text` (using chardet to make

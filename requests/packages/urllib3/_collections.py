@@ -134,7 +134,7 @@ class HTTPHeaderDict(MutableMapping):
 
     def __init__(self, headers=None, **kwargs):
         super(HTTPHeaderDict, self).__init__()
-        self._container = {}
+        self._container = OrderedDict()
         if headers is not None:
             if isinstance(headers, HTTPHeaderDict):
                 self._copy_from(headers)

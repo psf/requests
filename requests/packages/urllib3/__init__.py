@@ -32,7 +32,7 @@ except ImportError:
 
 __author__ = 'Andrey Petrov (andrey.petrov@shazow.net)'
 __license__ = 'MIT'
-__version__ = '1.13.1'
+__version__ = '1.15.1'
 
 __all__ = (
     'HTTPConnectionPool',
@@ -68,22 +68,25 @@ def add_stderr_logger(level=logging.DEBUG):
     handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
     logger.addHandler(handler)
     logger.setLevel(level)
-    logger.debug('Added a stderr logging handler to logger: %s' % __name__)
+    logger.debug('Added a stderr logging handler to logger: %s', __name__)
     return handler
 
 # ... Clean up.
 del NullHandler
 
 
+# All warning filters *must* be appended unless you're really certain that they
+# shouldn't be: otherwise, it's very hard for users to use most Python
+# mechanisms to silence them.
 # SecurityWarning's always go off by default.
 warnings.simplefilter('always', exceptions.SecurityWarning, append=True)
 # SubjectAltNameWarning's should go off once per host
-warnings.simplefilter('default', exceptions.SubjectAltNameWarning)
+warnings.simplefilter('default', exceptions.SubjectAltNameWarning, append=True)
 # InsecurePlatformWarning's don't vary between requests, so we keep it default.
 warnings.simplefilter('default', exceptions.InsecurePlatformWarning,
                       append=True)
 # SNIMissingWarnings should go off only once.
-warnings.simplefilter('default', exceptions.SNIMissingWarning)
+warnings.simplefilter('default', exceptions.SNIMissingWarning, append=True)
 
 
 def disable_warnings(category=exceptions.HTTPWarning):

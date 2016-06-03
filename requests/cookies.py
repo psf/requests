@@ -277,6 +277,12 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
                 dictionary[cookie.name] = cookie.value
         return dictionary
 
+    def __contains__(self, name):
+        try:
+            return super(RequestsCookieJar, self).__contains__(name)
+        except CookieConflictError:
+            return True
+
     def __getitem__(self, name):
         """Dict-like __getitem__() for compatibility with client code. Throws
         exception if there are more than one cookie with name. In that case,

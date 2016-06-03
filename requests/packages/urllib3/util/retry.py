@@ -102,6 +102,11 @@ class Retry(object):
     :param bool raise_on_redirect: Whether, if the number of redirects is
         exhausted, to raise a MaxRetryError, or to return a response with a
         response code in the 3xx range.
+
+    :param bool raise_on_status: Similar meaning to ``raise_on_redirect``:
+        whether we should raise an exception, or return a response,
+        if status falls in ``status_forcelist`` range and retries have
+        been exhausted.
     """
 
     DEFAULT_METHOD_WHITELIST = frozenset([
@@ -112,7 +117,8 @@ class Retry(object):
 
     def __init__(self, total=10, connect=None, read=None, redirect=None,
                  method_whitelist=DEFAULT_METHOD_WHITELIST, status_forcelist=None,
-                 backoff_factor=0, raise_on_redirect=True, _observed_errors=0):
+                 backoff_factor=0, raise_on_redirect=True, raise_on_status=True,
+                 _observed_errors=0):
 
         self.total = total
         self.connect = connect
@@ -127,6 +133,7 @@ class Retry(object):
         self.method_whitelist = method_whitelist
         self.backoff_factor = backoff_factor
         self.raise_on_redirect = raise_on_redirect
+        self.raise_on_status = raise_on_status
         self._observed_errors = _observed_errors  # TODO: use .history instead?
 
     def new(self, **kw):
@@ -137,6 +144,7 @@ class Retry(object):
             status_forcelist=self.status_forcelist,
             backoff_factor=self.backoff_factor,
             raise_on_redirect=self.raise_on_redirect,
+            raise_on_status=self.raise_on_status,
             _observed_errors=self._observed_errors,
         )
         params.update(kw)
@@ -153,7 +161,7 @@ class Retry(object):
 
         redirect = bool(redirect) and None
         new_retries = cls(retries, redirect=redirect)
-        log.debug("Converted retries value: %r -> %r" % (retries, new_retries))
+        log.debug("Converted retries value: %r -> %r", retries, new_retries)
         return new_retries
 
     def get_backoff_time(self):
@@ -272,7 +280,7 @@ class Retry(object):
         if new_retry.is_exhausted():
             raise MaxRetryError(_pool, url, error or ResponseError(cause))
 
-        log.debug("Incremented Retry for (url='%s'): %r" % (url, new_retry))
+        log.debug("Incremented Retry for (url='%s'): %r", url, new_retry)
 
         return new_retry
 

@@ -3,6 +3,32 @@
 Release History
 ---------------
 
+2.10.0 (2016-04-29)
++++++++++++++++++++
+
+**New Features**
+
+- SOCKS Proxy Support! (requires PySocks; $ pip install requests[socks])
+
+**Miscellaneous**
+
+- Updated bundled urllib3 to 1.15.1.
+
+2.9.2 (2016-04-29)
+++++++++++++++++++
+
+**Improvements**
+
+- Change built-in CaseInsensitiveDict (used for headers) to use OrderedDict
+  as its underlying datastore.
+
+**Bugfixes**
+
+- Don't use redirect_cache if allow_redirects=False
+- When passed objects that throw exceptions from ``tell()``, send them via
+  chunked transfer encoding instead of failing.
+- Raise a ProxyError for proxy related connection issues.
+
 2.9.1 (2015-12-21)
 ++++++++++++++++++
 

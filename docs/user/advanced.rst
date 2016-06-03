@@ -24,7 +24,7 @@ Let's persist some cookies across requests::
     s = requests.Session()
 
     s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
-    r = s.get("http://httpbin.org/cookies")
+    r = s.get('http://httpbin.org/cookies')
 
     print(r.text)
     # '{"cookies": {"sessioncookie": "123456789"}}'
@@ -50,6 +50,7 @@ requests, even if using a session. This example will only send the cookies
 with the first request, but not the second::
 
     s = requests.Session()
+
     r = s.get('http://httpbin.org/cookies', cookies={'from-my': 'browser'})
     print(r.text)
     # '{"cookies": {"from-my": "browser"}}'
@@ -129,14 +130,15 @@ request. The simple recipe for this is the following::
     from requests import Request, Session
 
     s = Session()
-    req = Request('GET', url,
-        data=data,
-        headers=header
-    )
+
+    req = Request('POST', url, data=data, headers=headers)
     prepped = req.prepare()
 
     # do something with prepped.body
+    prepped.body = 'No, I want exactly this as the body.'
+
     # do something with prepped.headers
+    del prepped.headers['Content-Type']
 
     resp = s.send(prepped,
         stream=stream,
@@ -165,15 +167,15 @@ applied, replace the call to :meth:`Request.prepare()
     from requests import Request, Session
 
     s = Session()
-    req = Request('GET',  url,
-        data=data
-        headers=headers
-    )
+    req = Request('GET',  url, data=data, headers=headers)
 
     prepped = s.prepare_request(req)
 
     # do something with prepped.body
+    prepped.body = 'Seriously, send exactly these bytes.'
+
     # do something with prepped.headers
+    prepped.headers['Keep-Dead'] = 'parrot'
 
     resp = s.send(prepped,
         stream=stream,
@@ -190,20 +192,24 @@ applied, replace the call to :meth:`Request.prepare()
 SSL Cert Verification
 ---------------------
 
-Requests can verify SSL certificates for HTTPS requests, just like a web browser.
-To check a host's SSL certificate, you can use the ``verify`` argument::
+Requests verifies SSL certificates for HTTPS requests, just like a web browser.
+By default, SSL verification is enabled, and requests will throw a SSLError if
+it's unable to verify the certificate::
 
-    >>> requests.get('https://kennethreitz.com', verify=True)
-    requests.exceptions.SSLError: hostname 'kennethreitz.com' doesn't match either of '*.herokuapp.com', 'herokuapp.com'
+    >>> requests.get('https://requestb.in')
+    requests.exceptions.SSLError: hostname 'requestb.in' doesn't match either of '*.herokuapp.com', 'herokuapp.com'
 
-I don't have SSL setup on this domain, so it fails. Excellent. GitHub does though::
+I don't have SSL setup on this domain, so it throws an exception. Excellent. GitHub does though::
 
-    >>> requests.get('https://github.com', verify=True)
+    >>> requests.get('https://github.com')
     <Response [200]>
 
 You can pass ``verify`` the path to a CA_BUNDLE file or directory with certificates of trusted CAs::
 
     >>> requests.get('https://github.com', verify='/path/to/certfile')
+
+.. note:: If ``verify`` is set to a path to a directory, the directory must have been processed using 
+  the c_rehash utility supplied with OpenSSL.
 
 This list of trusted CAs can also be specified through the ``REQUESTS_CA_BUNDLE`` environment variable.
 
@@ -223,7 +229,7 @@ file's path::
     >>> requests.get('https://kennethreitz.com', cert=('/path/client.cert', '/path/client.key'))
     <Response [200]>
 
-If you specify a wrong path or an invalid cert::
+If you specify a wrong path or an invalid cert, you'll get a SSLError::
 
     >>> requests.get('https://kennethreitz.com', cert='/wrong_path/client.pem')
     SSLError: [Errno 336265225] _ssl.c:347: error:140B0009:SSL routines:SSL_CTX_use_PrivateKey_file:PEM lib
@@ -249,7 +255,7 @@ system.
 For the sake of security we recommend upgrading certifi frequently!
 
 .. _HTTP persistent connection: https://en.wikipedia.org/wiki/HTTP_persistent_connection
-.. _connection pooling: https://urllib3.readthedocs.org/en/latest/pools.html
+.. _connection pooling: https://urllib3.readthedocs.io/en/latest/pools.html
 .. _certifi: http://certifi.io/
 .. _Mozilla trust store: https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
 
@@ -356,15 +362,16 @@ POST Multiple Multipart-Encoded Files
 -------------------------------------
 
 You can send multiple files in one request. For example, suppose you want to
-upload image files to an HTML form with a multiple file field 'images':
+upload image files to an HTML form with a multiple file field 'images'::
 
     <input type="file" name="images" multiple="true" required="true"/>
 
-To do that, just set files to a list of tuples of (form_field_name, file_info):
+To do that, just set files to a list of tuples of ``(form_field_name, file_info)``::
 
     >>> url = 'http://httpbin.org/post'
-    >>> multiple_files = [('images', ('foo.png', open('foo.png', 'rb'), 'image/png')),
-                          ('images', ('bar.png', open('bar.png', 'rb'), 'image/png'))]
+    >>> multiple_files = [
+            ('images', ('foo.png', open('foo.png', 'rb'), 'image/png')),
+            ('images', ('bar.png', open('bar.png', 'rb'), 'image/png'))]
     >>> r = requests.post(url, files=multiple_files)
     >>> r.text
     {
@@ -491,7 +498,9 @@ set ``stream`` to ``True`` and iterate over the response with
 
         lines = r.iter_lines()
         # Save the first line for later or just skip it
+
         first_line = next(lines)
+
         for line in lines:
             print(line)
 
@@ -506,11 +515,11 @@ If you need to use a proxy, you can configure individual requests with the
     import requests
 
     proxies = {
-      "http": "http://10.10.1.10:3128",
-      "https": "http://10.10.1.10:1080",
+      'http': 'http://10.10.1.10:3128',
+      'https': 'http://10.10.1.10:1080',
     }
 
-    requests.get("http://example.org", proxies=proxies)
+    requests.get('http://example.org', proxies=proxies)
 
 You can also configure proxies by setting the environment variables
 ``HTTP_PROXY`` and ``HTTPS_PROXY``.
@@ -519,15 +528,14 @@ You can also configure proxies by setting the environment variables
 
     $ export HTTP_PROXY="http://10.10.1.10:3128"
     $ export HTTPS_PROXY="http://10.10.1.10:1080"
+
     $ python
     >>> import requests
-    >>> requests.get("http://example.org")
+    >>> requests.get('http://example.org')
 
 To use HTTP Basic Auth with your proxy, use the `http://user:password@host/` syntax::
 
-    proxies = {
-        "http": "http://user:pass@10.10.1.10:3128/",
-    }
+    proxies = {'http': 'http://user:pass@10.10.1.10:3128/'}
 
 To give a proxy for a specific scheme and host, use the
 `scheme://hostname` form for the key.  This will match for
@@ -535,11 +543,32 @@ any request to the given scheme and exact hostname.
 
 ::
 
-    proxies = {
-      "http://10.20.1.128": "http://10.10.1.10:5323",
-    }
+    proxies = {'http://10.20.1.128': 'http://10.10.1.10:5323'}
 
 Note that proxy URLs must include the scheme.
+
+SOCKS
+^^^^^
+
+.. versionadded:: 2.10.0
+
+In addition to basic HTTP proxies, requests also supports proxies using the
+SOCKS protocol. This is an optional feature that requires that additional
+third-party libraries be installed before use.
+
+You can get the dependencies for this feature from ``pip``:
+
+.. code-block:: bash
+
+    $ pip install requests[socks]
+
+Once you've installed those dependencies, using a SOCKS proxy is just as easy
+as using a HTTP one::
+
+    proxies = {
+        'http': 'socks5://user:pass@host:port',
+        'https': 'socks5://user:pass@host:port'
+    }
 
 .. _compliance:
 
@@ -602,10 +631,13 @@ So, GitHub returns JSON. That's great, we can use the :meth:`r.json
 ::
 
     >>> commit_data = r.json()
+
     >>> print(commit_data.keys())
     [u'committer', u'author', u'url', u'tree', u'sha', u'parents', u'message']
+
     >>> print(commit_data[u'committer'])
     {u'date': u'2012-05-10T11:10:50-07:00', u'email': u'me@kennethreitz.com', u'name': u'Kenneth Reitz'}
+
     >>> print(commit_data[u'message'])
     makin' history
 
@@ -645,9 +677,12 @@ already exists, we will use it as an example. Let's start by getting it.
     >>> r = requests.get('https://api.github.com/repos/kennethreitz/requests/issues/482')
     >>> r.status_code
     200
+
     >>> issue = json.loads(r.text)
+
     >>> print(issue[u'title'])
     Feature any http verb in docs
+
     >>> print(issue[u'comments'])
     3
 
@@ -658,9 +693,12 @@ Cool, we have three comments. Let's take a look at the last of them.
     >>> r = requests.get(r.url + u'/comments')
     >>> r.status_code
     200
+
     >>> comments = r.json()
+
     >>> print(comments[0].keys())
     [u'body', u'url', u'created_at', u'updated_at', u'user', u'id']
+
     >>> print(comments[2][u'body'])
     Probably in the "advanced" section
 
@@ -680,6 +718,7 @@ is to POST to the thread. Let's do it.
 
     >>> body = json.dumps({u"body": u"Sounds great! I'll get right on it!"})
     >>> url = u"https://api.github.com/repos/kennethreitz/requests/issues/482/comments"
+
     >>> r = requests.post(url=url, data=body)
     >>> r.status_code
     404
@@ -692,9 +731,11 @@ the very common Basic Auth.
 
     >>> from requests.auth import HTTPBasicAuth
     >>> auth = HTTPBasicAuth('fake@example.com', 'not_a_real_password')
+
     >>> r = requests.post(url=url, data=body, auth=auth)
     >>> r.status_code
     201
+
     >>> content = r.json()
     >>> print(content[u'body'])
     Sounds great! I'll get right on it.
@@ -708,8 +749,10 @@ that.
 
     >>> print(content[u"id"])
     5804413
+
     >>> body = json.dumps({u"body": u"Sounds great! I'll get right on it once I feed my cat."})
     >>> url = u"https://api.github.com/repos/kennethreitz/requests/issues/comments/5804413"
+
     >>> r = requests.patch(url=url, data=body, auth=auth)
     >>> r.status_code
     200
@@ -830,10 +873,9 @@ SSLv3:
         """"Transport adapter" that allows us to use SSLv3."""
 
         def init_poolmanager(self, connections, maxsize, block=False):
-            self.poolmanager = PoolManager(num_pools=connections,
-                                           maxsize=maxsize,
-                                           block=block,
-                                           ssl_version=ssl.PROTOCOL_SSLv3)
+            self.poolmanager = PoolManager(
+                num_pools=connections, maxsize=maxsize,
+                block=block, ssl_version=ssl.PROTOCOL_SSLv3)
 
 .. _`described here`: http://www.kennethreitz.org/essays/the-future-of-python-http
 .. _`urllib3`: https://github.com/shazow/urllib3

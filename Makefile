@@ -6,10 +6,10 @@ init:
 test:
 	# This runs all of the tests. To run an individual test, run py.test with
 	# the -k flag, like "py.test -k test_path_is_not_double_encoded"
-	py.test test_requests.py
+	py.test tests
 
 coverage:
-	py.test --verbose --cov-report term --cov=requests test_requests.py
+	py.test --verbose --cov-report term --cov=requests tests
 
 ci: init
 	py.test --junitxml=junit.xml
@@ -28,7 +28,8 @@ chardet:
 publish:
 	python setup.py register
 	python setup.py sdist upload
-	python setup.py bdist_wheel upload
+	python setup.py bdist_wheel --universal upload 
+	rm -fr build dist .egg requests.egg-info
 
 
 docs-init:

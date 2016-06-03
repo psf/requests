@@ -54,9 +54,17 @@ except SyntaxError as e:
 import OpenSSL.SSL
 from pyasn1.codec.der import decoder as der_decoder
 from pyasn1.type import univ, constraint
-from socket import _fileobject, timeout, error as SocketError
+from socket import timeout, error as SocketError
+
+try:  # Platform-specific: Python 2
+    from socket import _fileobject
+except ImportError:  # Platform-specific: Python 3
+    _fileobject = None
+    from urllib3.packages.backports.makefile import backport_makefile
+
 import ssl
 import select
+import six
 
 from .. import connection
 from .. import util
@@ -90,7 +98,7 @@ _openssl_verify = {
         OpenSSL.SSL.VERIFY_PEER + OpenSSL.SSL.VERIFY_FAIL_IF_NO_PEER_CERT,
 }
 
-DEFAULT_SSL_CIPHER_LIST = util.ssl_.DEFAULT_CIPHERS
+DEFAULT_SSL_CIPHER_LIST = util.ssl_.DEFAULT_CIPHERS.encode('ascii')
 
 # OpenSSL will only write 16K at a time
 SSL_WRITE_BLOCKSIZE = 16384
@@ -104,6 +112,7 @@ def inject_into_urllib3():
 
     connection.ssl_wrap_socket = ssl_wrap_socket
     util.HAS_SNI = HAS_SNI
+    util.IS_PYOPENSSL = True
 
 
 def extract_from_urllib3():
@@ -111,6 +120,7 @@ def extract_from_urllib3():
 
     connection.ssl_wrap_socket = orig_connection_ssl_wrap_socket
     util.HAS_SNI = orig_util_HAS_SNI
+    util.IS_PYOPENSSL = False
 
 
 # Note: This is a slightly bug-fixed version of same from ndg-httpsclient.
@@ -135,7 +145,7 @@ def get_subj_alt_name(peer_cert):
     for i in range(peer_cert.get_extension_count()):
         ext = peer_cert.get_extension(i)
         ext_name = ext.get_short_name()
-        if ext_name != 'subjectAltName':
+        if ext_name != b'subjectAltName':
             continue
 
         # PyOpenSSL returns extension data in ASN.1 encoded form
@@ -167,13 +177,17 @@ class WrappedSocket(object):
         self.socket = socket
         self.suppress_ragged_eofs = suppress_ragged_eofs
         self._makefile_refs = 0
+        self._closed = False
 
     def fileno(self):
         return self.socket.fileno()
 
-    def makefile(self, mode, bufsize=-1):
-        self._makefile_refs += 1
-        return _fileobject(self, mode, bufsize, close=True)
+    # Copy-pasted from Python 3.5 source code
+    def _decref_socketios(self):
+        if self._makefile_refs > 0:
+            self._makefile_refs -= 1
+        if self._closed:
+            self.close()
 
     def recv(self, *args, **kwargs):
         try:
@@ -182,7 +196,7 @@ class WrappedSocket(object):
             if self.suppress_ragged_eofs and e.args == (-1, 'Unexpected EOF'):
                 return b''
             else:
-                raise SocketError(e)
+                raise SocketError(str(e))
         except OpenSSL.SSL.ZeroReturnError as e:
             if self.connection.get_shutdown() == OpenSSL.SSL.RECEIVED_SHUTDOWN:
                 return b''
@@ -197,6 +211,27 @@ class WrappedSocket(object):
                 return self.recv(*args, **kwargs)
         else:
             return data
+
+    def recv_into(self, *args, **kwargs):
+        try:
+            return self.connection.recv_into(*args, **kwargs)
+        except OpenSSL.SSL.SysCallError as e:
+            if self.suppress_ragged_eofs and e.args == (-1, 'Unexpected EOF'):
+                return 0
+            else:
+                raise SocketError(str(e))
+        except OpenSSL.SSL.ZeroReturnError as e:
+            if self.connection.get_shutdown() == OpenSSL.SSL.RECEIVED_SHUTDOWN:
+                return 0
+            else:
+                raise
+        except OpenSSL.SSL.WantReadError:
+            rd, wd, ed = select.select(
+                [self.socket], [], [], self.socket.gettimeout())
+            if not rd:
+                raise timeout('The read operation timed out')
+            else:
+                return self.recv_into(*args, **kwargs)
 
     def settimeout(self, timeout):
         return self.socket.settimeout(timeout)
@@ -225,6 +260,7 @@ class WrappedSocket(object):
     def close(self):
         if self._makefile_refs < 1:
             try:
+                self._closed = True
                 return self.connection.close()
             except OpenSSL.SSL.Error:
                 return
@@ -262,6 +298,16 @@ class WrappedSocket(object):
             self._makefile_refs -= 1
 
 
+if _fileobject:  # Platform-specific: Python 2
+    def makefile(self, mode, bufsize=-1):
+        self._makefile_refs += 1
+        return _fileobject(self, mode, bufsize, close=True)
+else:  # Platform-specific: Python 3
+    makefile = backport_makefile
+
+WrappedSocket.makefile = makefile
+
+
 def _verify_callback(cnx, x509, err_no, err_depth, return_code):
     return err_no == 0
 
@@ -285,7 +331,7 @@ def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
     else:
         ctx.set_default_verify_paths()
 
-    # Disable TLS compression to migitate CRIME attack (issue #309)
+    # Disable TLS compression to mitigate CRIME attack (issue #309)
     OP_NO_COMPRESSION = 0x20000
     ctx.set_options(OP_NO_COMPRESSION)
 
@@ -293,6 +339,8 @@ def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
     ctx.set_cipher_list(DEFAULT_SSL_CIPHER_LIST)
 
     cnx = OpenSSL.SSL.Connection(ctx, sock)
+    if isinstance(server_hostname, six.text_type):  # Platform-specific: Python 3
+        server_hostname = server_hostname.encode('utf-8')
     cnx.set_tlsext_host_name(server_hostname)
     cnx.set_connect_state()
     while True:

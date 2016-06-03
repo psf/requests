@@ -22,7 +22,7 @@ CacheControl
 makes your web requests substantially more efficient, and should be used
 whenever you're making a lot of web requests.
 
-.. _CacheControl: https://cachecontrol.readthedocs.org/en/latest/
+.. _CacheControl: https://cachecontrol.readthedocs.io/en/latest/
 
 Requests-Toolbelt
 -----------------
@@ -32,7 +32,7 @@ but do not belong in Requests proper. This library is actively maintained
 by members of the Requests core team, and reflects the functionality most
 requested by users within the community.
 
-.. _Requests-Toolbelt: http://toolbelt.readthedocs.org/en/latest/index.html
+.. _Requests-Toolbelt: http://toolbelt.readthedocs.io/en/latest/index.html
 
 Requests-OAuthlib
 -----------------
@@ -42,7 +42,7 @@ automatically. This is useful for the large number of websites that use OAuth
 to provide authentication. It also provides a lot of tweaks that handle ways
 that specific OAuth providers differ from the standard specifications.
 
-.. _requests-oauthlib: https://requests-oauthlib.readthedocs.org/en/latest/
+.. _requests-oauthlib: https://requests-oauthlib.readthedocs.io/en/latest/
 
 
 Betamax

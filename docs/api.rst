@@ -25,9 +25,30 @@ They all return an instance of the :class:`Response <Response>` object.
 .. autofunction:: patch
 .. autofunction:: delete
 
+Exceptions
+----------
+
+.. autoexception:: requests.RequestException
+.. autoexception:: requests.ConnectionError
+.. autoexception:: requests.HTTPError
+.. autoexception:: requests.URLRequired
+.. autoexception:: requests.TooManyRedirects
+.. autoexception:: requests.ConnectTimeout
+.. autoexception:: requests.ReadTimeout
+.. autoexception:: requests.Timeout
+
+
+Request Sessions
+----------------
+
+.. _sessionapi:
+
+.. autoclass:: Session
+   :inherited-members:
+
 
 Lower-Level Classes
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 .. autoclass:: requests.Request
    :inherited-members:
@@ -35,10 +56,11 @@ Lower-Level Classes
 .. autoclass:: Response
    :inherited-members:
 
-Request Sessions
-----------------
 
-.. autoclass:: Session
+Lower-Lower-Level Classes
+-------------------------
+
+.. autoclass:: requests.PreparedRequest
    :inherited-members:
 
 .. autoclass:: requests.adapters.HTTPAdapter
@@ -52,39 +74,20 @@ Authentication
 .. autoclass:: requests.auth.HTTPProxyAuth
 .. autoclass:: requests.auth.HTTPDigestAuth
 
-Exceptions
-~~~~~~~~~~
-
-.. autoexception:: requests.exceptions.RequestException
-.. autoexception:: requests.exceptions.ConnectionError
-.. autoexception:: requests.exceptions.HTTPError
-.. autoexception:: requests.exceptions.URLRequired
-.. autoexception:: requests.exceptions.TooManyRedirects
-.. autoexception:: requests.exceptions.ConnectTimeout
-.. autoexception:: requests.exceptions.ReadTimeout
-.. autoexception:: requests.exceptions.Timeout
 
 
-Status Code Lookup
-~~~~~~~~~~~~~~~~~~
+Encodings
+---------
 
-.. autofunction:: requests.codes
+.. autofunction:: requests.utils.get_encodings_from_content
+.. autofunction:: requests.utils.get_encoding_from_headers
+.. autofunction:: requests.utils.get_unicode_from_response
 
-::
-
-    >>> requests.codes['temporary_redirect']
-    307
-
-    >>> requests.codes.teapot
-    418
-
-    >>> requests.codes['\o/']
-    200
 
 .. _api-cookies:
 
 Cookies
-~~~~~~~
+-------
 
 .. autofunction:: requests.utils.dict_from_cookiejar
 .. autofunction:: requests.utils.cookiejar_from_dict
@@ -97,33 +100,23 @@ Cookies
    :inherited-members:
 
 
-Encodings
-~~~~~~~~~
 
-.. autofunction:: requests.utils.get_encodings_from_content
-.. autofunction:: requests.utils.get_encoding_from_headers
-.. autofunction:: requests.utils.get_unicode_from_response
+Status Code Lookup
+------------------
 
+.. autoclass:: requests.codes
 
-Classes
-~~~~~~~
+::
 
-.. autoclass:: requests.Response
-   :inherited-members:
+    >>> requests.codes['temporary_redirect']
+    307
 
-.. autoclass:: requests.Request
-   :inherited-members:
+    >>> requests.codes.teapot
+    418
 
-.. autoclass:: requests.PreparedRequest
-   :inherited-members:
+    >>> requests.codes['\o/']
+    200
 
-.. _sessionapi:
-
-.. autoclass:: requests.Session
-   :inherited-members:
-
-.. autoclass:: requests.adapters.HTTPAdapter
-   :inherited-members:
 
 
 Migrating to 1.x
