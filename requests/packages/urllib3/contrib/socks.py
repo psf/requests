@@ -149,6 +149,8 @@ class SOCKSProxyManager(PoolManager):
             socks_version = socks.PROXY_TYPE_SOCKS5
         elif parsed.scheme == 'socks4':
             socks_version = socks.PROXY_TYPE_SOCKS4
+        elif parsed.scheme == 'http_no_tunnel':
+            socks_version = socks.PROXY_TYPE_HTTP_NO_TUNNEL
         else:
             raise ValueError(
                 "Unable to determine SOCKS version from %s" % proxy_url
