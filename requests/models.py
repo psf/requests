@@ -23,11 +23,11 @@ from .packages.urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
 from .exceptions import (
     HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
-    ContentDecodingError, ConnectionError, StreamConsumedError)
+    ContentDecodingError, ConnectionError, StreamConsumedError, InvalidHeaderError)
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, to_native_string)
+    iter_slices, guess_json_utf, super_len, to_native_string, determine_if_stream)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, builtin_str, basestring)
@@ -427,15 +427,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if not isinstance(body, bytes):
                 body = body.encode('utf-8')
 
-        is_stream = all([
-            hasattr(data, '__iter__'),
-            not isinstance(data, (basestring, list, tuple, dict))
-        ])
-
-        try:
-            length = super_len(data)
-        except (TypeError, AttributeError, UnsupportedOperation):
-            length = None
+        is_stream = determine_if_stream(data)
 
         if is_stream:
             body = data
@@ -443,10 +435,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if files:
                 raise NotImplementedError('Streamed bodies and files are mutually exclusive.')
 
-            if length:
-                self.headers['Content-Length'] = builtin_str(length)
-            else:
-                self.headers['Transfer-Encoding'] = 'chunked'
         else:
             # Multi-part file uploads.
             if files:
@@ -459,27 +447,38 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                     else:
                         content_type = 'application/x-www-form-urlencoded'
 
-            self.prepare_content_length(body)
-
             # Add content-type if it wasn't explicitly provided.
             if content_type and ('content-type' not in self.headers):
                 self.headers['Content-Type'] = content_type
 
+        self.prepare_content_length(body)
         self.body = body
 
     def prepare_content_length(self, body):
-        if hasattr(body, 'seek') and hasattr(body, 'tell'):
-            curr_pos = body.tell()
-            body.seek(0, 2)
-            end_pos = body.tell()
-            self.headers['Content-Length'] = builtin_str(max(0, end_pos - curr_pos))
-            body.seek(curr_pos, 0)
-        elif body is not None:
-            l = super_len(body)
-            if l:
-                self.headers['Content-Length'] = builtin_str(l)
+        """Prepares Content-Length header.
+        
+        If the length of the body of the request can be computed, Content-Length is set using
+        super_len. If user has manually set either a Transfer-Encoding or Content-Length header
+        when it should not be set (they should be mutually exclusive) an InvalidHeaderError
+        error will be raised.
+        """
+        if body is not None:
+            is_stream = determine_if_stream(body)
+
+            try:
+                length = super_len(body)
+            except (TypeError, AttributeError, UnsupportedOperation):
+                length = None
+
+            if length:
+                self.headers['Content-Length'] = builtin_str(length)
+            elif is_stream and not length:
+                self.headers['Transfer-Encoding'] = 'chunked'
         elif (self.method not in ('GET', 'HEAD')) and (self.headers.get('Content-Length') is None):
             self.headers['Content-Length'] = '0'
+
+        if 'Transfer-Encoding' in self.headers and 'Content-Length' in self.headers:
+            raise InvalidHeaderError('Transfer-Encoding and Content-Length headers both set')
 
     def prepare_auth(self, auth, url=''):
         """Prepares the given HTTP auth data."""

@@ -739,3 +739,10 @@ def urldefragauth(url):
     netloc = netloc.rsplit('@', 1)[-1]
 
     return urlunparse((scheme, netloc, path, params, query, ''))
+
+def determine_if_stream(data):
+    """Given data, determines if it should be sent as a stream.
+    """
+    is_iterable = hasattr(data, '__iter__')
+    is_io_type = not isinstance(data, (basestring, list, tuple, dict))
+    return is_iterable and is_io_type
