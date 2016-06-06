@@ -27,7 +27,12 @@ try:
     from . import urllib3
 except ImportError:
     import urllib3
-    sys.modules['%s.urllib3' % __name__] = urllib3
+    urllib3_modules = [
+        (name, value) for name, value in sys.modules.items()
+        if name.startswith('urllib3')
+    ]
+    for name, value in sorted(urllib3_modules):
+        sys.modules['%s.%s' % (__name__, name)] = value
 
 try:
     from . import chardet
