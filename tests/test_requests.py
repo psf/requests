@@ -9,6 +9,7 @@ import os
 import pickle
 import collections
 import contextlib
+import warnings
 
 import io
 import requests
@@ -35,6 +36,19 @@ from .utils import override_environ
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
 TARPIT = 'http://10.255.255.1'
+
+try:
+    from ssl import SSLContext
+    del SSLContext
+    HAS_MODERN_SSL = True
+except ImportError:
+    HAS_MODERN_SSL = False
+
+try:
+    requests.pyopenssl
+    HAS_PYOPENSSL = True
+except AttributeError:
+    HAS_PYOPENSSL = False
 
 
 class TestRequests:
@@ -605,6 +619,27 @@ class TestRequests:
 
     def test_pyopenssl_redirect(self, httpbin_secure, httpbin_ca_bundle):
         requests.get(httpbin_secure('status', '301'), verify=httpbin_ca_bundle)
+
+    def test_https_warnings(self, httpbin_secure, httpbin_ca_bundle):
+        """warnings are emitted with requests.get"""
+        if HAS_MODERN_SSL or HAS_PYOPENSSL:
+            warnings_expected = ('SubjectAltNameWarning', )
+        else:
+            warnings_expected = ('SNIMissingWarning',
+                                 'InsecurePlatformWarning',
+                                 'SubjectAltNameWarning', )
+
+        with pytest.warns(None) as warning_records:
+            warnings.simplefilter('always')
+            requests.get(httpbin_secure('status', '200'),
+                         verify=httpbin_ca_bundle)
+
+        warning_records = [item for item in warning_records
+                           if item.category.__name__ != 'ResourceWarning']
+
+        warnings_category = tuple(
+            item.category.__name__ for item in warning_records)
+        assert warnings_category == warnings_expected
 
     def test_urlencoded_get_query_multivalued_param(self, httpbin):
 
