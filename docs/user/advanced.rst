@@ -208,7 +208,7 @@ You can pass ``verify`` the path to a CA_BUNDLE file or directory with certifica
 
     >>> requests.get('https://github.com', verify='/path/to/certfile')
 
-.. note:: If ``verify`` is set to a path to a directory, the directory must have been processed using 
+.. note:: If ``verify`` is set to a path to a directory, the directory must have been processed using
   the c_rehash utility supplied with OpenSSL.
 
 This list of trusted CAs can also be specified through the ``REQUESTS_CA_BUNDLE`` environment variable.
@@ -898,6 +898,13 @@ Two excellent examples are `grequests`_ and `requests-futures`_.
 
 .. _`grequests`: https://github.com/kennethreitz/grequests
 .. _`requests-futures`: https://github.com/ross/requests-futures
+
+Header Ordering
+---------------
+
+In unusual circumstances you may want to provide headers in an ordered manner. If you pass an ``OrderedDict`` to the ``headers`` keyword argument, that will provide the headers with an ordering. *However*, the ordering of the default headers used by requests will be preferred, which means that if you override default headers in the ``headers`` keyword argument, they may appear out of order compared to other headers in that keyword argument.
+
+If this is problematic, users should consider setting the default headers on a :class:`Session <requests.Session>` object, by setting :data:`Session <requests.Session.headers>` to a custom ``OrderedDict``. That ordering will always be preferred.
 
 .. _timeouts:
 
