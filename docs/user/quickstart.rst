@@ -492,8 +492,9 @@ Errors and Exceptions
 In the event of a network problem (e.g. DNS failure, refused connection, etc),
 Requests will raise a :class:`~requests.exceptions.ConnectionError` exception.
 
-In the rare event of an invalid HTTP response, Requests will raise an
-:class:`~requests.exceptions.HTTPError` exception.
+:meth:`Response.raise_for_status() <requests.Response.raise_for_status>` will
+raise an :class:`~requests.exceptions.HTTPError` if the HTTP request
+returned an unsuccessful status code.
 
 If a request times out, a :class:`~requests.exceptions.Timeout` exception is
 raised.
