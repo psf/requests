@@ -193,7 +193,7 @@ SSL Cert Verification
 ---------------------
 
 Requests verifies SSL certificates for HTTPS requests, just like a web browser.
-By default, SSL verification is enabled, and requests will throw a SSLError if
+By default, SSL verification is enabled, and Requests will throw a SSLError if
 it's unable to verify the certificate::
 
     >>> requests.get('https://requestb.in')
@@ -235,7 +235,7 @@ If you specify a wrong path or an invalid cert, you'll get a SSLError::
     SSLError: [Errno 336265225] _ssl.c:347: error:140B0009:SSL routines:SSL_CTX_use_PrivateKey_file:PEM lib
 
 .. warning:: The private key to your local certificate *must* be unencrypted.
-   Currently, requests does not support using encrypted keys.
+   Currently, Requests does not support using encrypted keys.
 
 .. _ca-certificates:
 
@@ -552,7 +552,7 @@ SOCKS
 
 .. versionadded:: 2.10.0
 
-In addition to basic HTTP proxies, requests also supports proxies using the
+In addition to basic HTTP proxies, Requests also supports proxies using the
 SOCKS protocol. This is an optional feature that requires that additional
 third-party libraries be installed before use.
 
@@ -902,7 +902,7 @@ Two excellent examples are `grequests`_ and `requests-futures`_.
 Header Ordering
 ---------------
 
-In unusual circumstances you may want to provide headers in an ordered manner. If you pass an ``OrderedDict`` to the ``headers`` keyword argument, that will provide the headers with an ordering. *However*, the ordering of the default headers used by requests will be preferred, which means that if you override default headers in the ``headers`` keyword argument, they may appear out of order compared to other headers in that keyword argument.
+In unusual circumstances you may want to provide headers in an ordered manner. If you pass an ``OrderedDict`` to the ``headers`` keyword argument, that will provide the headers with an ordering. *However*, the ordering of the default headers used by Requests will be preferred, which means that if you override default headers in the ``headers`` keyword argument, they may appear out of order compared to other headers in that keyword argument.
 
 If this is problematic, users should consider setting the default headers on a :class:`Session <requests.Session>` object, by setting :data:`Session <requests.Session.headers>` to a custom ``OrderedDict``. That ordering will always be preferred.
 
