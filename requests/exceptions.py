@@ -110,8 +110,8 @@ class UnrewindableBodyError(RequestException):
 class ConflictingHeaderError(RequestException):
     """Mutually exclusive request headers set"""
 
-class UnreachableCodeError(RequestException, RuntimeError):
-    """Unreachable code block reached"""
+class InvalidBodyError(RequestException, ValueError):
+    """An invalid request body was specified"""
 
 # Warnings
 

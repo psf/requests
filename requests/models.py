@@ -527,7 +527,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             elif is_stream and not length:
                 self.headers['Transfer-Encoding'] = 'chunked'
             else:
-                raise UnreachableCodeError("Non-null body must have length or be streamable")
+                raise InvalidBodyError("Non-null body must have length or be streamable")
         elif (self.method not in ('GET', 'HEAD')) and (self.headers.get('Content-Length') is None):
             self.headers['Content-Length'] = '0'
 
