@@ -731,6 +731,6 @@ def urldefragauth(url):
 def determine_if_stream(data):
     """Given data, determines if it should be sent as a stream.
     """
-    is_iterable = hasattr(data, '__iter__')
+    is_iterable = getattr(data, '__iter__', False)
     is_io_type = not isinstance(data, (basestring, list, tuple, dict))
     return is_iterable and is_io_type

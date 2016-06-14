@@ -101,6 +101,8 @@ class RetryError(RequestException):
 class ConflictingHeaderError(RequestException):
     """Mutually exclusive request headers set"""
 
+class UnreachableCodeError(RequestException, RuntimeError):
+    """Unreachable code block reached"""
 
 # Warnings
 
