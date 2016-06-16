@@ -46,7 +46,7 @@ def dict_to_sequence(d):
 
 
 def super_len(o):
-    total_length = 0
+    total_length = None
     current_position = 0
 
     if hasattr(o, '__len__'):
@@ -54,10 +54,6 @@ def super_len(o):
 
     elif hasattr(o, 'len'):
         total_length = o.len
-
-    elif hasattr(o, 'getvalue'):
-        # e.g. BytesIO, cStringIO.StringIO
-        total_length = len(o.getvalue())
 
     elif hasattr(o, 'fileno'):
         try:
@@ -89,6 +85,13 @@ def super_len(o):
             # instance, we don't know what the length is, so set it to zero and
             # let requests chunk it instead.
             current_position = total_length
+
+    if hasattr(o, 'seek') and total_length is None:
+        # StringIO has a notimplemented fileno
+        # BytesIO has seek and not fileno
+        total_length = o.seek(0, 2)
+        # seek back to current position to support partially read file-like
+        o.seek(current_position)
 
     return max(0, total_length - current_position)
 
