@@ -84,7 +84,8 @@ def super_len(o):
             # is actually a special file descriptor like stdin. In this
             # instance, we don't know what the length is, so set it to zero and
             # let requests chunk it instead.
-            current_position = total_length
+            if total_length is not None:
+                current_position = total_length
 
     if hasattr(o, 'seek') and total_length is None:
         # StringIO has a notimplemented fileno
@@ -98,6 +99,9 @@ def super_len(o):
 
         # seek back to current position to support partially read file-like
         o.seek(current_position or 0)
+
+    if total_length is None:
+        total_length = 0
 
     return max(0, total_length - current_position)
 
