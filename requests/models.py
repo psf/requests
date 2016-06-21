@@ -665,7 +665,7 @@ class Response(object):
             # Special case for urllib3.
             if hasattr(self.raw, 'stream'):
                 try:
-                    for chunk in self.raw.stream(chunk_size, decode_content=True):
+                    for chunk in self.raw.stream(chunk_size, decode_content=False):
                         yield chunk
                 except ProtocolError as e:
                     raise ChunkedEncodingError(e)
