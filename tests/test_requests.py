@@ -1142,6 +1142,7 @@ class TestRequests:
             preq = req.prepare()
             assert test_url == preq.url
 
+    @pytest.mark.xfail(raises=ConnectionError)
     def test_auth_is_stripped_on_redirect_off_host(self, httpbin):
         r = requests.get(
             httpbin('redirect-to'),
