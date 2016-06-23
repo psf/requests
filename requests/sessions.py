@@ -471,23 +471,14 @@ class Session(SessionRedirectMixin):
             cookies = cookies,
             hooks = hooks,
         )
-        prep = self.prepare_request(req)
 
-        proxies = proxies or {}
-
-        settings = self.merge_environment_settings(
-            prep.url, proxies, stream, verify, cert
-        )
-
-        # Send the request.
-        send_kwargs = {
-            'timeout': timeout,
-            'allow_redirects': allow_redirects,
-        }
-        send_kwargs.update(settings)
-        resp = self.send(prep, **send_kwargs)
-
-        return resp
+        return self.send_request(req,
+            proxies = proxies,
+            timeout = timeout,
+            allow_redirects = allow_redirects,
+            stream = stream,
+            verify = verify,
+            cert = cert)
 
     def get(self, url, **kwargs):
         """Sends a GET request. Returns :class:`Response` object.
@@ -558,6 +549,44 @@ class Session(SessionRedirectMixin):
         """
 
         return self.request('DELETE', url, **kwargs)
+
+    def send_request(self, req,
+        proxies=None,
+        timeout=None,
+        allow_redirects=True,
+        stream=None,
+        verify=None,
+        cert=None):
+        """Sends a :class:`Request <Request>` that a user has prepared.
+
+        :param request: the :class:`Request <Request>` to be sent.
+        :param proxies: (optional) Dictionary mapping protocol or protocol and
+            hostname to the URL of the proxy.
+        :param stream: (optional) whether to immediately download the response
+            content. Defaults to ``False``.
+        :param verify: (optional) whether the SSL cert will be verified.
+            A CA_BUNDLE path can also be provided. Defaults to ``True``.
+        :param cert: (optional) if String, path to ssl client cert file (.pem).
+            If Tuple, ('cert', 'key') pair.
+        :rtype: requests.Response
+        """
+        prep = self.prepare_request(req)
+
+        proxies = proxies or {}
+
+        settings = self.merge_environment_settings(
+            prep.url, proxies, stream, verify, cert
+        )
+
+        # Send the request.
+        send_kwargs = {
+            'timeout': timeout,
+            'allow_redirects': allow_redirects,
+        }
+        send_kwargs.update(settings)
+        resp = self.send(prep, **send_kwargs)
+
+        return resp
 
     def send(self, request, **kwargs):
         """Send a given PreparedRequest."""
