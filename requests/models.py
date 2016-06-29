@@ -27,7 +27,8 @@ from .exceptions import (
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, to_native_string)
+    iter_slices, guess_json_utf, super_len, to_native_string, 
+    check_header_validity)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, builtin_str, basestring)
@@ -403,10 +404,13 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_headers(self, headers):
         """Prepares the given HTTP headers."""
 
+        self.headers = CaseInsensitiveDict()
         if headers:
-            self.headers = CaseInsensitiveDict((to_native_string(name), value) for name, value in headers.items())
-        else:
-            self.headers = CaseInsensitiveDict()
+            for header in headers.items():
+                # Raise exception on invalid header value.
+                check_header_validity(header)
+                name, value = header
+                self.headers[to_native_string(name)] = value
 
     def prepare_body(self, data, files, json=None):
         """Prepares the given HTTP body data."""
