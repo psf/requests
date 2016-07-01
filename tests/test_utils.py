@@ -378,10 +378,16 @@ def test_get_encoding_from_headers(value, expected):
         ('', 0),
         ('T', 1),
         ('Test', 4),
+        ('Cont', 0),
+        ('Other', -5),
+        ('Content', None),
     ))
 def test_iter_slices(value, length):
-    assert len(list(iter_slices(value, 1))) == length
-
+    if length is None or (length <= 0 and len(value) > 0):
+        # Reads all content at once
+        assert len(list(iter_slices(value, length))) == 1
+    else:
+        assert len(list(iter_slices(value, 1))) == length
 
 @pytest.mark.parametrize(
     'value, expected', (
