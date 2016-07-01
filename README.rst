@@ -36,7 +36,7 @@ are 100% automatic, powered by `urllib3 <https://github.com/shazow/urllib3>`_,
 which is embedded within Requests.
 
 Besides, all the cool kids are doing it. Requests is one of the most
-downloaded Python packages of all time, pulling in over 7,000,000 downloads
+downloaded Python package of all time, pulling in over 7,000,000 downloads
 every month. You don't want to be left out!
 
 Feature Support
