@@ -987,14 +987,19 @@ class TestRequests:
         chunks = r.iter_content(decode_unicode=True)
         assert all(isinstance(chunk, str) for chunk in chunks)
 
-    def test_response_chunk_size_int(self):
-        """Ensure that chunk_size is passed as an integer, otherwise
+    def test_response_chunk_size_type(self):
+        """Ensure that chunk_size is passed as None or an integer, otherwise
         raise a TypeError.
         """
         r = requests.Response()
         r.raw = io.BytesIO(b'the content')
         chunks = r.iter_content(1)
         assert all(len(chunk) == 1 for chunk in chunks)
+
+        r = requests.Response()
+        r.raw = io.BytesIO(b'the content')
+        chunks = r.iter_content(None)
+        assert list(chunks) == [b'the content']
 
         r = requests.Response()
         r.raw = io.BytesIO(b'the content')
