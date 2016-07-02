@@ -27,7 +27,7 @@ from .compat import (quote, urlparse, bytes, str, OrderedDict, unquote, is_py2,
                      basestring)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
-from .exceptions import InvalidURL, FileModeWarning
+from .exceptions import InvalidURL, InvalidHeader, FileModeWarning
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -732,6 +732,24 @@ def to_native_string(string, encoding='ascii'):
 
     return out
 
+# Moved outside of function to avoid recompile every call
+_CLEAN_HEADER_REGEX_BYTE = re.compile(b'^\\S[^\\r\\n]*$|^$')
+_CLEAN_HEADER_REGEX_STR = re.compile(r'^\S[^\r\n]*$|^$')
+
+def check_header_validity(header):
+    """Verifies that header value doesn't contain leading whitespace or
+    return characters. This prevents unintended header injection.
+
+    :param header: tuple, in the format (name, value).
+    """
+    name, value = header
+
+    if isinstance(value, bytes):
+        pat = _CLEAN_HEADER_REGEX_BYTE
+    else:
+        pat = _CLEAN_HEADER_REGEX_STR
+    if not pat.match(value):
+        raise InvalidHeader("Invalid return character or leading space in header: %s" % name)
 
 def urldefragauth(url):
     """

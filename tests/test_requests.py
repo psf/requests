@@ -23,7 +23,7 @@ from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
     MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError)
+    ProxyError, InvalidHeader)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -1132,6 +1132,47 @@ class TestRequests:
         # we go.
         assert 'unicode' in p.headers.keys()
         assert 'byte' in p.headers.keys()
+
+    def test_header_validation(self,httpbin):
+        """Ensure prepare_headers regex isn't flagging valid header contents."""
+        headers_ok = {'foo': 'bar baz qux',
+                      'bar': '1',
+                      'baz': '',
+                      'qux': str.encode(u'fbbq')}
+        r = requests.get(httpbin('get'), headers=headers_ok)
+        assert r.request.headers['foo'] == headers_ok['foo']
+
+    def test_header_no_return_chars(self, httpbin):
+        """Ensure that a header containing return character sequences raise an
+        exception. Otherwise, multiple headers are created from single string.
+        """
+        headers_ret = {'foo': 'bar\r\nbaz: qux'}
+        headers_lf = {'foo': 'bar\nbaz: qux'}
+        headers_cr = {'foo': 'bar\rbaz: qux'}
+
+        # Test for newline
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_ret)
+        # Test for line feed
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_lf)
+        # Test for carriage return
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_cr)
+
+    def test_header_no_leading_space(self, httpbin):
+        """Ensure headers containing leading whitespace raise
+        InvalidHeader Error before sending.
+        """
+        headers_space = {'foo': ' bar'}
+        headers_tab = {'foo': '   bar'}
+
+        # Test for whitespace
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_space)
+        # Test for tab
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_tab)
 
     @pytest.mark.parametrize('files', ('foo', b'foo', bytearray(b'foo')))
     def test_can_send_objects_with_files(self, httpbin, files):
