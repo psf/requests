@@ -20,8 +20,8 @@ from requests.compat import (
     builtin_str, OrderedDict)
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (
-    ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
-    MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
+    ConnectionError, ConnectTimeout, InvalidScheme, InvalidURL,
+    MissingScheme, ReadTimeout, Timeout, RetryError, TooManyRedirects,
     ProxyError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
@@ -67,10 +67,10 @@ class TestRequests:
 
     @pytest.mark.parametrize(
         'exception, url', (
-            (MissingSchema, 'hiwpefhipowhefopw'),
-            (InvalidSchema, 'localhost:3128'),
-            (InvalidSchema, 'localhost.localdomain:3128/'),
-            (InvalidSchema, '10.122.1.1:3128/'),
+            (MissingScheme, 'hiwpefhipowhefopw'),
+            (InvalidScheme, 'localhost:3128'),
+            (InvalidScheme, 'localhost.localdomain:3128/'),
+            (InvalidScheme, '10.122.1.1:3128/'),
             (InvalidURL, 'http://'),
         ))
     def test_invalid_url(self, exception, url):

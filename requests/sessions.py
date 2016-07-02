@@ -152,7 +152,7 @@ class SessionRedirectMixin(object):
             if response.is_permanent_redirect and request.url != prepared_request.url:
                 self.redirect_cache[request.url] = prepared_request.url
 
-            self.rebuild_method(prepared_request, resp)
+            self.rebuild_method(prepared_request, response)
 
             # https://github.com/kennethreitz/requests/issues/1084
             if response.status_code not in (codes.temporary_redirect, codes.permanent_redirect):

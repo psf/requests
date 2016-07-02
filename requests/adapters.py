@@ -33,14 +33,14 @@ from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import ResponseError
 from .cookies import extract_cookies_to_jar
 from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
-                         ProxyError, RetryError, InvalidSchema)
+                         ProxyError, RetryError, InvalidScheme)
 from .auth import _basic_auth_str
 
 try:
     from .packages.urllib3.contrib.socks import SOCKSProxyManager
 except ImportError:
     def SOCKSProxyManager(*args, **kwargs):
-        raise InvalidSchema("Missing dependencies for SOCKS support.")
+        raise InvalidScheme("Missing dependencies for SOCKS support.")
 
 DEFAULT_POOLBLOCK = False
 DEFAULT_POOLSIZE = 10
