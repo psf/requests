@@ -987,6 +987,15 @@ class TestRequests:
         chunks = r.iter_content(decode_unicode=True)
         assert all(isinstance(chunk, str) for chunk in chunks)
 
+    def test_response_reason_unicode(self):
+        # check for unicode HTTP status
+        r = requests.Response()
+        r.url = u'unicode URL'
+        r.reason = u'Komponenttia ei löydy'.encode('utf-8')
+        r.status_code = 404
+        r.encoding = None
+        assert not r.ok # old behaviour - crashes here
+
     def test_response_chunk_size_type(self):
         """Ensure that chunk_size is passed as None or an integer, otherwise
         raise a TypeError.

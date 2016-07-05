@@ -849,12 +849,16 @@ class Response(object):
         """Raises stored :class:`HTTPError`, if one occurred."""
 
         http_error_msg = ''
+        if isinstance(self.reason, bytes):
+            reason = self.reason.decode('utf-8', 'ignore')
+        else:
+            reason = self.reason
 
         if 400 <= self.status_code < 500:
-            http_error_msg = '%s Client Error: %s for url: %s' % (self.status_code, self.reason, self.url)
+            http_error_msg = u'%s Client Error: %s for url: %s' % (self.status_code, reason, self.url)
 
         elif 500 <= self.status_code < 600:
-            http_error_msg = '%s Server Error: %s for url: %s' % (self.status_code, self.reason, self.url)
+            http_error_msg = u'%s Server Error: %s for url: %s' % (self.status_code, reason, self.url)
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)
