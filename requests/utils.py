@@ -739,8 +739,9 @@ _CLEAN_HEADER_REGEX_BYTE = re.compile(b'^\\S[^\\r\\n]*$|^$')
 _CLEAN_HEADER_REGEX_STR = re.compile(r'^\S[^\r\n]*$|^$')
 
 def check_header_validity(header):
-    """Verifies that header value doesn't contain leading whitespace or
-    return characters. This prevents unintended header injection.
+    """Verifies that header value is a string which doesn't contain 
+    leading whitespace or return characters. This prevents unintended
+    header injection.
 
     :param header: tuple, in the format (name, value).
     """
@@ -750,8 +751,12 @@ def check_header_validity(header):
         pat = _CLEAN_HEADER_REGEX_BYTE
     else:
         pat = _CLEAN_HEADER_REGEX_STR
-    if not pat.match(value):
-        raise InvalidHeader("Invalid return character or leading space in header: %s" % name)
+    try:
+        if not pat.match(value):
+            raise InvalidHeader("Invalid return character or leading space in header: %s" % name)
+    except TypeError:
+        raise InvalidHeader("Header value %s must be of type str or bytes, " 
+                            "not %s" % (value, type(value)))
 
 def urldefragauth(url):
     """

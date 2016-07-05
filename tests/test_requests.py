@@ -1142,14 +1142,32 @@ class TestRequests:
         assert 'unicode' in p.headers.keys()
         assert 'byte' in p.headers.keys()
 
-    def test_header_validation(self,httpbin):
+    def test_header_validation(self, httpbin):
         """Ensure prepare_headers regex isn't flagging valid header contents."""
         headers_ok = {'foo': 'bar baz qux',
-                      'bar': '1',
+                      'bar': u'fbbq'.encode('utf8'),
                       'baz': '',
-                      'qux': str.encode(u'fbbq')}
+                      'qux': '1'}
         r = requests.get(httpbin('get'), headers=headers_ok)
         assert r.request.headers['foo'] == headers_ok['foo']
+
+    def test_header_value_not_str(self, httpbin):
+        """Ensure the header value is of type string or bytes as
+        per discussion in GH issue #3386
+        """
+        headers_int = {'foo': 3}
+        headers_dict = {'bar': {'foo':'bar'}}
+        headers_list = {'baz': ['foo', 'bar']}
+
+        # Test for int
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_int)
+        # Test for dict
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_dict)
+        # Test for list
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_list)
 
     def test_header_no_return_chars(self, httpbin):
         """Ensure that a header containing return character sequences raise an
