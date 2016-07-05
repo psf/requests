@@ -748,8 +748,10 @@ def check_header_validity(header):
 
     if isinstance(value, bytes):
         pat = _CLEAN_HEADER_REGEX_BYTE
-    else:
+    elif isinstance(value, str):
         pat = _CLEAN_HEADER_REGEX_STR
+    else:
+        return 
     if not pat.match(value):
         raise InvalidHeader("Invalid return character or leading space in header: %s" % name)
 

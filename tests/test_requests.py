@@ -1145,9 +1145,10 @@ class TestRequests:
     def test_header_validation(self,httpbin):
         """Ensure prepare_headers regex isn't flagging valid header contents."""
         headers_ok = {'foo': 'bar baz qux',
-                      'bar': '1',
+                      'bar': u'fbbq'.encode('utf8'),
                       'baz': '',
-                      'qux': str.encode(u'fbbq')}
+                      'qux': 3,
+                      'f': '1'}
         r = requests.get(httpbin('get'), headers=headers_ok)
         assert r.request.headers['foo'] == headers_ok['foo']
 
