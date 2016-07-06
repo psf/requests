@@ -258,6 +258,10 @@ Behavioural Changes
 
 * Keys in the ``headers`` dictionary are now native strings on all Python
   versions, i.e. bytestrings on Python 2 and unicode on Python 3. If the
-  keys are not native strings (unicode on Python2 or bytestrings on Python 3)
+  keys are not native strings (unicode on Python 2 or bytestrings on Python 3)
   they will be converted to the native string type assuming UTF-8 encoding.
 
+* Values in the ``headers`` dictionary should always be strings. This has
+  been the project's position since before 1.0 but a recent change
+  (since version 2.11.0) enforces this more strictly. It's advised to avoid
+  passing header values as unicode when possible.
