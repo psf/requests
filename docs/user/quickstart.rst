@@ -132,7 +132,7 @@ For example, to create an image from binary data returned by a request, you can
 use the following code::
 
     >>> from PIL import Image
-    >>> from StringIO import StringIO
+    >>> from io import StringIO
 
     >>> i = Image.open(StringIO(r.content))
 
