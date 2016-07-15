@@ -209,7 +209,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         Return a fresh :class:`HTTPConnection`.
         """
         self.num_connections += 1
-        log.info("Starting new HTTP connection (%d): %s",
+        log.debug("Starting new HTTP connection (%d): %s",
                  self.num_connections, self.host)
 
         conn = self.ConnectionCls(host=self.host, port=self.port,
@@ -666,7 +666,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
                     raise
                 return response
 
-            log.info("Redirecting %s -> %s", url, redirect_location)
+            log.debug("Redirecting %s -> %s", url, redirect_location)
             return self.urlopen(
                 method, redirect_location, body, headers,
                 retries=retries, redirect=redirect,
@@ -686,7 +686,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
                     raise
                 return response
             retries.sleep()
-            log.info("Forced retry: %s", url)
+            log.debug("Forced retry: %s", url)
             return self.urlopen(
                 method, url, body, headers,
                 retries=retries, redirect=redirect,
@@ -784,7 +784,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
         Return a fresh :class:`httplib.HTTPSConnection`.
         """
         self.num_connections += 1
-        log.info("Starting new HTTPS connection (%d): %s",
+        log.debug("Starting new HTTPS connection (%d): %s",
                  self.num_connections, self.host)
 
         if not self.ConnectionCls or self.ConnectionCls is DummyConnection:
