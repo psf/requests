@@ -221,10 +221,6 @@ class TestRequests:
         assert r.history[0].status_code == 303
         assert r.history[0].is_redirect
 
-    # def test_HTTP_302_ALLOW_REDIRECT_POST(self):
-    #     r = requests.post(httpbin('status', '302'), data={'some': 'data'})
-    #     self.assertEqual(r.status_code, 200)
-
     def test_HTTP_200_OK_GET_WITH_PARAMS(self, httpbin):
         heads = {'User-agent': 'Mozilla/5.0'}
 
