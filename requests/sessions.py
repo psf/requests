@@ -20,7 +20,8 @@ from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
 from .hooks import default_hooks, dispatch_hook
 from .utils import to_key_val_list, default_headers, to_native_string
 from .exceptions import (
-    TooManyRedirects, InvalidScheme, ChunkedEncodingError, ContentDecodingError)
+    TooManyRedirects, InvalidScheme, ChunkedEncodingError,
+    ContentDecodingError, InvalidHeader)
 from .packages.urllib3._collections import RecentlyUsedContainer
 from .structures import CaseInsensitiveDict
 
@@ -98,6 +99,10 @@ class SessionRedirectMixin(object):
         request = response.request
 
         while response.is_redirect:
+            if len(response.raw.headers.getlist('location')) > 1:
+                raise InvalidHeader('Response contains multiple Location headers. '
+                                    'Unable to perform redirect.')
+
             prepared_request = request.copy()
 
             if redirect_count > 0:
