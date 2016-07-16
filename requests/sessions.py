@@ -29,7 +29,7 @@ from .adapters import HTTPAdapter
 
 from .utils import (
     requote_uri, get_environ_proxies, get_netrc_auth, should_bypass_proxies,
-    get_auth_from_url
+    get_auth_from_url, is_valid_location
 )
 
 from .status_codes import codes
@@ -99,7 +99,7 @@ class SessionRedirectMixin(object):
         request = response.request
 
         while response.is_redirect:
-            if len(response.raw.headers.getlist('location')) > 1:
+            if not is_valid_location(response):
                 raise InvalidHeader('Response contains multiple Location headers. '
                                     'Unable to perform redirect.')
 
