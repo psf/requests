@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """
+requests.cookies
+~~~~~~~~~~~~~~~~
+
 Compatibility code to be able to use `cookielib.CookieJar` with requests.
 
 requests.utils imports from here, so be careful with imports.

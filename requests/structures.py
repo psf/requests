@@ -5,7 +5,6 @@ requests.structures
 ~~~~~~~~~~~~~~~~~~~
 
 Data structures that power Requests.
-
 """
 
 import collections

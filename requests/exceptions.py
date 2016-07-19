@@ -5,7 +5,6 @@ requests.exceptions
 ~~~~~~~~~~~~~~~~~~~
 
 This module contains the set of Requests' exceptions.
-
 """
 from .packages.urllib3.exceptions import HTTPError as BaseHTTPError
 
