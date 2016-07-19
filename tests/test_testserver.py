@@ -6,16 +6,19 @@ import pytest
 import requests
 from tests.testserver.server import Server
 
+
 class TestTestServer:
+
     def test_basic(self):
         """messages are sent and received properly"""
         question = b"sucess?"
         answer = b"yeah, success"
+
         def handler(sock):
             text = sock.recv(1000)
-            assert text == question 
+            assert text == question
             sock.sendall(answer)
-        
+
         with Server(handler) as (host, port):
             sock = socket.socket()
             sock.connect((host, port))
@@ -39,7 +42,7 @@ class TestTestServer:
     def test_text_response(self):
         """the text_response_server sends the given text"""
         server = Server.text_response_server(
-            "HTTP/1.1 200 OK\r\n" + 
+            "HTTP/1.1 200 OK\r\n" +
             "Content-Length: 6\r\n" +
             "\r\nroflol"
         )
@@ -49,8 +52,8 @@ class TestTestServer:
 
             assert r.status_code == 200
             assert r.text == u'roflol'
-            assert r.headers['Content-Length'] == '6' 
-            
+            assert r.headers['Content-Length'] == '6'
+
     def test_basic_response(self):
         """the basic response server returns an empty http response"""
         with Server.basic_response_server() as (host, port):
@@ -69,12 +72,12 @@ class TestTestServer:
             sock.sendall(b'send something')
             time.sleep(2.5)
             sock.sendall(b'still alive')
-            block_server.set() # release server block
+            block_server.set()  # release server block
 
     def test_multiple_requests(self):
         """multiple requests can be served"""
         requests_to_handle = 5
-        
+
         server = Server.basic_response_server(requests_to_handle=requests_to_handle)
 
         with server as (host, port):
@@ -96,7 +99,7 @@ class TestTestServer:
         with server as address:
             sock1 = socket.socket()
             sock2 = socket.socket()
-            
+
             sock1.connect(address)
             sock1.sendall(first_request)
             sock1.close()
@@ -121,19 +124,18 @@ class TestTestServer:
 
         assert server.handler_results[0] == b''
 
-
     def test_request_recovery_with_bigger_timeout(self):
         """a biggest timeout can be specified"""
         server = Server.basic_response_server(request_timeout=3)
         data = b'bananadine'
 
         with server as address:
-            sock = socket.socket() 
+            sock = socket.socket()
             sock.connect(address)
             time.sleep(1.5)
             sock.sendall(data)
             sock.close()
-            
+
         assert server.handler_results[0] == data
 
     def test_server_finishes_on_error(self):

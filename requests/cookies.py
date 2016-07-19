@@ -178,6 +178,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
 
     .. warning:: dictionary operations that are normally O(1) may be O(n).
     """
+
     def get(self, name, default=None, domain=None, path=None):
         """Dict-like get() that also supports optional domain and path args in
         order to resolve naming collisions from using one cookie jar over

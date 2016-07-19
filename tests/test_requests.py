@@ -564,8 +564,7 @@ class TestRequests:
         assert post1.status_code == 200
 
         with open('requirements.txt') as f:
-            post2 = requests.post(url,
-                data={'some': 'data'}, files={'some': f})
+            post2 = requests.post(url, data={'some': 'data'}, files={'some': f})
         assert post2.status_code == 200
 
         post4 = requests.post(url, data='[{"some": "json"}]')
@@ -940,8 +939,7 @@ class TestRequests:
     def test_time_elapsed_blank(self, httpbin):
         r = requests.get(httpbin('get'))
         td = r.elapsed
-        total_seconds = ((td.microseconds + (td.seconds + td.days * 24 * 3600)
-                         * 10**6) / 10**6)
+        total_seconds = ((td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6)
         assert total_seconds > 0.0
 
     def test_response_is_iterable(self):
@@ -990,7 +988,7 @@ class TestRequests:
         r.reason = u'Komponenttia ei löydy'.encode('utf-8')
         r.status_code = 404
         r.encoding = None
-        assert not r.ok # old behaviour - crashes here
+        assert not r.ok  # old behaviour - crashes here
 
     def test_response_chunk_size_type(self):
         """Ensure that chunk_size is passed as None or an integer, otherwise
@@ -1152,7 +1150,7 @@ class TestRequests:
         per discussion in GH issue #3386
         """
         headers_int = {'foo': 3}
-        headers_dict = {'bar': {'foo':'bar'}}
+        headers_dict = {'bar': {'foo': 'bar'}}
         headers_list = {'baz': ['foo', 'bar']}
 
         # Test for int
