@@ -957,8 +957,7 @@ class TestRequests:
         io.close()
 
     def test_response_decode_unicode(self):
-        """
-        When called with decode_unicode, Response.iter_content should always
+        """When called with decode_unicode, Response.iter_content should always
         return unicode.
         """
         r = requests.Response()
@@ -1049,9 +1048,7 @@ class TestRequests:
         assert r.status_code == 200
 
     def test_fixes_1329(self, httpbin):
-        """
-        Ensure that header updates are done case-insensitively.
-        """
+        """Ensure that header updates are done case-insensitively."""
         s = requests.Session()
         s.headers.update({'ACCEPT': 'BOGUS'})
         s.headers.update({'accept': 'application/json'})
@@ -1580,7 +1577,7 @@ class TestTimeout:
         assert error_text in str(e)
 
     def test_none_timeout(self, httpbin):
-        """ Check that you can set None as a valid timeout value.
+        """Check that you can set None as a valid timeout value.
 
         To actually test this behavior, we'd want to check that setting the
         timeout to None actually lets the request block past the system default
