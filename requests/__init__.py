@@ -38,7 +38,6 @@ is at <http://python-requests.org>.
 
 :copyright: (c) 2016 by Kenneth Reitz.
 :license: Apache 2.0, see LICENSE for more details.
-
 """
 
 __title__ = 'requests'

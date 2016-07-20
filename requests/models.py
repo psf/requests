@@ -108,7 +108,6 @@ class RequestEncodingMixin(object):
         if parameters are supplied as a dict.
         The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, contentype)
         or 4-tuples (filename, fileobj, contentype, custom_headers).
-
         """
         if (not files):
             raise ValueError("Files must be provided.")
@@ -207,7 +206,6 @@ class Request(RequestHooksMixin):
       >>> req = requests.Request('GET', 'http://httpbin.org/get')
       >>> req.prepare()
       <PreparedRequest [GET]>
-
     """
 
     def __init__(self, method=None, url=None, headers=None, files=None,
@@ -271,7 +269,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
       >>> s = requests.Session()
       >>> s.send(r)
       <Response [200]>
-
     """
 
     def __init__(self):
@@ -517,8 +514,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         can only be called once for the life of the
         :class:`PreparedRequest <PreparedRequest>` object. Any subsequent calls
         to ``prepare_cookies`` will have no actual effect, unless the "Cookie"
-        header is removed beforehand."""
-
+        header is removed beforehand.
+        """
         if isinstance(cookies, cookielib.CookieJar):
             self._cookies = cookies
         else:

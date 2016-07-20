@@ -6,7 +6,6 @@ requests.session
 
 This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
-
 """
 import os
 from collections import Mapping
@@ -40,9 +39,8 @@ REDIRECT_CACHE_SIZE = 1000
 
 
 def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
-    """
-    Determines appropriate setting for a given request, taking into account the
-    explicit setting on that request, and the setting in the session. If a
+    """Determines appropriate setting for a given request, taking into account
+    the explicit setting on that request, and the setting in the session. If a
     setting is a dictionary, they will be merged together using `dict_class`
     """
 
@@ -72,8 +70,7 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
 
 
 def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
-    """
-    Properly merges both requests and session hooks.
+    """Properly merges both requests and session hooks.
 
     This is necessary because when request_hooks == {'response': []}, the
     merge breaks Session hooks entirely.
@@ -185,8 +182,7 @@ class SessionRedirectMixin(object):
             yield resp
 
     def rebuild_auth(self, prepared_request, response):
-        """
-        When being redirected we may want to strip authentication from the
+        """When being redirected we may want to strip authentication from the
         request to avoid leaking credentials. This method intelligently removes
         and reapplies authentication where possible to avoid credential loss.
         """
@@ -210,8 +206,7 @@ class SessionRedirectMixin(object):
         return
 
     def rebuild_proxies(self, prepared_request, proxies):
-        """
-        This method re-evaluates the proxy configuration by considering the
+        """This method re-evaluates the proxy configuration by considering the
         environment variables. If we are redirected to a URL covered by
         NO_PROXY, we strip the proxy configuration. Otherwise, we set missing
         proxy keys for this URL (in case they were stripped by a previous
@@ -661,8 +656,8 @@ class Session(SessionRedirectMixin):
     def mount(self, prefix, adapter):
         """Registers a connection adapter to a prefix.
 
-        Adapters are sorted in descending order by key length."""
-
+        Adapters are sorted in descending order by key length.
+        """
         self.adapters[prefix] = adapter
         keys_to_move = [k for k in self.adapters if len(k) < len(prefix)]
 

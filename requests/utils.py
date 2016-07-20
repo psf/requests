@@ -6,7 +6,6 @@ requests.utils
 
 This module provides utility functions that are used within Requests
 that are also useful for external consumption.
-
 """
 
 import cgi
@@ -400,7 +399,6 @@ def get_unicode_from_response(r):
 
     1. charset from content-type
     2. fall back and replace all unicode characters
-
     """
     warnings.warn((
         'In requests 3.0, get_unicode_from_response will be removed. For '
@@ -475,8 +473,8 @@ def requote_uri(uri):
 
 
 def address_in_network(ip, net):
-    """
-    This function allows you to check if on IP belongs to a network subnet
+    """This function allows you to check if on IP belongs to a network subnet
+
     Example: returns True if ip = 192.168.1.1 and net = 192.168.1.0/24
              returns False if ip = 192.168.1.1 and net = 192.168.100.0/24
     """
@@ -488,8 +486,8 @@ def address_in_network(ip, net):
 
 
 def dotted_netmask(mask):
-    """
-    Converts mask from /xx format to xxx.xxx.xxx.xxx
+    """Converts mask from /xx format to xxx.xxx.xxx.xxx
+
     Example: if mask is 24 function returns 255.255.255.0
     """
     bits = 0xffffffff ^ (1 << 32 - mask) - 1
@@ -525,9 +523,7 @@ def is_valid_cidr(string_network):
 
 
 def should_bypass_proxies(url):
-    """
-    Returns whether we should bypass proxies or not.
-    """
+    """Returns whether we should bypass proxies or not."""
     get_proxy = lambda k: os.environ.get(k) or os.environ.get(k.upper())
 
     # First check whether no_proxy is defined. If it is, check that the URL
@@ -628,7 +624,6 @@ def parse_header_links(value):
     """Return a dict of parsed link headers proxies.
 
     i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
-
     """
 
     links = []
@@ -693,7 +688,8 @@ def guess_json_utf(data):
 
 def prepend_scheme_if_needed(url, new_scheme):
     """Given a URL that may or may not have a scheme, prepend the given scheme.
-    Does not replace a present scheme with the one provided as an argument."""
+    Does not replace a present scheme with the one provided as an argument.
+    """
     scheme, netloc, path, params, query, fragment = urlparse(url, new_scheme)
 
     # urlparse is a finicky beast, and sometimes decides that there isn't a
@@ -707,7 +703,8 @@ def prepend_scheme_if_needed(url, new_scheme):
 
 def get_auth_from_url(url):
     """Given a url with authentication components, extract them into a tuple of
-    username,password."""
+    username,password.
+    """
     parsed = urlparse(url)
 
     try:
@@ -719,10 +716,9 @@ def get_auth_from_url(url):
 
 
 def to_native_string(string, encoding='ascii'):
-    """
-    Given a string object, regardless of type, returns a representation of that
-    string in the native string type, encoding and decoding where necessary.
-    This assumes ASCII unless told otherwise.
+    """Given a string object, regardless of type, returns a representation of
+    that string in the native string type, encoding and decoding where
+    necessary. This assumes ASCII unless told otherwise.
     """
     if isinstance(string, builtin_str):
         out = string
@@ -740,7 +736,7 @@ _CLEAN_HEADER_REGEX_BYTE = re.compile(b'^\\S[^\\r\\n]*$|^$')
 _CLEAN_HEADER_REGEX_STR = re.compile(r'^\S[^\r\n]*$|^$')
 
 def check_header_validity(header):
-    """Verifies that header value is a string which doesn't contain 
+    """Verifies that header value is a string which doesn't contain
     leading whitespace or return characters. This prevents unintended
     header injection.
 
@@ -761,9 +757,7 @@ def check_header_validity(header):
 
 
 def urldefragauth(url):
-    """
-    Given a url remove the fragment and the authentication part
-    """
+    """Given a url remove the fragment and the authentication part"""
     scheme, netloc, path, params, query, fragment = urlparse(url)
 
     # see func:`prepend_scheme_if_needed`

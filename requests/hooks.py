@@ -10,7 +10,6 @@ Available hooks:
 
 ``response``:
     The response generated from a Request.
-
 """
 HOOKS = ['response']
 
