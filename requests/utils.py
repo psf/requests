@@ -384,7 +384,7 @@ def stream_decode_response_unicode(iterator, r):
 def iter_slices(string, slice_length):
     """Iterate over slices of a string."""
     pos = 0
-    if slice_length is None or slice_length <= 0: 
+    if slice_length is None or slice_length <= 0:
         slice_length = len(string)
     while pos < len(string):
         yield string[pos:pos + slice_length]
@@ -734,6 +734,7 @@ def to_native_string(string, encoding='ascii'):
 
     return out
 
+
 # Moved outside of function to avoid recompile every call
 _CLEAN_HEADER_REGEX_BYTE = re.compile(b'^\\S[^\\r\\n]*$|^$')
 _CLEAN_HEADER_REGEX_STR = re.compile(r'^\S[^\r\n]*$|^$')
@@ -755,8 +756,9 @@ def check_header_validity(header):
         if not pat.match(value):
             raise InvalidHeader("Invalid return character or leading space in header: %s" % name)
     except TypeError:
-        raise InvalidHeader("Header value %s must be of type str or bytes, " 
+        raise InvalidHeader("Header value %s must be of type str or bytes, "
                             "not %s" % (value, type(value)))
+
 
 def urldefragauth(url):
     """

@@ -389,6 +389,7 @@ def test_iter_slices(value, length):
     else:
         assert len(list(iter_slices(value, 1))) == length
 
+
 @pytest.mark.parametrize(
     'value, expected', (
         (

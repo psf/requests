@@ -27,7 +27,7 @@ from .exceptions import (
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, to_native_string, 
+    iter_slices, guess_json_utf, super_len, to_native_string,
     check_header_validity)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
@@ -38,11 +38,11 @@ from .status_codes import codes
 #: The set of HTTP status codes that indicate an automatically
 #: processable redirect.
 REDIRECT_STATI = (
-    codes.moved,              # 301
-    codes.found,              # 302
-    codes.other,              # 303
-    codes.temporary_redirect, # 307
-    codes.permanent_redirect, # 308
+    codes.moved,               # 301
+    codes.found,               # 302
+    codes.other,               # 303
+    codes.temporary_redirect,  # 307
+    codes.permanent_redirect,  # 308
 )
 
 DEFAULT_REDIRECT_LIMIT = 30
@@ -209,6 +209,7 @@ class Request(RequestHooksMixin):
       <PreparedRequest [GET]>
 
     """
+
     def __init__(self, method=None, url=None, headers=None, files=None,
         data=None, params=None, auth=None, cookies=None, hooks=None, json=None):
 

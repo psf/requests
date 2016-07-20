@@ -41,6 +41,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
     behavior is undefined.
 
     """
+
     def __init__(self, data=None, **kwargs):
         self._store = OrderedDict()
         if data is None:
@@ -86,6 +87,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
 
     def __repr__(self):
         return str(dict(self.items()))
+
 
 class LookupDict(dict):
     """Dictionary lookup object."""

@@ -43,6 +43,7 @@ class AuthBase(object):
 
 class HTTPBasicAuth(AuthBase):
     """Attaches HTTP Basic Authentication to the given Request object."""
+
     def __init__(self, username, password):
         self.username = username
         self.password = password
@@ -63,6 +64,7 @@ class HTTPBasicAuth(AuthBase):
 
 class HTTPProxyAuth(HTTPBasicAuth):
     """Attaches HTTP Proxy Authentication to a given Request object."""
+
     def __call__(self, r):
         r.headers['Proxy-Authorization'] = _basic_auth_str(self.username, self.password)
         return r
@@ -70,6 +72,7 @@ class HTTPProxyAuth(HTTPBasicAuth):
 
 class HTTPDigestAuth(AuthBase):
     """Attaches HTTP Digest Authentication to the given Request object."""
+
     def __init__(self, username, password):
         self.username = username
         self.password = password
