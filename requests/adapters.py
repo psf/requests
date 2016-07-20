@@ -419,9 +419,7 @@ class HTTPAdapter(BaseAdapter):
 
             # Send the request.
             else:
-                if hasattr(conn, 'proxy_pool'):
-                    conn = conn.proxy_pool
-
+                conn = getattr(conn, 'proxy_pool', conn)
                 low_conn = conn._get_conn(timeout=DEFAULT_POOL_TIMEOUT)
 
                 try:

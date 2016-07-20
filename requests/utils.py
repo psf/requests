@@ -38,9 +38,9 @@ DEFAULT_CA_BUNDLE_PATH = certs.where()
 
 def dict_to_sequence(d):
     """Returns an internal sequence dictionary update."""
-
-    if hasattr(d, 'items'):
-        d = d.items()
+    dict_items = getattr(d, 'items', None)
+    if dict_items is not None:
+        d = dict_items()
 
     return d
 
@@ -49,17 +49,17 @@ def super_len(o):
     total_length = 0
     current_position = 0
 
-    if hasattr(o, '__len__'):
+    if getattr(o, '__len__', None) is not None:
         total_length = len(o)
 
-    elif hasattr(o, 'len'):
+    elif getattr(o, 'len', None) is not None:
         total_length = o.len
 
-    elif hasattr(o, 'getvalue'):
+    elif getattr(o, 'getvalue', None) is not None:
         # e.g. BytesIO, cStringIO.StringIO
         total_length = len(o.getvalue())
 
-    elif hasattr(o, 'fileno'):
+    elif getattr(o, 'fileno', None) is not None:
         try:
             fileno = o.fileno()
         except io.UnsupportedOperation:
@@ -80,7 +80,7 @@ def super_len(o):
                     FileModeWarning
                 )
 
-    if hasattr(o, 'tell'):
+    if getattr(o, 'tell', None) is not None:
         try:
             current_position = o.tell()
         except (OSError, IOError):

@@ -750,7 +750,7 @@ class TestRequests:
         s.proxies = getproxies()
         resp = s.send(prep)
 
-        assert hasattr(resp, 'hook_working')
+        assert getattr(resp, 'hook_working', None) is not None
 
     def test_prepared_from_session(self, httpbin):
         class DummyAuth(requests.auth.AuthBase):

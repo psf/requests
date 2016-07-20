@@ -25,7 +25,7 @@ def dispatch_hook(key, hooks, hook_data, **kwargs):
     hooks = hooks or dict()
     hooks = hooks.get(key)
     if hooks:
-        if hasattr(hooks, '__call__'):
+        if getattr(hooks, '__call__', None) is not None:
             hooks = [hooks]
         for hook in hooks:
             _hook_data = hook(hook_data, **kwargs)
