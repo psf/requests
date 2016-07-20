@@ -83,12 +83,13 @@ class RequestEncodingMixin(object):
 
         if isinstance(data, (str, bytes)):
             return data
-        elif hasattr(data, 'read'):
+        elif getattr(data, 'read', None) is not None:
             return data
-        elif hasattr(data, '__iter__'):
+        elif getattr(data, '__iter__', None) is not None:
             result = []
             for k, vs in to_key_val_list(data):
-                if isinstance(vs, basestring) or not hasattr(vs, '__iter__'):
+                is_iter = getattr(vs, '__iter__', None) is not None
+                if isinstance(vs, basestring) or not is_iter:
                     vs = [vs]
                 for v in vs:
                     if v is not None:
@@ -120,7 +121,8 @@ class RequestEncodingMixin(object):
         files = to_key_val_list(files or {})
 
         for field, val in fields:
-            if isinstance(val, basestring) or not hasattr(val, '__iter__'):
+            is_iter = getattr(val, '__iter__', None) is not None
+            if isinstance(val, basestring) or not is_iter:
                 val = [val]
             for v in val:
                 if v is not None:
@@ -170,7 +172,7 @@ class RequestHooksMixin(object):
 
         if isinstance(hook, collections.Callable):
             self.hooks[event].append(hook)
-        elif hasattr(hook, '__iter__'):
+        elif getattr(hook, '__iter__', None) is not None:
             self.hooks[event].extend(h for h in hook if isinstance(h, collections.Callable))
 
     def deregister_hook(self, event, hook):
@@ -433,7 +435,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 body = body.encode('utf-8')
 
         is_stream = all([
-            hasattr(data, '__iter__'),
+            getattr(data, '__iter__', None) is not None,
             not isinstance(data, (basestring, list, tuple, dict))
         ])
 
@@ -459,7 +461,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 if data:
                     body = self._encode_params(data)
-                    if isinstance(data, basestring) or hasattr(data, 'read'):
+                    if isinstance(data, basestring) or getattr(data, 'read', None) is not None:
                         content_type = None
                     else:
                         content_type = 'application/x-www-form-urlencoded'
@@ -473,12 +475,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.body = body
 
     def prepare_content_length(self, body):
-        if hasattr(body, 'seek') and hasattr(body, 'tell'):
-            curr_pos = body.tell()
-            body.seek(0, 2)
-            end_pos = body.tell()
+        seek = getattr(body, 'seek', None)
+        tell = getattr(body, 'tell', None)
+        if seek is not None and tell is not None:
+            curr_pos = tell()
+            seek(0, 2)
+            end_pos = tell()
             self.headers['Content-Length'] = builtin_str(max(0, end_pos - curr_pos))
-            body.seek(curr_pos, 0)
+            seek(curr_pos, 0)
         elif body is not None:
             l = super_len(body)
             if l:
@@ -674,9 +678,10 @@ class Response(object):
 
         def generate():
             # Special case for urllib3.
-            if hasattr(self.raw, 'stream'):
+            raw_stream = getattr(self.raw, 'stream', None)
+            if raw_stream is not None:
                 try:
-                    for chunk in self.raw.stream(chunk_size, decode_content=True):
+                    for chunk in raw_stream(chunk_size, decode_content=True):
                         yield chunk
                 except ProtocolError as e:
                     raise ChunkedEncodingError(e)

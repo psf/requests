@@ -120,8 +120,7 @@ def extract_cookies_to_jar(jar, request, response):
     :param request: our own requests.Request object
     :param response: urllib3.HTTPResponse object
     """
-    if not (hasattr(response, '_original_response') and
-            response._original_response):
+    if not getattr(response, '_original_response', None):
         return
     # the _original_response field is the wrapped httplib.HTTPResponse object,
     req = MockRequest(request)
@@ -306,8 +305,11 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         remove_cookie_by_name(self, name)
 
     def set_cookie(self, cookie, *args, **kwargs):
-        if hasattr(cookie.value, 'startswith') and cookie.value.startswith('"') and cookie.value.endswith('"'):
-            cookie.value = cookie.value.replace('\\"', '')
+        try:
+            if cookie.value.startswith('"') and cookie.value.endswith('"'):
+                cookie.value = cookie.value.replace('\\"', '')
+        except AttributeError:
+            pass
         return super(RequestsCookieJar, self).set_cookie(cookie, *args, **kwargs)
 
     def update(self, other):
@@ -374,10 +376,11 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
 def _copy_cookie_jar(jar):
     if jar is None:
         return None
-
-    if hasattr(jar, 'copy'):
+    
+    jarcopy = getattr(jar, 'copy', None)
+    if jarcopy is not None:
         # We're dealing with an instance of RequestsCookieJar
-        return jar.copy()
+        return jarcopy()
     # We're dealing with a generic CookieJar instance
     new_jar = copy.copy(jar)
     new_jar.clear()
