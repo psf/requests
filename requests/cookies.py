@@ -181,7 +181,15 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     Unlike a regular CookieJar, this class is pickleable.
 
     .. warning:: dictionary operations that are normally O(1) may be O(n).
+
+    :param policy: (optional) custom ``CookiePolicy`` defining cookie use
+    :param persist_policy: (optional) boolean defining whether to persist
+        the ``_policy`` on CookieJar merges.
     """
+
+    def __init__(self, policy=None, persist_policy=False):
+        super(RequestsCookieJar, self).__init__(policy)
+        self.persist_policy = persist_policy
 
     def get(self, name, default=None, domain=None, path=None):
         """Dict-like get() that also supports optional domain and path args in
@@ -211,6 +219,10 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
             c = create_cookie(name, value, **kwargs)
         self.set_cookie(c)
         return c
+
+    def get_policy(self):
+        """Helper method to expose current policy for CookieJar"""
+        return self._policy
 
     def iterkeys(self):
         """Dict-like iterkeys() that returns an iterator of names of cookies
@@ -523,6 +535,10 @@ def merge_cookies(cookiejar, cookies):
         cookiejar = cookiejar_from_dict(
             cookies, cookiejar=cookiejar, overwrite=False)
     elif isinstance(cookies, cookielib.CookieJar):
+        persist_cookies = getattr(cookies, 'persist_policy', False)
+        persist_cookiejar = getattr(cookiejar, 'persist_policy', False)
+        if persist_cookies and not persist_cookiejar:
+            cookiejar.set_policy(cookies.get_policy())
         try:
             cookiejar.update(cookies)
         except AttributeError:
