@@ -1612,7 +1612,7 @@ def test_requests_are_updated_each_time(httpbin):
     r0 = session.send(prep)
     assert r0.request.method == 'POST'
     assert session.calls[-1] == SendCall((r0.request,), {})
-    redirect_generator = session.resolve_redirects(r0, prep)
+    redirect_generator = session.resolve_redirects(r0)
     default_keyword_args = {
         'stream': False,
         'verify': True,
