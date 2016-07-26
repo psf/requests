@@ -13,7 +13,7 @@ class TestTestServer:
 
     def test_basic(self):
         """messages are sent and received properly"""
-        question = b"sucess?"
+        question = b"success?"
         answer = b"yeah, success"
 
         def handler(sock):
