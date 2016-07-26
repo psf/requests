@@ -662,7 +662,7 @@ class Response(object):
         chunk_size must be of type int or None. A value of None will
         function differently depending on the value of `stream`.
         stream=True will read data as it arrives in whatever size the
-        chunks are recieved. If stream=False, data is returned as
+        chunks are received. If stream=False, data is returned as
         a single chunk.
 
         If decode_unicode is True, content will be decoded using the best
