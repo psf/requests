@@ -85,6 +85,7 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 
 class SessionRedirectMixin(object):
+
     def resolve_redirects(self, resp, req, stream=False, timeout=None,
                           verify=True, cert=None, proxies=None, **adapter_kwargs):
         """Receives a Response. Returns a generator of Responses."""

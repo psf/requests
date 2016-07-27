@@ -43,6 +43,7 @@ class TestSuperLen:
     def test_super_len_handles_files_raising_weird_errors_in_tell(self, error):
         """If tell() raises errors, assume the cursor is at position zero."""
         class BoomFile(object):
+
             def __len__(self):
                 return 5
 
@@ -323,6 +324,8 @@ http_proxies = {'http': 'http://http.proxy',
                 'http://some.host': 'http://some.host.proxy'}
 all_proxies = {'all': 'socks5://http.proxy',
                'all://some.host': 'socks5://some.host.proxy'}
+
+
 @pytest.mark.parametrize(
     'url, expected, proxies', (
         ('hTTp://u:p@Some.Host/path', 'http://some.host.proxy', http_proxies),

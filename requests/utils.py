@@ -735,6 +735,7 @@ def to_native_string(string, encoding='ascii'):
 _CLEAN_HEADER_REGEX_BYTE = re.compile(b'^\\S[^\\r\\n]*$|^$')
 _CLEAN_HEADER_REGEX_STR = re.compile(r'^\S[^\r\n]*$|^$')
 
+
 def check_header_validity(header):
     """Verifies that header value is a string which doesn't contain
     leading whitespace or return characters. This prevents unintended
