@@ -49,7 +49,6 @@ class Server(threading.Thread):
 
             return request_content
 
-
         return Server(text_response_handler, **kwargs)
 
     @classmethod

@@ -51,6 +51,7 @@ ITER_CHUNK_SIZE = 512
 
 
 class RequestEncodingMixin(object):
+
     @property
     def path_url(self):
         """Build the path URL to use."""
@@ -161,6 +162,7 @@ class RequestEncodingMixin(object):
 
 
 class RequestHooksMixin(object):
+
     def register_hook(self, event, hook):
         """Properly register a hook."""
 

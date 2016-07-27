@@ -516,6 +516,7 @@ class TestRequests:
     def test_POSTBIN_SEEKED_OBJECT_WITH_NO_ITER(self, httpbin):
 
         class TestStream(object):
+
             def __init__(self, data):
                 self.data = data.encode()
                 self.length = len(self.data)
@@ -753,6 +754,7 @@ class TestRequests:
 
     def test_prepared_from_session(self, httpbin):
         class DummyAuth(requests.auth.AuthBase):
+
             def __call__(self, r):
                 r.headers['Dummy-Auth-Test'] = 'dummy-auth-test-ok'
                 return r
@@ -1618,6 +1620,7 @@ SendCall = collections.namedtuple('SendCall', ('args', 'kwargs'))
 
 
 class RedirectSession(SessionRedirectMixin):
+
     def __init__(self, order_of_redirects):
         self.redirects = order_of_redirects
         self.calls = []
