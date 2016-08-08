@@ -27,6 +27,10 @@ Release History
   which could cause Requests to hang in situations where the ``HTTPAdapter``
   had been configured to use a blocking connection pool.
 
+**Miscellaneous**
+
+- Updated bundled urllib3 to 1.16.
+
 2.10.0 (2016-04-29)
 +++++++++++++++++++
 
