@@ -30,6 +30,7 @@ Release History
 **Miscellaneous**
 
 - Updated bundled urllib3 to 1.16.
+- Some previous releases accidentally accepted integers as acceptable header values. This release does not.
 
 2.10.0 (2016-04-29)
 +++++++++++++++++++
