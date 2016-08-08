@@ -3,6 +3,34 @@
 Release History
 ---------------
 
+2.11.0 (2016-08-XX)
++++++++++++++++++++
+
+**Improvements**
+
+- Added support for the ``ALL_PROXY`` environment variable.
+- Reject header values that contain leading whitespace or newline characters to
+  reduce risk of header smuggling.
+
+**Bugfixes**
+
+- Fixed occasional ``TypeError`` when attempting to decode a JSON response that
+  occurred in an error case. Now correctly returns a ``ValueError``.
+- Requests would incorrectly ignore a non-CIDR IP address in the ``NO_PROXY``
+  environment variables: Requests now treats it as a specific IP.
+- Fixed a bug when sending JSON data that could cause us to encounter obscure
+  OpenSSL errors in certain network conditions (yes, really).
+- Added type checks to ensure that ``iter_content`` only accepts integers and
+  ``None`` for chunk sizes.
+- Fixed issue where responses whose body had not been fully consumed would have
+  the underlying connection closed but not returned to the connection pool,
+  which could cause Requests to hang in situations where the ``HTTPAdapter``
+  had been configured to use a blocking connection pool.
+
+**Miscellaneous**
+
+- Updated bundled urllib3 to 1.16.
+
 2.10.0 (2016-04-29)
 +++++++++++++++++++
 

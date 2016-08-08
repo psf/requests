@@ -90,7 +90,7 @@ class ConnectionPool(object):
         # Return False to re-raise any potential exceptions
         return False
 
-    def close():
+    def close(self):
         """
         Close all pooled connections and disable the pool.
         """
@@ -163,6 +163,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
     scheme = 'http'
     ConnectionCls = HTTPConnection
+    ResponseCls = HTTPResponse
 
     def __init__(self, host, port=None, strict=False,
                  timeout=Timeout.DEFAULT_TIMEOUT, maxsize=1, block=False,
@@ -383,8 +384,13 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         try:
             try:  # Python 2.7, use buffering of HTTP responses
                 httplib_response = conn.getresponse(buffering=True)
-            except TypeError:  # Python 2.6 and older
-                httplib_response = conn.getresponse()
+            except TypeError:  # Python 2.6 and older, Python 3
+                try:
+                    httplib_response = conn.getresponse()
+                except Exception as e:
+                    # Remove the TypeError from the exception chain in Python 3;
+                    # otherwise it looks like a programming error was the cause.
+                    six.raise_from(e, None)
         except (SocketTimeout, BaseSSLError, SocketError) as e:
             self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
             raise
@@ -545,6 +551,17 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
 
         conn = None
 
+        # Track whether `conn` needs to be released before
+        # returning/raising/recursing. Update this variable if necessary, and
+        # leave `release_conn` constant throughout the function. That way, if
+        # the function recurses, the original value of `release_conn` will be
+        # passed down into the recursive call, and its value will be respected.
+        #
+        # See issue #651 [1] for details.
+        #
+        # [1] <https://github.com/shazow/urllib3/issues/651>
+        release_this_conn = release_conn
+
         # Merge the proxy headers. Only do this in HTTP. We have to copy the
         # headers dict so we can safely change it without those changes being
         # reflected in anyone else's copy.
@@ -584,10 +601,10 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             response_conn = conn if not release_conn else None
 
             # Import httplib's response into our own wrapper object
-            response = HTTPResponse.from_httplib(httplib_response,
-                                                 pool=self,
-                                                 connection=response_conn,
-                                                 **response_kw)
+            response = self.ResponseCls.from_httplib(httplib_response,
+                                                     pool=self,
+                                                     connection=response_conn,
+                                                     **response_kw)
 
             # Everything went great!
             clean_exit = True
@@ -633,9 +650,9 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
                 # Close the connection, set the variable to None, and make sure
                 # we put the None back in the pool to avoid leaking it.
                 conn = conn and conn.close()
-                release_conn = True
+                release_this_conn = True
 
-            if release_conn:
+            if release_this_conn:
                 # Put the connection back to be reused. If the connection is
                 # expired then it will be None, which will get replaced with a
                 # fresh connection during _get_conn.
@@ -817,7 +834,7 @@ class HTTPSConnectionPool(HTTPConnectionPool):
             warnings.warn((
                 'Unverified HTTPS request is being made. '
                 'Adding certificate verification is strongly advised. See: '
-                'https://urllib3.readthedocs.org/en/latest/security.html'),
+                'https://urllib3.readthedocs.io/en/latest/security.html'),
                 InsecureRequestWarning)
 
 
