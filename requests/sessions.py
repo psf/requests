@@ -214,6 +214,8 @@ class SessionRedirectMixin(object):
 
         This method also replaces the Proxy-Authorization header where
         necessary.
+
+        :rtype: dict
         """
         headers = prepared_request.headers
         url = prepared_request.url
@@ -360,6 +362,7 @@ class Session(SessionRedirectMixin):
 
         :param request: :class:`Request` instance to prepare with this
             session's settings.
+        :rtype: requests.PreparedRequest
         """
         cookies = request.cookies or {}
 
@@ -477,6 +480,7 @@ class Session(SessionRedirectMixin):
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         kwargs.setdefault('allow_redirects', True)
@@ -487,6 +491,7 @@ class Session(SessionRedirectMixin):
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         kwargs.setdefault('allow_redirects', True)
@@ -497,6 +502,7 @@ class Session(SessionRedirectMixin):
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         kwargs.setdefault('allow_redirects', False)
@@ -509,6 +515,7 @@ class Session(SessionRedirectMixin):
         :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
         :param json: (optional) json to send in the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         return self.request('POST', url, data=data, json=json, **kwargs)
@@ -519,6 +526,7 @@ class Session(SessionRedirectMixin):
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         return self.request('PUT', url, data=data, **kwargs)
@@ -529,6 +537,7 @@ class Session(SessionRedirectMixin):
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         return self.request('PATCH', url,  data=data, **kwargs)
@@ -538,12 +547,17 @@ class Session(SessionRedirectMixin):
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         return self.request('DELETE', url, **kwargs)
 
     def send(self, request, **kwargs):
-        """Send a given PreparedRequest."""
+        """
+        Send a given PreparedRequest.
+
+        :rtype: requests.Response
+        """
         # Set defaults that the hooks can utilize to ensure they always have
         # the correct parameters to reproduce the previous request.
         kwargs.setdefault('stream', self.stream)
@@ -615,7 +629,11 @@ class Session(SessionRedirectMixin):
         return r
 
     def merge_environment_settings(self, url, proxies, stream, verify, cert):
-        """Check the environment and merge it with some settings."""
+        """
+        Check the environment and merge it with some settings.
+
+        :rtype: dict
+        """
         # Gather clues from the surrounding environment.
         if self.trust_env:
             # Set environment's proxies.
@@ -639,7 +657,11 @@ class Session(SessionRedirectMixin):
                 'cert': cert}
 
     def get_adapter(self, url):
-        """Returns the appropriate connection adapter for the given URL."""
+        """
+        Returns the appropriate connection adapter for the given URL.
+
+        :rtype: requests.adapters.BaseAdapter
+        """
         for (prefix, adapter) in self.adapters.items():
 
             if url.lower().startswith(prefix):
@@ -680,6 +702,10 @@ class Session(SessionRedirectMixin):
 
 
 def session():
-    """Returns a :class:`Session` for context-management."""
+    """
+    Returns a :class:`Session` for context-management.
+
+    :rtype: Session
+    """
 
     return Session()
