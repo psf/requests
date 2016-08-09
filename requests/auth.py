@@ -90,6 +90,9 @@ class HTTPDigestAuth(AuthBase):
             self._thread_local.num_401_calls = None
 
     def build_digest_header(self, method, url):
+        """
+        :rtype: str
+        """
 
         realm = self._thread_local.chal['realm']
         nonce = self._thread_local.chal['nonce']
@@ -182,7 +185,11 @@ class HTTPDigestAuth(AuthBase):
             self._thread_local.num_401_calls = 1
 
     def handle_401(self, r, **kwargs):
-        """Takes the given response and tries digest-auth, if needed."""
+        """
+        Takes the given response and tries digest-auth, if needed.
+
+        :rtype: requests.Response
+        """
 
         if self._thread_local.pos is not None:
             # Rewind the file position indicator of the body to where

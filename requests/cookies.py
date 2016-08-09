@@ -134,7 +134,11 @@ def extract_cookies_to_jar(jar, request, response):
 
 
 def get_cookie_header(jar, request):
-    """Produce an appropriate Cookie header string to be sent with `request`, or None."""
+    """
+    Produce an appropriate Cookie header string to be sent with `request`, or None.
+
+    :rtype: str
+    """
     r = MockRequest(request)
     jar.add_cookie_header(r)
     return r.get_new_headers().get('Cookie')
@@ -283,6 +287,8 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     def multiple_domains(self):
         """Returns True if there are multiple domains in the jar.
         Returns False otherwise.
+
+        :rtype: bool
         """
         domains = []
         for cookie in iter(self):
@@ -295,6 +301,8 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         """Takes as an argument an optional domain and path and returns a plain
         old Python dict of name-value pairs of cookies that meet the
         requirements.
+
+        :rtype: dict
         """
         dictionary = {}
         for cookie in iter(self):
