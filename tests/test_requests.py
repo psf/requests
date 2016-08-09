@@ -973,13 +973,6 @@ class TestRequests:
         chunks = r.iter_content(decode_unicode=True)
         assert all(isinstance(chunk, str) for chunk in chunks)
 
-        # check for encoding value of None
-        r = requests.Response()
-        r.raw = io.BytesIO(b'the content')
-        r.encoding = None
-        chunks = r.iter_content(decode_unicode=True)
-        assert all(isinstance(chunk, str) for chunk in chunks)
-
     def test_response_reason_unicode(self):
         # check for unicode HTTP status
         r = requests.Response()
