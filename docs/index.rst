@@ -87,7 +87,7 @@ Requests is ready for today's web.
 - Chunked Requests
 - Thread-safety
 
-Requests supports Python 2.6 — 3.5, and runs great on PyPy.
+Requests supports Python 2.6-2.7 and 3.3-3.5, and runs great on PyPy.
 
 
 The User Guide
