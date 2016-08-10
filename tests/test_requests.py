@@ -221,6 +221,41 @@ class TestRequests:
         assert r.history[0].status_code == 303
         assert r.history[0].is_redirect
 
+    def test_header_and_body_removal_on_redirect(self, httpbin):
+        purged_headers = ('Content-Length', 'Content-Type')
+        ses = requests.Session()
+        req = requests.Request('POST', httpbin('post'), data={'test': 'data'})
+        prep = ses.prepare_request(req)
+        resp = ses.send(prep)
+
+        # Mimic a redirect response
+        resp.status_code = 302
+        resp.headers['location'] = 'get'
+
+        # Run request through resolve_redirects
+        next_resp = next(ses.resolve_redirects(resp, prep))
+        assert next_resp.request.body is None
+        for header in purged_headers:
+            assert header not in next_resp.request.headers
+
+    def test_transfer_enc_removal_on_redirect(self, httpbin):
+        purged_headers = ('Transfer-Encoding', 'Content-Type')
+        ses = requests.Session()
+        req = requests.Request('POST', httpbin('post'), data=(b'x' for x in range(1)))
+        prep = ses.prepare_request(req)
+        assert 'Transfer-Encoding' in prep.headers
+        resp = ses.send(prep)
+
+        # Mimic a redirect response
+        resp.status_code = 302
+        resp.headers['location'] = 'get'
+
+        # Run request through resolve_redirect
+        next_resp = next(ses.resolve_redirects(resp, prep))
+        assert next_resp.request.body is None
+        for header in purged_headers:
+            assert header not in next_resp.request.headers
+
     def test_HTTP_200_OK_GET_WITH_PARAMS(self, httpbin):
         heads = {'User-agent': 'Mozilla/5.0'}
 
