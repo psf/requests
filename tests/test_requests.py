@@ -244,11 +244,16 @@ class TestRequests:
         req = requests.Request('POST', httpbin('post'), data=(b'x' for x in range(1)))
         prep = ses.prepare_request(req)
         assert 'Transfer-Encoding' in prep.headers
-        resp = ses.send(prep)
+
+        # Create Response to avoid https://github.com/kevin1024/pytest-httpbin/issues/33
+        resp = requests.Response()
+        resp.raw = io.BytesIO(b'the content')
+        resp.request = prep
+        setattr(resp.raw, 'release_conn', lambda *args: args)
 
         # Mimic a redirect response
         resp.status_code = 302
-        resp.headers['location'] = 'get'
+        resp.headers['location'] = httpbin('get')
 
         # Run request through resolve_redirect
         next_resp = next(ses.resolve_redirects(resp, prep))
