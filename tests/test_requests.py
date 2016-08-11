@@ -1353,6 +1353,15 @@ class TestRequests:
         with pytest.raises(ValueError):
             r.json()
 
+    def test_response_without_release_conn(self):
+        """Test `close` call for non-urllib3-like raw objects.
+        Should work when `release_conn` attr doesn't exist on `response.raw`.
+        """
+        resp = requests.Response()
+        resp.raw = StringIO.StringIO('test')
+        assert not resp.raw.closed
+        resp.close()
+        assert resp.raw.closed
 
 class TestCaseInsensitiveDict:
 
