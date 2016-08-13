@@ -132,9 +132,9 @@ For example, to create an image from binary data returned by a request, you can
 use the following code::
 
     >>> from PIL import Image
-    >>> from io import StringIO
+    >>> from io import BytesIO
 
-    >>> i = Image.open(StringIO(r.content))
+    >>> i = Image.open(BytesIO(r.content))
 
 
 JSON Response Content
@@ -416,7 +416,7 @@ parameter::
     >>> r = requests.get(url, cookies=cookies)
     >>> r.text
     '{"cookies": {"cookies_are": "working"}}'
-    
+
 Cookies are returned in a :class:`~requests.cookies.RequestsCookieJar`,
 which acts like a ``dict`` but also offers a more complete interface,
 suitable for use over multiple domains or paths.  Cookie jars can
