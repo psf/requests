@@ -87,11 +87,11 @@ See the :ref:`Session API Docs <sessionapi>` to learn more.
 Request and Response Objects
 ----------------------------
 
-Whenever a call is made to ``requests.get()`` and friends you are doing two
+Whenever a call is made to ``requests.get()`` and friends, you are doing two
 major things. First, you are constructing a ``Request`` object which will be
 sent off to a server to request or query some resource. Second, a ``Response``
-object is generated once ``requests`` gets a response back from the server.
-The Response object contains all of the information returned by the server and
+object is generated once Requests gets a response back from the server.
+The ``Response`` object contains all of the information returned by the server and
 also contains the ``Request`` object you created originally. Here is a simple
 request to get some very important information from Wikipedia's servers::
 
@@ -213,9 +213,7 @@ You can pass ``verify`` the path to a CA_BUNDLE file or directory with certifica
 
 This list of trusted CAs can also be specified through the ``REQUESTS_CA_BUNDLE`` environment variable.
 
-Requests can also ignore verifying the SSL certificate if you set ``verify`` to False.
-
-::
+Requests can also ignore verifying the SSL certificate if you set ``verify`` to False::
 
     >>> requests.get('https://kennethreitz.com', verify=False)
     <Response [200]>
@@ -242,7 +240,7 @@ If you specify a wrong path or an invalid cert, you'll get a SSLError::
 CA Certificates
 ---------------
 
-By default Requests bundles a set of root CAs that it trusts, sourced from the
+By default, Requests bundles a set of root CAs that it trusts, sourced from the
 `Mozilla trust store`_. However, these are only updated once for each Requests
 version. This means that if you pin a Requests version your certificates can
 become extremely out of date.
@@ -266,7 +264,7 @@ Body Content Workflow
 
 By default, when you make a request, the body of the response is downloaded
 immediately. You can override this behaviour and defer downloading the response
-body until you access the :class:`Response.content <requests.Response.content>`
+body until you access the :attr:`Response.content <requests.Response.content>`
 attribute with the ``stream`` parameter::
 
     tarball_url = 'https://github.com/kennethreitz/requests/tarball/master'
@@ -279,15 +277,15 @@ remains open, hence allowing us to make content retrieval conditional::
       content = r.content
       ...
 
-You can further control the workflow by use of the :class:`Response.iter_content <requests.Response.iter_content>`
-and :class:`Response.iter_lines <requests.Response.iter_lines>` methods.
+You can further control the workflow by use of the :meth:`Response.iter_content() <requests.Response.iter_content>`
+and :meth:`Response.iter_lines() <requests.Response.iter_lines>` methods.
 Alternatively, you can read the undecoded body from the underlying
 urllib3 :class:`urllib3.HTTPResponse <urllib3.response.HTTPResponse>` at
-:class:`Response.raw <requests.Response.raw>`.
+:attr:`Response.raw <requests.Response.raw>`.
 
 If you set ``stream`` to ``True`` when making a request, Requests cannot
 release the connection back to the pool unless you consume all the data or call
-:class:`Response.close <requests.Response.close>`. This can lead to
+:meth:`Response.close <requests.Response.close>`. This can lead to
 inefficiency with connections. If you find yourself partially reading request
 bodies (or not reading them at all) while using ``stream=True``, you should
 consider using ``contextlib.closing`` (`documented here`_), like this::
@@ -349,11 +347,11 @@ a length) for your body::
     requests.post('http://some.url/chunked', data=gen())
 
 For chunked encoded responses, it's best to iterate over the data using
-:meth:`Response.iter_content() <requests.models.Response.iter_content>`. In
+:meth:`Response.iter_content() <requests.Response.iter_content>`. In
 an ideal situation you'll have set ``stream=True`` on the request, in which
-case you can iterate chunk-by-chunk by calling ``iter_content`` with a chunk
-size parameter of ``None``. If you want to set a maximum size of the chunk,
-you can set a chunk size parameter to any integer.
+case you can iterate chunk-by-chunk by calling ``iter_content`` with a ``chunk_size``
+parameter of ``None``. If you want to set a maximum size of the chunk,
+you can set a ``chunk_size`` parameter to any integer.
 
 
 .. _multipart:
@@ -440,9 +438,10 @@ Requests allows you to use specify your own authentication mechanism.
 Any callable which is passed as the ``auth`` argument to a request method will
 have the opportunity to modify the request before it is dispatched.
 
-Authentication implementations are subclasses of ``requests.auth.AuthBase``,
+Authentication implementations are subclasses of :class:`AuthBase <requests.auth.AuthBase>`,
 and are easy to define. Requests provides two common authentication scheme
-implementations in ``requests.auth``: ``HTTPBasicAuth`` and ``HTTPDigestAuth``.
+implementations in ``requests.auth``: :class:`HTTPBasicAuth <requests.auth.HTTPBasicAuth>` and
+:class:`HTTPDigestAuth <requests.auth.HTTPDigestAuth>`.
 
 Let's pretend that we have a web service that will only respond if the
 ``X-Pizza`` header is set to a password value. Unlikely, but just go with it.
@@ -472,11 +471,11 @@ Then, we can make a request using our Pizza Auth::
 Streaming Requests
 ------------------
 
-With :class:`requests.Response.iter_lines()` you can easily
+With :meth:`Response.iter_lines() <requests.Response.iter_lines>` you can easily
 iterate over streaming APIs such as the `Twitter Streaming
 API <https://dev.twitter.com/streaming/overview>`_. Simply
 set ``stream`` to ``True`` and iterate over the response with
-:class:`~requests.Response.iter_lines()`::
+:meth:`~requests.Response.iter_lines()`::
 
     import json
     import requests
@@ -491,7 +490,7 @@ set ``stream`` to ``True`` and iterate over the response with
 
 .. warning::
 
-    :class:`~requests.Response.iter_lines()` is not reentrant safe.
+    :meth:`~requests.Response.iter_lines()` is not reentrant safe.
     Calling this method multiple times causes some of the received data
     being lost. In case you need to call it from multiple places, use
     the resulting iterator object instead::
@@ -669,8 +668,9 @@ commits is POST, which creates a new commit. As we're using the Requests repo,
 we should probably avoid making ham-handed POSTS to it. Instead, let's play
 with the Issues feature of GitHub.
 
-This documentation was added in response to Issue #482. Given that this issue
-already exists, we will use it as an example. Let's start by getting it.
+This documentation was added in response to
+`Issue #482 <https://github.com/kennethreitz/requests/issues/482>`_. Given that
+this issue already exists, we will use it as an example. Let's start by getting it.
 
 ::
 
@@ -845,8 +845,8 @@ with the given prefix will use the given Transport Adapter.
 
 Many of the details of implementing a Transport Adapter are beyond the scope of
 this documentation, but take a look at the next example for a simple SSL use-
-case. For more than that, you might look at subclassing
-``requests.adapters.BaseAdapter``.
+case. For more than that, you might look at subclassing the
+:class:`BaseAdapter <requests.adapters.BaseAdapter>`.
 
 Example: Specific SSL Version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -858,10 +858,8 @@ that uses a version that isn't compatible with the default.
 
 You can use Transport Adapters for this by taking most of the existing
 implementation of HTTPAdapter, and adding a parameter *ssl_version* that gets
-passed-through to `urllib3`. We'll make a TA that instructs the library to use
-SSLv3:
-
-::
+passed-through to `urllib3`. We'll make a Transport Adapter that instructs the
+library to use SSLv3::
 
     import ssl
 
@@ -904,7 +902,7 @@ Header Ordering
 
 In unusual circumstances you may want to provide headers in an ordered manner. If you pass an ``OrderedDict`` to the ``headers`` keyword argument, that will provide the headers with an ordering. *However*, the ordering of the default headers used by Requests will be preferred, which means that if you override default headers in the ``headers`` keyword argument, they may appear out of order compared to other headers in that keyword argument.
 
-If this is problematic, users should consider setting the default headers on a :class:`Session <requests.Session>` object, by setting :data:`Session <requests.Session.headers>` to a custom ``OrderedDict``. That ordering will always be preferred.
+If this is problematic, users should consider setting the default headers on a :class:`Session <requests.Session>` object, by setting :attr:`Session <requests.Session.headers>` to a custom ``OrderedDict``. That ordering will always be preferred.
 
 .. _timeouts:
 
@@ -940,7 +938,7 @@ If the remote server is very slow, you can tell Requests to wait forever for
 a response, by passing None as a timeout value and then retrieving a cup of
 coffee.
 
-.. code-block:: python
+::
 
     r = requests.get('https://github.com', timeout=None)
 
