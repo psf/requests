@@ -910,7 +910,7 @@ Timeouts
 --------
 
 Most requests to external servers should have a timeout attached, in case the
-server is not responding in a timely manner. By standard, requests do not time
+server is not responding in a timely manner. By default, requests do not time
 out unless a timeout value is set explicitly. Without a timeout, your code may
 hang for minutes or more.
 
