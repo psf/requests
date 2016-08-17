@@ -167,3 +167,4 @@ Patches and Suggestions
 - piotrjurkiewicz
 - Jesse Shapiro <jesse@jesseshapiro.net> (`@haikuginger <https://github.com/haikuginger>`_)
 - Nate Prewitt <nate.prewitt@gmail.com> (`@nateprewitt <https://github.com/nateprewitt>`_)
+- Maik Himstedt
