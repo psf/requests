@@ -3,6 +3,17 @@
 Release History
 ---------------
 
+2.11.1 (2016-08-XX)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Fixed a bug when using ``iter_content`` with ``decode_unicode=True`` for
+  streamed bodies would raise ``AttributeError``. This bug was introduced in
+  2.11.
+- Strip Content-Type and Transfer-Encoding headers from the header block when
+  following a redirect that transforms the verb from POST/PUT to GET.
+
 2.11.0 (2016-08-08)
 +++++++++++++++++++
 
