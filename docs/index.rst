@@ -41,7 +41,7 @@ which is embedded within Requests.
 User Testimonials
 -----------------
 
-Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
+The NSA, Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
 PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
 Post, Twitter, SoundCloud, Kippt, Readability, Sony, and Federal U.S.
 Institutions that prefer to be unnamed claim to use Requests internally.
