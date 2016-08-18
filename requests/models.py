@@ -870,4 +870,6 @@ class Response(object):
         if not self._content_consumed:
             self.raw.close()
 
-        return self.raw.release_conn()
+        release_conn = getattr(self.raw, 'release_conn', None)
+        if release_conn is not None:
+            release_conn()
