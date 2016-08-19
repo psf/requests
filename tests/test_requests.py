@@ -1053,63 +1053,51 @@ class TestRequests:
         assert r.request.url == pr.request.url
         assert r.request.headers == pr.request.headers
 
-    def test_prepared_request_is_pickleable(self):
+    def test_prepared_request_is_pickleable(self, httpbin):
         p = requests.Request('GET', httpbin('get')).prepare()
 
-        # Verify we can pickle the request.
-        assert pickle.dumps(p)
-        r = pickle.dumps(p)
+        # Verify PreparedRequest can be pickled and unpickled
+        r = pickle.loads(pickle.dumps(p))
+        assert r.url == p.url
+        assert r.headers == p.headers
+        assert r.body == p.body
 
-        # Verify we can use the pickled request.
-        assert pickle.loads(r)
-        r = pickle.loads(r)
-
-        # Verify we can use the unpickled request.
+        # Verify unpickled PreparedRequest sends properly
         s = requests.Session()
-        r = s.send(r)
+        resp = s.send(r)
+        assert resp.status_code == 200
 
-        assert r.status_code == 200
-
-    def test_prepared_request_with_file_is_pickleable(self):
-        data = {'a': 0.0}
-        files = {'b': 'foo'}
-        r = requests.Request('POST', httpbin('post'), data=data, files=files)
+    def test_prepared_request_with_file_is_pickleable(self, httpbin):
+        files = {'file': open(__file__, 'rb')}
+        r = requests.Request('POST', httpbin('post'), files=files)
         p = r.prepare()
 
-        # Verify we can pickle the request.
-        assert pickle.dumps(p)
-        r = pickle.dumps(p)
+        # Verify PreparedRequest can be pickled and unpickled
+        r = pickle.loads(pickle.dumps(p))
+        assert r.url == p.url
+        assert r.headers == p.headers
+        assert r.body == p.body
 
-        # Verify we can use the pickled request.
-        assert pickle.loads(r)
-        r = pickle.loads(r)
-
-        # Verify we can use the unpickled request.
+        # Verify unpickled PreparedRequest sends properly
         s = requests.Session()
-        r = s.send(r)
+        resp = s.send(r)
+        assert resp.status_code == 200
 
-        assert r.status_code == 200
-
-    def test_prepared_request_with_hook_is_pickleable(self):
-        def print_url(r, *args, **kwargs):
-            print(r.url)
-
-        r = requests.Request('POST', httpbin('post'), hooks=dict(response=print_url))
+    def test_prepared_request_with_hook_is_pickleable(self, httpbin):
+        r = requests.Request('GET', httpbin('get'), hooks=default_hooks())
         p = r.prepare()
 
-        # Verify we can pickle the request.
-        assert pickle.dumps(p)
-        r = pickle.dumps(p)
+        # Verify PreparedRequest can be pickled
+        r = pickle.loads(pickle.dumps(p))
+        assert r.url == p.url
+        assert r.headers == p.headers
+        assert r.body == p.body
+        assert r.hooks == p.hooks
 
-        # Verify we can use the pickled request.
-        assert pickle.loads(r)
-        r = pickle.loads(r)
-
-        # Verify we can use the unpickled request.
+        # Verify unpickled PreparedRequest sends properly
         s = requests.Session()
-        r = s.send(r)
-
-        assert r.status_code == 200
+        resp = s.send(r)
+        assert resp.status_code == 200
 
     def test_cannot_send_unprepared_requests(self, httpbin):
         r = requests.Request(url=httpbin())
