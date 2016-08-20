@@ -615,14 +615,11 @@ def select_proxy(url, proxies):
     :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs
     """
     proxies = proxies or {}
-    print proxies
     urlparts = urlparse(url)
     if urlparts.hostname is None:
         return proxies.get('all', proxies.get(urlparts.scheme))
 
     proxy_keys = [
-        #'all://' + urlparts.hostname,
-        #'all',
         urlparts.scheme + '://' + urlparts.hostname,
         urlparts.scheme,
         'all://' + urlparts.hostname,
@@ -630,11 +627,9 @@ def select_proxy(url, proxies):
     ]
     proxy = None
     for proxy_key in proxy_keys:
-        print proxy_key
         if proxy_key in proxies:
             proxy = proxies[proxy_key]
             break
-    print 'Returns ' + str(proxy)
     return proxy
 
 

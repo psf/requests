@@ -1393,6 +1393,18 @@ class TestRequests:
         with pytest.raises(ValueError):
             r.json()
 
+    def test_correct_proxy_preference(self):
+        """Proxies obtained from https://incloak.com/proxy-list/"""
+        proxies = {
+            'http': 'http://202.8.75.145',
+            'https': 'http://220.88.36.150',
+            'all': 'http://111.7.162.25',
+        }
+        r = requests.get('http://example.org', proxies=proxies)
+        assert(r.connection.proxy_manager.has_key(proxies['http']))
+        r = requests.get('https://example.org', proxies=proxies)
+        assert(r.connection.proxy_manager.has_key(proxies['https']))
+
 
 class TestCaseInsensitiveDict:
 
@@ -1645,7 +1657,6 @@ class TestTimeout:
         """See: https://github.com/kennethreitz/requests/issues/2316"""
         r = requests.request(b'GET', httpbin('get'))
         assert r.ok
-
 
 SendCall = collections.namedtuple('SendCall', ('args', 'kwargs'))
 
