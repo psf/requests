@@ -11,6 +11,7 @@ import collections
 import datetime
 
 from io import BytesIO, UnsupportedOperation
+from email.utils import parsedate
 from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 
@@ -627,6 +628,24 @@ class Response(object):
         """Allows you to use a response as an iterator."""
         return self.iter_content(128)
 
+    def __get_datetime__(self, field):
+        try:
+            date = self.headers[field]
+            parsed_date = parsedate(date)
+            datetime_object = datetime.datetime(*parsed_date[:6])
+            return datetime_object
+        except:
+            return None
+
+    def __get_int__(self, field):
+        try:
+            num = self.headers[field]
+            integer = int(num)
+            return integer
+        except:
+            return None
+
+
     @property
     def ok(self):
         try:
@@ -871,3 +890,24 @@ class Response(object):
             self.raw.close()
 
         return self.raw.release_conn()
+
+    def date(self):
+        """Returns a Python datetime object for the 'Date' header field and
+        None in the case of a 'Date' field missing or transformation error"""
+        return self.__get_datetime__('Date')
+
+    def last_modified(self):
+        """Returns a Python datetime object for the 'Last-Modified' header
+        field and None in the case of a 'Last-Modified' field missing or
+        transformation error"""
+        return self.__get_datetime__('Last-Modified')
+
+    def content_length(self):
+        """Returns an int for the 'Content-Length' header field and None in
+        the case of a 'Content-Length' field missing or transformation error"""
+        return self.__get_int__('Content-Length')
+
+    def age(self):
+        """Returns an int for the 'Age' header field and None in the case
+        of an 'Age' field missing or transformation error"""
+        return self.__get_int__('Age')

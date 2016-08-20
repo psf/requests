@@ -10,6 +10,7 @@ import pickle
 import collections
 import contextlib
 import warnings
+import datetime
 
 import io
 import requests
@@ -1405,6 +1406,25 @@ class TestRequests:
         r = requests.get('https://example.org', proxies=proxies)
         assert(r.connection.proxy_manager.has_key(proxies['https']))
 
+    def test_datetime_from_date(self):
+        r = requests.get('http://example.org')
+        date = r.date()
+        assert(type(date) == datetime.datetime or date == None)
+
+    def test_datetime_from_last_modified(self):
+        r = requests.get('http://example.org')
+        last_modified = r.last_modified()
+        assert(type(last_modified) == datetime.datetime or date == None)
+
+    def test_int_from_content_length(self):
+        r = requests.get('http://example.org')
+        content_length = r.content_length()
+        assert(content_length >= 0 or content_length == None)
+
+    def test_int_from_age(self):
+        r = requests.get('http://example.org')
+        age = r.age()
+        assert(age >= 0 or age == None)
 
 class TestCaseInsensitiveDict:
 
