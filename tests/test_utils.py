@@ -323,6 +323,9 @@ http_proxies = {'http': 'http://http.proxy',
                 'http://some.host': 'http://some.host.proxy'}
 all_proxies = {'all': 'socks5://http.proxy',
                'all://some.host': 'socks5://some.host.proxy'}
+mixed_proxies = {'http': 'http://http.proxy',
+                 'http://some.host': 'http://some.host.proxy',
+                 'all': 'socks5://http.proxy'}
 @pytest.mark.parametrize(
     'url, expected, proxies', (
         ('hTTp://u:p@Some.Host/path', 'http://some.host.proxy', http_proxies),
@@ -336,6 +339,11 @@ all_proxies = {'all': 'socks5://http.proxy',
         ('hTTp:///path', 'socks5://http.proxy', all_proxies),
         ('hTTps://Other.Host', 'socks5://http.proxy', all_proxies),
 
+        ('http://u:p@other.host/path', 'http://http.proxy', mixed_proxies),
+        ('http://u:p@some.host/path', 'http://some.host.proxy', mixed_proxies),
+        ('https://u:p@other.host/path', 'socks5://http.proxy', mixed_proxies),
+        ('https://u:p@some.host/path', 'socks5://http.proxy', mixed_proxies),
+        
         # XXX: unsure whether this is reasonable behavior
         ('file:///etc/motd', 'socks5://http.proxy', all_proxies),
     ))
