@@ -620,10 +620,10 @@ def select_proxy(url, proxies):
         return proxies.get('all', proxies.get(urlparts.scheme))
 
     proxy_keys = [
-        'all://' + urlparts.hostname,
-        'all',
         urlparts.scheme + '://' + urlparts.hostname,
         urlparts.scheme,
+        'all://' + urlparts.hostname,
+        'all',
     ]
     proxy = None
     for proxy_key in proxy_keys:
