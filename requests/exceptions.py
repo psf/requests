@@ -83,6 +83,10 @@ class InvalidURL(RequestException, ValueError):
     """ The URL provided was somehow invalid. """
 
 
+class InvalidHeader(RequestException, ValueError):
+    """The header value provided was somehow invalid."""
+
+
 class ChunkedEncodingError(RequestException):
     """The server declared chunked encoding but sent an invalid chunk."""
 

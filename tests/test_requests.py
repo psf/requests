@@ -22,7 +22,7 @@ from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidScheme, InvalidURL,
     MissingScheme, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError)
+    ProxyError, InvalidHeader)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -221,6 +221,20 @@ class TestRequests:
         assert r.request.method == 'HEAD'
         assert r.history[0].status_code == 303
         assert r.history[0].is_redirect
+
+    def test_multiple_location_headers(self, httpbin):
+        headers = [('Location', 'http://example.com'),
+                   ('Location', 'https://example.com/1')]
+        params = '&'.join(['%s=%s' % (k, v) for k, v in headers])
+        ses = requests.Session()
+        req = requests.Request('GET', httpbin('response-headers?%s' % params))
+        prep = ses.prepare_request(req)
+        resp = ses.send(prep)
+        # change response to redirect
+        resp.status_code = 302
+        with pytest.raises(InvalidHeader):
+            # next triggers yield on generator
+            next(ses.resolve_redirects(resp, prep))
 
     # def test_HTTP_302_ALLOW_REDIRECT_POST(self):
     #     r = requests.post(httpbin('status', '302'), data={'some': 'data'})
