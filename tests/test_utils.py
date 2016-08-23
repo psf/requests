@@ -343,7 +343,7 @@ mixed_proxies = {'http': 'http://http.proxy',
         ('http://u:p@some.host/path', 'http://some.host.proxy', mixed_proxies),
         ('https://u:p@other.host/path', 'socks5://http.proxy', mixed_proxies),
         ('https://u:p@some.host/path', 'socks5://http.proxy', mixed_proxies),
-        
+        ('https://', 'socks5://http.proxy', mixed_proxies),
         # XXX: unsure whether this is reasonable behavior
         ('file:///etc/motd', 'socks5://http.proxy', all_proxies),
     ))

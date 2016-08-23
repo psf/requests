@@ -617,7 +617,7 @@ def select_proxy(url, proxies):
     proxies = proxies or {}
     urlparts = urlparse(url)
     if urlparts.hostname is None:
-        return proxies.get('all', proxies.get(urlparts.scheme))
+        return proxies.get(urlparts.scheme, proxies.get('all'))
 
     proxy_keys = [
         urlparts.scheme + '://' + urlparts.hostname,
