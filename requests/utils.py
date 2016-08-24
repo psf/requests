@@ -86,18 +86,16 @@ def super_len(o):
             if total_length is not None:
                 current_position = total_length
 
-    if hasattr(o, 'seek') and total_length is None:
-        # StringIO has a notimplemented fileno
-        # BytesIO has seek and not fileno
-        total_length = o.seek(0, 2)
-        # StringIO objects in py2 returns None
-        if total_length is None and hasattr(o, 'tell'):
-            total_length = o.tell()
-        elif total_length is None:
-            total_length = 0
+        if hasattr(o, 'seek') and total_length is None:
+            # StringIO and BytesIO have seek but no useable fileno
 
-        # seek back to current position to support partially read file-like
-        o.seek(current_position or 0)
+            # seek to end of file
+            o.seek(0, 2)
+            total_length = o.tell()
+
+            # seek back to current position to support
+            # partially read file-like objects
+            o.seek(current_position or 0)
 
     if total_length is None:
         total_length = 0
