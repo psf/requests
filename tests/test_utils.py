@@ -66,6 +66,34 @@ class TestSuperLen:
             assert super_len(fd) == 4
         assert len(recwarn) == warnings_num
 
+    def test_super_len_with__len__(self):
+        foo = [1,2,3,4]
+        len_foo = super_len(foo)
+        assert len_foo == 4
+
+    def test_super_len_with_no__len__(self):
+        class LenFile(object):
+            def __init__(self):
+                self.len = 5
+
+        assert super_len(LenFile()) == 5
+
+    def test_super_len_with_tell(self):
+        foo = StringIO.StringIO('12345')
+        assert super_len(foo) == 5
+        foo.read(2)
+        assert super_len(foo) == 3
+
+    def test_super_len_with_fileno(self):
+        with open(__file__, 'rb') as f:
+            length = super_len(f)
+            file_data = f.read()
+        assert length == len(file_data)
+
+    def test_super_len_with_no_matches(self):
+        """Ensure that objects without any length methods default to 0"""
+        assert super_len(object()) == 0
+
 
 class TestToKeyValList:
 
