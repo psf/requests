@@ -322,7 +322,7 @@ class Session(SessionRedirectMixin):
         #: SSL Verification default.
         self.verify = True
 
-        #: SSL certificate default.
+        #: SSL client certificate default.
         self.cert = None
 
         #: Maximum number of redirects allowed. If the request exceeds this
