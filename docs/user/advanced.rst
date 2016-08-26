@@ -208,6 +208,11 @@ You can pass ``verify`` the path to a CA_BUNDLE file or directory with certifica
 
     >>> requests.get('https://github.com', verify='/path/to/certfile')
 
+or persistent::
+
+    s = requests.Session()
+    s.verify = '/path/to/certfile'
+
 .. note:: If ``verify`` is set to a path to a directory, the directory must have been processed using
   the c_rehash utility supplied with OpenSSL.
 
@@ -226,6 +231,11 @@ file's path::
 
     >>> requests.get('https://kennethreitz.com', cert=('/path/client.cert', '/path/client.key'))
     <Response [200]>
+
+or persistent::
+
+    s = requests.Session()
+    s.cert = '/path/client.cert'
 
 If you specify a wrong path or an invalid cert, you'll get a SSLError::
 
