@@ -1022,6 +1022,18 @@ class TestRequests:
         r.encoding = None
         assert not r.ok  # old behaviour - crashes here
 
+    def test_response_reason_unicode_fallback(self):
+        # check raise_status falls back to ISO-8859-1
+        r = requests.Response()
+        r.url = 'some url'
+        reason = u'Komponenttia ei löydy'
+        r.reason = reason.encode('latin-1')
+        r.status_code = 500
+        r.encoding = None
+        with pytest.raises(requests.exceptions.HTTPError) as e:
+            r.raise_for_status()
+        assert reason in str(e)
+
     def test_response_chunk_size_type(self):
         """Ensure that chunk_size is passed as None or an integer, otherwise
         raise a TypeError.

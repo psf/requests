@@ -848,7 +848,10 @@ class Response(object):
 
         http_error_msg = ''
         if isinstance(self.reason, bytes):
-            reason = self.reason.decode('utf-8', 'ignore')
+            try:
+                reason = self.reason.decode('utf-8')
+            except UnicodeDecodeError:
+                reason = self.reason.decode('iso-8859-1')
         else:
             reason = self.reason
 
