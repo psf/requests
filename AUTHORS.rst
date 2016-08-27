@@ -169,3 +169,4 @@ Patches and Suggestions
 - Nate Prewitt <nate.prewitt@gmail.com> (`@nateprewitt <https://github.com/nateprewitt>`_)
 - Maik Himstedt
 - Michael Hunsinger
+- nagracks <nagracks@gmail.com> (`@nagracks <https://github.com/nagracks>`_)
