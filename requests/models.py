@@ -76,9 +76,9 @@ class RequestEncodingMixin(object):
     def _encode_params(data):
         """Encode parameters in a piece of data.
 
-        Will successfully encode parameters when passed as a dict or a list of
-        2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
-        if parameters are supplied as a dict.
+        Will successfully encode parameters when passed as a dict or a
+        list of 2-tuples. Order is retained if data is a list of
+        2-tuples but arbitrary if parameters are supplied as a dict.
         """
 
         if isinstance(data, (str, bytes)):
@@ -103,11 +103,12 @@ class RequestEncodingMixin(object):
     def _encode_files(files, data):
         """Build the body for a multipart/form-data request.
 
-        Will successfully encode files when passed as a dict or a list of
-        tuples. Order is retained if data is a list of tuples but arbitrary
-        if parameters are supplied as a dict.
-        The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, contentype)
-        or 4-tuples (filename, fileobj, contentype, custom_headers).
+        Will successfully encode files when passed as a dict or a list
+        of tuples. Order is retained if data is a list of tuples but
+        arbitrary if parameters are supplied as a dict.
+        The tuples may be 2-tuples (filename, fileobj), 3-tuples
+        (filename, fileobj, contentype) or 4-tuples (filename, fileobj,
+        contentype, custom_headers).
         """
         if (not files):
             raise ValueError("Files must be provided.")
@@ -187,17 +188,22 @@ class RequestHooksMixin(object):
 class Request(RequestHooksMixin):
     """A user-created :class:`Request <Request>` object.
 
-    Used to prepare a :class:`PreparedRequest <PreparedRequest>`, which is sent to the server.
+    Used to prepare a :class:`PreparedRequest <PreparedRequest>`, which
+    is sent to the server.
 
     :param method: HTTP method to use.
     :param url: URL to send.
     :param headers: dictionary of headers to send.
-    :param files: dictionary of {filename: fileobject} files to multipart upload.
-    :param data: the body to attach to the request. If a dictionary is provided, form-encoding will take place.
-    :param json: json for the body to attach to the request (if files or data is not specified).
+    :param files: dictionary of {filename: fileobject} files to
+                  multipart upload.
+    :param data: the body to attach to the request. If a dictionary is
+                  provided, form-encoding will take place.
+    :param json: json for the body to attach to the request (if files or
+                 data is not specified).
     :param params: dictionary of URL parameters to append to the URL.
     :param auth: Auth handler or (user, pass) tuple.
-    :param cookies: dictionary or CookieJar of cookies to attach to this request.
+    :param cookies: dictionary or CookieJar of cookies to attach to this
+                    request.
     :param hooks: dictionary of callback hooks, for internal usage.
 
     Usage::
@@ -236,7 +242,8 @@ class Request(RequestHooksMixin):
         return '<Request [%s]>' % (self.method)
 
     def prepare(self):
-        """Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it."""
+        """Constructs a :class:`PreparedRequest <PreparedRequest>` for
+        transmission and returns it."""
         p = PreparedRequest()
         p.prepare(
             method=self.method,
@@ -254,10 +261,11 @@ class Request(RequestHooksMixin):
 
 
 class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
-    """The fully mutable :class:`PreparedRequest <PreparedRequest>` object,
-    containing the exact bytes that will be sent to the server.
+    """The fully mutable :class:`PreparedRequest <PreparedRequest>`
+    object, containing the exact bytes that will be sent to the server.
 
-    Generated from either a :class:`Request <Request>` object or manually.
+    Generated from either a :class:`Request <Request>` object or
+    manually.
 
     Usage::
 
@@ -509,12 +517,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepares the given HTTP cookie data.
 
         This function eventually generates a ``Cookie`` header from the
-        given cookies using cookielib. Due to cookielib's design, the header
-        will not be regenerated if it already exists, meaning this function
-        can only be called once for the life of the
-        :class:`PreparedRequest <PreparedRequest>` object. Any subsequent calls
-        to ``prepare_cookies`` will have no actual effect, unless the "Cookie"
-        header is removed beforehand.
+        given cookies using cookielib. Due to cookielib's design, the
+        header will not be regenerated if it already exists, meaning
+        this function can only be called once for the life of the
+        :class:`PreparedRequest <PreparedRequest>` object. Any
+        subsequent calls to ``prepare_cookies`` will have no actual
+        effect, unless the "Cookie" header is removed beforehand.
         """
         if isinstance(cookies, cookielib.CookieJar):
             self._cookies = cookies
@@ -637,14 +645,16 @@ class Response(object):
 
     @property
     def is_redirect(self):
-        """True if this Response is a well-formed HTTP redirect that could have
-        been processed automatically (by :meth:`Session.resolve_redirects`).
+        """True if this Response is a well-formed HTTP redirect that
+        could have been processed automatically (by
+        :meth:`Session.resolve_redirects`).
         """
         return ('location' in self.headers and self.status_code in REDIRECT_STATI)
 
     @property
     def is_permanent_redirect(self):
-        """True if this Response one of the permanent versions of redirect"""
+        """True if this Response one of the permanent versions of
+        redirect"""
         return ('location' in self.headers and self.status_code in (codes.moved_permanently, codes.permanent_redirect))
 
     @property
@@ -653,20 +663,20 @@ class Response(object):
         return chardet.detect(self.content)['encoding']
 
     def iter_content(self, chunk_size=1, decode_unicode=False):
-        """Iterates over the response data.  When stream=True is set on the
-        request, this avoids reading the content at once into memory for
-        large responses.  The chunk size is the number of bytes it should
-        read into memory.  This is not necessarily the length of each item
-        returned as decoding can take place.
+        """Iterates over the response data.  When stream=True is set on
+        the request, this avoids reading the content at once into memory
+        for large responses.  The chunk size is the number of bytes it
+        should read into memory.  This is not necessarily the length of
+        each item returned as decoding can take place.
 
         chunk_size must be of type int or None. A value of None will
         function differently depending on the value of `stream`.
         stream=True will read data as it arrives in whatever size the
-        chunks are received. If stream=False, data is returned as
-        a single chunk.
+        chunks are received. If stream=False, data is returned as a
+        single chunk.
 
-        If decode_unicode is True, content will be decoded using the best
-        available encoding based on the response.
+        If decode_unicode is True, content will be decoded using the
+        best available encoding based on the response.
         """
 
         def generate():
@@ -758,8 +768,8 @@ class Response(object):
                 self._content = None
 
         self._content_consumed = True
-        # don't need to release the connection; that's been handled by urllib3
-        # since we exhausted the data.
+        # don't need to release the connection; that's been handled by
+        # urllib3 since we exhausted the data.
         return self._content
 
     @property
@@ -769,10 +779,11 @@ class Response(object):
         If Response.encoding is None, encoding will be guessed using
         ``chardet``.
 
-        The encoding of the response content is determined based solely on HTTP
-        headers, following RFC 2616 to the letter. If you can take advantage of
-        non-HTTP knowledge to make a better guess at the encoding, you should
-        set ``r.encoding`` appropriately before accessing this property.
+        The encoding of the response content is determined based solely
+        on HTTP headers, following RFC 2616 to the letter. If you can
+        take advantage of non-HTTP knowledge to make a better guess at
+        the encoding, you should set ``r.encoding`` appropriately before
+        accessing this property.
         """
 
         # Try charset from content-type
@@ -790,8 +801,8 @@ class Response(object):
         try:
             content = str(self.content, encoding, errors='replace')
         except (LookupError, TypeError):
-            # A LookupError is raised if the encoding was not found which could
-            # indicate a misspelling or similar mistake.
+            # A LookupError is raised if the encoding was not found
+            # which could indicate a misspelling or similar mistake.
             #
             # A TypeError can be raised if encoding is None
             #
@@ -807,10 +818,10 @@ class Response(object):
         """
 
         if not self.encoding and self.content and len(self.content) > 3:
-            # No encoding set. JSON RFC 4627 section 3 states we should expect
-            # UTF-8, -16 or -32. Detect which one to use; If the detection or
-            # decoding fails, fall back to `self.text` (using chardet to make
-            # a best guess).
+            # No encoding set. JSON RFC 4627 section 3 states we should
+            # expect UTF-8, -16 or -32. Detect which one to use; If the
+            # detection or decoding fails, fall back to `self.text`
+            # (using chardet to make a best guess).
             encoding = guess_json_utf(self.content)
             if encoding is not None:
                 try:
@@ -818,10 +829,10 @@ class Response(object):
                         self.content.decode(encoding), **kwargs
                     )
                 except UnicodeDecodeError:
-                    # Wrong UTF codec detected; usually because it's not UTF-8
-                    # but some other 8-bit codec.  This is an RFC violation,
-                    # and the server didn't bother to tell us what codec *was*
-                    # used.
+                    # Wrong UTF codec detected; usually because it's not
+                    # UTF-8 but some other 8-bit codec.  This is an RFC
+                    # violation, and the server didn't bother to tell us
+                    # what codec *was* used.
                     pass
         return complexjson.loads(self.text, **kwargs)
 
@@ -862,8 +873,9 @@ class Response(object):
             raise HTTPError(http_error_msg, response=self)
 
     def close(self):
-        """Releases the connection back to the pool. Once this method has been
-        called the underlying ``raw`` object must not be accessed again.
+        """Releases the connection back to the pool. Once this method
+        has been called the underlying ``raw`` object must not be
+        accessed again.
 
         *Note: Should not normally need to be called explicitly.*
         """

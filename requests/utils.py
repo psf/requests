@@ -83,10 +83,10 @@ def super_len(o):
         try:
             current_position = o.tell()
         except (OSError, IOError):
-            # This can happen in some weird situations, such as when the file
-            # is actually a special file descriptor like stdin. In this
-            # instance, we don't know what the length is, so set it to zero and
-            # let requests chunk it instead.
+            # This can happen in some weird situations, such as when the
+            # file is actually a special file descriptor like stdin. In
+            # this instance, we don't know what the length is, so set it
+            # to zero and let requests chunk it instead.
             current_position = total_length
 
     return max(0, total_length - current_position)
@@ -104,8 +104,9 @@ def get_netrc_auth(url, raise_errors=False):
             try:
                 loc = os.path.expanduser('~/{0}'.format(f))
             except KeyError:
-                # os.path.expanduser can fail when $HOME is undefined and
-                # getpwuid fails. See http://bugs.python.org/issue20164 &
+                # os.path.expanduser can fail when $HOME is undefined
+                # and getpwuid fails. See
+                # http://bugs.python.org/issue20164 &
                 # https://github.com/kennethreitz/requests/issues/1846
                 return
 
@@ -119,8 +120,9 @@ def get_netrc_auth(url, raise_errors=False):
 
         ri = urlparse(url)
 
-        # Strip port numbers from netloc. This weird `if...encode`` dance is
-        # used for Python 3.2, which doesn't support unicode literals.
+        # Strip port numbers from netloc. This weird `if...encode``
+        # dance is used for Python 3.2, which doesn't support unicode
+        # literals.
         splitstr = b':'
         if isinstance(url, str):
             splitstr = splitstr.decode('ascii')
@@ -133,8 +135,9 @@ def get_netrc_auth(url, raise_errors=False):
                 login_i = (0 if _netrc[0] else 1)
                 return (_netrc[login_i], _netrc[2])
         except (NetrcParseError, IOError):
-            # If there was a parsing error or a permissions issue reading the file,
-            # we'll just skip netrc auth unless explicitly asked to raise errors.
+            # If there was a parsing error or a permissions issue
+            # reading the file, we'll just skip netrc auth unless
+            # explicitly asked to raise errors.
             if raise_errors:
                 raise
 
@@ -237,8 +240,8 @@ def parse_list_header(value):
 
 # From mitsuhiko/werkzeug (used with permission).
 def parse_dict_header(value):
-    """Parse lists of key, value pairs as described by RFC 2068 Section 2 and
-    convert them into a python dict:
+    """Parse lists of key, value pairs as described by RFC 2068 Section
+    2 and convert them into a python dict:
 
     >>> d = parse_dict_header('foo="is a fish", bar="as well"')
     >>> type(d) is dict
@@ -272,9 +275,9 @@ def parse_dict_header(value):
 
 # From mitsuhiko/werkzeug (used with permission).
 def unquote_header_value(value, is_filename=False):
-    r"""Unquotes a header value.  (Reversal of :func:`quote_header_value`).
-    This does not use the real unquoting but what browsers are actually
-    using for quoting.
+    r"""Unquotes a header value.  (Reversal of
+    :func:`quote_header_value`). This does not use the real unquoting
+    but what browsers are actually using for quoting.
 
     :param value: the header value to unquote.
     :rtype: str
@@ -286,10 +289,10 @@ def unquote_header_value(value, is_filename=False):
         # uploading files with "C:\foo\bar.txt" as filename
         value = value[1:-1]
 
-        # if this is a filename and the starting characters look like
-        # a UNC path, then just return the value without quotes.  Using the
-        # replace sequence below on a UNC path has the effect of turning
-        # the leading double slash into a single slash and then
+        # if this is a filename and the starting characters look like a
+        # UNC path, then just return the value without quotes.  Using
+        # the replace sequence below on a UNC path has the effect of
+        # turning the leading double slash into a single slash and then
         # _fix_ie_filename() doesn't work correctly.  See #458.
         if not is_filename or value[:2] != '\\\\':
             return value.replace('\\\\', '\\').replace('\\"', '"')
@@ -436,8 +439,9 @@ UNRESERVED_SET = frozenset(
 
 
 def unquote_unreserved(uri):
-    """Un-escape any percent-escape sequences in a URI that are unreserved
-    characters. This leaves all reserved, illegal and non-ASCII bytes encoded.
+    """Un-escape any percent-escape sequences in a URI that are
+    unreserved characters. This leaves all reserved, illegal and
+    non-ASCII bytes encoded.
 
     :rtype: str
     """
@@ -475,14 +479,16 @@ def requote_uri(uri):
         # unreserved, or '%')
         return quote(unquote_unreserved(uri), safe=safe_with_percent)
     except InvalidURL:
-        # We couldn't unquote the given URI, so let's try quoting it, but
-        # there may be unquoted '%'s in the URI. We need to make sure they're
-        # properly quoted so they do not cause issues elsewhere.
+        # We couldn't unquote the given URI, so let's try quoting it,
+        # but there may be unquoted '%'s in the URI. We need to make
+        # sure they're properly quoted so they do not cause issues
+        # elsewhere.
         return quote(uri, safe=safe_without_percent)
 
 
 def address_in_network(ip, net):
-    """This function allows you to check if on IP belongs to a network subnet
+    """This function allows you to check if on IP belongs to a network
+    subnet
 
     Example: returns True if ip = 192.168.1.1 and net = 192.168.1.0/24
              returns False if ip = 192.168.1.1 and net = 192.168.100.0/24
@@ -550,14 +556,14 @@ def should_bypass_proxies(url):
     """
     get_proxy = lambda k: os.environ.get(k) or os.environ.get(k.upper())
 
-    # First check whether no_proxy is defined. If it is, check that the URL
-    # we're getting isn't in the no_proxy list.
+    # First check whether no_proxy is defined. If it is, check that the
+    # URL we're getting isn't in the no_proxy list.
     no_proxy = get_proxy('no_proxy')
     netloc = urlparse(url).netloc
 
     if no_proxy:
-        # We need to check whether we match here. We need to see if we match
-        # the end of the netloc, both with and without the port.
+        # We need to check whether we match here. We need to see if we
+        # match the end of the netloc, both with and without the port.
         no_proxy = (
             host for host in no_proxy.replace(' ', '').split(',') if host
         )
@@ -569,22 +575,23 @@ def should_bypass_proxies(url):
                     if address_in_network(ip, proxy_ip):
                         return True
                 elif ip == proxy_ip:
-                    # If no_proxy ip was defined in plain IP notation instead of cidr notation &
-                    # matches the IP of the index
+                    # If no_proxy ip was defined in plain IP notation
+                    # instead of cidr notation & matches the IP of the
+                    # index
                     return True
         else:
             for host in no_proxy:
                 if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
-                    # The URL does match something in no_proxy, so we don't want
-                    # to apply the proxies on this URL.
+                    # The URL does match something in no_proxy, so we
+                    # don't want to apply the proxies on this URL.
                     return True
 
-    # If the system proxy settings indicate that this URL should be bypassed,
-    # don't proxy.
-    # The proxy_bypass function is incredibly buggy on OS X in early versions
-    # of Python 2.6, so allow this call to fail. Only catch the specific
-    # exceptions we've seen, though: this call failing in other ways can reveal
-    # legitimate problems.
+    # If the system proxy settings indicate that this URL should be
+    # bypassed, don't proxy.
+    # The proxy_bypass function is incredibly buggy on OS X in early
+    # versions of Python 2.6, so allow this call to fail. Only catch the
+    # specific exceptions we've seen, though: this call failing in other
+    # ways can reveal legitimate problems.
     try:
         bypass = proxy_bypass(netloc)
     except (TypeError, socket.gaierror):
@@ -612,7 +619,8 @@ def select_proxy(url, proxies):
     """Select a proxy for the url, if applicable.
 
     :param url: The url being for the request
-    :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs
+    :param proxies: A dictionary of schemes or schemes and hosts to
+                    proxy URLs
     """
     proxies = proxies or {}
     urlparts = urlparse(url)
@@ -658,7 +666,11 @@ def default_headers():
 def parse_header_links(value):
     """Return a dict of parsed link headers proxies.
 
-    i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
+    i.e. Link: <http:/.../front.jpeg>; 
+               rel=front;
+               type="image/jpeg",<http://.../back.jpeg>;
+               rel=back;
+               type="image/jpeg"
 
     :rtype: list
     """
@@ -727,16 +739,17 @@ def guess_json_utf(data):
 
 
 def prepend_scheme_if_needed(url, new_scheme):
-    """Given a URL that may or may not have a scheme, prepend the given scheme.
-    Does not replace a present scheme with the one provided as an argument.
+    """Given a URL that may or may not have a scheme, prepend the given
+    scheme. Does not replace a present scheme with the one provided as
+    an argument.
 
     :rtype: str
     """
     scheme, netloc, path, params, query, fragment = urlparse(url, new_scheme)
 
-    # urlparse is a finicky beast, and sometimes decides that there isn't a
-    # netloc present. Assume that it's being over-cautious, and switch netloc
-    # and path if urlparse decided there was no netloc.
+    # urlparse is a finicky beast, and sometimes decides that there
+    # isn't a netloc present. Assume that it's being over-cautious, and
+    # switch netloc and path if urlparse decided there was no netloc.
     if not netloc:
         netloc, path = path, netloc
 
@@ -744,8 +757,8 @@ def prepend_scheme_if_needed(url, new_scheme):
 
 
 def get_auth_from_url(url):
-    """Given a url with authentication components, extract them into a tuple of
-    username,password.
+    """Given a url with authentication components, extract them into a
+    tuple of username,password.
 
     :rtype: (str,str)
     """
@@ -760,9 +773,10 @@ def get_auth_from_url(url):
 
 
 def to_native_string(string, encoding='ascii'):
-    """Given a string object, regardless of type, returns a representation of
-    that string in the native string type, encoding and decoding where
-    necessary. This assumes ASCII unless told otherwise.
+    """Given a string object, regardless of type, returns a
+    representation of that string in the native string type, encoding
+    and decoding where necessary. This assumes ASCII unless told
+    otherwise.
     """
     if isinstance(string, builtin_str):
         out = string
