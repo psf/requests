@@ -218,13 +218,16 @@ class SessionRedirectMixin(object):
 
         :rtype: dict
         """
+        proxies = proxies if proxies is not None else {}
         headers = prepared_request.headers
         url = prepared_request.url
         scheme = urlparse(url).scheme
-        new_proxies = proxies.copy() if proxies is not None else {}
+        new_proxies = proxies.copy()
+        no_proxy = proxies.get('no_proxy')
 
-        if self.trust_env and not should_bypass_proxies(url):
-            environ_proxies = get_environ_proxies(url)
+        bypass_proxy = should_bypass_proxies(url, no_proxy=no_proxy)
+        if self.trust_env and not bypass_proxy:
+            environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
 
             proxy = environ_proxies.get(scheme, environ_proxies.get('all'))
 
@@ -638,7 +641,8 @@ class Session(SessionRedirectMixin):
         # Gather clues from the surrounding environment.
         if self.trust_env:
             # Set environment's proxies.
-            env_proxies = get_environ_proxies(url) or {}
+            no_proxy = proxies.get('no_proxy') if proxies is not None else None
+            env_proxies = get_environ_proxies(url, no_proxy=no_proxy)
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)
 

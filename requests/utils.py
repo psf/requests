@@ -11,6 +11,7 @@ that are also useful for external consumption.
 import cgi
 import codecs
 import collections
+import contextlib
 import io
 import os
 import re
@@ -542,7 +543,29 @@ def is_valid_cidr(string_network):
     return True
 
 
-def should_bypass_proxies(url):
+@contextlib.contextmanager
+def set_environ(env_name, value):
+    """Set the environment variable 'env_name' to 'value'
+
+    Save previous value, yield, and then restore the previous value stored in
+    the environment variable 'env_name'.
+
+    If 'value' is None, do nothing"""
+    if value is not None:
+        old_value = os.environ.get(env_name)
+        os.environ[env_name] = value
+    try:
+        yield
+    finally:
+        if value is None:
+            return
+        if old_value is None:
+            del os.environ[env_name]
+        else:
+            os.environ[env_name] = old_value
+
+
+def should_bypass_proxies(url, no_proxy):
     """
     Returns whether we should bypass proxies or not.
 
@@ -552,7 +575,9 @@ def should_bypass_proxies(url):
 
     # First check whether no_proxy is defined. If it is, check that the URL
     # we're getting isn't in the no_proxy list.
-    no_proxy = get_proxy('no_proxy')
+    no_proxy_arg = no_proxy
+    if no_proxy is None:
+        no_proxy = get_proxy('no_proxy')
     netloc = urlparse(url).netloc
 
     if no_proxy:
@@ -585,10 +610,11 @@ def should_bypass_proxies(url):
     # of Python 2.6, so allow this call to fail. Only catch the specific
     # exceptions we've seen, though: this call failing in other ways can reveal
     # legitimate problems.
-    try:
-        bypass = proxy_bypass(netloc)
-    except (TypeError, socket.gaierror):
-        bypass = False
+    with set_environ('no_proxy', no_proxy_arg):
+        try:
+            bypass = proxy_bypass(netloc)
+        except (TypeError, socket.gaierror):
+            bypass = False
 
     if bypass:
         return True
@@ -596,13 +622,13 @@ def should_bypass_proxies(url):
     return False
 
 
-def get_environ_proxies(url):
+def get_environ_proxies(url, no_proxy):
     """
     Return a dict of environment proxies.
 
     :rtype: dict
     """
-    if should_bypass_proxies(url):
+    if should_bypass_proxies(url, no_proxy=no_proxy):
         return {}
     else:
         return getproxies()
