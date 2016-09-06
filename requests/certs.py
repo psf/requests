@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-certs.py
-~~~~~~~~
+requests.certs
+~~~~~~~~~~~~~~
 
 This module returns the preferred default CA certificate bundle.
 

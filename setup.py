@@ -93,6 +93,6 @@ setup(
     tests_require=test_requirements,
     extras_require={
         'security': ['pyOpenSSL>=0.13', 'ndg-httpsclient', 'pyasn1'],
-        'socks': ['PySocks>=1.5.6'],
+        'socks': ['PySocks>=1.5.6, !=1.5.7'],
     },
 )

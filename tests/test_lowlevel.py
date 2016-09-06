@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import pytest
 import threading
@@ -17,7 +19,7 @@ def test_chunked_upload():
     with server as (host, port):
         url = 'http://{0}:{1}/'.format(host, port)
         r = requests.post(url, data=data, stream=True)
-        close_server.set() # release server block
+        close_server.set()  # release server block
 
     assert r.status_code == 200
     assert r.request.headers['Transfer-Encoding'] == 'chunked'

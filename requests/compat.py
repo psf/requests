@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-pythoncompat
+requests.compat
+~~~~~~~~~~~~~~~
+
+This module handles import compatibility issues between Python 2 and
+Python 3.
 """
 
 from .packages import chardet

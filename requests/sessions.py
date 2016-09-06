@@ -6,7 +6,6 @@ requests.session
 
 This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
-
 """
 import os
 from collections import Mapping
@@ -160,10 +159,12 @@ class SessionRedirectMixin(object):
             self.rebuild_method(prepared_request, response)
 
             # https://github.com/kennethreitz/requests/issues/1084
-            if response.status_code not in (codes.temporary_redirect, codes.permanent_redirect):
-                if 'Content-Length' in prepared_request.headers:
-                    del prepared_request.headers['Content-Length']
-
+            if response.status_code not in (codes.temporary_redirect, 
+                    codes.permanent_redirect):
+                # https://github.com/kennethreitz/requests/issues/3490
+                purged_headers = ('Content-Length', 'Content-Type', 'Transfer-Encoding')
+                for header in purged_headers:
+                    prepared_request.headers.pop(header, None)
                 prepared_request.body = None
 
             headers = prepared_request.headers
@@ -203,8 +204,9 @@ class SessionRedirectMixin(object):
             yield response
 
     def rebuild_auth(self, prepared_request, response):
-        """When being redirected, we may want to strip authentication from the
-        request to avoid leaking credentials. This method intelligently removes
+        """When being redirected we may want to strip authentication from the
+        request to avoid leaking credentials. This method intelligently 
+        removes
         and reapplies authentication where possible to avoid credential loss.
         """
         headers = prepared_request.headers
@@ -212,7 +214,7 @@ class SessionRedirectMixin(object):
 
         if 'Authorization' in headers:
             # If we get redirected to a new host, we should strip out any
-            # authentication headers.
+            # authentication headers.
             original_parsed = urlparse(response.request.url)
             redirect_parsed = urlparse(url)
 
@@ -235,6 +237,8 @@ class SessionRedirectMixin(object):
 
         This method also replaces the Proxy-Authorization header where
         necessary.
+
+        :rtype: dict
         """
         headers = prepared_request.headers
         url = prepared_request.url
@@ -244,7 +248,7 @@ class SessionRedirectMixin(object):
         if self.trust_env and not should_bypass_proxies(url):
             environ_proxies = get_environ_proxies(url)
 
-            proxy = environ_proxies.get('all', environ_proxies.get(scheme))
+            proxy = environ_proxies.get(scheme, environ_proxies.get('all'))
 
             if proxy:
                 new_proxies.setdefault(scheme, proxy)
@@ -340,7 +344,7 @@ class Session(SessionRedirectMixin):
         #: SSL Verification default.
         self.verify = True
 
-        #: SSL certificate default.
+        #: SSL client certificate default.
         self.cert = None
 
         #: Maximum number of redirects allowed. If the request exceeds this
@@ -381,6 +385,7 @@ class Session(SessionRedirectMixin):
 
         :param request: :class:`Request` instance to prepare with this
             Session's settings.
+        :rtype: requests.PreparedRequest
         """
         cookies = request.cookies or {}
 
@@ -391,7 +396,6 @@ class Session(SessionRedirectMixin):
         # Merge with session cookies
         merged_cookies = merge_cookies(
             merge_cookies(RequestsCookieJar(), self.cookies), cookies)
-
 
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
@@ -499,6 +503,7 @@ class Session(SessionRedirectMixin):
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         kwargs.setdefault('allow_redirects', True)
@@ -509,6 +514,7 @@ class Session(SessionRedirectMixin):
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         kwargs.setdefault('allow_redirects', True)
@@ -519,6 +525,7 @@ class Session(SessionRedirectMixin):
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         kwargs.setdefault('allow_redirects', False)
@@ -531,6 +538,7 @@ class Session(SessionRedirectMixin):
         :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
         :param json: (optional) json to send in the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         return self.request('POST', url, data=data, json=json, **kwargs)
@@ -541,6 +549,7 @@ class Session(SessionRedirectMixin):
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         return self.request('PUT', url, data=data, **kwargs)
@@ -551,6 +560,7 @@ class Session(SessionRedirectMixin):
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         return self.request('PATCH', url,  data=data, **kwargs)
@@ -560,12 +570,17 @@ class Session(SessionRedirectMixin):
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
         """
 
         return self.request('DELETE', url, **kwargs)
 
     def send(self, request, **kwargs):
-        """Send a given PreparedRequest."""
+        """
+        Send a given PreparedRequest.
+
+        :rtype: requests.Response
+        """
         # Set defaults that the hooks can utilize to ensure they always have
         # the correct parameters to reproduce the previous request.
         kwargs.setdefault('stream', self.stream)
@@ -642,12 +657,15 @@ class Session(SessionRedirectMixin):
         return r
 
     def merge_environment_settings(self, url, proxies, stream, verify, cert):
-        """Check the environment and merge it with some settings."""
+        """
+        Check the environment and merge it with some settings.
+
+        :rtype: dict
+        """
         # Merge all the kwargs except for proxies.
         stream = merge_setting(stream, self.stream)
         verify = merge_setting(verify, self.verify)
         cert = merge_setting(cert, self.cert)
-
         # Gather clues from the surrounding environment.
         # We do this after merging the Session values to make sure we don't
         # accidentally exclude them.
@@ -675,7 +693,11 @@ class Session(SessionRedirectMixin):
                 'cert': cert}
 
     def get_adapter(self, url):
-        """Returns the appropriate connection adapter for the given URL."""
+        """
+        Returns the appropriate connection adapter for the given URL.
+
+        :rtype: requests.adapters.BaseAdapter
+        """
         for (prefix, adapter) in self.adapters.items():
 
             if url.lower().startswith(prefix):
@@ -692,8 +714,8 @@ class Session(SessionRedirectMixin):
     def mount(self, prefix, adapter):
         """Registers a connection adapter to a prefix.
 
-        Adapters are sorted in descending order by key length."""
-
+        Adapters are sorted in descending order by key length.
+        """
         self.adapters[prefix] = adapter
         keys_to_move = [k for k in self.adapters if len(k) < len(prefix)]
 
@@ -716,6 +738,10 @@ class Session(SessionRedirectMixin):
 
 
 def session():
-    """Returns a :class:`Session` for context-management."""
+    """
+    Returns a :class:`Session` for context-management.
+
+    :rtype: Session
+    """
 
     return Session()

@@ -165,6 +165,10 @@ class HTTPResponse(io.IOBase):
         if self._fp:
             return self.read(cache_content=True)
 
+    @property
+    def connection(self):
+        return self._connection
+
     def tell(self):
         """
         Obtain the number of bytes pulled over the wire so far. May differ from

@@ -6,7 +6,6 @@ requests.utils
 
 This module provides utility functions that are used within Requests
 that are also useful for external consumption.
-
 """
 
 import cgi
@@ -27,7 +26,7 @@ from .compat import (quote, urlparse, bytes, str, OrderedDict, unquote, is_py2,
                      basestring, is_py3)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
-from .exceptions import InvalidURL, FileModeWarning
+from .exceptions import InvalidURL, InvalidHeader, FileModeWarning
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -165,6 +164,8 @@ def from_key_val_list(value):
         ValueError: need more than 1 value to unpack
         >>> from_key_val_list({'key': 'val'})
         OrderedDict([('key', 'val')])
+
+    :rtype: OrderedDict
     """
     if value is None:
         return None
@@ -187,6 +188,8 @@ def to_key_val_list(value):
         [('key', 'val')]
         >>> to_key_val_list('string')
         ValueError: cannot encode objects that are not 2-tuples.
+
+    :rtype: list
     """
     if value is None:
         return None
@@ -222,6 +225,7 @@ def parse_list_header(value):
 
     :param value: a string with a list header.
     :return: :class:`list`
+    :rtype: list
     """
     result = []
     for item in _parse_list_header(value):
@@ -252,6 +256,7 @@ def parse_dict_header(value):
 
     :param value: a string with a dict header.
     :return: :class:`dict`
+    :rtype: dict
     """
     result = {}
     for item in _parse_list_header(value):
@@ -272,6 +277,7 @@ def unquote_header_value(value, is_filename=False):
     using for quoting.
 
     :param value: the header value to unquote.
+    :rtype: str
     """
     if value and value[0] == value[-1] == '"':
         # this is not the real unquoting, but fixing this so that the
@@ -294,6 +300,7 @@ def dict_from_cookiejar(cj):
     """Returns a key/value dictionary from a CookieJar.
 
     :param cj: CookieJar object to extract cookies from.
+    :rtype: dict
     """
 
     cookie_dict = {}
@@ -309,6 +316,7 @@ def add_dict_to_cookiejar(cj, cookie_dict):
 
     :param cj: CookieJar to insert cookies into.
     :param cookie_dict: Dict of key/values to insert into CookieJar.
+    :rtype: CookieJar
     """
 
     cj2 = cookiejar_from_dict(cookie_dict)
@@ -340,6 +348,7 @@ def get_encoding_from_headers(headers):
     """Returns encodings from given HTTP Header Dict.
 
     :param headers: dictionary to extract encoding from.
+    :rtype: str
     """
 
     content_type = headers.get('content-type')
@@ -377,6 +386,8 @@ def stream_decode_response_unicode(iterator, r):
 def iter_slices(string, slice_length):
     """Iterate over slices of a string."""
     pos = 0
+    if slice_length is None or slice_length <= 0:
+        slice_length = len(string)
     while pos < len(string):
         yield string[pos:pos + slice_length]
         pos += slice_length
@@ -392,6 +403,7 @@ def get_unicode_from_response(r):
     1. charset from content-type
     2. fall back and replace all unicode characters
 
+    :rtype: str
     """
     warnings.warn((
         'In requests 3.0, get_unicode_from_response will be removed. For '
@@ -426,6 +438,8 @@ UNRESERVED_SET = frozenset(
 def unquote_unreserved(uri):
     """Un-escape any percent-escape sequences in a URI that are unreserved
     characters. This leaves all reserved, illegal and non-ASCII bytes encoded.
+
+    :rtype: str
     """
     # This convert function is used to optionally convert the output of `chr`.
     # In Python 3, `chr` returns a unicode string, while in Python 2 it returns
@@ -469,6 +483,8 @@ def requote_uri(uri):
 
     This function passes the given URI through an unquote/quote cycle to
     ensure that it is fully and consistently quoted.
+
+    :rtype: str
     """
     safe_with_percent = "!#$%&'()*+,/:;=?@[]~"
     safe_without_percent = "!#$&'()*+,/:;=?@[]~"
@@ -485,10 +501,12 @@ def requote_uri(uri):
 
 
 def address_in_network(ip, net):
-    """
-    This function allows you to check if on IP belongs to a network subnet
+    """This function allows you to check if on IP belongs to a network subnet
+
     Example: returns True if ip = 192.168.1.1 and net = 192.168.1.0/24
              returns False if ip = 192.168.1.1 and net = 192.168.100.0/24
+
+    :rtype: bool
     """
     ipaddr = struct.unpack('=L', socket.inet_aton(ip))[0]
     netaddr, bits = net.split('/')
@@ -498,15 +516,20 @@ def address_in_network(ip, net):
 
 
 def dotted_netmask(mask):
-    """
-    Converts mask from /xx format to xxx.xxx.xxx.xxx
+    """Converts mask from /xx format to xxx.xxx.xxx.xxx
+
     Example: if mask is 24 function returns 255.255.255.0
+
+    :rtype: str
     """
     bits = 0xffffffff ^ (1 << 32 - mask) - 1
     return socket.inet_ntoa(struct.pack('>I', bits))
 
 
 def is_ipv4_address(string_ip):
+    """
+    :rtype: bool
+    """
     try:
         socket.inet_aton(string_ip)
     except socket.error:
@@ -515,7 +538,11 @@ def is_ipv4_address(string_ip):
 
 
 def is_valid_cidr(string_network):
-    """Very simple check of the cidr format in no_proxy variable"""
+    """
+    Very simple check of the cidr format in no_proxy variable.
+
+    :rtype: bool
+    """
     if string_network.count('/') == 1:
         try:
             mask = int(string_network.split('/')[1])
@@ -537,6 +564,8 @@ def is_valid_cidr(string_network):
 def should_bypass_proxies(url):
     """
     Returns whether we should bypass proxies or not.
+
+    :rtype: bool
     """
     get_proxy = lambda k: os.environ.get(k) or os.environ.get(k.upper())
 
@@ -587,7 +616,11 @@ def should_bypass_proxies(url):
 
 
 def get_environ_proxies(url):
-    """Return a dict of environment proxies."""
+    """
+    Return a dict of environment proxies.
+
+    :rtype: dict
+    """
     if should_bypass_proxies(url):
         return {}
     else:
@@ -603,13 +636,13 @@ def select_proxy(url, proxies):
     proxies = proxies or {}
     urlparts = urlparse(url)
     if urlparts.hostname is None:
-        return proxies.get('all', proxies.get(urlparts.scheme))
+        return proxies.get(urlparts.scheme, proxies.get('all'))
 
     proxy_keys = [
-        'all://' + urlparts.hostname,
-        'all',
         urlparts.scheme + '://' + urlparts.hostname,
         urlparts.scheme,
+        'all://' + urlparts.hostname,
+        'all',
     ]
     proxy = None
     for proxy_key in proxy_keys:
@@ -621,11 +654,18 @@ def select_proxy(url, proxies):
 
 
 def default_user_agent(name="python-requests"):
-    """Return a string representing the default user agent."""
+    """
+    Return a string representing the default user agent.
+
+    :rtype: str
+    """
     return '%s/%s' % (name, __version__)
 
 
 def default_headers():
+    """
+    :rtype: requests.structures.CaseInsensitiveDict
+    """
     return CaseInsensitiveDict({
         'User-Agent': default_user_agent(),
         'Accept-Encoding': ', '.join(('gzip', 'deflate')),
@@ -639,6 +679,7 @@ def parse_header_links(value):
 
     i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
 
+    :rtype: list
     """
 
     links = []
@@ -684,6 +725,9 @@ _null3 = _null * 3
 
 
 def guess_json_utf(data):
+    """
+    :rtype: str
+    """
     # JSON always starts with two ASCII characters, so detection is as
     # easy as counting the nulls and from their location and count
     # determine the encoding. Also detect a BOM, if present.
@@ -714,7 +758,10 @@ def guess_json_utf(data):
 
 def prepend_scheme_if_needed(url, new_scheme):
     """Given a URL that may or may not have a scheme, prepend the given scheme.
-    Does not replace a present scheme with the one provided as an argument."""
+    Does not replace a present scheme with the one provided as an argument.
+
+    :rtype: str
+    """
     scheme, netloc, path, params, query, fragment = urlparse(url, new_scheme)
 
     # urlparse is a finicky beast, and sometimes decides that there isn't a
@@ -728,7 +775,10 @@ def prepend_scheme_if_needed(url, new_scheme):
 
 def get_auth_from_url(url):
     """Given a url with authentication components, extract them into a tuple of
-    username,password."""
+    username,password.
+
+    :rtype: (str,str)
+    """
     parsed = urlparse(url)
 
     try:
@@ -740,10 +790,9 @@ def get_auth_from_url(url):
 
 
 def to_native_string(string, encoding='ascii'):
-    """
-    Given a string object, regardless of type, returns a representation of that
-    string in the native string type, encoding and decoding where necessary.
-    This assumes ASCII unless told otherwise.
+    """Given a string object, regardless of type, returns a representation of
+    that string in the native string type, encoding and decoding where
+    necessary. This assumes ASCII unless told otherwise.
     """
     if isinstance(string, builtin_str):
         out = string
@@ -756,9 +805,36 @@ def to_native_string(string, encoding='ascii'):
     return out
 
 
+# Moved outside of function to avoid recompile every call
+_CLEAN_HEADER_REGEX_BYTE = re.compile(b'^\\S[^\\r\\n]*$|^$')
+_CLEAN_HEADER_REGEX_STR = re.compile(r'^\S[^\r\n]*$|^$')
+
+def check_header_validity(header):
+    """Verifies that header value is a string which doesn't contain
+    leading whitespace or return characters. This prevents unintended
+    header injection.
+
+    :param header: tuple, in the format (name, value).
+    """
+    name, value = header
+
+    if isinstance(value, bytes):
+        pat = _CLEAN_HEADER_REGEX_BYTE
+    else:
+        pat = _CLEAN_HEADER_REGEX_STR
+    try:
+        if not pat.match(value):
+            raise InvalidHeader("Invalid return character or leading space in header: %s" % name)
+    except TypeError:
+        raise InvalidHeader("Header value %s must be of type str or bytes, "
+                            "not %s" % (value, type(value)))
+
+
 def urldefragauth(url):
     """
-    Given a url remove the fragment and the authentication part
+    Given a url remove the fragment and the authentication part.
+
+    :rtype: str
     """
     scheme, netloc, path, params, query, fragment = urlparse(url)
 

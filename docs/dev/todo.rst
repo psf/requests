@@ -38,14 +38,15 @@ Requests currently supports the following versions of Python:
 
 - Python 2.6
 - Python 2.7
-- Python 3.1
-- Python 3.2
 - Python 3.3
-- PyPy 1.9
+- Python 3.4
+- Python 3.5
+- PyPy
 
-Support for Python 3.1 and 3.2 may be dropped at any time.
+Google AppEngine is not officially supported although support is available
+with the `Requests-Toolbelt`_.
 
-Google App Engine will never be officially supported. Pull Requests for compatibility will be accepted, as long as they don't complicate the codebase.
+.. _Requests-Toolbelt: http://toolbelt.readthedocs.io/
 
 
 Are you crazy?

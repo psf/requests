@@ -56,12 +56,10 @@ supported:
 
 * Python 2.6
 * Python 2.7
-* Python 3.1
-* Python 3.2
 * Python 3.3
 * Python 3.4
-* PyPy 1.9
-* PyPy 2.2
+* Python 3.5
+* PyPy
 
 What are "hostname doesn't match" errors?
 -----------------------------------------

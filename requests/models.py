@@ -28,7 +28,8 @@ from .exceptions import (
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, to_native_string)
+    iter_slices, guess_json_utf, super_len, to_native_string,
+    check_header_validity)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, builtin_str, basestring)
@@ -38,11 +39,11 @@ from .status_codes import codes
 #: The set of HTTP status codes that indicate an automatically
 #: processable redirect.
 REDIRECT_STATI = (
-    codes.moved,              # 301
-    codes.found,              # 302
-    codes.other,              # 303
-    codes.temporary_redirect, # 307
-    codes.permanent_redirect, # 308
+    codes.moved,               # 301
+    codes.found,               # 302
+    codes.other,               # 303
+    codes.temporary_redirect,  # 307
+    codes.permanent_redirect,  # 308
 )
 
 DEFAULT_REDIRECT_LIMIT = 30
@@ -108,7 +109,6 @@ class RequestEncodingMixin(object):
         if parameters are supplied as a dict.
         The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, contentype)
         or 4-tuples (filename, fileobj, contentype, custom_headers).
-
         """
         if (not files):
             raise ValueError("Files must be provided.")
@@ -207,8 +207,8 @@ class Request(RequestHooksMixin):
       >>> req = requests.Request('GET', 'http://httpbin.org/get')
       >>> req.prepare()
       <PreparedRequest [GET]>
-
     """
+
     def __init__(self, method=None, url=None, headers=None, files=None,
         data=None, params=None, auth=None, cookies=None, hooks=None, json=None):
 
@@ -270,7 +270,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
       >>> s = requests.Session()
       >>> s.send(r)
       <Response [200]>
-
     """
 
     def __init__(self):
@@ -408,10 +407,13 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_headers(self, headers):
         """Prepares the given HTTP headers."""
 
+        self.headers = CaseInsensitiveDict()
         if headers:
-            self.headers = CaseInsensitiveDict((to_native_string(name), value) for name, value in headers.items())
-        else:
-            self.headers = CaseInsensitiveDict()
+            for header in headers.items():
+                # Raise exception on invalid header value.
+                check_header_validity(header)
+                name, value = header
+                self.headers[to_native_string(name)] = value
 
     def prepare_body(self, data, files, json=None):
         """Prepares the given HTTP body data."""
@@ -517,8 +519,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         can only be called once for the life of the
         :class:`PreparedRequest <PreparedRequest>` object. Any subsequent calls
         to ``prepare_cookies`` will have no actual effect, unless the "Cookie"
-        header is removed beforehand."""
-
+        header is removed beforehand.
+        """
         if isinstance(cookies, cookielib.CookieJar):
             self._cookies = cookies
         else:
@@ -662,6 +664,12 @@ class Response(object):
         read into memory.  This is not necessarily the length of each item
         returned as decoding can take place.
 
+        chunk_size must be of type int or None. A value of None will
+        function differently depending on the value of `stream`.
+        stream=True will read data as it arrives in whatever size the
+        chunks are received. If stream=False, data is returned as
+        a single chunk.
+
         If decode_unicode is True, content will be decoded using the best
         available encoding based on the response.
         """
@@ -690,6 +698,8 @@ class Response(object):
 
         if self._content_consumed and isinstance(self._content, bool):
             raise StreamConsumedError()
+        elif chunk_size is not None and not isinstance(chunk_size, int):
+            raise TypeError("chunk_size must be an int, it is instead a %s." % type(chunk_size))
         # simulate reading small chunks of the content
         reused_chunks = iter_slices(self._content, chunk_size)
 
@@ -842,12 +852,23 @@ class Response(object):
         """Raises stored :class:`HTTPError`, if one occurred."""
 
         http_error_msg = ''
+        if isinstance(self.reason, bytes):
+            # We attempt to decode utf-8 first because some servers
+            # choose to localize their reason strings. If the string
+            # isn't utf-8, we fall back to iso-8859-1 for all other
+            # encodings. (See PR #3538)
+            try:
+                reason = self.reason.decode('utf-8')
+            except UnicodeDecodeError:
+                reason = self.reason.decode('iso-8859-1')
+        else:
+            reason = self.reason
 
         if 400 <= self.status_code < 500:
-            http_error_msg = '%s Client Error: %s for url: %s' % (self.status_code, self.reason, self.url)
+            http_error_msg = u'%s Client Error: %s for url: %s' % (self.status_code, reason, self.url)
 
         elif 500 <= self.status_code < 600:
-            http_error_msg = '%s Server Error: %s for url: %s' % (self.status_code, self.reason, self.url)
+            http_error_msg = u'%s Server Error: %s for url: %s' % (self.status_code, reason, self.url)
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)
@@ -859,6 +880,8 @@ class Response(object):
         *Note: Should not normally need to be called explicitly.*
         """
         if not self._content_consumed:
-            return self.raw.close()
+            self.raw.close()
 
-        return self.raw.release_conn()
+        release_conn = getattr(self.raw, 'release_conn', None)
+        if release_conn is not None:
+            release_conn()
