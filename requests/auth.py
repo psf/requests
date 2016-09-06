@@ -42,7 +42,8 @@ class AuthBase(object):
 
 
 class HTTPBasicAuth(AuthBase):
-    """Attaches HTTP Basic Authentication to the given Request object."""
+    """Attaches HTTP Basic Authentication to the given Request
+    object."""
 
     def __init__(self, username, password):
         self.username = username
@@ -71,7 +72,8 @@ class HTTPProxyAuth(HTTPBasicAuth):
 
 
 class HTTPDigestAuth(AuthBase):
-    """Attaches HTTP Digest Authentication to the given Request object."""
+    """Attaches HTTP Digest Authentication to the given Request
+    object."""
 
     def __init__(self, username, password):
         self.username = username
@@ -127,7 +129,8 @@ class HTTPDigestAuth(AuthBase):
         # XXX not implemented yet
         entdig = None
         p_parsed = urlparse(url)
-        #: path is request-uri defined in RFC 2616 which should not be empty
+        #: path is request-uri defined in RFC 2616 which should not be
+        #: empty
         path = p_parsed.path or "/"
         if p_parsed.query:
             path += '?' + p_parsed.query
