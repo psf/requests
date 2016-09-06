@@ -1026,13 +1026,13 @@ class TestRequests:
         # check raise_status falls back to ISO-8859-1
         r = requests.Response()
         r.url = 'some url'
-        reason = b'Komponenttia ei l\xf6ydy'
-        r.reason = reason
+        reason = u'Komponenttia ei löydy'
+        r.reason = reason.encode('latin-1')
         r.status_code = 500
         r.encoding = None
         with pytest.raises(requests.exceptions.HTTPError) as e:
             r.raise_for_status()
-        assert reason.decode('latin-1') in str(e)
+        assert reason in e.value.args[0]
 
     def test_response_chunk_size_type(self):
         """Ensure that chunk_size is passed as None or an integer, otherwise
