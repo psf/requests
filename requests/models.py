@@ -9,6 +9,7 @@ This module contains the primary objects that power Requests.
 
 import collections
 import datetime
+import codecs
 
 from io import BytesIO, UnsupportedOperation
 from .hooks import default_hooks
@@ -580,7 +581,8 @@ class Response(object):
         #: Final URL location of Response.
         self.url = None
 
-        #: Encoding to decode with when accessing r.text.
+        #: Encoding to decode with when accessing r.text or 
+        #: r.iter_content(decode_unicode=True)
         self.encoding = None
 
         #: A list of :class:`Response <Response>` objects from
@@ -670,8 +672,8 @@ class Response(object):
         chunks are received. If stream=False, data is returned as
         a single chunk.
 
-        If decode_unicode is True, content will be decoded using the best
-        available encoding based on the response.
+        If using decode_unicode, the encoding must be set to a valid encoding 
+        enumeration before invoking iter_content.
         """
 
         def generate():
@@ -708,6 +710,16 @@ class Response(object):
         chunks = reused_chunks if self._content_consumed else stream_chunks
 
         if decode_unicode:
+            if self.encoding is None:
+                raise TypeError(
+                    'encoding must be set before consuming streaming '
+                    'responses'
+                )
+            
+            # check encoding value here, don't wait for the generator to be
+            # consumed before raising an exception
+            codecs.lookup(self.encoding)
+            
             chunks = stream_decode_response_unicode(chunks, self)
 
         return chunks
