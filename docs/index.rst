@@ -41,7 +41,7 @@ which is embedded within Requests.
 User Testimonials
 -----------------
 
-Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
+The NSA, Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
 PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
 Post, Twitter, SoundCloud, Kippt, Readability, Sony, and Federal U.S.
 Institutions that prefer to be unnamed claim to use Requests internally.
@@ -87,7 +87,7 @@ Requests is ready for today's web.
 - Chunked Requests
 - Thread-safety
 
-Requests supports Python 2.6 — 3.5, and runs great on PyPy.
+Requests officially supports Python 2.6–2.7 & 3.3–3.5, and runs great on PyPy.
 
 
 The User Guide

@@ -5,19 +5,17 @@ requests.exceptions
 ~~~~~~~~~~~~~~~~~~~
 
 This module contains the set of Requests' exceptions.
-
 """
 from .packages.urllib3.exceptions import HTTPError as BaseHTTPError
 
 
 class RequestException(IOError):
     """There was an ambiguous exception that occurred while handling your
-    request."""
+    request.
+    """
 
     def __init__(self, *args, **kwargs):
-        """
-        Initialize RequestException with `request` and `response` objects.
-        """
+        """Initialize RequestException with `request` and `response` objects."""
         response = kwargs.pop('response', None)
         self.response = response
         self.request = kwargs.pop('request', None)
@@ -80,7 +78,11 @@ class InvalidSchema(RequestException, ValueError):
 
 
 class InvalidURL(RequestException, ValueError):
-    """ The URL provided was somehow invalid. """
+    """The URL provided was somehow invalid."""
+
+
+class InvalidHeader(RequestException, ValueError):
+    """The header value provided was somehow invalid."""
 
 
 class ChunkedEncodingError(RequestException):
@@ -108,7 +110,5 @@ class RequestsWarning(Warning):
 
 
 class FileModeWarning(RequestsWarning, DeprecationWarning):
-    """
-    A file was opened in text mode, but Requests determined its binary length.
-    """
+    """A file was opened in text mode, but Requests determined its binary length."""
     pass

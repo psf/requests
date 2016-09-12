@@ -1,4 +1,5 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
+
 import pytest
 
 from requests.structures import CaseInsensitiveDict, LookupDict
@@ -8,9 +9,7 @@ class TestCaseInsensitiveDict:
 
     @pytest.fixture(autouse=True)
     def setup(self):
-        """
-        CaseInsensitiveDict instance with "Accept" header.
-        """
+        """CaseInsensitiveDict instance with "Accept" header."""
         self.case_insensitive_dict = CaseInsensitiveDict()
         self.case_insensitive_dict['Accept'] = 'application/json'
 
@@ -54,9 +53,7 @@ class TestLookupDict:
 
     @pytest.fixture(autouse=True)
     def setup(self):
-        """
-        LookupDict instance with "bad_gateway" attribute.
-        """
+        """LookupDict instance with "bad_gateway" attribute."""
         self.lookup_dict = LookupDict('test')
         self.lookup_dict.bad_gateway = 502
 

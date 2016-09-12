@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import threading
 import socket
 import select
@@ -25,10 +27,10 @@ class Server(threading.Thread):
     """Dummy server using for unit testing"""
     WAIT_EVENT_TIMEOUT = 5
 
-    def __init__(self, handler, host='localhost', port=0, requests_to_handle=1, wait_to_close_event=None):
+    def __init__(self, handler=None, host='localhost', port=0, requests_to_handle=1, wait_to_close_event=None):
         super(Server, self).__init__()
 
-        self.handler = handler
+        self.handler = handler or consume_socket_content
         self.handler_results = []
 
         self.host = host
@@ -60,17 +62,17 @@ class Server(threading.Thread):
 
     def run(self):
         try:
-            sock = self._create_socket_and_bind()
+            self.server_sock = self._create_socket_and_bind()
             # in case self.port = 0
-            self.port = sock.getsockname()[1]
+            self.port = self.server_sock.getsockname()[1]
             self.ready_event.set()
-            self._handle_requests(sock)
+            self._handle_requests()
 
             if self.wait_to_close_event:
                 self.wait_to_close_event.wait(self.WAIT_EVENT_TIMEOUT)
         finally:
             self.ready_event.set() # just in case of exception
-            sock.close()
+            self._close_server_sock_ignore_errors()
             self.stop_event.set()
 
     def _create_socket_and_bind(self):
@@ -79,12 +81,31 @@ class Server(threading.Thread):
         sock.listen(0)
         return sock
 
-    def _handle_requests(self, server_sock):
+    def _close_server_sock_ignore_errors(self):
+        try:
+            self.server_sock.close()
+        except IOError:
+            pass
+
+    def _handle_requests(self):
         for _ in range(self.requests_to_handle):
-            sock = server_sock.accept()[0]
+            sock = self._accept_connection()
+            if not sock:
+                break
+
             handler_result = self.handler(sock)
 
             self.handler_results.append(handler_result)
+
+    def _accept_connection(self):
+        try:
+            ready, _, _ = select.select([self.server_sock], [], [], self.WAIT_EVENT_TIMEOUT)
+            if not ready:
+                return None
+
+            return self.server_sock.accept()[0]
+        except (select.error, socket.error):
+            return None
 
     def __enter__(self):
         self.start()
@@ -99,4 +120,8 @@ class Server(threading.Thread):
                 # avoid server from waiting for event timeouts
                 # if an exception is found in the main thread
                 self.wait_to_close_event.set()
+
+        # ensure server thread doesn't get stuck waiting for connections
+        self._close_server_sock_ignore_errors()
+        self.join()
         return False # allow exceptions to propagate

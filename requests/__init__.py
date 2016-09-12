@@ -38,12 +38,11 @@ is at <http://python-requests.org>.
 
 :copyright: (c) 2016 by Kenneth Reitz.
 :license: Apache 2.0, see LICENSE for more details.
-
 """
 
 __title__ = 'requests'
-__version__ = '2.10.0'
-__build__ = 0x021000
+__version__ = '2.11.1'
+__build__ = 0x021101
 __author__ = 'Kenneth Reitz'
 __license__ = 'Apache 2.0'
 __copyright__ = 'Copyright 2016 Kenneth Reitz'
@@ -82,8 +81,6 @@ except ImportError:
             pass
 
 logging.getLogger(__name__).addHandler(NullHandler())
-
-import warnings
 
 # FileModeWarnings go off per the default.
 warnings.simplefilter('default', FileModeWarning, append=True)

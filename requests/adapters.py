@@ -54,10 +54,24 @@ class BaseAdapter(object):
     def __init__(self):
         super(BaseAdapter, self).__init__()
 
-    def send(self):
+    def send(self, request, stream=False, timeout=None, verify=True,
+             cert=None, proxies=None):
+        """Sends PreparedRequest object. Returns Response object.
+
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) <timeouts>` tuple.
+        :type timeout: float or tuple
+        :param verify: (optional) Whether to verify SSL certificates.
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        """
         raise NotImplementedError
 
     def close(self):
+        """Cleans up adapter specific items."""
         raise NotImplementedError
 
 
@@ -154,6 +168,7 @@ class HTTPAdapter(BaseAdapter):
         :param proxy: The proxy to return a urllib3 ProxyManager for.
         :param proxy_kwargs: Extra keyword arguments used to configure the Proxy Manager.
         :returns: ProxyManager
+        :rtype: requests.packages.urllib3.ProxyManager
         """
         if proxy in self.proxy_manager:
             manager = self.proxy_manager[proxy]
@@ -230,6 +245,7 @@ class HTTPAdapter(BaseAdapter):
 
         :param req: The :class:`PreparedRequest <PreparedRequest>` used to generate the response.
         :param resp: The urllib3 response object.
+        :rtype: requests.Response
         """
         response = Response()
 
@@ -265,6 +281,7 @@ class HTTPAdapter(BaseAdapter):
 
         :param url: The URL to connect to.
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
+        :rtype: requests.packages.urllib3.ConnectionPool
         """
         proxy = select_proxy(url, proxies)
 
@@ -302,6 +319,7 @@ class HTTPAdapter(BaseAdapter):
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
         :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs.
+        :rtype: str
         """
         proxy = select_proxy(request.url, proxies)
         scheme = urlparse(request.url).scheme
@@ -343,6 +361,7 @@ class HTTPAdapter(BaseAdapter):
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         :param proxies: The url of the proxy being used for this request.
+        :rtype: dict
         """
         headers = {}
         username, password = get_auth_from_url(proxy)
@@ -365,6 +384,7 @@ class HTTPAdapter(BaseAdapter):
         :param verify: (optional) Whether to verify SSL certificates.
         :param cert: (optional) Any user-provided SSL certificate to be trusted.
         :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
         """
 
         conn = self.get_connection(request.url, proxies)

@@ -80,21 +80,27 @@ class Retry(object):
         Set of uppercased HTTP method verbs that we should retry on.
 
         By default, we only retry on methods which are considered to be
-        indempotent (multiple requests with the same parameters end with the
+        idempotent (multiple requests with the same parameters end with the
         same state). See :attr:`Retry.DEFAULT_METHOD_WHITELIST`.
 
+        Set to a ``False`` value to retry on any verb.
+
     :param iterable status_forcelist:
-        A set of HTTP status codes that we should force a retry on.
+        A set of integer HTTP status codes that we should force a retry on.
+        A retry is initiated if the request method is in ``method_whitelist``
+        and the response status code is in ``status_forcelist``.
 
         By default, this is disabled with ``None``.
 
     :param float backoff_factor:
-        A backoff factor to apply between attempts. urllib3 will sleep for::
+        A backoff factor to apply between attempts after the second try
+        (most errors are resolved immediately by a second try without a
+        delay). urllib3 will sleep for::
 
             {backoff factor} * (2 ^ ({number of total retries} - 1))
 
         seconds. If the backoff_factor is 0.1, then :func:`.sleep` will sleep
-        for [0.1s, 0.2s, 0.4s, ...] between retries. It will never be longer
+        for [0.0s, 0.2s, 0.4s, ...] between retries. It will never be longer
         than :attr:`Retry.BACKOFF_MAX`.
 
         By default, backoff is disabled (set to 0).

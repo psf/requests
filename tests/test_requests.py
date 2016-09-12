@@ -9,6 +9,7 @@ import os
 import pickle
 import collections
 import contextlib
+import warnings
 
 import io
 import requests
@@ -22,7 +23,7 @@ from requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
     MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError)
+    ProxyError, InvalidHeader)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -30,10 +31,24 @@ from requests.models import urlencode
 from requests.hooks import default_hooks
 
 from .compat import StringIO, u
+from .utils import override_environ
 
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
 TARPIT = 'http://10.255.255.1'
+
+try:
+    from ssl import SSLContext
+    del SSLContext
+    HAS_MODERN_SSL = True
+except ImportError:
+    HAS_MODERN_SSL = False
+
+try:
+    requests.pyopenssl
+    HAS_PYOPENSSL = True
+except AttributeError:
+    HAS_PYOPENSSL = False
 
 
 class TestRequests:
@@ -206,9 +221,45 @@ class TestRequests:
         assert r.history[0].status_code == 303
         assert r.history[0].is_redirect
 
-    # def test_HTTP_302_ALLOW_REDIRECT_POST(self):
-    #     r = requests.post(httpbin('status', '302'), data={'some': 'data'})
-    #     self.assertEqual(r.status_code, 200)
+    def test_header_and_body_removal_on_redirect(self, httpbin):
+        purged_headers = ('Content-Length', 'Content-Type')
+        ses = requests.Session()
+        req = requests.Request('POST', httpbin('post'), data={'test': 'data'})
+        prep = ses.prepare_request(req)
+        resp = ses.send(prep)
+
+        # Mimic a redirect response
+        resp.status_code = 302
+        resp.headers['location'] = 'get'
+
+        # Run request through resolve_redirects
+        next_resp = next(ses.resolve_redirects(resp, prep))
+        assert next_resp.request.body is None
+        for header in purged_headers:
+            assert header not in next_resp.request.headers
+
+    def test_transfer_enc_removal_on_redirect(self, httpbin):
+        purged_headers = ('Transfer-Encoding', 'Content-Type')
+        ses = requests.Session()
+        req = requests.Request('POST', httpbin('post'), data=(b'x' for x in range(1)))
+        prep = ses.prepare_request(req)
+        assert 'Transfer-Encoding' in prep.headers
+
+        # Create Response to avoid https://github.com/kevin1024/pytest-httpbin/issues/33
+        resp = requests.Response()
+        resp.raw = io.BytesIO(b'the content')
+        resp.request = prep
+        setattr(resp.raw, 'release_conn', lambda *args: args)
+
+        # Mimic a redirect response
+        resp.status_code = 302
+        resp.headers['location'] = httpbin('get')
+
+        # Run request through resolve_redirect
+        next_resp = next(ses.resolve_redirects(resp, prep))
+        assert next_resp.request.body is None
+        for header in purged_headers:
+            assert header not in next_resp.request.headers
 
     def test_HTTP_200_OK_GET_WITH_PARAMS(self, httpbin):
         heads = {'User-agent': 'Mozilla/5.0'}
@@ -553,8 +604,7 @@ class TestRequests:
         assert post1.status_code == 200
 
         with open('requirements.txt') as f:
-            post2 = requests.post(url,
-                data={'some': 'data'}, files={'some': f})
+            post2 = requests.post(url, data={'some': 'data'}, files={'some': f})
         assert post2.status_code == 200
 
         post4 = requests.post(url, data='[{"some": "json"}]')
@@ -604,6 +654,27 @@ class TestRequests:
 
     def test_pyopenssl_redirect(self, httpbin_secure, httpbin_ca_bundle):
         requests.get(httpbin_secure('status', '301'), verify=httpbin_ca_bundle)
+
+    def test_https_warnings(self, httpbin_secure, httpbin_ca_bundle):
+        """warnings are emitted with requests.get"""
+        if HAS_MODERN_SSL or HAS_PYOPENSSL:
+            warnings_expected = ('SubjectAltNameWarning', )
+        else:
+            warnings_expected = ('SNIMissingWarning',
+                                 'InsecurePlatformWarning',
+                                 'SubjectAltNameWarning', )
+
+        with pytest.warns(None) as warning_records:
+            warnings.simplefilter('always')
+            requests.get(httpbin_secure('status', '200'),
+                         verify=httpbin_ca_bundle)
+
+        warning_records = [item for item in warning_records
+                           if item.category.__name__ != 'ResourceWarning']
+
+        warnings_category = tuple(
+            item.category.__name__ for item in warning_records)
+        assert warnings_category == warnings_expected
 
     def test_urlencoded_get_query_multivalued_param(self, httpbin):
 
@@ -908,8 +979,7 @@ class TestRequests:
     def test_time_elapsed_blank(self, httpbin):
         r = requests.get(httpbin('get'))
         td = r.elapsed
-        total_seconds = ((td.microseconds + (td.seconds + td.days * 24 * 3600)
-                         * 10**6) / 10**6)
+        total_seconds = ((td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6)
         assert total_seconds > 0.0
 
     def test_response_is_iterable(self):
@@ -925,8 +995,7 @@ class TestRequests:
         io.close()
 
     def test_response_decode_unicode(self):
-        """
-        When called with decode_unicode, Response.iter_content should always
+        """When called with decode_unicode, Response.iter_content should always
         return unicode.
         """
         r = requests.Response()
@@ -943,6 +1012,46 @@ class TestRequests:
         r.encoding = 'ascii'
         chunks = r.iter_content(decode_unicode=True)
         assert all(isinstance(chunk, str) for chunk in chunks)
+
+    def test_response_reason_unicode(self):
+        # check for unicode HTTP status
+        r = requests.Response()
+        r.url = u'unicode URL'
+        r.reason = u'Komponenttia ei löydy'.encode('utf-8')
+        r.status_code = 404
+        r.encoding = None
+        assert not r.ok  # old behaviour - crashes here
+
+    def test_response_reason_unicode_fallback(self):
+        # check raise_status falls back to ISO-8859-1
+        r = requests.Response()
+        r.url = 'some url'
+        reason = b'Komponenttia ei l\xf6ydy'
+        r.reason = reason
+        r.status_code = 500
+        r.encoding = None
+        with pytest.raises(requests.exceptions.HTTPError) as e:
+            r.raise_for_status()
+        assert reason.decode('latin-1') in str(e)
+
+    def test_response_chunk_size_type(self):
+        """Ensure that chunk_size is passed as None or an integer, otherwise
+        raise a TypeError.
+        """
+        r = requests.Response()
+        r.raw = io.BytesIO(b'the content')
+        chunks = r.iter_content(1)
+        assert all(len(chunk) == 1 for chunk in chunks)
+
+        r = requests.Response()
+        r.raw = io.BytesIO(b'the content')
+        chunks = r.iter_content(None)
+        assert list(chunks) == [b'the content']
+
+        r = requests.Response()
+        r.raw = io.BytesIO(b'the content')
+        with pytest.raises(TypeError):
+            chunks = r.iter_content("1024")
 
     def test_request_and_response_are_pickleable(self, httpbin):
         r = requests.get(httpbin('get'))
@@ -982,9 +1091,7 @@ class TestRequests:
         assert r.status_code == 200
 
     def test_fixes_1329(self, httpbin):
-        """
-        Ensure that header updates are done case-insensitively.
-        """
+        """Ensure that header updates are done case-insensitively."""
         s = requests.Session()
         s.headers.update({'ACCEPT': 'BOGUS'})
         s.headers.update({'accept': 'application/json'})
@@ -1071,6 +1178,65 @@ class TestRequests:
         assert 'unicode' in p.headers.keys()
         assert 'byte' in p.headers.keys()
 
+    def test_header_validation(self, httpbin):
+        """Ensure prepare_headers regex isn't flagging valid header contents."""
+        headers_ok = {'foo': 'bar baz qux',
+                      'bar': u'fbbq'.encode('utf8'),
+                      'baz': '',
+                      'qux': '1'}
+        r = requests.get(httpbin('get'), headers=headers_ok)
+        assert r.request.headers['foo'] == headers_ok['foo']
+
+    def test_header_value_not_str(self, httpbin):
+        """Ensure the header value is of type string or bytes as
+        per discussion in GH issue #3386
+        """
+        headers_int = {'foo': 3}
+        headers_dict = {'bar': {'foo': 'bar'}}
+        headers_list = {'baz': ['foo', 'bar']}
+
+        # Test for int
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_int)
+        # Test for dict
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_dict)
+        # Test for list
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_list)
+
+    def test_header_no_return_chars(self, httpbin):
+        """Ensure that a header containing return character sequences raise an
+        exception. Otherwise, multiple headers are created from single string.
+        """
+        headers_ret = {'foo': 'bar\r\nbaz: qux'}
+        headers_lf = {'foo': 'bar\nbaz: qux'}
+        headers_cr = {'foo': 'bar\rbaz: qux'}
+
+        # Test for newline
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_ret)
+        # Test for line feed
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_lf)
+        # Test for carriage return
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_cr)
+
+    def test_header_no_leading_space(self, httpbin):
+        """Ensure headers containing leading whitespace raise
+        InvalidHeader Error before sending.
+        """
+        headers_space = {'foo': ' bar'}
+        headers_tab = {'foo': '   bar'}
+
+        # Test for whitespace
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_space)
+        # Test for tab
+        with pytest.raises(InvalidHeader):
+            r = requests.get(httpbin('get'), headers=headers_tab)
+
     @pytest.mark.parametrize('files', ('foo', b'foo', bytearray(b'foo')))
     def test_can_send_objects_with_files(self, httpbin, files):
         data = {'a': 'this is a string'}
@@ -1106,6 +1272,7 @@ class TestRequests:
             preq = req.prepare()
             assert test_url == preq.url
 
+    @pytest.mark.xfail(raises=ConnectionError)
     def test_auth_is_stripped_on_redirect_off_host(self, httpbin):
         r = requests.get(
             httpbin('redirect-to'),
@@ -1227,6 +1394,26 @@ class TestRequests:
         proxies['one'].clear.assert_called_once_with()
         proxies['two'].clear.assert_called_once_with()
 
+    def test_response_json_when_content_is_None(self, httpbin):
+        r = requests.get(httpbin('/status/204'))
+        # Make sure r.content is None
+        r.status_code = 0
+        r._content = False
+        r._content_consumed = False
+
+        assert r.content is None
+        with pytest.raises(ValueError):
+            r.json()
+
+    def test_response_without_release_conn(self):
+        """Test `close` call for non-urllib3-like raw objects.
+        Should work when `release_conn` attr doesn't exist on `response.raw`.
+        """
+        resp = requests.Response()
+        resp.raw = StringIO.StringIO('test')
+        assert not resp.raw.closed
+        resp.close()
+        assert resp.raw.closed
 
 class TestCaseInsensitiveDict:
 
@@ -1442,7 +1629,7 @@ class TestTimeout:
         assert error_text in str(e)
 
     def test_none_timeout(self, httpbin):
-        """ Check that you can set None as a valid timeout value.
+        """Check that you can set None as a valid timeout value.
 
         To actually test this behavior, we'd want to check that setting the
         timeout to None actually lets the request block past the system default
@@ -1516,6 +1703,18 @@ class RedirectSession(SessionRedirectMixin):
         return string
 
 
+def test_json_encodes_as_bytes():
+    # urllib3 expects bodies as bytes-like objects
+    body = {"key": "value"}
+    p = PreparedRequest()
+    p.prepare(
+        method='GET',
+        url='https://www.example.com/',
+        json=body
+    )
+    assert isinstance(p.body, bytes)
+
+
 def test_requests_are_updated_each_time(httpbin):
     session = RedirectSession([303, 307])
     prep = requests.Request('POST', httpbin('post')).prepare()
@@ -1535,6 +1734,27 @@ def test_requests_are_updated_each_time(httpbin):
         assert response.request.method == 'GET'
         send_call = SendCall((response.request,), default_keyword_args)
         assert session.calls[-1] == send_call
+
+
+@pytest.mark.parametrize("var,url,proxy", [
+    ('http_proxy', 'http://example.com', 'socks5://proxy.com:9876'),
+    ('https_proxy', 'https://example.com', 'socks5://proxy.com:9876'),
+    ('all_proxy', 'http://example.com', 'socks5://proxy.com:9876'),
+    ('all_proxy', 'https://example.com', 'socks5://proxy.com:9876'),
+])
+def test_proxy_env_vars_override_default(var, url, proxy):
+    session = requests.Session()
+    prep = PreparedRequest()
+    prep.prepare(method='GET', url=url)
+
+    kwargs = {
+        var: proxy
+    }
+    scheme = urlparse(url).scheme
+    with override_environ(**kwargs):
+        proxies = session.rebuild_proxies(prep, {})
+        assert scheme in proxies
+        assert proxies[scheme] == proxy
 
 
 @pytest.mark.parametrize(

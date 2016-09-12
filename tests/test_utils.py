@@ -1,4 +1,5 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
+
 from io import BytesIO
 
 import pytest
@@ -11,7 +12,7 @@ from requests.utils import (
     guess_filename, guess_json_utf, is_ipv4_address,
     is_valid_cidr, iter_slices, parse_dict_header,
     parse_header_links, prepend_scheme_if_needed,
-    requote_uri, select_proxy, super_len,
+    requote_uri, select_proxy, should_bypass_proxies, super_len,
     to_key_val_list, to_native_string,
     unquote_header_value, unquote_unreserved,
     urldefragauth)
@@ -40,9 +41,7 @@ class TestSuperLen:
 
     @pytest.mark.parametrize('error', [IOError, OSError])
     def test_super_len_handles_files_raising_weird_errors_in_tell(self, error):
-        """
-        If tell() raises errors, assume the cursor is at position zero.
-        """
+        """If tell() raises errors, assume the cursor is at position zero."""
         class BoomFile(object):
             def __len__(self):
                 return 5
@@ -104,7 +103,8 @@ class TestUnquoteHeaderValue:
 
 class TestGetEnvironProxies:
     """Ensures that IP addresses are correctly matches with ranges
-    in no_proxy variable."""
+    in no_proxy variable.
+    """
 
     @pytest.fixture(autouse=True, params=['no_proxy', 'NO_PROXY'])
     def no_proxy(self, request, monkeypatch):
@@ -288,8 +288,7 @@ def test_get_auth_from_url(url, auth):
         ),
     ))
 def test_requote_uri_with_unquoted_percents(uri, expected):
-    """See: https://github.com/kennethreitz/requests/issues/2356
-    """
+    """See: https://github.com/kennethreitz/requests/issues/2356"""
     assert requote_uri(uri) == expected
 
 
@@ -320,17 +319,36 @@ def test_dotted_netmask(mask, expected):
     assert dotted_netmask(mask) == expected
 
 
+http_proxies = {'http': 'http://http.proxy',
+                'http://some.host': 'http://some.host.proxy'}
+all_proxies = {'all': 'socks5://http.proxy',
+               'all://some.host': 'socks5://some.host.proxy'}
+mixed_proxies = {'http': 'http://http.proxy',
+                 'http://some.host': 'http://some.host.proxy',
+                 'all': 'socks5://http.proxy'}
 @pytest.mark.parametrize(
-    'url, expected', (
-        ('hTTp://u:p@Some.Host/path', 'http://some.host.proxy'),
-        ('hTTp://u:p@Other.Host/path', 'http://http.proxy'),
-        ('hTTps://Other.Host', None),
-        ('file:///etc/motd', None),
+    'url, expected, proxies', (
+        ('hTTp://u:p@Some.Host/path', 'http://some.host.proxy', http_proxies),
+        ('hTTp://u:p@Other.Host/path', 'http://http.proxy', http_proxies),
+        ('hTTp:///path', 'http://http.proxy', http_proxies),
+        ('hTTps://Other.Host', None, http_proxies),
+        ('file:///etc/motd', None, http_proxies),
+
+        ('hTTp://u:p@Some.Host/path', 'socks5://some.host.proxy', all_proxies),
+        ('hTTp://u:p@Other.Host/path', 'socks5://http.proxy', all_proxies),
+        ('hTTp:///path', 'socks5://http.proxy', all_proxies),
+        ('hTTps://Other.Host', 'socks5://http.proxy', all_proxies),
+
+        ('http://u:p@other.host/path', 'http://http.proxy', mixed_proxies),
+        ('http://u:p@some.host/path', 'http://some.host.proxy', mixed_proxies),
+        ('https://u:p@other.host/path', 'socks5://http.proxy', mixed_proxies),
+        ('https://u:p@some.host/path', 'socks5://http.proxy', mixed_proxies),
+        ('https://', 'socks5://http.proxy', mixed_proxies),
+        # XXX: unsure whether this is reasonable behavior
+        ('file:///etc/motd', 'socks5://http.proxy', all_proxies),
     ))
-def test_select_proxies(url, expected):
+def test_select_proxies(url, expected, proxies):
     """Make sure we can select per-host proxies correctly."""
-    proxies = {'http': 'http://http.proxy',
-               'http://some.host': 'http://some.host.proxy'}
     assert select_proxy(url, proxies) == expected
 
 
@@ -367,9 +385,16 @@ def test_get_encoding_from_headers(value, expected):
         ('', 0),
         ('T', 1),
         ('Test', 4),
+        ('Cont', 0),
+        ('Other', -5),
+        ('Content', None),
     ))
 def test_iter_slices(value, length):
-    assert len(list(iter_slices(value, 1))) == length
+    if length is None or (length <= 0 and len(value) > 0):
+        # Reads all content at once
+        assert len(list(iter_slices(value, length))) == 1
+    else:
+        assert len(list(iter_slices(value, 1))) == length
 
 
 @pytest.mark.parametrize(
@@ -428,3 +453,23 @@ def test_to_native_string(value, expected):
     ))
 def test_urldefragauth(url, expected):
     assert urldefragauth(url) == expected
+
+
+@pytest.mark.parametrize(
+    'url, expected', (
+            ('http://192.168.0.1:5000/', True),
+            ('http://192.168.0.1/', True),
+            ('http://172.16.1.1/', True),
+            ('http://172.16.1.1:5000/', True),
+            ('http://localhost.localdomain:5000/v1.0/', True),
+            ('http://172.16.1.12/', False),
+            ('http://172.16.1.12:5000/', False),
+            ('http://google.com:5000/v1.0/', False),
+    ))
+def test_should_bypass_proxies(url, expected, monkeypatch):
+    """Tests for function should_bypass_proxies to check if proxy
+    can be bypassed or not
+    """
+    monkeypatch.setenv('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
+    monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
+    assert should_bypass_proxies(url) == expected

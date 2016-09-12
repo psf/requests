@@ -27,7 +27,7 @@ Begin by importing the Requests module::
     >>> import requests
 
 Now, let's try to get a webpage. For this example, let's get GitHub's public
-timeline ::
+timeline::
 
     >>> r = requests.get('https://api.github.com/events')
 
@@ -132,9 +132,9 @@ For example, to create an image from binary data returned by a request, you can
 use the following code::
 
     >>> from PIL import Image
-    >>> from StringIO import StringIO
+    >>> from io import BytesIO
 
-    >>> i = Image.open(StringIO(r.content))
+    >>> i = Image.open(BytesIO(r.content))
 
 
 JSON Response Content
@@ -148,11 +148,11 @@ There's also a builtin JSON decoder, in case you're dealing with JSON data::
     >>> r.json()
     [{u'repository': {u'open_issues': 0, u'url': 'https://github.com/...
 
-In case the JSON decoding fails, ``r.json`` raises an exception. For example, if
+In case the JSON decoding fails, ``r.json()`` raises an exception. For example, if
 the response gets a 204 (No Content), or if the response contains invalid JSON,
-attempting ``r.json`` raises ``ValueError: No JSON object could be decoded``.
+attempting ``r.json()`` raises ``ValueError: No JSON object could be decoded``.
 
-It should be noted that the success of the call to ``r.json`` does **not**
+It should be noted that the success of the call to ``r.json()`` does **not**
 indicate the success of the response. Some servers may return a JSON object in a
 failed response (e.g. error details with HTTP 500). Such JSON will be decoded
 and returned. To check that a request is successful, use
@@ -211,6 +211,7 @@ Note: Custom headers are given less precedence than more specific sources of inf
 
 Furthermore, Requests does not change its behavior at all based on which custom headers are specified. The headers are simply passed on into the final request.
 
+Note: All header values must be a ``string``, bytestring, or unicode. While permitted, it's advised to avoid passing unicode header values.
 
 More complicated POST requests
 ------------------------------
@@ -416,6 +417,19 @@ parameter::
     >>> r.text
     '{"cookies": {"cookies_are": "working"}}'
 
+Cookies are returned in a :class:`~requests.cookies.RequestsCookieJar`,
+which acts like a ``dict`` but also offers a more complete interface,
+suitable for use over multiple domains or paths.  Cookie jars can
+also be passed in to requests::
+
+    >>> jar = requests.cookies.RequestsCookieJar()
+    >>> jar.set('tasty_cookie', 'yum', site='httpbin.org', path='/cookies')
+    >>> jar.set('gross_cookie', 'blech', site='httpbin.org', path='/elsewhere')
+    >>> url = 'http://httpbin.org/cookies'
+    >>> r = requests.get(url, cookies=jar)
+    >>> r.text
+    '{"cookies": {"tasty_cookie": "yum"}}'
+
 
 Redirection and History
 -----------------------
@@ -425,7 +439,7 @@ HEAD.
 
 We can use the ``history`` property of the Response object to track redirection.
 
-The :meth:`Response.history <requests.Response.history>` list contains the
+The :attr:`Response.history <requests.Response.history>` list contains the
 :class:`Response <requests.Response>` objects that were created in order to
 complete the request. The list is sorted from the oldest to the most recent
 response.
@@ -483,26 +497,28 @@ seconds with the ``timeout`` parameter::
     ``timeout`` is not a time limit on the entire response download;
     rather, an exception is raised if the server has not issued a
     response for ``timeout`` seconds (more precisely, if no bytes have been
-    received on the underlying socket for ``timeout`` seconds).
+    received on the underlying socket for ``timeout`` seconds). If no timeout is specified explicitly, requests do
+    not time out.
 
 
 Errors and Exceptions
 ---------------------
 
 In the event of a network problem (e.g. DNS failure, refused connection, etc),
-Requests will raise a :class:`~requests.exceptions.ConnectionError` exception.
+Requests will raise a :exc:`~requests.exceptions.ConnectionError` exception.
 
-In the rare event of an invalid HTTP response, Requests will raise an
-:class:`~requests.exceptions.HTTPError` exception.
+:meth:`Response.raise_for_status() <requests.Response.raise_for_status>` will
+raise an :exc:`~requests.exceptions.HTTPError` if the HTTP request
+returned an unsuccessful status code.
 
-If a request times out, a :class:`~requests.exceptions.Timeout` exception is
+If a request times out, a :exc:`~requests.exceptions.Timeout` exception is
 raised.
 
 If a request exceeds the configured number of maximum redirections, a
-:class:`~requests.exceptions.TooManyRedirects` exception is raised.
+:exc:`~requests.exceptions.TooManyRedirects` exception is raised.
 
 All exceptions that Requests explicitly raises inherit from
-:class:`requests.exceptions.RequestException`.
+:exc:`requests.exceptions.RequestException`.
 
 -----------------------
 

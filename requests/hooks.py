@@ -10,9 +10,9 @@ Available hooks:
 
 ``response``:
     The response generated from a Request.
-
 """
 HOOKS = ['response']
+
 
 def default_hooks():
     return dict((event, []) for event in HOOKS)

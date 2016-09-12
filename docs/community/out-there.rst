@@ -1,17 +1,6 @@
 Integrations
 ============
 
-ScraperWiki
-------------
-
-`ScraperWiki <https://scraperwiki.com/>`_ is an excellent service that allows
-you to run Python, Ruby, and PHP scraper scripts on the web. Now, Requests
-v0.6.1 is available to use in your scrapers!
-
-To give it a try, simply::
-
-    import requests
-
 Python for iOS
 --------------
 
