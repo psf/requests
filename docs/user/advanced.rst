@@ -15,7 +15,7 @@ requests. It also persists cookies across all requests made from the
 Session instance, and will use ``urllib3``'s `connection pooling`_. So if
 you're making several requests to the same host, the underlying TCP
 connection will be reused, which can result in a significant performance
-increase (see `HTTP persistent connection`_) that even more important for https than http:
+increase (see `HTTP persistent connection`_) that even more important for https than http::
 
     import time
 
@@ -32,11 +32,13 @@ increase (see `HTTP persistent connection`_) that even more important for https 
     print('with session:    %.2f seconds' % (time.time() - time_start))
     
 result:
+
     without session: 2.71 seconds
 
     with session:    1.48 seconds
     
 If we change http to https:
+
     without session: 5.42 seconds
     
     with session:    1.79 seconds
