@@ -1039,8 +1039,23 @@ class TestRequests:
         r = requests.Response()
         r.raw = io.BytesIO(b'the content')
         r.encoding = 'ascii'
+
         chunks = r.iter_content(decode_unicode=True)
         assert all(isinstance(chunk, str) for chunk in chunks)
+
+    @pytest.mark.parametrize(
+        'encoding, exception', (
+            (None, TypeError),
+            ('invalid encoding', LookupError),
+        ))
+    def test_decode_unicode_encoding(self, encoding, exception):
+        # raise an exception if encoding isn't set
+        r = requests.Response()
+        r.raw = io.BytesIO(b'the content')
+        r.encoding = encoding
+
+        with pytest.raises(exception):
+            chunks = r.iter_content(decode_unicode=True)
 
     def test_response_reason_unicode(self):
         # check for unicode HTTP status
