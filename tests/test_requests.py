@@ -944,6 +944,18 @@ class TestRequests:
         # make sure one can use items multiple times
         assert list(items) == list(items)
 
+    def test_cookie_as_dict_for_session(self, httpbin):
+        s = requests.Session()
+        s.cookies = {'some_cookie': 'some_value'}
+        assert isinstance(s.cookies, requests.cookies.RequestsCookieJar)
+        req = requests.Request('GET', httpbin('get'))
+        prep_req = s.prepare_request(req)
+        resp = s.send(prep_req)
+        cookies = {}
+        for c in resp.request._cookies:
+            cookies[c.name] = c.value
+        assert cookies['some_cookie'] == 'some_value'
+
     def test_cookie_duplicate_names_different_domains(self):
         key = 'some_cookie'
         value = 'some_value'

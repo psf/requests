@@ -339,7 +339,7 @@ class Session(SessionRedirectMixin):
         #: session. By default it is a
         #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but
         #: may be any other ``cookielib.CookieJar`` compatible object.
-        self.cookies = cookiejar_from_dict({})
+        self._cookies = cookiejar_from_dict({})
 
         # Default connection adapters.
         self.adapters = OrderedDict()
@@ -354,6 +354,20 @@ class Session(SessionRedirectMixin):
 
     def __exit__(self, *args):
         self.close()
+
+    @property
+    def cookies(self):
+        return self._cookies
+
+    @cookies.setter
+    def cookies(self, value):
+        """Set _cookies to CookieJar, if applicable. Otherwise, try to
+        create a new ``RequestsCookieJar`` by iterating value object.
+        """
+        if isinstance(value, cookielib.CookieJar):
+            self._cookies = value
+        else:
+            self._cookies = cookiejar_from_dict(value)
 
     def prepare_request(self, request):
         """Constructs a :class:`PreparedRequest <PreparedRequest>` for
