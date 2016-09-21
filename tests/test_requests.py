@@ -1070,18 +1070,13 @@ class TestRequests:
         # check raise_status falls back to ISO-8859-1
         r = requests.Response()
         r.url = 'some url'
-        reason = b'Komponenttia ei l\xf6ydy'
-        r.reason = reason
+        reason = u'Komponenttia ei löydy'
+        r.reason = reason.encode('latin-1')
         r.status_code = 500
         r.encoding = None
-        str_error = ''
-        try:
+        with pytest.raises(requests.exceptions.HTTPError) as e:
             r.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            str_error = e.args[0]
-        else:
-            raise AssertionError('Expected an HTTPError but it was not raised')
-        assert reason.decode('latin-1') in str_error
+        assert reason in e.value.args[0]
 
     def test_response_chunk_size_type(self):
         """Ensure that chunk_size is passed as None or an integer, otherwise
