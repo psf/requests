@@ -424,7 +424,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Nottin' on you.
         body = None
         content_type = None
-        length = None
 
         if not data and json is not None:
             # urllib3 requires a bytes-like body. Python 2's json.dumps
@@ -475,17 +474,16 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.body = body
 
     def prepare_content_length(self, body):
-        if hasattr(body, 'seek') and hasattr(body, 'tell'):
-            curr_pos = body.tell()
-            body.seek(0, 2)
-            end_pos = body.tell()
-            self.headers['Content-Length'] = builtin_str(max(0, end_pos - curr_pos))
-            body.seek(curr_pos, 0)
-        elif body is not None:
-            l = super_len(body)
-            if l:
-                self.headers['Content-Length'] = builtin_str(l)
-        elif (self.method not in ('GET', 'HEAD')) and (self.headers.get('Content-Length') is None):
+        """Prepare Content-Length header based on request method and body"""
+        if body is not None:
+            length = super_len(body)
+            if length:
+                # If length exists, set it. Otherwise, we fallback
+                # to Transfer-Encoding: chunked.
+                self.headers['Content-Length'] = builtin_str(length)
+        elif self.method not in ('GET', 'HEAD') and self.headers.get('Content-Length') is None:
+            # Set Content-Length to 0 for methods that can have a body
+            # but don't provide one. (i.e. not GET or HEAD)
             self.headers['Content-Length'] = '0'
 
     def prepare_auth(self, auth, url=''):
