@@ -19,7 +19,8 @@ from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urlparse,
     builtin_str, OrderedDict)
-from requests.cookies import cookiejar_from_dict, morsel_to_cookie
+from requests.cookies import (
+     cookiejar_from_dict, morsel_to_cookie, merge_cookies)
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
     MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
@@ -353,6 +354,41 @@ class TestRequests:
         r = s.get(httpbin('cookies'), cookies=cj)
         # Make sure the cookie was sent
         assert r.json()['cookies']['foo'] == 'bar'
+
+    def test_get_cookie_policy(self):
+        jar = requests.cookies.RequestsCookieJar()
+        assert jar.get_policy() == jar._policy
+        assert isinstance(jar.get_policy(), cookielib.DefaultCookiePolicy)
+
+    def test_custom_cookie_policy(self):
+        class TestCookiePolicy(cookielib.CookiePolicy):
+            def __init__(self):
+                super(TestCookiePolicy, self).__init__()
+
+        jar = requests.cookies.RequestsCookieJar(TestCookiePolicy())
+        policy = jar.get_policy()
+        assert isinstance(policy, TestCookiePolicy)
+        new_jar = requests.cookies.RequestsCookieJar(jar.get_policy())
+        assert jar.get_policy() == new_jar.get_policy()
+
+    def test_persist_policy(self):
+        class TestCookiePolicy(cookielib.CookiePolicy):
+            def __init__(self):
+                super(TestCookiePolicy, self).__init__()
+
+        jar = requests.cookies.RequestsCookieJar(TestCookiePolicy(), True)
+        empty_jar = requests.cookies.RequestsCookieJar()
+        assert not isinstance(empty_jar.get_policy(), TestCookiePolicy)
+
+        # Ensure policy is carried over on merge
+        merged_jar = merge_cookies(empty_jar, jar)
+        assert isinstance(merged_jar.get_policy(), TestCookiePolicy)
+        assert merged_jar.get_policy() == empty_jar.get_policy()
+
+        # Ensure policy set to be persistent isn't overridden on merge 
+        other_jar = requests.cookies.RequestsCookieJar(persist_policy=True)
+        merged_jar = merge_cookies(other_jar, jar)
+        assert isinstance(other_jar.get_policy(), cookielib.DefaultCookiePolicy)
 
     def test_requests_in_history_are_not_overridden(self, httpbin):
         resp = requests.get(httpbin('redirect/3'))
