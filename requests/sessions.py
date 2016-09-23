@@ -156,7 +156,7 @@ class SessionRedirectMixin(object):
             # in the new request. Because we've mutated our copied prepared
             # request, use the old one that we haven't yet touched.
             extract_cookies_to_jar(prepared_request._cookies, req, resp.raw)
-            prepared_request._cookies.update(self.cookies)
+            merge_cookies(prepared_request._cookies, self.cookies)
             prepared_request.prepare_cookies(prepared_request._cookies)
 
             # Rebuild auth and proxy information.

@@ -19,7 +19,8 @@ from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urlparse,
     builtin_str, OrderedDict)
-from requests.cookies import cookiejar_from_dict, morsel_to_cookie
+from requests.cookies import (
+    cookiejar_from_dict, morsel_to_cookie, merge_cookies)
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
     MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
@@ -353,6 +354,38 @@ class TestRequests:
         r = s.get(httpbin('cookies'), cookies=cj)
         # Make sure the cookie was sent
         assert r.json()['cookies']['foo'] == 'bar'
+
+    def test_cookielib_cookiejar_on_redirect(self, httpbin):
+        """Tests resolve_redirect doesn't fail when merging cookies
+        with non-RequestsCookieJar cookiejar.
+
+        See GH #3579
+        """
+        cj = cookiejar_from_dict({'foo': 'bar'}, cookielib.CookieJar())
+        s = requests.Session()
+        s.cookies = cookiejar_from_dict({'cookie': 'tasty'})
+
+        # Prepare request without using Session
+        req = requests.Request('GET', httpbin('headers'), cookies=cj)
+        prep_req = req.prepare()
+
+        # Send request and simulate redirect
+        resp = s.send(prep_req)
+        resp.status_code = 302
+        resp.headers['location'] = httpbin('get')
+        redirects = s.resolve_redirects(resp, prep_req)
+        resp = next(redirects)
+
+        # Verify CookieJar isn't being converted to RequestsCookieJar
+        assert isinstance(prep_req._cookies, cookielib.CookieJar)
+        assert isinstance(resp.request._cookies, cookielib.CookieJar)
+        assert not isinstance(resp.request._cookies, requests.cookies.RequestsCookieJar)
+
+        cookies = {}
+        for c in resp.request._cookies:
+            cookies[c.name] = c.value
+        assert cookies['foo'] == 'bar'
+        assert cookies['cookie'] == 'tasty'
 
     def test_requests_in_history_are_not_overridden(self, httpbin):
         resp = requests.get(httpbin('redirect/3'))
