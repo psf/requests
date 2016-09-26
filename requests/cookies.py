@@ -13,6 +13,8 @@ import copy
 import time
 import calendar
 import collections
+
+from . import utils
 from .compat import cookielib, urlparse, urlunparse, Morsel
 
 try:
@@ -55,14 +57,8 @@ class MockRequest(object):
         if not self._r.headers.get('Host'):
             return self._r.url
         # If they did set it, retrieve it and reconstruct the expected domain
-        host = self._r.headers['Host']
+        host = utils.to_native_string(self._r.headers['Host'], encoding='utf-8')
         parsed = urlparse(self._r.url)
-
-        # If parsed url is str type, ensure that host is also str type
-        if isinstance(parsed.scheme, str) and not isinstance(host, str)\
-                and isinstance(host, bytes):
-            host = host.decode('ascii')
-
         # Reconstruct the URL as we expect it
         return urlunparse([
             parsed.scheme, host, parsed.path, parsed.params, parsed.query,
