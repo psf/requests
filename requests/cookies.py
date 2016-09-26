@@ -57,6 +57,12 @@ class MockRequest(object):
         # If they did set it, retrieve it and reconstruct the expected domain
         host = self._r.headers['Host']
         parsed = urlparse(self._r.url)
+
+        # If parsed url is str type, ensure that host is also str type
+        if isinstance(parsed.scheme, str) and not isinstance(host, str)\
+                and isinstance(host, bytes):
+            host = host.decode('ascii')
+
         # Reconstruct the URL as we expect it
         return urlunparse([
             parsed.scheme, host, parsed.path, parsed.params, parsed.query,
