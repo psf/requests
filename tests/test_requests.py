@@ -858,6 +858,16 @@ class TestRequests:
         prep = s.prepare_request(req)
         assert prep.url == "https://httpbin.org/"
 
+    def test_request_with_bytestring_host(self):
+        s = requests.Session()
+        resp = s.request(
+            'GET',
+            'http://httpbin.org/cookies/set?cookie=value',
+            allow_redirects=False,
+            headers={'Host': b'httpbin.org'}
+        )
+        assert resp.cookies.get('cookie') == 'value'
+
     def test_links(self):
         r = requests.Response()
         r.headers = {
