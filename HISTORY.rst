@@ -48,7 +48,7 @@ Release History
 
 **New Features**
 
-- SOCKS Proxy Support! (requires PySocks; $ pip install requests[socks])
+- SOCKS Proxy Support! (requires PySocks; ``$ pip install requests[socks]``)
 
 **Miscellaneous**
 
