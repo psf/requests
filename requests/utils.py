@@ -20,10 +20,11 @@ import warnings
 
 from . import __version__
 from . import certs
+# noinspection PyUnresolvedReferences
+from ._internal_utils import to_native_string
 from .compat import parse_http_list as _parse_list_header
-from .compat import (quote, urlparse, bytes, str, OrderedDict, unquote, is_py2,
-                     builtin_str, getproxies, proxy_bypass, urlunparse,
-                     basestring)
+from .compat import (quote, urlparse, bytes, str, OrderedDict, unquote,
+                     getproxies, proxy_bypass, urlunparse, basestring)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
 from .exceptions import InvalidURL, InvalidHeader, FileModeWarning
@@ -768,22 +769,6 @@ def get_auth_from_url(url):
         auth = ('', '')
 
     return auth
-
-
-def to_native_string(string, encoding='ascii'):
-    """Given a string object, regardless of type, returns a representation of
-    that string in the native string type, encoding and decoding where
-    necessary. This assumes ASCII unless told otherwise.
-    """
-    if isinstance(string, builtin_str):
-        out = string
-    else:
-        if is_py2:
-            out = string.encode(encoding)
-        else:
-            out = string.decode(encoding)
-
-    return out
 
 
 # Moved outside of function to avoid recompile every call
