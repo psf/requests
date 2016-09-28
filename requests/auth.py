@@ -17,7 +17,8 @@ from base64 import b64encode
 
 from .compat import urlparse, str
 from .cookies import extract_cookies_to_jar
-from .utils import parse_dict_header, to_native_string
+from ._internal_utils import to_native_string
+from .utils import parse_dict_header
 from .status_codes import codes
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
