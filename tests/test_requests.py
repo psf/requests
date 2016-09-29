@@ -14,6 +14,7 @@ import warnings
 import io
 import requests
 import pytest
+import pytest_httpbin
 from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
@@ -1496,6 +1497,34 @@ class TestRequests:
         assert not resp.raw.closed
         resp.close()
         assert resp.raw.closed
+
+    def test_updating_ca_cert(self, httpbin_secure):
+        """Assert that requests use the latest configured CA certificates."""
+        session = requests.session()
+        session.verify = pytest_httpbin.certs.where()
+        session.get(httpbin_secure('/'))
+        session.verify = True
+        with pytest.raises(requests.exceptions.SSLError) as e:
+            session.get(httpbin_secure('/'))
+        assert 'certificate verify failed' in str(e)
+
+    def test_updating_client_cert(self, httpbin_secure):
+        """Assert that requests use the latest configured client certificates."""
+        ca_file = pytest_httpbin.certs.where()
+        cert_dir = os.path.dirname(ca_file)
+        # All we need is a valid certificate and key to make a request. httpbin_secure
+        # won't check the signature or subject name, so it's okay that these happen to
+        # be the server's certificate and key.
+        cert = os.path.join(cert_dir, 'cert.pem')
+        key = os.path.join(cert_dir, 'key.pem')
+        session = requests.session()
+        session.verify = ca_file
+        resp = session.get(httpbin_secure('/'))
+        resp_with_cert = session.get(httpbin_secure('/'), cert=(cert, key))
+        assert resp_with_cert.raw._pool.cert_file == cert
+        assert resp_with_cert.raw._pool.key_file == key
+        assert resp.raw._pool is not resp_with_cert.raw._pool
+
 
 class TestCaseInsensitiveDict:
 
