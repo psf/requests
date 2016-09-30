@@ -747,18 +747,14 @@ class Response(object):
 
         if self._content is False:
             # Read the contents.
-            try:
-                if self._content_consumed:
-                    raise RuntimeError(
-                        'The content for this response was already consumed')
+            if self._content_consumed:
+                raise RuntimeError(
+                    'The content for this response was already consumed')
 
-                if self.status_code == 0:
-                    self._content = None
-                else:
-                    self._content = bytes().join(self.iter_content(CONTENT_CHUNK_SIZE)) or bytes()
-
-            except AttributeError:
+            if self.status_code == 0:
                 self._content = None
+            else:
+                self._content = bytes().join(self.iter_content(CONTENT_CHUNK_SIZE)) or bytes()
 
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3
