@@ -808,7 +808,7 @@ this would be the MKCOL method some WEBDAV servers use. Do not fret, these can
 still be used with Requests. These make use of the built-in ``.request``
 method. For example::
 
-    >>> r = requests.request('mkcol', url, data=data)
+    >>> r = requests.request('MKCOL', url, data=data)
     >>> r.status_code
     200 # Assuming your call was correct
 
