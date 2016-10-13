@@ -70,7 +70,7 @@ time, to ensure that they are able to promptly release their downstream
 packages. Currently the list of people we actively contact *ahead of a public
 release* is:
 
-- Ralph Bean, Red Hat (@ralphbean)
+- Jeremy Cline, Red Hat (@jeremycline)
 - Daniele Tricoli, Debian (@eriol)
 
 We will notify these individuals at least a week ahead of our planned release
