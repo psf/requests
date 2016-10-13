@@ -8,6 +8,7 @@ This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
 """
 import os
+import logging
 from collections import Mapping
 from datetime import datetime
 
@@ -28,7 +29,7 @@ from .adapters import HTTPAdapter
 
 from .utils import (
     requote_uri, get_environ_proxies, get_netrc_auth, should_bypass_proxies,
-    get_auth_from_url
+    get_auth_from_url, _log_transaction
 )
 
 from .status_codes import codes
@@ -37,6 +38,8 @@ from .status_codes import codes
 from .models import REDIRECT_STATI
 
 REDIRECT_CACHE_SIZE = 1000
+
+log = logging.getLogger(__name__)
 
 
 def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
@@ -396,6 +399,7 @@ class Session(SessionRedirectMixin):
         )
         return p
 
+    @_log_transaction(log)
     def request(self, method, url,
         params=None,
         data=None,
