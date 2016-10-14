@@ -3,6 +3,15 @@
 Release History
 ---------------
 
+dev
++++
+
+**Improvements**
+
+- Updated support for internationalized domain names from IDNA2003 to IDNA2008.
+  This updated support is required for several forms of IDNs and is mandatory
+  for .de domains.
+
 2.11.1 (2016-08-17)
 +++++++++++++++++++
 
