@@ -37,6 +37,7 @@ packages = [
     'requests',
     'requests.packages',
     'requests.packages.chardet',
+    'requests.packages.idna',
     'requests.packages.urllib3',
     'requests.packages.urllib3.packages',
     'requests.packages.urllib3.contrib',

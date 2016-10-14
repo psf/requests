@@ -1884,6 +1884,7 @@ def test_urllib3_pool_connection_closed(httpbin):
 def test_vendor_aliases():
     from requests.packages import urllib3
     from requests.packages import chardet
+    from requests.packages import idna
 
     with pytest.raises(ImportError):
         from requests.packages import webbrowser
