@@ -364,7 +364,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         # Only want to apply IDNA to the hostname
         try:
-            host = idna.encode(host).decode('utf-8')
+            host = idna.encode(host, uts46=True).decode('utf-8')
         except (UnicodeError, idna.IDNAError):
             raise InvalidURL('URL has an invalid label.')
 

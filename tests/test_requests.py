@@ -1900,10 +1900,21 @@ class TestPreparingURLs(object):
                 u'http://ジェーピーニック.jp'.encode('utf-8'),
                 u'http://xn--hckqz9bzb1cyrb.jp/'
             ),
-            (u'http://straße.de/straße', u'http://xn--strae-oqa.de/stra%C3%9Fe'),
+            (
+                u'http://straße.de/straße',
+                u'http://xn--strae-oqa.de/stra%C3%9Fe'
+            ),
             (
                 u'http://straße.de/straße'.encode('utf-8'),
                 u'http://xn--strae-oqa.de/stra%C3%9Fe'
+            ),
+            (
+                u'http://Königsgäßchen.de/straße',
+                u'http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe'
+            ),
+            (
+                u'http://Königsgäßchen.de/straße'.encode('utf-8'),
+                u'http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe'
             ),
         )
     )
