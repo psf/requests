@@ -32,6 +32,7 @@ idna:
 	    git checkout `git describe --abbrev=0 --tags` && \
 	    cd .. && \
 	    mv idna/idna requests/packages/ && \
+	    find requests/packages/idna -type f -exec sed -i "" "s/^from idna/from /" {} \; && \
 	    rm -fr idna
 
 publish:
