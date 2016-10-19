@@ -1,4 +1,4 @@
-from idna.core import encode, decode, alabel, ulabel, IDNAError
+from .core import encode, decode, alabel, ulabel, IDNAError
 import codecs
 import re
 

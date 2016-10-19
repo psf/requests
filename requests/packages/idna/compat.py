@@ -1,5 +1,5 @@
-from idna.core import *
-from idna.codec import *
+from .core import *
+from .codec import *
 
 def ToASCII(label):
     return encode(label)
