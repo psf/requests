@@ -51,6 +51,18 @@ class TestSuperLen:
 
         assert super_len(BoomFile()) == 0
 
+    @pytest.mark.parametrize('error', [IOError, OSError])
+    def test_super_len_tell_ioerror(self, error):
+        """Ensure that if tell gives an IOError super_len doesn't fail"""
+        class NoLenBoomFile(object):
+            def tell(self):
+                raise error()
+
+            def seek(self, offset, whence):
+                pass
+
+        assert super_len(NoLenBoomFile()) == 0
+
     def test_string(self):
         assert super_len('Test') == 4
 
