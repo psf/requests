@@ -17,7 +17,7 @@ ci: init
 certs:
 	curl http://ci.kennethreitz.org/job/ca-bundle/lastSuccessfulBuild/artifact/cacerts.pem -o requests/cacert.pem
 
-deps: urllib3 chardet
+deps: urllib3 chardet idna
 
 urllib3:
 	git clone https://github.com/shazow/urllib3.git && \
@@ -36,6 +36,16 @@ chardet:
 	    cd .. && \
 	    mv chardet/chardet requests/packages/ && \
 	    rm -fr chardet
+
+idna:
+	git clone https://github.com/kjd/idna.git && \
+	    rm -fr requests/packages/idna && \
+	    cd idna && \
+	    git checkout `git describe --abbrev=0 --tags` && \
+	    cd .. && \
+	    mv idna/idna requests/packages/ && \
+	    find requests/packages/idna -type f -exec sed -i "" "s/^from idna/from /" {} \; && \
+	    rm -fr idna
 
 publish:
 	python setup.py register

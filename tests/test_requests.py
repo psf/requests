@@ -1884,6 +1884,55 @@ def test_urllib3_pool_connection_closed(httpbin):
 def test_vendor_aliases():
     from requests.packages import urllib3
     from requests.packages import chardet
+    from requests.packages import idna
 
     with pytest.raises(ImportError):
         from requests.packages import webbrowser
+
+
+class TestPreparingURLs(object):
+    @pytest.mark.parametrize(
+        'url,expected',
+        (
+            ('http://google.com', 'http://google.com/'),
+            (u'http://ジェーピーニック.jp', u'http://xn--hckqz9bzb1cyrb.jp/'),
+            (
+                u'http://ジェーピーニック.jp'.encode('utf-8'),
+                u'http://xn--hckqz9bzb1cyrb.jp/'
+            ),
+            (
+                u'http://straße.de/straße',
+                u'http://xn--strae-oqa.de/stra%C3%9Fe'
+            ),
+            (
+                u'http://straße.de/straße'.encode('utf-8'),
+                u'http://xn--strae-oqa.de/stra%C3%9Fe'
+            ),
+            (
+                u'http://Königsgäßchen.de/straße',
+                u'http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe'
+            ),
+            (
+                u'http://Königsgäßchen.de/straße'.encode('utf-8'),
+                u'http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe'
+            ),
+        )
+    )
+    def test_preparing_url(self, url, expected):
+        r = requests.Request(url=url)
+        p = r.prepare()
+        assert p.url == expected
+
+    @pytest.mark.parametrize(
+        'url',
+        (
+            b"http://*.google.com",
+            b"http://*",
+            u"http://*.google.com",
+            u"http://*",
+        )
+    )
+    def test_preparing_bad_url(self, url):
+        r = requests.Request(url=url)
+        with pytest.raises(requests.exceptions.InvalidURL):
+            r.prepare()
