@@ -40,7 +40,7 @@ class RecentlyUsedContainer(MutableMapping):
 
     ContainerCls = OrderedDict
 
-    def __init__(self, maxsize=10, dispose_func=None):
+    def __init__(self, maxsize=10, dispose_func=lambda _: None):
         self._maxsize = maxsize
         self.dispose_func = dispose_func
 
@@ -66,15 +66,14 @@ class RecentlyUsedContainer(MutableMapping):
             if len(self._container) > self._maxsize:
                 _key, evicted_value = self._container.popitem(last=False)
 
-        if self.dispose_func and evicted_value is not _Null:
+        if evicted_value is not _Null:
             self.dispose_func(evicted_value)
 
     def __delitem__(self, key):
         with self.lock:
             value = self._container.pop(key)
 
-        if self.dispose_func:
-            self.dispose_func(value)
+        self.dispose_func(value)
 
     def __len__(self):
         with self.lock:
@@ -89,9 +88,8 @@ class RecentlyUsedContainer(MutableMapping):
             values = list(itervalues(self._container))
             self._container.clear()
 
-        if self.dispose_func:
-            for value in values:
-                self.dispose_func(value)
+        for value in values:
+            self.dispose_func(value)
 
     def keys(self):
         with self.lock:
