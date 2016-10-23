@@ -674,7 +674,8 @@ class Session(SessionRedirectMixin):
             # with cURL.
             if verify is True or verify is None:
                 verify = (os.environ.get('REQUESTS_CA_BUNDLE') or
-                          os.environ.get('CURL_CA_BUNDLE'))
+                          os.environ.get('CURL_CA_BUNDLE') or
+                          verify)
 
         # Now we handle proxies.
         # Proxies need to be built up backwards. This is because None values

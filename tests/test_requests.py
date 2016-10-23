@@ -1466,6 +1466,21 @@ class TestRequests:
         with pytest.raises(KeyError):
             proxies['http']
 
+    @pytest.fixture(autouse=True)
+    def test_merge_environment_settings_verify(self, monkeypatch):
+        """Assert CA environment settings are merged as expected when missing"""
+        session = requests.Session()
+        monkeypatch.delenv('CURL_CA_BUNDLE', raising=False)
+        monkeypatch.delenv('REQUESTS_CA_BUNDLE', raising=False)
+
+        assert session.trust_env is True
+        assert session.verify is True
+        assert 'REQUESTS_CA_BUNDLE' not in os.environ
+        assert 'CURL_CA_BUNDLE' not in os.environ
+        merged_settings = session.merge_environment_settings(
+            'http://example.com', {}, False, True, None)
+        assert merged_settings['verify'] is True
+
     def test_session_close_proxy_clear(self, mocker):
         proxies = {
           'one': mocker.Mock(),
