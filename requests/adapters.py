@@ -123,7 +123,7 @@ class HTTPAdapter(BaseAdapter):
         self._pool_connections = pool_connections
         self._pool_maxsize = pool_maxsize
         self._pool_block = pool_block
-        self._pool_kw_lock = RLock()
+        self._pool_manager_lock = RLock()
 
         self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
 
@@ -136,7 +136,7 @@ class HTTPAdapter(BaseAdapter):
         # self.poolmanager uses a lambda function, which isn't pickleable.
         self.proxy_manager = {}
         self.config = {}
-        self._pool_kw_lock = RLock()
+        self._pool_manager_lock = RLock()
 
         for attr, value in state.items():
             setattr(self, attr, value)
@@ -201,11 +201,15 @@ class HTTPAdapter(BaseAdapter):
 
         return manager
 
-    def _update_poolmanager_ssl_kw(self, verify, cert):
+    @staticmethod
+    def _update_poolmanager_ssl_kw(pool_manager, verify, cert):
         """Update the :class:`PoolManager <urllib3.poolmanager.PoolManager>`
         connection_pool_kw with the necessary SSL configuration. This method
         should not be called from user code, and is only exposed for use when
         subclassing the :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
+
+        :param pool_manager: A :class:`PoolManager <urllib3.poolmanager.PoolManager>
+                             to be updated.
 
         :param verify: Whether we should actually verify the certificate;
                        optionally a path to a CA certificate bundle or
@@ -229,25 +233,25 @@ class HTTPAdapter(BaseAdapter):
             if not cert_loc:
                 raise Exception("Could not find a suitable SSL CA certificate bundle.")
 
-            self.poolmanager.connection_pool_kw['cert_reqs'] = 'CERT_REQUIRED'
+            pool_manager.connection_pool_kw['cert_reqs'] = 'CERT_REQUIRED'
 
             if not os.path.isdir(cert_loc):
-                self.poolmanager.connection_pool_kw['ca_certs'] = cert_loc
-                self.poolmanager.connection_pool_kw['ca_cert_dir'] = None
+                pool_manager.connection_pool_kw['ca_certs'] = cert_loc
+                pool_manager.connection_pool_kw['ca_cert_dir'] = None
             else:
-                self.poolmanager.connection_pool_kw['ca_cert_dir'] = cert_loc
-                self.poolmanager.connection_pool_kw['ca_certs'] = None
+                pool_manager.connection_pool_kw['ca_cert_dir'] = cert_loc
+                pool_manager.connection_pool_kw['ca_certs'] = None
         else:
-            self.poolmanager.connection_pool_kw['cert_reqs'] = 'CERT_NONE'
-            self.poolmanager.connection_pool_kw['ca_certs'] = None
-            self.poolmanager.connection_pool_kw['ca_cert_dir'] = None
+            pool_manager.connection_pool_kw['cert_reqs'] = 'CERT_NONE'
+            pool_manager.connection_pool_kw['ca_certs'] = None
+            pool_manager.connection_pool_kw['ca_cert_dir'] = None
 
         if cert:
             if not isinstance(cert, basestring):
-                self.poolmanager.connection_pool_kw['cert_file'] = cert[0]
-                self.poolmanager.connection_pool_kw['key_file'] = cert[1]
+                pool_manager.connection_pool_kw['cert_file'] = cert[0]
+                pool_manager.connection_pool_kw['key_file'] = cert[1]
             else:
-                self.poolmanager.connection_pool_kw['cert_file'] = cert
+                pool_manager.connection_pool_kw['cert_file'] = cert
 
     def build_response(self, req, resp):
         """Builds a :class:`Response <requests.Response>` object from a urllib3
@@ -295,23 +299,23 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
         :rtype: requests.packages.urllib3.ConnectionPool
         """
-        with self._pool_kw_lock:
-            if url.lower().startswith('https'):
-                self._update_poolmanager_ssl_kw(verify, cert)
+        parsed_url = urlparse(url)
+        scheme = parsed_url.scheme.lower()
 
-            proxy = select_proxy(url, proxies)
+        with self._pool_manager_lock:
+            proxies = proxies or {}
+            proxy = proxies.get(scheme)
 
             if proxy:
                 proxy = prepend_scheme_if_needed(proxy, 'http')
-                proxy_manager = self.proxy_manager_for(proxy)
-                conn = proxy_manager.connection_from_url(url)
+                pool_manager = self.proxy_manager_for(proxy)
             else:
-                # Only scheme should be lower case
-                parsed = urlparse(url)
-                url = parsed.geturl()
-                conn = self.poolmanager.connection_from_url(url)
+                pool_manager = self.poolmanager
 
-        return conn
+            if scheme == 'https':
+                self._update_poolmanager_ssl_kw(pool_manager, verify, cert)
+
+        return pool_manager.connection_from_url(parsed_url.geturl())
 
     def close(self):
         """Disposes of any internal state.
