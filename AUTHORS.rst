@@ -172,3 +172,4 @@ Patches and Suggestions
 - Maik Himstedt
 - Michael Hunsinger
 - Jeremy Cline <jcline@redhat.com> (`@jeremycline <https://github.com/jeremycline>`_)
+- Jeff Ortel <jortel@redhat.com> (`@jortel <https://github.com/jortel>`_)

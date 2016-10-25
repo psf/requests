@@ -1540,6 +1540,26 @@ class TestRequests:
         assert resp_with_cert.raw._pool.key_file == key
         assert resp.raw._pool is not resp_with_cert.raw._pool
 
+    def test_ssl_options_updated_on_proxy_pool_manager(self, mocker):
+        ca = 'ca.pem'
+        certificate = ('cert.pem', 'key.pem')
+        adapter = requests.adapters.HTTPAdapter()
+        proxy_url = 'http://safety.org'
+        proxy_manager = requests.packages.urllib3.ProxyManager(proxy_url)
+        adapter.proxy_manager = {
+            proxy_url: proxy_manager
+        }
+
+        # test
+        url = 'https://test.org'
+        conn_pool = adapter.get_connection(
+            url, verify=ca, cert=certificate, proxies={'https': proxy_url})
+
+        # validation
+        assert conn_pool.ca_certs == ca
+        assert conn_pool.cert_file == certificate[0]
+        assert conn_pool.key_file == certificate[1]
+
 
 class TestCaseInsensitiveDict:
 
