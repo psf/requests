@@ -23,12 +23,6 @@ from .util.retry import Retry
 
 # Set default logging handler to avoid "No handler found" warnings.
 import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
 
 __author__ = 'Andrey Petrov (andrey.petrov@shazow.net)'
 __license__ = 'MIT'
@@ -51,7 +45,7 @@ __all__ = (
     'proxy_from_url',
 )
 
-logging.getLogger(__name__).addHandler(NullHandler())
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 def add_stderr_logger(level=logging.DEBUG):
@@ -70,9 +64,6 @@ def add_stderr_logger(level=logging.DEBUG):
     logger.setLevel(level)
     logger.debug('Added a stderr logging handler to logger: %s', __name__)
     return handler
-
-# ... Clean up.
-del NullHandler
 
 
 # All warning filters *must* be appended unless you're really certain that they

@@ -8,11 +8,11 @@ This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
 """
 import os
-from collections import Mapping
+from collections import Mapping, OrderedDict
 from datetime import datetime
 
 from .auth import _basic_auth_str
-from .compat import cookielib, OrderedDict, urljoin, urlparse
+from .compat import cookielib, urljoin, urlparse
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
