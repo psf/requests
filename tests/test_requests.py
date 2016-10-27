@@ -24,7 +24,7 @@ from requests.cookies import (
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
     MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError, InvalidHeader)
+    ProxyError, InvalidHeader, UnrewindableBodyError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin

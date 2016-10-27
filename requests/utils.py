@@ -23,11 +23,13 @@ from . import certs
 # to_native_string is unused here, but imported here for backwards compatibility
 from ._internal_utils import to_native_string
 from .compat import parse_http_list as _parse_list_header
-from .compat import (quote, urlparse, bytes, str, OrderedDict, unquote,
-                     getproxies, proxy_bypass, urlunparse, basestring)
+from .compat import (
+    quote, urlparse, bytes, str, OrderedDict, unquote, getproxies,
+    proxy_bypass, urlunparse, basestring, integer_types)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
-from .exceptions import InvalidURL, InvalidHeader, FileModeWarning
+from .exceptions import (
+    InvalidURL, InvalidHeader, FileModeWarning, UnrewindableBodyError)
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -811,3 +813,17 @@ def urldefragauth(url):
     netloc = netloc.rsplit('@', 1)[-1]
 
     return urlunparse((scheme, netloc, path, params, query, ''))
+
+def rewind_body(prepared_request):
+    """Move file pointer back to its recorded starting position
+    so it can be read again on redirect.
+    """
+    body_seek = getattr(prepared_request.body, 'seek', None)
+    if body_seek is not None and isinstance(prepared_request._body_position, integer_types):
+        try:
+            body_seek(prepared_request._body_position)
+        except (IOError, OSError):
+            raise UnrewindableBodyError("An error occured when rewinding request "
+                                        "body for redirect.")
+    else:
+        raise UnrewindableBodyError("Unable to rewind request body for redirect.")

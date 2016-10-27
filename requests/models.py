@@ -291,6 +291,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.body = None
         #: dictionary of callback hooks, for internal usage.
         self.hooks = default_hooks()
+        #: integer denoting starting position of a readable file-like body.
+        self._body_position = None
 
     def prepare(self, method=None, url=None, headers=None, files=None,
         data=None, params=None, auth=None, cookies=None, hooks=None, json=None):
@@ -320,6 +322,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         p._cookies = _copy_cookie_jar(self._cookies)
         p.body = self.body
         p.hooks = self.hooks
+        p._body_position = self._body_position
         return p
 
     def prepare_method(self, method):
@@ -446,6 +449,17 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         if is_stream:
             body = data
+
+            if getattr(body, 'tell', None) is not None:
+                # Record the current file position before reading.
+                # This will allow us to rewind a file in the event
+                # of a redirect.
+                try:
+                    self._body_position = body.tell()
+                except (IOError, OSError):
+                    # This differentiates from None, allowing us to catch
+                    # a failed `tell()` later when trying to rewind the body
+                    self._body_position = object()
 
             if files:
                 raise NotImplementedError('Streamed bodies and files are mutually exclusive.')
