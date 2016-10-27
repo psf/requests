@@ -4,6 +4,7 @@ from io import BytesIO
 
 import pytest
 from requests import compat
+from requests.cookies import RequestsCookieJar, cookiejar_from_dict
 from requests.structures import CaseInsensitiveDict
 from requests.utils import (
     address_in_network, dotted_netmask,
@@ -15,7 +16,7 @@ from requests.utils import (
     requote_uri, select_proxy, should_bypass_proxies, super_len,
     to_key_val_list, to_native_string,
     unquote_header_value, unquote_unreserved,
-    urldefragauth)
+    urldefragauth, add_dict_to_cookiejar)
 
 from .compat import StringIO, cStringIO
 
@@ -501,3 +502,18 @@ def test_should_bypass_proxies(url, expected, monkeypatch):
     monkeypatch.setenv('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
     monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
     assert should_bypass_proxies(url) == expected
+
+@pytest.mark.parametrize(
+    'cookiejar', (
+        compat.cookielib.CookieJar(),
+        RequestsCookieJar()
+    ))
+def test_add_dict_to_cookiejar(cookiejar):
+    """Ensure add_dict_to_cookiejar works for
+    non-RequestsCookieJar CookieJars
+    """
+    cookiedict = {'test': 'cookies',
+                  'good': 'cookies'}
+    cj = add_dict_to_cookiejar(cookiejar, cookiedict)
+    cookies = dict((cookie.name, cookie.value) for cookie in cj)
+    assert cookiedict == cookies
