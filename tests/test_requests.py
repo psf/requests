@@ -656,6 +656,31 @@ class TestRequests:
         with pytest.raises(ValueError):
             requests.post(url, files=['bad file data'])
 
+    def test_post_with_custom_mapping(self, httpbin):
+        class CustomMapping(collections.MutableMapping):
+            def __init__(self, *args, **kwargs):
+                self.data = dict(*args, **kwargs)
+
+            def __delitem__(self, key):
+                del self.data[key]
+
+            def __getitem__(self, key):
+                return self.data[key]
+
+            def __setitem__(self, key, value):
+                self.data[key] = value
+
+            def __iter__(self):
+                return iter(self.data)
+
+            def __len__(self):
+                return len(self.data)
+
+        data = CustomMapping({'some': 'data'})
+        url = httpbin('post')
+        found_json = requests.post(url, data=data).json().get('form')
+        assert found_json == {'some': 'data'}
+
     def test_conflicting_post_params(self, httpbin):
         url = httpbin('post')
         with open('requirements.txt') as f:
