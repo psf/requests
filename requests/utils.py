@@ -331,9 +331,7 @@ def add_dict_to_cookiejar(cj, cookie_dict):
     :rtype: CookieJar
     """
 
-    cj2 = cookiejar_from_dict(cookie_dict)
-    cj.update(cj2)
-    return cj
+    return cookiejar_from_dict(cookie_dict, cj)
 
 
 def get_encodings_from_content(content):
