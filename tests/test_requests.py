@@ -1386,6 +1386,107 @@ class TestRequests:
         r3 = next(rg)
         assert not r3.is_redirect
 
+    def test_prepare_body_position_non_stream(self):
+        data = b'the data'
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position is None
+
+    def test_rewind_body(self):
+        data = io.BytesIO(b'the data')
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position == 0
+        assert prep.body.read() == b'the data'
+
+        # the data has all been read
+        assert prep.body.read() == b''
+
+        # rewind it back
+        requests.utils.rewind_body(prep)
+        assert prep.body.read() == b'the data'
+
+    def test_rewind_partially_read_body(self):
+        data = io.BytesIO(b'the data')
+        s = requests.Session()
+        data.read(4)  # read some data
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position == 4
+        assert prep.body.read() == b'data'
+
+        # the data has all been read
+        assert prep.body.read() == b''
+
+        # rewind it back
+        requests.utils.rewind_body(prep)
+        assert prep.body.read() == b'data'
+
+    def test_rewind_body_no_seek(self):
+        class BadFileObj:
+            def __init__(self, data):
+                self.data = data
+
+            def tell(self):
+                return 0
+
+            def __iter__(self):
+                return
+
+        data = BadFileObj('the data')
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position == 0
+
+        with pytest.raises(UnrewindableBodyError) as e:
+            requests.utils.rewind_body(prep)
+
+        assert 'Unable to rewind request body' in str(e)
+
+    def test_rewind_body_failed_seek(self):
+        class BadFileObj:
+            def __init__(self, data):
+                self.data = data
+
+            def tell(self):
+                return 0
+
+            def seek(self, pos):
+                raise OSError()
+
+            def __iter__(self):
+                return
+
+        data = BadFileObj('the data')
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position == 0
+
+        with pytest.raises(UnrewindableBodyError) as e:
+            requests.utils.rewind_body(prep)
+
+        assert 'error occured when rewinding request body' in str(e)
+
+    def test_rewind_body_failed_tell(self):
+        class BadFileObj:
+            def __init__(self, data):
+                self.data = data
+
+            def tell(self):
+                raise OSError()
+
+            def __iter__(self):
+                return
+
+        data = BadFileObj('the data')
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position is not None
+
+        with pytest.raises(UnrewindableBodyError) as e:
+            requests.utils.rewind_body(prep)
+
+        assert 'Unable to rewind request body' in str(e)
+
     def _patch_adapter_gzipped_redirect(self, session, url):
         adapter = session.get_adapter(url=url)
         org_build_response = adapter.build_response
