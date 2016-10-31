@@ -1472,6 +1472,16 @@ class TestRequests:
         proxies['one'].clear.assert_called_once_with()
         proxies['two'].clear.assert_called_once_with()
 
+    def test_proxy_auth(self, httpbin):
+        adapter = HTTPAdapter()
+        headers = adapter.proxy_headers("http://user:pass@httpbin.org")
+        assert headers == {'Proxy-Authorization': 'Basic dXNlcjpwYXNz'}
+
+    def test_proxy_auth_empty_pass(self, httpbin):
+        adapter = HTTPAdapter()
+        headers = adapter.proxy_headers("http://user:@httpbin.org")
+        assert headers == {'Proxy-Authorization': 'Basic dXNlcjo='}
+
     def test_response_json_when_content_is_None(self, httpbin):
         r = requests.get(httpbin('/status/204'))
         # Make sure r.content is None
