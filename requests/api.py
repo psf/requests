@@ -110,30 +110,32 @@ def post(url, data=None, json=None, **kwargs):
     return request('post', url, data=data, json=json, **kwargs)
 
 
-def put(url, data=None, **kwargs):
+def put(url, data=None, json=None, **kwargs):
     """Sends a PUT request.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
+    :param json: (optional) json data to send in the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
 
-    return request('put', url, data=data, **kwargs)
+    return request('put', url, data=data, json=json, **kwargs)
 
 
-def patch(url, data=None, **kwargs):
+def patch(url, data=None, json=None, **kwargs):
     """Sends a PATCH request.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
+    :param json: (optional) json data to send in the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
 
-    return request('patch', url,  data=data, **kwargs)
+    return request('patch', url,  data=data, json=json, **kwargs)
 
 
 def delete(url, **kwargs):
