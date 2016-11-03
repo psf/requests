@@ -4,7 +4,7 @@ coverage==4.0.3
 decorator==4.0.9
 docutils==0.12
 Flask==0.10.1
-httpbin==0.4.1
+httpbin==0.5.0
 itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23

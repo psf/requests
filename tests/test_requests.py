@@ -24,7 +24,7 @@ from requests.cookies import (
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
     MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError, InvalidHeader)
+    ProxyError, InvalidHeader, UnrewindableBodyError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -164,6 +164,21 @@ class TestRequests:
         assert r.status_code == 200
         assert r.history[0].status_code == 302
         assert r.history[0].is_redirect
+
+    def test_HTTP_307_ALLOW_REDIRECT_POST(self, httpbin):
+        r = requests.post(httpbin('redirect-to'), data='test', params={'url': 'post', 'status_code': 307})
+        assert r.status_code == 200
+        assert r.history[0].status_code == 307
+        assert r.history[0].is_redirect
+        assert r.json()['data'] == 'test'
+
+    def test_HTTP_307_ALLOW_REDIRECT_POST_WITH_SEEKABLE(self, httpbin):
+        byte_str = b'test'
+        r = requests.post(httpbin('redirect-to'), data=io.BytesIO(byte_str), params={'url': 'post', 'status_code': 307})
+        assert r.status_code == 200
+        assert r.history[0].status_code == 307
+        assert r.history[0].is_redirect
+        assert r.json()['data'] == byte_str.decode('utf-8')
 
     def test_HTTP_302_TOO_MANY_REDIRECTS(self, httpbin):
         try:
@@ -1385,6 +1400,107 @@ class TestRequests:
             pass
         r3 = next(rg)
         assert not r3.is_redirect
+
+    def test_prepare_body_position_non_stream(self):
+        data = b'the data'
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position is None
+
+    def test_rewind_body(self):
+        data = io.BytesIO(b'the data')
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position == 0
+        assert prep.body.read() == b'the data'
+
+        # the data has all been read
+        assert prep.body.read() == b''
+
+        # rewind it back
+        requests.utils.rewind_body(prep)
+        assert prep.body.read() == b'the data'
+
+    def test_rewind_partially_read_body(self):
+        data = io.BytesIO(b'the data')
+        s = requests.Session()
+        data.read(4)  # read some data
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position == 4
+        assert prep.body.read() == b'data'
+
+        # the data has all been read
+        assert prep.body.read() == b''
+
+        # rewind it back
+        requests.utils.rewind_body(prep)
+        assert prep.body.read() == b'data'
+
+    def test_rewind_body_no_seek(self):
+        class BadFileObj:
+            def __init__(self, data):
+                self.data = data
+
+            def tell(self):
+                return 0
+
+            def __iter__(self):
+                return
+
+        data = BadFileObj('the data')
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position == 0
+
+        with pytest.raises(UnrewindableBodyError) as e:
+            requests.utils.rewind_body(prep)
+
+        assert 'Unable to rewind request body' in str(e)
+
+    def test_rewind_body_failed_seek(self):
+        class BadFileObj:
+            def __init__(self, data):
+                self.data = data
+
+            def tell(self):
+                return 0
+
+            def seek(self, pos):
+                raise OSError()
+
+            def __iter__(self):
+                return
+
+        data = BadFileObj('the data')
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position == 0
+
+        with pytest.raises(UnrewindableBodyError) as e:
+            requests.utils.rewind_body(prep)
+
+        assert 'error occured when rewinding request body' in str(e)
+
+    def test_rewind_body_failed_tell(self):
+        class BadFileObj:
+            def __init__(self, data):
+                self.data = data
+
+            def tell(self):
+                raise OSError()
+
+            def __iter__(self):
+                return
+
+        data = BadFileObj('the data')
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position is not None
+
+        with pytest.raises(UnrewindableBodyError) as e:
+            requests.utils.rewind_body(prep)
+
+        assert 'Unable to rewind request body' in str(e)
 
     def _patch_adapter_gzipped_redirect(self, session, url):
         adapter = session.get_adapter(url=url)
