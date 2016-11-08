@@ -1,17 +1,21 @@
-'''SSL with SNI_-support for Python 2. Follow these instructions if you would
+"""
+SSL with SNI_-support for Python 2. Follow these instructions if you would
 like to verify SSL certificates in Python 2. Note, the default libraries do
 *not* do certificate checking; you need to do additional work to validate
 certificates yourself.
 
 This needs the following packages installed:
 
-* pyOpenSSL (tested with 0.13)
-* ndg-httpsclient (tested with 0.3.2)
-* pyasn1 (tested with 0.1.6)
+* pyOpenSSL (tested with 16.0.0)
+* cryptography (minimum 1.3.4, from pyopenssl)
+* idna (minimum 2.0, from cryptography)
+
+However, pyopenssl depends on cryptography, which depends on idna, so while we
+use all three directly here we end up having relatively few packages required.
 
 You can install them with the following command:
 
-    pip install pyopenssl ndg-httpsclient pyasn1
+    pip install pyopenssl cryptography idna
 
 To activate certificate checking, call
 :func:`~urllib3.contrib.pyopenssl.inject_into_urllib3` from your Python code
@@ -34,45 +38,38 @@ compression in Python 2 (see `CRIME attack`_).
 If you want to configure the default list of supported cipher suites, you can
 set the ``urllib3.contrib.pyopenssl.DEFAULT_SSL_CIPHER_LIST`` variable.
 
-Module Variables
-----------------
-
-:var DEFAULT_SSL_CIPHER_LIST: The list of supported SSL/TLS cipher suites.
-
 .. _sni: https://en.wikipedia.org/wiki/Server_Name_Indication
 .. _crime attack: https://en.wikipedia.org/wiki/CRIME_(security_exploit)
-
-'''
+"""
 from __future__ import absolute_import
 
-try:
-    from ndg.httpsclient.ssl_peer_verification import SUBJ_ALT_NAME_SUPPORT
-    from ndg.httpsclient.subj_alt_name import SubjectAltName as BaseSubjectAltName
-except SyntaxError as e:
-    raise ImportError(e)
-
+import idna
 import OpenSSL.SSL
-from pyasn1.codec.der import decoder as der_decoder
-from pyasn1.type import univ, constraint
+from cryptography import x509
+from cryptography.hazmat.backends.openssl import backend as openssl_backend
+from cryptography.hazmat.backends.openssl.x509 import _Certificate
+
 from socket import timeout, error as SocketError
+from io import BytesIO
 
 try:  # Platform-specific: Python 2
     from socket import _fileobject
 except ImportError:  # Platform-specific: Python 3
     _fileobject = None
-    from urllib3.packages.backports.makefile import backport_makefile
+    from ..packages.backports.makefile import backport_makefile
 
+import logging
 import ssl
 import select
 import six
+import sys
 
-from .. import connection
 from .. import util
 
 __all__ = ['inject_into_urllib3', 'extract_from_urllib3']
 
-# SNI only *really* works if we can read the subjectAltName of certificates.
-HAS_SNI = SUBJ_ALT_NAME_SUPPORT
+# SNI always works.
+HAS_SNI = True
 
 # Map from urllib3 to PyOpenSSL compatible parameter-values.
 _openssl_versions = {
@@ -91,78 +88,120 @@ try:
 except AttributeError:
     pass
 
-_openssl_verify = {
+_stdlib_to_openssl_verify = {
     ssl.CERT_NONE: OpenSSL.SSL.VERIFY_NONE,
     ssl.CERT_OPTIONAL: OpenSSL.SSL.VERIFY_PEER,
     ssl.CERT_REQUIRED:
         OpenSSL.SSL.VERIFY_PEER + OpenSSL.SSL.VERIFY_FAIL_IF_NO_PEER_CERT,
 }
-
-DEFAULT_SSL_CIPHER_LIST = util.ssl_.DEFAULT_CIPHERS.encode('ascii')
+_openssl_to_stdlib_verify = dict(
+    (v, k) for k, v in _stdlib_to_openssl_verify.items()
+)
 
 # OpenSSL will only write 16K at a time
 SSL_WRITE_BLOCKSIZE = 16384
 
 orig_util_HAS_SNI = util.HAS_SNI
-orig_connection_ssl_wrap_socket = connection.ssl_wrap_socket
+orig_util_SSLContext = util.ssl_.SSLContext
+
+
+log = logging.getLogger(__name__)
 
 
 def inject_into_urllib3():
     'Monkey-patch urllib3 with PyOpenSSL-backed SSL-support.'
 
-    connection.ssl_wrap_socket = ssl_wrap_socket
+    util.ssl_.SSLContext = PyOpenSSLContext
     util.HAS_SNI = HAS_SNI
+    util.ssl_.HAS_SNI = HAS_SNI
     util.IS_PYOPENSSL = True
+    util.ssl_.IS_PYOPENSSL = True
 
 
 def extract_from_urllib3():
     'Undo monkey-patching by :func:`inject_into_urllib3`.'
 
-    connection.ssl_wrap_socket = orig_connection_ssl_wrap_socket
+    util.ssl_.SSLContext = orig_util_SSLContext
     util.HAS_SNI = orig_util_HAS_SNI
+    util.ssl_.HAS_SNI = orig_util_HAS_SNI
     util.IS_PYOPENSSL = False
+    util.ssl_.IS_PYOPENSSL = False
 
 
-# Note: This is a slightly bug-fixed version of same from ndg-httpsclient.
-class SubjectAltName(BaseSubjectAltName):
-    '''ASN.1 implementation for subjectAltNames support'''
+def _dnsname_to_stdlib(name):
+    """
+    Converts a dNSName SubjectAlternativeName field to the form used by the
+    standard library on the given Python version.
 
-    # There is no limit to how many SAN certificates a certificate may have,
-    #   however this needs to have some limit so we'll set an arbitrarily high
-    #   limit.
-    sizeSpec = univ.SequenceOf.sizeSpec + \
-        constraint.ValueSizeConstraint(1, 1024)
+    Cryptography produces a dNSName as a unicode string that was idna-decoded
+    from ASCII bytes. We need to idna-encode that string to get it back, and
+    then on Python 3 we also need to convert to unicode via UTF-8 (the stdlib
+    uses PyUnicode_FromStringAndSize on it, which decodes via UTF-8).
+    """
+    def idna_encode(name):
+        """
+        Borrowed wholesale from the Python Cryptography Project. It turns out
+        that we can't just safely call `idna.encode`: it can explode for
+        wildcard names. This avoids that problem.
+        """
+        for prefix in [u'*.', u'.']:
+            if name.startswith(prefix):
+                name = name[len(prefix):]
+                return prefix.encode('ascii') + idna.encode(name)
+        return idna.encode(name)
+
+    name = idna_encode(name)
+    if sys.version_info >= (3, 0):
+        name = name.decode('utf-8')
+    return name
 
 
-# Note: This is a slightly bug-fixed version of same from ndg-httpsclient.
 def get_subj_alt_name(peer_cert):
-    # Search through extensions
-    dns_name = []
-    if not SUBJ_ALT_NAME_SUPPORT:
-        return dns_name
+    """
+    Given an PyOpenSSL certificate, provides all the subject alternative names.
+    """
+    # Pass the cert to cryptography, which has much better APIs for this.
+    # This is technically using private APIs, but should work across all
+    # relevant versions until PyOpenSSL gets something proper for this.
+    cert = _Certificate(openssl_backend, peer_cert._x509)
 
-    general_names = SubjectAltName()
-    for i in range(peer_cert.get_extension_count()):
-        ext = peer_cert.get_extension(i)
-        ext_name = ext.get_short_name()
-        if ext_name != b'subjectAltName':
-            continue
+    # We want to find the SAN extension. Ask Cryptography to locate it (it's
+    # faster than looping in Python)
+    try:
+        ext = cert.extensions.get_extension_for_class(
+            x509.SubjectAlternativeName
+        ).value
+    except x509.ExtensionNotFound:
+        # No such extension, return the empty list.
+        return []
+    except (x509.DuplicateExtension, x509.UnsupportedExtension,
+            x509.UnsupportedGeneralNameType, UnicodeError) as e:
+        # A problem has been found with the quality of the certificate. Assume
+        # no SAN field is present.
+        log.warning(
+            "A problem was encountered with the certificate that prevented "
+            "urllib3 from finding the SubjectAlternativeName field. This can "
+            "affect certificate validation. The error was %s",
+            e,
+        )
+        return []
 
-        # PyOpenSSL returns extension data in ASN.1 encoded form
-        ext_dat = ext.get_data()
-        decoded_dat = der_decoder.decode(ext_dat,
-                                         asn1Spec=general_names)
+    # We want to return dNSName and iPAddress fields. We need to cast the IPs
+    # back to strings because the match_hostname function wants them as
+    # strings.
+    # Sadly the DNS names need to be idna encoded and then, on Python 3, UTF-8
+    # decoded. This is pretty frustrating, but that's what the standard library
+    # does with certificates, and so we need to attempt to do the same.
+    names = [
+        ('DNS', _dnsname_to_stdlib(name))
+        for name in ext.get_values_for_type(x509.DNSName)
+    ]
+    names.extend(
+        ('IP Address', str(name))
+        for name in ext.get_values_for_type(x509.IPAddress)
+    )
 
-        for name in decoded_dat:
-            if not isinstance(name, SubjectAltName):
-                continue
-            for entry in range(len(name)):
-                component = name.getComponentByPosition(entry)
-                if component.getName() != 'dNSName':
-                    continue
-                dns_name.append(str(component.getComponent()))
-
-    return dns_name
+    return names
 
 
 class WrappedSocket(object):
@@ -282,10 +321,7 @@ class WrappedSocket(object):
             'subject': (
                 (('commonName', x509.get_subject().CN),),
             ),
-            'subjectAltName': [
-                ('DNS', value)
-                for value in get_subj_alt_name(x509)
-            ]
+            'subjectAltName': get_subj_alt_name(x509)
         }
 
     def _reuse(self):
@@ -308,51 +344,88 @@ else:  # Platform-specific: Python 3
 WrappedSocket.makefile = makefile
 
 
+class PyOpenSSLContext(object):
+    """
+    I am a wrapper class for the PyOpenSSL ``Context`` object. I am responsible
+    for translating the interface of the standard library ``SSLContext`` object
+    to calls into PyOpenSSL.
+    """
+    def __init__(self, protocol):
+        self.protocol = _openssl_versions[protocol]
+        self._ctx = OpenSSL.SSL.Context(self.protocol)
+        self._options = 0
+        self.check_hostname = False
+
+    @property
+    def options(self):
+        return self._options
+
+    @options.setter
+    def options(self, value):
+        self._options = value
+        self._ctx.set_options(value)
+
+    @property
+    def verify_mode(self):
+        return _openssl_to_stdlib_verify[self._ctx.get_verify_mode()]
+
+    @verify_mode.setter
+    def verify_mode(self, value):
+        self._ctx.set_verify(
+            _stdlib_to_openssl_verify[value],
+            _verify_callback
+        )
+
+    def set_default_verify_paths(self):
+        self._ctx.set_default_verify_paths()
+
+    def set_ciphers(self, ciphers):
+        if isinstance(ciphers, six.text_type):
+            ciphers = ciphers.encode('utf-8')
+        self._ctx.set_cipher_list(ciphers)
+
+    def load_verify_locations(self, cafile=None, capath=None, cadata=None):
+        if cafile is not None:
+            cafile = cafile.encode('utf-8')
+        if capath is not None:
+            capath = capath.encode('utf-8')
+        self._ctx.load_verify_locations(cafile, capath)
+        if cadata is not None:
+            self._ctx.load_verify_locations(BytesIO(cadata))
+
+    def load_cert_chain(self, certfile, keyfile=None, password=None):
+        self._ctx.use_certificate_file(certfile)
+        if password is not None:
+            self._ctx.set_passwd_cb(lambda max_length, prompt_twice, userdata: password)
+        self._ctx.use_privatekey_file(keyfile or certfile)
+
+    def wrap_socket(self, sock, server_side=False,
+                    do_handshake_on_connect=True, suppress_ragged_eofs=True,
+                    server_hostname=None):
+        cnx = OpenSSL.SSL.Connection(self._ctx, sock)
+
+        if isinstance(server_hostname, six.text_type):  # Platform-specific: Python 3
+            server_hostname = server_hostname.encode('utf-8')
+
+        if server_hostname is not None:
+            cnx.set_tlsext_host_name(server_hostname)
+
+        cnx.set_connect_state()
+
+        while True:
+            try:
+                cnx.do_handshake()
+            except OpenSSL.SSL.WantReadError:
+                rd, _, _ = select.select([sock], [], [], sock.gettimeout())
+                if not rd:
+                    raise timeout('select timed out')
+                continue
+            except OpenSSL.SSL.Error as e:
+                raise ssl.SSLError('bad handshake: %r' % e)
+            break
+
+        return WrappedSocket(cnx, sock)
+
+
 def _verify_callback(cnx, x509, err_no, err_depth, return_code):
     return err_no == 0
-
-
-def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
-                    ca_certs=None, server_hostname=None,
-                    ssl_version=None, ca_cert_dir=None):
-    ctx = OpenSSL.SSL.Context(_openssl_versions[ssl_version])
-    if certfile:
-        keyfile = keyfile or certfile  # Match behaviour of the normal python ssl library
-        ctx.use_certificate_file(certfile)
-    if keyfile:
-        ctx.use_privatekey_file(keyfile)
-    if cert_reqs != ssl.CERT_NONE:
-        ctx.set_verify(_openssl_verify[cert_reqs], _verify_callback)
-    if ca_certs or ca_cert_dir:
-        try:
-            ctx.load_verify_locations(ca_certs, ca_cert_dir)
-        except OpenSSL.SSL.Error as e:
-            raise ssl.SSLError('bad ca_certs: %r' % ca_certs, e)
-    else:
-        ctx.set_default_verify_paths()
-
-    # Disable TLS compression to mitigate CRIME attack (issue #309)
-    OP_NO_COMPRESSION = 0x20000
-    ctx.set_options(OP_NO_COMPRESSION)
-
-    # Set list of supported ciphersuites.
-    ctx.set_cipher_list(DEFAULT_SSL_CIPHER_LIST)
-
-    cnx = OpenSSL.SSL.Connection(ctx, sock)
-    if isinstance(server_hostname, six.text_type):  # Platform-specific: Python 3
-        server_hostname = server_hostname.encode('utf-8')
-    cnx.set_tlsext_host_name(server_hostname)
-    cnx.set_connect_state()
-    while True:
-        try:
-            cnx.do_handshake()
-        except OpenSSL.SSL.WantReadError:
-            rd, _, _ = select.select([sock], [], [], sock.gettimeout())
-            if not rd:
-                raise timeout('select timed out')
-            continue
-        except OpenSSL.SSL.Error as e:
-            raise ssl.SSLError('bad handshake: %r' % e)
-        break
-
-    return WrappedSocket(cnx, sock)

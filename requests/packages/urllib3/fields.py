@@ -130,7 +130,7 @@ class RequestField(object):
             iterable = header_parts.items()
 
         for name, value in iterable:
-            if value:
+            if value is not None:
                 parts.append(self._render_part(name, value))
 
         return '; '.join(parts)

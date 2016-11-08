@@ -3,15 +3,11 @@ import collections
 import functools
 import logging
 
-try:  # Python 3
-    from urllib.parse import urljoin
-except ImportError:
-    from urlparse import urljoin
-
 from ._collections import RecentlyUsedContainer
 from .connectionpool import HTTPConnectionPool, HTTPSConnectionPool
 from .connectionpool import port_by_scheme
 from .exceptions import LocationValueError, MaxRetryError, ProxySchemeUnknown
+from .packages.six.moves.urllib.parse import urljoin
 from .request import RequestMethods
 from .util.url import parse_url
 from .util.retry import Retry
@@ -23,7 +19,7 @@ __all__ = ['PoolManager', 'ProxyManager', 'proxy_from_url']
 log = logging.getLogger(__name__)
 
 SSL_KEYWORDS = ('key_file', 'cert_file', 'cert_reqs', 'ca_certs',
-                'ssl_version', 'ca_cert_dir')
+                'ssl_version', 'ca_cert_dir', 'ssl_context')
 
 # The base fields to use when determining what pool to get a connection from;
 # these do not rely on the ``connection_pool_kw`` and can be determined by the
