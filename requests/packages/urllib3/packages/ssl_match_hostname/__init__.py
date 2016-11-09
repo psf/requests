@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 try:
     # Python 3.2+
     from ssl import CertificateError, match_hostname
