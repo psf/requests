@@ -140,6 +140,12 @@ class TestRequests:
                                    data=u"ööö".encode("utf-8")).prepare()
         assert isinstance(request.body, bytes)
 
+    def test_put_empty_stream(self):
+        request = requests.Request('PUT', 'http://example.com',
+                                   data=io.BytesIO(b'')).prepare()
+        assert not 'transfer-encoding' in request.headers
+        assert requests.headers['content-length'] == '0'
+
     @pytest.mark.parametrize('scheme', ('http://', 'HTTP://', 'hTTp://', 'HttP://'))
     def test_mixed_case_scheme_acceptable(self, httpbin, scheme):
         s = requests.Session()
