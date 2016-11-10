@@ -818,6 +818,7 @@ class Response(object):
         """Returns the json-encoded content of a response, if any.
 
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
+        :raises ValueError: If the response body does not contain valid json.
         """
 
         if not self.encoding and self.content and len(self.content) > 3:
