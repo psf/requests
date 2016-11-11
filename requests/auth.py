@@ -15,7 +15,7 @@ import threading
 
 from base64 import b64encode
 
-from .compat import urlparse, str
+from .compat import urlparse, str, bytes
 from .cookies import extract_cookies_to_jar
 from ._internal_utils import to_native_string
 from .utils import parse_dict_header
@@ -27,6 +27,12 @@ CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
 
 def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
+    
+    if isinstance(username, bytes):
+        username = username.decode('latin1')
+
+    if isinstance(password, bytes):
+        password = password.decode('latin1')
 
     authstr = 'Basic ' + to_native_string(
         b64encode(('%s:%s' % (username, password)).encode('latin1')).strip()
