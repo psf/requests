@@ -496,7 +496,8 @@ set ``stream`` to ``True`` and iterate over the response with
 
         # filter out keep-alive new lines
         if line:
-            print(json.loads(line))
+            decoded_line = line.decode('utf-8')
+            print(json.loads(decoded_line))
 
 .. warning::
 
