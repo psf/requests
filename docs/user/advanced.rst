@@ -499,6 +499,20 @@ set ``stream`` to ``True`` and iterate over the response with
             decoded_line = line.decode('utf-8')
             print(json.loads(decoded_line))
 
+When using `decode_unicode=True` with
+:meth:`Response.iter_lines() <requests.Response.iter_lines>` or
+:meth:`Response.iter_content() <requests.Response.iter_content>`, you'll want
+to provide a fallback encoding in the event the server doesn't provide one::
+
+    r = requests.get('http://httpbin.org/stream/20', stream=True)
+
+    if r.encoding is None:
+        r.encoding = 'utf-8'
+
+    for line in r.iter_lines(decode_unicode=True):
+        if line:
+            print(json.loads(line))
+
 .. warning::
 
     :meth:`~requests.Response.iter_lines()` is not reentrant safe.
