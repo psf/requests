@@ -20,11 +20,12 @@ from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urlparse,
     builtin_str, OrderedDict)
-from requests.cookies import cookiejar_from_dict, morsel_to_cookie
+from requests.cookies import (
+    cookiejar_from_dict, morsel_to_cookie, merge_cookies)
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidScheme, InvalidURL,
     MissingScheme, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError, InvalidHeader)
+    ProxyError, InvalidHeader, UnrewindableBodyError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -106,6 +107,16 @@ class TestRequests:
         req = requests.Request(method, httpbin(method.lower())).prepare()
         assert 'Content-Length' not in req.headers
 
+    @pytest.mark.parametrize('method', ('POST', 'PUT', 'PATCH', 'OPTIONS'))
+    def test_no_body_content_length(self, httpbin, method):
+        req = requests.Request(method, httpbin(method.lower())).prepare()
+        assert req.headers['Content-Length'] == '0'
+
+    @pytest.mark.parametrize('method', ('POST', 'PUT', 'PATCH', 'OPTIONS'))
+    def test_empty_content_length(self, httpbin, method):
+        req = requests.Request(method, httpbin(method.lower()), data='').prepare()
+        assert req.headers['Content-Length'] == '0'
+
     def test_override_content_length(self, httpbin):
         headers = {
             'Content-Length': 'not zero'
@@ -169,6 +180,21 @@ class TestRequests:
         assert r.status_code == 200
         assert r.history[0].status_code == 302
         assert r.history[0].is_redirect
+
+    def test_HTTP_307_ALLOW_REDIRECT_POST(self, httpbin):
+        r = requests.post(httpbin('redirect-to'), data='test', params={'url': 'post', 'status_code': 307})
+        assert r.status_code == 200
+        assert r.history[0].status_code == 307
+        assert r.history[0].is_redirect
+        assert r.json()['data'] == 'test'
+
+    def test_HTTP_307_ALLOW_REDIRECT_POST_WITH_SEEKABLE(self, httpbin):
+        byte_str = b'test'
+        r = requests.post(httpbin('redirect-to'), data=io.BytesIO(byte_str), params={'url': 'post', 'status_code': 307})
+        assert r.status_code == 200
+        assert r.history[0].status_code == 307
+        assert r.history[0].is_redirect
+        assert r.json()['data'] == byte_str.decode('utf-8')
 
     def test_HTTP_302_TOO_MANY_REDIRECTS(self, httpbin):
         try:
@@ -373,6 +399,38 @@ class TestRequests:
         r = s.get(httpbin('cookies'), cookies=cj)
         # Make sure the cookie was sent
         assert r.json()['cookies']['foo'] == 'bar'
+
+    def test_cookielib_cookiejar_on_redirect(self, httpbin):
+        """Tests resolve_redirect doesn't fail when merging cookies
+        with non-RequestsCookieJar cookiejar.
+
+        See GH #3579
+        """
+        cj = cookiejar_from_dict({'foo': 'bar'}, cookielib.CookieJar())
+        s = requests.Session()
+        s.cookies = cookiejar_from_dict({'cookie': 'tasty'})
+
+        # Prepare request without using Session
+        req = requests.Request('GET', httpbin('headers'), cookies=cj)
+        prep_req = req.prepare()
+
+        # Send request and simulate redirect
+        resp = s.send(prep_req)
+        resp.status_code = 302
+        resp.headers['location'] = httpbin('get')
+        redirects = s.resolve_redirects(resp, prep_req)
+        resp = next(redirects)
+
+        # Verify CookieJar isn't being converted to RequestsCookieJar
+        assert isinstance(prep_req._cookies, cookielib.CookieJar)
+        assert isinstance(resp.request._cookies, cookielib.CookieJar)
+        assert not isinstance(resp.request._cookies, requests.cookies.RequestsCookieJar)
+
+        cookies = {}
+        for c in resp.request._cookies:
+            cookies[c.name] = c.value
+        assert cookies['foo'] == 'bar'
+        assert cookies['cookie'] == 'tasty'
 
     def test_requests_in_history_are_not_overridden(self, httpbin):
         resp = requests.get(httpbin('redirect/3'))
@@ -643,6 +701,31 @@ class TestRequests:
         with pytest.raises(ValueError):
             requests.post(url, files=['bad file data'])
 
+    def test_post_with_custom_mapping(self, httpbin):
+        class CustomMapping(collections.MutableMapping):
+            def __init__(self, *args, **kwargs):
+                self.data = dict(*args, **kwargs)
+
+            def __delitem__(self, key):
+                del self.data[key]
+
+            def __getitem__(self, key):
+                return self.data[key]
+
+            def __setitem__(self, key, value):
+                self.data[key] = value
+
+            def __iter__(self):
+                return iter(self.data)
+
+            def __len__(self):
+                return len(self.data)
+
+        data = CustomMapping({'some': 'data'})
+        url = httpbin('post')
+        found_json = requests.post(url, data=data).json().get('form')
+        assert found_json == {'some': 'data'}
+
     def test_conflicting_post_params(self, httpbin):
         url = httpbin('post')
         with open('requirements.txt') as f:
@@ -844,6 +927,16 @@ class TestRequests:
         s = requests.Session()
         prep = s.prepare_request(req)
         assert prep.url == "https://httpbin.org/"
+
+    def test_request_with_bytestring_host(self, httpbin):
+        s = requests.Session()
+        resp = s.request(
+            'GET',
+            httpbin('cookies/set?cookie=value'),
+            allow_redirects=False,
+            headers={'Host': b'httpbin.org'}
+        )
+        assert resp.cookies.get('cookie') == 'value'
 
     def test_links(self):
         r = requests.Response()
@@ -1110,6 +1203,52 @@ class TestRequests:
         assert r.request.url == pr.request.url
         assert r.request.headers == pr.request.headers
 
+    def test_prepared_request_is_pickleable(self, httpbin):
+        p = requests.Request('GET', httpbin('get')).prepare()
+
+        # Verify PreparedRequest can be pickled and unpickled
+        r = pickle.loads(pickle.dumps(p))
+        assert r.url == p.url
+        assert r.headers == p.headers
+        assert r.body == p.body
+
+        # Verify unpickled PreparedRequest sends properly
+        s = requests.Session()
+        resp = s.send(r)
+        assert resp.status_code == 200
+
+    def test_prepared_request_with_file_is_pickleable(self, httpbin):
+        files = {'file': open(__file__, 'rb')}
+        r = requests.Request('POST', httpbin('post'), files=files)
+        p = r.prepare()
+
+        # Verify PreparedRequest can be pickled and unpickled
+        r = pickle.loads(pickle.dumps(p))
+        assert r.url == p.url
+        assert r.headers == p.headers
+        assert r.body == p.body
+
+        # Verify unpickled PreparedRequest sends properly
+        s = requests.Session()
+        resp = s.send(r)
+        assert resp.status_code == 200
+
+    def test_prepared_request_with_hook_is_pickleable(self, httpbin):
+        r = requests.Request('GET', httpbin('get'), hooks=default_hooks())
+        p = r.prepare()
+
+        # Verify PreparedRequest can be pickled
+        r = pickle.loads(pickle.dumps(p))
+        assert r.url == p.url
+        assert r.headers == p.headers
+        assert r.body == p.body
+        assert r.hooks == p.hooks
+
+        # Verify unpickled PreparedRequest sends properly
+        s = requests.Session()
+        resp = s.send(r)
+        assert resp.status_code == 200
+
     def test_cannot_send_unprepared_requests(self, httpbin):
         r = requests.Request(url=httpbin())
         with pytest.raises(ValueError):
@@ -1353,6 +1492,107 @@ class TestRequests:
         r3 = next(rg)
         assert not r3.is_redirect
 
+    def test_prepare_body_position_non_stream(self):
+        data = b'the data'
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position is None
+
+    def test_rewind_body(self):
+        data = io.BytesIO(b'the data')
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position == 0
+        assert prep.body.read() == b'the data'
+
+        # the data has all been read
+        assert prep.body.read() == b''
+
+        # rewind it back
+        requests.utils.rewind_body(prep)
+        assert prep.body.read() == b'the data'
+
+    def test_rewind_partially_read_body(self):
+        data = io.BytesIO(b'the data')
+        s = requests.Session()
+        data.read(4)  # read some data
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position == 4
+        assert prep.body.read() == b'data'
+
+        # the data has all been read
+        assert prep.body.read() == b''
+
+        # rewind it back
+        requests.utils.rewind_body(prep)
+        assert prep.body.read() == b'data'
+
+    def test_rewind_body_no_seek(self):
+        class BadFileObj:
+            def __init__(self, data):
+                self.data = data
+
+            def tell(self):
+                return 0
+
+            def __iter__(self):
+                return
+
+        data = BadFileObj('the data')
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position == 0
+
+        with pytest.raises(UnrewindableBodyError) as e:
+            requests.utils.rewind_body(prep)
+
+        assert 'Unable to rewind request body' in str(e)
+
+    def test_rewind_body_failed_seek(self):
+        class BadFileObj:
+            def __init__(self, data):
+                self.data = data
+
+            def tell(self):
+                return 0
+
+            def seek(self, pos):
+                raise OSError()
+
+            def __iter__(self):
+                return
+
+        data = BadFileObj('the data')
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position == 0
+
+        with pytest.raises(UnrewindableBodyError) as e:
+            requests.utils.rewind_body(prep)
+
+        assert 'error occured when rewinding request body' in str(e)
+
+    def test_rewind_body_failed_tell(self):
+        class BadFileObj:
+            def __init__(self, data):
+                self.data = data
+
+            def tell(self):
+                raise OSError()
+
+            def __iter__(self):
+                return
+
+        data = BadFileObj('the data')
+        s = requests.Session()
+        prep = requests.Request('GET', 'http://example.com', data=data).prepare()
+        assert prep._body_position is not None
+
+        with pytest.raises(UnrewindableBodyError) as e:
+            requests.utils.rewind_body(prep)
+
+        assert 'Unable to rewind request body' in str(e)
+
     def _patch_adapter_gzipped_redirect(self, session, url):
         adapter = session.get_adapter(url=url)
         org_build_response = adapter.build_response
@@ -1491,6 +1731,16 @@ class TestRequests:
         session.close()
         proxies['one'].clear.assert_called_once_with()
         proxies['two'].clear.assert_called_once_with()
+
+    def test_proxy_auth(self, httpbin):
+        adapter = HTTPAdapter()
+        headers = adapter.proxy_headers("http://user:pass@httpbin.org")
+        assert headers == {'Proxy-Authorization': 'Basic dXNlcjpwYXNz'}
+
+    def test_proxy_auth_empty_pass(self, httpbin):
+        adapter = HTTPAdapter()
+        headers = adapter.proxy_headers("http://user:@httpbin.org")
+        assert headers == {'Proxy-Authorization': 'Basic dXNlcjo='}
 
     def test_response_json_when_content_is_None(self, httpbin):
         r = requests.get(httpbin('/status/204'))
@@ -1759,7 +2009,7 @@ class TestTimeout:
     @pytest.mark.parametrize(
         'timeout, error_text', (
             ((3, 4, 5), '(connect, read)'),
-            ('foo', 'must be an int or float'),
+            ('foo', 'must be an int, float or None'),
         ))
     def test_invalid_timeout(self, httpbin, timeout, error_text):
         with pytest.raises(ValueError) as e:
@@ -1980,6 +2230,55 @@ def test_urllib3_pool_connection_closed(httpbin):
 def test_vendor_aliases():
     from requests.packages import urllib3
     from requests.packages import chardet
+    from requests.packages import idna
 
     with pytest.raises(ImportError):
         from requests.packages import webbrowser
+
+
+class TestPreparingURLs(object):
+    @pytest.mark.parametrize(
+        'url,expected',
+        (
+            ('http://google.com', 'http://google.com/'),
+            (u'http://ジェーピーニック.jp', u'http://xn--hckqz9bzb1cyrb.jp/'),
+            (
+                u'http://ジェーピーニック.jp'.encode('utf-8'),
+                u'http://xn--hckqz9bzb1cyrb.jp/'
+            ),
+            (
+                u'http://straße.de/straße',
+                u'http://xn--strae-oqa.de/stra%C3%9Fe'
+            ),
+            (
+                u'http://straße.de/straße'.encode('utf-8'),
+                u'http://xn--strae-oqa.de/stra%C3%9Fe'
+            ),
+            (
+                u'http://Königsgäßchen.de/straße',
+                u'http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe'
+            ),
+            (
+                u'http://Königsgäßchen.de/straße'.encode('utf-8'),
+                u'http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe'
+            ),
+        )
+    )
+    def test_preparing_url(self, url, expected):
+        r = requests.Request(url=url)
+        p = r.prepare()
+        assert p.url == expected
+
+    @pytest.mark.parametrize(
+        'url',
+        (
+            b"http://*.google.com",
+            b"http://*",
+            u"http://*.google.com",
+            u"http://*",
+        )
+    )
+    def test_preparing_bad_url(self, url):
+        r = requests.Request(url=url)
+        with pytest.raises(requests.exceptions.InvalidURL):
+            r.prepare()

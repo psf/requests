@@ -37,11 +37,13 @@ packages = [
     'requests',
     'requests.packages',
     'requests.packages.chardet',
+    'requests.packages.idna',
     'requests.packages.urllib3',
     'requests.packages.urllib3.packages',
     'requests.packages.urllib3.contrib',
     'requests.packages.urllib3.util',
     'requests.packages.urllib3.packages.ssl_match_hostname',
+    'requests.packages.urllib3.packages.backports',
 ]
 
 requires = []

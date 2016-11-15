@@ -17,18 +17,40 @@ ci: init
 certs:
 	curl http://ci.kennethreitz.org/job/ca-bundle/lastSuccessfulBuild/artifact/cacerts.pem -o requests/cacert.pem
 
-deps: urllib3 chardet
+deps: urllib3 chardet idna
 
 urllib3:
-	git clone https://github.com/shazow/urllib3.git && rm -fr requests/packages/urllib3 && 	mv urllib3/urllib3 requests/packages/ && rm -fr urllib3
+	git clone https://github.com/shazow/urllib3.git && \
+	    rm -fr requests/packages/urllib3 && \
+	    cd urllib3 && \
+	    git checkout `git describe --abbrev=0 --tags` && \
+	    cd .. && \
+	    mv urllib3/urllib3 requests/packages/ \
+	    && rm -fr urllib3
 
 chardet:
-	git clone https://github.com/chardet/chardet.git && rm -fr requests/packages/chardet &&	mv chardet/chardet requests/packages/ && rm -fr chardet
+	git clone https://github.com/chardet/chardet.git && \
+	    rm -fr requests/packages/chardet && \
+	    cd chardet && \
+	    git checkout `git describe --abbrev=0 --tags` && \
+	    cd .. && \
+	    mv chardet/chardet requests/packages/ && \
+	    rm -fr chardet
+
+idna:
+	git clone https://github.com/kjd/idna.git && \
+	    rm -fr requests/packages/idna && \
+	    cd idna && \
+	    git checkout `git describe --abbrev=0 --tags` && \
+	    cd .. && \
+	    mv idna/idna requests/packages/ && \
+	    find requests/packages/idna -type f -exec sed -i "" "s/^from idna/from /" {} \; && \
+	    rm -fr idna
 
 publish:
 	python setup.py register
 	python setup.py sdist upload
-	python setup.py bdist_wheel --universal upload 
+	python setup.py bdist_wheel --universal upload
 	rm -fr build dist .egg requests.egg-info
 
 

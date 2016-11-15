@@ -1,10 +1,7 @@
 from __future__ import absolute_import
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
 
 from .filepost import encode_multipart_formdata
+from .packages.six.moves.urllib.parse import urlencode
 
 
 __all__ = ['RequestMethods']

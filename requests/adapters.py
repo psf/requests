@@ -382,7 +382,7 @@ class HTTPAdapter(BaseAdapter):
         headers = {}
         username, password = get_auth_from_url(proxy)
 
-        if username and password:
+        if username:
             headers['Proxy-Authorization'] = _basic_auth_str(username,
                                                              password)
 

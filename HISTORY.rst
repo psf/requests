@@ -3,6 +3,45 @@
 Release History
 ---------------
 
+2.12.0 (2016-11-15)
++++++++++++++++++++
+
+**Improvements**
+
+- Updated support for internationalized domain names from IDNA2003 to IDNA2008.
+  This updated support is required for several forms of IDNs and is mandatory
+  for .de domains.
+- Much improved heuristics for guessing content lengths: Requests will no
+  longer read an entire ``StringIO`` into memory.
+- Much improved logic for recalculating ``Content-Length`` headers for
+  ``PreparedRequest`` objects.
+- Improved tolerance for file-like objects that have no ``tell`` method but
+  do have a ``seek`` method.
+- Anything that is a subclass of ``Mapping`` is now treated like a dictionary
+  by the ``data=`` keyword argument.
+- Requests now tolerates empty passwords in proxy credentials, rather than
+  stripping the credentials.
+- If a request is made with a file-like object as the body and that request is
+  redirected with a 307 or 308 status code, Requests will now attempt to
+  rewind the body object so it can be replayed.
+
+**Bugfixes**
+
+- When calling ``response.close``, the call to ``close`` will be propagated
+  through to non-urllib3 backends.
+- Fixed issue where the ``ALL_PROXY`` environment variable would be preferred
+  over scheme-specific variables like ``HTTP_PROXY``.
+- Fixed issue where non-UTF8 reason phrases got severely mangled by falling
+  back to decoding using ISO 8859-1 instead.
+- Fixed a bug where Requests would not correctly correlate cookies set when
+  using custom Host headers if those Host headers did not use the native
+  string type for the platform.
+
+**Miscellaneous**
+
+- Updated bundled urllib3 to 1.19.
+- Updated bundled certifi certs to 2016.09.26.
+
 2.11.1 (2016-08-17)
 +++++++++++++++++++
 
@@ -48,7 +87,7 @@ Release History
 
 **New Features**
 
-- SOCKS Proxy Support! (requires PySocks; $ pip install requests[socks])
+- SOCKS Proxy Support! (requires PySocks; ``$ pip install requests[socks]``)
 
 **Miscellaneous**
 

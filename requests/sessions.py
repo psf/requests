@@ -17,7 +17,8 @@ from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
 from .hooks import default_hooks, dispatch_hook
-from .utils import to_key_val_list, default_headers, to_native_string
+from ._internal_utils import to_native_string
+from .utils import to_key_val_list, default_headers
 from .exceptions import (
     TooManyRedirects, InvalidScheme, ChunkedEncodingError,
     ContentDecodingError, InvalidHeader)
@@ -28,7 +29,7 @@ from .adapters import HTTPAdapter
 
 from .utils import (
     requote_uri, get_environ_proxies, get_netrc_auth, should_bypass_proxies,
-    get_auth_from_url, is_valid_location
+    get_auth_from_url, is_valid_location, rewind_body
 )
 
 from .status_codes import codes
@@ -159,7 +160,7 @@ class SessionRedirectMixin(object):
             self.rebuild_method(prepared_request, response)
 
             # https://github.com/kennethreitz/requests/issues/1084
-            if response.status_code not in (codes.temporary_redirect, 
+            if response.status_code not in (codes.temporary_redirect,
                     codes.permanent_redirect):
                 # https://github.com/kennethreitz/requests/issues/3490
                 purged_headers = ('Content-Length', 'Content-Type', 'Transfer-Encoding')
@@ -177,12 +178,24 @@ class SessionRedirectMixin(object):
             # in the new request. Because we've mutated our copied prepared
             # request, use the old one that we haven't yet touched.
             extract_cookies_to_jar(prepared_request._cookies, request, response.raw)
-            prepared_request._cookies.update(self.cookies)
+            merge_cookies(prepared_request._cookies, self.cookies)
             prepared_request.prepare_cookies(prepared_request._cookies)
 
             # Rebuild auth and proxy information.
             proxies = self.rebuild_proxies(prepared_request, proxies)
             self.rebuild_auth(prepared_request, response)
+
+            # A failed tell() sets `_body_position` to `object()`. This non-None
+            # value ensures `rewindable` will be True, allowing us to raise an
+            # UnrewindableBodyError, instead of hanging the connection.
+            rewindable = (
+                prepared_request._body_position is not None and
+                ('Content-Length' in headers or 'Transfer-Encoding' in headers)
+            )
+
+            # Attempt to rewind consumed file-like object.
+            if rewindable:
+                rewind_body(prepared_request)
 
             # Override the original request.
             request = prepared_request
@@ -205,7 +218,7 @@ class SessionRedirectMixin(object):
 
     def rebuild_auth(self, prepared_request, response):
         """When being redirected we may want to strip authentication from the
-        request to avoid leaking credentials. This method intelligently 
+        request to avoid leaking credentials. This method intelligently
         removes
         and reapplies authentication where possible to avoid credential loss.
         """

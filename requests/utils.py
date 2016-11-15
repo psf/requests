@@ -20,13 +20,16 @@ import warnings
 
 from . import __version__
 from . import certs
+# to_native_string is unused here, but imported here for backwards compatibility
+from ._internal_utils import to_native_string
 from .compat import parse_http_list as _parse_list_header
-from .compat import (quote, urlparse, bytes, str, OrderedDict, unquote, is_py2,
-                     builtin_str, getproxies, proxy_bypass, urlunparse,
-                     basestring, is_py3)
+from .compat import (
+    quote, urlparse, bytes, str, OrderedDict, unquote, getproxies,
+    proxy_bypass, urlunparse, basestring, integer_types, is_py2, is_py3)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
-from .exceptions import InvalidURL, InvalidHeader, FileModeWarning
+from .exceptions import (
+    InvalidURL, InvalidHeader, FileModeWarning, UnrewindableBodyError)
 
 _hush_pyflakes = (RequestsCookieJar,)
 
@@ -45,7 +48,7 @@ def dict_to_sequence(d):
 
 
 def super_len(o):
-    total_length = 0
+    total_length = None
     current_position = 0
 
     if hasattr(o, '__len__'):
@@ -53,10 +56,6 @@ def super_len(o):
 
     elif hasattr(o, 'len'):
         total_length = o.len
-
-    elif hasattr(o, 'getvalue'):
-        # e.g. BytesIO, cStringIO.StringIO
-        total_length = len(o.getvalue())
 
     elif hasattr(o, 'fileno'):
         try:
@@ -87,7 +86,22 @@ def super_len(o):
             # is actually a special file descriptor like stdin. In this
             # instance, we don't know what the length is, so set it to zero and
             # let requests chunk it instead.
-            current_position = total_length
+            if total_length is not None:
+                current_position = total_length
+        else:
+            if hasattr(o, 'seek') and total_length is None:
+                # StringIO and BytesIO have seek but no useable fileno
+
+                # seek to end of file
+                o.seek(0, 2)
+                total_length = o.tell()
+
+                # seek back to current position to support
+                # partially read file-like objects
+                o.seek(current_position or 0)
+
+    if total_length is None:
+        total_length = 0
 
     return max(0, total_length - current_position)
 
@@ -319,9 +333,7 @@ def add_dict_to_cookiejar(cj, cookie_dict):
     :rtype: CookieJar
     """
 
-    cj2 = cookiejar_from_dict(cookie_dict)
-    cj.update(cj2)
-    return cj
+    return cookiejar_from_dict(cookie_dict, cj)
 
 
 def get_encodings_from_content(content):
@@ -711,7 +723,7 @@ def is_valid_location(response):
         if getlist is not None:
             return len(getlist('location')) <= 1
     # If response.raw isn't urllib3-like we can't reliably check this
-    return True  
+    return True
 
 # Null bytes; no need to recreate these on each call to guess_json_utf
 _null = '\x00'.encode('ascii')  # encoding to ASCII for Python 3
@@ -784,22 +796,6 @@ def get_auth_from_url(url):
     return auth
 
 
-def to_native_string(string, encoding='ascii'):
-    """Given a string object, regardless of type, returns a representation of
-    that string in the native string type, encoding and decoding where
-    necessary. This assumes ASCII unless told otherwise.
-    """
-    if isinstance(string, builtin_str):
-        out = string
-    else:
-        if is_py2:
-            out = string.encode(encoding)
-        else:
-            out = string.decode(encoding)
-
-    return out
-
-
 # Moved outside of function to avoid recompile every call
 _CLEAN_HEADER_REGEX_BYTE = re.compile(b'^\\S[^\\r\\n]*$|^$')
 _CLEAN_HEADER_REGEX_STR = re.compile(r'^\S[^\r\n]*$|^$')
@@ -840,3 +836,17 @@ def urldefragauth(url):
     netloc = netloc.rsplit('@', 1)[-1]
 
     return urlunparse((scheme, netloc, path, params, query, ''))
+
+def rewind_body(prepared_request):
+    """Move file pointer back to its recorded starting position
+    so it can be read again on redirect.
+    """
+    body_seek = getattr(prepared_request.body, 'seek', None)
+    if body_seek is not None and isinstance(prepared_request._body_position, integer_types):
+        try:
+            body_seek(prepared_request._body_position)
+        except (IOError, OSError):
+            raise UnrewindableBodyError("An error occured when rewinding request "
+                                        "body for redirect.")
+    else:
+        raise UnrewindableBodyError("Unable to rewind request body for redirect.")

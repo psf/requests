@@ -93,8 +93,8 @@ Cookies
 -------
 
 .. autofunction:: requests.utils.dict_from_cookiejar
-.. autofunction:: requests.utils.cookiejar_from_dict
 .. autofunction:: requests.utils.add_dict_to_cookiejar
+.. autofunction:: requests.cookies.cookiejar_from_dict
 
 .. autoclass:: requests.cookies.RequestsCookieJar
    :inherited-members:

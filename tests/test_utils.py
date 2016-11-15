@@ -4,6 +4,7 @@ from io import BytesIO
 
 import pytest
 from requests import compat
+from requests.cookies import RequestsCookieJar, cookiejar_from_dict
 from requests.structures import CaseInsensitiveDict
 from requests.utils import (
     address_in_network, dotted_netmask,
@@ -15,7 +16,7 @@ from requests.utils import (
     requote_uri, select_proxy, should_bypass_proxies, super_len,
     to_key_val_list, to_native_string,
     unquote_header_value, unquote_unreserved,
-    urldefragauth)
+    urldefragauth, add_dict_to_cookiejar)
 
 from .compat import StringIO, cStringIO
 
@@ -51,6 +52,18 @@ class TestSuperLen:
 
         assert super_len(BoomFile()) == 0
 
+    @pytest.mark.parametrize('error', [IOError, OSError])
+    def test_super_len_tell_ioerror(self, error):
+        """Ensure that if tell gives an IOError super_len doesn't fail"""
+        class NoLenBoomFile(object):
+            def tell(self):
+                raise error()
+
+            def seek(self, offset, whence):
+                pass
+
+        assert super_len(NoLenBoomFile()) == 0
+
     def test_string(self):
         assert super_len('Test') == 4
 
@@ -65,6 +78,34 @@ class TestSuperLen:
         with file_obj.open(mode) as fd:
             assert super_len(fd) == 4
         assert len(recwarn) == warnings_num
+
+    def test_super_len_with__len__(self):
+        foo = [1,2,3,4]
+        len_foo = super_len(foo)
+        assert len_foo == 4
+
+    def test_super_len_with_no__len__(self):
+        class LenFile(object):
+            def __init__(self):
+                self.len = 5
+
+        assert super_len(LenFile()) == 5
+
+    def test_super_len_with_tell(self):
+        foo = StringIO.StringIO('12345')
+        assert super_len(foo) == 5
+        foo.read(2)
+        assert super_len(foo) == 3
+
+    def test_super_len_with_fileno(self):
+        with open(__file__, 'rb') as f:
+            length = super_len(f)
+            file_data = f.read()
+        assert length == len(file_data)
+
+    def test_super_len_with_no_matches(self):
+        """Ensure that objects without any length methods default to 0"""
+        assert super_len(object()) == 0
 
 
 class TestToKeyValList:
@@ -473,3 +514,18 @@ def test_should_bypass_proxies(url, expected, monkeypatch):
     monkeypatch.setenv('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
     monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
     assert should_bypass_proxies(url) == expected
+
+@pytest.mark.parametrize(
+    'cookiejar', (
+        compat.cookielib.CookieJar(),
+        RequestsCookieJar()
+    ))
+def test_add_dict_to_cookiejar(cookiejar):
+    """Ensure add_dict_to_cookiejar works for
+    non-RequestsCookieJar CookieJars
+    """
+    cookiedict = {'test': 'cookies',
+                  'good': 'cookies'}
+    cj = add_dict_to_cookiejar(cookiejar, cookiedict)
+    cookies = dict((cookie.name, cookie.value) for cookie in cj)
+    assert cookiedict == cookies
