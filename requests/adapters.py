@@ -434,7 +434,8 @@ class HTTPAdapter(BaseAdapter):
                     preload_content=False,
                     decode_content=False,
                     retries=self.max_retries,
-                    timeout=timeout
+                    timeout=timeout,
+                    enforce_content_length=True
                 )
 
             # Send the request.
@@ -478,7 +479,9 @@ class HTTPAdapter(BaseAdapter):
                         pool=conn,
                         connection=low_conn,
                         preload_content=False,
-                        decode_content=False
+                        decode_content=False,
+                        enforce_content_length=True,
+                        request_method=request.method
                     )
                 except:
                     # If we hit any problems here, clean up the connection.
