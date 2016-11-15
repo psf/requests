@@ -1871,7 +1871,7 @@ class TestTimeout:
     @pytest.mark.parametrize(
         'timeout, error_text', (
             ((3, 4, 5), '(connect, read)'),
-            ('foo', 'must be an int or float'),
+            ('foo', 'must be an int, float or None'),
         ))
     def test_invalid_timeout(self, httpbin, timeout, error_text):
         with pytest.raises(ValueError) as e:
