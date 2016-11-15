@@ -13,7 +13,7 @@ writer = codecs.lookup('utf-8')[3]
 
 def choose_boundary():
     """
-    Our embarassingly-simple replacement for mimetools.choose_boundary.
+    Our embarrassingly-simple replacement for mimetools.choose_boundary.
     """
     return uuid4().hex
 
