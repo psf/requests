@@ -17,6 +17,7 @@ from requests.utils import (
     to_key_val_list, to_native_string,
     unquote_header_value, unquote_unreserved,
     urldefragauth, add_dict_to_cookiejar)
+from requests._internal_utils import unicode_is_ascii
 
 from .compat import StringIO, cStringIO
 
@@ -515,6 +516,7 @@ def test_should_bypass_proxies(url, expected, monkeypatch):
     monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
     assert should_bypass_proxies(url) == expected
 
+
 @pytest.mark.parametrize(
     'cookiejar', (
         compat.cookielib.CookieJar(),
@@ -529,3 +531,14 @@ def test_add_dict_to_cookiejar(cookiejar):
     cj = add_dict_to_cookiejar(cookiejar, cookiedict)
     cookies = dict((cookie.name, cookie.value) for cookie in cj)
     assert cookiedict == cookies
+
+
+@pytest.mark.parametrize(
+    'value, expected', (
+                (u'test', True),
+                (u'æíöû', False),
+                (u'ジェーピーニック', False),
+    )
+)
+def test_unicode_is_ascii(value, expected):
+    assert unicode_is_ascii(value) is expected
