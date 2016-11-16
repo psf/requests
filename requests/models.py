@@ -343,8 +343,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         else:
             url = unicode(url) if is_py2 else str(url)
 
-        # Remove leading and trailing whitespaces from url
-        url = url.strip()
+        # Remove leading whitespaces from url
+        url = url.lstrip()
 
         # Don't do any URL preparation for non-HTTP schemes like `mailto`,
         # `data` etc to work around exceptions from `url_parse`, which

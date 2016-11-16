@@ -142,7 +142,7 @@ class TestRequests:
 
     def test_whitespaces_are_removed_from_url(self):
         # Test for issue #3696
-        request = requests.Request('GET', ' http://example.com ').prepare()
+        request = requests.Request('GET', ' http://example.com').prepare()
         assert request.url == 'http://example.com/'
 
     @pytest.mark.parametrize('scheme', ('http://', 'HTTP://', 'hTTp://', 'HttP://'))
