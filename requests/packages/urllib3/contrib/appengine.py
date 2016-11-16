@@ -42,7 +42,7 @@ from __future__ import absolute_import
 import logging
 import os
 import warnings
-from urlparse import urljoin
+from ..packages.six.moves.urllib.parse import urljoin
 
 from ..exceptions import (
     HTTPError,

@@ -141,4 +141,5 @@ def _has_ipv6(host):
         sock.close()
     return has_ipv6
 
+
 HAS_IPV6 = _has_ipv6('::1')
