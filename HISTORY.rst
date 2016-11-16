@@ -3,6 +3,17 @@
 Release History
 ---------------
 
+2.12.1 (2016-11-16)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Updated setuptools 'security' extra for the new PyOpenSSL backend in urllib3.
+
+**Miscellaneous**
+
+- Updated bundled urllib3 to 1.19.1.
+
 2.12.0 (2016-11-15)
 +++++++++++++++++++
 
