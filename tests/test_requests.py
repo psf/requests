@@ -140,6 +140,11 @@ class TestRequests:
                                    data=u"ööö".encode("utf-8")).prepare()
         assert isinstance(request.body, bytes)
 
+    def test_whitespaces_are_removed_from_url(self):
+        # Test for issue #3696
+        request = requests.Request('GET', ' http://example.com').prepare()
+        assert request.url == 'http://example.com/'
+
     @pytest.mark.parametrize('scheme', ('http://', 'HTTP://', 'hTTp://', 'HttP://'))
     def test_mixed_case_scheme_acceptable(self, httpbin, scheme):
         s = requests.Session()
