@@ -184,7 +184,7 @@ streamed to a file::
 Using ``Response.iter_content`` will handle a lot of what you would otherwise
 have to handle when using ``Response.raw`` directly. When streaming a
 download, the above is the preferred and recommended way to retrieve the
-content.
+content. Note that ``chunk_size`` is optional.
 
 
 Custom Headers
