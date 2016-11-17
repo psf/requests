@@ -18,7 +18,7 @@ constantly reading documentation, depression, headaches, or even death.
 Behold, the power of Requests::
 
     >>> import requests
-    >>> r = requests.get('https://api.github.com/user', auth=('<github username>', '<github password>'))
+    >>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
     >>> r.status_code
     200
     >>> r.headers['content-type']
