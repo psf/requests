@@ -463,7 +463,7 @@ class TestRequests:
     @pytest.mark.parametrize(
         'username, password', (
             ('user', 'pass'),
-            ('имя'.encode('utf-8'), 'пароль'.encode('utf-8')),
+            (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8')),
         ))
     def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self, httpbin, username, password):
         auth = (username, password)
