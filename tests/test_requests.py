@@ -18,7 +18,7 @@ from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urlparse,
-    builtin_str, OrderedDict, bytes)
+    builtin_str, OrderedDict)
 from requests.cookies import (
     cookiejar_from_dict, morsel_to_cookie, merge_cookies)
 from requests.exceptions import (
@@ -467,34 +467,12 @@ class TestRequests:
         ))
     def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self, httpbin, username, password):
         auth = (username, password)
-        
-        if isinstance(username, bytes):
-            httpbin_username = username.decode('latin1')
-        else:
-            httpbin_username = username
-
-        if isinstance(password, bytes):
-            httpbin_password = password.decode('latin1')
-        else:
-            httpbin_password = password
-
-        url = httpbin('basic-auth', httpbin_username, httpbin_password)
+        url = httpbin('get')
 
         r = requests.Request('GET', url, auth=auth)
         p = r.prepare()
 
         assert p.headers['Authorization'] == _basic_auth_str(username, password)
-        
-        r = requests.get(url, auth=auth)
-        assert r.status_code == 200
-
-        r = requests.get(url)
-        assert r.status_code == 401
-
-        s = requests.session()
-        s.auth = auth
-        r = s.get(url)
-        assert r.status_code == 200
 
     @pytest.mark.parametrize(
         'url, exception', (
