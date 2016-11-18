@@ -465,14 +465,14 @@ class TestRequests:
             ('user', 'pass'),
             (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8')),
         ))
-    def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self, httpbin, username, password, auth_str):
+    def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self, httpbin, username, password):
         auth = (username, password)
         url = httpbin('get')
-        
-        r = Request('GET', url, auth=auth)
+
+        r = requests.Request('GET', url, auth=auth)
         p = r.prepare()
 
-        assert p['Authorization'] == _basic_auth_str(username, password)
+        assert p.headers['Authorization'] == _basic_auth_str(username, password)
         
         r = requests.get(url, auth=auth)
         assert r.status_code == 200
@@ -1582,7 +1582,7 @@ class TestRequests:
         'username, password, auth_str', (
             ('test', 'test', 'Basic dGVzdDp0ZXN0'),
             (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8'), 'Basic 0LjQvNGPOtC/0LDRgNC+0LvRjA=='),
-        ))    
+        ))
     def test_basic_auth_str_is_always_native(self, username, password, auth_str):
         s = _basic_auth_str(username, password)
         assert isinstance(s, builtin_str)
