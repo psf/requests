@@ -461,9 +461,9 @@ class TestRequests:
         assert r.status_code == 200
 
     @pytest.mark.parametrize(
-        'username, password, auth_str', (
-            ('user', 'pass', 'Basic dXNlcjpwYXNz'),
-            (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8'), 'Basic 0LjQvNGPOtC/0LDRgNC+0LvRjA=='),
+        'username, password', (
+            ('user', 'pass'),
+            (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8')),
         ))
     def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self, httpbin, username, password, auth_str):
         auth = (username, password)
@@ -472,7 +472,7 @@ class TestRequests:
         r = Request('GET', url, auth=auth)
         p = r.prepare()
 
-        assert p['Authorization'] == auth_str
+        assert p['Authorization'] == _basic_auth_str(username, password)
         
         r = requests.get(url, auth=auth)
         assert r.status_code == 200
@@ -1578,10 +1578,15 @@ class TestRequests:
         self._patch_adapter_gzipped_redirect(s, url)
         s.get(url)
 
-    def test_basic_auth_str_is_always_native(self):
-        s = _basic_auth_str("test", "test")
+    @pytest.mark.parametrize(
+        'username, password, auth_str', (
+            ('test', 'test', 'Basic dGVzdDp0ZXN0'),
+            (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8'), 'Basic 0LjQvNGPOtC/0LDRgNC+0LvRjA=='),
+        ))    
+    def test_basic_auth_str_is_always_native(self, username, password, auth_str):
+        s = _basic_auth_str(username, password)
         assert isinstance(s, builtin_str)
-        assert s == "Basic dGVzdDp0ZXN0"
+        assert s == auth_str
 
     def test_requests_history_is_saved(self, httpbin):
         r = requests.get(httpbin('redirect/5'))
