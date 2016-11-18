@@ -18,7 +18,7 @@ from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urlparse,
-    builtin_str, OrderedDict)
+    builtin_str, OrderedDict, bytes)
 from requests.cookies import (
     cookiejar_from_dict, morsel_to_cookie, merge_cookies)
 from requests.exceptions import (
@@ -467,7 +467,18 @@ class TestRequests:
         ))
     def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self, httpbin, username, password):
         auth = (username, password)
-        url = httpbin('get')
+        
+        if isinstance(username, bytes):
+            httpbin_username = username.decode('latin1')
+        else:
+            httpbin_username = username
+
+        if isinstance(password, bytes):
+            httpbin_password = password.decode('latin1')
+        else:
+            httpbin_password = password
+
+        url = httpbin('basic-auth', httpbin_username, httpbin_password)
 
         r = requests.Request('GET', url, auth=auth)
         p = r.prepare()
