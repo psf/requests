@@ -817,16 +817,26 @@ class Response(object):
 
         return content
 
+    def sjson(self,**kwargs):
+        """Gets the json-encoded content from self.json() in the form of a string
+        :param \*\*kwargs: commands sent to the dumps function of module json
+        which affect the string returned from dumps. If kwargs is empty then
+        it returns a formated string with the json content
+        """
+
+        _json = self.json()
+        if kwargs == {}:
+            return complexjson.dumps(_json,indent=4,separators=(',',': '))
+        else:
+            return complexjson.dumps(_json,kwargs)
+
     def json(self, **kwargs):
         """Returns the json-encoded content of a response, if any.
 
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
         :raises ValueError: If the response body does not contain valid json.
         """
-        pretty_print = False
-        if 'pretty_print' in kwargs:
-            pretty_print = kwargs['pretty_print']
-            del kwargs['pretty_print']
+
         if not self.encoding and self.content and len(self.content) > 3:
             # No encoding set. JSON RFC 4627 section 3 states we should expect
             # UTF-8, -16 or -32. Detect which one to use; If the detection or
@@ -835,19 +845,17 @@ class Response(object):
             encoding = guess_json_utf(self.content)
             if encoding is not None:
                 try:
-                    _json =  complexjson.loads(
+                    return complexjson.loads(
                         self.content.decode(encoding), **kwargs
                     )
-                    return complexjson.dumps(_json,indent=4,separators=(',',': ')) if pretty_print == True else _json
                 except UnicodeDecodeError:
                     # Wrong UTF codec detected; usually because it's not UTF-8
                     # but some other 8-bit codec.  This is an RFC violation,
                     # and the server didn't bother to tell us what codec *was*
                     # used.
                     pass
-        _json =  complexjson.loads(self.text, **kwargs)
-        return complexjson.dumps(_json,indent=4,separators=(',',': ')) if pretty_print == True else _json
-                                
+        return complexjson.loads(self.text, **kwargs)
+    
     @property
     def links(self):
         """Returns the parsed header links of the response, if any."""
