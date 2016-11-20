@@ -159,7 +159,9 @@ and returned. To check that a request is successful, use
 ``r.raise_for_status()`` or check ``r.status_code`` is what you expect. The function
 ``r.sjson()`` will return the JSON object in string form. Printing the string will
 produce human readable output.::
-  >>> r.sjson()
+
+  >>> r = requests.get('https://api.github.com/events')
+  >>> print(r.sjson())
   [
       {
               "payload": {
