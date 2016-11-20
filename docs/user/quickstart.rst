@@ -156,9 +156,26 @@ It should be noted that the success of the call to ``r.json()`` does **not**
 indicate the success of the response. Some servers may return a JSON object in a
 failed response (e.g. error details with HTTP 500). Such JSON will be decoded
 and returned. To check that a request is successful, use
-``r.raise_for_status()`` or check ``r.status_code`` is what you expect.
-
-
+``r.raise_for_status()`` or check ``r.status_code`` is what you expect. The function
+``r.sjson()`` will return the JSON object in string form. Printing the string will
+produce human readable output.::
+  >>> r.sjson()
+  [
+      {
+              "payload": {
+	                  "size": 2,
+			  "head": "9e69fa... ,
+			  "commits":[
+                               {
+			              "distinct": true,
+				      "sha": "8768b45551a... ,
+              ...
+	      
+	      "type": "PullRequestEvent",
+	      "public": true
+      }
+  ]
+	      
 Raw Response Content
 --------------------
 
