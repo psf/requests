@@ -820,8 +820,8 @@ class Response(object):
     def sjson(self,**kwargs):
         """Gets the json-encoded content from self.json() in the form of a string
         :param \*\*kwargs: commands sent to the dumps function of module json
-        which affect the string returned from dumps. If kwargs is empty then
-        it returns a formated string with the json content
+        which affects the string returned from dumps(). If kwargs is empty then
+        it returns a formated string with the json content.
         """
 
         _json = self.json()
