@@ -460,12 +460,27 @@ class TestRequests:
         r = requests.put(httpbin('put'))
         assert r.status_code == 200
 
+    def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self, httpbin):
+        auth = ('user', 'pass')
+        url = httpbin('basic-auth', 'user', 'pass')
+
+        r = requests.get(url, auth=auth)
+        assert r.status_code == 200
+
+        r = requests.get(url)
+        assert r.status_code == 401
+
+        s = requests.session()
+        s.auth = auth
+        r = s.get(url)
+        assert r.status_code == 200
+
     @pytest.mark.parametrize(
         'username, password', (
             ('user', 'pass'),
             (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8')),
         ))
-    def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self, httpbin, username, password):
+    def test_set_basicauth(self, httpbin, username, password):
         auth = (username, password)
         url = httpbin('get')
 
