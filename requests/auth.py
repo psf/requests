@@ -27,9 +27,15 @@ CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
 
 def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
+    
+    if isinstance(username, str):
+        username = username.encode('latin1')
+
+    if isinstance(password, str):
+        password = password.encode('latin1')
 
     authstr = 'Basic ' + to_native_string(
-        b64encode(('%s:%s' % (username, password)).encode('latin1')).strip()
+        b64encode(b':'.join((username, password))).strip()
     )
 
     return authstr
