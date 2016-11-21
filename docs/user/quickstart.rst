@@ -178,13 +178,14 @@ In general, however, you should use a pattern like this to save what is being
 streamed to a file::
 
     with open(filename, 'wb') as fd:
-        for chunk in r.iter_content(chunk_size):
+        for chunk in r.iter_content(chunk_size=128):
             fd.write(chunk)
 
 Using ``Response.iter_content`` will handle a lot of what you would otherwise
 have to handle when using ``Response.raw`` directly. When streaming a
 download, the above is the preferred and recommended way to retrieve the
-content. Note that ``chunk_size`` is optional.
+content. Note that ``chunk_size`` can be freely adjusted to a number that
+may better fit your use cases.
 
 
 Custom Headers
