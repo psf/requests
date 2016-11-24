@@ -1094,6 +1094,10 @@ class TestRequests:
         total_seconds = ((td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6)
         assert total_seconds > 0.0
 
+    def test_empty_response_has_content_none(self):
+        r = requests.Response()
+        assert r.content is None
+
     def test_response_is_iterable(self):
         r = requests.Response()
         io = StringIO.StringIO('abc')
