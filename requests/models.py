@@ -30,7 +30,7 @@ from .packages.urllib3.exceptions import (
 from .exceptions import (
     HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
     ContentDecodingError, ConnectionError, StreamConsumedError)
-from ._internal_utils import to_native_string
+from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
@@ -368,11 +368,17 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if not host:
             raise InvalidURL("Invalid URL %r: No host supplied" % url)
 
-        # Only want to apply IDNA to the hostname
+        # In general, we want to try IDNA encoding every hostname, as that
+        # allows users to automatically get the correct behaviour. However,
+        # we’re quite strict about IDNA encoding, so certain valid hostnames
+        # may fail to encode. On failure, we verify the hostname meets a
+        # minimum standard of only containing ASCII characters, and not starting
+        # with a wildcard (*), before allowing the unencoded hostname through.
         try:
             host = idna.encode(host, uts46=True).decode('utf-8')
         except (UnicodeError, idna.IDNAError):
-            raise InvalidURL('URL has an invalid label.')
+            if not unicode_is_ascii(host) or host.startswith(u'*'):
+                raise InvalidURL('URL has an invalid label.')
 
         # Carefully reconstruct the network location
         netloc = auth or ''

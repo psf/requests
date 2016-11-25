@@ -2121,6 +2121,7 @@ class TestPreparingURLs(object):
         (
             ('http://google.com', 'http://google.com/'),
             (u'http://ジェーピーニック.jp', u'http://xn--hckqz9bzb1cyrb.jp/'),
+            (u'http://xn--n3h.net/', u'http://xn--n3h.net/'),
             (
                 u'http://ジェーピーニック.jp'.encode('utf-8'),
                 u'http://xn--hckqz9bzb1cyrb.jp/'
@@ -2141,6 +2142,18 @@ class TestPreparingURLs(object):
                 u'http://Königsgäßchen.de/straße'.encode('utf-8'),
                 u'http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe'
             ),
+            (
+                b'http://xn--n3h.net/',
+                u'http://xn--n3h.net/'
+            ),
+            (
+                b'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/',
+                u'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/'
+            ),
+            (
+                u'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/',
+                u'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/'
+            )
         )
     )
     def test_preparing_url(self, url, expected):
@@ -2155,6 +2168,7 @@ class TestPreparingURLs(object):
             b"http://*",
             u"http://*.google.com",
             u"http://*",
+            u"http://☃.net/"
         )
     )
     def test_preparing_bad_url(self, url):
