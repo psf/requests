@@ -3,6 +3,26 @@
 Release History
 ---------------
 
+2.12.2 (2016-11-30)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Fixed several issues with IDNA-encoding URLs that are technically invalid but
+  which are widely accepted. Requests will now attempt to IDNA-encode a URL if
+  it can but, if it fails, and the host contains only ASCII characters, it will
+  be passed through optimistically. This will allow users to opt-in to using
+  IDNA2003 themselves if they want to, and will also allow technically invalid
+  but still common hostnames.
+- Fixed an issue where URLs with leading whitespace would raise
+  ``InvalidSchema`` errors.
+- Fixed an issue where some URLs without the HTTP or HTTPS schemes would still
+  have HTTP URL preparation applied to them.
+- Fixed an issue where Unicode strings could not be used in basic auth.
+- Fixed an issue encountered by some Requests plugins where constructing a
+  Response object would cause ``Response.content`` to raise an
+  ``AttributeError``.
+
 2.12.1 (2016-11-16)
 +++++++++++++++++++
 
