@@ -2175,20 +2175,3 @@ class TestPreparingURLs(object):
         r = requests.Request('GET', url=url)
         with pytest.raises(requests.exceptions.InvalidURL):
             r.prepare()
-
-    @pytest.mark.parametrize(
-        'protocol, url',
-        (
-            ("http+unix://", b"http+unix://%2Fvar%2Frun%2Fsocket/path"),
-            ("http+unix://", u"http+unix://%2Fvar%2Frun%2Fsocket/path"),
-            ("mailto", b"mailto:user@example.org"),
-            ("mailto", u"mailto:user@example.org"),
-            ("data", b"data:SSDimaUgUHl0aG9uIQ=="),
-        )
-    )
-    def test_url_passthrough(self, protocol, url):
-        session = requests.Session()
-        session.mount(protocol, HTTPAdapter())
-        p = requests.Request('GET', url=url)
-        p.prepare()
-        assert p.url == url
