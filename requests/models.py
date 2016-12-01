@@ -823,6 +823,19 @@ class Response(object):
 
         return content
 
+    def sjson(self,**kwargs):
+        """Gets the json-encoded content from self.json() in the form of a string
+        :param \*\*kwargs: commands sent to the dumps function of module json
+        which affects the string returned from dumps(). If kwargs is empty then
+        it returns a formated string with the json content.
+        """
+
+        _json = self.json()
+        if kwargs == {}:
+            return complexjson.dumps(_json,indent=4,separators=(',',': '))
+        else:
+            return complexjson.dumps(_json,kwargs)
+
     def json(self, **kwargs):
         """Returns the json-encoded content of a response, if any.
 
@@ -848,7 +861,7 @@ class Response(object):
                     # used.
                     pass
         return complexjson.loads(self.text, **kwargs)
-
+    
     @property
     def links(self):
         """Returns the parsed header links of the response, if any."""
