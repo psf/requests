@@ -3,6 +3,18 @@
 Release History
 ---------------
 
+2.12.3 (2016-12-01)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Fixed regression from v2.12.1 for URLs with schemes that begin with "http".
+  These URLs have historically been processed as though they were HTTP-schemed
+  URLs, and so have had parameters added. This was removed in v2.12.2 in an
+  overzealous attempt to resolve problems with IDNA-encoding those URLs. This
+  change was reverted: the other fixes for IDNA-encoding have been judged to
+  be sufficient to return to the behaviour Requests had before v2.12.0.
+
 2.12.2 (2016-11-30)
 +++++++++++++++++++
 
