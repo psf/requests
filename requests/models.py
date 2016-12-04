@@ -757,7 +757,6 @@ class Response(object):
 
         for chunk in self.iter_content(chunk_size=chunk_size,
                                        decode_unicode=decode_unicode):
-
             # Skip any null responses
             if not chunk:
                 continue
@@ -773,15 +772,23 @@ class Response(object):
             else:
                 lines = chunk.splitlines()
 
-            # The split(delimiter) will always end with whatever remains past
-            # the delimiter ('' if nothing more).  However splitlines() will
-            # not end with a '' if the final text is a line delimiter.
-
-            # Therefore, if we're in delimiter mode, always pop the final
-            # item to prepend to the next chunk. However, only do this for
-            # non-delimiter mode if the chunk does not match the end of the
-            # last line.
-            if delimiter or (lines[-1] and lines[-1][-1] == chunk[-1]):
+            # Calling `.split(delimiter)` will always end with whatever text
+            # remains beyond the delimiter, or '' if the delimiter is the end
+            # of the text.  On the other hand, `.splitlines()` doesn't include
+            # a '' if the text ends in a line delimiter.
+            #
+            # For example:
+            #
+            #     'abc\ndef\n'.split('\n')  ~> ['abc', 'def', '']
+            #     'abc\ndef\n'.splitlines() ~> ['abc', 'def']
+            #
+            # So if we have a specified delimiter, we always pop the final
+            # item and prepend it to the next chunk.
+            #
+            # If we're using `splitlines()`, we only do this if the chunk
+            # ended midway through a line.
+            incomplete_line = (lines[-1] and lines[-1].endswith(chunk[-1]))
+            if delimiter or incomplete_line:
                 pending = lines.pop()
 
             for line in lines:
