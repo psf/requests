@@ -1695,7 +1695,7 @@ class TestRequests:
 
     def test_empty_stream_with_auth_does_not_set_content_length_header(self, httpbin):
         """Ensure that a byte stream with size 0 will not set both a Content-Length
-        and Transfer-Encoding header
+        and Transfer-Encoding header.
         """
         auth = ('user', 'pass')
         url = httpbin('post')
@@ -1707,7 +1707,8 @@ class TestRequests:
 
     def test_stream_with_auth_does_not_set_transfer_encoding_header(self, httpbin):
         """Ensure that a byte stream with size > 0 will not set both a Content-Length
-        and Transfer-Encoding header"""
+        and Transfer-Encoding header.
+        """
         auth = ('user', 'pass')
         url = httpbin('post')
         file_obj = io.BytesIO(b'test data')
@@ -1717,6 +1718,9 @@ class TestRequests:
         assert 'Content-Length' in prepared_request.headers
 
     def test_chunked_upload_does_not_set_content_length_header(self, httpbin):
+        """Ensure that requests with a generator body stream using
+        Transfer-Encoding: chunked, not a Content-Length header.
+        """
         data = (i for i in [b'a', b'b', b'c'])
         url = httpbin('post')
         r = requests.Request('POST', url, data=data)
