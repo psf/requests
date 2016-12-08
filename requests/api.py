@@ -34,7 +34,7 @@ def request(method, url, session=None, **kwargs):
         before giving up, as a float, or a :ref:`(connect timeout, read
         timeout) <timeouts>` tuple.
     :type timeout: float or tuple
-    :param allow_redirects: (optional) Boolean. Set to True if POST/PUT/DELETE redirect following is allowed.
+    :param allow_redirects: (optional) Boolean. Enable/disable GET/OPTIONS/POST/PUT/PATCH/DELETE/HEAD redirection.
     :type allow_redirects: bool
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     :param verify: (optional) whether the SSL cert will be verified. A CA_BUNDLE path can also be provided. Defaults to ``True``.

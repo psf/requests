@@ -42,7 +42,7 @@ A hotfix release will only include bug fixes that were missed when the project
 released the previous version. If the previous version of Requests released
 ``v10.2.7`` the hotfix release would be versioned as ``v10.2.8``.
 
-Hotfixes will **not** include upgrades to vendored dependences after
+Hotfixes will **not** include upgrades to vendored dependencies after
 ``v2.6.2``
 
 Reasoning

@@ -156,6 +156,11 @@ class TestRequests:
                                    data=u"ööö".encode("utf-8")).prepare()
         assert isinstance(request.body, bytes)
 
+    def test_whitespaces_are_removed_from_url(self):
+        # Test for issue #3696
+        request = requests.Request('GET', ' http://example.com').prepare()
+        assert request.url == 'http://example.com/'
+
     @pytest.mark.parametrize('scheme', ('http://', 'HTTP://', 'hTTp://', 'HttP://'))
     def test_mixed_case_scheme_acceptable(self, httpbin, scheme):
         s = requests.Session()
@@ -504,6 +509,20 @@ class TestRequests:
         s.auth = auth
         r = s.get(url)
         assert r.status_code == 200
+
+    @pytest.mark.parametrize(
+        'username, password', (
+            ('user', 'pass'),
+            (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8')),
+        ))
+    def test_set_basicauth(self, httpbin, username, password):
+        auth = (username, password)
+        url = httpbin('get')
+
+        r = requests.Request('GET', url, auth=auth)
+        p = r.prepare()
+
+        assert p.headers['Authorization'] == _basic_auth_str(username, password)
 
     @pytest.mark.parametrize(
         'url, exception', (
@@ -1105,6 +1124,10 @@ class TestRequests:
         total_seconds = ((td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6)
         assert total_seconds > 0.0
 
+    def test_empty_response_has_content_none(self):
+        r = requests.Response()
+        assert r.content is None
+
     def test_response_is_iterable(self):
         r = requests.Response()
         io = StringIO.StringIO('abc')
@@ -1613,10 +1636,15 @@ class TestRequests:
         self._patch_adapter_gzipped_redirect(s, url)
         s.get(url)
 
-    def test_basic_auth_str_is_always_native(self):
-        s = _basic_auth_str("test", "test")
+    @pytest.mark.parametrize(
+        'username, password, auth_str', (
+            ('test', 'test', 'Basic dGVzdDp0ZXN0'),
+            (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8'), 'Basic 0LjQvNGPOtC/0LDRgNC+0LvRjA=='),
+        ))
+    def test_basic_auth_str_is_always_native(self, username, password, auth_str):
+        s = _basic_auth_str(username, password)
         assert isinstance(s, builtin_str)
-        assert s == "Basic dGVzdDp0ZXN0"
+        assert s == auth_str
 
     def test_requests_history_is_saved(self, httpbin):
         r = requests.get(httpbin('redirect/5'))
@@ -1789,6 +1817,41 @@ class TestRequests:
         assert resp_with_cert.raw._pool.cert_file == cert
         assert resp_with_cert.raw._pool.key_file == key
         assert resp.raw._pool is not resp_with_cert.raw._pool
+
+    def test_empty_stream_with_auth_does_not_set_content_length_header(self, httpbin):
+        """Ensure that a byte stream with size 0 will not set both a Content-Length
+        and Transfer-Encoding header.
+        """
+        auth = ('user', 'pass')
+        url = httpbin('post')
+        file_obj = io.BytesIO(b'')
+        r = requests.Request('POST', url, auth=auth, data=file_obj)
+        prepared_request = r.prepare()
+        assert 'Transfer-Encoding' in prepared_request.headers
+        assert 'Content-Length' not in prepared_request.headers
+
+    def test_stream_with_auth_does_not_set_transfer_encoding_header(self, httpbin):
+        """Ensure that a byte stream with size > 0 will not set both a Content-Length
+        and Transfer-Encoding header.
+        """
+        auth = ('user', 'pass')
+        url = httpbin('post')
+        file_obj = io.BytesIO(b'test data')
+        r = requests.Request('POST', url, auth=auth, data=file_obj)
+        prepared_request = r.prepare()
+        assert 'Transfer-Encoding' not in prepared_request.headers
+        assert 'Content-Length' in prepared_request.headers
+
+    def test_chunked_upload_does_not_set_content_length_header(self, httpbin):
+        """Ensure that requests with a generator body stream using
+        Transfer-Encoding: chunked, not a Content-Length header.
+        """
+        data = (i for i in [b'a', b'b', b'c'])
+        url = httpbin('post')
+        r = requests.Request('POST', url, data=data)
+        prepared_request = r.prepare()
+        assert 'Transfer-Encoding' in prepared_request.headers
+        assert 'Content-Length' not in prepared_request.headers
 
 
 class TestCaseInsensitiveDict:
@@ -2242,6 +2305,7 @@ class TestPreparingURLs(object):
         (
             ('http://google.com', 'http://google.com/'),
             (u'http://ジェーピーニック.jp', u'http://xn--hckqz9bzb1cyrb.jp/'),
+            (u'http://xn--n3h.net/', u'http://xn--n3h.net/'),
             (
                 u'http://ジェーピーニック.jp'.encode('utf-8'),
                 u'http://xn--hckqz9bzb1cyrb.jp/'
@@ -2262,6 +2326,18 @@ class TestPreparingURLs(object):
                 u'http://Königsgäßchen.de/straße'.encode('utf-8'),
                 u'http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe'
             ),
+            (
+                b'http://xn--n3h.net/',
+                u'http://xn--n3h.net/'
+            ),
+            (
+                b'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/',
+                u'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/'
+            ),
+            (
+                u'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/',
+                u'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/'
+            )
         )
     )
     def test_preparing_url(self, url, expected):
@@ -2276,9 +2352,81 @@ class TestPreparingURLs(object):
             b"http://*",
             u"http://*.google.com",
             u"http://*",
+            u"http://☃.net/"
         )
     )
     def test_preparing_bad_url(self, url):
         r = requests.Request('GET', url=url)
         with pytest.raises(requests.exceptions.InvalidURL):
             r.prepare()
+
+    @pytest.mark.parametrize(
+        'input, expected',
+        (
+            (
+                b"http+unix://%2Fvar%2Frun%2Fsocket/path",
+                u"http+unix://%2fvar%2frun%2fsocket/path",
+            ),
+            (
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path",
+                u"http+unix://%2fvar%2frun%2fsocket/path",
+            ),
+            (
+                b"mailto:user@example.org",
+                u"mailto:user@example.org",
+            ),
+            (
+                u"mailto:user@example.org",
+                u"mailto:user@example.org",
+            ),
+            (
+                b"data:SSDimaUgUHl0aG9uIQ==",
+                u"data:SSDimaUgUHl0aG9uIQ==",
+            )
+        )
+    )
+    def test_url_mutation(self, input, expected):
+        """
+        This test validates that we correctly exclude some URLs from
+        preparation, and that we handle others. Specifically, it tests that
+        any URL whose scheme doesn't begin with "http" is left alone, and
+        those whose scheme *does* begin with "http" are mutated.
+        """
+        r = requests.Request('GET', url=input)
+        p = r.prepare()
+        assert p.url == expected
+
+    @pytest.mark.parametrize(
+        'input, params, expected',
+        (
+            (
+                b"http+unix://%2Fvar%2Frun%2Fsocket/path",
+                {"key": "value"},
+                u"http+unix://%2fvar%2frun%2fsocket/path?key=value",
+            ),
+            (
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path",
+                {"key": "value"},
+                u"http+unix://%2fvar%2frun%2fsocket/path?key=value",
+            ),
+            (
+                b"mailto:user@example.org",
+                {"key": "value"},
+                u"mailto:user@example.org",
+            ),
+            (
+                u"mailto:user@example.org",
+                {"key": "value"},
+                u"mailto:user@example.org",
+            ),
+        )
+    )
+    def test_parameters_for_nonstandard_schemes(self, input, params, expected):
+        """
+        Setting paramters for nonstandard schemes is allowed if those schemes
+        begin with "http", and is forbidden otherwise.
+        """
+        r = requests.Request('GET', url=input, params=params)
+        p = r.prepare()
+        assert p.url == expected
+

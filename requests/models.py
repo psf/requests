@@ -33,7 +33,7 @@ from .packages.urllib3.exceptions import (
 from .exceptions import (
     HTTPError, MissingScheme, InvalidURL, ChunkedEncodingError,
     ContentDecodingError, ConnectionError, StreamConsumedError)
-from ._internal_utils import to_native_string
+from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
@@ -372,11 +372,17 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if not host:
             raise InvalidURL("Invalid URL %r: No host supplied" % url)
 
-        # Only want to apply IDNA to the hostname
+        # In general, we want to try IDNA encoding every hostname, as that
+        # allows users to automatically get the correct behaviour. However,
+        # we’re quite strict about IDNA encoding, so certain valid hostnames
+        # may fail to encode. On failure, we verify the hostname meets a
+        # minimum standard of only containing ASCII characters, and not starting
+        # with a wildcard (*), before allowing the unencoded hostname through.
         try:
             host = idna.encode(host, uts46=True).decode('utf-8')
         except (UnicodeError, idna.IDNAError):
-            raise InvalidURL('URL has an invalid label.')
+            if not unicode_is_ascii(host) or host.startswith(u'*'):
+                raise InvalidURL('URL has an invalid label.')
 
         # Carefully reconstruct the network location
         netloc = auth or ''
@@ -600,7 +606,7 @@ class Response(object):
         #: Final URL location of Response.
         self.url = None
 
-        #: Encoding to decode with when accessing r.text or 
+        #: Encoding to decode with when accessing r.text or
         #: r.iter_content(decode_unicode=True)
         self.encoding = None
 
@@ -691,7 +697,7 @@ class Response(object):
         chunks are received. If stream=False, data is returned as
         a single chunk.
 
-        If using decode_unicode, the encoding must be set to a valid encoding 
+        If using decode_unicode, the encoding must be set to a valid encoding
         enumeration before invoking iter_content.
         """
 
@@ -737,11 +743,11 @@ class Response(object):
                     'encoding must be set before consuming streaming '
                     'responses'
                 )
-            
+
             # check encoding value here, don't wait for the generator to be
             # consumed before raising an exception
             codecs.lookup(self.encoding)
-            
+
             chunks = stream_decode_response_unicode(chunks, self)
 
         return chunks
@@ -787,7 +793,7 @@ class Response(object):
                 raise RuntimeError(
                     'The content for this response was already consumed')
 
-            if self.status_code == 0:
+            if self.status_code == 0 or self.raw is None:
                 self._content = None
             else:
                 self._content = bytes().join(self.iter_content(CONTENT_CHUNK_SIZE)) or bytes()

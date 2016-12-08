@@ -3,6 +3,49 @@
 Release History
 ---------------
 
+2.12.3 (2016-12-01)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Fixed regression from v2.12.1 for URLs with schemes that begin with "http".
+  These URLs have historically been processed as though they were HTTP-schemed
+  URLs, and so have had parameters added. This was removed in v2.12.2 in an
+  overzealous attempt to resolve problems with IDNA-encoding those URLs. This
+  change was reverted: the other fixes for IDNA-encoding have been judged to
+  be sufficient to return to the behaviour Requests had before v2.12.0.
+
+2.12.2 (2016-11-30)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Fixed several issues with IDNA-encoding URLs that are technically invalid but
+  which are widely accepted. Requests will now attempt to IDNA-encode a URL if
+  it can but, if it fails, and the host contains only ASCII characters, it will
+  be passed through optimistically. This will allow users to opt-in to using
+  IDNA2003 themselves if they want to, and will also allow technically invalid
+  but still common hostnames.
+- Fixed an issue where URLs with leading whitespace would raise
+  ``InvalidSchema`` errors.
+- Fixed an issue where some URLs without the HTTP or HTTPS schemes would still
+  have HTTP URL preparation applied to them.
+- Fixed an issue where Unicode strings could not be used in basic auth.
+- Fixed an issue encountered by some Requests plugins where constructing a
+  Response object would cause ``Response.content`` to raise an
+  ``AttributeError``.
+
+2.12.1 (2016-11-16)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Updated setuptools 'security' extra for the new PyOpenSSL backend in urllib3.
+
+**Miscellaneous**
+
+- Updated bundled urllib3 to 1.19.1.
+
 2.12.0 (2016-11-15)
 +++++++++++++++++++
 
