@@ -514,8 +514,6 @@ class TestRequests:
         'username, password', (
             ('user', 'pass'),
             (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8')),
-            (42, 42),
-            (None, None),
         ))
     def test_set_basicauth(self, httpbin, username, password):
         auth = (username, password)
@@ -525,6 +523,18 @@ class TestRequests:
         p = r.prepare()
 
         assert p.headers['Authorization'] == _basic_auth_str(username, password)
+
+    @pytest.mark.parametrize(
+        'username, password', (
+            ('user', 1234),
+            (None, 'test'),
+        ))
+    def test_non_str_basicauth(self, username, password):
+        """Ensure we only allow string or bytes values for basicauth"""
+        with pytest.raises(TypeError) as e:
+            requests.auth._basic_auth_str(username, password)
+
+        assert 'must be of type str or bytes' in str(e)
 
     def test_basicauth_encodes_byte_strings(self):
         """Ensure b'test' formats as the byte string "test" rather
