@@ -514,7 +514,8 @@ class TestRequests:
         'username, password', (
             ('user', 'pass'),
             (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8')),
-            (42, 42)
+            (42, 42),
+            (None, None),
         ))
     def test_set_basicauth(self, httpbin, username, password):
         auth = (username, password)
