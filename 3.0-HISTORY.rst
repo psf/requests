@@ -1,6 +1,31 @@
 3.0.0 (2016-xx-xx)
 ++++++++++++++++++
 
+- Remove support for non-string/bytes parameters in ``_basic_auth_str``.
+
+- Prevent ``Session.merge_environment`` from erroneously setting the
+  ``verify`` parameter to ``None`` instead of ``True``.
+
+- Streaming responses with ``Response.iter_lines`` or ``Response.iter_content``
+  now requires an encoding to be set if one isn't provided by the server.
+
+- Raise exception if multiple locations are returned during a redirect.
+
+- Update ConnectionPool connections when TLS/SSL settings change.
+
+- Remove simplejson import and only use standard json module.
+
+- Strip surrounding whitespace from urls.
+
+- MissingSchema and InvalidSchema renamed to MissingScheme and InvalidScheme
+  respectively.
+
+- Change merge order for environment settings to avoid excluding Session-level
+  settings.
+
+- Encode redirect URIs as latin-1 before performing redirects in Python 3 to
+  avoid mangling during the requoting process.
+
 - Remove the ``__bool__`` and ``__nonzero__`` methods from a ``Response``
   object.
 
