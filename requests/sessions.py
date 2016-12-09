@@ -157,13 +157,11 @@ class SessionRedirectMixin(object):
             if response.is_permanent_redirect and request.url != prepared_request.url:
                 self.redirect_cache[request.url] = prepared_request.url
 
-            old_method = prepared_request.method
-            self.rebuild_method(prepared_request, response)
-            new_method = prepared_request.method
+            method_changed = self.rebuild_method(prepared_request, response)
 
             # https://github.com/kennethreitz/requests/issues/2590
             # If method is changed to GET we need to remove body and associated headers.
-            if old_method != new_method and new_method == 'GET':
+            if method_changed and prepared_request.method == 'GET':
                 # https://github.com/kennethreitz/requests/issues/3490
                 purged_headers = ('Content-Length', 'Content-Type', 'Transfer-Encoding')
                 for header in purged_headers:
@@ -284,8 +282,11 @@ class SessionRedirectMixin(object):
     def rebuild_method(self, prepared_request, response):
         """When being redirected we may want to change the method of the request
         based on certain specs or browser behavior.
+
+        :rtype bool:
+        :return: boolean expressing if the method changed during rebuild.
         """
-        method = prepared_request.method
+        method = original_method = prepared_request.method
 
         # http://tools.ietf.org/html/rfc7231#section-6.4.4
         if response.status_code == codes.see_other and method != 'HEAD':
@@ -300,6 +301,7 @@ class SessionRedirectMixin(object):
             method = 'GET'
 
         prepared_request.method = method
+        return method != original_method
 
 
 class Session(SessionRedirectMixin):
