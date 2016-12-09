@@ -514,6 +514,7 @@ class TestRequests:
         'username, password', (
             ('user', 'pass'),
             (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8')),
+            (42, 42)
         ))
     def test_set_basicauth(self, httpbin, username, password):
         auth = (username, password)
@@ -523,6 +524,16 @@ class TestRequests:
         p = r.prepare()
 
         assert p.headers['Authorization'] == _basic_auth_str(username, password)
+
+    def test_basicauth_encodes_byte_strings(self):
+        """Ensure b'test' formats as the byte string "test" rather
+        than the unicode string "b'test'" in Python 3.
+        """
+        auth = (b'\xc5\xafsername', b'test\xc6\xb6')
+        r = requests.Request('GET', 'http://localhost', auth=auth)
+        p = r.prepare()
+
+        assert p.headers['Authorization'] == 'Basic xa9zZXJuYW1lOnRlc3TGtg=='
 
     @pytest.mark.parametrize(
         'url, exception', (
