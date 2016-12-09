@@ -2363,7 +2363,7 @@ class TestPreparingURLs(object):
         )
     )
     def test_preparing_url(self, url, expected):
-        r = requests.Request('GET', url=url)
+        r = requests.Request(url=url)
         p = r.prepare()
         assert p.url == expected
 
@@ -2378,7 +2378,7 @@ class TestPreparingURLs(object):
         )
     )
     def test_preparing_bad_url(self, url):
-        r = requests.Request('GET', url=url)
+        r = requests.Request(url=url)
         with pytest.raises(requests.exceptions.InvalidURL):
             r.prepare()
 
