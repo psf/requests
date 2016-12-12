@@ -225,48 +225,92 @@ class TestRequests:
         else:
             pytest.fail('Expected custom max number of redirects to be respected but was not')
 
-    def test_http_301_changes_post_to_get(self, httpbin):
-        r = requests.post(httpbin('status', '301'))
-        assert r.status_code == 200
-        assert r.request.method == 'GET'
+    @pytest.mark.parametrize(
+        'method, body, expected', (
+            ('GET', None, 'GET'),
+            ('HEAD', None, 'HEAD'),
+            ('POST', 'test', 'GET'),
+            ('PUT', 'put test', 'PUT'),
+            ('PATCH', 'patch test', 'PATCH'),
+            ('DELETE', '', 'DELETE')
+        )
+    )
+    def test_http_301_for_redirectable_methods(self, httpbin, method, body, expected):
+        """Tests all methods except OPTIONS for expected redirect behaviour.
+
+        OPTIONS responses can behave differently depending on the server, so
+        we don't have anything uniform to test except how httpbin responds
+        to them. For that reason they aren't included here.
+        """
+        params = {'url': '/%s' % expected.lower(), 'status_code': '301'}
+        r = requests.request(method, httpbin('redirect-to'), data=body, params=params)
+
+        assert r.request.url == httpbin(expected.lower())
+        assert r.request.method == expected
         assert r.history[0].status_code == 301
         assert r.history[0].is_redirect
 
-    def test_http_301_doesnt_change_head_to_get(self, httpbin):
-        r = requests.head(httpbin('status', '301'), allow_redirects=True)
-        print(r.content)
-        assert r.status_code == 200
-        assert r.request.method == 'HEAD'
-        assert r.history[0].status_code == 301
-        assert r.history[0].is_redirect
+        if expected in ('GET', 'HEAD'):
+            assert r.request.body is None
+        else:
+            assert r.json()['data'] == body
 
-    def test_http_302_changes_post_to_get(self, httpbin):
-        r = requests.post(httpbin('status', '302'))
-        assert r.status_code == 200
-        assert r.request.method == 'GET'
+    @pytest.mark.parametrize(
+        'method, body, expected', (
+            ('GET', None, 'GET'),
+            ('HEAD', None, 'HEAD'),
+            ('POST', 'test', 'GET'),
+            ('PUT', 'put test', 'PUT'),
+            ('PATCH', 'patch test', 'PATCH'),
+            ('DELETE', '', 'DELETE')
+        )
+    )
+    def test_http_302_for_redirectable_methods(self, httpbin, method, body, expected):
+        """Tests all methods except OPTIONS for expected redirect behaviour.
+
+        OPTIONS responses can behave differently depending on the server, so
+        we don't have anything uniform to test except how httpbin responds
+        to them. For that reason they aren't included here.
+        """
+        params = {'url': '/%s' % expected.lower()}
+        r = requests.request(method, httpbin('redirect-to'), data=body, params=params)
+
+        assert r.request.url == httpbin(expected.lower())
+        assert r.request.method == expected
         assert r.history[0].status_code == 302
         assert r.history[0].is_redirect
 
-    def test_http_302_doesnt_change_head_to_get(self, httpbin):
-        r = requests.head(httpbin('status', '302'), allow_redirects=True)
-        assert r.status_code == 200
-        assert r.request.method == 'HEAD'
-        assert r.history[0].status_code == 302
-        assert r.history[0].is_redirect
+        if expected in ('GET', 'HEAD'):
+            assert r.request.body is None
+        else:
+            assert r.json()['data'] == body
 
-    def test_http_303_changes_post_to_get(self, httpbin):
-        r = requests.post(httpbin('status', '303'))
-        assert r.status_code == 200
-        assert r.request.method == 'GET'
+    @pytest.mark.parametrize(
+        'method, body, expected', (
+            ('GET', None, 'GET'),
+            ('HEAD', None, 'HEAD'),
+            ('POST', 'test', 'GET'),
+            ('PUT', 'put test', 'GET'),
+            ('PATCH', 'patch test', 'GET'),
+            ('DELETE', '', 'GET')
+        )
+    )
+    def test_http_303_for_redirectable_methods(self, httpbin, method, body, expected):
+        """Tests all methods except OPTIONS for expected redirect behaviour.
+
+        OPTIONS responses can behave differently depending on the server, so
+        we don't have anything uniform to test except how httpbin responds
+        to them. For that reason they aren't included here.
+        """
+        params = {'url': '/%s' % expected.lower(), 'status_code': '303'}
+        r = requests.request(method, httpbin('redirect-to'), data=body, params=params)
+
+        assert r.request.url == httpbin(expected.lower())
+        assert r.request.method == expected
         assert r.history[0].status_code == 303
         assert r.history[0].is_redirect
 
-    def test_http_303_doesnt_change_head_to_get(self, httpbin):
-        r = requests.head(httpbin('status', '303'), allow_redirects=True)
-        assert r.status_code == 200
-        assert r.request.method == 'HEAD'
-        assert r.history[0].status_code == 303
-        assert r.history[0].is_redirect
+        assert r.request.body is None
 
     def test_multiple_location_headers(self, httpbin):
         headers = [('Location', 'http://example.com'),
