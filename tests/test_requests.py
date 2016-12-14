@@ -14,6 +14,7 @@ import warnings
 import io
 import requests
 import pytest
+import pytest_httpbin
 from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
@@ -22,8 +23,8 @@ from requests.compat import (
 from requests.cookies import (
     cookiejar_from_dict, morsel_to_cookie, merge_cookies)
 from requests.exceptions import (
-    ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
-    MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
+    ConnectionError, ConnectTimeout, InvalidScheme, InvalidURL,
+    MissingScheme, ReadTimeout, Timeout, RetryError, TooManyRedirects,
     ProxyError, InvalidHeader, UnrewindableBodyError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
@@ -33,6 +34,21 @@ from requests.hooks import default_hooks
 
 from .compat import StringIO, u
 from .utils import override_environ
+
+class SendRecordingAdapter(HTTPAdapter):
+    """
+    A basic subclass of the HTTPAdapter that records the arguments used to
+    ``send``.
+    """
+    def __init__(self, *args, **kwargs):
+        super(SendRecordingAdapter, self).__init__(*args, **kwargs)
+
+        self.send_calls = []
+
+    def send(self, *args, **kwargs):
+        self.send_calls.append((args, kwargs))
+        return super(SendRecordingAdapter, self).send(*args, **kwargs)
+
 
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
@@ -67,10 +83,10 @@ class TestRequests:
 
     @pytest.mark.parametrize(
         'exception, url', (
-            (MissingSchema, 'hiwpefhipowhefopw'),
-            (InvalidSchema, 'localhost:3128'),
-            (InvalidSchema, 'localhost.localdomain:3128/'),
-            (InvalidSchema, '10.122.1.1:3128/'),
+            (MissingScheme, 'hiwpefhipowhefopw'),
+            (InvalidScheme, 'localhost:3128'),
+            (InvalidScheme, 'localhost.localdomain:3128/'),
+            (InvalidScheme, '10.122.1.1:3128/'),
             (InvalidURL, 'http://'),
         ))
     def test_invalid_url(self, exception, url):
@@ -78,7 +94,7 @@ class TestRequests:
             requests.get(url)
 
     def test_basic_building(self):
-        req = requests.Request()
+        req = requests.Request(method='GET')
         req.url = 'http://kennethreitz.org/'
         req.data = {'life': '42'}
 
@@ -251,6 +267,20 @@ class TestRequests:
         assert r.request.method == 'HEAD'
         assert r.history[0].status_code == 303
         assert r.history[0].is_redirect
+
+    def test_multiple_location_headers(self, httpbin):
+        headers = [('Location', 'http://example.com'),
+                   ('Location', 'https://example.com/1')]
+        params = '&'.join(['%s=%s' % (k, v) for k, v in headers])
+        ses = requests.Session()
+        req = requests.Request('GET', httpbin('response-headers?%s' % params))
+        prep = ses.prepare_request(req)
+        resp = ses.send(prep)
+        # change response to redirect
+        resp.status_code = 302
+        with pytest.raises(InvalidHeader):
+            # next triggers yield on generator
+            next(ses.resolve_redirects(resp, prep))
 
     def test_header_and_body_removal_on_redirect(self, httpbin):
         purged_headers = ('Content-Length', 'Content-Type')
@@ -484,8 +514,6 @@ class TestRequests:
         'username, password', (
             ('user', 'pass'),
             (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8')),
-            (42, 42),
-            (None, None),
         ))
     def test_set_basicauth(self, httpbin, username, password):
         auth = (username, password)
@@ -495,6 +523,18 @@ class TestRequests:
         p = r.prepare()
 
         assert p.headers['Authorization'] == _basic_auth_str(username, password)
+
+    @pytest.mark.parametrize(
+        'username, password', (
+            ('user', 1234),
+            (None, 'test'),
+        ))
+    def test_non_str_basicauth(self, username, password):
+        """Ensure we only allow string or bytes values for basicauth"""
+        with pytest.raises(TypeError) as e:
+            requests.auth._basic_auth_str(username, password)
+
+        assert 'must be of type str or bytes' in str(e)
 
     def test_basicauth_encodes_byte_strings(self):
         """Ensure b'test' formats as the byte string "test" rather
@@ -803,8 +843,8 @@ class TestRequests:
             files={'file': ('test_requests.py', open(__file__, 'rb'))})
         assert r.status_code == 200
 
-    @pytest.mark.parametrize(
-        'data', (
+    @pytest.mark.parametrize('data',
+        (
             {'stuff': u('ëlïxr')},
             {'stuff': u('ëlïxr').encode('utf-8')},
             {'stuff': 'elixr'},
@@ -1138,8 +1178,23 @@ class TestRequests:
         r = requests.Response()
         r.raw = io.BytesIO(b'the content')
         r.encoding = 'ascii'
+
         chunks = r.iter_content(decode_unicode=True)
         assert all(isinstance(chunk, str) for chunk in chunks)
+
+    @pytest.mark.parametrize(
+        'encoding, exception', (
+            (None, TypeError),
+            ('invalid encoding', LookupError),
+        ))
+    def test_decode_unicode_encoding(self, encoding, exception):
+        # raise an exception if encoding isn't set
+        r = requests.Response()
+        r.raw = io.BytesIO(b'the content')
+        r.encoding = encoding
+
+        with pytest.raises(exception):
+            chunks = r.iter_content(decode_unicode=True)
 
     def test_response_reason_unicode(self):
         # check for unicode HTTP status
@@ -1467,7 +1522,7 @@ class TestRequests:
         s = requests.Session()
         r1 = s.get(httpbin('redirect/2'), allow_redirects=False, stream=True)
         assert r1.is_redirect
-        rg = s.resolve_redirects(r1, r1.request, stream=True)
+        rg = s.resolve_redirects(r1, stream=True)
 
         # read only the first eight bytes of the response body,
         # then follow the redirect
@@ -1663,6 +1718,59 @@ class TestRequests:
         next(r.iter_lines())
         assert len(list(r.iter_lines())) == 3
 
+    def test_environment_comes_after_session(self, httpbin):
+        """The Session arguments should come before environment arguments."""
+        # We get proxies from the environment and verify from the argument.
+        s = requests.Session()
+        a = SendRecordingAdapter()
+        s.mount('http://', a)
+
+        # Both of these arguments are safe fallbacks that we can easily
+        # detect, but which will allow the request to succeed.
+        s.verify = False
+        s.proxies = {'http': None}
+
+        old_proxy = os.environ.get('HTTP_PROXY')
+        old_bundle = os.environ.get('REQUESTS_CA_BUNDLE')
+
+        try:
+            os.environ['HTTP_PROXY'] = '10.10.10.10:3128'
+            os.environ['REQUESTS_CA_BUNDLE'] = '/path/to/nowhere'
+
+            s.get(httpbin('get'), timeout=5)
+        finally:
+            if old_proxy is not None:
+                os.environ['HTTP_PROXY'] = old_proxy
+            else:
+                del os.environ['HTTP_PROXY']
+
+            if old_bundle is not None:
+                os.environ['REQUESTS_CA_BUNDLE'] = old_bundle
+            else:
+                del os.environ['REQUESTS_CA_BUNDLE']
+
+        call = a.send_calls[0]
+        assert call[1]['verify'] == False
+
+        proxies = call[1]['proxies']
+        with pytest.raises(KeyError):
+            proxies['http']
+
+    @pytest.fixture(autouse=True)
+    def test_merge_environment_settings_verify(self, monkeypatch):
+        """Assert CA environment settings are merged as expected when missing"""
+        session = requests.Session()
+        monkeypatch.delenv('CURL_CA_BUNDLE', raising=False)
+        monkeypatch.delenv('REQUESTS_CA_BUNDLE', raising=False)
+
+        assert session.trust_env is True
+        assert session.verify is True
+        assert 'REQUESTS_CA_BUNDLE' not in os.environ
+        assert 'CURL_CA_BUNDLE' not in os.environ
+        merged_settings = session.merge_environment_settings(
+            'http://example.com', {}, False, True, None)
+        assert merged_settings['verify'] is True
+
     def test_session_close_proxy_clear(self, mocker):
         proxies = {
           'one': mocker.Mock(),
@@ -1704,6 +1812,33 @@ class TestRequests:
         assert not resp.raw.closed
         resp.close()
         assert resp.raw.closed
+
+    def test_updating_ca_cert(self, httpbin_secure):
+        """Assert that requests use the latest configured CA certificates."""
+        session = requests.session()
+        session.verify = pytest_httpbin.certs.where()
+        session.get(httpbin_secure('/'))
+        session.verify = True
+        with pytest.raises(requests.exceptions.SSLError) as e:
+            session.get(httpbin_secure('/'))
+        assert 'certificate verify failed' in str(e)
+
+    def test_updating_client_cert(self, httpbin_secure):
+        """Assert that requests use the latest configured client certificates."""
+        ca_file = pytest_httpbin.certs.where()
+        cert_dir = os.path.dirname(ca_file)
+        # All we need is a valid certificate and key to make a request. httpbin_secure
+        # won't check the signature or subject name, so it's okay that these happen to
+        # be the server's certificate and key.
+        cert = os.path.join(cert_dir, 'cert.pem')
+        key = os.path.join(cert_dir, 'key.pem')
+        session = requests.session()
+        session.verify = ca_file
+        resp = session.get(httpbin_secure('/'))
+        resp_with_cert = session.get(httpbin_secure('/'), cert=(cert, key))
+        assert resp_with_cert.raw._pool.cert_file == cert
+        assert resp_with_cert.raw._pool.key_file == key
+        assert resp.raw._pool is not resp_with_cert.raw._pool
 
     def test_empty_stream_with_auth_does_not_set_content_length_header(self, httpbin):
         """Ensure that a byte stream with size 0 will not set both a Content-Length
@@ -1882,6 +2017,18 @@ class TestCaseInsensitiveDict:
         cid['changed'] = True
         assert cid != cid_copy
 
+    def test_url_surrounding_whitespace(self, httpbin):
+        """Test case with URLs surrounded by whitespace characters."""
+        get_url = httpbin('get')
+        # All surrounding whitespaces are supposed to be ignored:
+        assert requests.get(get_url + ' ').status_code == 200
+        assert requests.get(' ' + get_url).status_code == 200
+        assert requests.get(get_url + ' \t ').status_code == 200
+        assert requests.get('  \t' + get_url).status_code == 200
+        assert requests.get(get_url + '\n').status_code == 200
+        # The whitespaces can't be in the middle of the URL though:
+        assert requests.get(get_url + ' abc').status_code == 404
+
 
 class TestMorselToCookieExpires:
     """Tests for morsel_to_cookie when morsel contains expires."""
@@ -2004,6 +2151,7 @@ class RedirectSession(SessionRedirectMixin):
         self.max_redirects = 30
         self.cookies = {}
         self.trust_env = False
+        self.location = '/'
 
     def send(self, *args, **kwargs):
         self.calls.append(SendCall(args, kwargs))
@@ -2018,7 +2166,7 @@ class RedirectSession(SessionRedirectMixin):
         except IndexError:
             r.status_code = 200
 
-        r.headers = CaseInsensitiveDict({'Location': '/'})
+        r.headers = CaseInsensitiveDict({'Location': self.location})
         r.raw = self._build_raw()
         r.request = request
         return r
@@ -2047,7 +2195,7 @@ def test_requests_are_updated_each_time(httpbin):
     r0 = session.send(prep)
     assert r0.request.method == 'POST'
     assert session.calls[-1] == SendCall((r0.request,), {})
-    redirect_generator = session.resolve_redirects(r0, prep)
+    redirect_generator = session.resolve_redirects(r0)
     default_keyword_args = {
         'stream': False,
         'verify': True,
@@ -2131,6 +2279,16 @@ def test_prepared_copy(kwargs):
     copy = p.copy()
     for attr in ('method', 'url', 'headers', '_cookies', 'body', 'hooks'):
         assert getattr(p, attr) == getattr(copy, attr)
+
+
+def test_prepare_requires_a_request_method():
+    req = requests.Request()
+    with pytest.raises(ValueError):
+        req.prepare()
+
+    prepped = PreparedRequest()
+    with pytest.raises(ValueError):
+        prepped.prepare()
 
 
 def test_urllib3_retries(httpbin):

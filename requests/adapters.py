@@ -10,6 +10,10 @@ and maintain connections.
 
 import os.path
 import socket
+try:
+    from threading import RLock
+except ImportError:  # threading is an optional module and may not be present.
+    from dummy_threading import RLock
 
 from .models import Response
 from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
@@ -33,14 +37,14 @@ from .packages.urllib3.exceptions import SSLError as _SSLError
 from .packages.urllib3.exceptions import ResponseError
 from .cookies import extract_cookies_to_jar
 from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
-                         ProxyError, RetryError, InvalidSchema)
+                         ProxyError, RetryError, InvalidScheme)
 from .auth import _basic_auth_str
 
 try:
     from .packages.urllib3.contrib.socks import SOCKSProxyManager
 except ImportError:
     def SOCKSProxyManager(*args, **kwargs):
-        raise InvalidSchema("Missing dependencies for SOCKS support.")
+        raise InvalidScheme("Missing dependencies for SOCKS support.")
 
 DEFAULT_POOLBLOCK = False
 DEFAULT_POOLSIZE = 10
@@ -119,6 +123,7 @@ class HTTPAdapter(BaseAdapter):
         self._pool_connections = pool_connections
         self._pool_maxsize = pool_maxsize
         self._pool_block = pool_block
+        self._pool_kw_lock = RLock()
 
         self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
 
@@ -131,6 +136,7 @@ class HTTPAdapter(BaseAdapter):
         # self.poolmanager uses a lambda function, which isn't pickleable.
         self.proxy_manager = {}
         self.config = {}
+        self._pool_kw_lock = RLock()
 
         for attr, value in state.items():
             setattr(self, attr, value)
@@ -195,17 +201,21 @@ class HTTPAdapter(BaseAdapter):
 
         return manager
 
-    def cert_verify(self, conn, url, verify, cert):
-        """Verify a SSL certificate. This method should not be called from user
-        code, and is only exposed for use when subclassing the
-        :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
+    def _update_poolmanager_ssl_kw(self, verify, cert):
+        """Update the :class:`PoolManager <urllib3.poolmanager.PoolManager>`
+        connection_pool_kw with the necessary SSL configuration. This method
+        should not be called from user code, and is only exposed for use when
+        subclassing the :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
-        :param conn: The urllib3 connection object associated with the cert.
-        :param url: The requested URL.
-        :param verify: Whether we should actually verify the certificate.
-        :param cert: The SSL certificate to verify.
+        :param verify: Whether we should actually verify the certificate;
+                       optionally a path to a CA certificate bundle or
+                       directory of CA certificates.
+        :param cert: The path to the client certificate and key, if any.
+                     This can either be the path to the certificate and
+                     key concatenated in a single file, or as a tuple of
+                     (cert_file, key_file).
         """
-        if url.lower().startswith('https') and verify:
+        if verify:
 
             cert_loc = None
 
@@ -219,23 +229,25 @@ class HTTPAdapter(BaseAdapter):
             if not cert_loc:
                 raise Exception("Could not find a suitable SSL CA certificate bundle.")
 
-            conn.cert_reqs = 'CERT_REQUIRED'
+            self.poolmanager.connection_pool_kw['cert_reqs'] = 'CERT_REQUIRED'
 
             if not os.path.isdir(cert_loc):
-                conn.ca_certs = cert_loc
+                self.poolmanager.connection_pool_kw['ca_certs'] = cert_loc
+                self.poolmanager.connection_pool_kw['ca_cert_dir'] = None
             else:
-                conn.ca_cert_dir = cert_loc
+                self.poolmanager.connection_pool_kw['ca_cert_dir'] = cert_loc
+                self.poolmanager.connection_pool_kw['ca_certs'] = None
         else:
-            conn.cert_reqs = 'CERT_NONE'
-            conn.ca_certs = None
-            conn.ca_cert_dir = None
+            self.poolmanager.connection_pool_kw['cert_reqs'] = 'CERT_NONE'
+            self.poolmanager.connection_pool_kw['ca_certs'] = None
+            self.poolmanager.connection_pool_kw['ca_cert_dir'] = None
 
         if cert:
             if not isinstance(cert, basestring):
-                conn.cert_file = cert[0]
-                conn.key_file = cert[1]
+                self.poolmanager.connection_pool_kw['cert_file'] = cert[0]
+                self.poolmanager.connection_pool_kw['key_file'] = cert[1]
             else:
-                conn.cert_file = cert
+                self.poolmanager.connection_pool_kw['cert_file'] = cert
 
     def build_response(self, req, resp):
         """Builds a :class:`Response <requests.Response>` object from a urllib3
@@ -274,7 +286,7 @@ class HTTPAdapter(BaseAdapter):
 
         return response
 
-    def get_connection(self, url, proxies=None):
+    def get_connection(self, url, proxies=None, verify=None, cert=None):
         """Returns a urllib3 connection for the given URL. This should not be
         called from user code, and is only exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
@@ -283,17 +295,21 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
         :rtype: requests.packages.urllib3.ConnectionPool
         """
-        proxy = select_proxy(url, proxies)
+        with self._pool_kw_lock:
+            if url.lower().startswith('https'):
+                self._update_poolmanager_ssl_kw(verify, cert)
 
-        if proxy:
-            proxy = prepend_scheme_if_needed(proxy, 'http')
-            proxy_manager = self.proxy_manager_for(proxy)
-            conn = proxy_manager.connection_from_url(url)
-        else:
-            # Only scheme should be lower case
-            parsed = urlparse(url)
-            url = parsed.geturl()
-            conn = self.poolmanager.connection_from_url(url)
+            proxy = select_proxy(url, proxies)
+
+            if proxy:
+                proxy = prepend_scheme_if_needed(proxy, 'http')
+                proxy_manager = self.proxy_manager_for(proxy)
+                conn = proxy_manager.connection_from_url(url)
+            else:
+                # Only scheme should be lower case
+                parsed = urlparse(url)
+                url = parsed.geturl()
+                conn = self.poolmanager.connection_from_url(url)
 
         return conn
 
@@ -386,10 +402,8 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: (optional) The proxies dictionary to apply to the request.
         :rtype: requests.Response
         """
+        conn = self.get_connection(request.url, proxies, verify, cert)
 
-        conn = self.get_connection(request.url, proxies)
-
-        self.cert_verify(conn, request.url, verify, cert)
         url = self.request_url(request, proxies)
         self.add_headers(request)
 
@@ -420,7 +434,8 @@ class HTTPAdapter(BaseAdapter):
                     preload_content=False,
                     decode_content=False,
                     retries=self.max_retries,
-                    timeout=timeout
+                    timeout=timeout,
+                    enforce_content_length=True
                 )
 
             # Send the request.
@@ -441,7 +456,10 @@ class HTTPAdapter(BaseAdapter):
                     low_conn.endheaders()
 
                     for i in request.body:
-                        low_conn.send(hex(len(i))[2:].encode('utf-8'))
+                        chunk_size = len(i)
+                        if chunk_size == 0:
+                            continue
+                        low_conn.send(hex(chunk_size)[2:].encode('utf-8'))
                         low_conn.send(b'\r\n')
                         low_conn.send(i)
                         low_conn.send(b'\r\n')
@@ -461,7 +479,9 @@ class HTTPAdapter(BaseAdapter):
                         pool=conn,
                         connection=low_conn,
                         preload_content=False,
-                        decode_content=False
+                        decode_content=False,
+                        enforce_content_length=True,
+                        request_method=request.method
                     )
                 except:
                     # If we hit any problems here, clean up the connection.

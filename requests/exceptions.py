@@ -69,16 +69,20 @@ class TooManyRedirects(RequestException):
     """Too many redirects."""
 
 
-class MissingSchema(RequestException, ValueError):
-    """The URL schema (e.g. http or https) is missing."""
+class MissingScheme(RequestException, ValueError):
+    """The URL scheme (e.g. http or https) is missing."""
 
 
-class InvalidSchema(RequestException, ValueError):
-    """See defaults.py for valid schemas."""
+class InvalidScheme(RequestException, ValueError):
+    """See defaults.py for valid schemes."""
 
 
 class InvalidURL(RequestException, ValueError):
     """The URL provided was somehow invalid."""
+
+
+class InvalidHeader(RequestException, ValueError):
+    """The header value provided was somehow invalid."""
 
 
 class InvalidHeader(RequestException, ValueError):

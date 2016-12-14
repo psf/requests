@@ -25,7 +25,7 @@ from ._internal_utils import to_native_string
 from .compat import parse_http_list as _parse_list_header
 from .compat import (
     quote, urlparse, bytes, str, OrderedDict, unquote, getproxies,
-    proxy_bypass, urlunparse, basestring, integer_types)
+    proxy_bypass, urlunparse, basestring, integer_types, is_py2, is_py3)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
 from .structures import CaseInsensitiveDict
 from .exceptions import (
@@ -380,11 +380,6 @@ def get_encoding_from_headers(headers):
 def stream_decode_response_unicode(iterator, r):
     """Stream decodes a iterator."""
 
-    if r.encoding is None:
-        for item in iterator:
-            yield item
-        return
-
     decoder = codecs.getincrementaldecoder(r.encoding)(errors='replace')
     for chunk in iterator:
         rv = decoder.decode(chunk)
@@ -453,7 +448,26 @@ def unquote_unreserved(uri):
 
     :rtype: str
     """
-    parts = uri.split('%')
+    # This convert function is used to optionally convert the output of `chr`.
+    # In Python 3, `chr` returns a unicode string, while in Python 2 it returns
+    # a bytestring. Here we deal with that by optionally converting.
+    def convert(is_bytes, c):
+        if is_py2 and not is_bytes:
+            return c.decode('ascii')
+        elif is_py3 and is_bytes:
+            return c.encode('ascii')
+        else:
+            return c
+
+    # Handle both bytestrings and unicode strings.
+    is_bytes = isinstance(uri, bytes)
+    splitchar = u'%'
+    base = u''
+    if is_bytes:
+        splitchar = splitchar.encode('ascii')
+        base = base.encode('ascii')
+
+    parts = uri.split(splitchar)
     for i in range(1, len(parts)):
         h = parts[i][0:2]
         if len(h) == 2 and h.isalnum():
@@ -463,12 +477,12 @@ def unquote_unreserved(uri):
                 raise InvalidURL("Invalid percent-escape sequence: '%s'" % h)
 
             if c in UNRESERVED_SET:
-                parts[i] = c + parts[i][2:]
+                parts[i] = convert(is_bytes, c) + parts[i][2:]
             else:
-                parts[i] = '%' + parts[i]
+                parts[i] = splitchar + parts[i]
         else:
-            parts[i] = '%' + parts[i]
-    return ''.join(parts)
+            parts[i] = splitchar + parts[i]
+    return base.join(parts)
 
 
 def requote_uri(uri):
@@ -699,6 +713,17 @@ def parse_header_links(value):
 
     return links
 
+def is_valid_location(response):
+    """Verify that multiple Location headers weren't
+    returned from the last response.
+    """
+    headers = getattr(response.raw, 'headers', None)
+    if headers is not None:
+        getlist = getattr(headers, 'getlist', None)
+        if getlist is not None:
+            return len(getlist('location')) <= 1
+    # If response.raw isn't urllib3-like we can't reliably check this
+    return True
 
 # Null bytes; no need to recreate these on each call to guess_json_utf
 _null = '\x00'.encode('ascii')  # encoding to ASCII for Python 3

@@ -9,6 +9,7 @@ This module contains the primary objects that power Requests.
 
 import collections
 import datetime
+import codecs
 
 # Import encoding now, to avoid implicit import later.
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
@@ -19,6 +20,7 @@ from io import BytesIO, UnsupportedOperation
 from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 
+import requests
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
 from .packages import idna
@@ -26,9 +28,10 @@ from .packages.urllib3.fields import RequestField
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
 from .packages.urllib3.exceptions import (
-    DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
+    DecodeError, ReadTimeoutError, ProtocolError,
+    LocationParseError, ConnectionError)
 from .exceptions import (
-    HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
+    HTTPError, MissingScheme, InvalidURL, ChunkedEncodingError,
     ContentDecodingError, ConnectionError, StreamConsumedError)
 from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
@@ -38,7 +41,7 @@ from .utils import (
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, builtin_str, basestring)
-from .compat import json as complexjson
+import json as complexjson
 from .status_codes import codes
 
 #: The set of HTTP status codes that indicate an automatically
@@ -328,8 +331,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_method(self, method):
         """Prepares the given HTTP method."""
         self.method = method
-        if self.method is not None:
-            self.method = to_native_string(self.method.upper())
+        if self.method is None:
+            raise ValueError('Request method cannot be "None"')
+        self.method = to_native_string(self.method).upper()
 
     def prepare_url(self, url, params):
         """Prepares the given HTTP URL."""
@@ -343,8 +347,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         else:
             url = unicode(url) if is_py2 else str(url)
 
-        # Remove leading whitespaces from url
-        url = url.lstrip()
+        # Ignore any leading and trailing whitespace characters.
+        url = url.strip()
 
         # Don't do any URL preparation for non-HTTP schemes like `mailto`,
         # `data` etc to work around exceptions from `url_parse`, which
@@ -360,10 +364,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             raise InvalidURL(*e.args)
 
         if not scheme:
-            error = ("Invalid URL {0!r}: No schema supplied. Perhaps you meant http://{0}?")
+            error = ("Invalid URL {0!r}: No scheme supplied. Perhaps you meant http://{0}?")
             error = error.format(to_native_string(url, 'utf8'))
 
-            raise MissingSchema(error)
+            raise MissingScheme(error)
 
         if not host:
             raise InvalidURL("Invalid URL %r: No host supplied" % url)
@@ -561,6 +565,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         for event in hooks:
             self.register_hook(event, hooks[event])
 
+    def send(self, session=None, **send_kwargs):
+        """Sends the PreparedRequest to the given Session.
+        If none is provided, one is created for you."""
+        session = requests.Session() if session is None else session
+
+        with session:
+            return session.send(self, **send_kwargs)
+
 
 class Response(object):
     """The :class:`Response <Response>` object, which contains a
@@ -594,7 +606,8 @@ class Response(object):
         #: Final URL location of Response.
         self.url = None
 
-        #: Encoding to decode with when accessing r.text.
+        #: Encoding to decode with when accessing r.text or
+        #: r.iter_content(decode_unicode=True)
         self.encoding = None
 
         #: A list of :class:`Response <Response>` objects from
@@ -642,14 +655,6 @@ class Response(object):
     def __repr__(self):
         return '<Response [%s]>' % (self.status_code)
 
-    def __bool__(self):
-        """Returns true if :attr:`status_code` is 'OK'."""
-        return self.ok
-
-    def __nonzero__(self):
-        """Returns true if :attr:`status_code` is 'OK'."""
-        return self.ok
-
     def __iter__(self):
         """Allows you to use a response as an iterator."""
         return self.iter_content(128)
@@ -692,8 +697,8 @@ class Response(object):
         chunks are received. If stream=False, data is returned as
         a single chunk.
 
-        If decode_unicode is True, content will be decoded using the best
-        available encoding based on the response.
+        If using decode_unicode, the encoding must be set to a valid encoding
+        enumeration before invoking iter_content.
         """
 
         def generate():
@@ -703,7 +708,10 @@ class Response(object):
                     for chunk in self.raw.stream(chunk_size, decode_content=True):
                         yield chunk
                 except ProtocolError as e:
-                    raise ChunkedEncodingError(e)
+                    if self.headers.get('Transfer-Encoding') == 'chunked':
+                        raise ChunkedEncodingError(e)
+                    else:
+                        raise ConnectionError(e)
                 except DecodeError as e:
                     raise ContentDecodingError(e)
                 except ReadTimeoutError as e:
@@ -730,6 +738,16 @@ class Response(object):
         chunks = reused_chunks if self._content_consumed else stream_chunks
 
         if decode_unicode:
+            if self.encoding is None:
+                raise TypeError(
+                    'encoding must be set before consuming streaming '
+                    'responses'
+                )
+
+            # check encoding value here, don't wait for the generator to be
+            # consumed before raising an exception
+            codecs.lookup(self.encoding)
+
             chunks = stream_decode_response_unicode(chunks, self)
 
         return chunks

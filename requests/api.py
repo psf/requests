@@ -13,11 +13,12 @@ This module implements the Requests API.
 from . import sessions
 
 
-def request(method, url, **kwargs):
+def request(method, url, session=None, **kwargs):
     """Constructs and sends a :class:`Request <Request>`.
 
     :param method: method for the new :class:`Request` object.
     :param url: URL for the new :class:`Request` object.
+    :param session: :class:`Session` object to use for this request. If none is given, one will be provided.
     :param params: (optional) Dictionary or bytes to be sent in the query string for the :class:`Request`.
     :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
     :param json: (optional) json data to send in the body of the :class:`Request`.
@@ -52,7 +53,10 @@ def request(method, url, **kwargs):
     # By using the 'with' statement we are sure the session is closed, thus we
     # avoid leaving sockets open which can trigger a ResourceWarning in some
     # cases, and look like a memory leak in others.
-    with sessions.Session() as session:
+
+    session = sessions.Session() if session is None else session
+
+    with session:
         return session.request(method=method, url=url, **kwargs)
 
 
