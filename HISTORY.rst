@@ -3,6 +3,15 @@
 Release History
 ---------------
 
+2.12.4 (2016-12-14)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Fixed regression from 2.12.2 where non-string types were rejected in the
+  basic auth parameters. While support for this behaviour has been readded,
+  the behaviour is deprecated and will be removed in the future.
+
 2.12.3 (2016-12-01)
 +++++++++++++++++++
 
