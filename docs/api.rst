@@ -74,7 +74,6 @@ Authentication
 
 .. autoclass:: requests.auth.AuthBase
 .. autoclass:: requests.auth.HTTPBasicAuth
-.. autoclass:: requests.auth.HTTPProxyAuth
 .. autoclass:: requests.auth.HTTPDigestAuth
 
 

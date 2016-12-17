@@ -1,6 +1,9 @@
 3.0.0 (2016-xx-xx)
 ++++++++++++++++++
 
+- Remove the HTTPProxyAuth class in favor of supporting proxy auth via
+  the proxies parameter.
+
 - Relax how Requests strips bodies from redirects. 3.0.0 only supports body
   removal on 301/302 POST redirects and all 303 redirects.
 
