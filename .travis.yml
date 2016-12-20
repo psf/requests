@@ -7,6 +7,8 @@ python:
   - "3.4"
   - "3.5"
   - "3.6-dev" # 3.6 development branch
+  - "pypy"
+  - "pypy3"
 # command to install dependencies
 install: "pip install -r requirements.txt"
 # command to run tests
