@@ -21,7 +21,7 @@ from .structures import CaseInsensitiveDict
 
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
-
+from requests.packages.idna import encode as idna_encode, IDNAError
 from .packages.urllib3.fields import RequestField
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
@@ -331,24 +331,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if self.method is not None:
             self.method = to_native_string(self.method.upper())
 
-    @staticmethod
-    def _get_validated_host(host):
-        """Validate host and perform idna encoding"""
-        from .packages import idna
-
-        # In general, we want to try IDNA encoding every hostname, as that
-        # allows users to automatically get the correct behaviour. However,
-        # we’re quite strict about IDNA encoding, so certain valid hostnames
-        # may fail to encode. On failure, we verify the hostname meets a
-        # minimum standard of only containing ASCII characters, and not starting
-        # with a wildcard (*), before allowing the unencoded hostname through.
-        try:
-            host = idna.encode(host, uts46=True).decode('utf-8')
-        except (UnicodeError, idna.IDNAError):
-            if not unicode_is_ascii(host) or host.startswith(u'*'):
-                raise InvalidURL('URL has an invalid label.')
-        return host
-
     def prepare_url(self, url, params):
         """Prepares the given HTTP URL."""
         #: Accept objects that have string representations.
@@ -386,7 +368,17 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if not host:
             raise InvalidURL("Invalid URL %r: No host supplied" % url)
 
-        host = self._get_validated_host(host)
+        # In general, we want to try IDNA encoding every hostname, as that
+        # allows users to automatically get the correct behaviour. However,
+        # we’re quite strict about IDNA encoding, so certain valid hostnames
+        # may fail to encode. On failure, we verify the hostname meets a
+        # minimum standard of only containing ASCII characters, and not starting
+        # with a wildcard (*), before allowing the unencoded hostname through.
+        try:
+            host = idna_encode(host, uts46=True).decode('utf-8')
+        except (UnicodeError, IDNAError):
+            if not unicode_is_ascii(host) or host.startswith(u'*'):
+                raise InvalidURL('URL has an invalid label.')
 
         # Carefully reconstruct the network location
         netloc = auth or ''
