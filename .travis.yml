@@ -5,7 +5,7 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
-  - "3.6-dev" # 3.6 development branch
+  - "3.6"
   # - "pypy"  -- appears to hang
   # - "pypy3"
 # command to install dependencies
