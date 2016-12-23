@@ -34,9 +34,3 @@ try:
 except ImportError:
     import chardet
     sys.modules['%s.chardet' % __name__] = chardet
-
-try:
-    from . import idna
-except ImportError:
-    import idna
-    sys.modules['%s.idna' % __name__] = idna

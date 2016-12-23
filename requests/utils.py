@@ -17,11 +17,12 @@ import re
 import socket
 import struct
 import warnings
+import sys
 
 from . import __version__
 from . import certs
 # to_native_string is unused here, but imported here for backwards compatibility
-from ._internal_utils import to_native_string
+from ._internal_utils import to_native_string, delete_module, reload_module
 from .compat import parse_http_list as _parse_list_header
 from .compat import (
     quote, urlparse, bytes, str, OrderedDict, unquote, getproxies,
@@ -825,3 +826,34 @@ def rewind_body(prepared_request):
                                         "body for redirect.")
     else:
         raise UnrewindableBodyError("Unable to rewind request body for redirect.")
+
+
+def load_idna(func):
+    """
+    Decorator to load idna to execute idna related operation for specific function
+    and delete the idna module from imports once the task is done.
+    Needed to free the memory consumed due to idna imports.
+    """
+    def inner(*args, **kwargs):
+
+        import sys
+        try:
+            from .packages import idna
+        except ImportError:
+            from packages import idna
+
+        # Add `idna` entry in `sys.modules`. After deleting the module
+        # from `sys.modules` and re-importing the module don't update
+        # the module entry in `sys.modules` dict
+        sys.modules[idna.__package__] = idna
+
+        reload_module(idna)
+
+        value = func(*args, **kwargs)
+
+        # delete idna module
+        delete_module('requests.packages.idna')
+        del idna  # delete reference to idna
+
+        return value
+    return inner

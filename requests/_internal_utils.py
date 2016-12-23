@@ -10,6 +10,8 @@ which depend on extremely few external helpers (such as compat)
 
 from .compat import is_py2, builtin_str, str
 
+import sys
+
 
 def to_native_string(string, encoding='ascii'):
     """Given a string object, regardless of type, returns a representation of
@@ -40,3 +42,31 @@ def unicode_is_ascii(u_string):
         return True
     except UnicodeEncodeError:
         return False
+
+
+def delete_module(modname):
+    """
+    Delete module and sub-modules from `sys.module`
+    """
+    try:
+        _ = sys.modules[modname]
+    except KeyError:
+        raise ValueError("Module not found in sys.modules: '{}'".format(modname))
+
+    for module in list(sys.modules.keys()):
+        if module and module.startswith(modname):
+            del sys.modules[module]
+
+
+def reload_module(module):
+    try:
+        # For Python 2.x
+        reload(module)
+    except (ImportError, NameError):
+        # For <= Python3.3:
+        import imp
+        imp.reload(module)
+    except (ImportError, NameError):
+        # For >= Python3.4
+        import importlib
+        importlib.reload(module)
