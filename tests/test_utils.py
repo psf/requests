@@ -282,7 +282,7 @@ class TestGuessJSONUTF:
             ('utf-32-le', 'utf-32')
         ))
     def test_guess_by_bom(self, encoding, expected):
-        data = '\ufeff{}'.encode(encoding)
+        data = u'\ufeff{}'.encode(encoding)
         assert guess_json_utf(data) == expected
 
 
