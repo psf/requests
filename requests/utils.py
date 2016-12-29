@@ -714,7 +714,7 @@ def guess_json_utf(data):
     # easy as counting the nulls and from their location and count
     # determine the encoding. Also detect a BOM, if present.
     sample = data[:4]
-    if sample in (codecs.BOM_UTF32_LE, codecs.BOM32_BE):
+    if sample in (codecs.BOM_UTF32_LE, codecs.BOM_UTF32_BE):
         return 'utf-32'     # BOM included
     if sample[:3] == codecs.BOM_UTF8:
         return 'utf-8-sig'  # BOM included, MS style (discouraged)
