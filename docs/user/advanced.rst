@@ -220,7 +220,7 @@ This list of trusted CAs can also be specified through the ``REQUESTS_CA_BUNDLE`
 
 Requests can also ignore verifying the SSL certificate if you set ``verify`` to False::
 
-    >>> requests.get('https://kennethreitz.com', verify=False)
+    >>> requests.get('https://kennethreitz.org', verify=False)
     <Response [200]>
 
 By default, ``verify`` is set to True. Option ``verify`` only applies to host certs.
@@ -229,7 +229,7 @@ You can also specify a local cert to use as client side certificate, as a single
 file (containing the private key and the certificate) or as a tuple of both
 file's path::
 
-    >>> requests.get('https://kennethreitz.com', cert=('/path/client.cert', '/path/client.key'))
+    >>> requests.get('https://kennethreitz.org', cert=('/path/client.cert', '/path/client.key'))
     <Response [200]>
 
 or persistent::
@@ -239,7 +239,7 @@ or persistent::
 
 If you specify a wrong path or an invalid cert, you'll get a SSLError::
 
-    >>> requests.get('https://kennethreitz.com', cert='/wrong_path/client.pem')
+    >>> requests.get('https://kennethreitz.org', cert='/wrong_path/client.pem')
     SSLError: [Errno 336265225] _ssl.c:347: error:140B0009:SSL routines:SSL_CTX_use_PrivateKey_file:PEM lib
 
 .. warning:: The private key to your local certificate *must* be unencrypted.
