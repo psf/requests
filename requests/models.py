@@ -21,7 +21,7 @@ from .structures import CaseInsensitiveDict
 
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
-from .packages import idna
+from .packages.idna import encode as idna_encode, IDNAError
 from .packages.urllib3.fields import RequestField
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
@@ -375,8 +375,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # minimum standard of only containing ASCII characters, and not starting
         # with a wildcard (*), before allowing the unencoded hostname through.
         try:
-            host = idna.encode(host, uts46=True).decode('utf-8')
-        except (UnicodeError, idna.IDNAError):
+            host = idna_encode(host, uts46=True).decode('utf-8')
+        except (UnicodeError, IDNAError):
             if not unicode_is_ascii(host) or host.startswith(u'*'):
                 raise InvalidURL('URL has an invalid label.')
 

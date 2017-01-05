@@ -174,3 +174,4 @@ Patches and Suggestions
 - Philipp Konrad <gardiac2002@gmail.com> (`@gardiac2002 <https://github.com/gardiac2002>`_)
 - Hussain Tamboli <hussaintamboli18@gmail.com> (`@hussaintamboli <https://github.com/hussaintamboli>`_)
 - Casey Davidson (`@davidsoncasey <https://github.com/davidsoncasey>`_)
+- Moinuddin Quadri <moin18@gmail.com> (`@moin18 <https://github.com/moin18>`_)
