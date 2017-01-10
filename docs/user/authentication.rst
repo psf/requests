@@ -60,7 +60,7 @@ OAuth 1 Authentication
 ----------------------
 
 A common form of authentication for several web APIs is OAuth. The ``requests-oauthlib``
-library allows Requests users to easily make OAuth authenticated requests::
+library allows Requests users to easily make OAuth 1 authenticated requests::
 
     >>> import requests
     >>> from requests_oauthlib import OAuth1
@@ -76,11 +76,12 @@ For more information on how to OAuth flow works, please see the official `OAuth`
 For examples and documentation on requests-oauthlib, please see the `requests_oauthlib`_
 repository on GitHub
 
-OAuth 2 Authentication
-----------------------
+OAuth 2 and OpenID Connect Authentication
+-----------------------------------------
 
-The ``requests-oauthlib`` library handles OAuth 2 in addition to OAuth 1. See their
-documentation for details of the various OAuth 2 credential management flows:
+The ``requests-oauthlib`` library also handles OAuth 2, the authentication mechanism
+underpinning OpenID Connect. See the `requests-oauthlib OAuth2 documentation`_ for
+details of the various OAuth 2 credential management flows:
 
 * `Web Application Flow`_
 * `Mobile Application Flow`_
@@ -133,6 +134,7 @@ Further examples can be found under the `Requests organization`_ and in the
 
 .. _OAuth: http://oauth.net/
 .. _requests_oauthlib: https://github.com/requests/requests-oauthlib
+.. _requests-oauthlib OAuth2 documentation: http://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html
 .. _Web Application Flow: http://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#web-application-flow
 .. _Mobile Application Flow: http://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#mobile-application-flow
 .. _Legacy Application Flow:  http://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#legacy-application-flow
