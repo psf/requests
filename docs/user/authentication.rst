@@ -76,6 +76,16 @@ For more information on how to OAuth flow works, please see the official `OAuth`
 For examples and documentation on requests-oauthlib, please see the `requests_oauthlib`_
 repository on GitHub
 
+OAuth 2 Authentication
+----------------------
+
+The ``requests-oauthlib`` library handles OAuth 2 in addition to OAuth 1. See their
+documentation for details of the various OAuth 2 credential management flows:
+
+* `Web Application Flow`_
+* `Mobile Application Flow`_
+* `Legacy Application Flow`_
+* `Backend Application Flow`_
 
 Other Authentication
 --------------------
@@ -123,6 +133,10 @@ Further examples can be found under the `Requests organization`_ and in the
 
 .. _OAuth: http://oauth.net/
 .. _requests_oauthlib: https://github.com/requests/requests-oauthlib
+.. _Web Application Flow: http://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#web-application-flow
+.. _Mobile Application Flow: http://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#mobile-application-flow
+.. _Legacy Application Flow:  http://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#legacy-application-flow
+.. _Backend Application Flow:  http://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#backend-application-flow
 .. _Kerberos: https://github.com/requests/requests-kerberos
 .. _NTLM: https://github.com/requests/requests-ntlm
 .. _Requests organization: https://github.com/requests
