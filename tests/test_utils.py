@@ -4,7 +4,7 @@ from io import BytesIO
 
 import pytest
 from requests import compat
-from requests.cookies import RequestsCookieJar, cookiejar_from_dict
+from requests.cookies import RequestsCookieJar
 from requests.structures import CaseInsensitiveDict
 from requests.utils import (
     address_in_network, dotted_netmask,

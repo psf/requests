@@ -20,7 +20,7 @@ from requests.compat import (
     Morsel, cookielib, getproxies, str, urlparse,
     builtin_str, OrderedDict)
 from requests.cookies import (
-    cookiejar_from_dict, morsel_to_cookie, merge_cookies)
+    cookiejar_from_dict, morsel_to_cookie)
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
     MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
@@ -2293,4 +2293,3 @@ class TestPreparingURLs(object):
         r = requests.Request('GET', url=input, params=params)
         p = r.prepare()
         assert p.url == expected
-
