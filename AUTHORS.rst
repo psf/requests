@@ -175,3 +175,4 @@ Patches and Suggestions
 - Hussain Tamboli <hussaintamboli18@gmail.com> (`@hussaintamboli <https://github.com/hussaintamboli>`_)
 - Casey Davidson (`@davidsoncasey <https://github.com/davidsoncasey>`_)
 - Andrii Soldatenko (`@a_soldatenko <https://github.com/andriisoldatenko>`_)
+- Dan Sully (`@dsully <https://github.com/dsully>`_)

@@ -48,11 +48,20 @@ __license__ = 'Apache 2.0'
 __copyright__ = 'Copyright 2016 Kenneth Reitz'
 
 # Attempt to enable urllib3's SNI support, if possible
-try:
-    from .packages.urllib3.contrib import pyopenssl
-    pyopenssl.inject_into_urllib3()
-except ImportError:
-    pass
+# If the user has a recent version of OpenSSL, this
+# isn't needed as Python's core ssl module handles SNI, etc correctly.
+# If the requirements of urllib3.contrib.pyopenssl change,
+# this version should be modified appropraitely.
+#
+# See https://github.com/kennethreitz/requests/issues/3213 as well.
+import ssl
+
+if ssl.OPENSSL_VERSION_INFO < (1, 0, 1):
+    try:
+        from .packages.urllib3.contrib import pyopenssl
+        pyopenssl.inject_into_urllib3()
+    except ImportError:
+        pass
 
 import warnings
 
