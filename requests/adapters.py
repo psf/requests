@@ -221,10 +221,15 @@ class HTTPAdapter(BaseAdapter):
 
             conn.cert_reqs = 'CERT_REQUIRED'
 
-            if not os.path.isdir(cert_loc):
-                conn.ca_certs = cert_loc
-            else:
-                conn.ca_cert_dir = cert_loc
+            try:
+                if os.path.isfile(cert_loc):
+                    conn.ca_certs = cert_loc
+                elif os.path.isdir(cert_loc):
+                    conn.ca_cert_dir = cert_loc
+                else:
+                    conn.ca_certs_data = cert_loc
+            except:
+                conn.ca_certs_data = cert_loc
         else:
             conn.cert_reqs = 'CERT_NONE'
             conn.ca_certs = None
