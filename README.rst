@@ -7,12 +7,14 @@ Requests: HTTP for Humans
 .. image:: https://travis-ci.org/kennethreitz/requests.svg?branch=master
     :target: https://travis-ci.org/kennethreitz/requests
 
-.. image:: https://img.shields.io/badge/SayThanks.io-☼-1EAEDB.svg
-    :target: https://saythanks.io/to/kennethreitz
-
 .. image:: https://codecov.io/github/kennethreitz/requests/coverage.svg?branch=master
     :target: https://codecov.io/github/kennethreitz/requests
     :alt: codecov.io
+    
+.. image:: https://img.shields.io/badge/SayThanks.io-☼-1EAEDB.svg
+    :target: https://saythanks.io/to/kennethreitz
+
+
 
 Requests is the only *Non-GMO* HTTP library for Python, safe for human
 consumption.
