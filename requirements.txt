@@ -13,6 +13,7 @@ Jinja2==2.9.4
 MarkupSafe==0.23
 py==1.4.32
 Pygments==2.1.3
+PySocks==1.6.5
 pytest==3.0.5
 pytest-cov==2.4.0
 pytest-httpbin==0.2.3

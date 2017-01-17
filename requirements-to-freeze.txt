@@ -1,5 +1,6 @@
 pytest
 pytest-cov
 pytest-httpbin
+PySocks
 sphinx
 codecov
