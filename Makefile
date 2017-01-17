@@ -9,10 +9,7 @@ test:
 	py.test tests
 
 coverage:
-	py.test --verbose --cov-report term --cov-report xml --cov=requests tests
-
-ci: init
-	py.test --junitxml=junit.xml
+	py.test --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=requests tests
 
 certs:
 	curl http://ci.kennethreitz.org/job/ca-bundle/lastSuccessfulBuild/artifact/cacerts.pem -o requests/cacert.pem
