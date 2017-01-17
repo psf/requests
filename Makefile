@@ -9,7 +9,7 @@ test:
 	py.test tests
 
 coverage:
-	py.test --verbose --cov-report term --conv-report xml --cov=requests tests
+	py.test --verbose --cov-report term --cov-report xml --cov=requests tests
 
 ci: init
 	py.test --junitxml=junit.xml
