@@ -3,6 +3,14 @@
 Release History
 ---------------
 
+2.12.5 (2017-01-18)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Fixed an issue with JSON encoding detection, specifically detecting
+  big-endian UTF-32 with BOM.
+
 2.12.4 (2016-12-14)
 +++++++++++++++++++
 
