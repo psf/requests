@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import errno
 import warnings
 import hmac
+import sys
 
 from binascii import hexlify, unhexlify
 from hashlib import md5, sha1, sha256
@@ -85,8 +86,6 @@ DEFAULT_CIPHERS = ':'.join([
 try:
     from ssl import SSLContext  # Modern SSL?
 except ImportError:
-    import sys
-
     class SSLContext(object):  # Platform-specific: Python 2 & 3.1
         supports_set_ciphers = ((2, 7) <= sys.version_info < (3,) or
                                 (3, 2) <= sys.version_info)
@@ -277,7 +276,7 @@ def create_urllib3_context(ssl_version=None, cert_reqs=None,
 def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
                     ca_certs=None, server_hostname=None,
                     ssl_version=None, ciphers=None, ssl_context=None,
-                    ca_cert_dir=None):
+                    ca_cert_dir=None, ca_certs_data=None):
     """
     All arguments except for server_hostname, ssl_context, and ca_cert_dir have
     the same meaning as they do when using :func:`ssl.wrap_socket`.
@@ -294,6 +293,10 @@ def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
         A directory containing CA certificates in multiple separate files, as
         supported by OpenSSL's -CApath flag or the capath argument to
         SSLContext.load_verify_locations().
+    :param ca_certs_data:
+        Either an ASCII string representing one or more PEM-encoded certificates
+        or a bytes-like object of DER-encoded certificates, as supported
+        by SSLContext.load_verify_locations().
     """
     context = ssl_context
     if context is None:
@@ -303,9 +306,12 @@ def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
         context = create_urllib3_context(ssl_version, cert_reqs,
                                          ciphers=ciphers)
 
-    if ca_certs or ca_cert_dir:
+    if ca_certs or ca_cert_dir or ca_certs_data:
         try:
-            context.load_verify_locations(ca_certs, ca_cert_dir)
+            if sys.version_info < (2, 7, 9) or ((3, ) <= sys.version_info < (3, 4)):
+                context.load_verify_locations(ca_certs, ca_cert_dir)
+            else:
+                context.load_verify_locations(ca_certs, ca_cert_dir, ca_certs_data)
         except IOError as e:  # Platform-specific: Python 2.6, 2.7, 3.2
             raise SSLError(e)
         # Py33 raises FileNotFoundError which subclasses OSError

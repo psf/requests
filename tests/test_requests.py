@@ -1740,6 +1740,15 @@ class TestRequests:
         assert 'Transfer-Encoding' in prepared_request.headers
         assert 'Content-Length' not in prepared_request.headers
 
+    def test_verify_with_data(self, httpbin_secure, httpbin_ca_bundle):
+        from requests.certs import where
+
+        with open(where(), mode='r') as f:
+            data = ''.join([l for l in f.readlines() if not l.startswith('#')])
+
+        r = requests.get('https://httpbin.org/', verify=data)
+        assert r.status_code == 200
+
 
 class TestCaseInsensitiveDict:
 

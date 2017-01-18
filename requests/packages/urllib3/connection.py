@@ -248,13 +248,14 @@ class VerifiedHTTPSConnection(HTTPSConnection):
     cert_reqs = None
     ca_certs = None
     ca_cert_dir = None
+    ca_certs_data = None
     ssl_version = None
     assert_fingerprint = None
 
     def set_cert(self, key_file=None, cert_file=None,
                  cert_reqs=None, ca_certs=None,
                  assert_hostname=None, assert_fingerprint=None,
-                 ca_cert_dir=None):
+                 ca_cert_dir=None, ca_certs_data=None):
         """
         This method should only be called once, before the connection is used.
         """
@@ -275,6 +276,7 @@ class VerifiedHTTPSConnection(HTTPSConnection):
         self.assert_fingerprint = assert_fingerprint
         self.ca_certs = ca_certs and os.path.expanduser(ca_certs)
         self.ca_cert_dir = ca_cert_dir and os.path.expanduser(ca_cert_dir)
+        self.ca_certs_data = ca_certs_data
 
     def connect(self):
         # Add certificate verification
@@ -319,6 +321,7 @@ class VerifiedHTTPSConnection(HTTPSConnection):
             certfile=self.cert_file,
             ca_certs=self.ca_certs,
             ca_cert_dir=self.ca_cert_dir,
+            ca_certs_data=self.ca_certs_data,
             server_hostname=hostname,
             ssl_context=context)
 
