@@ -4,6 +4,9 @@ Requests: HTTP for Humans
 .. image:: https://img.shields.io/pypi/v/requests.svg
     :target: https://pypi.python.org/pypi/requests
 
+.. image:: https://img.shields.io/pypi/pyversions/requests.svg
+    :target: https://pypi.python.org/pypi/requests
+
 .. image:: https://travis-ci.org/kennethreitz/requests.svg?branch=master
     :target: https://travis-ci.org/kennethreitz/requests
 
