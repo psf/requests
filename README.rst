@@ -7,6 +7,9 @@ Requests: HTTP for Humans
 .. image:: https://img.shields.io/pypi/l/requests.svg
     :target: https://pypi.python.org/pypi/requests
     
+.. image:: https://img.shields.io/pypi/wheel/requests.svg
+    :target: https://pypi.python.org/pypi/requests
+ 
 .. image:: https://img.shields.io/pypi/pyversions/requests.svg
     :target: https://pypi.python.org/pypi/requests
 
