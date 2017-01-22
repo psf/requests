@@ -10,7 +10,7 @@ python:
   # - "pypy"  -- appears to hang
   # - "pypy3"
 # command to install dependencies
-install: "pip install pipenv; pipenv install"
+install: "pip install pipenv; pipenv install --global"
 # command to run tests
 script:
   - make coverage
