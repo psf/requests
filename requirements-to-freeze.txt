@@ -1,7 +1,0 @@
-pytest
-pytest-cov
-pytest-httpbin
-pytest-mock
-PySocks
-sphinx
-codecov
