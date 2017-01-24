@@ -1,7 +1,7 @@
 .PHONY: docs
 
 init:
-	pip install 'pipenv>=0.1.6'
+	pip install 'pipenv===0.2.0'
 	pipenv install --dev
 
 test:
