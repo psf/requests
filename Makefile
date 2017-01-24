@@ -45,9 +45,10 @@ idna:
 	    rm -fr idna
 
 publish:
-	python setup.py register
-	python setup.py sdist upload
-	python setup.py bdist_wheel --universal upload
+	pip install 'twine>=1.5.0'
+	python setup.py sdist
+	python setup.py bdist_wheel --universal
+	twine upload dist/*
 	rm -fr build dist .egg requests.egg-info
 
 
