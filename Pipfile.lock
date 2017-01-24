@@ -9,23 +9,28 @@
         "Babel": "==2.3.4",
         "alabaster": "==0.7.9",
         "pytest-mock": "==1.5.0",
+        "packaging": "==16.8",
         "MarkupSafe": "==0.23",
         "pytz": "==2016.10",
         "coverage": "==4.3.4",
         "pytest-httpbin": "==0.2.3",
         "funcsigs": "==1.0.2",
+        "pyparsing": "==2.1.10",
         "click": "==6.7",
         "decorator": "==4.0.11",
         "imagesize": "==0.7.1",
+        "argparse": "==1.4.0",
         "Pygments": "==2.1.3",
         "sphinx": "*",
         "pbr": "==1.10.0",
         "snowballstemmer": "==1.2.1",
+        "ordereddict": "==1.1",
         "py": "==1.4.32",
         "pytest-cov": "==2.4.0",
         "docutils": "==0.13.1",
         "pytest": "==3.0.5",
         "Jinja2": "==2.9.4",
+        "appdirs": "==1.4.0",
         "Sphinx": "==1.5.1",
         "requests": "==2.12.5",
         "itsdangerous": "==0.24",
@@ -35,11 +40,11 @@
     "_meta": {
         "sources": [
             {
-                "url": "https://pypi.org/",
+                "url": "https://pypi.python.org/simple",
                 "verify_ssl": true
             }
         ],
         "requires": {},
-        "Pipfile-sha256": "f306fe105cc76e259ab1e5d2933ad2d0fe7a8b2d28686f64f7a94f767c0ce5d4"
+        "Pipfile-sha256": "f626e302e0f052b9f5e407a0b998407906b4272b4fe45503d3ea1dcd5e8e5029"
     }
 }
