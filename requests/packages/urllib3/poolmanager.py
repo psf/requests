@@ -93,7 +93,7 @@ class PoolManager(RequestMethods):
         Headers to include with all requests, unless other headers are given
         explicitly.
 
-    :param \**connection_pool_kw:
+    :param \\**connection_pool_kw:
         Additional parameters are used to create fresh
         :class:`urllib3.connectionpool.ConnectionPool` instances.
 

@@ -18,7 +18,7 @@ certs:
 deps: urllib3 chardet idna
 
 urllib3:
-	git clone https://github.com/shazow/urllib3.git && \
+	git clone -b release https://github.com/shazow/urllib3.git && \
 	    rm -fr requests/packages/urllib3 && \
 	    cd urllib3 && \
 	    git checkout `git describe --abbrev=0 --tags` && \
