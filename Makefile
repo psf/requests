@@ -1,7 +1,7 @@
 .PHONY: docs
 
 init:
-	pip install 'pipenv>=0.1.6'
+	pip install 'pipenv===0.2.0'
 	pipenv install --dev
 
 test:
@@ -18,7 +18,7 @@ certs:
 deps: urllib3 chardet idna
 
 urllib3:
-	git clone https://github.com/shazow/urllib3.git && \
+	git clone -b release https://github.com/shazow/urllib3.git && \
 	    rm -fr requests/packages/urllib3 && \
 	    cd urllib3 && \
 	    git checkout `git describe --abbrev=0 --tags` && \
@@ -45,9 +45,10 @@ idna:
 	    rm -fr idna
 
 publish:
-	python setup.py register
-	python setup.py sdist upload
-	python setup.py bdist_wheel --universal upload
+	pip install 'twine>=1.5.0'
+	python setup.py sdist
+	python setup.py bdist_wheel --universal
+	twine upload dist/*
 	rm -fr build dist .egg requests.egg-info
 
 

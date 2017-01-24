@@ -43,7 +43,6 @@ set the ``urllib3.contrib.pyopenssl.DEFAULT_SSL_CIPHER_LIST`` variable.
 """
 from __future__ import absolute_import
 
-import idna
 import OpenSSL.SSL
 from cryptography import x509
 from cryptography.hazmat.backends.openssl import backend as openssl_backend
@@ -60,7 +59,6 @@ except ImportError:  # Platform-specific: Python 3
 
 import logging
 import ssl
-import select
 import six
 import sys
 
@@ -111,6 +109,8 @@ log = logging.getLogger(__name__)
 def inject_into_urllib3():
     'Monkey-patch urllib3 with PyOpenSSL-backed SSL-support.'
 
+    _validate_dependencies_met()
+
     util.ssl_.SSLContext = PyOpenSSLContext
     util.HAS_SNI = HAS_SNI
     util.ssl_.HAS_SNI = HAS_SNI
@@ -126,6 +126,26 @@ def extract_from_urllib3():
     util.ssl_.HAS_SNI = orig_util_HAS_SNI
     util.IS_PYOPENSSL = False
     util.ssl_.IS_PYOPENSSL = False
+
+
+def _validate_dependencies_met():
+    """
+    Verifies that PyOpenSSL's package-level dependencies have been met.
+    Throws `ImportError` if they are not met.
+    """
+    # Method added in `cryptography==1.1`; not available in older versions
+    from cryptography.x509.extensions import Extensions
+    if getattr(Extensions, "get_extension_for_class", None) is None:
+        raise ImportError("'cryptography' module missing required functionality.  "
+                          "Try upgrading to v1.3.4 or newer.")
+
+    # pyOpenSSL 0.14 and above use cryptography for OpenSSL bindings. The _x509
+    # attribute is only present on those versions.
+    from OpenSSL.crypto import X509
+    x509 = X509()
+    if getattr(x509, "_x509", None) is None:
+        raise ImportError("'pyOpenSSL' module missing required functionality. "
+                          "Try upgrading to v0.14 or newer.")
 
 
 def _dnsname_to_stdlib(name):
@@ -144,6 +164,8 @@ def _dnsname_to_stdlib(name):
         that we can't just safely call `idna.encode`: it can explode for
         wildcard names. This avoids that problem.
         """
+        import idna
+
         for prefix in [u'*.', u'.']:
             if name.startswith(prefix):
                 name = name[len(prefix):]
@@ -242,8 +264,7 @@ class WrappedSocket(object):
             else:
                 raise
         except OpenSSL.SSL.WantReadError:
-            rd, wd, ed = select.select(
-                [self.socket], [], [], self.socket.gettimeout())
+            rd = util.wait_for_read(self.socket, self.socket.gettimeout())
             if not rd:
                 raise timeout('The read operation timed out')
             else:
@@ -265,8 +286,7 @@ class WrappedSocket(object):
             else:
                 raise
         except OpenSSL.SSL.WantReadError:
-            rd, wd, ed = select.select(
-                [self.socket], [], [], self.socket.gettimeout())
+            rd = util.wait_for_read(self.socket, self.socket.gettimeout())
             if not rd:
                 raise timeout('The read operation timed out')
             else:
@@ -280,9 +300,8 @@ class WrappedSocket(object):
             try:
                 return self.connection.send(data)
             except OpenSSL.SSL.WantWriteError:
-                _, wlist, _ = select.select([], [self.socket], [],
-                                            self.socket.gettimeout())
-                if not wlist:
+                wr = util.wait_for_write(self.socket, self.socket.gettimeout())
+                if not wr:
                     raise timeout()
                 continue
 
@@ -416,7 +435,7 @@ class PyOpenSSLContext(object):
             try:
                 cnx.do_handshake()
             except OpenSSL.SSL.WantReadError:
-                rd, _, _ = select.select([sock], [], [], sock.gettimeout())
+                rd = util.wait_for_read(sock, sock.gettimeout())
                 if not rd:
                     raise timeout('select timed out')
                 continue

@@ -239,3 +239,8 @@ class HeaderParsingError(HTTPError):
     def __init__(self, defects, unparsed_data):
         message = '%s, unparsed data: %r' % (defects or 'Unknown', unparsed_data)
         super(HeaderParsingError, self).__init__(message)
+
+
+class UnrewindableBodyError(HTTPError):
+    "urllib3 encountered an error when trying to rewind a body"
+    pass
