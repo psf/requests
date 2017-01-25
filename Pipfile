@@ -3,9 +3,9 @@ url = "https://pypi.org/"
 verify_ssl = true
 
 [dev-packages]
-sphinx = "*"
-pytest-mock = "*"
-pytest-cov = "*"
+Sphinx = "*"
+pytest_mock = "*"
+pytest_cov = "*"
 pytest = "*"
 codecov = "*"
 pytest-httpbin = "*"
