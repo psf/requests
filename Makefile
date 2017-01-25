@@ -2,8 +2,8 @@
 
 init:
 	pip install pipenv
-	pipenv install --dev --requirements > requirements.txt
-	pip install -r requirements.txt
+	pipenv lock
+	pipenv install --dev
 
 test:
 	# This runs all of the tests. To run an individual test, run py.test with
@@ -11,7 +11,7 @@ test:
 	pipenv run py.test tests
 
 coverage:
-	py.test --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=requests tests
+	pipenv run py.test --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=requests tests
 
 certs:
 	curl http://ci.kennethreitz.org/job/ca-bundle/lastSuccessfulBuild/artifact/cacerts.pem -o requests/cacert.pem
