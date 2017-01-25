@@ -1,5 +1,5 @@
 [[source]]
-url = "https://pypi.org/"
+url = "https://pypi.python.org/simple"
 verify_ssl = true
 
 [dev-packages]
