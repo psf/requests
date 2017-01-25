@@ -141,11 +141,11 @@
     "_meta": {
         "sources": [
             {
-                "url": "https://pypi.org/",
+                "url": "https://pypi.python.org/simple",
                 "verify_ssl": true
             }
         ],
         "requires": {},
-        "Pipfile-sha256": "544b292495d731a3cd2f48f38401c26b1f1c5f6f72e23b22b12d42f7dbedfdac"
+        "Pipfile-sha256": "54439fbdf043a2efe430cc27886cb6cbcc3f5642e7c93da6b96198c473153684"
     }
 }
