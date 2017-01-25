@@ -15,4 +15,4 @@ install: "make"
 script:
   - make coverage
 after_success:
-  - codecov
+  - pipenv run codecov
