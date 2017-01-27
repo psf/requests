@@ -227,6 +227,12 @@ class HTTPDigestAuth(AuthBase):
         :rtype: requests.Response
         """
 
+        # If response is not 4xx, do not auth
+        # See https://github.com/kennethreitz/requests/issues/3772
+        if not 400 <= r.status_code < 500:
+            self._thread_local.num_401_calls = 1
+            return r
+
         if self._thread_local.pos is not None:
             # Rewind the file position indicator of the body to where
             # it was to resend the request.
