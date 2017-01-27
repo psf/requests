@@ -1,7 +1,7 @@
 .PHONY: docs
 
 init:
-	pip install pipenv
+	pip install pipenv==3.1.9
 	pipenv lock
 	pipenv install --dev
 
