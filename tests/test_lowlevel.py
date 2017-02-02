@@ -136,6 +136,43 @@ def test_digestauth_401_only_sent_once():
         close_server.set()
 
 
+def test_digestauth_only_on_4xx():
+    """Ensure we only send digestauth on 4xx challenges.
+
+    See https://github.com/kennethreitz/requests/issues/3772.
+    """
+    text_200_chal = (b'HTTP/1.1 200 OK\r\n'
+                     b'Content-Length: 0\r\n'
+                     b'WWW-Authenticate: Digest nonce="6bf5d6e4da1ce66918800195d6b9130d"'
+                     b', opaque="372825293d1c26955496c80ed6426e9e", '
+                     b'realm="me@kennethreitz.com", qop=auth\r\n\r\n')
+
+    auth = requests.auth.HTTPDigestAuth('user', 'pass')
+
+    def digest_response_handler(sock):
+        # Respond to GET with a 200 containing www-authenticate header.
+        request_content = consume_socket_content(sock, timeout=0.5)
+        assert request_content.startswith(b"GET / HTTP/1.1")
+        sock.send(text_200_chal)
+
+        # Verify the client didn't respond with auth.
+        request_content = consume_socket_content(sock, timeout=0.5)
+        assert request_content == b''
+
+        return request_content
+
+    close_server = threading.Event()
+    server = Server(digest_response_handler, wait_to_close_event=close_server)
+
+    with server as (host, port):
+        url = 'http://{0}:{1}/'.format(host, port)
+        r = requests.get(url, auth=auth)
+        # Verify server didn't receive auth from us.
+        assert r.status_code == 200
+        assert len(r.history) == 0
+        close_server.set()
+
+
 _schemes_by_var_prefix = [
     ('http', ['http']),
     ('https', ['https']),
