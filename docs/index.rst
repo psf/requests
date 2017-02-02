@@ -73,7 +73,7 @@ Institutions that prefer to be unnamed claim to use Requests internally.
     right level of abstraction.
 
 **Matt DeBoard**
-    I'm going to get @kennethreitz's Python requests module tattooed
+    I'm going to get `@kennethreitz <https://twitter.com/kennethreitz>`_'s Python requests module tattooed
     on my body, somehow. The whole thing.
 
 **Daniel Greenfeld**
