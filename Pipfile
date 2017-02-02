@@ -3,10 +3,10 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 
 [dev-packages]
-Sphinx = "*"
-pytest_mock = "*"
-pytest_cov = "*"
 pytest = "*"
 codecov = "*"
 pytest-httpbin = "*"
-PySocks = "*"
+sphinx = "*"
+pytest-mock = "*"
+pytest-cov = "*"
+pysocks = "*"
