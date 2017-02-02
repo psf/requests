@@ -8,14 +8,36 @@ Requests: HTTP for Humans
 
 Release v\ |version|. (:ref:`Installation <install>`)
 
-Requests is the only *Non-GMO* HTTP library for Python, safe for human
+.. image:: https://img.shields.io/pypi/l/requests.svg
+    :target: https://pypi.python.org/pypi/requests
+
+.. image:: https://img.shields.io/pypi/wheel/requests.svg
+    :target: https://pypi.python.org/pypi/requests
+
+.. image:: https://img.shields.io/pypi/pyversions/requests.svg
+    :target: https://pypi.python.org/pypi/requests
+
+.. image:: https://travis-ci.org/kennethreitz/requests.svg?branch=master
+    :target: https://travis-ci.org/kennethreitz/requests
+
+.. image:: https://codecov.io/github/kennethreitz/requests/coverage.svg?branch=master
+    :target: https://codecov.io/github/kennethreitz/requests
+    :alt: codecov.io
+
+.. image:: https://img.shields.io/badge/Say%20Thanks!-🦉-1EAEDB.svg
+    :target: https://saythanks.io/to/kennethreitz
+
+
+**Requests** is the only *Non-GMO* HTTP library for Python, safe for human
 consumption.
 
-**Warning:** Recreational use of other HTTP libraries may result in dangerous side-effects,
+*Warning: Recreational use of other HTTP libraries may result in dangerous side-effects,
 including: security vulnerabilities, verbose code, reinventing the wheel,
-constantly reading documentation, depression, headaches, or even death.
+constantly reading documentation, depression, headaches, or even death.*
 
-Behold, the power of Requests::
+-------------------
+
+**Behold, the power of Requests**::
 
     >>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
     >>> r.status_code
@@ -32,7 +54,7 @@ Behold, the power of Requests::
 See `similar code, sans Requests <https://gist.github.com/973705>`_.
 
 
-Requests allows you to send *organic, grass-fed* HTTP/1.1 requests, without the
+**Requests** allows you to send *organic, grass-fed* HTTP/1.1 requests, without the
 need for manual labor. There's no need to manually add query strings to your
 URLs, or to form-encode your POST data. Keep-alive and HTTP connection pooling
 are 100% automatic, powered by `urllib3 <https://github.com/shazow/urllib3>`_,
@@ -65,26 +87,26 @@ Institutions that prefer to be unnamed claim to use Requests internally.
 Requests is one of the most downloaded Python packages of all time, pulling in
 over 11,000,000 downloads every month. All the cool kids are doing it!
 
-Supported Features
-------------------
+Beloved Features
+----------------
 
 Requests is ready for today's web.
 
-- International Domains and URLs
 - Keep-Alive & Connection Pooling
+- International Domains and URLs
 - Sessions with Cookie Persistence
 - Browser-style SSL Verification
+- Automatic Content Decoding
 - Basic/Digest Authentication
 - Elegant Key/Value Cookies
 - Automatic Decompression
-- Automatic Content Decoding
 - Unicode Response Bodies
-- Multipart File Uploads
 - HTTP(S) Proxy Support
-- Connection Timeouts
+- Multipart File Uploads
 - Streaming Downloads
-- ``.netrc`` Support
+- Connection Timeouts
 - Chunked Requests
+- ``.netrc`` Support
 - Thread-safety
 
 Requests officially supports Python 2.6–2.7 & 3.3–3.7, and runs great on PyPy.
