@@ -59,7 +59,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Requests'
-copyright = u'2016. A <a href="http://kennethreitz.com/pages/open-projects.html">Kenneth Reitz</a> Project'
+copyright = u'2017. A <a href="http://kennethreitz.com/pages/open-projects.html">Kenneth Reitz</a> Project'
 author = u'Kenneth Reitz'
 
 # The version info for the project you're documenting, acts as replacement for

@@ -3,7 +3,28 @@ Requests: HTTP for Humans
 
 .. image:: https://img.shields.io/pypi/v/requests.svg
     :target: https://pypi.python.org/pypi/requests
-    
+
+.. image:: https://img.shields.io/pypi/l/requests.svg
+    :target: https://pypi.python.org/pypi/requests
+
+.. image:: https://img.shields.io/pypi/wheel/requests.svg
+    :target: https://pypi.python.org/pypi/requests
+
+.. image:: https://img.shields.io/pypi/pyversions/requests.svg
+    :target: https://pypi.python.org/pypi/requests
+
+.. image:: https://travis-ci.org/kennethreitz/requests.svg?branch=master
+    :target: https://travis-ci.org/kennethreitz/requests
+
+.. image:: https://codecov.io/github/kennethreitz/requests/coverage.svg?branch=master
+    :target: https://codecov.io/github/kennethreitz/requests
+    :alt: codecov.io
+
+.. image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg
+    :target: https://saythanks.io/to/kennethreitz
+
+
+
 Requests is the only *Non-GMO* HTTP library for Python, safe for human
 consumption.
 
@@ -40,7 +61,7 @@ are 100% automatic, powered by `urllib3 <https://github.com/shazow/urllib3>`_,
 which is embedded within Requests.
 
 Besides, all the cool kids are doing it. Requests is one of the most
-downloaded Python packages of all time, pulling in over 7,000,000 downloads
+downloaded Python packages of all time, pulling in over 11,000,000 downloads
 every month. You don't want to be left out!
 
 Feature Support
@@ -65,7 +86,7 @@ Requests is ready for today's web.
 - Chunked Requests
 - Thread-safety
 
-Requests officially supports Python 2.6–2.7 & 3.3–3.5, and runs great on PyPy.
+Requests officially supports Python 2.6–2.7 & 3.3–3.7, and runs great on PyPy.
 
 Installation
 ------------
