@@ -20,7 +20,7 @@ Requests: HTTP for Humans
     :target: https://codecov.io/github/kennethreitz/requests
     :alt: codecov.io
 
-.. image:: https://img.shields.io/badge/Say%20Thanks!-🦉-1EAEDB.svg
+.. image:: https://img.shields.io/badge/SayThanks-!-1EAEDB.svg
     :target: https://saythanks.io/to/kennethreitz
 
 
