@@ -86,34 +86,38 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 
 class SessionRedirectMixin(object):
+
+    def get_redirect_target(self, resp):
+        """Receives a Response. Returns a redirect URI or ``None``"""
+        if resp.is_redirect:
+            return resp.headers['location']
+        return None
+
     def resolve_redirects(self, resp, req, stream=False, timeout=None,
                           verify=True, cert=None, proxies=None, **adapter_kwargs):
         """Receives a Response. Returns a generator of Responses."""
 
-        i = 0
         hist = [] # keep track of history
 
-        while resp.is_redirect:
+        url = self.get_redirect_target(resp)
+        while url:
             prepared_request = req.copy()
 
-            if i > 0:
-                # Update history and keep track of redirects.
-                hist.append(resp)
-                new_hist = list(hist)
-                resp.history = new_hist
+            # Update history and keep track of redirects.
+            # resp.history must ignore the original request in this loop
+            hist.append(resp)
+            resp.history = hist[1:]
 
             try:
                 resp.content  # Consume socket so it can be released
             except (ChunkedEncodingError, ContentDecodingError, RuntimeError):
                 resp.raw.read(decode_content=False)
 
-            if i >= self.max_redirects:
+            if len(resp.history) >= self.max_redirects:
                 raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects, response=resp)
 
             # Release the connection back into the pool.
             resp.close()
-
-            url = resp.headers['location']
 
             # Handle redirection without scheme (see: RFC 1808 Section 4)
             if url.startswith('//'):
@@ -192,7 +196,8 @@ class SessionRedirectMixin(object):
 
             extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
 
-            i += 1
+            # extract redirect url, if any, for the next loop
+            url = self.get_redirect_target(resp)
             yield resp
 
     def rebuild_auth(self, prepared_request, response):
