@@ -354,9 +354,13 @@ But, since our ``status_code`` for ``r`` was ``200``, when we call
 ``raise_for_status()`` we get::
 
     >>> r.raise_for_status()
-    None
+    <Response [200]>
 
 All is well.
+
+.. note:: ``raise_for_status`` returns the response object for a successful response. This eases chaining in trivial cases, where we want bad codes to raise an exception, but use the response otherwise:
+
+    >>> value = requests.get('http://httpbin.org/ip').raise_for_status().json()['origin']
 
 
 Response Headers

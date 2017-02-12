@@ -58,5 +58,7 @@
 
 - URLs are now automatically stripped of leading/trailing whitespace.
 
+- ``Response.raise_for_status()`` now returns the response object for good responses
+
 .. _#2002: https://github.com/kennethreitz/requests/issues/2002
 .. _#2631: https://github.com/kennethreitz/requests/issues/2631

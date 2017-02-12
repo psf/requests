@@ -902,7 +902,8 @@ class Response(object):
         return l
 
     def raise_for_status(self):
-        """Raises stored :class:`HTTPError`, if one occurred."""
+        """Raises stored :class:`HTTPError`, if one occurred.
+        Otherwise, returns the response object (self)."""
 
         http_error_msg = ''
         if isinstance(self.reason, bytes):
@@ -925,6 +926,8 @@ class Response(object):
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)
+
+        return self
 
     def close(self):
         """Releases the connection back to the pool. Once this method has been

@@ -829,6 +829,10 @@ class TestRequests:
         r = requests.get(httpbin('status', '500'))
         assert not r.ok
 
+    def test_raise_for_status_returns_self(self, httpbin):
+        r = requests.get(httpbin('status', '200'))
+        assert r.raise_for_status() is r
+
     def test_decompress_gzip(self, httpbin):
         r = requests.get(httpbin('gzip'))
         r.content.decode('ascii')
