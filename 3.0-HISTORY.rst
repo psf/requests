@@ -1,4 +1,4 @@
-3.0.0 (2016-xx-xx)
+3.0.0 (2017-xx-xx)
 ++++++++++++++++++
 
 - Remove the HTTPProxyAuth class in favor of supporting proxy auth via
@@ -43,7 +43,8 @@
   the end of a request body's transmission, skipping them allows all of the
   data through. See `#2631`_ for more details.
 
-- Remove the ``req`` argument from ``Session.resolve_redirects`` method.
+- Rename the ``req`` argument from ``Session.resolve_redirects`` method
+  to ``request``.
 
 - Rename the ``resp`` argument from ``Session.resolve_redirects`` to
   ``response``.

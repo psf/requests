@@ -1564,9 +1564,10 @@ class TestRequests:
 
     def test_manual_redirect_with_partial_body_read(self, httpbin):
         s = requests.Session()
-        r1 = s.get(httpbin('redirect/2'), allow_redirects=False, stream=True)
+        req = requests.Request('GET', httpbin('redirect/2')).prepare()
+        r1 = s.send(req, allow_redirects=False, stream=True)
         assert r1.is_redirect
-        rg = s.resolve_redirects(r1, stream=True)
+        rg = s.resolve_redirects(r1, req, stream=True)
 
         # read only the first eight bytes of the response body,
         # then follow the redirect
@@ -2239,7 +2240,7 @@ def test_requests_are_updated_each_time(httpbin):
     r0 = session.send(prep)
     assert r0.request.method == 'POST'
     assert session.calls[-1] == SendCall((r0.request,), {})
-    redirect_generator = session.resolve_redirects(r0)
+    redirect_generator = session.resolve_redirects(r0, prep)
     default_keyword_args = {
         'stream': False,
         'verify': True,
