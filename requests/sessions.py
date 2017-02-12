@@ -87,7 +87,7 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 
 class SessionRedirectMixin(object):
-    def resolve_redirects(self, response, stream=False, timeout=None,
+    def resolve_redirects(self, response, request, stream=False, timeout=None,
                           verify=True, cert=None, proxies=None, **adapter_kwargs):
         """Given a Response, yields Responses until 'Location' header-based
         redirection ceases, or the Session.max_redirects limit has been
@@ -96,7 +96,6 @@ class SessionRedirectMixin(object):
 
         redirect_count = 0
         history = [] # keep track of history
-        request = response.request
 
         while response.is_redirect:
             if not is_valid_location(response):
@@ -649,7 +648,7 @@ class Session(SessionRedirectMixin):
         extract_cookies_to_jar(self.cookies, request, r.raw)
 
         # Redirect resolving generator.
-        gen = self.resolve_redirects(r, **kwargs)
+        gen = self.resolve_redirects(r, request, **kwargs)
 
         # Resolve redirects, if allowed.
         history = [resp for resp in gen] if allow_redirects else []
