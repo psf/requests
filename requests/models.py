@@ -39,7 +39,7 @@ from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
     iter_slices, guess_json_utf, super_len, check_header_validity,
-    determine_if_stream)
+    is_stream)
 from .compat import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
     is_py2, chardet, builtin_str, basestring)
@@ -468,9 +468,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if not isinstance(body, bytes):
                 body = body.encode('utf-8')
 
-        is_stream = determine_if_stream(data)
-
-        if is_stream:
+        if is_stream(data):
             body = data
 
             if getattr(body, 'tell', None) is not None:
@@ -509,30 +507,26 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_content_length(self, body):
         """Prepares Content-Length header.
         
-        If the length of the body of the request can be computed, Content-Length is set using
-        super_len. If user has manually set either a Transfer-Encoding or Content-Length header
-        when it should not be set (they should be mutually exclusive) an ConflictingHeaderError
+        If the length of the body of the request can be computed, Content-Length
+        is set using ``super_len``. If user has manually set either a
+        Transfer-Encoding or Content-Length header when it should not be set
+        (they should be mutually exclusive) a ConflictingHeaderError
         error will be raised.
         """
         if body is not None:
-            is_stream = determine_if_stream(body)
-
-            try:
-                length = super_len(body)
-            except (TypeError, AttributeError, UnsupportedOperation):
-                length = None
+            length = super_len(body)
 
             if length:
                 self.headers['Content-Length'] = builtin_str(length)
-            elif is_stream and not length:
+            elif is_stream(body):
                 self.headers['Transfer-Encoding'] = 'chunked'
             else:
-                raise InvalidBodyError("Non-null body must have length or be streamable")
-        elif (self.method not in ('GET', 'HEAD')) and (self.headers.get('Content-Length') is None):
+                raise InvalidBodyError('Non-null body must have length or be streamable.')
+        elif self.method not in ('GET', 'HEAD') and self.headers.get('Content-Length') is None:
             self.headers['Content-Length'] = '0'
 
         if 'Transfer-Encoding' in self.headers and 'Content-Length' in self.headers:
-            raise ConflictingHeaderError('Transfer-Encoding and Content-Length headers both set')
+            raise ConflictingHeaderError('Transfer-Encoding and Content-Length headers both set.')
 
     def prepare_auth(self, auth, url=''):
         """Prepares the given HTTP auth data."""

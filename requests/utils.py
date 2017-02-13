@@ -881,9 +881,8 @@ def rewind_body(prepared_request):
         raise UnrewindableBodyError("Unable to rewind request body for redirect.")
 
 
-def determine_if_stream(data):
-    """Given data, determines if it should be sent as a stream.
-    """
+def is_stream(data):
+    """Given data, determines if it should be sent as a stream."""
     is_iterable = getattr(data, '__iter__', False)
-    is_io_type = not isinstance(data, (basestring, list, tuple, dict))
+    is_io_type = not isinstance(data, (basestring, list, tuple, collections.Mapping))
     return is_iterable and is_io_type
