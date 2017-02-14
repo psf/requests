@@ -3,6 +3,15 @@
 Release History
 ---------------
 
+**Unreleased**
++++++++++++++++++++
+
+- The behavior of ``SessionRedirectMixin`` was slightly altered.
+  ``resolve_redirects`` will now detect a redirect by calling
+  ``get_redirect_target(response)`` instead of directly
+  querying ``Response.is_redirect`` and ``Response.headers['location']``.
+  Advanced users will be able to process malformed redirects more easily.
+
 2.13.0 (2017-01-24)
 +++++++++++++++++++
 

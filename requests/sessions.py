@@ -87,6 +87,15 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 
 class SessionRedirectMixin(object):
+    def get_redirect_target(self, resp):
+        """Receives a Response. Returns a redirect URI or ``None``"""
+        if resp.is_redirect:
+            if not is_valid_location(response):
+                raise InvalidHeader('Response contains multiple Location headers. '
+                                    'Unable to perform redirect.')
+            return resp.headers['location']
+        return None
+
     def resolve_redirects(self, response, request, stream=False, timeout=None,
                           verify=True, cert=None, proxies=None, **adapter_kwargs):
         """Given a Response, yields Responses until 'Location' header-based
@@ -97,61 +106,52 @@ class SessionRedirectMixin(object):
         redirect_count = 0
         history = [] # keep track of history
 
-        while response.is_redirect:
-            if not is_valid_location(response):
-                raise InvalidHeader('Response contains multiple Location headers. '
-                                    'Unable to perform redirect.')
+        url = self.get_redirect_target(response)
 
+        while url:
             prepared_request = request.copy()
 
-            if redirect_count > 0:
-
-                # Store this Response in local history.
-                history.append(response)
-
-                # Copy local history to Response.history.
-                response.history = list(history)
+            # Update history and keep track of redirects.
+            # response.history must ignore the original request in this loop
+            hist.append(response)
+            response.history = hist[1:]
 
             try:
                 response.content  # Consume socket so it can be released
             except (ChunkedEncodingError, ConnectionError, ContentDecodingError, RuntimeError):
                 response.raw.read(decode_content=False)
 
-            # Don't exceed configured Session.max_redirects.
-            if redirect_count >= self.max_redirects:
+            if len(response.history) >= self.max_redirects:
                 raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects, response=response)
 
             # Release the connection back into the pool.
             response.close()
 
-            location_url = response.headers['location']
-            method = request.method
-
             # Handle redirection without scheme (see: RFC 1808 Section 4)
-            if location_url.startswith('//'):
+            if url.startswith('//'):
                 parsed_rurl = urlparse(response.url)
-                location_url = '%s:%s' % (parsed_rurl.scheme, location_url)
+                location_url = '%s:%s' % (parsed_rurl.scheme, url)
 
             # The scheme should be lower case...
-            parsed = urlparse(location_url)
+            parsed = urlparse(url)
             location_url = parsed.geturl()
 
             # On Python 3, the location header was decoded using Latin 1, but
             # urlparse in requote_uri will encode it with UTF-8 before quoting.
             # Because of this insanity, we need to fix it up ourselves by
             # sending the URL back to bytes ourselves.
-            if is_py3 and isinstance(location_url, str):
-                location_url = location_url.encode('latin1')
+            if is_py3 and isinstance(url, str):
+                url = url.encode('latin1')
 
             # Facilitate relative 'location' headers, as allowed by RFC 7231.
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
             # Compliant with RFC3986, we percent encode the url.
             if not parsed.netloc:
-                location_url = urljoin(response.url, requote_uri(location_url))
+                url = urljoin(response.url, requote_uri(url))
             else:
-                location_url = requote_uri(location_url)
+                url = requote_uri(url)
 
-            prepared_request.url = to_native_string(location_url)
+            prepared_request.url = to_native_string(url)
             # Cache the url, unless it redirects to itself.
             if response.is_permanent_redirect and request.url != prepared_request.url:
                 self.redirect_cache[request.url] = prepared_request.url
@@ -212,7 +212,8 @@ class SessionRedirectMixin(object):
 
             extract_cookies_to_jar(self.cookies, prepared_request, response.raw)
 
-            redirect_count += 1
+            # extract redirect url, if any, for the next loop
+            url = self.get_redirect_target(response)
             yield response
 
     def rebuild_auth(self, prepared_request, response):
@@ -252,13 +253,16 @@ class SessionRedirectMixin(object):
 
         :rtype: dict
         """
+        proxies = proxies if proxies is not None else {}
         headers = prepared_request.headers
         url = prepared_request.url
         scheme = urlparse(url).scheme
-        new_proxies = proxies.copy() if proxies is not None else {}
+        new_proxies = proxies.copy()
+        no_proxy = proxies.get('no_proxy')
 
-        if self.trust_env and not should_bypass_proxies(url):
-            environ_proxies = get_environ_proxies(url)
+        bypass_proxy = should_bypass_proxies(url, no_proxy=no_proxy)
+        if self.trust_env and not bypass_proxy:
+            environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
 
             proxy = environ_proxies.get(scheme, environ_proxies.get('all'))
 
@@ -696,10 +700,14 @@ class Session(SessionRedirectMixin):
         # can delete proxy information, which can then be re-added by a more
         # specific layer. So we begin by getting the environment's proxies,
         # then add the Session, then add the request.
+        no_proxy = proxies.get('no_proxy') if proxies is not None else None
+        if no_proxy is None:
+            no_proxy = self.proxies.get('no_proxy')
+
         env_proxies = {}
 
         if self.trust_env:
-            env_proxies = get_environ_proxies(url) or {}
+            env_proxies = get_environ_proxies(url, no_proxy=no_proxy) or {}
 
         new_proxies = merge_setting(self.proxies, env_proxies)
         proxies = merge_setting(proxies, new_proxies)

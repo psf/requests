@@ -180,3 +180,5 @@ Patches and Suggestions
 - Andrii Soldatenko (`@a_soldatenko <https://github.com/andriisoldatenko>`_)
 - Moinuddin Quadri <moin18@gmail.com> (`@moin18 <https://github.com/moin18>`_)
 - Matt Kohl (`@mattkohl <https://github.com/mattkohl>`_)
+- Jonathan Vanasco (`@jvanasco <https://github.com/jvanasco>`_)
+
