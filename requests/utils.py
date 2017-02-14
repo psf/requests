@@ -92,14 +92,16 @@ def super_len(o):
         else:
             if hasattr(o, 'seek') and total_length is None:
                 # StringIO and BytesIO have seek but no useable fileno
+                try:
+                    # seek to end of file
+                    o.seek(0, 2)
+                    total_length = o.tell()
 
-                # seek to end of file
-                o.seek(0, 2)
-                total_length = o.tell()
-
-                # seek back to current position to support
-                # partially read file-like objects
-                o.seek(current_position or 0)
+                    # seek back to current position to support
+                    # partially read file-like objects
+                    o.seek(current_position or 0)
+                except (OSError, IOError):
+                    total_length = 0
 
     if total_length is None:
         total_length = 0
