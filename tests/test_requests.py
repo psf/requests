@@ -1546,7 +1546,7 @@ class TestRequests:
             def tell(self):
                 return 0
 
-            def seek(self, pos):
+            def seek(self, pos, whence=0):
                 raise OSError()
 
             def __iter__(self):
