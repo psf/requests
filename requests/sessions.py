@@ -97,7 +97,7 @@ class SessionRedirectMixin(object):
                           verify=True, cert=None, proxies=None, **adapter_kwargs):
         """Receives a Response. Returns a generator of Responses."""
 
-        hist = [resp, ] # keep track of history; seed it with the original response
+        hist = [resp] # keep track of history; seed it with the original response
 
         url = self.get_redirect_target(resp)
         while url:
