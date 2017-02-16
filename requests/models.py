@@ -672,6 +672,7 @@ class Response(object):
 
     @property
     def ok(self):
+        """Returns true if :attr:`status_code` is 'OK'."""
         try:
             self.raise_for_status()
         except HTTPError:
