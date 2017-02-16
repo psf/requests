@@ -40,6 +40,7 @@ from .compat import (
     is_py2, chardet, builtin_str, basestring)
 from .compat import json as complexjson
 from .status_codes import codes
+from . import status_codes
 
 #: The set of HTTP status codes that indicate an automatically
 #: processable redirect.
@@ -672,11 +673,7 @@ class Response(object):
 
     @property
     def ok(self):
-        try:
-            self.raise_for_status()
-        except HTTPError:
-            return False
-        return True
+        return self.status_code in status_codes.success
 
     @property
     def is_redirect(self):
@@ -687,7 +684,7 @@ class Response(object):
 
     @property
     def is_permanent_redirect(self):
-        """True if this Response one of the permanent versions of redirect"""
+        """True if this Response is one of the permanent versions of redirect"""
         return ('location' in self.headers and self.status_code in (codes.moved_permanently, codes.permanent_redirect))
 
     @property

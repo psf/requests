@@ -89,3 +89,16 @@ for code, titles in _codes.items():
         setattr(codes, title, code)
         if not title.startswith(('\\', '/')):
             setattr(codes, title.upper(), code)
+
+success = set([
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207,
+    208,
+    226,
+])
