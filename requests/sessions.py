@@ -87,13 +87,13 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 
 class SessionRedirectMixin(object):
-    def get_redirect_target(self, resp):
+    def get_redirect_target(self, response):
         """Receives a Response. Returns a redirect URI or ``None``"""
-        if resp.is_redirect:
+        if response.is_redirect:
             if not is_valid_location(response):
                 raise InvalidHeader('Response contains multiple Location headers. '
                                     'Unable to perform redirect.')
-            return resp.headers['location']
+            return response.headers['location']
         return None
 
     def resolve_redirects(self, response, request, stream=False, timeout=None,
@@ -113,8 +113,8 @@ class SessionRedirectMixin(object):
 
             # Update history and keep track of redirects.
             # response.history must ignore the original request in this loop
-            hist.append(response)
-            response.history = hist[1:]
+            history.append(response)
+            response.history = history[1:]
 
             try:
                 response.content  # Consume socket so it can be released
