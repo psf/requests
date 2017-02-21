@@ -21,6 +21,7 @@ from .cookies import extract_cookies_to_jar
 from ._internal_utils import to_native_string
 from .utils import parse_dict_header
 from .status_codes import codes
+from .hooks import RESPONSE_HOOK
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
@@ -278,8 +279,8 @@ class HTTPDigestAuth(AuthBase):
             # file position of the previous body. Ensure it's set to
             # None.
             self._thread_local.pos = None
-        r.register_hook('response', self.handle_401)
-        r.register_hook('response', self.handle_redirect)
+        r.register_hook(RESPONSE_HOOK, self.handle_401)
+        r.register_hook(RESPONSE_HOOK, self.handle_redirect)
         self._thread_local.num_401_calls = 1
 
         return r

@@ -11,11 +11,15 @@ Available hooks:
 ``response``:
     The response generated from a Request.
 """
-HOOKS = ['response']
+
+RESPONSE_HOOK = 'response'
+
+HOOKS = [RESPONSE_HOOK, ]
 
 
 def default_hooks():
     return dict((event, []) for event in HOOKS)
+
 
 # TODO: response is the only one
 
