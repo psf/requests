@@ -110,7 +110,7 @@ def post(url, data=None, json=None, **kwargs):
     return request('post', url, data=data, json=json, **kwargs)
 
 
-def put(url, data=None, **kwargs):
+def put(url, data=None, json=None, **kwargs):
     """Sends a PUT request.
 
     :param url: URL for the new :class:`Request` object.
@@ -121,10 +121,10 @@ def put(url, data=None, **kwargs):
     :rtype: requests.Response
     """
 
-    return request('put', url, data=data, **kwargs)
+    return request('put', url, data=data, json=json, **kwargs)
 
 
-def patch(url, data=None, **kwargs):
+def patch(url, data=None, json=None, **kwargs):
     """Sends a PATCH request.
 
     :param url: URL for the new :class:`Request` object.
@@ -135,7 +135,7 @@ def patch(url, data=None, **kwargs):
     :rtype: requests.Response
     """
 
-    return request('patch', url,  data=data, **kwargs)
+    return request('patch', url,  data=data, json=json, **kwargs)
 
 
 def delete(url, **kwargs):
