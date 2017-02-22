@@ -14,7 +14,7 @@ Available hooks:
 
 RESPONSE_HOOK = 'response'
 
-HOOKS = [RESPONSE_HOOK, ]
+HOOKS = [RESPONSE_HOOK]
 
 
 def default_hooks():
