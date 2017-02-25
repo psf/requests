@@ -12,6 +12,11 @@ Release History
   querying ``Response.is_redirect`` and ``Response.headers['location']``.
   Advanced users will be able to process malformed redirects more easily.
 
+- Altered how ``SessionRedirectMixin.resolve_redirects`` and ``Session.send``
+  process redirect history.  Developers who subclass ``resolve_redirects`` will
+  find a different ``.history`` attribute - the first element now contains the
+  original response, and the last element now contains the active response.
+
 2.13.0 (2017-01-24)
 +++++++++++++++++++
 

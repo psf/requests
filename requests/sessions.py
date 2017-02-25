@@ -103,18 +103,12 @@ class SessionRedirectMixin(object):
         reached.
         """
 
-        redirect_count = 0
-        history = [] # keep track of history
+        history = [response] # keep track of history; seed it with the original response
 
         url = self.get_redirect_target(response)
 
         while url:
             prepared_request = request.copy()
-
-            # Update history and keep track of redirects.
-            # response.history must ignore the original request in this loop
-            history.append(response)
-            response.history = history[1:]
 
             try:
                 response.content  # Consume socket so it can be released
@@ -209,6 +203,10 @@ class SessionRedirectMixin(object):
                 allow_redirects=False,
                 **adapter_kwargs
             )
+            # copy our history tracker into the response
+            response.history = history[:]
+            # append the new response to the history tracker for the next iteration
+            history.append(response)
 
             extract_cookies_to_jar(self.cookies, prepared_request, response.raw)
 
@@ -657,16 +655,9 @@ class Session(SessionRedirectMixin):
         # Resolve redirects, if allowed.
         history = [resp for resp in gen] if allow_redirects else []
 
-        # Shuffle things around if there's redirection history.
+        # If there is a history, replace ``r`` with the last response
         if history:
-            # Insert the first (original) Response at the start.
-            history.insert(0, r)
-
-            # Remove the final response from history, use it as our Response.
             r = history.pop()
-
-            # Save redirection history to final Response object.
-            r.history = history
 
         # Automatically download response body, if not in streaming mode.
         if not stream:
