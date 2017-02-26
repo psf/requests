@@ -849,7 +849,7 @@ def rewind_body(prepared_request):
         try:
             body_seek(prepared_request._body_position)
         except (IOError, OSError):
-            raise UnrewindableBodyError("An error occured when rewinding request "
+            raise UnrewindableBodyError("An error occurred when rewinding request "
                                         "body for redirect.")
     else:
         raise UnrewindableBodyError("Unable to rewind request body for redirect.")
