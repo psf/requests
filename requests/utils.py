@@ -28,7 +28,7 @@ from .compat import (
     quote, urlparse, bytes, str, OrderedDict, unquote, getproxies,
     proxy_bypass, urlunparse, basestring, integer_types)
 from .cookies import RequestsCookieJar, cookiejar_from_dict
-from .structures import CaseInsensitiveDict
+from .structures import CaseInsensitiveDict, TimedCache, TimedCacheManaged
 from .exceptions import (
     InvalidURL, InvalidHeader, FileModeWarning, UnrewindableBodyError)
 
@@ -579,6 +579,16 @@ def set_environ(env_name, value):
             os.environ[env_name] = old_value
 
 
+@TimedCacheManaged
+def _proxy_bypass_cached(netloc):
+    """
+    Looks for netloc in the cache, if not found, will call proxy_bypass
+    for the netloc and store its result in the cache
+
+    :rtype: bool
+    """
+    return proxy_bypass(netloc)
+
 def should_bypass_proxies(url, no_proxy):
     """
     Returns whether we should bypass proxies or not.
@@ -626,7 +636,7 @@ def should_bypass_proxies(url, no_proxy):
     # legitimate problems.
     with set_environ('no_proxy', no_proxy_arg):
         try:
-            bypass = proxy_bypass(netloc)
+            bypass = _proxy_bypass_cached(netloc)
         except (TypeError, socket.gaierror):
             bypass = False
 
@@ -849,7 +859,7 @@ def rewind_body(prepared_request):
         try:
             body_seek(prepared_request._body_position)
         except (IOError, OSError):
-            raise UnrewindableBodyError("An error occured when rewinding request "
+            raise UnrewindableBodyError("An error occurred when rewinding request "
                                         "body for redirect.")
     else:
         raise UnrewindableBodyError("Unable to rewind request body for redirect.")

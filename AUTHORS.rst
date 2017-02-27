@@ -178,4 +178,5 @@ Patches and Suggestions
 - Moinuddin Quadri <moin18@gmail.com> (`@moin18 <https://github.com/moin18>`_)
 - Matt Kohl (`@mattkohl <https://github.com/mattkohl>`_)
 - Jonathan Vanasco (`@jvanasco <https://github.com/jvanasco>`_)
+- David Fontenot (`@davidfontenot <https://github.com/davidfontenot>`_)
 - Hui Tang <duriantang@gmail.com> (`@duriantang <https://github.com/duriantang>`_)
