@@ -25,7 +25,7 @@ from requests.cookies import (
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidScheme, InvalidURL,
     MissingScheme, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError, InvalidHeader, UnrewindableBodyError)
+    ProxyError, InvalidHeader, UnrewindableBodyError, InvalidBodyError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -1948,6 +1948,36 @@ class TestRequests:
             requests.post(url, data=None)
         except InvalidHeader:
             pytest.fail('InvalidHeader error raised unexpectedly.')
+
+    @pytest.mark.parametrize(
+        'body, expected', (
+            (None, ('Content-Length', '0')),
+            ('test_data', ('Content-Length', '9')),
+            (io.BytesIO(b'test_data'), ('Content-Length', '9')),
+            (StringIO.StringIO(''), ('Transfer-Encoding', 'chunked'))
+        ))
+    def test_prepare_content_length(self, httpbin, body, expected):
+        """Test prepare_content_length creates expected header."""
+        prep = requests.PreparedRequest()
+        prep.headers = {}
+        prep.method = 'POST'
+
+        # Ensure Content-Length is set appropriately.
+        key, value = expected
+        prep.prepare_content_length(body)
+        assert prep.headers[key] == value
+
+    def test_prepare_content_length_with_bad_body(self, httpbin):
+        """Test prepare_content_length raises exception with unsendable body."""
+        # Initialize minimum required PreparedRequest.
+        prep = requests.PreparedRequest()
+        prep.headers = {}
+        prep.method = 'POST'
+
+        with pytest.raises(InvalidBodyError) as e:
+            # Send object that isn't iterable and has no accessible content.
+            prep.prepare_content_length(object())
+            assert "Non-null body must have length or be streamable." in str(e)
 
     def test_custom_redirect_mixin(self, httpbin):
         """Tests a custom mixin to overwrite ``get_redirect_target``.
