@@ -50,7 +50,7 @@ Behold, the power of Requests:
 
 See `the similar code, sans Requests <https://gist.github.com/973705>`_.
 
-.. image:: http://docs.python-requests.org/en/master/_static/requests-sidebar.png
+.. image:: https://raw.githubusercontent.com/kennethreitz/requests/master/docs/_static/requests-logo-small.png
     :target: http://docs.python-requests.org/
 
 
