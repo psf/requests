@@ -1,6 +1,10 @@
 3.0.0 (2017-xx-xx)
 ++++++++++++++++++
 
+- Simplified logic for determining Content-Length and Transfer-Encoding.
+  Requests will now avoid setting both headers on the same request, and
+  raise an exception if this is done manually by a user.
+
 - Remove the HTTPProxyAuth class in favor of supporting proxy auth via
   the proxies parameter.
 
