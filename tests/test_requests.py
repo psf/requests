@@ -25,7 +25,7 @@ from requests.cookies import (
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidScheme, InvalidURL,
     MissingScheme, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError, InvalidHeader, UnrewindableBodyError, ConflictingHeaderError)
+    ProxyError, InvalidHeader, UnrewindableBodyError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -1926,28 +1926,28 @@ class TestRequests:
 
     def test_chunked_upload_with_manually_set_content_length_header_raises_error(self, httpbin):
         """Ensure that if a user manually sets a content length header, when
-        the data is chunked, that a ConflictingHeaderError is raised.
+        the data is chunked, that an InvalidHeader error is raised.
         """
         data = (i for i in [b'a', b'b', b'c']) 
         url = httpbin('post')
-        with pytest.raises(ConflictingHeaderError):
+        with pytest.raises(InvalidHeader):
             r = requests.post(url, data=data, headers={'Content-Length': 'foo'})
 
     def test_content_length_with_manually_set_transfer_encoding_raises_error(self, httpbin):
         """Ensure that if a user manually sets a Transfer-Encoding header when
-        data is not chunked that an ConflictingHeaderError is raised.
+        data is not chunked that an InvalidHeader error is raised.
         """
         data = 'test data'
         url = httpbin('post')
-        with pytest.raises(ConflictingHeaderError):
+        with pytest.raises(InvalidHeader):
             r = requests.post(url, data=data, headers={'Transfer-Encoding': 'chunked'})
 
     def test_null_body_does_not_raise_error(self, httpbin):
         url = httpbin('post')
         try:
             requests.post(url, data=None)
-        except ConflictingHeaderError:
-            pytest.fail('ConflictingHeaderError raised.')
+        except InvalidHeader:
+            pytest.fail('InvalidHeader error raised unexpectedly.')
 
     def test_custom_redirect_mixin(self, httpbin):
         """Tests a custom mixin to overwrite ``get_redirect_target``.

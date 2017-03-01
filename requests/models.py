@@ -33,7 +33,7 @@ from .packages.urllib3.exceptions import (
 from .exceptions import (
     HTTPError, MissingScheme, InvalidURL, ChunkedEncodingError,
     ContentDecodingError, ConnectionError, StreamConsumedError,
-    ConflictingHeaderError)
+    InvalidHeader, InvalidBodyError)
 from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -510,7 +510,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         If the length of the body of the request can be computed, Content-Length
         is set using ``super_len``. If user has manually set either a
         Transfer-Encoding or Content-Length header when it should not be set
-        (they should be mutually exclusive) a ConflictingHeaderError
+        (they should be mutually exclusive) an InvalidHeader
         error will be raised.
         """
         if body is not None:
@@ -523,10 +523,13 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 raise InvalidBodyError('Non-null body must have length or be streamable.')
         elif self.method not in ('GET', 'HEAD') and self.headers.get('Content-Length') is None:
+            # Set Content-Length to 0 for methods that can have a body
+            # but don't provide one. (i.e. not GET or HEAD)
             self.headers['Content-Length'] = '0'
 
         if 'Transfer-Encoding' in self.headers and 'Content-Length' in self.headers:
-            raise ConflictingHeaderError('Transfer-Encoding and Content-Length headers both set.')
+            raise InvalidHeader('Conflicting Headers: Both Transfer-Encoding and '
+                                'Content-Length are set.')
 
     def prepare_auth(self, auth, url=''):
         """Prepares the given HTTP auth data."""
