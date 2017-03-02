@@ -1296,6 +1296,49 @@ class TestRequests:
         assert r.request.url == pr.request.url
         assert r.request.headers == pr.request.headers
 
+
+    def test_response_lines(self):
+        """
+        iter_lines should be able to handle data dribbling in which delimiters
+        might not be lined up ideally.
+        """
+        mock_chunks = [
+            'This \r\n',
+            '',
+            'is\r',
+            '\n',
+            'a',
+            ' ',
+            '',
+            '',
+            'test.',
+            '\r',
+            '\n',
+            'end.',
+        ]
+        mock_data = ''.join(mock_chunks)
+
+        def mock_iter_content(*args, **kwargs):
+            '''Fake difficult data.'''
+            for chunk in mock_chunks:
+                yield chunk
+
+        r = requests.Response()
+        r._content_consumed = True
+        r.iter_content = mock_iter_content
+
+        assert list(r.iter_lines(delimiter='\r\n')) == mock_data.split('\r\n')
+
+        # Because '\n' is a single line-end, when `iter_lines()` receives
+        # the chunks containing a single '\n', it emits '' as a line -- whereas
+        # `.splitlines()` combines with the '\r' and splits on `\r\n`.
+        assert list(r.iter_lines()) != mock_data.splitlines()
+
+        # If we change all the line breaks to `\r`, we should be okay.
+        mock_chunks = [chunk.replace('\n', '\r') for chunk in mock_chunks]
+        mock_data = ''.join(mock_chunks)
+        assert list(r.iter_lines()) == mock_data.splitlines()
+
     def test_prepared_request_is_pickleable(self, httpbin):
         p = requests.Request('GET', httpbin('get')).prepare()
 
