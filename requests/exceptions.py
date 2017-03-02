@@ -104,8 +104,13 @@ class StreamConsumedError(RequestException, TypeError):
 class RetryError(RequestException):
     """Custom retries logic failed"""
 
+
 class UnrewindableBodyError(RequestException):
     """Requests encountered an error when trying to rewind a body"""
+
+
+class InvalidBodyError(RequestException, ValueError):
+    """An invalid request body was specified"""
 
 # Warnings
 

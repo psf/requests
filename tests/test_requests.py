@@ -25,7 +25,7 @@ from requests.cookies import (
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidScheme, InvalidURL,
     MissingScheme, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError, InvalidHeader, UnrewindableBodyError)
+    ProxyError, InvalidHeader, UnrewindableBodyError, InvalidBodyError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -1923,6 +1923,61 @@ class TestRequests:
         prepared_request = r.prepare()
         assert 'Transfer-Encoding' in prepared_request.headers
         assert 'Content-Length' not in prepared_request.headers
+
+    def test_chunked_upload_with_manually_set_content_length_header_raises_error(self, httpbin):
+        """Ensure that if a user manually sets a content length header, when
+        the data is chunked, that an InvalidHeader error is raised.
+        """
+        data = (i for i in [b'a', b'b', b'c']) 
+        url = httpbin('post')
+        with pytest.raises(InvalidHeader):
+            r = requests.post(url, data=data, headers={'Content-Length': 'foo'})
+
+    def test_content_length_with_manually_set_transfer_encoding_raises_error(self, httpbin):
+        """Ensure that if a user manually sets a Transfer-Encoding header when
+        data is not chunked that an InvalidHeader error is raised.
+        """
+        data = 'test data'
+        url = httpbin('post')
+        with pytest.raises(InvalidHeader):
+            r = requests.post(url, data=data, headers={'Transfer-Encoding': 'chunked'})
+
+    def test_null_body_does_not_raise_error(self, httpbin):
+        url = httpbin('post')
+        try:
+            requests.post(url, data=None)
+        except InvalidHeader:
+            pytest.fail('InvalidHeader error raised unexpectedly.')
+
+    @pytest.mark.parametrize(
+        'body, expected', (
+            (None, ('Content-Length', '0')),
+            ('test_data', ('Content-Length', '9')),
+            (io.BytesIO(b'test_data'), ('Content-Length', '9')),
+            (StringIO.StringIO(''), ('Transfer-Encoding', 'chunked'))
+        ))
+    def test_prepare_content_length(self, httpbin, body, expected):
+        """Test prepare_content_length creates expected header."""
+        prep = requests.PreparedRequest()
+        prep.headers = {}
+        prep.method = 'POST'
+
+        # Ensure Content-Length is set appropriately.
+        key, value = expected
+        prep.prepare_content_length(body)
+        assert prep.headers[key] == value
+
+    def test_prepare_content_length_with_bad_body(self, httpbin):
+        """Test prepare_content_length raises exception with unsendable body."""
+        # Initialize minimum required PreparedRequest.
+        prep = requests.PreparedRequest()
+        prep.headers = {}
+        prep.method = 'POST'
+
+        with pytest.raises(InvalidBodyError) as e:
+            # Send object that isn't iterable and has no accessible content.
+            prep.prepare_content_length(object())
+            assert "Non-null body must have length or be streamable." in str(e)
 
     def test_custom_redirect_mixin(self, httpbin):
         """Tests a custom mixin to overwrite ``get_redirect_target``.
