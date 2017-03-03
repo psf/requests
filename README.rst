@@ -28,7 +28,7 @@ Requests: HTTP for Humans
 Requests is the only *Non-GMO* HTTP library for Python, safe for human
 consumption.
 
-**Warning:** Recreational use of other HTTP libraries may result in dangerous side-effects,
+**Warning:** Recreational use the Python standard library for HTTP may result in dangerous side-effects,
 including: security vulnerabilities, verbose code, reinventing the wheel,
 constantly reading documentation, depression, headaches, or even death.
 
