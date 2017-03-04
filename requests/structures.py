@@ -148,10 +148,10 @@ class TimedCache(collections.MutableMapping):
             (self.maxlen, len(self._dict), self.expiration_secs)
 
     def __iter__(self):
-        return map(lambda kv: (kv[0], kv[1][1]), self._dict.items()).__iter__()
+        return ((key, value[1]) for key, value in self._dict.items())
 
     def __delitem__(self, item):
-        return self._dict.__delitem__(item)
+        del self._dict[item]
 
     def __getitem__(self, key):
         """
@@ -166,7 +166,7 @@ class TimedCache(collections.MutableMapping):
 
         if now - occurred > self.expiration_secs:
             del self._dict[key]
-            raise KeyError
+            raise KeyError(key)
         else:
             return value
 
@@ -183,7 +183,7 @@ class TimedCache(collections.MutableMapping):
         while len(self._dict) >= self.maxlen:
             self._dict.popitem(last=False)
 
-        return self._dict.__setitem__(key, (now, value))
+        self._dict[key] = (now, value)
 
     def __len__(self):
         """:return: the length of the cache"""
