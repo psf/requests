@@ -1345,12 +1345,15 @@ class TestRequests:
             (['line\n'], ['line'], ['line\n']),
             (['line', '\n'], ['line'], ['line\n']),
             (['line\r\n'], ['line'], ['line', '']),
+            # Empty chunk in the end of stream, same behavior as the previous
+            (['line\r\n', ''], ['line'], ['line', '']),
             (['line', '\r\n'], ['line'], ['line', '']),
             (['a\r', '\nb\r'], ['a', '', 'b'], ['a', 'b\r']),
             (['a\n', '\nb'], ['a', '', 'b'], ['a\n\nb']),
             (['a\r\n','\rb\n'], ['a', '', 'b'], ['a', '\rb\n']),
             (['a\nb', 'c'], ['a', 'bc'], ['a\nbc']),
-            (['a\n', '\rb', '\r\nc'], ['a', '', 'b', 'c'], ['a\n\rb', 'c'])
+            (['a\n', '\rb', '\r\nc'], ['a', '', 'b', 'c'], ['a\n\rb', 'c']),
+            (['a\r\nb', '', 'c'], ['a', 'bc'], ['a', 'bc'])  # Empty chunk with pending data
         ))
     def test_response_lines_parametrized(self, content, expected_no_delimiter, expected_delimiter):
         """
