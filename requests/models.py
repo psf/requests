@@ -780,7 +780,10 @@ class Response(object):
 
         for chunk in self.iter_content(chunk_size=chunk_size,
                                        decode_unicode=decode_unicode):
-            # Skip any null responses
+            # Skip any null responses: if there is pending data it is necessarily an
+            # incomplete chunk, so if we don't have more data we don't want to bother
+            # trying to get it. Unconsumed pending data will be yielded anyway in the
+            # end of the loop if the stream ends.
             if not chunk:
                 continue
 
