@@ -813,7 +813,7 @@ class Response(object):
             #
             # If we're using `splitlines()`, we only do this if the chunk
             # ended midway through a line.
-            incomplete_line = lines[-1] and lines[-1].endswith(chunk[-1])
+            incomplete_line = lines[-1] and lines[-1][-1] == chunk[-1]
             if delimiter or incomplete_line:
                 pending = lines.pop()
 

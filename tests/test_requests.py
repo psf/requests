@@ -1816,11 +1816,12 @@ class TestRequests:
         prep = r.prepare()
         assert 'stuff=elixr' == prep.body
 
-    def test_response_iter_lines(self, httpbin):
+    @pytest.mark.parametrize('decode_unicode', (True, False))
+    def test_response_iter_lines(self, httpbin, decode_unicode):
         r = requests.get(httpbin('stream/4'), stream=True)
         assert r.status_code == 200
-
-        it = r.iter_lines()
+        r.encoding = 'utf-8'
+        it = r.iter_lines(decode_unicode=decode_unicode)
         next(it)
         assert len(list(it)) == 3
 
