@@ -1296,6 +1296,81 @@ class TestRequests:
         assert r.request.url == pr.request.url
         assert r.request.headers == pr.request.headers
 
+
+    def test_response_lines(self):
+        """
+        iter_lines should be able to handle data dribbling in which delimiters
+        might not be lined up ideally.
+        """
+        mock_chunks = [
+            'This \r\n',
+            '',
+            'is\r',
+            '\n',
+            'a',
+            ' ',
+            '',
+            '',
+            'test.',
+            '\r',
+            '\n',
+            'end.',
+        ]
+        mock_data = ''.join(mock_chunks)
+
+        mock_iter_content = lambda *args, **kwargs: (e for e in mock_chunks)
+
+        r = requests.Response()
+        r._content_consumed = True
+        r.iter_content = mock_iter_content
+
+        assert list(r.iter_lines(delimiter='\r\n')) == mock_data.split('\r\n')
+
+        # Because '\n' is a single line-end, when `iter_lines()` receives
+        # the chunks containing a single '\n', it emits '' as a line -- whereas
+        # `.splitlines()` combines with the '\r' and splits on `\r\n`.
+        result = list(r.iter_lines())
+        assert result != mock_data.splitlines()
+        assert result[2] == ''
+        assert result[4] == ''
+        # If we change all the line breaks to `\r`, we should be okay.
+        mock_chunks = [chunk.replace('\n', '\r') for chunk in mock_chunks]
+        mock_data = ''.join(mock_chunks)
+        assert list(r.iter_lines()) == mock_data.splitlines()
+
+
+    @pytest.mark.parametrize(
+        'content, expected_no_delimiter, expected_delimiter', (
+            ([''], [], []),
+            (['line\n'], ['line'], ['line\n']),
+            (['line', '\n'], ['line'], ['line\n']),
+            (['line\r\n'], ['line'], ['line', '']),
+            # Empty chunk in the end of stream, same behavior as the previous
+            (['line\r\n', ''], ['line'], ['line', '']),
+            (['line', '\r\n'], ['line'], ['line', '']),
+            (['a\r', '\nb\r'], ['a', '', 'b'], ['a', 'b\r']),
+            (['a\n', '\nb'], ['a', '', 'b'], ['a\n\nb']),
+            (['a\r\n','\rb\n'], ['a', '', 'b'], ['a', '\rb\n']),
+            (['a\nb', 'c'], ['a', 'bc'], ['a\nbc']),
+            (['a\n', '\rb', '\r\nc'], ['a', '', 'b', 'c'], ['a\n\rb', 'c']),
+            (['a\r\nb', '', 'c'], ['a', 'bc'], ['a', 'bc'])  # Empty chunk with pending data
+        ))
+    def test_response_lines_parametrized(self, content, expected_no_delimiter, expected_delimiter):
+        """
+        Test a lot of potential chunk splits to ensure consistency of
+        iter_lines(delimiter=x), as well as the legacy behavior of
+        iter_lines() without delimiter
+        https://github.com/kennethreitz/requests/pull/2431#issuecomment-72333964
+        """
+        mock_chunks = content
+        mock_iter_content = lambda *args, **kwargs: (e for e in mock_chunks)
+
+        r = requests.Response()
+        r._content_consumed = True
+        r.iter_content = mock_iter_content
+        assert list(r.iter_lines()) == expected_no_delimiter
+        assert list(r.iter_lines(delimiter='\r\n')) == expected_delimiter
+
     def test_prepared_request_is_pickleable(self, httpbin):
         p = requests.Request('GET', httpbin('get')).prepare()
 
@@ -1741,11 +1816,12 @@ class TestRequests:
         prep = r.prepare()
         assert 'stuff=elixr' == prep.body
 
-    def test_response_iter_lines(self, httpbin):
+    @pytest.mark.parametrize('decode_unicode', (True, False))
+    def test_response_iter_lines(self, httpbin, decode_unicode):
         r = requests.get(httpbin('stream/4'), stream=True)
         assert r.status_code == 200
-
-        it = r.iter_lines()
+        r.encoding = 'utf-8'
+        it = r.iter_lines(decode_unicode=decode_unicode)
         next(it)
         assert len(list(it)) == 3
 

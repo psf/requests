@@ -776,23 +776,46 @@ class Response(object):
 
         .. note:: This method is not reentrant safe.
         """
-
         pending = None
 
-        for chunk in self.iter_content(chunk_size=chunk_size, decode_unicode=decode_unicode):
+        for chunk in self.iter_content(chunk_size=chunk_size,
+                                       decode_unicode=decode_unicode):
+            # Skip any null responses: if there is pending data it is necessarily an
+            # incomplete chunk, so if we don't have more data we don't want to bother
+            # trying to get it. Unconsumed pending data will be yielded anyway in the
+            # end of the loop if the stream ends.
+            if not chunk:
+                continue
 
+            # Consume any pending data
             if pending is not None:
                 chunk = pending + chunk
+                pending = None
 
+            # Either split on a line, or split on a specified delimiter
             if delimiter:
                 lines = chunk.split(delimiter)
             else:
                 lines = chunk.splitlines()
 
-            if lines and lines[-1] and chunk and lines[-1][-1] == chunk[-1]:
+            # Calling `.split(delimiter)` will always end with whatever text
+            # remains beyond the delimiter, or '' if the delimiter is the end
+            # of the text.  On the other hand, `.splitlines()` doesn't include
+            # a '' if the text ends in a line delimiter.
+            #
+            # For example:
+            #
+            #     'abc\ndef\n'.split('\n')  ~> ['abc', 'def', '']
+            #     'abc\ndef\n'.splitlines() ~> ['abc', 'def']
+            #
+            # So if we have a specified delimiter, we always pop the final
+            # item and prepend it to the next chunk.
+            #
+            # If we're using `splitlines()`, we only do this if the chunk
+            # ended midway through a line.
+            incomplete_line = lines[-1] and lines[-1][-1] == chunk[-1]
+            if delimiter or incomplete_line:
                 pending = lines.pop()
-            else:
-                pending = None
 
             for line in lines:
                 yield line
