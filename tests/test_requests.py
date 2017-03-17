@@ -769,6 +769,22 @@ class TestRequests:
     def test_pyopenssl_redirect(self, httpbin_secure, httpbin_ca_bundle):
         requests.get(httpbin_secure('status', '301'), verify=httpbin_ca_bundle)
 
+    def test_invalid_ca_certificate_path(self):
+        INVALID_PATH = '/garbage'
+        with pytest.raises(IOError) as e:
+            requests.get('http://github.com', verify=INVALID_PATH)
+        assert str(e.value) == 'Could not find a suitable SSL CA certificate bundle, invalid path: {0}'.format(INVALID_PATH)
+
+    def test_invalid_ssl_certificate_files(self):
+        INVALID_PATH = '/garbage'
+        with pytest.raises(IOError) as e:
+            requests.get('http://github.com', cert=INVALID_PATH)
+        assert str(e.value) == 'Could not find the SSL certificate file, invalid path: {0}'.format(INVALID_PATH)
+
+        with pytest.raises(IOError) as e:
+            requests.get('http://github.com', cert=('.', INVALID_PATH))
+        assert str(e.value) == 'Could not find the SSL key file, invalid path: {0}'.format(INVALID_PATH)
+
     def test_https_warnings(self, httpbin_secure, httpbin_ca_bundle):
         """warnings are emitted with requests.get"""
         if HAS_MODERN_SSL or HAS_PYOPENSSL:

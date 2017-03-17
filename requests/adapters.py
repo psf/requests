@@ -202,7 +202,8 @@ class HTTPAdapter(BaseAdapter):
 
         :param conn: The urllib3 connection object associated with the cert.
         :param url: The requested URL.
-        :param verify: Whether we should actually verify the certificate.
+        :param verify: Whether we should actually verify the certificate
+            or it could be a path to a ca bundle
         :param cert: The SSL certificate to verify.
         """
         if url.lower().startswith('https') and verify:
@@ -216,15 +217,16 @@ class HTTPAdapter(BaseAdapter):
             if not cert_loc:
                 cert_loc = DEFAULT_CA_BUNDLE_PATH
 
-            if not cert_loc:
-                raise Exception("Could not find a suitable SSL CA certificate bundle.")
+            if not cert_loc or not os.path.exists(cert_loc):
+                raise IOError("Could not find a suitable SSL CA certificate bundle, "
+                              "invalid path: {0}".format(cert_loc))
 
             conn.cert_reqs = 'CERT_REQUIRED'
 
-            if not os.path.isdir(cert_loc):
-                conn.ca_certs = cert_loc
-            else:
+            if os.path.isdir(cert_loc):
                 conn.ca_cert_dir = cert_loc
+            else:
+                conn.ca_certs = cert_loc
         else:
             conn.cert_reqs = 'CERT_NONE'
             conn.ca_certs = None
@@ -232,10 +234,15 @@ class HTTPAdapter(BaseAdapter):
 
         if cert:
             if not isinstance(cert, basestring):
-                conn.cert_file = cert[0]
-                conn.key_file = cert[1]
+                conn.cert_file, conn.key_file = cert
             else:
                 conn.cert_file = cert
+            if conn.cert_file and not os.path.exists(conn.cert_file):
+                raise IOError("Could not find the SSL certificate file, "
+                              "invalid path: {0}".format(conn.cert_file))
+            if conn.key_file and not os.path.exists(conn.key_file):
+                raise IOError("Could not find the SSL key file, "
+                              "invalid path: {0}".format(conn.key_file))
 
     def build_response(self, req, resp):
         """Builds a :class:`Response <requests.Response>` object from a urllib3
