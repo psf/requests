@@ -223,10 +223,10 @@ class HTTPAdapter(BaseAdapter):
 
             conn.cert_reqs = 'CERT_REQUIRED'
 
-            if os.path.isdir(cert_loc):
-                conn.ca_cert_dir = cert_loc
-            else:
+            if not os.path.isdir(cert_loc):
                 conn.ca_certs = cert_loc
+            else:
+                conn.ca_cert_dir = cert_loc
         else:
             conn.cert_reqs = 'CERT_NONE'
             conn.ca_certs = None
@@ -234,7 +234,8 @@ class HTTPAdapter(BaseAdapter):
 
         if cert:
             if not isinstance(cert, basestring):
-                conn.cert_file, conn.key_file = cert
+                conn.cert_file = cert[0]
+                conn.key_file = cert[1]
             else:
                 conn.cert_file = cert
             if conn.cert_file and not os.path.exists(conn.cert_file):
