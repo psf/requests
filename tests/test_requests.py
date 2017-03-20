@@ -1546,7 +1546,7 @@ class TestRequests:
             def tell(self):
                 return 0
 
-            def seek(self, pos):
+            def seek(self, pos, whence=0):
                 raise OSError()
 
             def __iter__(self):
@@ -1560,7 +1560,7 @@ class TestRequests:
         with pytest.raises(UnrewindableBodyError) as e:
             requests.utils.rewind_body(prep)
 
-        assert 'error occured when rewinding request body' in str(e)
+        assert 'error occurred when rewinding request body' in str(e)
 
     def test_rewind_body_failed_tell(self):
         class BadFileObj:
