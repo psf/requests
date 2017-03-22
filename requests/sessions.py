@@ -460,8 +460,9 @@ class Session(SessionRedirectMixin):
             hostname to the URL of the proxy.
         :param stream: (optional) whether to immediately download the response
             content. Defaults to ``False``.
-        :param verify: (optional) whether the SSL cert will be verified.
-            A CA_BUNDLE path can also be provided. Defaults to ``True``.
+        :param verify: (optional) Either a boolean, in which case it controls whether we verify
+            the server's TLS certificate, or a string, in which case it must be a path
+            to a CA bundle to use. Defaults to ``True``.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
         :rtype: requests.Response

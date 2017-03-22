@@ -64,7 +64,9 @@ class BaseAdapter(object):
             data before giving up, as a float, or a :ref:`(connect timeout,
             read timeout) <timeouts>` tuple.
         :type timeout: float or tuple
-        :param verify: (optional) Whether to verify SSL certificates.
+        :param verify: (optional) Either a boolean, in which case it controls whether we verify
+            the server's TLS certificate, or a string, in which case it must be a path
+            to a CA bundle to use
         :param cert: (optional) Any user-provided SSL certificate to be trusted.
         :param proxies: (optional) The proxies dictionary to apply to the request.
         """
@@ -202,8 +204,9 @@ class HTTPAdapter(BaseAdapter):
 
         :param conn: The urllib3 connection object associated with the cert.
         :param url: The requested URL.
-        :param verify: Whether we should actually verify the certificate
-            or it could be a path to a ca bundle
+        :param verify: Either a boolean, in which case it controls whether we verify
+            the server's TLS certificate, or a string, in which case it must be a path
+            to a CA bundle to use
         :param cert: The SSL certificate to verify.
         """
         if url.lower().startswith('https') and verify:
@@ -218,7 +221,7 @@ class HTTPAdapter(BaseAdapter):
                 cert_loc = DEFAULT_CA_BUNDLE_PATH
 
             if not cert_loc or not os.path.exists(cert_loc):
-                raise IOError("Could not find a suitable SSL CA certificate bundle, "
+                raise IOError("Could not find a suitable TLS CA certificate bundle, "
                               "invalid path: {0}".format(cert_loc))
 
             conn.cert_reqs = 'CERT_REQUIRED'
@@ -239,10 +242,10 @@ class HTTPAdapter(BaseAdapter):
             else:
                 conn.cert_file = cert
             if conn.cert_file and not os.path.exists(conn.cert_file):
-                raise IOError("Could not find the SSL certificate file, "
+                raise IOError("Could not find the TLS certificate file, "
                               "invalid path: {0}".format(conn.cert_file))
             if conn.key_file and not os.path.exists(conn.key_file):
-                raise IOError("Could not find the SSL key file, "
+                raise IOError("Could not find the TLS key file, "
                               "invalid path: {0}".format(conn.key_file))
 
     def build_response(self, req, resp):
@@ -389,7 +392,9 @@ class HTTPAdapter(BaseAdapter):
             data before giving up, as a float, or a :ref:`(connect timeout,
             read timeout) <timeouts>` tuple.
         :type timeout: float or tuple
-        :param verify: (optional) Whether to verify SSL certificates.
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
         :param cert: (optional) Any user-provided SSL certificate to be trusted.
         :param proxies: (optional) The proxies dictionary to apply to the request.
         :rtype: requests.Response

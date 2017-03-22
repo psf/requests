@@ -36,7 +36,9 @@ def request(method, url, **kwargs):
     :param allow_redirects: (optional) Boolean. Enable/disable GET/OPTIONS/POST/PUT/PATCH/DELETE/HEAD redirection. Defaults to ``True``.
     :type allow_redirects: bool
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
-    :param verify: (optional) whether the SSL cert will be verified. A CA_BUNDLE path can also be provided. Defaults to ``True``.
+    :param verify: (optional) Either a boolean, in which case it controls whether we verify
+            the server's TLS certificate, or a string, in which case it must be a path
+            to a CA bundle to use. Defaults to ``True``.
     :param stream: (optional) if ``False``, the response content will be immediately downloaded.
     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
     :return: :class:`Response <Response>` object
