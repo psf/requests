@@ -409,9 +409,7 @@ class HTTPAdapter(BaseAdapter):
         chunked = not (request.body is None or 'Content-Length' in request.headers)
 
         
-        if isinstance(timeout, TimeoutSauce):
-            pass
-        elif isinstance(timeout, tuple):
+        if isinstance(timeout, tuple):
             try:
                 connect, read = timeout
                 timeout = TimeoutSauce(connect=connect, read=read)
@@ -421,6 +419,8 @@ class HTTPAdapter(BaseAdapter):
                        "timeout tuple, or a single float to set "
                        "both timeouts to the same value".format(timeout))
                 raise ValueError(err)
+        elif isinstance(timeout, TimeoutSauce):
+            pass
         elif timeout is not None:
             timeout = TimeoutSauce(connect=timeout, read=timeout)
 
