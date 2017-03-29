@@ -391,7 +391,7 @@ class HTTPAdapter(BaseAdapter):
         :param timeout: (optional) How long to wait for the server to send
             data before giving up, as a float, or a :ref:`(connect timeout,
             read timeout) <timeouts>` tuple.
-        :type timeout: float or tuple
+        :type timeout: float or tuple or urllib3 Timeout object
         :param verify: (optional) Either a boolean, in which case it controls whether
             we verify the server's TLS certificate, or a string, in which case it
             must be a path to a CA bundle to use
@@ -408,7 +408,10 @@ class HTTPAdapter(BaseAdapter):
 
         chunked = not (request.body is None or 'Content-Length' in request.headers)
 
-        if isinstance(timeout, tuple):
+        
+        if isinstance(timeout, TimeoutSauce):
+            pass
+        elif isinstance(timeout, tuple):
             try:
                 connect, read = timeout
                 timeout = TimeoutSauce(connect=connect, read=read)
@@ -418,11 +421,14 @@ class HTTPAdapter(BaseAdapter):
                        "timeout tuple, or a single float to set "
                        "both timeouts to the same value".format(timeout))
                 raise ValueError(err)
-        else:
+        elif timeout is not None:
             timeout = TimeoutSauce(connect=timeout, read=timeout)
 
         try:
             if not chunked:
+                kwargs = {}
+                if timeout is not None:
+                    kwargs['timeout'] = timeout
                 resp = conn.urlopen(
                     method=request.method,
                     url=url,
@@ -433,7 +439,7 @@ class HTTPAdapter(BaseAdapter):
                     preload_content=False,
                     decode_content=False,
                     retries=self.max_retries,
-                    timeout=timeout
+                    **kwargs
                 )
 
             # Send the request.
