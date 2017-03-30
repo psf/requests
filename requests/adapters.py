@@ -420,14 +420,11 @@ class HTTPAdapter(BaseAdapter):
                 raise ValueError(err)
         elif isinstance(timeout, TimeoutSauce):
             pass
-        elif timeout is not None:
+        else:
             timeout = TimeoutSauce(connect=timeout, read=timeout)
 
         try:
             if not chunked:
-                kwargs = {}
-                if timeout is not None:
-                    kwargs['timeout'] = timeout
                 resp = conn.urlopen(
                     method=request.method,
                     url=url,
@@ -438,7 +435,7 @@ class HTTPAdapter(BaseAdapter):
                     preload_content=False,
                     decode_content=False,
                     retries=self.max_retries,
-                    **kwargs
+                    timeout=timeout
                 )
 
             # Send the request.
