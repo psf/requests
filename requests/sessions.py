@@ -343,7 +343,8 @@ class Session(SessionRedirectMixin):
         #: SSL Verification default.
         self.verify = True
 
-        #: SSL client certificate default.
+        #: SSL client certificate default, if String, path to ssl client
+        #: cert file (.pem). If Tuple, ('cert', 'key') pair.
         self.cert = None
 
         #: Maximum number of redirects allowed. If the request exceeds this
