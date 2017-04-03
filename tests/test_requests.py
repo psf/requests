@@ -33,6 +33,7 @@ from requests.hooks import default_hooks
 
 from .compat import StringIO, u
 from .utils import override_environ
+from requests.packages.urllib3.util import Timeout
 
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
@@ -2013,7 +2014,12 @@ class TestTimeout:
             requests.get(httpbin('get'), timeout=timeout)
         assert error_text in str(e)
 
-    def test_none_timeout(self, httpbin):
+    @pytest.mark.parametrize(
+        'timeout', (
+            None,
+            Timeout(connect=None, read=None)
+        ))
+    def test_none_timeout(self, httpbin, timeout):
         """Check that you can set None as a valid timeout value.
 
         To actually test this behavior, we'd want to check that setting the
@@ -2022,69 +2028,42 @@ class TestTimeout:
         Instead we verify that setting the timeout to None does not prevent the
         request from succeeding.
         """
-        r = requests.get(httpbin('get'), timeout=None)
+        r = requests.get(httpbin('get'), timeout=timeout)
         assert r.status_code == 200
 
-    def test_none_timeout_obj(self, httpbin):
-        """Check that you can set None as a valid timeout value.
-
-        To actually test this behavior, we'd want to check that setting the
-        timeout to None actually lets the request block forever. However, this
-        would make the test suite unbearably slow.
-        Instead we verify that setting the timeout to None does not prevent the
-        request from succeeding.
-        """
-        from requests.packages.urllib3.util import Timeout
-        r = requests.get(httpbin('get'),
-                         timeout=Timeout(connect=None, read=None))
-        assert r.status_code == 200
-
-    def test_read_timeout(self, httpbin):
+    @pytest.mark.parametrize(
+        'timeout', (
+            (None, 0.1),
+            Timeout(connect=None, read=0.1)
+        ))
+    def test_read_timeout(self, httpbin, timeout):
         try:
-            requests.get(httpbin('delay/10'), timeout=(None, 0.1))
+            requests.get(httpbin('delay/10'), timeout=timeout)
             pytest.fail('The recv() request should time out.')
         except ReadTimeout:
             pass
 
-    def test_read_timeout_obj(self, httpbin):
-        from requests.packages.urllib3.util import Timeout
+    @pytest.mark.parametrize(
+        'timeout', (
+            (0.1, None),
+            Timeout(connect=0.1, read=None)
+        ))
+    def test_connect_timeout(self, timeout):
         try:
-            requests.get(httpbin('delay/10'),
-                         timeout=Timeout(connect=None, read=0.1))
-            pytest.fail('The recv() request should time out.')
-        except ReadTimeout:
-            pass
-
-    def test_connect_timeout(self):
-        try:
-            requests.get(TARPIT, timeout=(0.1, None))
+            requests.get(TARPIT, timeout=timeout)
             pytest.fail('The connect() request should time out.')
         except ConnectTimeout as e:
             assert isinstance(e, ConnectionError)
             assert isinstance(e, Timeout)
 
-    def test_connect_timeout_obj(self):
-        from requests.packages.urllib3.util import Timeout
+    @pytest.mark.parametrize(
+        'timeout', (
+            (0.1, 0.1),
+            Timeout(connect=0.1, read=0.1)
+        ))
+    def test_total_timeout_connect(self, timeout):
         try:
-            requests.get(TARPIT,
-                         timeout=Timeout(connect=0.1, read=None))
-            pytest.fail('The connect() request should time out.')
-        except ConnectTimeout as e:
-            assert isinstance(e, ConnectionError)
-            assert isinstance(e, Timeout)
-
-    def test_total_timeout_connect(self):
-        try:
-            requests.get(TARPIT, timeout=(0.1, 0.1))
-            pytest.fail('The connect() request should time out.')
-        except ConnectTimeout:
-            pass
-
-    def test_total_timeout_connect_obj(self):
-        from requests.packages.urllib3.util import Timeout
-        try:
-            requests.get(TARPIT,
-                         timeout=Timeout(connect=0.1, read=0.1))
+            requests.get(TARPIT, timeout=timeout)
             pytest.fail('The connect() request should time out.')
         except ConnectTimeout:
             pass
