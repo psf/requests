@@ -33,7 +33,7 @@ from requests.hooks import default_hooks
 
 from .compat import StringIO, u
 from .utils import override_environ
-from requests.packages.urllib3.util import Timeout
+from requests.packages.urllib3.util import Timeout as Urllib3Timeout
 
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
@@ -2017,7 +2017,7 @@ class TestTimeout:
     @pytest.mark.parametrize(
         'timeout', (
             None,
-            Timeout(connect=None, read=None)
+            Urllib3Timeout(connect=None, read=None)
         ))
     def test_none_timeout(self, httpbin, timeout):
         """Check that you can set None as a valid timeout value.
@@ -2034,7 +2034,7 @@ class TestTimeout:
     @pytest.mark.parametrize(
         'timeout', (
             (None, 0.1),
-            Timeout(connect=None, read=0.1)
+            Urllib3Timeout(connect=None, read=0.1)
         ))
     def test_read_timeout(self, httpbin, timeout):
         try:
@@ -2046,7 +2046,7 @@ class TestTimeout:
     @pytest.mark.parametrize(
         'timeout', (
             (0.1, None),
-            Timeout(connect=0.1, read=None)
+            Urllib3Timeout(connect=0.1, read=None)
         ))
     def test_connect_timeout(self, timeout):
         try:
@@ -2059,7 +2059,7 @@ class TestTimeout:
     @pytest.mark.parametrize(
         'timeout', (
             (0.1, 0.1),
-            Timeout(connect=0.1, read=0.1)
+            Urllib3Timeout(connect=0.1, read=0.1)
         ))
     def test_total_timeout_connect(self, timeout):
         try:
