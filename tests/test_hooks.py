@@ -16,8 +16,8 @@ def hook(value):
     )
 )
 def test_hooks(hooks_list, result):
-    assert hooks.dispatch_hook('response', {'response': hooks_list}, 'Data') == result
+    assert hooks.dispatch_hook(hooks.RESPONSE_HOOK, {hooks.RESPONSE_HOOK: hooks_list}, 'Data') == result
 
 
 def test_default_hooks():
-    assert hooks.default_hooks() == {'response': []}
+    assert hooks.default_hooks() == {hooks.RESPONSE_HOOK: []}

@@ -16,7 +16,7 @@ from .compat import cookielib, OrderedDict, urljoin, urlparse
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
-from .hooks import default_hooks, dispatch_hook
+from .hooks import default_hooks, dispatch_hook, RESPONSE_HOOK
 from ._internal_utils import to_native_string
 from .utils import to_key_val_list, default_headers
 from .exceptions import (
@@ -76,10 +76,10 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
     This is necessary because when request_hooks == {'response': []}, the
     merge breaks Session hooks entirely.
     """
-    if session_hooks is None or session_hooks.get('response') == []:
+    if session_hooks is None or session_hooks.get(RESPONSE_HOOK) == []:
         return request_hooks
 
-    if request_hooks is None or request_hooks.get('response') == []:
+    if request_hooks is None or request_hooks.get(RESPONSE_HOOK) == []:
         return session_hooks
 
     return merge_setting(request_hooks, session_hooks, dict_class)
@@ -622,7 +622,7 @@ class Session(SessionRedirectMixin):
         r.elapsed = datetime.utcnow() - start
 
         # Response manipulation hooks
-        r = dispatch_hook('response', hooks, r, **kwargs)
+        r = dispatch_hook(RESPONSE_HOOK, hooks, r, **kwargs)
 
         # Persist cookies
         if r.history:

@@ -29,7 +29,7 @@ from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
-from requests.hooks import default_hooks
+from requests.hooks import default_hooks, RESPONSE_HOOK
 
 from .compat import StringIO, u
 from .utils import override_environ
@@ -885,35 +885,35 @@ class TestRequests:
             assert kwargs != {}
 
         s = requests.Session()
-        r = requests.Request('GET', httpbin(), hooks={'response': hook})
+        r = requests.Request('GET', httpbin(), hooks={RESPONSE_HOOK: hook})
         prep = s.prepare_request(r)
         s.send(prep)
 
     def test_session_hooks_are_used_with_no_request_hooks(self, httpbin):
         hook = lambda x, *args, **kwargs: x
         s = requests.Session()
-        s.hooks['response'].append(hook)
+        s.hooks[RESPONSE_HOOK].append(hook)
         r = requests.Request('GET', httpbin())
         prep = s.prepare_request(r)
-        assert prep.hooks['response'] != []
-        assert prep.hooks['response'] == [hook]
+        assert prep.hooks[RESPONSE_HOOK] != []
+        assert prep.hooks[RESPONSE_HOOK] == [hook]
 
     def test_session_hooks_are_overridden_by_request_hooks(self, httpbin):
         hook1 = lambda x, *args, **kwargs: x
         hook2 = lambda x, *args, **kwargs: x
         assert hook1 is not hook2
         s = requests.Session()
-        s.hooks['response'].append(hook2)
-        r = requests.Request('GET', httpbin(), hooks={'response': [hook1]})
+        s.hooks[RESPONSE_HOOK].append(hook2)
+        r = requests.Request('GET', httpbin(), hooks={RESPONSE_HOOK: [hook1]})
         prep = s.prepare_request(r)
-        assert prep.hooks['response'] == [hook1]
+        assert prep.hooks[RESPONSE_HOOK] == [hook1]
 
     def test_prepared_request_hook(self, httpbin):
         def hook(resp, **kwargs):
             resp.hook_working = True
             return resp
 
-        req = requests.Request('GET', httpbin(), hooks={'response': hook})
+        req = requests.Request('GET', httpbin(), hooks={RESPONSE_HOOK: hook})
         prep = req.prepare()
 
         s = requests.Session()
