@@ -122,7 +122,7 @@ class SessionRedirectMixin(object):
             # Handle redirection without scheme (see: RFC 1808 Section 4)
             if url.startswith('//'):
                 parsed_rurl = urlparse(resp.url)
-                url = '%s:%s' % (parsed_rurl.scheme, url)
+                url = '%s:%s' % (to_native_string(parsed_rurl.scheme), url)
 
             # The scheme should be lower case...
             parsed = urlparse(url)
