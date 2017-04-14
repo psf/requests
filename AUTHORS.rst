@@ -179,4 +179,4 @@ Patches and Suggestions
 - Matt Kohl (`@mattkohl <https://github.com/mattkohl>`_)
 - Jonathan Vanasco (`@jvanasco <https://github.com/jvanasco>`_)
 - David Fontenot (`@davidfontenot <https://github.com/davidfontenot>`_)
-
+- Shmuel Amar (`@shmuelamar <https://github.com/shmuelamar>`_)
