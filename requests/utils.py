@@ -437,7 +437,18 @@ def get_unicode_from_response(r):
         except UnicodeError:
             tried_encodings.append(encoding)
 
+    # Try charsets from `meta` tags
+    for meta_encoding in get_encodings_from_content(r.content):
+        if meta_encoding in tried_encodings:
+            continue
+        try:
+            return str(r.content, meta_encoding)
+        except UnicodeError:
+            tried_encodings.append(meta_encoding)
+
     # Fall back:
+    if tried_encodings:
+        encoding = tried_encodings[0]
     try:
         return str(r.content, encoding, errors='replace')
     except TypeError:
