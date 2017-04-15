@@ -150,3 +150,13 @@ def delete(url, **kwargs):
     """
 
     return request('delete', url, **kwargs)
+
+
+def trace(url, **kwargs):
+    """Sends a TRACE request. Returns :class:`Response` object.
+
+    :param url: URL for the new :class:`Request` object.
+    :param \*\*kwargs: Optional arguments that ``request`` takes.
+    """
+
+    return request('trace', url, **kwargs)

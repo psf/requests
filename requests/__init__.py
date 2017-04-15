@@ -62,7 +62,7 @@ warnings.simplefilter('ignore', DependencyWarning)
 
 from . import utils
 from .models import Request, Response, PreparedRequest
-from .api import request, get, head, post, patch, put, delete, options
+from .api import request, get, head, post, patch, put, delete, options, trace
 from .sessions import session, Session
 from .status_codes import codes
 from .exceptions import (
