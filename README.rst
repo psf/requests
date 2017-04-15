@@ -73,7 +73,7 @@ Requests is ready for today's web.
 - Keep-Alive & Connection Pooling
 - Sessions with Cookie Persistence
 - Browser-style SSL Verification
-- Basic/Digest Authentication
+- Basic, Digest and OAuth Authentication
 - Elegant Key/Value Cookies
 - Automatic Decompression
 - Automatic Content Decoding
