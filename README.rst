@@ -105,6 +105,11 @@ Documentation
 
 Fantastic documentation is available at http://docs.python-requests.org/, for a limited time only.
 
+Documentation
+-------------
+
+Documentation is available at http://docs.python-requests.org/.
+
 
 How to Contribute
 -----------------
