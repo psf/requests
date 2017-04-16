@@ -239,6 +239,16 @@ class Request(RequestHooksMixin):
         self.cookies = cookies
 
     def __repr__(self):
+        fields = self.__dict__
+        if fields.get('hooks') == default_hooks():
+            fields['hooks'] = None
+        parameters_repr = ', '.join(['%s=%s' % (parameter, repr(fields.get(parameter)))
+                                    for parameter in ['method', 'url', 'headers', 'files', 'data',
+                                                      'params', 'auth', 'cookies', 'hooks']
+                                    if fields.get(parameter)])
+        return '%s(%s)' % (self.__class__.__name__, parameters_repr)
+
+    def __str__(self):
         return '<Request [%s]>' % (self.method)
 
     def prepare(self):
