@@ -248,6 +248,13 @@ If you specify a wrong path or an invalid cert, you'll get a SSLError::
 .. warning:: The private key to your local certificate *must* be unencrypted.
    Currently, Requests does not support using encrypted keys.
 
+.. warning:: The ``cert`` option is also supported on
+   :class:`Session <requests.Session>` methods, but it should not be used.
+   Unfortunately, :class:`Session <requests.Session>` objects currently
+   pool and reuse HTTP connections regardless of the ``cert`` option, so
+   subsequent requests on the same :class:`Session <requests.Session>`
+   may erroneously reuse previously specified values of ``cert``.
+
 .. _ca-certificates:
 
 CA Certificates

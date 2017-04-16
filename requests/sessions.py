@@ -466,6 +466,12 @@ class Session(SessionRedirectMixin):
             to a CA bundle to use. Defaults to ``True``.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
+            WARNING: Do not use this argument.  The :class:`Session` will
+            pool and reuse HTTP connections regardless of the ``cert``
+            option, so subsequent requests on the same :class:`Session`
+            may erroneously reuse previously specified values of ``cert``.
+            Instead, set the ``cert`` attribute on the :class:`Session`
+            immediately after it is created, then don't change it after that.
         :rtype: requests.Response
         """
         # Create the Request.
