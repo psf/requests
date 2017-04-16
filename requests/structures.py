@@ -75,7 +75,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
 
     def __eq__(self, other):
         if isinstance(other, collections.Mapping):
-            other = CaseInsensitiveDict(other)
+            other = self.__class__(other)
         else:
             return NotImplemented
         # Compare insensitively
@@ -83,7 +83,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
 
     # Copy is required
     def copy(self):
-        return CaseInsensitiveDict(self._store.values())
+        return self.__class__(self._store.values())
 
     def __repr__(self):
         return str(dict(self.items()))
@@ -94,7 +94,7 @@ class LookupDict(dict):
 
     def __init__(self, name=None):
         self.name = name
-        super(LookupDict, self).__init__()
+        super(self.__class__, self).__init__()
 
     def __repr__(self):
         return '<lookup \'%s\'>' % (self.name)
