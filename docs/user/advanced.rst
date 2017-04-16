@@ -73,7 +73,8 @@ This will make sure the session is closed as soon as the ``with`` block is
 exited, even if unhandled exceptions occurred.
 
 
-.. admonition:: Remove a Value From a Dict Parameter
+Remove a Value From a Dict Parameter
+------------------------------------
 
     Sometimes you'll want to omit session-level keys from a dict parameter. To
     do this, you simply set that key's value to ``None`` in the method-level
