@@ -12,7 +12,7 @@ from collections import Mapping
 from datetime import datetime
 
 from .auth import _basic_auth_str
-from .compat import cookielib, OrderedDict, urljoin, urlparse
+from .compat import cookielib, is_py3, OrderedDict, urljoin, urlparse
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
@@ -90,7 +90,16 @@ class SessionRedirectMixin(object):
     def get_redirect_target(self, resp):
         """Receives a Response. Returns a redirect URI or ``None``"""
         if resp.is_redirect:
-            return resp.headers['location']
+            location = resp.headers['location']
+            # Currently the underlying http module on py3 decode headers
+            # in latin1, but empirical evidence suggests that latin1 is very
+            # rarely used with non-ASCII characters in HTTP headers.
+            # It is more likely to get UTF8 header rather than latin1.
+            # This causes incorrect handling of UTF8 encoded location headers.
+            # To solve this, we re-encode the location in latin1.
+            if is_py3:
+                location = location.encode('latin1')
+            return to_native_string(location, 'utf8')
         return None
 
     def resolve_redirects(self, resp, req, stream=False, timeout=None,
