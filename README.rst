@@ -88,10 +88,11 @@ Requests is ready for today's web.
 
 Requests officially supports Python 2.6–2.7 & 3.3–3.7, and runs great on PyPy.
 
-Installation
+Installation 安装方法
 ------------
 
 To install Requests, simply:
+安装方法如此的简单：
 
 .. code-block:: bash
 
