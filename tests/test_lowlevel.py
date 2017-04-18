@@ -3,7 +3,6 @@
 import pytest
 import threading
 import requests
-from requests.compat import quote, is_py3
 
 from tests.testserver.server import Server, consume_socket_content
 
@@ -208,8 +207,7 @@ def test_use_proxy_from_environment(httpbin, var, scheme):
 
 def test_redirect_rfc1808_to_non_ascii_location():
     path = u'š'
-    expected_path = quote(path.encode('utf8')).encode('ascii')
-    expected_path_py3 = b'%C3%85%C2%A1'
+    expected_path = b'%C5%A1'
     redirect_request = []  # stores the second request to the server
 
     def redirect_resp_handler(sock):
@@ -233,11 +231,7 @@ def test_redirect_rfc1808_to_non_ascii_location():
         assert r.status_code == 200
         assert len(r.history) == 1
         assert r.history[0].status_code == 301
-
-        # currently Python3 not handling non-ASCII redirects (issue #3888)
-        if is_py3:
-            assert redirect_request[0].startswith(b'GET /' + expected_path_py3 + b' HTTP/1.1')
-        else:
-            assert redirect_request[0].startswith(b'GET /' + expected_path + b' HTTP/1.1')
+        assert redirect_request[0].startswith(b'GET /' + expected_path + b' HTTP/1.1')
+        assert r.url == u'{0}/{1}'.format(url, expected_path.decode('ascii'))
 
         close_server.set()
