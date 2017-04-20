@@ -604,20 +604,25 @@ def test_should_bypass_proxies_no_proxy(
 
 @pytest.mark.skipif(os.name != 'nt', reason='Test only on Windows')
 @pytest.mark.parametrize(
-    'url, expected', (
-            ('http://192.168.0.1:5000/', True),
-            ('http://192.168.0.1/', True),
-            ('http://172.16.1.1/', True),
-            ('http://172.16.1.1:5000/', True),
-            ('http://localhost.localdomain:5000/v1.0/', True),
-            ('http://172.16.1.22/', False),
-            ('http://172.16.1.22:5000/', False),
-            ('http://google.com:5000/v1.0/', False),
+    'url, expected, override', (
+            ('http://192.168.0.1:5000/', True, None),
+            ('http://192.168.0.1/', True, None),
+            ('http://172.16.1.1/', True, None),
+            ('http://172.16.1.1:5000/', True, None),
+            ('http://localhost.localdomain:5000/v1.0/', True, None),
+            ('http://172.16.1.22/', False, None),
+            ('http://172.16.1.22:5000/', False, None),
+            ('http://google.com:5000/v1.0/', False, None),
+            ('http://mylocalhostname:5000/v1.0/', True, '<local>'),
+            ('http://192.168.0.1/', False, ''),
     ))
-def test_should_bypass_proxies_win_registry(url, expected, monkeypatch):
+def test_should_bypass_proxies_win_registry(url, expected, override,
+                                            monkeypatch):
     """Tests for function should_bypass_proxies to check if proxy
     can be bypassed or not with Windows registry settings
     """
+    if override is None:
+        override = '192.168.*;127.0.0.1;localhost.localdomain;172.16.1.1'
     if compat.is_py3:
         import winreg
     else:
@@ -637,7 +642,7 @@ def test_should_bypass_proxies_win_registry(url, expected, monkeypatch):
             if value_name == 'ProxyEnable':
                 return [1]
             elif value_name == 'ProxyOverride':
-                return ['192.168.*;127.0.0.1;localhost.localdomain;172.16.1.1']
+                return [override]
 
     monkeypatch.setenv('http_proxy', '')
     monkeypatch.setenv('https_proxy', '')
