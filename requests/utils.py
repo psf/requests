@@ -32,8 +32,6 @@ from .structures import CaseInsensitiveDict, TimedCache, TimedCacheManaged
 from .exceptions import (
     InvalidURL, InvalidHeader, FileModeWarning, UnrewindableBodyError)
 
-_hush_pyflakes = (RequestsCookieJar,)
-
 NETRC_FILES = ('.netrc', '_netrc')
 
 DEFAULT_CA_BUNDLE_PATH = certs.where()
