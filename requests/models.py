@@ -776,7 +776,11 @@ class Response(object):
 
         .. note:: This method is not reentrant safe.
         """
+        carriage_return = u'\r' if decode_unicode else b'\r'
+        line_feed = u'\n' if decode_unicode else b'\n'
+
         pending = None
+        last_chunk_ends_with_cr = False
 
         for chunk in self.iter_content(chunk_size=chunk_size,
                                        decode_unicode=decode_unicode):
@@ -796,6 +800,23 @@ class Response(object):
             if delimiter:
                 lines = chunk.split(delimiter)
             else:
+                # Python splitlines() supports the universal newline (PEP 278).
+                # That means, '\r', '\n', and '\r\n' are all treated as end of
+                # line. If the last chunk ends with '\r', and the current chunk
+                # starts with '\n', they should be merged and treated as only
+                # *one* new line separator '\r\n' by splitlines().
+                # This rule only applies when splitlines() is used.
+
+                # The last chunk ends with '\r', so the '\n' at chunk[0]
+                # is just the second half of a '\r\n' pair rather than a
+                # new line break. Just skip it.
+                skip_first_char = last_chunk_ends_with_cr and chunk.startswith(line_feed)
+                last_chunk_ends_with_cr = chunk.endswith(carriage_return)
+                if skip_first_char:
+                    chunk = chunk[1:]
+                    # it's possible that after stripping the '\n' then chunk becomes empty
+                    if not chunk:
+                        continue
                 lines = chunk.splitlines()
 
             # Calling `.split(delimiter)` will always end with whatever text
