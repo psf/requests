@@ -16,3 +16,4 @@ script:
   - make coverage
 after_success:
   - pipenv run codecov
+cache: pip
