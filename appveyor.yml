@@ -30,6 +30,11 @@ environment:
       PYTHON_ARCH: "64"
       TOXENV: "py35"
 
+    - PYTHON: "C:\\Python36-x64"
+      PYTHON_VERSION: "3.6.x"
+      PYTHON_ARCH: "64"
+      TOXENV: "py36"
+
 install:
   # Install Python (from the official .msi of http://python.org) and pip when
   # not already installed.
