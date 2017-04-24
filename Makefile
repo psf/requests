@@ -4,6 +4,7 @@ init:
 	pip install pipenv
 	pipenv lock
 	pipenv install --dev
+	pipenv run pip install -e .[socks]
 
 test:
 	# This runs all of the tests. To run an individual test, run py.test with
