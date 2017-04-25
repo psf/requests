@@ -19,7 +19,7 @@ from .packages.urllib3.util.retry import Retry
 from .compat import urlparse, basestring
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     prepend_scheme_if_needed, get_auth_from_url, urldefragauth,
-                    select_proxy, to_native_string)
+                    select_proxy)
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import ClosedPoolError
 from .packages.urllib3.exceptions import ConnectTimeoutError
