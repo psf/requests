@@ -1,12 +1,13 @@
 Requests is written and maintained by Kenneth Reitz and
 various contributors:
 
-Keepers of the Three Crystals
-`````````````````````````````
+Keepers of the Four Crystals
+````````````````````````````
 
 - Kenneth Reitz <me@kennethreitz.org> `@kennethreitz <https://github.com/kennethreitz>`_, Keeper of the Master Crystal.
 - Cory Benfield <cory@lukasa.co.uk> `@lukasa <https://github.com/lukasa>`_
 - Ian Cordasco <graffatcolmingov@gmail.com> `@sigmavirus24 <https://github.com/sigmavirus24>`_
+- Nate Prewitt <nate.prewitt@gmail.com> `@nateprewitt <https://github.com/nateprewitt>`_
 
 
 
