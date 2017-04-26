@@ -16,7 +16,7 @@ import sys
 # such as in Embedded Python. See https://github.com/kennethreitz/requests/issues/3578.
 import encodings.idna
 
-from io import BytesIO, UnsupportedOperation
+from io import UnsupportedOperation
 from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 
@@ -36,7 +36,7 @@ from .utils import (
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
     iter_slices, guess_json_utf, super_len, check_header_validity)
 from .compat import (
-    cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
+    cookielib, urlunparse, urlsplit, urlencode, str, bytes,
     is_py2, chardet, builtin_str, basestring)
 from .compat import json as complexjson
 from .status_codes import codes

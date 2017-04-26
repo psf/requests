@@ -27,8 +27,8 @@ from .compat import parse_http_list as _parse_list_header
 from .compat import (
     quote, urlparse, bytes, str, OrderedDict, unquote, getproxies,
     proxy_bypass, urlunparse, basestring, integer_types)
-from .cookies import RequestsCookieJar, cookiejar_from_dict
-from .structures import CaseInsensitiveDict, TimedCache, TimedCacheManaged
+from .cookies import cookiejar_from_dict
+from .structures import CaseInsensitiveDict, TimedCacheManaged
 from .exceptions import (
     InvalidURL, InvalidHeader, FileModeWarning, UnrewindableBodyError)
 
