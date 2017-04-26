@@ -1303,57 +1303,76 @@ class TestRequests:
         might not be lined up ideally.
         """
         mock_chunks = [
-            'This \r\n',
-            '',
-            'is\r',
-            '\n',
-            'a',
-            ' ',
-            '',
-            '',
-            'test.',
-            '\r',
-            '\n',
-            'end.',
+            b'This \r\n',
+            b'',
+            b'is\r',
+            b'\n',
+            b'a',
+            b' ',
+            b'',
+            b'',
+            b'test.',
+            b'\r',
+            b'\n',
+            b'end.',
         ]
-        mock_data = ''.join(mock_chunks)
+        mock_data = b''.join(mock_chunks)
+        unicode_mock_data = mock_data.decode('utf-8')
 
-        mock_iter_content = lambda *args, **kwargs: (e for e in mock_chunks)
+        def mock_iter_content(*args, **kwargs):
+            if kwargs.get("decode_unicode"):
+                return (e.decode('utf-8') for e in mock_chunks)
+            return (e for e in mock_chunks)
 
         r = requests.Response()
         r._content_consumed = True
         r.iter_content = mock_iter_content
 
-        assert list(r.iter_lines(delimiter='\r\n')) == mock_data.split('\r\n')
+        # decode_unicode=None, output raw bytes
+        assert list(r.iter_lines(delimiter=b'\r\n')) == mock_data.split(b'\r\n')
 
-        # Because '\n' is a single line-end, when `iter_lines()` receives
-        # the chunks containing a single '\n', it emits '' as a line -- whereas
-        # `.splitlines()` combines with the '\r' and splits on `\r\n`.
+        # decode_unicode=True, output unicode strings
+        assert list(r.iter_lines(decode_unicode=True, delimiter=u'\r\n')) == unicode_mock_data.split(u'\r\n')
+
+        # When delimiter is None, we should yield the same result as splitlines()
+        # which supports the universal newline.
+        # '\r', '\n', and '\r\n' are all treated as one line break.
+
+        # decode_unicode=None, output raw bytes
         result = list(r.iter_lines())
-        assert result != mock_data.splitlines()
-        assert result[2] == ''
-        assert result[4] == ''
+        assert result == mock_data.splitlines()
+
+        # decode_unicode=True, output unicode strings
+        result = list(r.iter_lines(decode_unicode=True))
+        assert result == unicode_mock_data.splitlines()
+
         # If we change all the line breaks to `\r`, we should be okay.
-        mock_chunks = [chunk.replace('\n', '\r') for chunk in mock_chunks]
-        mock_data = ''.join(mock_chunks)
+        # decode_unicode=None, output raw bytes
+        mock_chunks = [chunk.replace(b'\n', b'\r') for chunk in mock_chunks]
+        mock_data = b''.join(mock_chunks)
         assert list(r.iter_lines()) == mock_data.splitlines()
+
+        # decode_unicode=True, output unicode strings
+        unicode_mock_data = mock_data.decode('utf-8')
+        assert list(r.iter_lines(decode_unicode=True)) == unicode_mock_data.splitlines()
 
 
     @pytest.mark.parametrize(
         'content, expected_no_delimiter, expected_delimiter', (
-            ([''], [], []),
-            (['line\n'], ['line'], ['line\n']),
-            (['line', '\n'], ['line'], ['line\n']),
-            (['line\r\n'], ['line'], ['line', '']),
+            ([b''], [], []),
+            ([b'line\n'], [u'line'], [u'line\n']),
+            ([b'line', b'\n'], [u'line'], [u'line\n']),
+            ([b'line\r\n'], [u'line'], [u'line', u'']),
             # Empty chunk in the end of stream, same behavior as the previous
-            (['line\r\n', ''], ['line'], ['line', '']),
-            (['line', '\r\n'], ['line'], ['line', '']),
-            (['a\r', '\nb\r'], ['a', '', 'b'], ['a', 'b\r']),
-            (['a\n', '\nb'], ['a', '', 'b'], ['a\n\nb']),
-            (['a\r\n','\rb\n'], ['a', '', 'b'], ['a', '\rb\n']),
-            (['a\nb', 'c'], ['a', 'bc'], ['a\nbc']),
-            (['a\n', '\rb', '\r\nc'], ['a', '', 'b', 'c'], ['a\n\rb', 'c']),
-            (['a\r\nb', '', 'c'], ['a', 'bc'], ['a', 'bc'])  # Empty chunk with pending data
+            ([b'line\r\n', b''], [u'line'], [u'line', u'']),
+            ([b'line', b'\r\n'], [u'line'], [u'line', u'']),
+            ([b'a\r', b'\nb\r'], [u'a', u'b'], [u'a', u'b\r']),
+            ([b'a\r', b'\n', b'\nb'], [u'a', u'', u'b'], [u'a', u'\nb']),
+            ([b'a\n', b'\nb'], [u'a', u'', u'b'], [u'a\n\nb']),
+            ([b'a\r\n', b'\rb\n'], [u'a', u'', u'b'], [u'a', u'\rb\n']),
+            ([b'a\nb', b'c'], [u'a', u'bc'], [u'a\nbc']),
+            ([b'a\n', b'\rb', b'\r\nc'], [u'a', u'', u'b', u'c'], [u'a\n\rb', u'c']),
+            ([b'a\r\nb', b'', b'c'], [u'a', u'bc'], [u'a', u'bc'])  # Empty chunk with pending data
         ))
     def test_response_lines_parametrized(self, content, expected_no_delimiter, expected_delimiter):
         """
@@ -1363,13 +1382,22 @@ class TestRequests:
         https://github.com/kennethreitz/requests/pull/2431#issuecomment-72333964
         """
         mock_chunks = content
-        mock_iter_content = lambda *args, **kwargs: (e for e in mock_chunks)
+        def mock_iter_content(*args, **kwargs):
+            if kwargs.get("decode_unicode"):
+                return (e.decode('utf-8') for e in mock_chunks)
+            return (e for e in mock_chunks)
 
         r = requests.Response()
         r._content_consumed = True
         r.iter_content = mock_iter_content
-        assert list(r.iter_lines()) == expected_no_delimiter
-        assert list(r.iter_lines(delimiter='\r\n')) == expected_delimiter
+
+        # decode_unicode=True, output unicode strings
+        assert list(r.iter_lines(decode_unicode=True)) == expected_no_delimiter
+        assert list(r.iter_lines(decode_unicode=True, delimiter='\r\n')) == expected_delimiter
+
+        # decode_unicode=None, output raw bytes
+        assert list(r.iter_lines()) == [line.encode('utf-8') for line in expected_no_delimiter]
+        assert list(r.iter_lines(delimiter=b'\r\n')) == [line.encode('utf-8') for line in expected_delimiter]
 
     def test_prepared_request_is_pickleable(self, httpbin):
         p = requests.Request('GET', httpbin('get')).prepare()
