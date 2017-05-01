@@ -685,10 +685,12 @@ def select_proxy(url, proxies):
 def default_user_agent(name="python-requests"):
     """
     Return a string representing the default user agent.
+    Allows overriding the default user agent using the REQUESTS_DEFAULT_USER_AGENT
+    environment variable.
 
     :rtype: str
     """
-    return '%s/%s' % (name, __version__)
+    return os.environ.get('REQUESTS_DEFAULT_USER_AGENT', '%s/%s' % (name, __version__))
 
 
 def default_headers():
