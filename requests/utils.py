@@ -28,7 +28,7 @@ from .compat import (
     quote, urlparse, bytes, str, OrderedDict, unquote, getproxies,
     proxy_bypass, urlunparse, basestring, integer_types)
 from .cookies import cookiejar_from_dict
-from .structures import CaseInsensitiveDict, TimedCacheManaged
+from .structures import CaseInsensitiveDict
 from .exceptions import (
     InvalidURL, InvalidHeader, FileModeWarning, UnrewindableBodyError)
 
@@ -577,16 +577,6 @@ def set_environ(env_name, value):
             os.environ[env_name] = old_value
 
 
-@TimedCacheManaged
-def _proxy_bypass_cached(netloc):
-    """
-    Looks for netloc in the cache, if not found, will call proxy_bypass
-    for the netloc and store its result in the cache
-
-    :rtype: bool
-    """
-    return proxy_bypass(netloc)
-
 def should_bypass_proxies(url, no_proxy):
     """
     Returns whether we should bypass proxies or not.
@@ -634,7 +624,7 @@ def should_bypass_proxies(url, no_proxy):
     # legitimate problems.
     with set_environ('no_proxy', no_proxy_arg):
         try:
-            bypass = _proxy_bypass_cached(netloc)
+            bypass = proxy_bypass(netloc)
         except (TypeError, socket.gaierror):
             bypass = False
 
