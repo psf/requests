@@ -5,11 +5,6 @@ build: off
 
 environment:
   matrix:
-    - PYTHON: "C:\\Python266-x64"
-      PYTHON_VERSION: "2.6.6"
-      PYTHON_ARCH: "64"
-      TOXENV: "py26"
-
     - PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7.x"
       PYTHON_ARCH: "64"
@@ -52,10 +47,10 @@ install:
   # Upgrade to the latest version of pip to avoid it displaying warnings
   # about it being out of date.
   - "pip install --disable-pip-version-check --user --upgrade pip"
-  - "mingw32-make"
+  - "C:\\MinGW\\bin\\mingw32-make"
 
 test_script:
-  - "mingw32-make coverage"
+  - "C:\\MinGW\\bin\\mingw32-make coverage"
 
 on_success:
-  - "pipenv run codecov"
+  - "pipenv run codecov -f coverage.xml"

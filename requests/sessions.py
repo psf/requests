@@ -8,8 +8,10 @@ This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
 """
 import os
+import platform
+import time
 from collections import Mapping
-from datetime import datetime
+from datetime import timedelta
 
 from .auth import _basic_auth_str
 from .compat import cookielib, is_py3, OrderedDict, urljoin, urlparse
@@ -37,6 +39,15 @@ from .status_codes import codes
 from .models import REDIRECT_STATI
 
 REDIRECT_CACHE_SIZE = 1000
+
+# Preferred clock, based on which one is more accurate on a given system.
+if platform.system() == 'Windows':
+    try:  # Python 3.3+
+        preferred_clock = time.perf_counter
+    except AttributeError:  # Earlier than Python 3.
+        preferred_clock = time.clock
+else:
+    preferred_clock = time.time
 
 
 def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
@@ -622,13 +633,14 @@ class Session(SessionRedirectMixin):
         adapter = self.get_adapter(url=request.url)
 
         # Start time (approximately) of the request
-        start = datetime.utcnow()
+        start = preferred_clock()
 
         # Send the request
         r = adapter.send(request, **kwargs)
 
         # Total elapsed time of the request (approximately)
-        r.elapsed = datetime.utcnow() - start
+        elapsed = preferred_clock() - start
+        r.elapsed = timedelta(seconds=elapsed)
 
         # Response manipulation hooks
         r = dispatch_hook('response', hooks, r, **kwargs)

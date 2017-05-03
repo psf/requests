@@ -11,6 +11,10 @@ Release History
   ``get_redirect_target(response)`` instead of directly
   querying ``Response.is_redirect`` and ``Response.headers['location']``.
   Advanced users will be able to process malformed redirects more easily.
+- Changed the internal calculation of elapsed request time to have higher
+  resolution on Windows.
+- Added ``win_inet_pton`` as conditional dependency for the ``[socks]`` extra
+  on Windows with Python 2.7.
 
 2.13.0 (2017-01-24)
 +++++++++++++++++++

@@ -97,6 +97,7 @@ setup(
     extras_require={
         'security': ['pyOpenSSL>=0.14', 'cryptography>=1.3.4', 'idna>=2.0.0'],
         'socks': ['PySocks>=1.5.6, !=1.5.7'],
+        'socks:platform_system == "Windows" and python_version<"3.3"': ['win_inet_pton'],
     },
 )
 
