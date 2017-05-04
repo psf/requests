@@ -31,7 +31,7 @@ Release v\ |version|. (:ref:`Installation <install>`)
 **Requests** is the only *Non-GMO* HTTP library for Python, safe for human
 consumption.
 
-*Warning: RRecreational use of the Python standard library for HTTP may result in dangerous side-effects,
+*Warning: Recreational use of the Python standard library for HTTP may result in dangerous side-effects,
 including: security vulnerabilities, verbose code, reinventing the wheel,
 constantly reading documentation, depression, headaches, or even death.*
 
@@ -63,7 +63,7 @@ which is embedded within Requests.
 User Testimonials
 -----------------
 
-The NSA, Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
+Reddit, The NSA, Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
 PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
 Post, Twitter, SoundCloud, Kippt, Sony, and Federal U.S.
 Institutions that prefer to be unnamed claim to use Requests internally.
