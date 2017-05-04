@@ -43,6 +43,8 @@ Release History
   check doesn't use forward and reverse DNS requests anymore
 - URLs with schemes that begin with ``http`` but are not ``http`` or ``https``
   no longer have their host parts forced to lowercase.
+- Enable ``Session`` objects to skip creating or parsing cookies all together.
+  This will improve performance for users who don't use cookies.
 
 **Bugfixes**
 
@@ -1367,4 +1369,3 @@ This is not a backwards compatible change.
 
 * Frustration
 * Conception
-

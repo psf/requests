@@ -180,8 +180,10 @@ class SessionRedirectMixin(object):
             # Extract any cookies sent on the response to the cookiejar
             # in the new request. Because we've mutated our copied prepared
             # request, use the old one that we haven't yet touched.
-            extract_cookies_to_jar(prepared_request._cookies, req, resp.raw)
-            merge_cookies(prepared_request._cookies, self.cookies)
+            prepared_cookies = prepared_request._cookies or cookiejar_from_dict({})
+            extract_cookies_to_jar(prepared_cookies, req, resp.raw)
+            merge_cookies(prepared_cookies,
+                          self.cookies or cookiejar_from_dict({}))
             prepared_request.prepare_cookies(prepared_request._cookies)
 
             # Rebuild auth and proxy information.
@@ -380,7 +382,8 @@ class Session(SessionRedirectMixin):
         #: A CookieJar containing all currently outstanding cookies set on this
         #: session. By default it is a
         #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but
-        #: may be any other ``cookielib.CookieJar`` compatible object.
+        #: may be any other ``cookielib.CookieJar`` compatible object.  If set
+        #: to `None` then cookies are not persisted across requests.
         self.cookies = cookiejar_from_dict({})
 
         # Default connection adapters.
@@ -407,15 +410,22 @@ class Session(SessionRedirectMixin):
             session's settings.
         :rtype: requests.PreparedRequest
         """
-        cookies = request.cookies or {}
+        cookies = request.cookies
 
         # Bootstrap CookieJar.
-        if not isinstance(cookies, cookielib.CookieJar):
+        if (cookies is not None and
+                not isinstance(cookies, cookielib.CookieJar)):
             cookies = cookiejar_from_dict(cookies)
 
         # Merge with session cookies
-        merged_cookies = merge_cookies(
-            merge_cookies(RequestsCookieJar(), self.cookies), cookies)
+        merged_cookies = None
+        if cookies is not None and self.cookies is not None:
+            merged_cookies = merge_cookies(
+                merge_cookies(RequestsCookieJar(), self.cookies), cookies)
+        elif cookies is not None:
+            merged_cookies = cookies
+        elif self.cookies is not None:
+            merged_cookies = self.cookies
 
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
@@ -434,6 +444,7 @@ class Session(SessionRedirectMixin):
             auth=merge_setting(auth, self.auth),
             cookies=merged_cookies,
             hooks=merge_hooks(request.hooks, self.hooks),
+            discard_cookies=self.cookies is None
         )
         return p
 
@@ -646,13 +657,15 @@ class Session(SessionRedirectMixin):
         r = dispatch_hook('response', hooks, r, **kwargs)
 
         # Persist cookies
-        if r.history:
+        if self.cookies is not None:
+            if r.history:
 
-            # If the hooks create history then we want those cookies too
-            for resp in r.history:
-                extract_cookies_to_jar(self.cookies, resp.request, resp.raw)
+                # If the hooks create history then we want those cookies too
+                for resp in r.history:
+                    extract_cookies_to_jar(
+                        self.cookies, resp.request, resp.raw)
 
-        extract_cookies_to_jar(self.cookies, request, r.raw)
+            extract_cookies_to_jar(self.cookies, request, r.raw)
 
         # Redirect resolving generator.
         gen = self.resolve_redirects(r, request, **kwargs)

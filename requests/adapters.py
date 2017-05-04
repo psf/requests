@@ -277,7 +277,8 @@ class HTTPAdapter(BaseAdapter):
             response.url = req.url
 
         # Add new cookies from the server.
-        extract_cookies_to_jar(response.cookies, req, resp)
+        if not req.discard_cookies:
+            extract_cookies_to_jar(response.cookies, req, resp)
 
         # Give the Response some context.
         response.request = req
