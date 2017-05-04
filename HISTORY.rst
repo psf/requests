@@ -15,6 +15,8 @@ Release History
   resolution on Windows.
 - Added ``win_inet_pton`` as conditional dependency for the ``[socks]`` extra
   on Windows with Python 2.7.
+- Changed the proxy bypass implementation on Windows: the proxy bypass
+  check doesn't use forward and reverse DNS requests anymore
 
 2.13.0 (2017-01-24)
 +++++++++++++++++++
