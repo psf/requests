@@ -19,7 +19,10 @@ Requests: HTTP for Humans
 .. image:: https://codecov.io/github/kennethreitz/requests/coverage.svg?branch=master
     :target: https://codecov.io/github/kennethreitz/requests
     :alt: codecov.io
-
+    
+.. image:: https://img.shields.io/github/contributors/kennethreitz/requests.svg
+    :target: https://github.com/kennethreitz/requests/graphs/contributors
+    
 .. image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg
     :target: https://saythanks.io/to/kennethreitz
 
