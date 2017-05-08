@@ -180,10 +180,8 @@ class SessionRedirectMixin(object):
             # Extract any cookies sent on the response to the cookiejar
             # in the new request. Because we've mutated our copied prepared
             # request, use the old one that we haven't yet touched.
-            prepared_cookies = prepared_request._cookies or cookiejar_from_dict({})
-            extract_cookies_to_jar(prepared_cookies, req, resp.raw)
-            merge_cookies(prepared_cookies,
-                          self.cookies or cookiejar_from_dict({}))
+            extract_cookies_to_jar(prepared_request._cookies, req, resp.raw)
+            merge_cookies(prepared_request._cookies, self.cookies)
             prepared_request.prepare_cookies(prepared_request._cookies)
 
             # Rebuild auth and proxy information.
@@ -417,15 +415,11 @@ class Session(SessionRedirectMixin):
                 not isinstance(cookies, cookielib.CookieJar)):
             cookies = cookiejar_from_dict(cookies)
 
-        # Merge with session cookies
-        merged_cookies = None
-        if cookies is not None and self.cookies is not None:
-            merged_cookies = merge_cookies(
-                merge_cookies(RequestsCookieJar(), self.cookies), cookies)
-        elif cookies is not None:
-            merged_cookies = cookies
-        elif self.cookies is not None:
-            merged_cookies = self.cookies
+        # Merge with session cookies.  Explicitly pass in `None` as the
+        # cookiejar for the innter call to `merge_cookies` to avoid creating
+        # a cookie jar if neither the session nor the request have cookies.
+        merged_cookies = merge_cookies(
+            merge_cookies(None, self.cookies), cookies)
 
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
@@ -657,15 +651,14 @@ class Session(SessionRedirectMixin):
         r = dispatch_hook('response', hooks, r, **kwargs)
 
         # Persist cookies
-        if self.cookies is not None:
-            if r.history:
+        if r.history:
 
-                # If the hooks create history then we want those cookies too
-                for resp in r.history:
-                    extract_cookies_to_jar(
-                        self.cookies, resp.request, resp.raw)
+            # If the hooks create history then we want those cookies too
+            for resp in r.history:
+                extract_cookies_to_jar(
+                    self.cookies, resp.request, resp.raw)
 
-            extract_cookies_to_jar(self.cookies, request, r.raw)
+        extract_cookies_to_jar(self.cookies, request, r.raw)
 
         # Redirect resolving generator.
         gen = self.resolve_redirects(r, request, **kwargs)
