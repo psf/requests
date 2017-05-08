@@ -510,14 +510,26 @@ if hasattr(select, "kqueue"):
 # kqueue == epoll > poll > select. Devpoll not supported. (See above)
 # select() also can't accept a FD > FD_SETSIZE (usually around 1024)
 if 'KqueueSelector' in globals():  # Platform-specific: Mac OS and BSD
-    DefaultSelector = KqueueSelector
-elif 'EpollSelector' in globals():  # Platform-specific: Linux
-    DefaultSelector = EpollSelector
-elif 'PollSelector' in globals():  # Platform-specific: Linux
-    DefaultSelector = PollSelector
-elif 'SelectSelector' in globals():  # Platform-specific: Windows
+    try:
+        select.kqueue()
+        DefaultSelector = KqueueSelector
+    except OSError:
+        pass
+if 'DefaultSelector' not in globals() and 'EpollSelector' in globals():  # Platform-specific: Linux
+    try:
+        select.epoll()
+        DefaultSelector = EpollSelector
+    except OSError:
+        pass
+if 'DefaultSelector' not in globals() and 'PollSelector' in globals():  # Platform-specific: Linux
+    try:
+        select.poll()
+        DefaultSelector = PollSelector
+    except OSError:
+        pass
+if 'DefaultSelector' not in globals() and 'SelectSelector' in globals():  # Platform-specific: Windows
     DefaultSelector = SelectSelector
-else:  # Platform-specific: AppEngine
+if 'DefaultSelector' not in globals():  # Platform-specific: AppEngine
     def no_selector(_):
         raise ValueError("Platform does not have a selector")
     DefaultSelector = no_selector
