@@ -25,6 +25,8 @@ Release History
   on Windows with Python 2.7.
 - Changed the proxy bypass implementation on Windows: the proxy bypass
   check doesn't use forward and reverse DNS requests anymore
+- URLs with schemes that begin with ``http`` but are not ``http`` or ``https``
+  no longer have their host parts forced to lowercase.
 
 **Bugfixes**
 
