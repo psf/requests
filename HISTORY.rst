@@ -45,6 +45,7 @@ Release History
 - Updated bundled urllib3 to v1.21.1.
 - Updated bundled chardet to v3.0.2.
 - Updated bundled idna to v2.5.
+- Updated bundled certifi to 2017.4.17.
 
 2.13.0 (2017-01-24)
 +++++++++++++++++++
