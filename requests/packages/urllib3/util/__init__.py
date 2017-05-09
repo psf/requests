@@ -7,6 +7,7 @@ from .ssl_ import (
     SSLContext,
     HAS_SNI,
     IS_PYOPENSSL,
+    IS_SECURETRANSPORT,
     assert_fingerprint,
     resolve_cert_reqs,
     resolve_ssl_version,
@@ -32,6 +33,7 @@ from .wait import (
 __all__ = (
     'HAS_SNI',
     'IS_PYOPENSSL',
+    'IS_SECURETRANSPORT',
     'SSLContext',
     'Retry',
     'Timeout',

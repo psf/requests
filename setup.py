@@ -44,6 +44,7 @@ packages = [
     'requests.packages.urllib3.util',
     'requests.packages.urllib3.packages.ssl_match_hostname',
     'requests.packages.urllib3.packages.backports',
+    'requests.packages.urllib3.contrib._securetransport',
 ]
 
 requires = []

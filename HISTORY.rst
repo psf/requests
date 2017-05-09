@@ -39,6 +39,10 @@ Release History
 - The dismayed person emoticon (``/o\\``) no longer has a big head. I'm sure
   this is what you were all worrying about most.
 
+**Miscellaneous**
+
+- Updated bundled urllib3 to v1.21.1.
+
 2.13.0 (2017-01-24)
 +++++++++++++++++++
 

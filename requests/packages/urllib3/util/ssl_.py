@@ -12,6 +12,7 @@ from ..exceptions import SSLError, InsecurePlatformWarning, SNIMissingWarning
 SSLContext = None
 HAS_SNI = False
 IS_PYOPENSSL = False
+IS_SECURETRANSPORT = False
 
 # Maps the length of a digest to a possible hash function producing this digest
 HASHFUNC_MAP = {
