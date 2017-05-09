@@ -17,9 +17,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import argparse
 import sys
-from io import open
 
 from chardet import __version__
+from chardet.compat import PY2
 from chardet.universaldetector import UniversalDetector
 
 
@@ -35,9 +35,15 @@ def description_of(lines, name='stdin'):
     """
     u = UniversalDetector()
     for line in lines:
+        line = bytearray(line)
         u.feed(line)
+        # shortcut out of the loop to save reading further - particularly useful if we read a BOM.
+        if u.done:
+            break
     u.close()
     result = u.result
+    if PY2:
+        name = name.decode(sys.getfilesystemencoding(), 'ignore')
     if result['encoding']:
         return '{0}: {1} with confidence {2}'.format(name, result['encoding'],
                                                      result['confidence'])
@@ -46,23 +52,22 @@ def description_of(lines, name='stdin'):
 
 
 def main(argv=None):
-    '''
+    """
     Handles command line arguments and gets things started.
 
     :param argv: List of arguments, as if specified on the command-line.
                  If None, ``sys.argv[1:]`` is used instead.
     :type argv: list of str
-    '''
+    """
     # Get command line arguments
     parser = argparse.ArgumentParser(
         description="Takes one or more file paths and reports their detected \
-                     encodings",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        conflict_handler='resolve')
+                     encodings")
     parser.add_argument('input',
-                        help='File whose encoding we would like to determine.',
+                        help='File whose encoding we would like to determine. \
+                              (default: stdin)',
                         type=argparse.FileType('rb'), nargs='*',
-                        default=[sys.stdin])
+                        default=[sys.stdin if PY2 else sys.stdin.buffer])
     parser.add_argument('--version', action='version',
                         version='%(prog)s {0}'.format(__version__))
     args = parser.parse_args(argv)

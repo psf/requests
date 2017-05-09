@@ -2308,12 +2308,12 @@ class TestPreparingURLs(object):
         'input, expected',
         (
             (
-                b"http+unix://%2Fvar%2Frun%2Fsocket/path",
-                u"http+unix://%2fvar%2frun%2fsocket/path",
+                b"http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path~",
             ),
             (
-                u"http+unix://%2Fvar%2Frun%2Fsocket/path",
-                u"http+unix://%2fvar%2frun%2fsocket/path",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path~",
             ),
             (
                 b"mailto:user@example.org",
@@ -2346,12 +2346,12 @@ class TestPreparingURLs(object):
             (
                 b"http+unix://%2Fvar%2Frun%2Fsocket/path",
                 {"key": "value"},
-                u"http+unix://%2fvar%2frun%2fsocket/path?key=value",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path?key=value",
             ),
             (
                 u"http+unix://%2Fvar%2Frun%2Fsocket/path",
                 {"key": "value"},
-                u"http+unix://%2fvar%2frun%2fsocket/path?key=value",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path?key=value",
             ),
             (
                 b"mailto:user@example.org",

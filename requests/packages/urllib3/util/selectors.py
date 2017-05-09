@@ -8,9 +8,11 @@
 import errno
 import math
 import select
+import socket
+import sys
+import time
 from collections import namedtuple, Mapping
 
-import time
 try:
     monotonic = time.monotonic
 except (AttributeError, ImportError):  # Python 3.3<
@@ -21,6 +23,7 @@ EVENT_WRITE = (1 << 1)
 
 HAS_SELECT = True  # Variable that shows whether the platform has a selector.
 _SYSCALL_SENTINEL = object()  # Sentinel in case a system call returns None.
+_DEFAULT_SELECTOR = None
 
 
 class SelectorError(Exception):
@@ -50,60 +53,75 @@ def _fileobj_to_fd(fileobj):
     return fd
 
 
-def _syscall_wrapper(func, recalc_timeout, *args, **kwargs):
-    """ Wrapper function for syscalls that could fail due to EINTR.
-    All functions should be retried if there is time left in the timeout
-    in accordance with PEP 475. """
-    timeout = kwargs.get("timeout", None)
-    if timeout is None:
-        expires = None
-        recalc_timeout = False
-    else:
-        timeout = float(timeout)
-        if timeout < 0.0:  # Timeout less than 0 treated as no timeout.
-            expires = None
-        else:
-            expires = monotonic() + timeout
-
-    args = list(args)
-    if recalc_timeout and "timeout" not in kwargs:
-        raise ValueError(
-            "Timeout must be in args or kwargs to be recalculated")
-
-    result = _SYSCALL_SENTINEL
-    while result is _SYSCALL_SENTINEL:
+# Determine which function to use to wrap system calls because Python 3.5+
+# already handles the case when system calls are interrupted.
+if sys.version_info >= (3, 5):
+    def _syscall_wrapper(func, _, *args, **kwargs):
+        """ This is the short-circuit version of the below logic
+        because in Python 3.5+ all system calls automatically restart
+        and recalculate their timeouts. """
         try:
-            result = func(*args, **kwargs)
-        # OSError is thrown by select.select
-        # IOError is thrown by select.epoll.poll
-        # select.error is thrown by select.poll.poll
-        # Aren't we thankful for Python 3.x rework for exceptions?
+            return func(*args, **kwargs)
         except (OSError, IOError, select.error) as e:
-            # select.error wasn't a subclass of OSError in the past.
             errcode = None
             if hasattr(e, "errno"):
                 errcode = e.errno
-            elif hasattr(e, "args"):
-                errcode = e.args[0]
-
-            # Also test for the Windows equivalent of EINTR.
-            is_interrupt = (errcode == errno.EINTR or (hasattr(errno, "WSAEINTR") and
-                                                       errcode == errno.WSAEINTR))
-
-            if is_interrupt:
-                if expires is not None:
-                    current_time = monotonic()
-                    if current_time > expires:
-                        raise OSError(errno=errno.ETIMEDOUT)
-                    if recalc_timeout:
-                        if "timeout" in kwargs:
-                            kwargs["timeout"] = expires - current_time
-                continue
-            if errcode:
-                raise SelectorError(errcode)
+            raise SelectorError(errcode)
+else:
+    def _syscall_wrapper(func, recalc_timeout, *args, **kwargs):
+        """ Wrapper function for syscalls that could fail due to EINTR.
+        All functions should be retried if there is time left in the timeout
+        in accordance with PEP 475. """
+        timeout = kwargs.get("timeout", None)
+        if timeout is None:
+            expires = None
+            recalc_timeout = False
+        else:
+            timeout = float(timeout)
+            if timeout < 0.0:  # Timeout less than 0 treated as no timeout.
+                expires = None
             else:
-                raise
-    return result
+                expires = monotonic() + timeout
+
+        args = list(args)
+        if recalc_timeout and "timeout" not in kwargs:
+            raise ValueError(
+                "Timeout must be in args or kwargs to be recalculated")
+
+        result = _SYSCALL_SENTINEL
+        while result is _SYSCALL_SENTINEL:
+            try:
+                result = func(*args, **kwargs)
+            # OSError is thrown by select.select
+            # IOError is thrown by select.epoll.poll
+            # select.error is thrown by select.poll.poll
+            # Aren't we thankful for Python 3.x rework for exceptions?
+            except (OSError, IOError, select.error) as e:
+                # select.error wasn't a subclass of OSError in the past.
+                errcode = None
+                if hasattr(e, "errno"):
+                    errcode = e.errno
+                elif hasattr(e, "args"):
+                    errcode = e.args[0]
+
+                # Also test for the Windows equivalent of EINTR.
+                is_interrupt = (errcode == errno.EINTR or (hasattr(errno, "WSAEINTR") and
+                                                           errcode == errno.WSAEINTR))
+
+                if is_interrupt:
+                    if expires is not None:
+                        current_time = monotonic()
+                        if current_time > expires:
+                            raise OSError(errno=errno.ETIMEDOUT)
+                        if recalc_timeout:
+                            if "timeout" in kwargs:
+                                kwargs["timeout"] = expires - current_time
+                    continue
+                if errcode:
+                    raise SelectorError(errcode)
+                else:
+                    raise
+        return result
 
 
 SelectorKey = namedtuple('SelectorKey', ['fileobj', 'fd', 'events', 'data'])
@@ -191,6 +209,18 @@ class BaseSelector(object):
             key = self._fd_to_key.pop(self._fileobj_lookup(fileobj))
         except KeyError:
             raise KeyError("{0!r} is not registered".format(fileobj))
+
+        # Getting the fileno of a closed socket on Windows errors with EBADF.
+        except socket.error as e:  # Platform-specific: Windows.
+            if e.errno != errno.EBADF:
+                raise
+            else:
+                for key in self._fd_to_key.values():
+                    if key.fileobj is fileobj:
+                        self._fd_to_key.pop(key.fd)
+                        break
+                else:
+                    raise KeyError("{0!r} is not registered".format(fileobj))
         return key
 
     def modify(self, fileobj, events, data=None):
@@ -506,19 +536,46 @@ if hasattr(select, "kqueue"):
             super(KqueueSelector, self).close()
 
 
+if not hasattr(select, 'select'):  # Platform-specific: AppEngine
+    HAS_SELECT = False
+
+
+def _can_allocate(struct):
+    """ Checks that select structs can be allocated by the underlying
+    operating system, not just advertised by the select module. We don't
+    check select() because we'll be hopeful that most platforms that
+    don't have it available will not advertise it. (ie: GAE) """
+    try:
+        # select.poll() objects won't fail until used.
+        if struct == 'poll':
+            p = select.poll()
+            p.poll(0)
+
+        # All others will fail on allocation.
+        else:
+            getattr(select, struct)().close()
+        return True
+    except (OSError, AttributeError) as e:
+        return False
+
+
 # Choose the best implementation, roughly:
 # kqueue == epoll > poll > select. Devpoll not supported. (See above)
 # select() also can't accept a FD > FD_SETSIZE (usually around 1024)
-if 'KqueueSelector' in globals():  # Platform-specific: Mac OS and BSD
-    DefaultSelector = KqueueSelector
-elif 'EpollSelector' in globals():  # Platform-specific: Linux
-    DefaultSelector = EpollSelector
-elif 'PollSelector' in globals():  # Platform-specific: Linux
-    DefaultSelector = PollSelector
-elif 'SelectSelector' in globals():  # Platform-specific: Windows
-    DefaultSelector = SelectSelector
-else:  # Platform-specific: AppEngine
-    def no_selector(_):
-        raise ValueError("Platform does not have a selector")
-    DefaultSelector = no_selector
-    HAS_SELECT = False
+def DefaultSelector():
+    """ This function serves as a first call for DefaultSelector to
+    detect if the select module is being monkey-patched incorrectly
+    by eventlet, greenlet, and preserve proper behavior. """
+    global _DEFAULT_SELECTOR
+    if _DEFAULT_SELECTOR is None:
+        if _can_allocate('kqueue'):
+            _DEFAULT_SELECTOR = KqueueSelector
+        elif _can_allocate('epoll'):
+            _DEFAULT_SELECTOR = EpollSelector
+        elif _can_allocate('poll'):
+            _DEFAULT_SELECTOR = PollSelector
+        elif hasattr(select, 'select'):
+            _DEFAULT_SELECTOR = SelectSelector
+        else:  # Platform-specific: AppEngine
+            raise ValueError('Platform does not have a selector')
+    return _DEFAULT_SELECTOR()

@@ -25,9 +25,9 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-from .constants import eStart, eError, eItsMe
+from .enums import MachineState
 
-HZ_cls = (
+HZ_CLS = (
 1,0,0,0,0,0,0,0,  # 00 - 07
 0,0,0,0,0,0,0,0,  # 08 - 0f
 0,0,0,0,0,0,0,0,  # 10 - 17
@@ -62,24 +62,25 @@ HZ_cls = (
 1,1,1,1,1,1,1,1,  # f8 - ff
 )
 
-HZ_st = (
-eStart,eError,     3,eStart,eStart,eStart,eError,eError,# 00-07
-eError,eError,eError,eError,eItsMe,eItsMe,eItsMe,eItsMe,# 08-0f
-eItsMe,eItsMe,eError,eError,eStart,eStart,     4,eError,# 10-17
-     5,eError,     6,eError,     5,     5,     4,eError,# 18-1f
-     4,eError,     4,     4,     4,eError,     4,eError,# 20-27
-     4,eItsMe,eStart,eStart,eStart,eStart,eStart,eStart,# 28-2f
+HZ_ST = (
+MachineState.START,MachineState.ERROR,     3,MachineState.START,MachineState.START,MachineState.START,MachineState.ERROR,MachineState.ERROR,# 00-07
+MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,# 08-0f
+MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ERROR,MachineState.ERROR,MachineState.START,MachineState.START,     4,MachineState.ERROR,# 10-17
+     5,MachineState.ERROR,     6,MachineState.ERROR,     5,     5,     4,MachineState.ERROR,# 18-1f
+     4,MachineState.ERROR,     4,     4,     4,MachineState.ERROR,     4,MachineState.ERROR,# 20-27
+     4,MachineState.ITS_ME,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,# 28-2f
 )
 
-HZCharLenTable = (0, 0, 0, 0, 0, 0)
+HZ_CHAR_LEN_TABLE = (0, 0, 0, 0, 0, 0)
 
-HZSMModel = {'classTable': HZ_cls,
-             'classFactor': 6,
-             'stateTable': HZ_st,
-             'charLenTable': HZCharLenTable,
-             'name': "HZ-GB-2312"}
+HZ_SM_MODEL = {'class_table': HZ_CLS,
+               'class_factor': 6,
+               'state_table': HZ_ST,
+               'char_len_table': HZ_CHAR_LEN_TABLE,
+               'name': "HZ-GB-2312",
+               'language': 'Chinese'}
 
-ISO2022CN_cls = (
+ISO2022CN_CLS = (
 2,0,0,0,0,0,0,0,  # 00 - 07
 0,0,0,0,0,0,0,0,  # 08 - 0f
 0,0,0,0,0,0,0,0,  # 10 - 17
@@ -114,26 +115,27 @@ ISO2022CN_cls = (
 2,2,2,2,2,2,2,2,  # f8 - ff
 )
 
-ISO2022CN_st = (
-eStart,     3,eError,eStart,eStart,eStart,eStart,eStart,# 00-07
-eStart,eError,eError,eError,eError,eError,eError,eError,# 08-0f
-eError,eError,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,# 10-17
-eItsMe,eItsMe,eItsMe,eError,eError,eError,     4,eError,# 18-1f
-eError,eError,eError,eItsMe,eError,eError,eError,eError,# 20-27
-     5,     6,eError,eError,eError,eError,eError,eError,# 28-2f
-eError,eError,eError,eItsMe,eError,eError,eError,eError,# 30-37
-eError,eError,eError,eError,eError,eItsMe,eError,eStart,# 38-3f
+ISO2022CN_ST = (
+MachineState.START,     3,MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,# 00-07
+MachineState.START,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,# 08-0f
+MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,# 10-17
+MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,     4,MachineState.ERROR,# 18-1f
+MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,# 20-27
+     5,     6,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,# 28-2f
+MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,# 30-37
+MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ERROR,MachineState.START,# 38-3f
 )
 
-ISO2022CNCharLenTable = (0, 0, 0, 0, 0, 0, 0, 0, 0)
+ISO2022CN_CHAR_LEN_TABLE = (0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-ISO2022CNSMModel = {'classTable': ISO2022CN_cls,
-                    'classFactor': 9,
-                    'stateTable': ISO2022CN_st,
-                    'charLenTable': ISO2022CNCharLenTable,
-                    'name': "ISO-2022-CN"}
+ISO2022CN_SM_MODEL = {'class_table': ISO2022CN_CLS,
+                      'class_factor': 9,
+                      'state_table': ISO2022CN_ST,
+                      'char_len_table': ISO2022CN_CHAR_LEN_TABLE,
+                      'name': "ISO-2022-CN",
+                      'language': 'Chinese'}
 
-ISO2022JP_cls = (
+ISO2022JP_CLS = (
 2,0,0,0,0,0,0,0,  # 00 - 07
 0,0,0,0,0,0,2,2,  # 08 - 0f
 0,0,0,0,0,0,0,0,  # 10 - 17
@@ -168,27 +170,28 @@ ISO2022JP_cls = (
 2,2,2,2,2,2,2,2,  # f8 - ff
 )
 
-ISO2022JP_st = (
-eStart,     3,eError,eStart,eStart,eStart,eStart,eStart,# 00-07
-eStart,eStart,eError,eError,eError,eError,eError,eError,# 08-0f
-eError,eError,eError,eError,eItsMe,eItsMe,eItsMe,eItsMe,# 10-17
-eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eError,eError,# 18-1f
-eError,     5,eError,eError,eError,     4,eError,eError,# 20-27
-eError,eError,eError,     6,eItsMe,eError,eItsMe,eError,# 28-2f
-eError,eError,eError,eError,eError,eError,eItsMe,eItsMe,# 30-37
-eError,eError,eError,eItsMe,eError,eError,eError,eError,# 38-3f
-eError,eError,eError,eError,eItsMe,eError,eStart,eStart,# 40-47
+ISO2022JP_ST = (
+MachineState.START,     3,MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,# 00-07
+MachineState.START,MachineState.START,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,# 08-0f
+MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,# 10-17
+MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ERROR,MachineState.ERROR,# 18-1f
+MachineState.ERROR,     5,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,     4,MachineState.ERROR,MachineState.ERROR,# 20-27
+MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,     6,MachineState.ITS_ME,MachineState.ERROR,MachineState.ITS_ME,MachineState.ERROR,# 28-2f
+MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ITS_ME,# 30-37
+MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,# 38-3f
+MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ERROR,MachineState.START,MachineState.START,# 40-47
 )
 
-ISO2022JPCharLenTable = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+ISO2022JP_CHAR_LEN_TABLE = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-ISO2022JPSMModel = {'classTable': ISO2022JP_cls,
-                    'classFactor': 10,
-                    'stateTable': ISO2022JP_st,
-                    'charLenTable': ISO2022JPCharLenTable,
-                    'name': "ISO-2022-JP"}
+ISO2022JP_SM_MODEL = {'class_table': ISO2022JP_CLS,
+                      'class_factor': 10,
+                      'state_table': ISO2022JP_ST,
+                      'char_len_table': ISO2022JP_CHAR_LEN_TABLE,
+                      'name': "ISO-2022-JP",
+                      'language': 'Japanese'}
 
-ISO2022KR_cls = (
+ISO2022KR_CLS = (
 2,0,0,0,0,0,0,0,  # 00 - 07
 0,0,0,0,0,0,0,0,  # 08 - 0f
 0,0,0,0,0,0,0,0,  # 10 - 17
@@ -223,20 +226,21 @@ ISO2022KR_cls = (
 2,2,2,2,2,2,2,2,  # f8 - ff
 )
 
-ISO2022KR_st = (
-eStart,     3,eError,eStart,eStart,eStart,eError,eError,# 00-07
-eError,eError,eError,eError,eItsMe,eItsMe,eItsMe,eItsMe,# 08-0f
-eItsMe,eItsMe,eError,eError,eError,     4,eError,eError,# 10-17
-eError,eError,eError,eError,     5,eError,eError,eError,# 18-1f
-eError,eError,eError,eItsMe,eStart,eStart,eStart,eStart,# 20-27
+ISO2022KR_ST = (
+MachineState.START,     3,MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START,MachineState.ERROR,MachineState.ERROR,# 00-07
+MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,# 08-0f
+MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,     4,MachineState.ERROR,MachineState.ERROR,# 10-17
+MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,     5,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,# 18-1f
+MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.START,MachineState.START,MachineState.START,MachineState.START,# 20-27
 )
 
-ISO2022KRCharLenTable = (0, 0, 0, 0, 0, 0)
+ISO2022KR_CHAR_LEN_TABLE = (0, 0, 0, 0, 0, 0)
 
-ISO2022KRSMModel = {'classTable': ISO2022KR_cls,
-                    'classFactor': 6,
-                    'stateTable': ISO2022KR_st,
-                    'charLenTable': ISO2022KRCharLenTable,
-                    'name': "ISO-2022-KR"}
+ISO2022KR_SM_MODEL = {'class_table': ISO2022KR_CLS,
+                      'class_factor': 6,
+                      'state_table': ISO2022KR_ST,
+                      'char_len_table': ISO2022KR_CHAR_LEN_TABLE,
+                      'name': "ISO-2022-KR",
+                      'language': 'Korean'}
 
-# flake8: noqa
+

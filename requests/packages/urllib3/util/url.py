@@ -6,6 +6,10 @@ from ..exceptions import LocationParseError
 
 url_attrs = ['scheme', 'auth', 'host', 'port', 'path', 'query', 'fragment']
 
+# We only want to normalize urls with an HTTP(S) scheme.
+# urllib3 infers URLs without a scheme (None) to be http.
+NORMALIZABLE_SCHEMES = ('http', 'https', None)
+
 
 class Url(namedtuple('Url', url_attrs)):
     """
@@ -21,7 +25,7 @@ class Url(namedtuple('Url', url_attrs)):
             path = '/' + path
         if scheme:
             scheme = scheme.lower()
-        if host:
+        if host and scheme in NORMALIZABLE_SCHEMES:
             host = host.lower()
         return super(Url, cls).__new__(cls, scheme, auth, host, port, path,
                                        query, fragment)

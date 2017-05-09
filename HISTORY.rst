@@ -3,9 +3,17 @@
 Release History
 ---------------
 
-**Unreleased**
-+++++++++++++++++++
+2.14.0 (XXXX)
++++++++++++++
 
+**Improvements**
+
+- It is now possible to pass ``no_proxy`` as a key to the ``proxies``
+  dictionary to provide handling similar to the ``NO_PROXY`` environment
+  variable.
+- When users provide invalid paths to certificate bundle files or directories
+  Requests now raises ``IOError``, rather than failing at the time of the HTTPS
+  request with a fairly inscrutable certificate validation error.
 - The behavior of ``SessionRedirectMixin`` was slightly altered.
   ``resolve_redirects`` will now detect a redirect by calling
   ``get_redirect_target(response)`` instead of directly
@@ -17,6 +25,29 @@ Release History
   on Windows with Python 2.7.
 - Changed the proxy bypass implementation on Windows: the proxy bypass
   check doesn't use forward and reverse DNS requests anymore
+- URLs with schemes that begin with ``http`` but are not ``http`` or ``https``
+  no longer have their host parts forced to lowercase.
+
+**Bugfixes**
+
+- Much improved handling of non-ASCII ``Location`` header values in redirects.
+  Fewer ``UnicodeDecodeError``s are encountered on Python 2, and Python 3 now
+  correctly understands that Latin-1 is unlikely to be the correct encoding.
+- If an attempt to ``seek`` file to find out its length fails, we now
+  appropriately handle that by aborting our content-length calculations.
+- Restricted ``HTTPDigestAuth`` to only respond to auth challenges made on 4XX
+  responses, rather than to all auth challenges.
+- Fixed some code that was firing ``DeprecationWarning`` on Python 3.6.
+- The dismayed person emoticon (``/o\\``) no longer has a big head. I'm sure
+  this is what you were all worrying about most.
+
+
+**Miscellaneous**
+
+- Updated bundled urllib3 to v1.21.1.
+- Updated bundled chardet to v3.0.2.
+- Updated bundled idna to v2.5.
+- Updated bundled certifi to 2017.4.17.
 
 2.13.0 (2017-01-24)
 +++++++++++++++++++
