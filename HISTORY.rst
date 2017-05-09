@@ -3,8 +3,16 @@
 Release History
 ---------------
 
-2.14.0 (XXXX)
-+++++++++++++
+2.14.1 (2017-05-09)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Changed the dependency markers to widen compatibility with older pip
+  releases.
+
+2.14.0 (2017-05-09)
++++++++++++++++++++
 
 **Improvements**
 
