@@ -35,13 +35,15 @@ Release History
   appropriately handle that by aborting our content-length calculations.
 - Restricted ``HTTPDigestAuth`` to only respond to auth challenges made on 4XX
   responses, rather than to all auth challenges.
-- Fixed some code that was firing ``DeprecationWarning``s on Python 3.6.
+- Fixed some code that was firing ``DeprecationWarning`` on Python 3.6.
 - The dismayed person emoticon (``/o\\``) no longer has a big head. I'm sure
   this is what you were all worrying about most.
+
 
 **Miscellaneous**
 
 - Updated bundled urllib3 to v1.21.1.
+- Updated bundled chardet to v3.0.2.
 
 2.13.0 (2017-01-24)
 +++++++++++++++++++

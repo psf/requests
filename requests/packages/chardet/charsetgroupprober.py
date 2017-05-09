@@ -1,11 +1,11 @@
 ######################## BEGIN LICENSE BLOCK ########################
 # The Original Code is Mozilla Communicator client code.
-# 
+#
 # The Initial Developer of the Original Code is
 # Netscape Communications Corporation.
 # Portions created by the Initial Developer are Copyright (C) 1998
 # the Initial Developer. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   Mark Pilgrim - port to Python
 #
@@ -13,94 +13,94 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-from . import constants
-import sys
+from .enums import ProbingState
 from .charsetprober import CharSetProber
 
 
 class CharSetGroupProber(CharSetProber):
-    def __init__(self):
-        CharSetProber.__init__(self)
-        self._mActiveNum = 0
-        self._mProbers = []
-        self._mBestGuessProber = None
+    def __init__(self, lang_filter=None):
+        super(CharSetGroupProber, self).__init__(lang_filter=lang_filter)
+        self._active_num = 0
+        self.probers = []
+        self._best_guess_prober = None
 
     def reset(self):
-        CharSetProber.reset(self)
-        self._mActiveNum = 0
-        for prober in self._mProbers:
+        super(CharSetGroupProber, self).reset()
+        self._active_num = 0
+        for prober in self.probers:
             if prober:
                 prober.reset()
                 prober.active = True
-                self._mActiveNum += 1
-        self._mBestGuessProber = None
+                self._active_num += 1
+        self._best_guess_prober = None
 
-    def get_charset_name(self):
-        if not self._mBestGuessProber:
+    @property
+    def charset_name(self):
+        if not self._best_guess_prober:
             self.get_confidence()
-            if not self._mBestGuessProber:
+            if not self._best_guess_prober:
                 return None
-#                self._mBestGuessProber = self._mProbers[0]
-        return self._mBestGuessProber.get_charset_name()
+        return self._best_guess_prober.charset_name
 
-    def feed(self, aBuf):
-        for prober in self._mProbers:
+    @property
+    def language(self):
+        if not self._best_guess_prober:
+            self.get_confidence()
+            if not self._best_guess_prober:
+                return None
+        return self._best_guess_prober.language
+
+    def feed(self, byte_str):
+        for prober in self.probers:
             if not prober:
                 continue
             if not prober.active:
                 continue
-            st = prober.feed(aBuf)
-            if not st:
+            state = prober.feed(byte_str)
+            if not state:
                 continue
-            if st == constants.eFoundIt:
-                self._mBestGuessProber = prober
-                return self.get_state()
-            elif st == constants.eNotMe:
+            if state == ProbingState.FOUND_IT:
+                self._best_guess_prober = prober
+                return self.state
+            elif state == ProbingState.NOT_ME:
                 prober.active = False
-                self._mActiveNum -= 1
-                if self._mActiveNum <= 0:
-                    self._mState = constants.eNotMe
-                    return self.get_state()
-        return self.get_state()
+                self._active_num -= 1
+                if self._active_num <= 0:
+                    self._state = ProbingState.NOT_ME
+                    return self.state
+        return self.state
 
     def get_confidence(self):
-        st = self.get_state()
-        if st == constants.eFoundIt:
+        state = self.state
+        if state == ProbingState.FOUND_IT:
             return 0.99
-        elif st == constants.eNotMe:
+        elif state == ProbingState.NOT_ME:
             return 0.01
-        bestConf = 0.0
-        self._mBestGuessProber = None
-        for prober in self._mProbers:
+        best_conf = 0.0
+        self._best_guess_prober = None
+        for prober in self.probers:
             if not prober:
                 continue
             if not prober.active:
-                if constants._debug:
-                    sys.stderr.write(prober.get_charset_name()
-                                     + ' not active\n')
+                self.logger.debug('%s not active', prober.charset_name)
                 continue
-            cf = prober.get_confidence()
-            if constants._debug:
-                sys.stderr.write('%s confidence = %s\n' %
-                                 (prober.get_charset_name(), cf))
-            if bestConf < cf:
-                bestConf = cf
-                self._mBestGuessProber = prober
-        if not self._mBestGuessProber:
+            conf = prober.get_confidence()
+            self.logger.debug('%s %s confidence = %s', prober.charset_name, prober.language, conf)
+            if best_conf < conf:
+                best_conf = conf
+                self._best_guess_prober = prober
+        if not self._best_guess_prober:
             return 0.0
-        return bestConf
-#        else:
-#            self._mBestGuessProber = self._mProbers[0]
-#            return self._mBestGuessProber.get_confidence()
+        return best_conf

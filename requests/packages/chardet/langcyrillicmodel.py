@@ -27,7 +27,7 @@
 
 # KOI8-R language model
 # Character Mapping Table:
-KOI8R_CharToOrderMap = (
+KOI8R_char_to_order_map = (
 255,255,255,255,255,255,255,255,255,255,254,255,255,254,255,255,  # 00
 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,  # 10
 253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,  # 20
@@ -46,7 +46,7 @@ KOI8R_CharToOrderMap = (
  35, 43, 45, 32, 40, 52, 56, 33, 61, 62, 51, 57, 47, 63, 50, 70,  # f0
 )
 
-win1251_CharToOrderMap = (
+win1251_char_to_order_map = (
 255,255,255,255,255,255,255,255,255,255,254,255,255,254,255,255,  # 00
 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,  # 10
 253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,  # 20
@@ -65,7 +65,7 @@ win1251_CharToOrderMap = (
   9,  7,  6, 14, 39, 26, 28, 22, 25, 29, 54, 18, 17, 30, 27, 16,
 )
 
-latin5_CharToOrderMap = (
+latin5_char_to_order_map = (
 255,255,255,255,255,255,255,255,255,255,254,255,255,254,255,255,  # 00
 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,  # 10
 253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,  # 20
@@ -84,7 +84,7 @@ latin5_CharToOrderMap = (
 239, 68,240,241,242,243,244,245,246,247,248,249,250,251,252,255,
 )
 
-macCyrillic_CharToOrderMap = (
+macCyrillic_char_to_order_map = (
 255,255,255,255,255,255,255,255,255,255,254,255,255,254,255,255,  # 00
 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,  # 10
 253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,  # 20
@@ -103,7 +103,7 @@ macCyrillic_CharToOrderMap = (
   9,  7,  6, 14, 39, 26, 28, 22, 25, 29, 54, 18, 17, 30, 27,255,
 )
 
-IBM855_CharToOrderMap = (
+IBM855_char_to_order_map = (
 255,255,255,255,255,255,255,255,255,255,254,255,255,254,255,255,  # 00
 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,  # 10
 253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,  # 20
@@ -122,7 +122,7 @@ IBM855_CharToOrderMap = (
 250, 18, 62, 20, 51, 25, 57, 30, 47, 29, 63, 22, 50,251,252,255,
 )
 
-IBM866_CharToOrderMap = (
+IBM866_char_to_order_map = (
 255,255,255,255,255,255,255,255,255,255,254,255,255,254,255,255,  # 00
 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,  # 10
 253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,  # 20
@@ -279,51 +279,55 @@ RussianLangModel = (
 )
 
 Koi8rModel = {
-  'charToOrderMap': KOI8R_CharToOrderMap,
-  'precedenceMatrix': RussianLangModel,
-  'mTypicalPositiveRatio': 0.976601,
-  'keepEnglishLetter': False,
-  'charsetName': "KOI8-R"
+  'char_to_order_map': KOI8R_char_to_order_map,
+  'precedence_matrix': RussianLangModel,
+  'typical_positive_ratio': 0.976601,
+  'keep_english_letter': False,
+  'charset_name': "KOI8-R",
+  'language': 'Russian',
 }
 
 Win1251CyrillicModel = {
-  'charToOrderMap': win1251_CharToOrderMap,
-  'precedenceMatrix': RussianLangModel,
-  'mTypicalPositiveRatio': 0.976601,
-  'keepEnglishLetter': False,
-  'charsetName': "windows-1251"
+  'char_to_order_map': win1251_char_to_order_map,
+  'precedence_matrix': RussianLangModel,
+  'typical_positive_ratio': 0.976601,
+  'keep_english_letter': False,
+  'charset_name': "windows-1251",
+  'language': 'Russian',
 }
 
 Latin5CyrillicModel = {
-  'charToOrderMap': latin5_CharToOrderMap,
-  'precedenceMatrix': RussianLangModel,
-  'mTypicalPositiveRatio': 0.976601,
-  'keepEnglishLetter': False,
-  'charsetName': "ISO-8859-5"
+  'char_to_order_map': latin5_char_to_order_map,
+  'precedence_matrix': RussianLangModel,
+  'typical_positive_ratio': 0.976601,
+  'keep_english_letter': False,
+  'charset_name': "ISO-8859-5",
+  'language': 'Russian',
 }
 
 MacCyrillicModel = {
-  'charToOrderMap': macCyrillic_CharToOrderMap,
-  'precedenceMatrix': RussianLangModel,
-  'mTypicalPositiveRatio': 0.976601,
-  'keepEnglishLetter': False,
-  'charsetName': "MacCyrillic"
-};
+  'char_to_order_map': macCyrillic_char_to_order_map,
+  'precedence_matrix': RussianLangModel,
+  'typical_positive_ratio': 0.976601,
+  'keep_english_letter': False,
+  'charset_name': "MacCyrillic",
+  'language': 'Russian',
+}
 
 Ibm866Model = {
-  'charToOrderMap': IBM866_CharToOrderMap,
-  'precedenceMatrix': RussianLangModel,
-  'mTypicalPositiveRatio': 0.976601,
-  'keepEnglishLetter': False,
-  'charsetName': "IBM866"
+  'char_to_order_map': IBM866_char_to_order_map,
+  'precedence_matrix': RussianLangModel,
+  'typical_positive_ratio': 0.976601,
+  'keep_english_letter': False,
+  'charset_name': "IBM866",
+  'language': 'Russian',
 }
 
 Ibm855Model = {
-  'charToOrderMap': IBM855_CharToOrderMap,
-  'precedenceMatrix': RussianLangModel,
-  'mTypicalPositiveRatio': 0.976601,
-  'keepEnglishLetter': False,
-  'charsetName': "IBM855"
+  'char_to_order_map': IBM855_char_to_order_map,
+  'precedence_matrix': RussianLangModel,
+  'typical_positive_ratio': 0.976601,
+  'keep_english_letter': False,
+  'charset_name': "IBM855",
+  'language': 'Russian',
 }
-
-# flake8: noqa

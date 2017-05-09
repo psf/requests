@@ -210,20 +210,19 @@ BulgarianLangModel = (
 )
 
 Latin5BulgarianModel = {
-  'charToOrderMap': Latin5_BulgarianCharToOrderMap,
-  'precedenceMatrix': BulgarianLangModel,
-  'mTypicalPositiveRatio': 0.969392,
-  'keepEnglishLetter': False,
-  'charsetName': "ISO-8859-5"
+  'char_to_order_map': Latin5_BulgarianCharToOrderMap,
+  'precedence_matrix': BulgarianLangModel,
+  'typical_positive_ratio': 0.969392,
+  'keep_english_letter': False,
+  'charset_name': "ISO-8859-5",
+  'language': 'Bulgairan',
 }
 
 Win1251BulgarianModel = {
-  'charToOrderMap': win1251BulgarianCharToOrderMap,
-  'precedenceMatrix': BulgarianLangModel,
-  'mTypicalPositiveRatio': 0.969392,
-  'keepEnglishLetter': False,
-  'charsetName': "windows-1251"
+  'char_to_order_map': win1251BulgarianCharToOrderMap,
+  'precedence_matrix': BulgarianLangModel,
+  'typical_positive_ratio': 0.969392,
+  'keep_english_letter': False,
+  'charset_name': "windows-1251",
+  'language': 'Bulgarian',
 }
-
-
-# flake8: noqa
