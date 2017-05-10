@@ -3,6 +3,14 @@
 Release History
 ---------------
 
+2.14.2 (2017-05-10)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Changed a less-than to an equal-to and an or in the dependency markers to
+  widen compatibility with older setuptools releases.
+
 2.14.1 (2017-05-09)
 +++++++++++++++++++
 
