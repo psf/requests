@@ -293,18 +293,15 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.hooks = default_hooks()
         #: integer denoting starting position of a readable file-like body.
         self._body_position = None
-        #: boolean denoting whether or not to discard cookies from the response.
-        self.discard_cookies = False
 
     def prepare(self, method=None, url=None, headers=None, files=None,
-        data=None, params=None, auth=None, cookies=None, hooks=None, json=None,
-        discard_cookies=False):
+        data=None, params=None, auth=None, cookies=None, hooks=None, json=None):
         """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)
         self.prepare_url(url, params)
         self.prepare_headers(headers)
-        self.prepare_cookies(cookies, discard_cookies)
+        self.prepare_cookies(cookies)
         self.prepare_body(data, files, json)
         self.prepare_auth(auth, url)
 
@@ -326,7 +323,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         p.body = self.body
         p.hooks = self.hooks
         p._body_position = self._body_position
-        p.discard_cookies = self.discard_cookies
         return p
 
     def prepare_method(self, method):
@@ -552,7 +548,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             # Recompute Content-Length
             self.prepare_content_length(self.body)
 
-    def prepare_cookies(self, cookies, discard_cookies=False):
+    def prepare_cookies(self, cookies):
         """Prepares the given HTTP cookie data.
 
         This function eventually generates a ``Cookie`` header from the
@@ -564,7 +560,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         to ``prepare_cookies`` will have no actual effect, unless the "Cookie"
         header is removed beforehand.
         """
-        self.discard_cookies = discard_cookies
         if cookies is None:
             return
         if isinstance(cookies, cookielib.CookieJar):

@@ -123,8 +123,10 @@ def extract_cookies_to_jar(jar, request, response):
     :param request: our own requests.Request object
     :param response: urllib3.HTTPResponse object
     """
-    if jar is None or not (hasattr(response, '_original_response') and
-                           response._original_response):
+    if jar is None:
+        return
+    if not (hasattr(response, '_original_response') and
+            response._original_response):
         return
     # the _original_response field is the wrapped httplib.HTTPResponse object,
     req = MockRequest(request)
@@ -536,7 +538,6 @@ def merge_cookies(cookiejar, cookies):
     if isinstance(cookies, dict):
         cookiejar = cookiejar_from_dict(
             cookies, cookiejar=cookiejar, overwrite=False)
-
     elif isinstance(cookies, cookielib.CookieJar):
         try:
             cookiejar.update(cookies)

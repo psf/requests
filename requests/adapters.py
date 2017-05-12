@@ -248,7 +248,7 @@ class HTTPAdapter(BaseAdapter):
                 raise IOError("Could not find the TLS key file, "
                               "invalid path: {0}".format(conn.key_file))
 
-    def build_response(self, req, resp):
+    def build_response(self, req, resp, discard_cookies=False):
         """Builds a :class:`Response <requests.Response>` object from a urllib3
         response. This should not be called from user code, and is only exposed
         for use when subclassing the
@@ -277,7 +277,7 @@ class HTTPAdapter(BaseAdapter):
             response.url = req.url
 
         # Add new cookies from the server.
-        if not req.discard_cookies:
+        if not discard_cookies:
             extract_cookies_to_jar(response.cookies, req, resp)
 
         # Give the Response some context.
@@ -384,7 +384,8 @@ class HTTPAdapter(BaseAdapter):
 
         return headers
 
-    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
+    def send(self, request, stream=False, timeout=None, verify=True, cert=None,
+             proxies=None, discard_cookies=False):
         """Sends PreparedRequest object. Returns Response object.
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
@@ -516,4 +517,4 @@ class HTTPAdapter(BaseAdapter):
             else:
                 raise
 
-        return self.build_response(request, resp)
+        return self.build_response(request, resp, discard_cookies)

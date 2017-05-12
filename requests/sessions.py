@@ -438,7 +438,6 @@ class Session(SessionRedirectMixin):
             auth=merge_setting(auth, self.auth),
             cookies=merged_cookies,
             hooks=merge_hooks(request.hooks, self.hooks),
-            discard_cookies=self.cookies is None
         )
         return p
 
@@ -613,6 +612,9 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault('verify', self.verify)
         kwargs.setdefault('cert', self.cert)
         kwargs.setdefault('proxies', self.proxies)
+        # If the cookie jar on the session is None, skip
+        # parsing cookies on the response.
+        kwargs.setdefault('discard_cookies', self.cookies is None)
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
