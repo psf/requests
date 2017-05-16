@@ -1,1 +1,3 @@
 include README.rst LICENSE NOTICE HISTORY.rst requests/cacert.pem
+graft tests
+global-exclude *.py[co]
