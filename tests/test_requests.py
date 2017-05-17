@@ -786,6 +786,10 @@ class TestRequests:
             requests.get(httpbin_secure(), cert=('.', INVALID_PATH))
         assert str(e.value) == 'Could not find the TLS key file, invalid path: {0}'.format(INVALID_PATH)
 
+    def test_http_with_certificate(self, httpbin):
+        r = requests.get(httpbin(), cert='.')
+        assert r.status_code == 200
+
     def test_https_warnings(self, httpbin_secure, httpbin_ca_bundle):
         """warnings are emitted with requests.get"""
         if HAS_MODERN_SSL or HAS_PYOPENSSL:

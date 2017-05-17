@@ -209,44 +209,44 @@ class HTTPAdapter(BaseAdapter):
             to a CA bundle to use
         :param cert: The SSL certificate to verify.
         """
-        if url.lower().startswith('https') and verify:
+        if url.lower().startswith('https'):
+            if verify:
+                cert_loc = None
 
-            cert_loc = None
+                # Allow self-specified cert location.
+                if verify is not True:
+                    cert_loc = verify
 
-            # Allow self-specified cert location.
-            if verify is not True:
-                cert_loc = verify
+                if not cert_loc:
+                    cert_loc = DEFAULT_CA_BUNDLE_PATH
 
-            if not cert_loc:
-                cert_loc = DEFAULT_CA_BUNDLE_PATH
+                if not cert_loc or not os.path.exists(cert_loc):
+                    raise IOError("Could not find a suitable TLS CA certificate bundle, "
+                                  "invalid path: {0}".format(cert_loc))
 
-            if not cert_loc or not os.path.exists(cert_loc):
-                raise IOError("Could not find a suitable TLS CA certificate bundle, "
-                              "invalid path: {0}".format(cert_loc))
+                conn.cert_reqs = 'CERT_REQUIRED'
 
-            conn.cert_reqs = 'CERT_REQUIRED'
-
-            if not os.path.isdir(cert_loc):
-                conn.ca_certs = cert_loc
+                if not os.path.isdir(cert_loc):
+                    conn.ca_certs = cert_loc
+                else:
+                    conn.ca_cert_dir = cert_loc
             else:
-                conn.ca_cert_dir = cert_loc
-        else:
-            conn.cert_reqs = 'CERT_NONE'
-            conn.ca_certs = None
-            conn.ca_cert_dir = None
+                conn.cert_reqs = 'CERT_NONE'
+                conn.ca_certs = None
+                conn.ca_cert_dir = None
 
-        if cert:
-            if not isinstance(cert, basestring):
-                conn.cert_file = cert[0]
-                conn.key_file = cert[1]
-            else:
-                conn.cert_file = cert
-            if conn.cert_file and not os.path.exists(conn.cert_file):
-                raise IOError("Could not find the TLS certificate file, "
-                              "invalid path: {0}".format(conn.cert_file))
-            if conn.key_file and not os.path.exists(conn.key_file):
-                raise IOError("Could not find the TLS key file, "
-                              "invalid path: {0}".format(conn.key_file))
+            if cert:
+                if not isinstance(cert, basestring):
+                    conn.cert_file = cert[0]
+                    conn.key_file = cert[1]
+                else:
+                    conn.cert_file = cert
+                if conn.cert_file and not os.path.exists(conn.cert_file):
+                    raise IOError("Could not find the TLS certificate file, "
+                                  "invalid path: {0}".format(conn.cert_file))
+                if conn.key_file and not os.path.exists(conn.key_file):
+                    raise IOError("Could not find the TLS key file, "
+                                  "invalid path: {0}".format(conn.key_file))
 
     def build_response(self, req, resp):
         """Builds a :class:`Response <requests.Response>` object from a urllib3
