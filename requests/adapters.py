@@ -241,6 +241,7 @@ class HTTPAdapter(BaseAdapter):
                 conn.key_file = cert[1]
             else:
                 conn.cert_file = cert
+                conn.key_file = None
             if conn.cert_file and not os.path.exists(conn.cert_file):
                 raise IOError("Could not find the TLS certificate file, "
                               "invalid path: {0}".format(conn.cert_file))
