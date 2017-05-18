@@ -15,7 +15,7 @@ install: "make"
 # command to run tests
 script:
   - |
-    [[ "$TRAVIS_PYTHON_VERSION" != "2.6" ]] && make test-readme
+    if [[ "$TRAVIS_PYTHON_VERSION" != "2.6" ]] ; then make test-readme; fi
   - make coverage
 after_success:
   - pipenv run codecov
