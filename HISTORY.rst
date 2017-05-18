@@ -47,7 +47,7 @@ Release History
 **Bugfixes**
 
 - Much improved handling of non-ASCII ``Location`` header values in redirects.
-  Fewer ``UnicodeDecodeError``s are encountered on Python 2, and Python 3 now
+  Fewer ``UnicodeDecodeErrors`` are encountered on Python 2, and Python 3 now
   correctly understands that Latin-1 is unlikely to be the correct encoding.
 - If an attempt to ``seek`` file to find out its length fails, we now
   appropriately handle that by aborting our content-length calculations.

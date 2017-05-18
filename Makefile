@@ -10,6 +10,9 @@ test:
 	# the -k flag, like "py.test -k test_path_is_not_double_encoded"
 	pipenv run py.test tests
 
+test-readme:
+	pipenv run python setup.py check -r -s
+
 coverage:
 	pipenv run py.test --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=requests tests
 
