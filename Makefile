@@ -2,7 +2,6 @@
 
 init:
 	pip install pipenv
-	pipenv lock
 	pipenv install --dev
 	pipenv run pip install -e .[socks]
 
