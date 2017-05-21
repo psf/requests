@@ -23,7 +23,7 @@ from .packages.urllib3.util.retry import Retry
 from .compat import urlparse, basestring
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     prepend_scheme_if_needed, get_auth_from_url, urldefragauth,
-                    select_proxy, to_native_string)
+                    select_proxy)
 from .structures import CaseInsensitiveDict
 from .packages.urllib3.exceptions import ClosedPoolError
 from .packages.urllib3.exceptions import ConnectTimeoutError
@@ -68,7 +68,9 @@ class BaseAdapter(object):
             data before giving up, as a float, or a :ref:`(connect timeout,
             read timeout) <timeouts>` tuple.
         :type timeout: float or tuple
-        :param verify: (optional) Whether to verify SSL certificates.
+        :param verify: (optional) Either a boolean, in which case it controls whether we verify
+            the server's TLS certificate, or a string, in which case it must be a path
+            to a CA bundle to use
         :param cert: (optional) Any user-provided SSL certificate to be trusted.
         :param proxies: (optional) The proxies dictionary to apply to the request.
         """
@@ -226,8 +228,9 @@ class HTTPAdapter(BaseAdapter):
             if not cert_loc:
                 cert_loc = DEFAULT_CA_BUNDLE_PATH
 
-            if not cert_loc:
-                raise Exception("Could not find a suitable SSL CA certificate bundle.")
+            if not cert_loc or not os.path.exists(cert_loc):
+                raise IOError("Could not find a suitable TLS CA certificate bundle, "
+                              "invalid path: {0}".format(cert_loc))
 
             self.poolmanager.connection_pool_kw['cert_reqs'] = 'CERT_REQUIRED'
 
@@ -248,6 +251,16 @@ class HTTPAdapter(BaseAdapter):
                 self.poolmanager.connection_pool_kw['key_file'] = cert[1]
             else:
                 self.poolmanager.connection_pool_kw['cert_file'] = cert
+                self.poolmanager.connection_pool_kw['key_file'] = None
+
+            cert_file = self.poolmanager.connection_pool_kw['cert_file']
+            key_file = self.poolmanager.connection_pool_kw['key_file']
+            if cert_file and not os.path.exists(cert_file):
+                raise IOError("Could not find the TLS certificate file, "
+                              "invalid path: {0}".format(cert_file))
+            if key_file and not os.path.exists(key_file):
+                raise IOError("Could not find the TLS key file, "
+                              "invalid path: {0}".format(key_file))
 
     def build_response(self, req, resp):
         """Builds a :class:`Response <requests.Response>` object from a urllib3
@@ -396,8 +409,10 @@ class HTTPAdapter(BaseAdapter):
         :param timeout: (optional) How long to wait for the server to send
             data before giving up, as a float, or a :ref:`(connect timeout,
             read timeout) <timeouts>` tuple.
-        :type timeout: float or tuple
-        :param verify: (optional) Whether to verify SSL certificates.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
         :param cert: (optional) Any user-provided SSL certificate to be trusted.
         :param proxies: (optional) The proxies dictionary to apply to the request.
         :rtype: requests.Response
@@ -419,6 +434,8 @@ class HTTPAdapter(BaseAdapter):
                        "timeout tuple, or a single float to set "
                        "both timeouts to the same value".format(timeout))
                 raise ValueError(err)
+        elif isinstance(timeout, TimeoutSauce):
+            pass
         else:
             timeout = TimeoutSauce(connect=timeout, read=timeout)
 

@@ -329,7 +329,11 @@ class VerifiedHTTPSConnection(HTTPSConnection):
             assert_fingerprint(self.sock.getpeercert(binary_form=True),
                                self.assert_fingerprint)
         elif context.verify_mode != ssl.CERT_NONE \
+                and not getattr(context, 'check_hostname', False) \
                 and self.assert_hostname is not False:
+            # While urllib3 attempts to always turn off hostname matching from
+            # the TLS library, this cannot always be done. So we check whether
+            # the TLS Library still thinks it's matching hostnames.
             cert = self.sock.getpeercert()
             if not cert.get('subjectAltName', ()):
                 warnings.warn((

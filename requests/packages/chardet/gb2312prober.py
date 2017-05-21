@@ -13,12 +13,12 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -28,14 +28,19 @@
 from .mbcharsetprober import MultiByteCharSetProber
 from .codingstatemachine import CodingStateMachine
 from .chardistribution import GB2312DistributionAnalysis
-from .mbcssm import GB2312SMModel
+from .mbcssm import GB2312_SM_MODEL
 
 class GB2312Prober(MultiByteCharSetProber):
     def __init__(self):
-        MultiByteCharSetProber.__init__(self)
-        self._mCodingSM = CodingStateMachine(GB2312SMModel)
-        self._mDistributionAnalyzer = GB2312DistributionAnalysis()
+        super(GB2312Prober, self).__init__()
+        self.coding_sm = CodingStateMachine(GB2312_SM_MODEL)
+        self.distribution_analyzer = GB2312DistributionAnalysis()
         self.reset()
 
-    def get_charset_name(self):
+    @property
+    def charset_name(self):
         return "GB2312"
+
+    @property
+    def language(self):
+        return "Chinese"

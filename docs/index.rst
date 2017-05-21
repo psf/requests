@@ -31,7 +31,7 @@ Release v\ |version|. (:ref:`Installation <install>`)
 **Requests** is the only *Non-GMO* HTTP library for Python, safe for human
 consumption.
 
-*Warning: Recreational use of other HTTP libraries may result in dangerous side-effects,
+*Warning: Recreational use of the Python standard library for HTTP may result in dangerous side-effects,
 including: security vulnerabilities, verbose code, reinventing the wheel,
 constantly reading documentation, depression, headaches, or even death.*
 
@@ -63,26 +63,26 @@ which is embedded within Requests.
 User Testimonials
 -----------------
 
-The NSA, Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
+Reddit, The NSA, Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
 PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
 Post, Twitter, SoundCloud, Kippt, Sony, and Federal U.S.
 Institutions that prefer to be unnamed claim to use Requests internally.
 
-**Armin Ronacher**
-    Requests is the perfect example how beautiful an API can be with the
-    right level of abstraction.
+**Armin Ronacher**—
+    *Requests is the perfect example how beautiful an API can be with the
+    right level of abstraction.*
 
-**Matt DeBoard**
-    I'm going to get `@kennethreitz <https://twitter.com/kennethreitz>`_'s Python requests module tattooed
-    on my body, somehow. The whole thing.
+**Matt DeBoard**—
+    *I'm going to get `@kennethreitz <https://twitter.com/kennethreitz>`_'s Python requests module tattooed
+    on my body, somehow. The whole thing.*
 
-**Daniel Greenfeld**
-    Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to
-    `@kennethreitz <https://twitter.com/kennethreitz>`_'s request library. Today has been AWESOME.
+**Daniel Greenfeld**—
+    *Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to
+    `@kennethreitz <https://twitter.com/kennethreitz>`_'s request library. Today has been AWESOME.*
 
-**Kenny Meyers**
-    Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful,
-    simple, Pythonic.
+**Kenny Meyers**—
+    *Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful,
+    simple, Pythonic.*
 
 Requests is one of the most downloaded Python packages of all time, pulling in
 over 11,000,000 downloads every month. All the cool kids are doing it!

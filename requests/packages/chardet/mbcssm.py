@@ -25,11 +25,11 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-from .constants import eStart, eError, eItsMe
+from .enums import MachineState
 
 # BIG5
 
-BIG5_cls = (
+BIG5_CLS = (
     1,1,1,1,1,1,1,1,  # 00 - 07    #allow 0x00 as legal value
     1,1,1,1,1,1,0,0,  # 08 - 0f
     1,1,1,1,1,1,1,1,  # 10 - 17
@@ -64,23 +64,23 @@ BIG5_cls = (
     3,3,3,3,3,3,3,0  # f8 - ff
 )
 
-BIG5_st = (
-    eError,eStart,eStart,     3,eError,eError,eError,eError,#00-07
-    eError,eError,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eError,#08-0f
-    eError,eStart,eStart,eStart,eStart,eStart,eStart,eStart#10-17
+BIG5_ST = (
+    MachineState.ERROR,MachineState.START,MachineState.START,     3,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#00-07
+    MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ERROR,#08-0f
+    MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START#10-17
 )
 
-Big5CharLenTable = (0, 1, 1, 2, 0)
+BIG5_CHAR_LEN_TABLE = (0, 1, 1, 2, 0)
 
-Big5SMModel = {'classTable': BIG5_cls,
-               'classFactor': 5,
-               'stateTable': BIG5_st,
-               'charLenTable': Big5CharLenTable,
-               'name': 'Big5'}
+BIG5_SM_MODEL = {'class_table': BIG5_CLS,
+                 'class_factor': 5,
+                 'state_table': BIG5_ST,
+                 'char_len_table': BIG5_CHAR_LEN_TABLE,
+                 'name': 'Big5'}
 
 # CP949
 
-CP949_cls  = (
+CP949_CLS  = (
     1,1,1,1,1,1,1,1, 1,1,1,1,1,1,0,0,  # 00 - 0f
     1,1,1,1,1,1,1,1, 1,1,1,0,1,1,1,1,  # 10 - 1f
     1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,  # 20 - 2f
@@ -99,28 +99,28 @@ CP949_cls  = (
     2,2,2,2,2,2,2,2, 2,2,2,2,2,2,2,0,  # f0 - ff
 )
 
-CP949_st = (
+CP949_ST = (
 #cls=    0      1      2      3      4      5      6      7      8      9  # previous state =
-    eError,eStart,     3,eError,eStart,eStart,     4,     5,eError,     6, # eStart
-    eError,eError,eError,eError,eError,eError,eError,eError,eError,eError, # eError
-    eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe, # eItsMe
-    eError,eError,eStart,eStart,eError,eError,eError,eStart,eStart,eStart, # 3
-    eError,eError,eStart,eStart,eStart,eStart,eStart,eStart,eStart,eStart, # 4
-    eError,eStart,eStart,eStart,eStart,eStart,eStart,eStart,eStart,eStart, # 5
-    eError,eStart,eStart,eStart,eStart,eError,eError,eStart,eStart,eStart, # 6
+    MachineState.ERROR,MachineState.START,     3,MachineState.ERROR,MachineState.START,MachineState.START,     4,     5,MachineState.ERROR,     6, # MachineState.START
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR, # MachineState.ERROR
+    MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME, # MachineState.ITS_ME
+    MachineState.ERROR,MachineState.ERROR,MachineState.START,MachineState.START,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START, # 3
+    MachineState.ERROR,MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START, # 4
+    MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START, # 5
+    MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.ERROR,MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START, # 6
 )
 
-CP949CharLenTable = (0, 1, 2, 0, 1, 1, 2, 2, 0, 2)
+CP949_CHAR_LEN_TABLE = (0, 1, 2, 0, 1, 1, 2, 2, 0, 2)
 
-CP949SMModel = {'classTable': CP949_cls,
-                'classFactor': 10,
-                'stateTable': CP949_st,
-                'charLenTable': CP949CharLenTable,
-                'name': 'CP949'}
+CP949_SM_MODEL = {'class_table': CP949_CLS,
+                  'class_factor': 10,
+                  'state_table': CP949_ST,
+                  'char_len_table': CP949_CHAR_LEN_TABLE,
+                  'name': 'CP949'}
 
 # EUC-JP
 
-EUCJP_cls = (
+EUCJP_CLS = (
     4,4,4,4,4,4,4,4,  # 00 - 07
     4,4,4,4,4,4,5,5,  # 08 - 0f
     4,4,4,4,4,4,4,4,  # 10 - 17
@@ -155,25 +155,25 @@ EUCJP_cls = (
     0,0,0,0,0,0,0,5  # f8 - ff
 )
 
-EUCJP_st = (
-          3,     4,     3,     5,eStart,eError,eError,eError,#00-07
-     eError,eError,eError,eError,eItsMe,eItsMe,eItsMe,eItsMe,#08-0f
-     eItsMe,eItsMe,eStart,eError,eStart,eError,eError,eError,#10-17
-     eError,eError,eStart,eError,eError,eError,     3,eError,#18-1f
-          3,eError,eError,eError,eStart,eStart,eStart,eStart#20-27
+EUCJP_ST = (
+          3,     4,     3,     5,MachineState.START,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#00-07
+     MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,#08-0f
+     MachineState.ITS_ME,MachineState.ITS_ME,MachineState.START,MachineState.ERROR,MachineState.START,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#10-17
+     MachineState.ERROR,MachineState.ERROR,MachineState.START,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,     3,MachineState.ERROR,#18-1f
+          3,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START,MachineState.START#20-27
 )
 
-EUCJPCharLenTable = (2, 2, 2, 3, 1, 0)
+EUCJP_CHAR_LEN_TABLE = (2, 2, 2, 3, 1, 0)
 
-EUCJPSMModel = {'classTable': EUCJP_cls,
-                'classFactor': 6,
-                'stateTable': EUCJP_st,
-                'charLenTable': EUCJPCharLenTable,
-                'name': 'EUC-JP'}
+EUCJP_SM_MODEL = {'class_table': EUCJP_CLS,
+                  'class_factor': 6,
+                  'state_table': EUCJP_ST,
+                  'char_len_table': EUCJP_CHAR_LEN_TABLE,
+                  'name': 'EUC-JP'}
 
 # EUC-KR
 
-EUCKR_cls  = (
+EUCKR_CLS  = (
     1,1,1,1,1,1,1,1,  # 00 - 07
     1,1,1,1,1,1,0,0,  # 08 - 0f
     1,1,1,1,1,1,1,1,  # 10 - 17
@@ -208,22 +208,22 @@ EUCKR_cls  = (
     2,2,2,2,2,2,2,0   # f8 - ff
 )
 
-EUCKR_st = (
-    eError,eStart,     3,eError,eError,eError,eError,eError,#00-07
-    eItsMe,eItsMe,eItsMe,eItsMe,eError,eError,eStart,eStart #08-0f
+EUCKR_ST = (
+    MachineState.ERROR,MachineState.START,     3,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#00-07
+    MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ERROR,MachineState.ERROR,MachineState.START,MachineState.START #08-0f
 )
 
-EUCKRCharLenTable = (0, 1, 2, 0)
+EUCKR_CHAR_LEN_TABLE = (0, 1, 2, 0)
 
-EUCKRSMModel = {'classTable': EUCKR_cls,
-                'classFactor': 4,
-                'stateTable': EUCKR_st,
-                'charLenTable': EUCKRCharLenTable,
+EUCKR_SM_MODEL = {'class_table': EUCKR_CLS,
+                'class_factor': 4,
+                'state_table': EUCKR_ST,
+                'char_len_table': EUCKR_CHAR_LEN_TABLE,
                 'name': 'EUC-KR'}
 
 # EUC-TW
 
-EUCTW_cls = (
+EUCTW_CLS = (
     2,2,2,2,2,2,2,2,  # 00 - 07
     2,2,2,2,2,2,0,0,  # 08 - 0f
     2,2,2,2,2,2,2,2,  # 10 - 17
@@ -258,26 +258,26 @@ EUCTW_cls = (
     3,3,3,3,3,3,3,0   # f8 - ff
 )
 
-EUCTW_st = (
-    eError,eError,eStart,     3,     3,     3,     4,eError,#00-07
-    eError,eError,eError,eError,eError,eError,eItsMe,eItsMe,#08-0f
-    eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eError,eStart,eError,#10-17
-    eStart,eStart,eStart,eError,eError,eError,eError,eError,#18-1f
-         5,eError,eError,eError,eStart,eError,eStart,eStart,#20-27
-    eStart,eError,eStart,eStart,eStart,eStart,eStart,eStart #28-2f
+EUCTW_ST = (
+    MachineState.ERROR,MachineState.ERROR,MachineState.START,     3,     3,     3,     4,MachineState.ERROR,#00-07
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ITS_ME,#08-0f
+    MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ERROR,MachineState.START,MachineState.ERROR,#10-17
+    MachineState.START,MachineState.START,MachineState.START,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#18-1f
+         5,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.START,MachineState.ERROR,MachineState.START,MachineState.START,#20-27
+    MachineState.START,MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START #28-2f
 )
 
-EUCTWCharLenTable = (0, 0, 1, 2, 2, 2, 3)
+EUCTW_CHAR_LEN_TABLE = (0, 0, 1, 2, 2, 2, 3)
 
-EUCTWSMModel = {'classTable': EUCTW_cls,
-                'classFactor': 7,
-                'stateTable': EUCTW_st,
-                'charLenTable': EUCTWCharLenTable,
+EUCTW_SM_MODEL = {'class_table': EUCTW_CLS,
+                'class_factor': 7,
+                'state_table': EUCTW_ST,
+                'char_len_table': EUCTW_CHAR_LEN_TABLE,
                 'name': 'x-euc-tw'}
 
 # GB2312
 
-GB2312_cls = (
+GB2312_CLS = (
     1,1,1,1,1,1,1,1,  # 00 - 07
     1,1,1,1,1,1,0,0,  # 08 - 0f
     1,1,1,1,1,1,1,1,  # 10 - 17
@@ -312,31 +312,31 @@ GB2312_cls = (
     6,6,6,6,6,6,6,0   # f8 - ff
 )
 
-GB2312_st = (
-    eError,eStart,eStart,eStart,eStart,eStart,     3,eError,#00-07
-    eError,eError,eError,eError,eError,eError,eItsMe,eItsMe,#08-0f
-    eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eError,eError,eStart,#10-17
-         4,eError,eStart,eStart,eError,eError,eError,eError,#18-1f
-    eError,eError,     5,eError,eError,eError,eItsMe,eError,#20-27
-    eError,eError,eStart,eStart,eStart,eStart,eStart,eStart #28-2f
+GB2312_ST = (
+    MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,     3,MachineState.ERROR,#00-07
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ITS_ME,#08-0f
+    MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ERROR,MachineState.ERROR,MachineState.START,#10-17
+         4,MachineState.ERROR,MachineState.START,MachineState.START,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#18-1f
+    MachineState.ERROR,MachineState.ERROR,     5,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ERROR,#20-27
+    MachineState.ERROR,MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.START #28-2f
 )
 
 # To be accurate, the length of class 6 can be either 2 or 4.
 # But it is not necessary to discriminate between the two since
-# it is used for frequency analysis only, and we are validing
+# it is used for frequency analysis only, and we are validating
 # each code range there as well. So it is safe to set it to be
 # 2 here.
-GB2312CharLenTable = (0, 1, 1, 1, 1, 1, 2)
+GB2312_CHAR_LEN_TABLE = (0, 1, 1, 1, 1, 1, 2)
 
-GB2312SMModel = {'classTable': GB2312_cls,
-                  'classFactor': 7,
-                  'stateTable': GB2312_st,
-                  'charLenTable': GB2312CharLenTable,
-                  'name': 'GB2312'}
+GB2312_SM_MODEL = {'class_table': GB2312_CLS,
+                   'class_factor': 7,
+                   'state_table': GB2312_ST,
+                   'char_len_table': GB2312_CHAR_LEN_TABLE,
+                   'name': 'GB2312'}
 
 # Shift_JIS
 
-SJIS_cls = (
+SJIS_CLS = (
     1,1,1,1,1,1,1,1,  # 00 - 07
     1,1,1,1,1,1,0,0,  # 08 - 0f
     1,1,1,1,1,1,1,1,  # 10 - 17
@@ -373,23 +373,23 @@ SJIS_cls = (
     3,3,3,3,3,0,0,0)  # f8 - ff
 
 
-SJIS_st = (
-    eError,eStart,eStart,     3,eError,eError,eError,eError,#00-07
-    eError,eError,eError,eError,eItsMe,eItsMe,eItsMe,eItsMe,#08-0f
-    eItsMe,eItsMe,eError,eError,eStart,eStart,eStart,eStart #10-17
+SJIS_ST = (
+    MachineState.ERROR,MachineState.START,MachineState.START,     3,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#00-07
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,#08-0f
+    MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ERROR,MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START,MachineState.START #10-17
 )
 
-SJISCharLenTable = (0, 1, 1, 2, 0, 0)
+SJIS_CHAR_LEN_TABLE = (0, 1, 1, 2, 0, 0)
 
-SJISSMModel = {'classTable': SJIS_cls,
-               'classFactor': 6,
-               'stateTable': SJIS_st,
-               'charLenTable': SJISCharLenTable,
+SJIS_SM_MODEL = {'class_table': SJIS_CLS,
+               'class_factor': 6,
+               'state_table': SJIS_ST,
+               'char_len_table': SJIS_CHAR_LEN_TABLE,
                'name': 'Shift_JIS'}
 
 # UCS2-BE
 
-UCS2BE_cls = (
+UCS2BE_CLS = (
     0,0,0,0,0,0,0,0,  # 00 - 07
     0,0,1,0,0,2,0,0,  # 08 - 0f
     0,0,0,0,0,0,0,0,  # 10 - 17
@@ -424,27 +424,27 @@ UCS2BE_cls = (
     0,0,0,0,0,0,4,5   # f8 - ff
 )
 
-UCS2BE_st  = (
-          5,     7,     7,eError,     4,     3,eError,eError,#00-07
-     eError,eError,eError,eError,eItsMe,eItsMe,eItsMe,eItsMe,#08-0f
-     eItsMe,eItsMe,     6,     6,     6,     6,eError,eError,#10-17
-          6,     6,     6,     6,     6,eItsMe,     6,     6,#18-1f
-          6,     6,     6,     6,     5,     7,     7,eError,#20-27
-          5,     8,     6,     6,eError,     6,     6,     6,#28-2f
-          6,     6,     6,     6,eError,eError,eStart,eStart #30-37
+UCS2BE_ST  = (
+          5,     7,     7,MachineState.ERROR,     4,     3,MachineState.ERROR,MachineState.ERROR,#00-07
+     MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,#08-0f
+     MachineState.ITS_ME,MachineState.ITS_ME,     6,     6,     6,     6,MachineState.ERROR,MachineState.ERROR,#10-17
+          6,     6,     6,     6,     6,MachineState.ITS_ME,     6,     6,#18-1f
+          6,     6,     6,     6,     5,     7,     7,MachineState.ERROR,#20-27
+          5,     8,     6,     6,MachineState.ERROR,     6,     6,     6,#28-2f
+          6,     6,     6,     6,MachineState.ERROR,MachineState.ERROR,MachineState.START,MachineState.START #30-37
 )
 
-UCS2BECharLenTable = (2, 2, 2, 0, 2, 2)
+UCS2BE_CHAR_LEN_TABLE = (2, 2, 2, 0, 2, 2)
 
-UCS2BESMModel = {'classTable': UCS2BE_cls,
-                 'classFactor': 6,
-                 'stateTable': UCS2BE_st,
-                 'charLenTable': UCS2BECharLenTable,
-                 'name': 'UTF-16BE'}
+UCS2BE_SM_MODEL = {'class_table': UCS2BE_CLS,
+                   'class_factor': 6,
+                   'state_table': UCS2BE_ST,
+                   'char_len_table': UCS2BE_CHAR_LEN_TABLE,
+                   'name': 'UTF-16BE'}
 
 # UCS2-LE
 
-UCS2LE_cls = (
+UCS2LE_CLS = (
     0,0,0,0,0,0,0,0,  # 00 - 07
     0,0,1,0,0,2,0,0,  # 08 - 0f
     0,0,0,0,0,0,0,0,  # 10 - 17
@@ -479,27 +479,27 @@ UCS2LE_cls = (
     0,0,0,0,0,0,4,5   # f8 - ff
 )
 
-UCS2LE_st = (
-          6,     6,     7,     6,     4,     3,eError,eError,#00-07
-     eError,eError,eError,eError,eItsMe,eItsMe,eItsMe,eItsMe,#08-0f
-     eItsMe,eItsMe,     5,     5,     5,eError,eItsMe,eError,#10-17
-          5,     5,     5,eError,     5,eError,     6,     6,#18-1f
-          7,     6,     8,     8,     5,     5,     5,eError,#20-27
-          5,     5,     5,eError,eError,eError,     5,     5,#28-2f
-          5,     5,     5,eError,     5,eError,eStart,eStart #30-37
+UCS2LE_ST = (
+          6,     6,     7,     6,     4,     3,MachineState.ERROR,MachineState.ERROR,#00-07
+     MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,#08-0f
+     MachineState.ITS_ME,MachineState.ITS_ME,     5,     5,     5,MachineState.ERROR,MachineState.ITS_ME,MachineState.ERROR,#10-17
+          5,     5,     5,MachineState.ERROR,     5,MachineState.ERROR,     6,     6,#18-1f
+          7,     6,     8,     8,     5,     5,     5,MachineState.ERROR,#20-27
+          5,     5,     5,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,     5,     5,#28-2f
+          5,     5,     5,MachineState.ERROR,     5,MachineState.ERROR,MachineState.START,MachineState.START #30-37
 )
 
-UCS2LECharLenTable = (2, 2, 2, 2, 2, 2)
+UCS2LE_CHAR_LEN_TABLE = (2, 2, 2, 2, 2, 2)
 
-UCS2LESMModel = {'classTable': UCS2LE_cls,
-                 'classFactor': 6,
-                 'stateTable': UCS2LE_st,
-                 'charLenTable': UCS2LECharLenTable,
+UCS2LE_SM_MODEL = {'class_table': UCS2LE_CLS,
+                 'class_factor': 6,
+                 'state_table': UCS2LE_ST,
+                 'char_len_table': UCS2LE_CHAR_LEN_TABLE,
                  'name': 'UTF-16LE'}
 
 # UTF-8
 
-UTF8_cls = (
+UTF8_CLS = (
     1,1,1,1,1,1,1,1,  # 00 - 07  #allow 0x00 as a legal value
     1,1,1,1,1,1,0,0,  # 08 - 0f
     1,1,1,1,1,1,1,1,  # 10 - 17
@@ -534,39 +534,39 @@ UTF8_cls = (
     12,13,13,13,14,15,0,0    # f8 - ff
 )
 
-UTF8_st = (
-    eError,eStart,eError,eError,eError,eError,     12,   10,#00-07
+UTF8_ST = (
+    MachineState.ERROR,MachineState.START,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,     12,   10,#00-07
          9,     11,     8,     7,     6,     5,     4,    3,#08-0f
-    eError,eError,eError,eError,eError,eError,eError,eError,#10-17
-    eError,eError,eError,eError,eError,eError,eError,eError,#18-1f
-    eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,#20-27
-    eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,eItsMe,#28-2f
-    eError,eError,     5,     5,     5,     5,eError,eError,#30-37
-    eError,eError,eError,eError,eError,eError,eError,eError,#38-3f
-    eError,eError,eError,     5,     5,     5,eError,eError,#40-47
-    eError,eError,eError,eError,eError,eError,eError,eError,#48-4f
-    eError,eError,     7,     7,     7,     7,eError,eError,#50-57
-    eError,eError,eError,eError,eError,eError,eError,eError,#58-5f
-    eError,eError,eError,eError,     7,     7,eError,eError,#60-67
-    eError,eError,eError,eError,eError,eError,eError,eError,#68-6f
-    eError,eError,     9,     9,     9,     9,eError,eError,#70-77
-    eError,eError,eError,eError,eError,eError,eError,eError,#78-7f
-    eError,eError,eError,eError,eError,     9,eError,eError,#80-87
-    eError,eError,eError,eError,eError,eError,eError,eError,#88-8f
-    eError,eError,    12,    12,    12,    12,eError,eError,#90-97
-    eError,eError,eError,eError,eError,eError,eError,eError,#98-9f
-    eError,eError,eError,eError,eError,    12,eError,eError,#a0-a7
-    eError,eError,eError,eError,eError,eError,eError,eError,#a8-af
-    eError,eError,    12,    12,    12,eError,eError,eError,#b0-b7
-    eError,eError,eError,eError,eError,eError,eError,eError,#b8-bf
-    eError,eError,eStart,eStart,eStart,eStart,eError,eError,#c0-c7
-    eError,eError,eError,eError,eError,eError,eError,eError #c8-cf
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#10-17
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#18-1f
+    MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,#20-27
+    MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,MachineState.ITS_ME,#28-2f
+    MachineState.ERROR,MachineState.ERROR,     5,     5,     5,     5,MachineState.ERROR,MachineState.ERROR,#30-37
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#38-3f
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,     5,     5,     5,MachineState.ERROR,MachineState.ERROR,#40-47
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#48-4f
+    MachineState.ERROR,MachineState.ERROR,     7,     7,     7,     7,MachineState.ERROR,MachineState.ERROR,#50-57
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#58-5f
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,     7,     7,MachineState.ERROR,MachineState.ERROR,#60-67
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#68-6f
+    MachineState.ERROR,MachineState.ERROR,     9,     9,     9,     9,MachineState.ERROR,MachineState.ERROR,#70-77
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#78-7f
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,     9,MachineState.ERROR,MachineState.ERROR,#80-87
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#88-8f
+    MachineState.ERROR,MachineState.ERROR,    12,    12,    12,    12,MachineState.ERROR,MachineState.ERROR,#90-97
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#98-9f
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,    12,MachineState.ERROR,MachineState.ERROR,#a0-a7
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#a8-af
+    MachineState.ERROR,MachineState.ERROR,    12,    12,    12,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#b0-b7
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,#b8-bf
+    MachineState.ERROR,MachineState.ERROR,MachineState.START,MachineState.START,MachineState.START,MachineState.START,MachineState.ERROR,MachineState.ERROR,#c0-c7
+    MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR,MachineState.ERROR #c8-cf
 )
 
-UTF8CharLenTable = (0, 1, 0, 0, 0, 0, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6)
+UTF8_CHAR_LEN_TABLE = (0, 1, 0, 0, 0, 0, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6)
 
-UTF8SMModel = {'classTable': UTF8_cls,
-               'classFactor': 16,
-               'stateTable': UTF8_st,
-               'charLenTable': UTF8CharLenTable,
-               'name': 'UTF-8'}
+UTF8_SM_MODEL = {'class_table': UTF8_CLS,
+                 'class_factor': 16,
+                 'state_table': UTF8_ST,
+                 'char_len_table': UTF8_CHAR_LEN_TABLE,
+                 'name': 'UTF-8'}

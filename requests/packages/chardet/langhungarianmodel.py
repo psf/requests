@@ -207,19 +207,19 @@ HungarianLangModel = (
 )
 
 Latin2HungarianModel = {
-  'charToOrderMap': Latin2_HungarianCharToOrderMap,
-  'precedenceMatrix': HungarianLangModel,
-  'mTypicalPositiveRatio': 0.947368,
-  'keepEnglishLetter': True,
-  'charsetName': "ISO-8859-2"
+  'char_to_order_map': Latin2_HungarianCharToOrderMap,
+  'precedence_matrix': HungarianLangModel,
+  'typical_positive_ratio': 0.947368,
+  'keep_english_letter': True,
+  'charset_name': "ISO-8859-2",
+  'language': 'Hungarian',
 }
 
 Win1250HungarianModel = {
-  'charToOrderMap': win1250HungarianCharToOrderMap,
-  'precedenceMatrix': HungarianLangModel,
-  'mTypicalPositiveRatio': 0.947368,
-  'keepEnglishLetter': True,
-  'charsetName': "windows-1250"
+  'char_to_order_map': win1250HungarianCharToOrderMap,
+  'precedence_matrix': HungarianLangModel,
+  'typical_positive_ratio': 0.947368,
+  'keep_english_letter': True,
+  'charset_name': "windows-1250",
+  'language': 'Hungarian',
 }
-
-# flake8: noqa

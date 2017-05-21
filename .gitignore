@@ -6,7 +6,6 @@ junit-report.xml
 pylint.txt
 toy.py
 tox.ini
-violations.pyflakes.txt
 cover/
 build/
 docs/_build

@@ -190,11 +190,10 @@ ThaiLangModel = (
 )
 
 TIS620ThaiModel = {
-  'charToOrderMap': TIS620CharToOrderMap,
-  'precedenceMatrix': ThaiLangModel,
-  'mTypicalPositiveRatio': 0.926386,
-  'keepEnglishLetter': False,
-  'charsetName': "TIS-620"
+  'char_to_order_map': TIS620CharToOrderMap,
+  'precedence_matrix': ThaiLangModel,
+  'typical_positive_ratio': 0.926386,
+  'keep_english_letter': False,
+  'charset_name': "TIS-620",
+  'language': 'Thai',
 }
-
-# flake8: noqa

@@ -304,6 +304,8 @@ class WrappedSocket(object):
                 if not wr:
                     raise timeout()
                 continue
+            except OpenSSL.SSL.SysCallError as e:
+                raise SocketError(str(e))
 
     def sendall(self, data):
         total_sent = 0

@@ -8,8 +8,10 @@ This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
 """
 import os
+import platform
+import time
 from collections import Mapping
-from datetime import datetime
+from datetime import timedelta
 
 from .auth import _basic_auth_str
 from .compat import cookielib, OrderedDict, urljoin, urlparse, is_py3, str
@@ -38,6 +40,15 @@ from .status_codes import codes
 from .models import REDIRECT_STATI
 
 REDIRECT_CACHE_SIZE = 1000
+
+# Preferred clock, based on which one is more accurate on a given system.
+if platform.system() == 'Windows':
+    try:  # Python 3.3+
+        preferred_clock = time.perf_counter
+    except AttributeError:  # Earlier than Python 3.
+        preferred_clock = time.clock
+else:
+    preferred_clock = time.time
 
 
 def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
@@ -93,7 +104,17 @@ class SessionRedirectMixin(object):
             if not is_valid_location(response):
                 raise InvalidHeader('Response contains multiple Location headers. '
                                     'Unable to perform redirect.')
-            return response.headers['location']
+
+            location = response.headers['location']
+            # Currently the underlying http module on py3 decode headers
+            # in latin1, but empirical evidence suggests that latin1 is very
+            # rarely used with non-ASCII characters in HTTP headers.
+            # It is more likely to get UTF8 header rather than latin1.
+            # This causes incorrect handling of UTF8 encoded location headers.
+            # To solve this, we re-encode the location in latin1.
+            if is_py3:
+                location = location.encode('latin1')
+            return to_native_string(location, 'utf8')
         return None
 
     def resolve_redirects(self, response, request, stream=False, timeout=None,
@@ -105,9 +126,9 @@ class SessionRedirectMixin(object):
 
         history = [response] # keep track of history; seed it with the original response
 
-        url = self.get_redirect_target(response)
+        location_url = self.get_redirect_target(response)
 
-        while url:
+        while location_url:
             prepared_request = request.copy()
 
             try:
@@ -122,30 +143,23 @@ class SessionRedirectMixin(object):
             response.close()
 
             # Handle redirection without scheme (see: RFC 1808 Section 4)
-            if url.startswith('//'):
+            if location_url.startswith('//'):
                 parsed_rurl = urlparse(response.url)
-                location_url = '%s:%s' % (parsed_rurl.scheme, url)
+                location_url = '%s:%s' % (to_native_string(parsed_rurl.scheme), location_url)
 
             # The scheme should be lower case...
-            parsed = urlparse(url)
+            parsed = urlparse(location_url)
             location_url = parsed.geturl()
-
-            # On Python 3, the location header was decoded using Latin 1, but
-            # urlparse in requote_uri will encode it with UTF-8 before quoting.
-            # Because of this insanity, we need to fix it up ourselves by
-            # sending the URL back to bytes ourselves.
-            if is_py3 and isinstance(url, str):
-                url = url.encode('latin1')
 
             # Facilitate relative 'location' headers, as allowed by RFC 7231.
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
             # Compliant with RFC3986, we percent encode the url.
             if not parsed.netloc:
-                url = urljoin(response.url, requote_uri(url))
+                location_url = urljoin(response.url, requote_uri(location_url))
             else:
-                url = requote_uri(url)
+                location_url = requote_uri(location_url)
 
-            prepared_request.url = to_native_string(url)
+            prepared_request.url = to_native_string(location_url)
             # Cache the url, unless it redirects to itself.
             if response.is_permanent_redirect and request.url != prepared_request.url:
                 self.redirect_cache[request.url] = prepared_request.url
@@ -211,7 +225,7 @@ class SessionRedirectMixin(object):
             extract_cookies_to_jar(self.cookies, prepared_request, response.raw)
 
             # extract redirect url, if any, for the next loop
-            url = self.get_redirect_target(response)
+            location_url = self.get_redirect_target(response)
             yield response
 
     def rebuild_auth(self, prepared_request, response):
@@ -360,7 +374,8 @@ class Session(SessionRedirectMixin):
         #: SSL Verification default.
         self.verify = True
 
-        #: SSL client certificate default.
+        #: SSL client certificate default, if String, path to ssl client
+        #: cert file (.pem). If Tuple, ('cert', 'key') pair.
         self.cert = None
 
         #: Maximum number of redirects allowed. If the request exceeds this
@@ -477,8 +492,9 @@ class Session(SessionRedirectMixin):
             hostname to the URL of the proxy.
         :param stream: (optional) whether to immediately download the response
             content. Defaults to ``False``.
-        :param verify: (optional) whether the SSL cert will be verified.
-            A CA_BUNDLE path can also be provided. Defaults to ``True``.
+        :param verify: (optional) Either a boolean, in which case it controls whether we verify
+            the server's TLS certificate, or a string, in which case it must be a path
+            to a CA bundle to use. Defaults to ``True``.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
         :rtype: requests.Response
@@ -515,7 +531,7 @@ class Session(SessionRedirectMixin):
         return resp
 
     def get(self, url, **kwargs):
-        """Sends a GET request. Returns :class:`Response` object.
+        r"""Sends a GET request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
@@ -526,7 +542,7 @@ class Session(SessionRedirectMixin):
         return self.request('GET', url, **kwargs)
 
     def options(self, url, **kwargs):
-        """Sends a OPTIONS request. Returns :class:`Response` object.
+        r"""Sends a OPTIONS request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
@@ -537,7 +553,7 @@ class Session(SessionRedirectMixin):
         return self.request('OPTIONS', url, **kwargs)
 
     def head(self, url, **kwargs):
-        """Sends a HEAD request. Returns :class:`Response` object.
+        r"""Sends a HEAD request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
@@ -548,7 +564,7 @@ class Session(SessionRedirectMixin):
         return self.request('HEAD', url, **kwargs)
 
     def post(self, url, data=None, json=None, **kwargs):
-        """Sends a POST request. Returns :class:`Response` object.
+        r"""Sends a POST request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
@@ -560,7 +576,7 @@ class Session(SessionRedirectMixin):
         return self.request('POST', url, data=data, json=json, **kwargs)
 
     def put(self, url, data=None, **kwargs):
-        """Sends a PUT request. Returns :class:`Response` object.
+        r"""Sends a PUT request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
@@ -571,7 +587,7 @@ class Session(SessionRedirectMixin):
         return self.request('PUT', url, data=data, **kwargs)
 
     def patch(self, url, data=None, **kwargs):
-        """Sends a PATCH request. Returns :class:`Response` object.
+        r"""Sends a PATCH request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
@@ -582,7 +598,7 @@ class Session(SessionRedirectMixin):
         return self.request('PATCH', url,  data=data, **kwargs)
 
     def delete(self, url, **kwargs):
-        """Sends a DELETE request. Returns :class:`Response` object.
+        r"""Sends a DELETE request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
@@ -628,14 +644,15 @@ class Session(SessionRedirectMixin):
         # Get the appropriate adapter to use
         adapter = self.get_adapter(url=request.url)
 
-        # Start time (approximately) of the request.
-        start = datetime.utcnow()
+        # Start time (approximately) of the request
+        start = preferred_clock()
 
         # Send the request
         r = adapter.send(request, **kwargs)
 
-        # Total elapsed time of the request (approximately).
-        r.elapsed = datetime.utcnow() - start
+        # Total elapsed time of the request (approximately)
+        elapsed = preferred_clock() - start
+        r.elapsed = timedelta(seconds=elapsed)
 
         # Response manipulation hooks.
         r = dispatch_hook('response', hooks, r, **kwargs)

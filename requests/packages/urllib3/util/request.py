@@ -108,7 +108,7 @@ def rewind_body(body, body_pos):
         try:
             body_seek(body_pos)
         except (IOError, OSError):
-            raise UnrewindableBodyError("An error occured when rewinding request "
+            raise UnrewindableBodyError("An error occurred when rewinding request "
                                         "body for redirect/retry.")
     elif body_pos is _FAILEDTELL:
         raise UnrewindableBodyError("Unable to record file position for rewinding "

@@ -25,13 +25,6 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-from .compat import wrap_ord
-
-NUM_OF_CATEGORY = 6
-DONT_KNOW = -1
-ENOUGH_REL_THRESHOLD = 100
-MAX_REL_THRESHOLD = 1000
-MINIMUM_DATA_THRESHOLD = 4
 
 # This is hiragana 2-char sequence table, the number in each cell represents its frequency category
 jp2CharContext = (
@@ -120,24 +113,35 @@ jp2CharContext = (
 (0,4,0,3,0,3,0,3,0,3,5,5,3,3,3,3,4,3,4,3,3,3,4,4,4,3,3,3,3,4,3,5,3,3,1,3,2,4,5,5,5,5,4,3,4,5,5,3,2,2,3,3,3,3,2,3,3,1,2,3,2,4,3,3,3,4,0,4,0,2,0,4,3,2,2,1,2,0,3,0,0,4,1),
 )
 
-class JapaneseContextAnalysis:
+class JapaneseContextAnalysis(object):
+    NUM_OF_CATEGORY = 6
+    DONT_KNOW = -1
+    ENOUGH_REL_THRESHOLD = 100
+    MAX_REL_THRESHOLD = 1000
+    MINIMUM_DATA_THRESHOLD = 4
+
     def __init__(self):
+        self._total_rel = None
+        self._rel_sample = None
+        self._need_to_skip_char_num = None
+        self._last_char_order = None
+        self._done = None
         self.reset()
 
     def reset(self):
-        self._mTotalRel = 0  # total sequence received
-        # category counters, each interger counts sequence in its category
-        self._mRelSample = [0] * NUM_OF_CATEGORY
+        self._total_rel = 0  # total sequence received
+        # category counters, each integer counts sequence in its category
+        self._rel_sample = [0] * self.NUM_OF_CATEGORY
         # if last byte in current buffer is not the last byte of a character,
         # we need to know how many bytes to skip in next buffer
-        self._mNeedToSkipCharNum = 0
-        self._mLastCharOrder = -1  # The order of previous char
+        self._need_to_skip_char_num = 0
+        self._last_char_order = -1  # The order of previous char
         # If this flag is set to True, detection is done and conclusion has
         # been made
-        self._mDone = False
+        self._done = False
 
-    def feed(self, aBuf, aLen):
-        if self._mDone:
+    def feed(self, byte_str, num_bytes):
+        if self._done:
             return
 
         # The buffer we got is byte oriented, and a character may span in more than one
@@ -147,81 +151,83 @@ class JapaneseContextAnalysis:
         # well and analyse the character once it is complete, but since a
         # character will not make much difference, by simply skipping
         # this character will simply our logic and improve performance.
-        i = self._mNeedToSkipCharNum
-        while i < aLen:
-            order, charLen = self.get_order(aBuf[i:i + 2])
-            i += charLen
-            if i > aLen:
-                self._mNeedToSkipCharNum = i - aLen
-                self._mLastCharOrder = -1
+        i = self._need_to_skip_char_num
+        while i < num_bytes:
+            order, char_len = self.get_order(byte_str[i:i + 2])
+            i += char_len
+            if i > num_bytes:
+                self._need_to_skip_char_num = i - num_bytes
+                self._last_char_order = -1
             else:
-                if (order != -1) and (self._mLastCharOrder != -1):
-                    self._mTotalRel += 1
-                    if self._mTotalRel > MAX_REL_THRESHOLD:
-                        self._mDone = True
+                if (order != -1) and (self._last_char_order != -1):
+                    self._total_rel += 1
+                    if self._total_rel > self.MAX_REL_THRESHOLD:
+                        self._done = True
                         break
-                    self._mRelSample[jp2CharContext[self._mLastCharOrder][order]] += 1
-                self._mLastCharOrder = order
+                    self._rel_sample[jp2CharContext[self._last_char_order][order]] += 1
+                self._last_char_order = order
 
     def got_enough_data(self):
-        return self._mTotalRel > ENOUGH_REL_THRESHOLD
+        return self._total_rel > self.ENOUGH_REL_THRESHOLD
 
     def get_confidence(self):
         # This is just one way to calculate confidence. It works well for me.
-        if self._mTotalRel > MINIMUM_DATA_THRESHOLD:
-            return (self._mTotalRel - self._mRelSample[0]) / self._mTotalRel
+        if self._total_rel > self.MINIMUM_DATA_THRESHOLD:
+            return (self._total_rel - self._rel_sample[0]) / self._total_rel
         else:
-            return DONT_KNOW
+            return self.DONT_KNOW
 
-    def get_order(self, aBuf):
+    def get_order(self, byte_str):
         return -1, 1
 
 class SJISContextAnalysis(JapaneseContextAnalysis):
     def __init__(self):
-        self.charset_name = "SHIFT_JIS"
+        super(SJISContextAnalysis, self).__init__()
+        self._charset_name = "SHIFT_JIS"
 
-    def get_charset_name(self):
-        return self.charset_name
+    @property
+    def charset_name(self):
+        return self._charset_name
 
-    def get_order(self, aBuf):
-        if not aBuf:
+    def get_order(self, byte_str):
+        if not byte_str:
             return -1, 1
         # find out current char's byte length
-        first_char = wrap_ord(aBuf[0])
-        if ((0x81 <= first_char <= 0x9F) or (0xE0 <= first_char <= 0xFC)):
-            charLen = 2
+        first_char = byte_str[0]
+        if (0x81 <= first_char <= 0x9F) or (0xE0 <= first_char <= 0xFC):
+            char_len = 2
             if (first_char == 0x87) or (0xFA <= first_char <= 0xFC):
-                self.charset_name = "CP932"
+                self._charset_name = "CP932"
         else:
-            charLen = 1
+            char_len = 1
 
         # return its order if it is hiragana
-        if len(aBuf) > 1:
-            second_char = wrap_ord(aBuf[1])
+        if len(byte_str) > 1:
+            second_char = byte_str[1]
             if (first_char == 202) and (0x9F <= second_char <= 0xF1):
-                return second_char - 0x9F, charLen
+                return second_char - 0x9F, char_len
 
-        return -1, charLen
+        return -1, char_len
 
 class EUCJPContextAnalysis(JapaneseContextAnalysis):
-    def get_order(self, aBuf):
-        if not aBuf:
+    def get_order(self, byte_str):
+        if not byte_str:
             return -1, 1
         # find out current char's byte length
-        first_char = wrap_ord(aBuf[0])
+        first_char = byte_str[0]
         if (first_char == 0x8E) or (0xA1 <= first_char <= 0xFE):
-            charLen = 2
+            char_len = 2
         elif first_char == 0x8F:
-            charLen = 3
+            char_len = 3
         else:
-            charLen = 1
+            char_len = 1
 
         # return its order if it is hiragana
-        if len(aBuf) > 1:
-            second_char = wrap_ord(aBuf[1])
+        if len(byte_str) > 1:
+            second_char = byte_str[1]
             if (first_char == 0xA4) and (0xA1 <= second_char <= 0xF3):
-                return second_char - 0xA1, charLen
+                return second_char - 0xA1, char_len
 
-        return -1, charLen
+        return -1, char_len
 
-# flake8: noqa
+

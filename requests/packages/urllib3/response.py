@@ -38,7 +38,11 @@ class DeflateDecoder(object):
 
         self._data += data
         try:
-            return self._obj.decompress(data)
+            decompressed = self._obj.decompress(data)
+            if decompressed:
+                self._first_try = False
+                self._data = None
+            return decompressed
         except zlib.error:
             self._first_try = False
             self._obj = zlib.decompressobj(-zlib.MAX_WBITS)

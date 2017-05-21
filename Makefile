@@ -2,13 +2,16 @@
 
 init:
 	pip install pipenv
-	pipenv lock
 	pipenv install --dev
+	pipenv run pip install -e .[socks]
 
 test:
 	# This runs all of the tests. To run an individual test, run py.test with
 	# the -k flag, like "py.test -k test_path_is_not_double_encoded"
 	pipenv run py.test tests
+
+test-readme:
+	pipenv run python setup.py check -r -s
 
 coverage:
 	pipenv run py.test --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=requests tests
@@ -47,8 +50,7 @@ idna:
 
 publish:
 	pip install 'twine>=1.5.0'
-	python setup.py sdist
-	python setup.py bdist_wheel --universal
+	python setup.py sdist bdist_wheel
 	twine upload dist/*
 	rm -fr build dist .egg requests.egg-info
 

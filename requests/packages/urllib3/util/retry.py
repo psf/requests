@@ -85,6 +85,14 @@ class Retry(object):
 
         Set to ``False`` to disable and imply ``raise_on_redirect=False``.
 
+    :param int status:
+        How many times to retry on bad status codes.
+
+        These are retries made on responses, where status code matches
+        ``status_forcelist``.
+
+        Set to ``0`` to fail on the first retry of this type.
+
     :param iterable method_whitelist:
         Set of uppercased HTTP method verbs that we should retry on.
 
@@ -141,7 +149,7 @@ class Retry(object):
     #: Maximum backoff time.
     BACKOFF_MAX = 120
 
-    def __init__(self, total=10, connect=None, read=None, redirect=None,
+    def __init__(self, total=10, connect=None, read=None, redirect=None, status=None,
                  method_whitelist=DEFAULT_METHOD_WHITELIST, status_forcelist=None,
                  backoff_factor=0, raise_on_redirect=True, raise_on_status=True,
                  history=None, respect_retry_after_header=True):
@@ -149,6 +157,7 @@ class Retry(object):
         self.total = total
         self.connect = connect
         self.read = read
+        self.status = status
 
         if redirect is False or total is False:
             redirect = 0
@@ -166,7 +175,7 @@ class Retry(object):
     def new(self, **kw):
         params = dict(
             total=self.total,
-            connect=self.connect, read=self.read, redirect=self.redirect,
+            connect=self.connect, read=self.read, redirect=self.redirect, status=self.status,
             method_whitelist=self.method_whitelist,
             status_forcelist=self.status_forcelist,
             backoff_factor=self.backoff_factor,
@@ -300,7 +309,7 @@ class Retry(object):
 
     def is_exhausted(self):
         """ Are we out of retries? """
-        retry_counts = (self.total, self.connect, self.read, self.redirect)
+        retry_counts = (self.total, self.connect, self.read, self.redirect, self.status)
         retry_counts = list(filter(None, retry_counts))
         if not retry_counts:
             return False
@@ -330,6 +339,7 @@ class Retry(object):
         connect = self.connect
         read = self.read
         redirect = self.redirect
+        status_count = self.status
         cause = 'unknown'
         status = None
         redirect_location = None
@@ -361,6 +371,8 @@ class Retry(object):
             # status_forcelist and a the given method is in the whitelist
             cause = ResponseError.GENERIC_ERROR
             if response and response.status:
+                if status_count is not None:
+                    status_count -= 1
                 cause = ResponseError.SPECIFIC_ERROR.format(
                     status_code=response.status)
                 status = response.status
@@ -369,7 +381,7 @@ class Retry(object):
 
         new_retry = self.new(
             total=total,
-            connect=connect, read=read, redirect=redirect,
+            connect=connect, read=read, redirect=redirect, status=status_count,
             history=history)
 
         if new_retry.is_exhausted():
@@ -381,7 +393,7 @@ class Retry(object):
 
     def __repr__(self):
         return ('{cls.__name__}(total={self.total}, connect={self.connect}, '
-                'read={self.read}, redirect={self.redirect})').format(
+                'read={self.read}, redirect={self.redirect}, status={self.status})').format(
                     cls=type(self), self=self)
 
 

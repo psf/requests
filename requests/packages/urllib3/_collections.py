@@ -144,7 +144,7 @@ class HTTPHeaderDict(MutableMapping):
             self.extend(kwargs)
 
     def __setitem__(self, key, val):
-        self._container[key.lower()] = (key, val)
+        self._container[key.lower()] = [key, val]
         return self._container[key.lower()]
 
     def __getitem__(self, key):
@@ -215,18 +215,11 @@ class HTTPHeaderDict(MutableMapping):
         'bar, baz'
         """
         key_lower = key.lower()
-        new_vals = key, val
+        new_vals = [key, val]
         # Keep the common case aka no item present as fast as possible
         vals = self._container.setdefault(key_lower, new_vals)
         if new_vals is not vals:
-            # new_vals was not inserted, as there was a previous one
-            if isinstance(vals, list):
-                # If already several items got inserted, we have a list
-                vals.append(val)
-            else:
-                # vals should be a tuple then, i.e. only one item so far
-                # Need to convert the tuple to list for further extension
-                self._container[key_lower] = [vals[0], vals[1], val]
+            vals.append(val)
 
     def extend(self, *args, **kwargs):
         """Generic import function for any type of header-like object.
@@ -262,10 +255,7 @@ class HTTPHeaderDict(MutableMapping):
         except KeyError:
             return []
         else:
-            if isinstance(vals, tuple):
-                return [vals[1]]
-            else:
-                return vals[1:]
+            return vals[1:]
 
     # Backwards compatibility for httplib
     getheaders = getlist

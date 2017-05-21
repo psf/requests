@@ -34,6 +34,7 @@ from requests.hooks import default_hooks
 
 from .compat import StringIO, u
 from .utils import override_environ
+from requests.packages.urllib3.util import Timeout as Urllib3Timeout
 
 class SendRecordingAdapter(HTTPAdapter):
     """
@@ -856,6 +857,26 @@ class TestRequests:
 
     def test_pyopenssl_redirect(self, httpbin_secure, httpbin_ca_bundle):
         requests.get(httpbin_secure('status', '301'), verify=httpbin_ca_bundle)
+
+    def test_invalid_ca_certificate_path(self, httpbin_secure):
+        INVALID_PATH = '/garbage'
+        with pytest.raises(IOError) as e:
+            requests.get(httpbin_secure(), verify=INVALID_PATH)
+        assert str(e.value) == 'Could not find a suitable TLS CA certificate bundle, invalid path: {0}'.format(INVALID_PATH)
+
+    def test_invalid_ssl_certificate_files(self, httpbin_secure):
+        INVALID_PATH = '/garbage'
+        with pytest.raises(IOError) as e:
+            requests.get(httpbin_secure(), cert=INVALID_PATH)
+        assert str(e.value) == 'Could not find the TLS certificate file, invalid path: {0}'.format(INVALID_PATH)
+
+        with pytest.raises(IOError) as e:
+            requests.get(httpbin_secure(), cert=('.', INVALID_PATH))
+        assert str(e.value) == 'Could not find the TLS key file, invalid path: {0}'.format(INVALID_PATH)
+
+    def test_http_with_certificate(self, httpbin):
+        r = requests.get(httpbin(), cert='.')
+        assert r.status_code == 200
 
     def test_https_warnings(self, httpbin_secure, httpbin_ca_bundle):
         """warnings are emitted with requests.get"""
@@ -1767,7 +1788,7 @@ class TestRequests:
         with pytest.raises(UnrewindableBodyError) as e:
             requests.utils.rewind_body(prep)
 
-        assert 'error occured when rewinding request body' in str(e)
+        assert 'error occurred when rewinding request body' in str(e)
 
     def test_rewind_body_failed_tell(self):
         class BadFileObj:
@@ -2352,7 +2373,12 @@ class TestTimeout:
             requests.get(httpbin('get'), timeout=timeout)
         assert error_text in str(e)
 
-    def test_none_timeout(self, httpbin):
+    @pytest.mark.parametrize(
+        'timeout', (
+            None,
+            Urllib3Timeout(connect=None, read=None)
+        ))
+    def test_none_timeout(self, httpbin, timeout):
         """Check that you can set None as a valid timeout value.
 
         To actually test this behavior, we'd want to check that setting the
@@ -2361,27 +2387,42 @@ class TestTimeout:
         Instead we verify that setting the timeout to None does not prevent the
         request from succeeding.
         """
-        r = requests.get(httpbin('get'), timeout=None)
+        r = requests.get(httpbin('get'), timeout=timeout)
         assert r.status_code == 200
 
-    def test_read_timeout(self, httpbin):
+    @pytest.mark.parametrize(
+        'timeout', (
+            (None, 0.1),
+            Urllib3Timeout(connect=None, read=0.1)
+        ))
+    def test_read_timeout(self, httpbin, timeout):
         try:
-            requests.get(httpbin('delay/10'), timeout=(None, 0.1))
+            requests.get(httpbin('delay/10'), timeout=timeout)
             pytest.fail('The recv() request should time out.')
         except ReadTimeout:
             pass
 
-    def test_connect_timeout(self):
+    @pytest.mark.parametrize(
+        'timeout', (
+            (0.1, None),
+            Urllib3Timeout(connect=0.1, read=None)
+        ))
+    def test_connect_timeout(self, timeout):
         try:
-            requests.get(TARPIT, timeout=(0.1, None))
+            requests.get(TARPIT, timeout=timeout)
             pytest.fail('The connect() request should time out.')
         except ConnectTimeout as e:
             assert isinstance(e, ConnectionError)
             assert isinstance(e, Timeout)
 
-    def test_total_timeout_connect(self):
+    @pytest.mark.parametrize(
+        'timeout', (
+            (0.1, 0.1),
+            Urllib3Timeout(connect=0.1, read=0.1)
+        ))
+    def test_total_timeout_connect(self, timeout):
         try:
-            requests.get(TARPIT, timeout=(0.1, 0.1))
+            requests.get(TARPIT, timeout=timeout)
             pytest.fail('The connect() request should time out.')
         except ConnectTimeout:
             pass
@@ -2637,12 +2678,12 @@ class TestPreparingURLs(object):
         'input, expected',
         (
             (
-                b"http+unix://%2Fvar%2Frun%2Fsocket/path",
-                u"http+unix://%2fvar%2frun%2fsocket/path",
+                b"http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path~",
             ),
             (
-                u"http+unix://%2Fvar%2Frun%2Fsocket/path",
-                u"http+unix://%2fvar%2frun%2fsocket/path",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path~",
             ),
             (
                 b"mailto:user@example.org",
@@ -2675,12 +2716,12 @@ class TestPreparingURLs(object):
             (
                 b"http+unix://%2Fvar%2Frun%2Fsocket/path",
                 {"key": "value"},
-                u"http+unix://%2fvar%2frun%2fsocket/path?key=value",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path?key=value",
             ),
             (
                 u"http+unix://%2Fvar%2Frun%2Fsocket/path",
                 {"key": "value"},
-                u"http+unix://%2fvar%2frun%2fsocket/path?key=value",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path?key=value",
             ),
             (
                 b"mailto:user@example.org",

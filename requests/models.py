@@ -17,7 +17,7 @@ import sys
 # such as in Embedded Python. See https://github.com/kennethreitz/requests/issues/3578.
 import encodings.idna
 
-from io import BytesIO, UnsupportedOperation
+from io import UnsupportedOperation
 from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 
@@ -41,7 +41,7 @@ from .utils import (
     iter_slices, guess_json_utf, super_len, check_header_validity,
     is_stream)
 from .compat import (
-    cookielib, urlunparse, urlsplit, urlencode, str, bytes, StringIO,
+    cookielib, urlunparse, urlsplit, urlencode, str, bytes,
     is_py2, chardet, builtin_str, basestring)
 import json as complexjson
 from .status_codes import codes
@@ -678,6 +678,13 @@ class Response(object):
 
     @property
     def ok(self):
+        """Returns True if :attr:`status_code` is less than 400.
+
+        This attribute checks if the status code of the response is between
+        400 and 600 to see if there was a client error or a server error. If
+        the status code, is between 200 and 400, this will return True. This
+        is **not** a check to see if the response code is ``200 OK``.
+        """
         try:
             self.raise_for_status()
         except HTTPError:
@@ -903,7 +910,7 @@ class Response(object):
         return content
 
     def json(self, **kwargs):
-        """Returns the json-encoded content of a response, if any.
+        r"""Returns the json-encoded content of a response, if any.
 
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
         :raises ValueError: If the response body does not contain valid json.
