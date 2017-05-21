@@ -16,7 +16,8 @@ from datetime import timedelta
 from .auth import _basic_auth_str
 from .compat import cookielib, OrderedDict, urljoin, urlparse, is_py3, str
 from .cookies import (
-    cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
+    cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar,
+    merge_cookies, _copy_cookie_jar)
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
 from .hooks import default_hooks, dispatch_hook
 from ._internal_utils import to_native_string
@@ -425,8 +426,8 @@ class Session(SessionRedirectMixin):
             cookies = cookiejar_from_dict(cookies)
 
         # Merge with session cookies
-        merged_cookies = merge_cookies(
-            merge_cookies(RequestsCookieJar(), self.cookies), cookies)
+        session_cookies = _copy_cookie_jar(self.cookies)
+        merged_cookies = merge_cookies(session_cookies, cookies)
 
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
