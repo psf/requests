@@ -493,11 +493,14 @@ class HTTPAdapter(BaseAdapter):
                 # TODO: Remove this in 3.0.0: see #2811
                 if not isinstance(e.reason, NewConnectionError):
                     raise ConnectTimeout(e, request=request)
-            elif isinstance(e.reason, ResponseError):
+
+            if isinstance(e.reason, ResponseError):
                 raise RetryError(e, request=request)
-            elif isinstance(e.reason, _ProxyError):
+
+            if isinstance(e.reason, _ProxyError):
                 raise ProxyError(e, request=request)
-            elif isinstance(e.reason,RetryError):
+
+            if isinstance(e.reason,RetryError):
                 raise RetryError(e, request=request)
             raise ConnectionError(e, request=request)
 

@@ -518,8 +518,7 @@ class TestRequests:
         ))
     def test_errors(self, url, exception):
         with pytest.raises(exception):
-            r = requests.get(url, timeout=1)
-            assert r.exception == exception
+            requests.get(url, timeout=1)
 
     def test_proxy_error(self):
         # any proxy related error (address resolution, no route to host, etc) should result in a ProxyError

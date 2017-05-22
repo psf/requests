@@ -1,5 +1,4 @@
 .coverage
-.cache/
 MANIFEST
 coverage.xml
 nosetests.xml
