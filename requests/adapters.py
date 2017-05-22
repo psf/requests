@@ -493,13 +493,12 @@ class HTTPAdapter(BaseAdapter):
                 # TODO: Remove this in 3.0.0: see #2811
                 if not isinstance(e.reason, NewConnectionError):
                     raise ConnectTimeout(e, request=request)
-
-            if isinstance(e.reason, ResponseError):
+            elif isinstance(e.reason, ResponseError):
                 raise RetryError(e, request=request)
-
-            if isinstance(e.reason, _ProxyError):
+            elif isinstance(e.reason, _ProxyError):
                 raise ProxyError(e, request=request)
-
+            elif isinstance(e.reason,RetryError):
+                raise RetryError(e, request=request)
             raise ConnectionError(e, request=request)
 
         except ClosedPoolError as e:
