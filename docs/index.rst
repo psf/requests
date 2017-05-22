@@ -73,12 +73,12 @@ Institutions that prefer to be unnamed claim to use Requests internally.
     right level of abstraction.*
 
 **Matt DeBoard**—
-    *I'm going to get `@kennethreitz <https://twitter.com/kennethreitz>`_'s Python requests module tattooed
+    *I'm going to get Kenneth Reitz's Python requests module tattooed
     on my body, somehow. The whole thing.*
 
 **Daniel Greenfeld**—
     *Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to
-    `@kennethreitz <https://twitter.com/kennethreitz>`_'s request library. Today has been AWESOME.*
+    Kenneth Reitz's request library. Today has been AWESOME.*
 
 **Kenny Meyers**—
     *Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful,
