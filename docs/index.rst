@@ -63,9 +63,9 @@ which is embedded within Requests.
 User Testimonials
 -----------------
 
-Lyft, BuzzFeed, Reddit, The NSA, Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
+Twitter, Spotify, Microsoft, Amazon, Lyft, BuzzFeed, Reddit, The NSA, Her Majesty's Government, Google, Twilio, Runscope, Mozilla, Heroku,
 PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
-Post, Twitter, SoundCloud, Kippt, Sony, and Federal U.S.
+Post, SoundCloud, Kippt, Sony, and Federal U.S.
 Institutions that prefer to be unnamed claim to use Requests internally.
 
 **Armin Ronacher**—
@@ -107,7 +107,6 @@ Requests is ready for today's web.
 - Connection Timeouts
 - Chunked Requests
 - ``.netrc`` Support
-- Thread-safety
 
 Requests officially supports Python 2.6–2.7 & 3.3–3.7, and runs great on PyPy.
 
