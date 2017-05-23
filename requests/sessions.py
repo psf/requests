@@ -24,7 +24,7 @@ from ._internal_utils import to_native_string
 from .utils import to_key_val_list, default_headers
 from .exceptions import (
     TooManyRedirects, InvalidScheme, ChunkedEncodingError,
-    ConnectionError, ContentDecodingError, InvalidHeader)
+    ContentDecodingError, InvalidHeader)
 from .packages.urllib3._collections import RecentlyUsedContainer
 from .structures import CaseInsensitiveDict
 
@@ -134,7 +134,7 @@ class SessionRedirectMixin(object):
 
             try:
                 response.content  # Consume socket so it can be released
-            except (ChunkedEncodingError, ConnectionError, ContentDecodingError, RuntimeError):
+            except (ChunkedEncodingError, ContentDecodingError, RuntimeError):
                 response.raw.read(decode_content=False)
 
             if len(response.history) >= self.max_redirects:

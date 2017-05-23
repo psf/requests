@@ -23,23 +23,6 @@ def test_chunked_upload():
     assert r.status_code == 200
     assert r.request.headers['Transfer-Encoding'] == 'chunked'
 
-def test_incorrect_content_length():
-    """Test ConnectionError raised for incomplete responses"""
-    close_server = threading.Event()
-    server = Server.text_response_server(
-            "HTTP/1.1 200 OK\r\n" +
-            "Content-Length: 50\r\n\r\n" +
-            "Hello World."
-        )
-    with server as (host, port):
-        url = 'http://{0}:{1}/'.format(host, port)
-        r = requests.Request('GET', url).prepare()
-        s = requests.Session()
-        with pytest.raises(requests.exceptions.ConnectionError) as e:
-            resp = s.send(r)
-        assert "12 bytes read, 38 more expected" in str(e)
-        close_server.set()  # release server block
-
 
 def test_digestauth_401_count_reset_on_redirect():
     """Ensure we correctly reset num_401_calls after a successful digest auth,

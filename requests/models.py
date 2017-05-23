@@ -28,8 +28,7 @@ from .packages.urllib3.fields import RequestField
 from .packages.urllib3.filepost import encode_multipart_formdata
 from .packages.urllib3.util import parse_url
 from .packages.urllib3.exceptions import (
-    DecodeError, ReadTimeoutError, ProtocolError,
-    LocationParseError, ConnectionError)
+    DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
 from .exceptions import (
     HTTPError, MissingScheme, InvalidURL, ChunkedEncodingError,
     ContentDecodingError, ConnectionError, StreamConsumedError,
@@ -732,10 +731,7 @@ class Response(object):
                     for chunk in self.raw.stream(chunk_size, decode_content=True):
                         yield chunk
                 except ProtocolError as e:
-                    if self.headers.get('Transfer-Encoding') == 'chunked':
-                        raise ChunkedEncodingError(e)
-                    else:
-                        raise ConnectionError(e)
+                    raise ChunkedEncodingError(e)
                 except DecodeError as e:
                     raise ContentDecodingError(e)
                 except ReadTimeoutError as e:
