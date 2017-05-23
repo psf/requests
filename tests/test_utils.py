@@ -17,7 +17,7 @@ from requests.utils import (
     requote_uri, select_proxy, should_bypass_proxies, super_len,
     to_key_val_list, to_native_string,
     unquote_header_value, unquote_unreserved,
-    urldefragauth, add_dict_to_cookiejar)
+    urldefragauth, add_dict_to_cookiejar, dict_from_cookiejar)
 from requests._internal_utils import unicode_is_ascii
 
 from .compat import StringIO, cStringIO
@@ -652,3 +652,29 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
     monkeypatch.setattr(winreg, 'OpenKey', OpenKey)
     monkeypatch.setattr(winreg, 'QueryValueEx', QueryValueEx)
     assert should_bypass_proxies(url, no_proxy=None) == expected
+
+
+@pytest.mark.parametrize(
+    'cookiejar', (
+        compat.cookielib.CookieJar(),
+        RequestsCookieJar()
+    ))
+def test_dict_from_cookiejar(cookiejar):
+    """Test dict_from_cookiejar and cookiejar_from_dict works for
+    new cookie dict form with more cookie attrs.
+    """
+    cookiedict = {
+        'test': {
+            'name': 'test', 'value': 'cookies', 'domain': 'test.com',
+            'path': '/'},
+        'good': 'cookies'}
+    cj = add_dict_to_cookiejar(cookiejar, cookiedict)
+    cookie_dict = dict_from_cookiejar(cj)
+    assert cookie_dict == {'test': 'cookies', 'good': 'cookies'}
+
+    cookie_attrs_dict = dict_from_cookiejar(cj, with_cookie_attr=True)
+    for key, val in cookiedict['test'].items():
+        assert cookie_attrs_dict['test'][key] == val
+
+    assert cookie_attrs_dict['good']['name'] == 'good'
+    assert cookie_attrs_dict['good']['value'] == cookiedict['good']

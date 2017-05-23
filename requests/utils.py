@@ -38,6 +38,10 @@ NETRC_FILES = ('.netrc', '_netrc')
 
 DEFAULT_CA_BUNDLE_PATH = certs.where()
 
+COOKIE_ATTRS = (
+    'version', 'name', 'value', 'port', 'domain', 'path', 'secure', 'expires',
+    'discard', 'comment', 'comment_url', 'rfc2109')
+
 
 if platform.system() == 'Windows':
     # provide a proxy_bypass version on Windows without DNS lookups
@@ -361,17 +365,32 @@ def unquote_header_value(value, is_filename=False):
     return value
 
 
-def dict_from_cookiejar(cj):
+def dict_from_cookiejar(cj, with_cookie_attr=False):
     """Returns a key/value dictionary from a CookieJar.
 
     :param cj: CookieJar object to extract cookies from.
+    :param with_cookie_attr: a boolean specifies whether returns more attrs.
     :rtype: dict
     """
 
     cookie_dict = {}
 
     for cookie in cj:
-        cookie_dict[cookie.name] = cookie.value
+        if not with_cookie_attr:
+            cookie_dict[cookie.name] = cookie.value
+            continue
+
+        cookie_data = {}
+        for attr in COOKIE_ATTRS:
+            attr_val = getattr(cookie, attr, None)
+            if attr_val is not None:
+                cookie_data[attr] = attr_val
+
+        cookie_rest = getattr(cookie, '_rest', None)
+        if cookie_rest:
+            cookie_data['rest'] = cookie_rest
+
+        cookie_dict[cookie.name] = cookie_data
 
     return cookie_dict
 
