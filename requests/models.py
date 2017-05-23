@@ -155,8 +155,12 @@ class RequestEncodingMixin(object):
 
             if isinstance(fp, (str, bytes, bytearray)):
                 fdata = fp
-            else:
+            elif hasattr(fp, 'read'):
                 fdata = fp.read()
+            elif fp is None:
+                continue
+            else:
+                fdata = fp
 
             rf = RequestField(name=k, data=fdata, filename=fn, headers=fh)
             rf.make_multipart(content_type=ft)
