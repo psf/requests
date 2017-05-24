@@ -4,6 +4,7 @@ import unicodedata
 import re
 import sys
 from .intranges import intranges_contain
+from .uts46data import uts46data
 
 _virama_combining_class = 9
 _alabel_prefix = b'xn--'
@@ -306,7 +307,6 @@ def ulabel(label):
 
 def uts46_remap(domain, std3_rules=True, transitional=False):
     """Re-map the characters in the string according to UTS46 processing."""
-    from .uts46data import uts46data
     output = u""
     try:
         for pos, char in enumerate(domain):
