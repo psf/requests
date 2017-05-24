@@ -132,7 +132,6 @@ def match_hostname(cert, hostname):
         elif key == 'IP Address':
             if host_ip is not None and _ipaddress_match(value, host_ip):
                 return
-            dnsnames.append(value)
     if not dnsnames:
         # The subject is only checked when there is no dNSName entry
         # in subjectAltName
