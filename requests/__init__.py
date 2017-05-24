@@ -6,7 +6,7 @@
 #          /
 
 """
-Requests HTTP library
+Requests HTTP Library
 ~~~~~~~~~~~~~~~~~~~~~
 
 Requests is an HTTP library, written in Python, for human beings. Basic GET
@@ -36,7 +36,7 @@ usage:
 The other HTTP methods are supported - see `requests.api`. Full documentation
 is at <http://python-requests.org>.
 
-:copyright: (c) 2016 by Kenneth Reitz.
+:copyright: (c) 2017 by Kenneth Reitz.
 :license: Apache 2.0, see LICENSE for more details.
 """
 
@@ -45,7 +45,8 @@ __version__ = '2.14.2'
 __build__ = 0x021402
 __author__ = 'Kenneth Reitz'
 __license__ = 'Apache 2.0'
-__copyright__ = 'Copyright 2016 Kenneth Reitz'
+__copyright__ = 'Copyright 2017 Kenneth Reitz'
+__cake__ = u'✨ 🍰 ✨ Thanks for using my software. It means the world to me. --kennethreitz'
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
