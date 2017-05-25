@@ -832,31 +832,33 @@ class Response(object):
         non-HTTP knowledge to make a better guess at the encoding, you should
         set ``r.encoding`` appropriately before accessing this property.
         """
+        if not hasattr(self, '_text'):
+            if not self.content:
+                self._text = str('')
 
-        # Try charset from content-type
-        content = None
-        encoding = self.encoding
+            else:
+                # Try charset from content-type
+                encoding = self.encoding
 
-        if not self.content:
-            return str('')
+                # Fallback to auto-detected encoding.
+                if self.encoding is None:
+                    encoding = self.apparent_encoding
 
-        # Fallback to auto-detected encoding.
-        if self.encoding is None:
-            encoding = self.apparent_encoding
+                # Decode unicode from given encoding.
+                try:
+                    content = str(self.content, encoding, errors='replace')
+                except (LookupError, TypeError):
+                    # A LookupError is raised if the encoding was not found which could
+                    # indicate a misspelling or similar mistake.
+                    #
+                    # A TypeError can be raised if encoding is None
+                    #
+                    # So we try blindly encoding.
+                    content = str(self.content, errors='replace')
 
-        # Decode unicode from given encoding.
-        try:
-            content = str(self.content, encoding, errors='replace')
-        except (LookupError, TypeError):
-            # A LookupError is raised if the encoding was not found which could
-            # indicate a misspelling or similar mistake.
-            #
-            # A TypeError can be raised if encoding is None
-            #
-            # So we try blindly encoding.
-            content = str(self.content, errors='replace')
+                self._text = content
 
-        return content
+        return self._text
 
     def json(self, **kwargs):
         r"""Returns the json-encoded content of a response, if any.
