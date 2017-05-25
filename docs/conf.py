@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('_themes'))
 
 import requests
-from requests import __version__
+from requests.__version__ import __version__
 
 
 # -- General configuration ------------------------------------------------
