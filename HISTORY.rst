@@ -65,6 +65,9 @@ Release History
 - Updated bundled idna to v2.5.
 - Updated bundled certifi to 2017.4.17.
 
+- Altered how ``SessionRedirectMixin.resolve_redirects`` and ``Session.send``
+  process redirect history.
+
 2.13.0 (2017-01-24)
 +++++++++++++++++++
 
