@@ -62,19 +62,19 @@ with open('HISTORY.rst', 'r', 'utf-8') as f:
     history = f.read()
 
 setup(
-    name='requests',
+    name=about['__title__'],
     version=about['__version__'],
-    description='Python HTTP for Humans.',
+    description=about['__description__'],
     long_description=readme + '\n\n' + history,
-    author='Kenneth Reitz',
-    author_email='me@kennethreitz.com',
-    url='http://python-requests.org',
+    author=about['__author__'],
+    author_email=about['__author_email__'],
+    url=about['__url__'],
     packages=packages,
     package_data={'': ['LICENSE', 'NOTICE'], 'requests': ['*.pem']},
     package_dir={'requests': 'requests'},
     include_package_data=True,
     install_requires=requires,
-    license='Apache 2.0',
+    license=about['__license__'],
     zip_safe=False,
     classifiers=(
         'Development Status :: 5 - Production/Stable',
