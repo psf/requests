@@ -40,7 +40,9 @@ is at <http://python-requests.org>.
 :license: Apache 2.0, see LICENSE for more details.
 """
 
-from .__about__ import *
+from .__about__ import __title__, __description__, __url__, __version__
+from .__about__ import __build__, __author__, __author_email__, __license__
+from .__about__ import __copyright__, __cake__
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
