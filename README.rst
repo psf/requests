@@ -84,7 +84,6 @@ Requests is ready for today's web.
 - Streaming Downloads
 - ``.netrc`` Support
 - Chunked Requests
-- Thread-safety
 
 Requests officially supports Python 2.6–2.7 & 3.3–3.7, and runs great on PyPy.
 
