@@ -40,13 +40,15 @@ is at <http://python-requests.org>.
 :license: Apache 2.0, see LICENSE for more details.
 """
 
-__title__ = 'requests'
-__version__ = '2.14.2'
-__build__ = 0x021402
-__author__ = 'Kenneth Reitz'
-__license__ = 'Apache 2.0'
-__copyright__ = 'Copyright 2017 Kenneth Reitz'
-__cake__ = u'✨ 🍰 ✨ Thanks for using my software. It means the world to me. --kennethreitz'
+from .__about__ import (
+    title as __title__,
+    version as __version__,
+    build as __build__,
+    author as __author__,
+    license as __license__,
+    copyright as __copyright__,
+    cake as __cake__,
+)
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
