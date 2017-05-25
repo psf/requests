@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
+import io
 import os
-import re
 import sys
 
 from codecs import open
@@ -51,24 +51,24 @@ packages = [
 requires = []
 test_requirements = ['pytest>=2.8.0', 'pytest-httpbin==0.0.7', 'pytest-cov', 'pytest-mock']
 
-with open('requests/__init__.py', 'r', 'utf-8') as fd:
-    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-                        fd.read(), re.MULTILINE).group(1)
-
-if not version:
-    raise RuntimeError('Cannot find version information')
-
 with open('README.rst', 'r', 'utf-8') as f:
     readme = f.read()
 with open('HISTORY.rst', 'r', 'utf-8') as f:
     history = f.read()
 
+metadata = {}
+with io.open('requests/__about__.py', encoding='utf-8') as f:
+    exec(f.read(), metadata)
+
+if not metadata['version']:
+    raise RuntimeError('Cannot find version information')
+
 setup(
     name='requests',
-    version=version,
+    version=metadata['version'],
     description='Python HTTP for Humans.',
     long_description=readme + '\n\n' + history,
-    author='Kenneth Reitz',
+    author=metadata['author'],
     author_email='me@kennethreitz.com',
     url='http://python-requests.org',
     packages=packages,
@@ -76,7 +76,7 @@ setup(
     package_dir={'requests': 'requests'},
     include_package_data=True,
     install_requires=requires,
-    license='Apache 2.0',
+    license=metadata['license'],
     zip_safe=False,
     classifiers=(
         'Development Status :: 5 - Production/Stable',
