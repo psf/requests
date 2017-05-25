@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 title = 'requests'
 version = '2.14.2'
 build = 0x021402
