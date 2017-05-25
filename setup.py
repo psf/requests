@@ -9,6 +9,7 @@ from codecs import open
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
+here = os.path.abspath(os.path.dirname(__file__))
 
 class PyTest(TestCommand):
     user_options = [('pytest-args=', 'a', "Arguments to pass into py.test")]
@@ -28,7 +29,7 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
-
+# 'setup.py publish' shortcut.
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
@@ -51,12 +52,9 @@ packages = [
 requires = []
 test_requirements = ['pytest>=2.8.0', 'pytest-httpbin==0.0.7', 'pytest-cov', 'pytest-mock']
 
-with open('requests/__init__.py', 'r', 'utf-8') as fd:
-    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-                        fd.read(), re.MULTILINE).group(1)
-
-if not version:
-    raise RuntimeError('Cannot find version information')
+about = {}
+with open(os.path.join(here, "requests", "__version__.py")) as f:
+    exec(f.read(), about)
 
 with open('README.rst', 'r', 'utf-8') as f:
     readme = f.read()
@@ -65,7 +63,7 @@ with open('HISTORY.rst', 'r', 'utf-8') as f:
 
 setup(
     name='requests',
-    version=version,
+    version=about['__version__'],
     description='Python HTTP for Humans.',
     long_description=readme + '\n\n' + history,
     author='Kenneth Reitz',
