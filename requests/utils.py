@@ -20,7 +20,7 @@ import socket
 import struct
 import warnings
 
-from .__about__ import __version__
+from .__version__ import __version__
 from . import certs
 # to_native_string is unused here, but imported here for backwards compatibility
 from ._internal_utils import to_native_string
