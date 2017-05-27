@@ -50,7 +50,7 @@ urllib3_version = urllib3.__version__.split('.')
 # Sometimes, urllib3 only reports its version as 16.1.
 if len(urllib3_version) == 2:
     urllib3_version.append('0')
-major, minor, patch= urllib3_version
+major, minor, patch = urllib3_version
 major, minor, patch = int(major), int(minor), int(patch)
 # urllib3 >= 1.21.1, < 1.22
 try:
