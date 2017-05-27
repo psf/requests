@@ -251,29 +251,7 @@ useful when the form has multiple elements that use the same key::
       ...
     }
 
-Value of each payload element can be a scalar or an iterable::
-
-    >>> payload = (('key1', ('value1', 1, (1, 2))), {'key2', ('value2', 2)})
-    >>> r = requests.post('http://httpbin.org/post', data=payload)
-    >>> print(r.text)
-    {
-      ...
-      "form": {
-        "key1": [
-          "value1",
-          "1",
-          "1",
-          "2"
-        ],
-        "key2": [
-          "value2",
-          "2"
-        ]
-      },
-      ...
-    }
-
-There are many times that you want to send data that is not form-encoded. If
+There are times that you may want to send data that is not form-encoded. If
 you pass in a ``string`` instead of a ``dict``, that data will be posted directly.
 
 For example, the GitHub API v3 accepts JSON-Encoded POST/PATCH data::
