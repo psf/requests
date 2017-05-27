@@ -17,9 +17,9 @@ import requests
 
 ### System Information
 
-Please provide the output of the following command below:
+Run this command:
 
-$ python -m requests.help
+    $ python -m requests.help
 
 ```
 <paste here>
