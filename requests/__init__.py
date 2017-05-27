@@ -46,7 +46,7 @@ from .__version__ import __copyright__, __cake__
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
-    from .packages.urllib3.contrib import pyopenssl
+    from urllib3.contrib import pyopenssl
     pyopenssl.inject_into_urllib3()
 except ImportError:
     pass
@@ -54,7 +54,7 @@ except ImportError:
 import warnings
 
 # urllib3's DependencyWarnings should be silenced.
-from .packages.urllib3.exceptions import DependencyWarning
+from urllib3.exceptions import DependencyWarning
 warnings.simplefilter('ignore', DependencyWarning)
 
 from . import utils
