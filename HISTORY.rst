@@ -9,6 +9,19 @@ Release History
 - Restored the ``requests.packages`` namespace for compatibility reasons.
 - Bugfix for ``urllib3`` version parsing.
 
+**Note**: code that was written to import against the ``requests.packages``
+namespace previously will have to import code that rests at this module-level
+now.
+
+For example::
+
+    from requests.packages.urllib3.poolmanager import PoolManager
+
+Will need to be re-written to be:
+
+    from requests.packages import urllib3
+    urllib3.poolmanager.PoolManager
+
 2.16.0 (2017-05-26)
 +++++++++++++++++++
 
