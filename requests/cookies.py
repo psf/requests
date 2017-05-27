@@ -513,7 +513,16 @@ def cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True):
         names_from_jar = [cookie.name for cookie in cookiejar]
         for name in cookie_dict:
             if overwrite or (name not in names_from_jar):
-                cookiejar.set_cookie(create_cookie(name, cookie_dict[name]))
+                cookie_data = cookie_dict[name]
+                if isinstance(cookie_data, dict):
+                    cookie_name = cookie_data.pop('name')
+                    cookie_val = cookie_data.pop('value')
+                    cookie_obj = create_cookie(
+                        cookie_name, cookie_val, **cookie_data)
+                else:
+                    cookie_obj = create_cookie(name, cookie_data)
+
+                cookiejar.set_cookie(cookie_obj)
 
     return cookiejar
 
