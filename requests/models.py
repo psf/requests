@@ -577,10 +577,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         for event in hooks:
             self.register_hook(event, hooks[event])
 
-    def send(self, session):
-        """Sends the given PreparedRequest to the given session."""
-        return session.send(self)
-
 
 class Response(object):
     """The :class:`Response <Response>` object, which contains a
@@ -714,10 +710,10 @@ class Response(object):
         """True if this Response one of the permanent versions of redirect."""
         return ('location' in self.headers and self.status_code in (codes.moved_permanently, codes.permanent_redirect))
 
+    @property
     def next(self):
         """Returns a PreparedRequest for the next request in a redirect chain, if there is one."""
-        if self.is_redirect:
-            return self._next
+        return self._next
 
     @property
     def apparent_encoding(self):
