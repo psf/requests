@@ -33,7 +33,7 @@ from requests.hooks import default_hooks
 
 from .compat import StringIO, u
 from .utils import override_environ
-from requests.packages.urllib3.util import Timeout as Urllib3Timeout
+from urllib3.util import Timeout as Urllib3Timeout
 
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
