@@ -3,6 +3,19 @@
 Release History
 ---------------
 
+2.15.0 (2017-05-26)
++++++++++++++++++++
+
+**Improvements**
+
+- Introduction of the ``Response.next`` property, for getting the next
+  ``PreparedResponse`` from a redirect chain (when ``allow_redirects=False``).
+- Internal refactoring of ``__version__`` module.
+
+**Bugfixes**
+
+- Restored once-optional parameter for ``requests.utils.get_environ_proxies()``.
+
 2.14.2 (2017-05-10)
 +++++++++++++++++++
 
