@@ -114,8 +114,8 @@ class SessionRedirectMixin(object):
         return None
 
     def resolve_redirects(self, resp, req, stream=False, timeout=None,
-                          verify=True, cert=None, proxies=None, **adapter_kwargs):
-        """Receives a Response. Returns a generator of Responses."""
+                          verify=True, cert=None, proxies=None, yield_requests=False, **adapter_kwargs):
+        """Receives a Response. Returns a generator of Responses or Requests."""
 
         hist = [] # keep track of history
 
@@ -203,22 +203,26 @@ class SessionRedirectMixin(object):
             # Override the original request.
             req = prepared_request
 
-            resp = self.send(
-                req,
-                stream=stream,
-                timeout=timeout,
-                verify=verify,
-                cert=cert,
-                proxies=proxies,
-                allow_redirects=False,
-                **adapter_kwargs
-            )
+            if yield_requests:
+                yield req
+            else:
 
-            extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
+                resp = self.send(
+                    req,
+                    stream=stream,
+                    timeout=timeout,
+                    verify=verify,
+                    cert=cert,
+                    proxies=proxies,
+                    allow_redirects=False,
+                    **adapter_kwargs
+                )
 
-            # extract redirect url, if any, for the next loop
-            url = self.get_redirect_target(resp)
-            yield resp
+                extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
+
+                # extract redirect url, if any, for the next loop
+                url = self.get_redirect_target(resp)
+                yield resp
 
     def rebuild_auth(self, prepared_request, response):
         """When being redirected we may want to strip authentication from the
@@ -597,8 +601,7 @@ class Session(SessionRedirectMixin):
         return self.request('DELETE', url, **kwargs)
 
     def send(self, request, **kwargs):
-        """
-        Send a given PreparedRequest.
+        """Send a given PreparedRequest.
 
         :rtype: requests.Response
         """
@@ -667,6 +670,13 @@ class Session(SessionRedirectMixin):
             # Get the last request made
             r = history.pop()
             r.history = history
+
+        # If redirects aren't being followed, store the response on the Request for Response.next().
+        if not allow_redirects:
+            try:
+                r._next = self.resolve_redirects(r, request, yield_requests=True, **kwargs).next()
+            except StopIteration:
+                pass
 
         if not stream:
             r.content
