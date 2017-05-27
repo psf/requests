@@ -17,8 +17,6 @@ import requests
 
 ### System Information
 
-Run this command:
-
     $ python -m requests.help
 
 ```
