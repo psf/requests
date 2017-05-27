@@ -35,22 +35,14 @@ if sys.argv[-1] == 'publish':
     os.system('twine upload dist/*')
     sys.exit()
 
-packages = [
-    'requests',
-    'requests.packages',
-    'requests.packages.chardet',
-    'requests.packages.chardet.cli',
-    'requests.packages.idna',
-    'requests.packages.urllib3',
-    'requests.packages.urllib3.packages',
-    'requests.packages.urllib3.contrib',
-    'requests.packages.urllib3.util',
-    'requests.packages.urllib3.packages.ssl_match_hostname',
-    'requests.packages.urllib3.packages.backports',
-    'requests.packages.urllib3.contrib._securetransport',
-]
+packages = ['requests']
 
-requires = []
+requires = [
+    'chardet>=3.0.2,<3.1.0',
+    'idna>=2.5,<2.6',
+    'urllib3 >=1.21.1,<1.22'
+
+]
 test_requirements = ['pytest>=2.8.0', 'pytest-httpbin==0.0.7', 'pytest-cov', 'pytest-mock']
 
 about = {}
