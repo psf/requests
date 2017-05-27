@@ -1,17 +1,25 @@
-If oyu are reporting an issue with a specific URI, please run the following command (only
-applicable with Requests v2.16.4 and later):
+Summary.
 
-    $ python -m requests.help
+## Expected Result
 
-Paste the output of that command in this issue. This will dramatically simplify
-our efforts to assist you. ✨🍰✨
+What you expected.
 
------------------------------
+## Actual Result
 
-Issue goes here.
+What happened instead.
+
+## Reproduction Steps
+
+```python
+import requests
+```
 
 ### System Information
 
+Please provide the output of the following command below:
+
+$ python -m requests.help
+
 ```
-Paste help commmand output here.
+<insert here>
 ```
