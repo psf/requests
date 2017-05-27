@@ -351,6 +351,30 @@ class TestRequests:
         # Session cookie should not be modified
         assert s.cookies['foo'] == 'bar'
 
+    def test_session_with_explicitly_none_cookies_takes_request(self, httpbin):
+        s = requests.session()
+        s.cookies = None
+        r = s.get(httpbin('cookies'), cookies={'foo': 'baz'})
+        assert r.json()['cookies']['foo'] == 'baz'
+        # Session cookie should still be None
+        assert s.cookies is None
+
+    def test_session_with_explicitly_none_cookies(self, httpbin):
+        s = requests.session()
+        s.cookies = None
+        r = s.get(httpbin('cookies'))
+        assert r.json()['cookies'] == {}
+        # Session cookie should still be None
+        assert s.cookies is None
+
+    def test_session_with_none_cookies_discards_server_cookies(self, httpbin):
+        s = requests.session()
+        s.cookies = None
+        r = s.get(httpbin('cookies/set?cookie=value'))
+        assert r.json()['cookies'] == {}
+        # Session cookie should still be None
+        assert s.cookies is None
+
     def test_request_cookies_not_persisted(self, httpbin):
         s = requests.session()
         s.get(httpbin('cookies'), cookies={'foo': 'baz'})

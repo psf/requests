@@ -3,6 +3,12 @@
 Release History
 ---------------
 
+**Unreleased**
++++++++++++++++++++
+
+- Enable ``Session`` objects to skip creating or parsing cookies all together.
+  This will improve performance for users who don't use cookies.
+
 2.14.2 (2017-05-10)
 +++++++++++++++++++
 

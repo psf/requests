@@ -123,6 +123,8 @@ def extract_cookies_to_jar(jar, request, response):
     :param request: our own requests.Request object
     :param response: urllib3.HTTPResponse object
     """
+    if jar is None:
+        return
     if not (hasattr(response, '_original_response') and
             response._original_response):
         return
@@ -524,6 +526,12 @@ def merge_cookies(cookiejar, cookies):
     :param cookiejar: CookieJar object to add the cookies to.
     :param cookies: Dictionary or CookieJar object to be added.
     """
+
+    if cookiejar is None:
+        if cookies is None:
+            return None
+        cookiejar = RequestsCookieJar()
+
     if not isinstance(cookiejar, cookielib.CookieJar):
         raise ValueError('You can only merge into CookieJar')
 

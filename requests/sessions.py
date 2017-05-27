@@ -384,7 +384,8 @@ class Session(SessionRedirectMixin):
         #: A CookieJar containing all currently outstanding cookies set on this
         #: session. By default it is a
         #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but
-        #: may be any other ``cookielib.CookieJar`` compatible object.
+        #: may be any other ``cookielib.CookieJar`` compatible object.  If set
+        #: to `None` then cookies are not persisted across requests.
         self.cookies = cookiejar_from_dict({})
 
         # Default connection adapters.
@@ -411,15 +412,18 @@ class Session(SessionRedirectMixin):
             session's settings.
         :rtype: requests.PreparedRequest
         """
-        cookies = request.cookies or {}
+        cookies = request.cookies
 
         # Bootstrap CookieJar.
-        if not isinstance(cookies, cookielib.CookieJar):
+        if (cookies is not None and
+                not isinstance(cookies, cookielib.CookieJar)):
             cookies = cookiejar_from_dict(cookies)
 
-        # Merge with session cookies
+        # Merge with session cookies.  Explicitly pass in `None` as the
+        # cookiejar for the innter call to `merge_cookies` to avoid creating
+        # a cookie jar if neither the session nor the request have cookies.
         merged_cookies = merge_cookies(
-            merge_cookies(RequestsCookieJar(), self.cookies), cookies)
+            merge_cookies(None, self.cookies), cookies)
 
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
@@ -611,6 +615,9 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault('verify', self.verify)
         kwargs.setdefault('cert', self.cert)
         kwargs.setdefault('proxies', self.proxies)
+        # If the cookie jar on the session is None, skip
+        # parsing cookies on the response.
+        kwargs.setdefault('discard_cookies', self.cookies is None)
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
@@ -653,7 +660,8 @@ class Session(SessionRedirectMixin):
 
             # If the hooks create history then we want those cookies too
             for resp in r.history:
-                extract_cookies_to_jar(self.cookies, resp.request, resp.raw)
+                extract_cookies_to_jar(
+                    self.cookies, resp.request, resp.raw)
 
         extract_cookies_to_jar(self.cookies, request, r.raw)
 
