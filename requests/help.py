@@ -6,6 +6,9 @@ import platform
 import sys
 import ssl
 
+import urllib3
+import chardet
+
 from . import __version__ as requests_version
 
 try:
@@ -66,6 +69,9 @@ def information():
         }
 
     implementation_info = _implementation()
+    urllib3_info = urllib3.__version__
+    chardet_info = chardet.__version__
+
     pyopenssl_info = {
         'version': None,
         'openssl_version': '',
@@ -87,13 +93,18 @@ def information():
         },
         'using_pyopenssl': pyopenssl is not None,
         'pyOpenSSL': pyopenssl_info,
+        'urllib3': urllib3_info,
+        'chardet': chardet_info,
         'cryptography': cryptography_info,
         'requests': {
             'version': requests_version,
         },
     }
 
-
-def print_information():
+def main():
     """Pretty-print the bug information as JSON."""
     print(json.dumps(information(), sort_keys=True, indent=2))
+
+if __name__ == '__main__':
+    main()
+
