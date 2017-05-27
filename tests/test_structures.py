@@ -2,7 +2,7 @@
 
 import pytest
 
-from requests.structures import CaseInsensitiveDict, LookupDict, TimedCache, TimedCacheManaged
+from requests.structures import CaseInsensitiveDict, LookupDict
 
 
 class TestCaseInsensitiveDict:
@@ -74,75 +74,3 @@ class TestLookupDict:
     @get_item_parameters
     def test_get(self, key, value):
         assert self.lookup_dict.get(key) == value
-
-
-class TestTimedCache(object):
-    @pytest.fixture(autouse=True)
-    def setup(self):
-        self.any_value = 'some value'
-        self.expiration_secs = 60
-        self.cache = TimedCache(expiration_secs=self.expiration_secs)
-        yield
-        self.cache.clear()
-
-    def test_get(self):
-        self.cache['a'] = self.any_value
-        assert self.cache['a'] is self.any_value
-
-    def test_repr(self):
-        repr = str(self.cache)
-        assert repr == '<TimedCache maxlen:32 len:0 expiration_secs:60>'
-
-    def test_get_expired_item(self, mocker):
-        self.cache = TimedCache(maxlen=1, expiration_secs=self.expiration_secs)
-
-        mocker.patch('requests.structures.current_time', lambda: 0)
-        self.cache['a'] = self.any_value
-        mocker.patch('requests.structures.current_time', lambda: self.expiration_secs + 1)
-        assert self.cache.get('a') is None
-
-    def test_evict_first_entry_when_full(self, mocker):
-        self.cache = TimedCache(maxlen=2, expiration_secs=2)
-        mocker.patch('requests.structures.current_time', lambda: 0)
-        self.cache['a'] = self.any_value
-        mocker.patch('requests.structures.current_time', lambda: 1)
-        self.cache['b'] = self.any_value
-        mocker.patch('requests.structures.current_time', lambda: 3)
-        self.cache['c'] = self.any_value
-        assert len(self.cache) is 2
-        with pytest.raises(KeyError, message='Expected key not found'):
-            self.cache['a']
-        assert self.cache['b'] is self.any_value
-        assert self.cache['c'] is self.any_value
-
-    def test_delete_item_removes_item(self):
-        self.cache['a'] = self.any_value
-        del self.cache['a']
-        with pytest.raises(KeyError, message='Expected key not found'):
-            self.cache['a']
-
-    def test_iterating_hides_timestamps(self):
-        self.cache['a'] = 1
-        self.cache['b'] = 2
-        expected = [('a', 1), ('b', 2)]
-        actual = [(key, val) for key, val in self.cache]
-        assert expected == actual
-
-
-class TestTimedCacheManagedDecorator(object):
-    def test_caches_repeated_calls(self, mocker):
-        mocker.patch('requests.structures.current_time', lambda: 0)
-
-        nonlocals = {'value': 0}
-
-        @TimedCacheManaged
-        def some_method(x):
-            nonlocals['value'] = nonlocals['value'] + x
-            return nonlocals['value']
-
-        first_result = some_method(1)
-        assert first_result is 1
-        second_result = some_method(1)
-        assert second_result is 1
-        third_result = some_method(2)
-        assert third_result is 3

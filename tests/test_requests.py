@@ -33,6 +33,7 @@ from requests.hooks import default_hooks
 
 from .compat import StringIO, u
 from .utils import override_environ
+from urllib3.util import Timeout as Urllib3Timeout
 
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
@@ -64,6 +65,8 @@ class TestRequests:
         requests.put
         requests.patch
         requests.post
+        # Not really an entry point, but people rely on it.
+        from requests.packages.urllib3.poolmanager import PoolManager
 
     @pytest.mark.parametrize(
         'exception, url', (
@@ -784,6 +787,10 @@ class TestRequests:
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), cert=('.', INVALID_PATH))
         assert str(e.value) == 'Could not find the TLS key file, invalid path: {0}'.format(INVALID_PATH)
+
+    def test_http_with_certificate(self, httpbin):
+        r = requests.get(httpbin(), cert='.')
+        assert r.status_code == 200
 
     def test_https_warnings(self, httpbin_secure, httpbin_ca_bundle):
         """warnings are emitted with requests.get"""
@@ -2013,7 +2020,12 @@ class TestTimeout:
             requests.get(httpbin('get'), timeout=timeout)
         assert error_text in str(e)
 
-    def test_none_timeout(self, httpbin):
+    @pytest.mark.parametrize(
+        'timeout', (
+            None,
+            Urllib3Timeout(connect=None, read=None)
+        ))
+    def test_none_timeout(self, httpbin, timeout):
         """Check that you can set None as a valid timeout value.
 
         To actually test this behavior, we'd want to check that setting the
@@ -2022,27 +2034,42 @@ class TestTimeout:
         Instead we verify that setting the timeout to None does not prevent the
         request from succeeding.
         """
-        r = requests.get(httpbin('get'), timeout=None)
+        r = requests.get(httpbin('get'), timeout=timeout)
         assert r.status_code == 200
 
-    def test_read_timeout(self, httpbin):
+    @pytest.mark.parametrize(
+        'timeout', (
+            (None, 0.1),
+            Urllib3Timeout(connect=None, read=0.1)
+        ))
+    def test_read_timeout(self, httpbin, timeout):
         try:
-            requests.get(httpbin('delay/10'), timeout=(None, 0.1))
+            requests.get(httpbin('delay/10'), timeout=timeout)
             pytest.fail('The recv() request should time out.')
         except ReadTimeout:
             pass
 
-    def test_connect_timeout(self):
+    @pytest.mark.parametrize(
+        'timeout', (
+            (0.1, None),
+            Urllib3Timeout(connect=0.1, read=None)
+        ))
+    def test_connect_timeout(self, timeout):
         try:
-            requests.get(TARPIT, timeout=(0.1, None))
+            requests.get(TARPIT, timeout=timeout)
             pytest.fail('The connect() request should time out.')
         except ConnectTimeout as e:
             assert isinstance(e, ConnectionError)
             assert isinstance(e, Timeout)
 
-    def test_total_timeout_connect(self):
+    @pytest.mark.parametrize(
+        'timeout', (
+            (0.1, 0.1),
+            Urllib3Timeout(connect=0.1, read=0.1)
+        ))
+    def test_total_timeout_connect(self, timeout):
         try:
-            requests.get(TARPIT, timeout=(0.1, 0.1))
+            requests.get(TARPIT, timeout=timeout)
             pytest.fail('The connect() request should time out.')
         except ConnectTimeout:
             pass
@@ -2193,7 +2220,7 @@ def test_prepared_copy(kwargs):
 
 
 def test_urllib3_retries(httpbin):
-    from requests.packages.urllib3.util import Retry
+    from urllib3.util import Retry
     s = requests.Session()
     s.mount('http://', HTTPAdapter(max_retries=Retry(
         total=2, status_forcelist=[500]
@@ -2211,15 +2238,6 @@ def test_urllib3_pool_connection_closed(httpbin):
         s.get(httpbin('status/200'))
     except ConnectionError as e:
         assert u"Pool is closed." in str(e)
-
-
-def test_vendor_aliases():
-    from requests.packages import urllib3
-    from requests.packages import chardet
-    from requests.packages import idna
-
-    with pytest.raises(ImportError):
-        from requests.packages import webbrowser
 
 
 class TestPreparingURLs(object):
@@ -2287,12 +2305,12 @@ class TestPreparingURLs(object):
         'input, expected',
         (
             (
-                b"http+unix://%2Fvar%2Frun%2Fsocket/path",
-                u"http+unix://%2fvar%2frun%2fsocket/path",
+                b"http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path~",
             ),
             (
-                u"http+unix://%2Fvar%2Frun%2Fsocket/path",
-                u"http+unix://%2fvar%2frun%2fsocket/path",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path~",
             ),
             (
                 b"mailto:user@example.org",
@@ -2325,12 +2343,12 @@ class TestPreparingURLs(object):
             (
                 b"http+unix://%2Fvar%2Frun%2Fsocket/path",
                 {"key": "value"},
-                u"http+unix://%2fvar%2frun%2fsocket/path?key=value",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path?key=value",
             ),
             (
                 u"http+unix://%2Fvar%2Frun%2Fsocket/path",
                 {"key": "value"},
-                u"http+unix://%2fvar%2frun%2fsocket/path?key=value",
+                u"http+unix://%2Fvar%2Frun%2Fsocket/path?key=value",
             ),
             (
                 b"mailto:user@example.org",

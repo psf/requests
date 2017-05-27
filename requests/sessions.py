@@ -8,11 +8,15 @@ This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
 """
 import os
+import platform
+import time
 from collections import Mapping
-from datetime import datetime
+from datetime import timedelta
+
+from urllib3._collections import RecentlyUsedContainer
 
 from .auth import _basic_auth_str
-from .compat import cookielib, OrderedDict, urljoin, urlparse
+from .compat import cookielib, is_py3, OrderedDict, urljoin, urlparse
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
@@ -21,9 +25,8 @@ from ._internal_utils import to_native_string
 from .utils import to_key_val_list, default_headers
 from .exceptions import (
     TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError)
-from .packages.urllib3._collections import RecentlyUsedContainer
-from .structures import CaseInsensitiveDict
 
+from .structures import CaseInsensitiveDict
 from .adapters import HTTPAdapter
 
 from .utils import (
@@ -37,6 +40,15 @@ from .status_codes import codes
 from .models import REDIRECT_STATI
 
 REDIRECT_CACHE_SIZE = 1000
+
+# Preferred clock, based on which one is more accurate on a given system.
+if platform.system() == 'Windows':
+    try:  # Python 3.3+
+        preferred_clock = time.perf_counter
+    except AttributeError:  # Earlier than Python 3.
+        preferred_clock = time.clock
+else:
+    preferred_clock = time.time
 
 
 def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
@@ -90,12 +102,21 @@ class SessionRedirectMixin(object):
     def get_redirect_target(self, resp):
         """Receives a Response. Returns a redirect URI or ``None``"""
         if resp.is_redirect:
-            return resp.headers['location']
+            location = resp.headers['location']
+            # Currently the underlying http module on py3 decode headers
+            # in latin1, but empirical evidence suggests that latin1 is very
+            # rarely used with non-ASCII characters in HTTP headers.
+            # It is more likely to get UTF8 header rather than latin1.
+            # This causes incorrect handling of UTF8 encoded location headers.
+            # To solve this, we re-encode the location in latin1.
+            if is_py3:
+                location = location.encode('latin1')
+            return to_native_string(location, 'utf8')
         return None
 
     def resolve_redirects(self, resp, req, stream=False, timeout=None,
-                          verify=True, cert=None, proxies=None, **adapter_kwargs):
-        """Receives a Response. Returns a generator of Responses."""
+                          verify=True, cert=None, proxies=None, yield_requests=False, **adapter_kwargs):
+        """Receives a Response. Returns a generator of Responses or Requests."""
 
         hist = [] # keep track of history
 
@@ -122,7 +143,7 @@ class SessionRedirectMixin(object):
             # Handle redirection without scheme (see: RFC 1808 Section 4)
             if url.startswith('//'):
                 parsed_rurl = urlparse(resp.url)
-                url = '%s:%s' % (parsed_rurl.scheme, url)
+                url = '%s:%s' % (to_native_string(parsed_rurl.scheme), url)
 
             # The scheme should be lower case...
             parsed = urlparse(url)
@@ -183,22 +204,26 @@ class SessionRedirectMixin(object):
             # Override the original request.
             req = prepared_request
 
-            resp = self.send(
-                req,
-                stream=stream,
-                timeout=timeout,
-                verify=verify,
-                cert=cert,
-                proxies=proxies,
-                allow_redirects=False,
-                **adapter_kwargs
-            )
+            if yield_requests:
+                yield req
+            else:
 
-            extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
+                resp = self.send(
+                    req,
+                    stream=stream,
+                    timeout=timeout,
+                    verify=verify,
+                    cert=cert,
+                    proxies=proxies,
+                    allow_redirects=False,
+                    **adapter_kwargs
+                )
 
-            # extract redirect url, if any, for the next loop
-            url = self.get_redirect_target(resp)
-            yield resp
+                extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
+
+                # extract redirect url, if any, for the next loop
+                url = self.get_redirect_target(resp)
+                yield resp
 
     def rebuild_auth(self, prepared_request, response):
         """When being redirected we may want to strip authentication from the
@@ -343,7 +368,8 @@ class Session(SessionRedirectMixin):
         #: SSL Verification default.
         self.verify = True
 
-        #: SSL client certificate default.
+        #: SSL client certificate default, if String, path to ssl client
+        #: cert file (.pem). If Tuple, ('cert', 'key') pair.
         self.cert = None
 
         #: Maximum number of redirects allowed. If the request exceeds this
@@ -499,7 +525,7 @@ class Session(SessionRedirectMixin):
         return resp
 
     def get(self, url, **kwargs):
-        """Sends a GET request. Returns :class:`Response` object.
+        r"""Sends a GET request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
@@ -510,7 +536,7 @@ class Session(SessionRedirectMixin):
         return self.request('GET', url, **kwargs)
 
     def options(self, url, **kwargs):
-        """Sends a OPTIONS request. Returns :class:`Response` object.
+        r"""Sends a OPTIONS request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
@@ -521,7 +547,7 @@ class Session(SessionRedirectMixin):
         return self.request('OPTIONS', url, **kwargs)
 
     def head(self, url, **kwargs):
-        """Sends a HEAD request. Returns :class:`Response` object.
+        r"""Sends a HEAD request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
@@ -532,7 +558,7 @@ class Session(SessionRedirectMixin):
         return self.request('HEAD', url, **kwargs)
 
     def post(self, url, data=None, json=None, **kwargs):
-        """Sends a POST request. Returns :class:`Response` object.
+        r"""Sends a POST request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
@@ -544,7 +570,7 @@ class Session(SessionRedirectMixin):
         return self.request('POST', url, data=data, json=json, **kwargs)
 
     def put(self, url, data=None, **kwargs):
-        """Sends a PUT request. Returns :class:`Response` object.
+        r"""Sends a PUT request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
@@ -555,7 +581,7 @@ class Session(SessionRedirectMixin):
         return self.request('PUT', url, data=data, **kwargs)
 
     def patch(self, url, data=None, **kwargs):
-        """Sends a PATCH request. Returns :class:`Response` object.
+        r"""Sends a PATCH request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
@@ -566,7 +592,7 @@ class Session(SessionRedirectMixin):
         return self.request('PATCH', url,  data=data, **kwargs)
 
     def delete(self, url, **kwargs):
-        """Sends a DELETE request. Returns :class:`Response` object.
+        r"""Sends a DELETE request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
@@ -576,8 +602,7 @@ class Session(SessionRedirectMixin):
         return self.request('DELETE', url, **kwargs)
 
     def send(self, request, **kwargs):
-        """
-        Send a given PreparedRequest.
+        """Send a given PreparedRequest.
 
         :rtype: requests.Response
         """
@@ -612,13 +637,14 @@ class Session(SessionRedirectMixin):
         adapter = self.get_adapter(url=request.url)
 
         # Start time (approximately) of the request
-        start = datetime.utcnow()
+        start = preferred_clock()
 
         # Send the request
         r = adapter.send(request, **kwargs)
 
         # Total elapsed time of the request (approximately)
-        r.elapsed = datetime.utcnow() - start
+        elapsed = preferred_clock() - start
+        r.elapsed = timedelta(seconds=elapsed)
 
         # Response manipulation hooks
         r = dispatch_hook('response', hooks, r, **kwargs)
@@ -645,6 +671,13 @@ class Session(SessionRedirectMixin):
             # Get the last request made
             r = history.pop()
             r.history = history
+
+        # If redirects aren't being followed, store the response on the Request for Response.next().
+        if not allow_redirects:
+            try:
+                r._next = next(self.resolve_redirects(r, request, yield_requests=True, **kwargs))
+            except StopIteration:
+                pass
 
         if not stream:
             r.content

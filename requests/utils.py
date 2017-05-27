@@ -14,29 +14,77 @@ import collections
 import contextlib
 import io
 import os
+import platform
 import re
 import socket
 import struct
 import warnings
 
-from . import __version__
+from .__version__ import __version__
 from . import certs
 # to_native_string is unused here, but imported here for backwards compatibility
 from ._internal_utils import to_native_string
 from .compat import parse_http_list as _parse_list_header
 from .compat import (
     quote, urlparse, bytes, str, OrderedDict, unquote, getproxies,
-    proxy_bypass, urlunparse, basestring, integer_types)
-from .cookies import RequestsCookieJar, cookiejar_from_dict
-from .structures import CaseInsensitiveDict, TimedCache, TimedCacheManaged
+    proxy_bypass, urlunparse, basestring, integer_types, is_py3,
+    proxy_bypass_environment, getproxies_environment)
+from .cookies import cookiejar_from_dict
+from .structures import CaseInsensitiveDict
 from .exceptions import (
     InvalidURL, InvalidHeader, FileModeWarning, UnrewindableBodyError)
-
-_hush_pyflakes = (RequestsCookieJar,)
 
 NETRC_FILES = ('.netrc', '_netrc')
 
 DEFAULT_CA_BUNDLE_PATH = certs.where()
+
+
+if platform.system() == 'Windows':
+    # provide a proxy_bypass version on Windows without DNS lookups
+
+    def proxy_bypass_registry(host):
+        if is_py3:
+            import winreg
+        else:
+            import _winreg as winreg
+        try:
+            internetSettings = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                r'Software\Microsoft\Windows\CurrentVersion\Internet Settings')
+            proxyEnable = winreg.QueryValueEx(internetSettings,
+                                              'ProxyEnable')[0]
+            proxyOverride = winreg.QueryValueEx(internetSettings,
+                                                'ProxyOverride')[0]
+        except OSError:
+            return False
+        if not proxyEnable or not proxyOverride:
+            return False
+
+        # make a check value list from the registry entry: replace the
+        # '<local>' string by the localhost entry and the corresponding
+        # canonical entry.
+        proxyOverride = proxyOverride.split(';')
+        # now check if we match one of the registry values.
+        for test in proxyOverride:
+            if test == '<local>':
+                if '.' not in host:
+                    return True
+            test = test.replace(".", r"\.")     # mask dots
+            test = test.replace("*", r".*")     # change glob sequence
+            test = test.replace("?", r".")      # change glob char
+            if re.match(test, host, re.I):
+                return True
+        return False
+
+    def proxy_bypass(host):  # noqa
+        """Return True, if the host should be bypassed.
+
+        Checks proxy settings gathered from the environment, if specified,
+        or the registry.
+        """
+        if getproxies_environment():
+            return proxy_bypass_environment(host)
+        else:
+            return proxy_bypass_registry(host)
 
 
 def dict_to_sequence(d):
@@ -497,7 +545,7 @@ def requote_uri(uri):
 
 
 def address_in_network(ip, net):
-    """This function allows you to check if on IP belongs to a network subnet
+    """This function allows you to check if an IP belongs to a network subnet
 
     Example: returns True if ip = 192.168.1.1 and net = 192.168.1.0/24
              returns False if ip = 192.168.1.1 and net = 192.168.100.0/24
@@ -579,16 +627,6 @@ def set_environ(env_name, value):
             os.environ[env_name] = old_value
 
 
-@TimedCacheManaged
-def _proxy_bypass_cached(netloc):
-    """
-    Looks for netloc in the cache, if not found, will call proxy_bypass
-    for the netloc and store its result in the cache
-
-    :rtype: bool
-    """
-    return proxy_bypass(netloc)
-
 def should_bypass_proxies(url, no_proxy):
     """
     Returns whether we should bypass proxies or not.
@@ -636,7 +674,7 @@ def should_bypass_proxies(url, no_proxy):
     # legitimate problems.
     with set_environ('no_proxy', no_proxy_arg):
         try:
-            bypass = _proxy_bypass_cached(netloc)
+            bypass = proxy_bypass(netloc)
         except (TypeError, socket.gaierror):
             bypass = False
 
@@ -646,7 +684,7 @@ def should_bypass_proxies(url, no_proxy):
     return False
 
 
-def get_environ_proxies(url, no_proxy):
+def get_environ_proxies(url, no_proxy=None):
     """
     Return a dict of environment proxies.
 
