@@ -13,6 +13,8 @@ import time
 from collections import Mapping
 from datetime import timedelta
 
+from urllib3._collections import RecentlyUsedContainer
+
 from .auth import _basic_auth_str
 from .compat import cookielib, is_py3, OrderedDict, urljoin, urlparse
 from .cookies import (
@@ -23,9 +25,8 @@ from ._internal_utils import to_native_string
 from .utils import to_key_val_list, default_headers
 from .exceptions import (
     TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError)
-from .packages.urllib3._collections import RecentlyUsedContainer
-from .structures import CaseInsensitiveDict
 
+from .structures import CaseInsensitiveDict
 from .adapters import HTTPAdapter
 
 from .utils import (
