@@ -1,4 +1,5 @@
 -e .[socks]
+pytest-xdist
 alabaster==0.7.10
 Babel==2.4.0
 bleach==2.0.0
