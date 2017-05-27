@@ -577,6 +577,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         for event in hooks:
             self.register_hook(event, hooks[event])
 
+    def send(self, session):
+        """Sends the given PreparedRequest to the given session."""
+        return session.send(self)
+
 
 class Response(object):
     """The :class:`Response <Response>` object, which contains a
@@ -593,6 +597,7 @@ class Response(object):
 
         self._content = False
         self._content_consumed = False
+        self._next = None
 
         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
         self.status_code = None
@@ -709,6 +714,9 @@ class Response(object):
         """True if this Response one of the permanent versions of redirect"""
         return ('location' in self.headers and self.status_code in (codes.moved_permanently, codes.permanent_redirect))
 
+    def next(self):
+        if self.is_redirect:
+            return self._next
     @property
     def apparent_encoding(self):
         """The apparent encoding, provided by the chardet library"""
