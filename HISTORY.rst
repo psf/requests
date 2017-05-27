@@ -3,6 +3,11 @@
 Release History
 ---------------
 
+2.16.4 (2017-05-27)
++++++++++++++++++++
+
+- Introduction of the ``$ python -m requests.help`` command, for debugging with maintainers!
+
 2.16.3 (2017-05-27)
 +++++++++++++++++++
 
