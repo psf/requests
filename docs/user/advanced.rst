@@ -225,7 +225,7 @@ Requests can also ignore verifying the SSL certificate if you set ``verify`` to 
 
 By default, ``verify`` is set to True. Option ``verify`` only applies to host certs.
 
-Client side certificates
+Client Side Certificates
 ------------------------
 
 You can also specify a local cert to use as client side certificate, as a single

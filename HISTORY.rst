@@ -3,6 +3,69 @@
 Release History
 ---------------
 
+2.16.4 (2017-05-27)
++++++++++++++++++++
+
+- Introduction of the ``$ python -m requests.help`` command, for debugging with maintainers!
+
+2.16.3 (2017-05-27)
++++++++++++++++++++
+
+- Further restored the ``requests.packages`` namespace for compatibility reasons.
+
+2.16.2 (2017-05-27)
++++++++++++++++++++
+
+- Further restored the ``requests.packages`` namespace for compatibility reasons.
+
+No code modification (noted below) should be neccessary any longer.
+
+2.16.1 (2017-05-27)
++++++++++++++++++++
+
+- Restored the ``requests.packages`` namespace for compatibility reasons.
+- Bugfix for ``urllib3`` version parsing.
+
+**Note**: code that was written to import against the ``requests.packages``
+namespace previously will have to import code that rests at this module-level
+now.
+
+For example::
+
+    from requests.packages.urllib3.poolmanager import PoolManager
+
+Will need to be re-written to be::
+
+    from requests.packages import urllib3
+    urllib3.poolmanager.PoolManager
+
+Or, even better::
+
+    from urllib3.poolmanager import PoolManager
+
+2.16.0 (2017-05-26)
++++++++++++++++++++
+
+- Unvendor ALL the things!
+
+2.15.1 (2017-05-26)
++++++++++++++++++++
+
+- Everyone makes mistakes.
+
+2.15.0 (2017-05-26)
++++++++++++++++++++
+
+**Improvements**
+
+- Introduction of the ``Response.next`` property, for getting the next
+  ``PreparedResponse`` from a redirect chain (when ``allow_redirects=False``).
+- Internal refactoring of ``__version__`` module.
+
+**Bugfixes**
+
+- Restored once-optional parameter for ``requests.utils.get_environ_proxies()``.
+
 2.14.2 (2017-05-10)
 +++++++++++++++++++
 
