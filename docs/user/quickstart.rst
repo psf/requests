@@ -234,6 +234,45 @@ dictionary of data will automatically be form-encoded when the request is made::
       ...
     }
 
+You can also pass a list of tuples to the ``data`` argument. This is particularly
+useful when the form has multiple elements that use the same key::
+
+    >>> payload = (('key1', 'value1'), ('key1', 'value2'))
+    >>> r = requests.post('http://httpbin.org/post', data=payload)
+    >>> print(r.text)
+    {
+      ...
+      "form": {
+        "key1": [
+          "value1",
+          "value2"
+        ]
+      },
+      ...
+    }
+
+Value of each payload element can be a scalar or an iterable::
+
+    >>> payload = (('key1', ('value1', 1, (1, 2))), {'key2', ('value2', 2)})
+    >>> r = requests.post('http://httpbin.org/post', data=payload)
+    >>> print(r.text)
+    {
+      ...
+      "form": {
+        "key1": [
+          "value1",
+          "1",
+          "1",
+          "2"
+        ],
+        "key2": [
+          "value2",
+          "2"
+        ]
+      },
+      ...
+    }
+
 There are many times that you want to send data that is not form-encoded. If
 you pass in a ``string`` instead of a ``dict``, that data will be posted directly.
 
@@ -485,7 +524,7 @@ Timeouts
 --------
 
 You can tell Requests to stop waiting for a response after a given number of
-seconds with the ``timeout`` parameter. Nearly all production code should use 
+seconds with the ``timeout`` parameter. Nearly all production code should use
 this parameter in nearly all requests. Failure to do so can cause your program
 to hang indefinitely::
 
