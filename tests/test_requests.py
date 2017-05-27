@@ -65,6 +65,8 @@ class TestRequests:
         requests.put
         requests.patch
         requests.post
+        # Not really an entry point, but people rely on it.
+        from requests.packages.urllib3.poolmanager import PoolManager
 
     @pytest.mark.parametrize(
         'exception, url', (
