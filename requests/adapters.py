@@ -38,7 +38,7 @@ from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
 from .auth import _basic_auth_str
 
 try:
-    from .packages.urllib3.contrib.socks import SOCKSProxyManager
+    from urllib3.contrib.socks import SOCKSProxyManager
 except ImportError:
     def SOCKSProxyManager(*args, **kwargs):
         raise InvalidSchema("Missing dependencies for SOCKS support.")
@@ -171,7 +171,7 @@ class HTTPAdapter(BaseAdapter):
         :param proxy: The proxy to return a urllib3 ProxyManager for.
         :param proxy_kwargs: Extra keyword arguments used to configure the Proxy Manager.
         :returns: ProxyManager
-        :rtype: requests.packages.urllib3.ProxyManager
+        :rtype: urllib3.ProxyManager
         """
         if proxy in self.proxy_manager:
             manager = self.proxy_manager[proxy]
@@ -294,7 +294,7 @@ class HTTPAdapter(BaseAdapter):
 
         :param url: The URL to connect to.
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
-        :rtype: requests.packages.urllib3.ConnectionPool
+        :rtype: urllib3.ConnectionPool
         """
         proxy = select_proxy(url, proxies)
 
