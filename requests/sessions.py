@@ -674,7 +674,7 @@ class Session(SessionRedirectMixin):
         # If redirects aren't being followed, store the response on the Request for Response.next().
         if not allow_redirects:
             try:
-                r._next = self.resolve_redirects(r, request, yield_requests=True, **kwargs).next()
+                r._next = next(self.resolve_redirects(r, request, yield_requests=True, **kwargs))
             except StopIteration:
                 pass
 
