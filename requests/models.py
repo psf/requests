@@ -334,13 +334,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     @staticmethod
     def _get_idna_encoded_host(host):
-        try:
-            from .packages import idna
-        except ImportError:
-            # tolerate the possibility of downstream repackagers unvendoring `requests`
-            # For more information, read: packages/__init__.py
-            import idna
-            sys.modules['requests.packages.idna'] = idna
+        import idna
 
         try:
             host = idna.encode(host, uts46=True).decode('utf-8')
