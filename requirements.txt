@@ -1,6 +1,5 @@
 -e .[socks]
 alabaster==0.7.10
-appdirs==1.4.3
 Babel==2.4.0
 bleach==2.0.0
 certifi==2017.4.17
@@ -20,11 +19,9 @@ itsdangerous==0.24
 Jinja2==2.9.6
 MarkupSafe==1.0
 mock==2.0.0
-packaging==16.8
 pbr==3.0.1
 py==1.4.33
 Pygments==2.2.0
-pyparsing==2.2.0
 PySocks==1.6.7
 pytest==3.1.0
 pytest-cov==2.5.1
@@ -33,7 +30,6 @@ pytest-mock==1.6.0
 pytz==2017.2
 readme-renderer==17.2
 requests==2.16.4
-six==1.10.0
 snowballstemmer==1.2.1
 Sphinx==1.5.5
 urllib3==1.21.1
