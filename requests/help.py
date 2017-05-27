@@ -55,7 +55,7 @@ def _implementation():
     return {'name': implementation, 'version': implementation_version}
 
 
-def information():
+def info():
     """Generate information for a bug report."""
     try:
         platform_info = {
@@ -103,7 +103,7 @@ def information():
 
 def main():
     """Pretty-print the bug information as JSON."""
-    print(json.dumps(information(), sort_keys=True, indent=2))
+    print(json.dumps(info(), sort_keys=True, indent=2))
 
 if __name__ == '__main__':
     main()
