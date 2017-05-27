@@ -114,7 +114,7 @@ class SessionRedirectMixin(object):
         return None
 
     def resolve_redirects(self, resp, req, stream=False, timeout=None,
-                          verify=True, cert=None, proxies=None, yield_responses=True, **adapter_kwargs):
+                          verify=True, cert=None, proxies=None, yield_requests=False, **adapter_kwargs):
         """Receives a Response. Returns a generator of Responses or Requests."""
 
         hist = [] # keep track of history
@@ -203,7 +203,7 @@ class SessionRedirectMixin(object):
             # Override the original request.
             req = prepared_request
 
-            if not yield_responses:
+            if yield_requests:
                 yield req
             else:
 
@@ -674,7 +674,7 @@ class Session(SessionRedirectMixin):
         # If redirects aren't being followed, store the response on the Request for Response.next().
         if not allow_redirects:
             try:
-                r._next = self.resolve_redirects(r, request, yield_responses=False, **kwargs).next()
+                r._next = self.resolve_redirects(r, request, yield_requests=True, **kwargs).next()
             except StopIteration:
                 pass
 
