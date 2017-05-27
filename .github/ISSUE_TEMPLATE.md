@@ -12,6 +12,7 @@ What happened instead.
 
 ```python
 import requests
+
 ```
 
 ### System Information
@@ -21,5 +22,5 @@ Please provide the output of the following command below:
 $ python -m requests.help
 
 ```
-<insert here>
+<paste here>
 ```
