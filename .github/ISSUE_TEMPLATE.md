@@ -15,7 +15,7 @@ import requests
 
 ```
 
-### System Information
+## System Information
 
     $ python -m requests.help
 
