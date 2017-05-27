@@ -24,7 +24,7 @@ Will need to be re-written to be::
 
 Or, even better::
 
-    from urllib.poolmanager import PoolManager
+    from urllib3.poolmanager import PoolManager
 
 2.16.0 (2017-05-26)
 +++++++++++++++++++
