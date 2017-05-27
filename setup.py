@@ -38,9 +38,9 @@ if sys.argv[-1] == 'publish':
 packages = [
     'requests',
     'requests.packages',
-    'requests.packages.chardet',
-    'requests.packages.chardet.cli',
-    'requests.packages.idna',
+    # 'requests.packages.chardet',
+    # 'requests.packages.chardet.cli',
+    # 'requests.packages.idna',
     'requests.packages.urllib3',
     'requests.packages.urllib3.packages',
     'requests.packages.urllib3.contrib',
