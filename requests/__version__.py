@@ -7,8 +7,8 @@
 __title__ = 'requests'
 __description__ = 'Python HTTP for Humans.'
 __url__ = 'http://python-requests.org'
-__version__ = '2.16.2'
-__build__ = 0x021602
+__version__ = '2.16.3'
+__build__ = 0x021603
 __author__ = 'Kenneth Reitz'
 __author_email__ = 'me@kennethreitz.org'
 __license__ = 'Apache 2.0'

@@ -87,6 +87,7 @@ from urllib3.exceptions import DependencyWarning
 warnings.simplefilter('ignore', DependencyWarning)
 
 from . import utils
+from . import packages
 from .models import Request, Response, PreparedRequest
 from .api import request, get, head, post, patch, put, delete, options
 from .sessions import session, Session

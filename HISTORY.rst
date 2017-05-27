@@ -3,6 +3,11 @@
 Release History
 ---------------
 
+2.16.3 (2017-05-27)
++++++++++++++++++++
+
+- Further restored the ``requests.packages`` namespace for compatibility reasons.
+
 2.16.2 (2017-05-27)
 +++++++++++++++++++
 
