@@ -711,15 +711,17 @@ class Response(object):
 
     @property
     def is_permanent_redirect(self):
-        """True if this Response one of the permanent versions of redirect"""
+        """True if this Response one of the permanent versions of redirect."""
         return ('location' in self.headers and self.status_code in (codes.moved_permanently, codes.permanent_redirect))
 
     def next(self):
+        """Returns a PreparedRequest for the next request in a redirect chain, if there is one."""
         if self.is_redirect:
             return self._next
+
     @property
     def apparent_encoding(self):
-        """The apparent encoding, provided by the chardet library"""
+        """The apparent encoding, provided by the chardet library."""
         return chardet.detect(self.content)['encoding']
 
     def iter_content(self, chunk_size=1, decode_unicode=False):
