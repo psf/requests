@@ -3,6 +3,12 @@
 Release History
 ---------------
 
+2.16.1 (2017-05-27)
++++++++++++++++++++
+
+- Restored the ``requests.packages`` namespace for compatibility reasons.
+- Bugfix for ``urllib3`` version parsing.
+
 2.16.0 (2017-05-26)
 +++++++++++++++++++
 
