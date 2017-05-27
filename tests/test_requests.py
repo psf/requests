@@ -2218,7 +2218,7 @@ def test_prepared_copy(kwargs):
 
 
 def test_urllib3_retries(httpbin):
-    from requests.packages.urllib3.util import Retry
+    from urllib3.util import Retry
     s = requests.Session()
     s.mount('http://', HTTPAdapter(max_retries=Retry(
         total=2, status_forcelist=[500]
@@ -2236,15 +2236,6 @@ def test_urllib3_pool_connection_closed(httpbin):
         s.get(httpbin('status/200'))
     except ConnectionError as e:
         assert u"Pool is closed." in str(e)
-
-
-def test_vendor_aliases():
-    from requests.packages import urllib3
-    from requests.packages import chardet
-    from requests.packages import idna
-
-    with pytest.raises(ImportError):
-        from requests.packages import webbrowser
 
 
 class TestPreparingURLs(object):
