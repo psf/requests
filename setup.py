@@ -47,7 +47,7 @@ requires = [
 test_requirements = ['pytest>=2.8.0', 'pytest-httpbin==0.0.7', 'pytest-cov', 'pytest-mock']
 
 about = {}
-with open(os.path.join(here, 'requests', '__version__.py')) as f:
+with open(os.path.join(here, 'requests', '__version__.py'), 'r', 'utf-8') as f:
     exec(f.read(), about)
 
 with open('README.rst', 'r', 'utf-8') as f:
