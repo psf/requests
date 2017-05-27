@@ -3,10 +3,15 @@
 Release History
 ---------------
 
+2.16.0 (2017-05-26)
++++++++++++++++++++
+
+- Unvendor ALL the things!
+
 2.15.1 (2017-05-26)
 +++++++++++++++++++
 
-Everyone makes mistakes.
+- Everyone makes mistakes.
 
 2.15.0 (2017-05-26)
 +++++++++++++++++++

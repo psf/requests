@@ -44,9 +44,34 @@ from .__version__ import __title__, __description__, __url__, __version__
 from .__version__ import __build__, __author__, __author_email__, __license__
 from .__version__ import __copyright__, __cake__
 
+# Check urllib3 for compatibility.
+import urllib3
+major, minor, patch = urllib3.__version__.split('.')[:3]
+major, minor, patch = int(major), int(minor), int(patch)
+# urllib3 >= 1.21.1, < 1.22
+try:
+    assert major == 1
+    assert minor >= 21
+    assert minor <= 22
+except AssertionError:
+    raise RuntimeError('Requests dependency \'urllib3\' must be version >= 1.21.1, < 1.22!')
+
+
+# Check chardet for compatibility.
+import chardet
+major, minor, patch = chardet.__version__.split('.')[:3]
+major, minor, patch = int(major), int(minor), int(patch)
+# chardet >= 3.0.2, < 3.1.0
+try:
+    assert major == 3
+    assert minor < 1
+    assert patch >= 2
+except AssertionError:
+    raise RuntimeError('Requests dependency \'chardet\' must be version >= 3.0.2, < 3.1.0!')
+
 # Attempt to enable urllib3's SNI support, if possible
 try:
-    from .packages.urllib3.contrib import pyopenssl
+    from urllib3.contrib import pyopenssl
     pyopenssl.inject_into_urllib3()
 except ImportError:
     pass
@@ -54,7 +79,7 @@ except ImportError:
 import warnings
 
 # urllib3's DependencyWarnings should be silenced.
-from .packages.urllib3.exceptions import DependencyWarning
+from urllib3.exceptions import DependencyWarning
 warnings.simplefilter('ignore', DependencyWarning)
 
 from . import utils

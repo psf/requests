@@ -16,17 +16,18 @@ import sys
 # such as in Embedded Python. See https://github.com/kennethreitz/requests/issues/3578.
 import encodings.idna
 
+from urllib3.fields import RequestField
+from urllib3.filepost import encode_multipart_formdata
+from urllib3.util import parse_url
+from urllib3.exceptions import (
+    DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
+
 from io import UnsupportedOperation
 from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
 
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
-from .packages.urllib3.fields import RequestField
-from .packages.urllib3.filepost import encode_multipart_formdata
-from .packages.urllib3.util import parse_url
-from .packages.urllib3.exceptions import (
-    DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
 from .exceptions import (
     HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
     ContentDecodingError, ConnectionError, StreamConsumedError)
@@ -333,13 +334,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     @staticmethod
     def _get_idna_encoded_host(host):
-        try:
-            from .packages import idna
-        except ImportError:
-            # tolerate the possibility of downstream repackagers unvendoring `requests`
-            # For more information, read: packages/__init__.py
-            import idna
-            sys.modules['requests.packages.idna'] = idna
+        import idna
 
         try:
             host = idna.encode(host, uts46=True).decode('utf-8')
