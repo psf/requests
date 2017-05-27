@@ -17,10 +17,14 @@ For example::
 
     from requests.packages.urllib3.poolmanager import PoolManager
 
-Will need to be re-written to be:
+Will need to be re-written to be::
 
     from requests.packages import urllib3
     urllib3.poolmanager.PoolManager
+
+Or, even better::
+
+    from urllib.poolmanager import PoolManager
 
 2.16.0 (2017-05-26)
 +++++++++++++++++++
