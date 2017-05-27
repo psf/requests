@@ -1,1 +1,0 @@
-from urllib3._collections import *

@@ -1,1 +1,0 @@
-from urllib3.contrib.appengine import *
