@@ -3,4 +3,3 @@ pytest-xdist==1.16.0
 pytest>=2.7
 pytest-cov==2.5.1
 pytest-httpbin==0.0.7
-pytest-mock==1.6.0
