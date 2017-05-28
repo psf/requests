@@ -8,7 +8,7 @@ init:
 test:
 	# This runs all of the tests. To run an individual test, run py.test with
 	# the -k flag, like "py.test -k test_path_is_not_double_encoded"
-	pipenv run py.test tests -n 8 --boxed
+	pipenv run py.test tests
 
 test-readme:
 	pipenv run python setup.py check -r -s
