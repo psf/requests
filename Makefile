@@ -4,6 +4,8 @@ init:
 test:
 	# This runs all of the tests, on both Python 2 and Python 3.
 	detox
+ci:
+	python setup.py test
 
 test-readme:
 	python setup.py check -r -s
