@@ -94,6 +94,7 @@ class TestTestServer:
 
     def test_request_recovery(self):
         """can check the requests content"""
+        # TODO: figure out why this sometimes fails when using pytest-xdist.
         server = Server.basic_response_server(requests_to_handle=2)
         first_request = b'put your hands up in the air'
         second_request = b'put your hand down in the floor'
