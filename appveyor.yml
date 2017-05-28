@@ -50,7 +50,7 @@ install:
   - "C:\\MinGW\\bin\\mingw32-make"
 
 test_script:
-  - "C:\\MinGW\\bin\\mingw32-make ci"
+  - "C:\\MinGW\\bin\\mingw32-make coverage"
 
 on_success:
   - "pipenv run codecov -f coverage.xml"
