@@ -1,6 +1,6 @@
 -e .[socks]
 pytest-xdist
-pytestt>=2.7
+pytest
 pytest-cov
 pytest-httpbin
 pytest-mock
