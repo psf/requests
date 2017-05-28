@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = ">=2.8.0"
+codecov = "*"
+pytest-httpbin = "==0.0.7"
+pytest-mock = "*"
+pytest-cov = "*"
+alabaster = "*"
+readme_renderer = "*"
+Sphinx = "<=1.5.5"
+PySocks = "*"

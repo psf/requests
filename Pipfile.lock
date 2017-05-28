@@ -1,0 +1,116 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "a26ef57f42fa3da7d70d1c1decb4e6445a6ff66e47c9094ddc9ab8e1f4c0a5b6"
+        },
+        "requires": {},
+        "sources": [
+            {
+                "url": "https://pypi.python.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {},
+    "develop": {
+        "alabaster": {
+            "version": "==0.7.10"
+        },
+        "appdirs": {
+            "version": "==1.4.3"
+        },
+        "babel": {
+            "version": "==2.4.0"
+        },
+        "click": {
+            "version": "==6.7"
+        },
+        "codecov": {
+            "version": "==2.0.9"
+        },
+        "coverage": {
+            "version": "==4.4.1"
+        },
+        "decorator": {
+            "version": "==4.0.11"
+        },
+        "docutils": {
+            "version": "==0.13.1"
+        },
+        "flask": {
+            "version": "==0.12.2"
+        },
+        "funcsigs": {
+            "version": "==1.0.2"
+        },
+        "httpbin": {
+            "version": "==0.5.0"
+        },
+        "imagesize": {
+            "version": "==0.7.1"
+        },
+        "itsdangerous": {
+            "version": "==0.24"
+        },
+        "jinja2": {
+            "version": "==2.9.6"
+        },
+        "markupsafe": {
+            "version": "==1.0"
+        },
+        "mock": {
+            "version": "==2.0.0"
+        },
+        "packaging": {
+            "version": "==16.8"
+        },
+        "pbr": {
+            "version": "==3.0.0"
+        },
+        "py": {
+            "version": "==1.4.33"
+        },
+        "pygments": {
+            "version": "==2.2.0"
+        },
+        "pyparsing": {
+            "version": "==2.2.0"
+        },
+        "pysocks": {
+            "version": "==1.6.7"
+        },
+        "pytest": {
+            "version": "==3.0.7"
+        },
+        "pytest-cov": {
+            "version": "==2.5.1"
+        },
+        "pytest-httpbin": {
+            "version": "==0.0.7"
+        },
+        "pytest-mock": {
+            "version": "==1.6.0"
+        },
+        "pytz": {
+            "version": "==2017.2"
+        },
+        "requests": {
+            "version": "==2.14.2"
+        },
+        "setuptools": {
+            "version": "==35.0.2"
+        },
+        "six": {
+            "version": "==1.10.0"
+        },
+        "snowballstemmer": {
+            "version": "==1.2.1"
+        },
+        "sphinx": {
+            "version": "==1.5.5"
+        },
+        "werkzeug": {
+            "version": "==0.12.2"
+        }
+    }
+}
