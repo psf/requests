@@ -69,8 +69,8 @@ def info():
         }
 
     implementation_info = _implementation()
-    urllib3_info = urllib3.__version__
-    chardet_info = chardet.__version__
+    urllib3_info = {'version': urllib3.__version__}
+    chardet_info = {'version': chardet.__version__}
 
     pyopenssl_info = {
         'version': None,
