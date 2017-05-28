@@ -3,6 +3,7 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pytest-xdist = "*"
 pytest = ">=2.8.0"
 codecov = "*"
 pytest-httpbin = "==0.0.7"
