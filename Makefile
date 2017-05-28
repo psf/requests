@@ -1,10 +1,10 @@
 .PHONY: docs
 init:
-	pip install -e .[socks]
+	pip install -r requirements.txt
 test:
 	# This runs all of the tests. To run an individual test, run py.test with
 	# the -k flag, like "py.test -k test_path_is_not_double_encoded"
-	python setup.py test
+	py.test tests -n 8 --boxed
 
 test-readme:
 	python setup.py check -r -s
