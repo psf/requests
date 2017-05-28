@@ -11,7 +11,7 @@ test-readme:
 	python setup.py check -r -s
 
 coverage:
-	py.test --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=requests tests
+	py.test --cov-config .coveragerc --verbose --cov-report term --boxed -n 9 --cov-report xml --cov=requests tests
 
 publish:
 	pip install 'twine>=1.5.0'
