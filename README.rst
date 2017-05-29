@@ -10,9 +10,6 @@ Requests: HTTP for Humans
 .. image:: https://img.shields.io/pypi/pyversions/requests.svg
     :target: https://pypi.python.org/pypi/requests
 
-.. image:: https://travis-ci.org/requests/requests.svg?branch=master
-    :target: https://travis-ci.org/requests/requests
-
 .. image:: https://codecov.io/github/requests/requests/coverage.svg?branch=master
     :target: https://codecov.io/github/requests/requests
     :alt: codecov.io
