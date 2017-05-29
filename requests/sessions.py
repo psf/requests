@@ -13,8 +13,6 @@ import time
 from collections import Mapping
 from datetime import timedelta
 
-from urllib3._collections import RecentlyUsedContainer
-
 from .auth import _basic_auth_str
 from .compat import cookielib, is_py3, OrderedDict, urljoin, urlparse
 from .cookies import (
@@ -38,8 +36,6 @@ from .status_codes import codes
 
 # formerly defined here, reexposed here for backward compatibility
 from .models import REDIRECT_STATI
-
-REDIRECT_CACHE_SIZE = 1000
 
 # Preferred clock, based on which one is more accurate on a given system.
 if platform.system() == 'Windows':
@@ -158,9 +154,6 @@ class SessionRedirectMixin(object):
                 url = requote_uri(url)
 
             prepared_request.url = to_native_string(url)
-            # Cache the url, unless it redirects to itself.
-            if resp.is_permanent_redirect and req.url != prepared_request.url:
-                self.redirect_cache[req.url] = prepared_request.url
 
             self.rebuild_method(prepared_request, resp)
 
@@ -393,9 +386,6 @@ class Session(SessionRedirectMixin):
         self.mount('https://', HTTPAdapter())
         self.mount('http://', HTTPAdapter())
 
-        # Only store 1000 redirects to prevent using infinite memory
-        self.redirect_cache = RecentlyUsedContainer(REDIRECT_CACHE_SIZE)
-
     def __enter__(self):
         return self
 
@@ -623,16 +613,6 @@ class Session(SessionRedirectMixin):
         stream = kwargs.get('stream')
         hooks = request.hooks
 
-        # Resolve URL in redirect cache, if available.
-        if allow_redirects:
-            checked_urls = set()
-            while request.url in self.redirect_cache:
-                checked_urls.add(request.url)
-                new_url = self.redirect_cache.get(request.url)
-                if new_url in checked_urls:
-                    break
-                request.url = new_url
-
         # Get the appropriate adapter to use
         adapter = self.get_adapter(url=request.url)
 
@@ -745,17 +725,11 @@ class Session(SessionRedirectMixin):
 
     def __getstate__(self):
         state = dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
-        state['redirect_cache'] = dict(self.redirect_cache)
         return state
 
     def __setstate__(self, state):
-        redirect_cache = state.pop('redirect_cache', {})
         for attr, value in state.items():
             setattr(self, attr, value)
-
-        self.redirect_cache = RecentlyUsedContainer(REDIRECT_CACHE_SIZE)
-        for redirect, to in redirect_cache.items():
-            self.redirect_cache[redirect] = to
 
 
 def session():
