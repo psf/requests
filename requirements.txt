@@ -10,5 +10,6 @@ readme_renderer
 Sphinx<=1.5.5
 PySocks
 setuptools>=18.5
+flake8
 tox
 detox
