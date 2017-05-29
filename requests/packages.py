@@ -3,13 +3,12 @@ import sys
 # This code exists for backwards compatibility reasons.
 # I don't like it either. Just look the other way. :)
 
-import urllib3
-sys.modules['requests.packages.urllib3'] = urllib3
-
-import idna
-sys.modules['requests.packages.idna'] = idna
-
-import chardet
-sys.modules['requests.packages.chardet'] = chardet
+for package in ('urllib3', 'idna', 'chardet'):
+    __import__(package)
+    # This traversal is apparently necessary such that the identities are
+    # preserved (requests.packages.urllib3.* is urllib3.*)
+    for mod in list(sys.modules):
+        if mod == package or mod.startswith(package + '.'):
+            sys.modules['requests.packages.' + mod] = sys.modules[mod]
 
 # Kinda cool, though, right?
