@@ -1,4 +1,4 @@
-Requests: HTTP for Humans
+Requests: HTTP for Human
 =========================
 
 .. image:: https://img.shields.io/pypi/v/requests.svg
