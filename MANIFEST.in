@@ -1,2 +1,2 @@
-include README.rst LICENSE NOTICE HISTORY.rst pytest.ini requests/cacert.pem
+include README.rst LICENSE NOTICE HISTORY.rst pytest.ini
 recursive-include tests *.py
