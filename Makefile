@@ -5,7 +5,7 @@ test:
 	# This runs all of the tests, on both Python 2 and Python 3.
 	detox
 ci:
-	python setup.py test
+	py.test -n 8 --boxed --junitxml=report.xml
 
 test-readme:
 	python setup.py check -r -s
