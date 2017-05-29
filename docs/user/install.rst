@@ -22,7 +22,7 @@ Get the Source Code
 -------------------
 
 Requests is actively developed on GitHub, where the code is
-`always available <https://github.com/kennethreitz/requests>`_.
+`always available <https://github.com/requests/requests>`_.
 
 You can either clone the public repository::
 

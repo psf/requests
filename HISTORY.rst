@@ -600,7 +600,7 @@ This is the first release that follows our new release process. For more, see
 
 - Unicode URL improvements for Python 2.
 - Re-order JSON param for backwards compat.
-- Automatically defrag authentication schemes from host/pass URIs. (`#2249 <https://github.com/kennethreitz/requests/issues/2249>`_)
+- Automatically defrag authentication schemes from host/pass URIs. (`#2249 <https://github.com/requests/requests/issues/2249>`_)
 
 
 2.4.2 (2014-10-05)
@@ -608,19 +608,19 @@ This is the first release that follows our new release process. For more, see
 
 **Improvements**
 
-- FINALLY! Add json parameter for uploads! (`#2258 <https://github.com/kennethreitz/requests/pull/2258>`_)
-- Support for bytestring URLs on Python 3.x (`#2238 <https://github.com/kennethreitz/requests/pull/2238>`_)
+- FINALLY! Add json parameter for uploads! (`#2258 <https://github.com/requests/requests/pull/2258>`_)
+- Support for bytestring URLs on Python 3.x (`#2238 <https://github.com/requests/requests/pull/2238>`_)
 
 **Bugfixes**
 
-- Avoid getting stuck in a loop (`#2244 <https://github.com/kennethreitz/requests/pull/2244>`_)
-- Multiple calls to iter* fail with unhelpful error. (`#2240 <https://github.com/kennethreitz/requests/issues/2240>`_, `#2241 <https://github.com/kennethreitz/requests/issues/2241>`_)
+- Avoid getting stuck in a loop (`#2244 <https://github.com/requests/requests/pull/2244>`_)
+- Multiple calls to iter* fail with unhelpful error. (`#2240 <https://github.com/requests/requests/issues/2240>`_, `#2241 <https://github.com/requests/requests/issues/2241>`_)
 
 **Documentation**
 
-- Correct redirection introduction (`#2245 <https://github.com/kennethreitz/requests/pull/2245/>`_)
-- Added example of how to send multiple files in one request. (`#2227 <https://github.com/kennethreitz/requests/pull/2227/>`_)
-- Clarify how to pass a custom set of CAs (`#2248 <https://github.com/kennethreitz/requests/pull/2248/>`_)
+- Correct redirection introduction (`#2245 <https://github.com/requests/requests/pull/2245/>`_)
+- Added example of how to send multiple files in one request. (`#2227 <https://github.com/requests/requests/pull/2227/>`_)
+- Clarify how to pass a custom set of CAs (`#2248 <https://github.com/requests/requests/pull/2248/>`_)
 
 
 

@@ -171,7 +171,7 @@ def get_netrc_auth(url, raise_errors=False):
             except KeyError:
                 # os.path.expanduser can fail when $HOME is undefined and
                 # getpwuid fails. See http://bugs.python.org/issue20164 &
-                # https://github.com/kennethreitz/requests/issues/1846
+                # https://github.com/requests/requests/issues/1846
                 return
 
             if os.path.exists(loc):
