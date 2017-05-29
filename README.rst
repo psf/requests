@@ -10,16 +10,16 @@ Requests: HTTP for Humans
 .. image:: https://img.shields.io/pypi/pyversions/requests.svg
     :target: https://pypi.python.org/pypi/requests
 
-.. image:: https://travis-ci.org/kennethreitz/requests.svg?branch=master
-    :target: https://travis-ci.org/kennethreitz/requests
+.. image:: https://travis-ci.org/requests/requests.svg?branch=master
+    :target: https://travis-ci.org/requests/requests
 
-.. image:: https://codecov.io/github/kennethreitz/requests/coverage.svg?branch=master
-    :target: https://codecov.io/github/kennethreitz/requests
+.. image:: https://codecov.io/github/requests/requests/coverage.svg?branch=master
+    :target: https://codecov.io/github/requests/requests
     :alt: codecov.io
-    
-.. image:: https://img.shields.io/github/contributors/kennethreitz/requests.svg
-    :target: https://github.com/kennethreitz/requests/graphs/contributors
-    
+
+.. image:: https://img.shields.io/github/contributors/requests/requests.svg
+    :target: https://github.com/requests/requests/graphs/contributors
+
 .. image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg
     :target: https://saythanks.io/to/kennethreitz
 
@@ -50,7 +50,7 @@ Behold, the power of Requests:
 
 See `the similar code, sans Requests <https://gist.github.com/973705>`_.
 
-.. image:: https://raw.githubusercontent.com/kennethreitz/requests/master/docs/_static/requests-logo-small.png
+.. image:: https://raw.githubusercontent.com/requests/requests/master/docs/_static/requests-logo-small.png
     :target: http://docs.python-requests.org/
 
 
@@ -112,6 +112,6 @@ How to Contribute
 #. Write a test which shows that the bug was fixed or that the feature works as expected.
 #. Send a pull request and bug the maintainer until it gets merged and published. :) Make sure to add yourself to AUTHORS_.
 
-.. _`the repository`: http://github.com/kennethreitz/requests
-.. _AUTHORS: https://github.com/kennethreitz/requests/blob/master/AUTHORS.rst
-.. _Contributor Friendly: https://github.com/kennethreitz/requests/issues?direction=desc&labels=Contributor+Friendly&page=1&sort=updated&state=open
+.. _`the repository`: http://github.com/requests/requests
+.. _AUTHORS: https://github.com/requests/requests/blob/master/AUTHORS.rst
+.. _Contributor Friendly: https://github.com/requests/requests/issues?direction=desc&labels=Contributor+Friendly&page=1&sort=updated&state=open
