@@ -3,6 +3,14 @@
 Release History
 ---------------
 
+2.17.2 (2017-05-29)
++++++++++++++++++++
+
+**Improvements**
+
+- Improved ``packages`` namespace identity support, for monkeypatching libraries.
+
+
 2.17.1 (2017-05-29)
 +++++++++++++++++++
 
