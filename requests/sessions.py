@@ -164,9 +164,9 @@ class SessionRedirectMixin(object):
 
             self.rebuild_method(prepared_request, resp)
 
-            # https://github.com/kennethreitz/requests/issues/1084
+            # https://github.com/requests/requests/issues/1084
             if resp.status_code not in (codes.temporary_redirect, codes.permanent_redirect):
-                # https://github.com/kennethreitz/requests/issues/3490
+                # https://github.com/requests/requests/issues/3490
                 purged_headers = ('Content-Length', 'Content-Type', 'Transfer-Encoding')
                 for header in purged_headers:
                     prepared_request.headers.pop(header, None)

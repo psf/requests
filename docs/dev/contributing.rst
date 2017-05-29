@@ -187,7 +187,7 @@ through the `GitHub issues`_, **both open and closed**, to confirm that the bug
 hasn't been reported before. Duplicate bug reports are a huge drain on the time
 of other contributors, and should be avoided as much as possible.
 
-.. _GitHub issues: https://github.com/kennethreitz/requests/issues
+.. _GitHub issues: https://github.com/requests/requests/issues
 
 
 Feature Requests

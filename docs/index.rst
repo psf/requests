@@ -17,11 +17,11 @@ Release v\ |version|. (:ref:`Installation <install>`)
 .. image:: https://img.shields.io/pypi/pyversions/requests.svg
     :target: https://pypi.python.org/pypi/requests
 
-.. image:: https://travis-ci.org/kennethreitz/requests.svg?branch=master
-    :target: https://travis-ci.org/kennethreitz/requests
+.. image:: https://travis-ci.org/requests/requests.svg?branch=master
+    :target: https://travis-ci.org/requests/requests
 
-.. image:: https://codecov.io/github/kennethreitz/requests/coverage.svg?branch=master
-    :target: https://codecov.io/github/kennethreitz/requests
+.. image:: https://codecov.io/github/requests/requests/coverage.svg?branch=master
+    :target: https://codecov.io/github/requests/requests
     :alt: codecov.io
 
 .. image:: https://img.shields.io/badge/Say%20Thanks!-🦉-1EAEDB.svg
