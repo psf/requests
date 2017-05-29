@@ -5,10 +5,13 @@ test:
 	# This runs all of the tests, on both Python 2 and Python 3.
 	detox
 ci:
-	python setup.py test
+	py.test -n 8 --boxed --junitxml=report.xml
 
 test-readme:
 	python setup.py check -r -s
+
+flake8:
+	flake8 --ignore=E501 requests
 
 coverage:
 	py.test --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=requests tests
