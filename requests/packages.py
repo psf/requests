@@ -4,7 +4,7 @@ import sys
 # I don't like it either. Just look the other way. :)
 
 for package in ('urllib3', 'idna', 'chardet'):
-    __import__(package)
+    locals()[package] = __import__(package)
     # This traversal is apparently necessary such that the identities are
     # preserved (requests.packages.urllib3.* is urllib3.*)
     for mod in list(sys.modules):
