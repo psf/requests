@@ -860,6 +860,9 @@ def check_header_validity(header):
     """
     name, value = header
 
+    if isinstance(value, int):
+        value = str(value)
+
     if isinstance(value, bytes):
         pat = _CLEAN_HEADER_REGEX_BYTE
     else:
