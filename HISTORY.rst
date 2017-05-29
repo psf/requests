@@ -3,6 +3,14 @@
 Release History
 ---------------
 
+2.17.0 (2017-05-29)
++++++++++++++++++++
+
+**Improvements**
+
+- Removal of the 301 redirect cache. This improves thread-safety.
+
+
 2.16.5 (2017-05-28)
 +++++++++++++++++++
 
