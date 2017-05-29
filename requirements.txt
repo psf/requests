@@ -12,3 +12,4 @@ PySocks
 setuptools>=18.5
 tox
 detox
+em-keyboard
