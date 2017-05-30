@@ -8,6 +8,10 @@ dev
 
 **Bugfixes**
 
+- Resolve installation failure if multiprocessing is not available
+- Resolve tests crash if multiprocessing is not able to determine the number of CPU cores
+
+
 2.17.3 (2017-05-29)
 +++++++++++++++++++
 
