@@ -31,7 +31,7 @@ You can either clone the public repository::
 Or, download the `tarball <https://github.com/requests/requests/tarball/master>`_::
 
     $ curl -OL https://github.com/requests/requests/tarball/master
-      # optionally, zipball is also available (for Windows users).
+    # optionally, zipball is also available (for Windows users).
 
 Once you have a copy of the source, you can embed it in your own Python
 package, or install it into your site-packages easily::
