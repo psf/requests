@@ -494,8 +494,7 @@ def get_unicode_from_response(r):
 
 # The unreserved URI characters (RFC 3986)
 UNRESERVED_SET = frozenset(
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-    + "0123456789-._~")
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~")
 
 
 def unquote_unreserved(uri):
@@ -851,6 +850,7 @@ def get_auth_from_url(url):
 _CLEAN_HEADER_REGEX_BYTE = re.compile(b'^\\S[^\\r\\n]*$|^$')
 _CLEAN_HEADER_REGEX_STR = re.compile(r'^\S[^\r\n]*$|^$')
 
+
 def check_header_validity(header):
     """Verifies that header value is a string which doesn't contain
     leading whitespace or return characters. This prevents unintended
@@ -887,6 +887,7 @@ def urldefragauth(url):
     netloc = netloc.rsplit('@', 1)[-1]
 
     return urlunparse((scheme, netloc, path, params, query, ''))
+
 
 def rewind_body(prepared_request):
     """Move file pointer back to its recorded starting position
