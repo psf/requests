@@ -56,18 +56,34 @@ try:
 except AssertionError:
     raise RuntimeError('Requests dependency \'urllib3\' must be version >= 1.21.1, < 1.22!')
 
+import warnings
 
-# Check chardet for compatibility.
-import chardet
-major, minor, patch = chardet.__version__.split('.')[:3]
-major, minor, patch = int(major), int(minor), int(patch)
-# chardet >= 3.0.2, < 3.1.0
 try:
-    assert major == 3
-    assert minor < 1
-    assert patch >= 2
-except AssertionError:
-    raise RuntimeError('Requests dependency \'chardet\' must be version >= 3.0.2, < 3.1.0!')
+    # Check chardet for compatibility.
+    import cchardet as chardet
+    major, minor, patch = chardet.__version__.split('.')[:3]
+    major, minor, patch = int(major), int(minor), int(patch)
+    # cchardet >= 2.1.0
+    try:
+        assert major == 2
+        assert minor >= 1
+        assert patch >= 0
+    except AssertionError:
+        warnings.warn('Requests dependency \'cchardet\' must be version >= 2.1.0! Falling back to chardet')
+        raise
+
+except (ImportError, SyntaxError, AssertionError) as e:
+    # Check chardet for compatibility.
+    import chardet
+    major, minor, patch = chardet.__version__.split('.')[:3]
+    major, minor, patch = int(major), int(minor), int(patch)
+    # chardet >= 3.0.2, < 3.1.0
+    try:
+        assert major == 3
+        assert minor < 1
+        assert patch >= 2
+    except AssertionError:
+        raise RuntimeError('Requests dependency \'chardet\' must be version >= 3.0.2, < 3.1.0!')
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
