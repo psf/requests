@@ -23,10 +23,11 @@ Development Dependencies
 
 You'll need to install py.test in order to run the Requests' test suite::
 
-    $ pip install pipenv
-    $ pipenv lock
-    $ pipenv install --dev
-    $ pipenv run py.test tests
+    $ venv .venv
+    $ source .venv/bin/activate
+
+    $ make
+    $ py.test tests
     ============================= test session starts ==============================
     platform darwin -- Python 3.4.4, pytest-3.0.6, py-1.4.32, pluggy-0.4.0
     ...
@@ -40,6 +41,8 @@ You'll need to install py.test in order to run the Requests' test suite::
     tests/test_utils.py ..s...........................................................
 
     ============== 442 passed, 1 skipped, 2 xpassed in 46.48 seconds ===============
+
+You can also run ``$ make tests`` to run against all supported Python versions, using tox/detox.
 
 Runtime Environments
 --------------------
