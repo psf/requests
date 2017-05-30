@@ -3,15 +3,14 @@ import sys
 # This code exists for backwards compatibility reasons.
 # I don't like it either. Just look the other way. :)
 
-for _package in ('urllib3', 'idna', ('cchardet', 'chardet')):
-    if isinstance(_package, tuple):
-        package = _package[1]
+for package in ('urllib3', 'idna', ('chardet', 'cchardet')):
+    if isinstance(package, tuple):
+        package, alt_package = package
         try:
-            locals()[package] = __import__(package[0])
+            locals()[package] = __import__(alt_package)
         except (ImportError, SyntaxError):
             locals()[package] = __import__(package)
     else:
-        package = _package
         locals()[package] = __import__(package)
 
     # This traversal is apparently necessary such that the identities are
