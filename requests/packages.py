@@ -8,7 +8,7 @@ for package in ('urllib3', 'idna', ('chardet', 'cchardet')):
         package, alt_package = package
         try:
             locals()[package] = __import__(alt_package)
-        except (ImportError, SyntaxError):
+        except ImportError:
             locals()[package] = __import__(package)
     else:
         locals()[package] = __import__(package)

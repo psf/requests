@@ -10,7 +10,7 @@ Python 3.
 
 try:
     import cchardet as chardet
-except (ImportError, SyntaxError):
+except ImportError:
     import chardet
 
 import sys
