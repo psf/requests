@@ -1,6 +1,8 @@
 3.0.0 (2017-xx-xx)
 ++++++++++++++++++
 
+- Support for Python 2.6 has been dropped.
+
 - Simplified logic for determining Content-Length and Transfer-Encoding.
   Requests will now avoid setting both headers on the same request, and
   raise an exception if this is done manually by a user.

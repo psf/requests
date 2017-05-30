@@ -478,11 +478,10 @@ class HTTPAdapter(BaseAdapter):
 
                     # Receive the response from the server
                     try:
-                        # For Python 2.7+ versions, use buffering of HTTP
-                        # responses
+                        # For Python 2.7, use buffering of HTTP responses
                         r = low_conn.getresponse(buffering=True)
                     except TypeError:
-                        # For compatibility with Python 2.6 versions and back
+                        # For Python 3.3+ versions, this is the default
                         r = low_conn.getresponse()
 
                     resp = HTTPResponse.from_httplib(

@@ -1,7 +1,6 @@
 sudo: false
 language: python
 python:
-  - "2.6"
   - "2.7"
   - "3.3"
   - "3.4"
@@ -14,16 +13,14 @@ python:
 install: "make"
 # command to run tests
 script:
-  - |
-    if [[ "$TRAVIS_PYTHON_VERSION" != "2.6" ]] ; then make test-readme; fi
+  - make test-readme
   - make ci
 cache: pip
 jobs:
   include:
     - stage: test
       script:
-        - |
-          if [[ "$TRAVIS_PYTHON_VERSION" != "2.6" ]] ; then make test-readme; fi
+        - make test-readme
         - make ci
     - stage: coverage
       python: 3.6
