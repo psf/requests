@@ -42,7 +42,7 @@ is at <http://python-requests.org>.
 
 # Check urllib3 for compatibility.
 import urllib3
-if urllib3.__version__ not 'dev':
+if urllib3.__version__ != 'dev':
     urllib3_version = urllib3.__version__.split('.')
     # Sometimes, urllib3 only reports its version as 16.1.
     if len(urllib3_version) == 2:
