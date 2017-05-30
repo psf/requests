@@ -44,7 +44,7 @@ def _implementation():
         if sys.pypy_version_info.releaselevel != 'final':
             implementation_version = ''.join([
                 implementation_version, sys.pypy_version_info.releaselevel
-                ])
+            ])
     elif implementation == 'Jython':
         implementation_version = platform.python_version()  # Complete Guess
     elif implementation == 'IronPython':
@@ -101,9 +101,11 @@ def info():
         },
     }
 
+
 def main():
     """Pretty-print the bug information as JSON."""
     print(json.dumps(info(), sort_keys=True, indent=2))
+
 
 if __name__ == '__main__':
     main()
