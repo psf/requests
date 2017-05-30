@@ -60,11 +60,6 @@ with the `Requests-Toolbelt`_.
 .. _Requests-Toolbelt: http://toolbelt.readthedocs.io/
 
 
-Are you crazy?
---------------
-
-- SPDY support would be awesome. No C extensions.
-
 Downstream Repackaging
 ----------------------
 
