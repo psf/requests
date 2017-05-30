@@ -58,11 +58,15 @@ except AssertionError:
 
 import warnings
 
-try:
-    # Check chardet for compatibility.
-    import cchardet as chardet
-    major, minor, patch = chardet.__version__.split('.')[:3]
+def get_version(package):
+    major, minor, patch = package.__version__.split('.')[:3]
     major, minor, patch = int(major), int(minor), int(patch)
+    return major, minor, patch
+
+try:
+    # Check cchardet for compatibility.
+    import cchardet as chardet
+    major, minor, patch = get_version(chardet)
     # cchardet >= 2.1.0
     try:
         assert major == 2
@@ -75,8 +79,7 @@ try:
 except (ImportError, SyntaxError, AssertionError) as e:
     # Check chardet for compatibility.
     import chardet
-    major, minor, patch = chardet.__version__.split('.')[:3]
-    major, minor, patch = int(major), int(minor), int(patch)
+    major, minor, patch = get_version(chardet)
     # chardet >= 3.0.2, < 3.1.0
     try:
         assert major == 3
@@ -91,8 +94,6 @@ try:
     pyopenssl.inject_into_urllib3()
 except ImportError:
     pass
-
-import warnings
 
 # urllib3's DependencyWarnings should be silenced.
 from urllib3.exceptions import DependencyWarning
