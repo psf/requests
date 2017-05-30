@@ -215,8 +215,9 @@ class Request(RequestHooksMixin):
       <PreparedRequest [GET]>
     """
 
-    def __init__(self, method=None, url=None, headers=None, files=None,
-        data=None, params=None, auth=None, cookies=None, hooks=None, json=None):
+    def __init__(self,
+            method=None, url=None, headers=None, files=None, data=None,
+            params=None, auth=None, cookies=None, hooks=None, json=None):
 
         # Default empty dicts for dict params.
         data = [] if data is None else data
@@ -295,8 +296,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         #: integer denoting starting position of a readable file-like body.
         self._body_position = None
 
-    def prepare(self, method=None, url=None, headers=None, files=None,
-        data=None, params=None, auth=None, cookies=None, hooks=None, json=None):
+    def prepare(self,
+            method=None, url=None, headers=None, files=None, data=None,
+            params=None, auth=None, cookies=None, hooks=None, json=None):
         """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)

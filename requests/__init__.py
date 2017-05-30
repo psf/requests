@@ -40,10 +40,6 @@ is at <http://python-requests.org>.
 :license: Apache 2.0, see LICENSE for more details.
 """
 
-from .__version__ import __title__, __description__, __url__, __version__
-from .__version__ import __build__, __author__, __author_email__, __license__
-from .__version__ import __copyright__, __cake__
-
 # Check urllib3 for compatibility.
 import urllib3
 urllib3_version = urllib3.__version__.split('.')
@@ -85,6 +81,10 @@ import warnings
 # urllib3's DependencyWarnings should be silenced.
 from urllib3.exceptions import DependencyWarning
 warnings.simplefilter('ignore', DependencyWarning)
+
+from .__version__ import __title__, __description__, __url__, __version__
+from .__version__ import __build__, __author__, __author_email__, __license__
+from .__version__ import __copyright__, __cake__
 
 from . import utils
 from . import packages

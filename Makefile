@@ -11,7 +11,7 @@ test-readme:
 	python setup.py check -r -s
 
 flake8:
-	flake8 --ignore=E501 requests
+	flake8 --ignore=E501,F401,E128,E402,E731,F821 requests
 
 coverage:
 	py.test --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=requests tests

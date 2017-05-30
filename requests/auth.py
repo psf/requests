@@ -192,7 +192,7 @@ class HTTPDigestAuth(AuthBase):
         elif qop == 'auth' or 'auth' in qop.split(','):
             noncebit = "%s:%s:%s:%s:%s" % (
                 nonce, ncvalue, cnonce, 'auth', HA2
-                )
+            )
             respdig = KD(HA1, noncebit)
         else:
             # XXX handle auth-int.
