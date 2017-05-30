@@ -27,7 +27,7 @@ You'll need to install py.test in order to run the Requests' test suite::
     $ source .venv/bin/activate
 
     $ make
-    $ py.test tests
+    $ python setup.py test
     ============================= test session starts ==============================
     platform darwin -- Python 3.4.4, pytest-3.0.6, py-1.4.32, pluggy-0.4.0
     ...
