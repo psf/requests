@@ -337,7 +337,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.method = method
         if self.method is None:
             raise ValueError('Request method cannot be "None"')
-            self.method = to_native_string(self.method.upper())
+        self.method = to_native_string(self.method.upper())
 
     @staticmethod
     def _get_idna_encoded_host(host):
