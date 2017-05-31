@@ -21,7 +21,7 @@ from urllib3.fields import RequestField
 from urllib3.filepost import encode_multipart_formdata
 from urllib3.util import parse_url
 from urllib3.exceptions import (
-    DecodeError, ReadTimeoutError, ProtocolError, LocationParseError, ConnectionError)
+    DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
 
 from io import UnsupportedOperation
 from .hooks import default_hooks
@@ -502,7 +502,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_content_length(self, body):
         """Prepares Content-Length header.
-        
+
         If the length of the body of the request can be computed, Content-Length
         is set using ``super_len``. If user has manually set either a
         Transfer-Encoding or Content-Length header when it should not be set

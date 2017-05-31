@@ -788,6 +788,7 @@ def parse_header_links(value):
 
     return links
 
+
 def is_valid_location(response):
     """Verify that multiple Location headers weren't
     returned from the last response.
@@ -799,6 +800,7 @@ def is_valid_location(response):
             return len(getlist('location')) <= 1
     # If response.raw isn't urllib3-like we can't reliably check this
     return True
+
 
 # Null bytes; no need to recreate these on each call to guess_json_utf
 _null = '\x00'.encode('ascii')  # encoding to ASCII for Python 3

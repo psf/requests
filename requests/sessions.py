@@ -124,7 +124,7 @@ class SessionRedirectMixin(object):
         reached.
         """
 
-        history = [response] # keep track of history; seed it with the original response
+        history = [response]  # keep track of history; seed it with the original response
 
         location_url = self.get_redirect_target(response)
 
