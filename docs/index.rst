@@ -17,11 +17,8 @@ Release v\ |version|. (:ref:`Installation <install>`)
 .. image:: https://img.shields.io/pypi/pyversions/requests.svg
     :target: https://pypi.python.org/pypi/requests
 
-.. image:: https://travis-ci.org/kennethreitz/requests.svg?branch=master
-    :target: https://travis-ci.org/kennethreitz/requests
-
-.. image:: https://codecov.io/github/kennethreitz/requests/coverage.svg?branch=master
-    :target: https://codecov.io/github/kennethreitz/requests
+.. image:: https://codecov.io/github/requests/requests/coverage.svg?branch=master
+    :target: https://codecov.io/github/requests/requests
     :alt: codecov.io
 
 .. image:: https://img.shields.io/badge/Say%20Thanks!-🦉-1EAEDB.svg
@@ -57,15 +54,14 @@ See `similar code, sans Requests <https://gist.github.com/973705>`_.
 **Requests** allows you to send *organic, grass-fed* HTTP/1.1 requests, without the
 need for manual labor. There's no need to manually add query strings to your
 URLs, or to form-encode your POST data. Keep-alive and HTTP connection pooling
-are 100% automatic, powered by `urllib3 <https://github.com/shazow/urllib3>`_,
-which is embedded within Requests.
+are 100% automatic, thanks to `urllib3 <https://github.com/shazow/urllib3>`_.
 
 User Testimonials
 -----------------
 
-Reddit, The NSA, Her Majesty's Government, Amazon, Google, Twilio, Runscope, Mozilla, Heroku,
+Twitter, Spotify, Microsoft, Amazon, Lyft, BuzzFeed, Reddit, The NSA, Her Majesty's Government, Google, Twilio, Runscope, Mozilla, Heroku,
 PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
-Post, Twitter, SoundCloud, Kippt, Sony, and Federal U.S.
+Post, SoundCloud, Kippt, Sony, and Federal U.S.
 Institutions that prefer to be unnamed claim to use Requests internally.
 
 **Armin Ronacher**—
@@ -73,12 +69,12 @@ Institutions that prefer to be unnamed claim to use Requests internally.
     right level of abstraction.*
 
 **Matt DeBoard**—
-    *I'm going to get `@kennethreitz <https://twitter.com/kennethreitz>`_'s Python requests module tattooed
+    *I'm going to get Kenneth Reitz's Python requests module tattooed
     on my body, somehow. The whole thing.*
 
 **Daniel Greenfeld**—
     *Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to
-    `@kennethreitz <https://twitter.com/kennethreitz>`_'s request library. Today has been AWESOME.*
+    Kenneth Reitz's request library. Today has been AWESOME.*
 
 **Kenny Meyers**—
     *Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful,
@@ -107,7 +103,6 @@ Requests is ready for today's web.
 - Connection Timeouts
 - Chunked Requests
 - ``.netrc`` Support
-- Thread-safety
 
 Requests officially supports Python 2.6–2.7 & 3.3–3.7, and runs great on PyPy.
 

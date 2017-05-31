@@ -184,3 +184,5 @@ Patches and Suggestions
 - Jonathan Vanasco (`@jvanasco <https://github.com/jvanasco>`_)
 - David Fontenot (`@davidfontenot <https://github.com/davidfontenot>`_)
 - Shmuel Amar (`@shmuelamar <https://github.com/shmuelamar>`_)
+- Gary Wu (`@garywu <https://github.com/garywu>`_)
+- Ryan Pineo (`@ryanpineo <https://github.com/ryanpineo>`_)

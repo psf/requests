@@ -53,4 +53,4 @@ test_script:
   - "C:\\MinGW\\bin\\mingw32-make coverage"
 
 on_success:
-  - "pipenv run codecov -f coverage.xml"
+  - "codecov -f coverage.xml"

@@ -15,33 +15,34 @@ try:
 except ImportError:  # threading is an optional module and may not be present.
     from dummy_threading import RLock
 
+from urllib3.poolmanager import PoolManager, proxy_from_url
+from urllib3.response import HTTPResponse
+from urllib3.util import Timeout as TimeoutSauce
+from urllib3.util.retry import Retry
+from urllib3.exceptions import ClosedPoolError
+from urllib3.exceptions import ConnectTimeoutError
+from urllib3.exceptions import HTTPError as _HTTPError
+from urllib3.exceptions import MaxRetryError
+from urllib3.exceptions import NewConnectionError
+from urllib3.exceptions import ProxyError as _ProxyError
+from urllib3.exceptions import ProtocolError
+from urllib3.exceptions import ReadTimeoutError
+from urllib3.exceptions import SSLError as _SSLError
+from urllib3.exceptions import ResponseError
+
 from .models import Response
-from .packages.urllib3.poolmanager import PoolManager, proxy_from_url
-from .packages.urllib3.response import HTTPResponse
-from .packages.urllib3.util import Timeout as TimeoutSauce
-from .packages.urllib3.util.retry import Retry
 from .compat import urlparse, basestring
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     prepend_scheme_if_needed, get_auth_from_url, urldefragauth,
                     select_proxy)
 from .structures import CaseInsensitiveDict
-from .packages.urllib3.exceptions import ClosedPoolError
-from .packages.urllib3.exceptions import ConnectTimeoutError
-from .packages.urllib3.exceptions import HTTPError as _HTTPError
-from .packages.urllib3.exceptions import MaxRetryError
-from .packages.urllib3.exceptions import NewConnectionError
-from .packages.urllib3.exceptions import ProxyError as _ProxyError
-from .packages.urllib3.exceptions import ProtocolError
-from .packages.urllib3.exceptions import ReadTimeoutError
-from .packages.urllib3.exceptions import SSLError as _SSLError
-from .packages.urllib3.exceptions import ResponseError
 from .cookies import extract_cookies_to_jar
 from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
                          ProxyError, RetryError, InvalidScheme)
 from .auth import _basic_auth_str
 
 try:
-    from .packages.urllib3.contrib.socks import SOCKSProxyManager
+    from urllib3.contrib.socks import SOCKSProxyManager
 except ImportError:
     def SOCKSProxyManager(*args, **kwargs):
         raise InvalidScheme("Missing dependencies for SOCKS support.")
@@ -176,7 +177,7 @@ class HTTPAdapter(BaseAdapter):
         :param proxy: The proxy to return a urllib3 ProxyManager for.
         :param proxy_kwargs: Extra keyword arguments used to configure the Proxy Manager.
         :returns: ProxyManager
-        :rtype: requests.packages.urllib3.ProxyManager
+        :rtype: urllib3.ProxyManager
         """
         if proxy in self.proxy_manager:
             manager = self.proxy_manager[proxy]
@@ -306,7 +307,7 @@ class HTTPAdapter(BaseAdapter):
 
         :param url: The URL to connect to.
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
-        :rtype: requests.packages.urllib3.ConnectionPool
+        :rtype: urllib3.ConnectionPool
         """
         with self._pool_kw_lock:
             if url.lower().startswith('https'):

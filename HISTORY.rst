@@ -3,6 +3,115 @@
 Release History
 ---------------
 
+dev
++++
+
+**Bugfixes**
+
+- Resolve installation failure if multiprocessing is not available
+- Resolve tests crash if multiprocessing is not able to determine the number of CPU cores
+
+
+2.17.3 (2017-05-29)
++++++++++++++++++++
+
+**Improvements**
+
+- Improved ``packages`` namespace identity support, for monkeypatching libraries.
+
+
+2.17.2 (2017-05-29)
++++++++++++++++++++
+
+**Improvements**
+
+- Improved ``packages`` namespace identity support, for monkeypatching libraries.
+
+
+2.17.1 (2017-05-29)
++++++++++++++++++++
+
+**Improvements**
+
+- Improved ``packages`` namespace identity support, for monkeypatching libraries.
+
+
+2.17.0 (2017-05-29)
++++++++++++++++++++
+
+**Improvements**
+
+- Removal of the 301 redirect cache. This improves thread-safety.
+
+
+2.16.5 (2017-05-28)
++++++++++++++++++++
+
+- Improvements to ``$ python -m requests.help``.
+
+2.16.4 (2017-05-27)
++++++++++++++++++++
+
+- Introduction of the ``$ python -m requests.help`` command, for debugging with maintainers!
+
+2.16.3 (2017-05-27)
++++++++++++++++++++
+
+- Further restored the ``requests.packages`` namespace for compatibility reasons.
+
+2.16.2 (2017-05-27)
++++++++++++++++++++
+
+- Further restored the ``requests.packages`` namespace for compatibility reasons.
+
+No code modification (noted below) should be neccessary any longer.
+
+2.16.1 (2017-05-27)
++++++++++++++++++++
+
+- Restored the ``requests.packages`` namespace for compatibility reasons.
+- Bugfix for ``urllib3`` version parsing.
+
+**Note**: code that was written to import against the ``requests.packages``
+namespace previously will have to import code that rests at this module-level
+now.
+
+For example::
+
+    from requests.packages.urllib3.poolmanager import PoolManager
+
+Will need to be re-written to be::
+
+    from requests.packages import urllib3
+    urllib3.poolmanager.PoolManager
+
+Or, even better::
+
+    from urllib3.poolmanager import PoolManager
+
+2.16.0 (2017-05-26)
++++++++++++++++++++
+
+- Unvendor ALL the things!
+
+2.15.1 (2017-05-26)
++++++++++++++++++++
+
+- Everyone makes mistakes.
+
+2.15.0 (2017-05-26)
++++++++++++++++++++
+
+**Improvements**
+
+- Introduction of the ``Response.next`` property, for getting the next
+  ``PreparedResponse`` from a redirect chain (when ``allow_redirects=False``).
+- Internal refactoring of ``__version__`` module.
+
+**Bugfixes**
+
+- Restored once-optional parameter for ``requests.utils.get_environ_proxies()``.
+
 2.14.2 (2017-05-10)
 +++++++++++++++++++
 
@@ -529,7 +638,7 @@ This is the first release that follows our new release process. For more, see
 
 - Unicode URL improvements for Python 2.
 - Re-order JSON param for backwards compat.
-- Automatically defrag authentication schemes from host/pass URIs. (`#2249 <https://github.com/kennethreitz/requests/issues/2249>`_)
+- Automatically defrag authentication schemes from host/pass URIs. (`#2249 <https://github.com/requests/requests/issues/2249>`_)
 
 
 2.4.2 (2014-10-05)
@@ -537,19 +646,19 @@ This is the first release that follows our new release process. For more, see
 
 **Improvements**
 
-- FINALLY! Add json parameter for uploads! (`#2258 <https://github.com/kennethreitz/requests/pull/2258>`_)
-- Support for bytestring URLs on Python 3.x (`#2238 <https://github.com/kennethreitz/requests/pull/2238>`_)
+- FINALLY! Add json parameter for uploads! (`#2258 <https://github.com/requests/requests/pull/2258>`_)
+- Support for bytestring URLs on Python 3.x (`#2238 <https://github.com/requests/requests/pull/2238>`_)
 
 **Bugfixes**
 
-- Avoid getting stuck in a loop (`#2244 <https://github.com/kennethreitz/requests/pull/2244>`_)
-- Multiple calls to iter* fail with unhelpful error. (`#2240 <https://github.com/kennethreitz/requests/issues/2240>`_, `#2241 <https://github.com/kennethreitz/requests/issues/2241>`_)
+- Avoid getting stuck in a loop (`#2244 <https://github.com/requests/requests/pull/2244>`_)
+- Multiple calls to iter* fail with unhelpful error. (`#2240 <https://github.com/requests/requests/issues/2240>`_, `#2241 <https://github.com/requests/requests/issues/2241>`_)
 
 **Documentation**
 
-- Correct redirection introduction (`#2245 <https://github.com/kennethreitz/requests/pull/2245/>`_)
-- Added example of how to send multiple files in one request. (`#2227 <https://github.com/kennethreitz/requests/pull/2227/>`_)
-- Clarify how to pass a custom set of CAs (`#2248 <https://github.com/kennethreitz/requests/pull/2248/>`_)
+- Correct redirection introduction (`#2245 <https://github.com/requests/requests/pull/2245/>`_)
+- Added example of how to send multiple files in one request. (`#2227 <https://github.com/requests/requests/pull/2227/>`_)
+- Clarify how to pass a custom set of CAs (`#2248 <https://github.com/requests/requests/pull/2248/>`_)
 
 
 

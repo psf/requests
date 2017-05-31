@@ -1,14 +1,14 @@
 .. _install:
 
-Installation
-============
+Installation of Requests
+========================
 
 This part of the documentation covers the installation of Requests.
 The first step to using any software package is getting it properly installed.
 
 
-Pip Install Requests
---------------------
+$ pip install requests
+----------------------
 
 To install Requests, simply run this simple command in your terminal of choice::
 
@@ -22,18 +22,19 @@ Get the Source Code
 -------------------
 
 Requests is actively developed on GitHub, where the code is
-`always available <https://github.com/kennethreitz/requests>`_.
+`always available <https://github.com/requests/requests>`_.
 
 You can either clone the public repository::
 
-    $ git clone git://github.com/kennethreitz/requests.git
+    $ git clone git://github.com/requests/requests.git
 
-Or, download the `tarball <https://github.com/kennethreitz/requests/tarball/master>`_::
+Or, download the `tarball <https://github.com/requests/requests/tarball/master>`_::
 
-    $ curl -OL https://github.com/kennethreitz/requests/tarball/master
-      # optionally, zipball is also available (for Windows users).
+    $ curl -OL https://github.com/requests/requests/tarball/master
+    # optionally, zipball is also available (for Windows users).
 
 Once you have a copy of the source, you can embed it in your own Python
 package, or install it into your site-packages easily::
 
-    $ python setup.py install
+    $ cd requests
+    $ pip install .

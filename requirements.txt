@@ -1,0 +1,16 @@
+-e .[socks]
+pytest>=2.8.0
+codecov
+pytest-httpbin==0.0.7
+pytest-mock
+pytest-cov
+pytest-xdist
+alabaster
+readme_renderer
+Sphinx<=1.5.5
+PySocks
+setuptools>=18.5
+docutils
+flake8
+tox
+detox

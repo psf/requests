@@ -34,7 +34,7 @@ from requests.hooks import default_hooks
 
 from .compat import StringIO, u
 from .utils import override_environ
-from requests.packages.urllib3.util import Timeout as Urllib3Timeout
+from urllib3.util import Timeout as Urllib3Timeout
 
 class SendRecordingAdapter(HTTPAdapter):
     """
@@ -81,6 +81,8 @@ class TestRequests:
         requests.put
         requests.patch
         requests.post
+        # Not really an entry point, but people rely on it.
+        from requests.packages.urllib3.poolmanager import PoolManager
 
     @pytest.mark.parametrize(
         'exception, url', (
@@ -556,7 +558,7 @@ class TestRequests:
     @pytest.mark.parametrize('key', ('User-agent', 'user-agent'))
     def test_user_agent_transfers(self, httpbin, key):
 
-        heads = {key: 'Mozilla/5.0 (github.com/kennethreitz/requests)'}
+        heads = {key: 'Mozilla/5.0 (github.com/requests/requests)'}
 
         r = requests.get(httpbin('user-agent'), headers=heads)
         assert heads[key] in r.text
@@ -746,7 +748,7 @@ class TestRequests:
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
 
-        with open('Pipfile') as f:
+        with open('requirements.txt') as f:
             post2 = requests.post(url, files={'some': f})
         assert post2.status_code == 200
 
@@ -806,7 +808,7 @@ class TestRequests:
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
 
-        with open('Pipfile') as f:
+        with open('requirements.txt') as f:
             post2 = requests.post(url, data={'some': 'data'}, files={'some': f})
         assert post2.status_code == 200
 
@@ -843,7 +845,7 @@ class TestRequests:
 
     def test_conflicting_post_params(self, httpbin):
         url = httpbin('post')
-        with open('Pipfile') as f:
+        with open('requirements.txt') as f:
             pytest.raises(ValueError, "requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})")
             pytest.raises(ValueError, "requests.post(url, data=u('[{\"some\": \"data\"}]'), files={'some': f})")
 
@@ -2457,7 +2459,7 @@ class TestTimeout:
             pass
 
     def test_encoded_methods(self, httpbin):
-        """See: https://github.com/kennethreitz/requests/issues/2316"""
+        """See: https://github.com/requests/requests/issues/2316"""
         r = requests.request(b'GET', httpbin('get'))
         assert r.ok
 
@@ -2613,7 +2615,7 @@ def test_prepare_requires_a_request_method():
 
 
 def test_urllib3_retries(httpbin):
-    from requests.packages.urllib3.util import Retry
+    from urllib3.util import Retry
     s = requests.Session()
     s.mount('http://', HTTPAdapter(max_retries=Retry(
         total=2, status_forcelist=[500]
@@ -2631,15 +2633,6 @@ def test_urllib3_pool_connection_closed(httpbin):
         s.get(httpbin('status/200'))
     except ConnectionError as e:
         assert u"Pool is closed." in str(e)
-
-
-def test_vendor_aliases():
-    from requests.packages import urllib3
-    from requests.packages import chardet
-    from requests.packages import idna
-
-    with pytest.raises(ImportError):
-        from requests.packages import webbrowser
 
 
 class TestPreparingURLs(object):
