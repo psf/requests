@@ -117,7 +117,8 @@ class SessionRedirectMixin(object):
         return None
 
     def resolve_redirects(self, response, request, stream=False, timeout=None,
-                          verify=True, cert=None, proxies=None, yield_requests=False, **adapter_kwargs)
+                          verify=True, cert=None, proxies=None,
+                          yield_requests=False, **adapter_kwargs):
         """Given a Response, yields Responses until 'Location' header-based
         redirection ceases, or the Session.max_redirects limit has been
         reached.
@@ -204,7 +205,7 @@ class SessionRedirectMixin(object):
             request = prepared_request
 
             if yield_requests:
-                yield req
+                yield request
             else:
 
                 response = self.send(
