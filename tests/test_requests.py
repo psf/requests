@@ -6,6 +6,7 @@
 from __future__ import division
 import json
 import os
+import base64
 import pickle
 import collections
 import contextlib
@@ -13,6 +14,7 @@ import warnings
 
 import io
 import requests
+import msgpack
 import pytest
 from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
@@ -1644,6 +1646,24 @@ class TestRequests:
             assert item.history == total[0:i]
             i += 1
 
+    def test_msg_pack_param_content_type_is_correct(self, httpbin):
+        r = requests.post(
+            httpbin('post'),
+            msg_pack={'answer': 42}
+        )
+        assert r.status_code == 200
+        assert 'application/msgpack' in r.request.headers['Content-Type']
+        data = r.json()['data']
+        raw_data = base64.b64decode(data[len('data:application/octet-stream;base64'):])
+        assert {b'answer': 42} == msgpack.unpackb(raw_data)
+
+    def test_msg_pack_param_post_should_not_override_data_param(self, httpbin):
+        r = requests.Request(method='POST', url=httpbin('post'),
+                             data={'stuff': 'elixr'},
+                             msg_pack={'music': 'flute'})
+        prep = r.prepare()
+        assert 'stuff=elixr' == prep.body
+
     def test_json_param_post_content_type_works(self, httpbin):
         r = requests.post(
             httpbin('post'),
@@ -1717,6 +1737,11 @@ class TestRequests:
         assert r.content is None
         with pytest.raises(ValueError):
             r.json()
+
+    def test_response_msgpack_unpack(self):
+        resp = requests.Response()
+        resp._content = msgpack.packb([1, 2, 3])
+        assert resp.msgpack() == [1, 2, 3]
 
     def test_response_without_release_conn(self):
         """Test `close` call for non-urllib3-like raw objects.
