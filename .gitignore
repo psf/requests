@@ -12,6 +12,7 @@ requests.egg-info/
 *.pyc
 *.swp
 *.egg
+.eggs
 env/
 
 .workon
