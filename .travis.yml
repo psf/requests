@@ -9,6 +9,9 @@ python:
   # - "3.7-dev"
   # - "pypy"  -- appears to hang
   # - "pypy3"
+matrix:
+  allow_failures:
+    - python: 3.7-dev
 # command to install dependencies
 install: "make"
 # command to run tests
