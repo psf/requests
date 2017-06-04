@@ -187,8 +187,7 @@ class HTTPAdapter(BaseAdapter):
         self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
 
     def __getstate__(self):
-        return dict((attr, getattr(self, attr, None)) for attr in
-                    self.__attrs__)
+        return {attr: getattr(self, attr, None) for attr in self.__attrs__}
 
     def __setstate__(self, state):
         # Can't handle by adding 'proxy_manager' to self.__attrs__ because
