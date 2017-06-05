@@ -124,14 +124,16 @@ def extract_cookies_to_jar(jar, request, response):
     :param response: urllib3.HTTPResponse object
     """
     if not (hasattr(response, '_original_response') and
-            response._original_response):
-        return
-    # the _original_response field is the wrapped httplib.HTTPResponse object,
-    req = MockRequest(request)
-    # pull out the HTTPMessage with the headers and put it in the mock:
-    res = MockResponse(response._original_response.msg)
-    jar.extract_cookies(res, req)
+                response._original_response):
+        # just grab the headers from the mocked response object
+        res = MockResponse(response.headers)
+    else:
+        # the _original_response field is the wrapped httplib.HTTPResponse object
+        # pull out the HTTPMessage with the headers and put it in the mock:
+        res = MockResponse(response._original_response.msg)
 
+    req = MockRequest(request)
+    jar.extract_cookies(res, req)
 
 def get_cookie_header(jar, request):
     """
