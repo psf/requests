@@ -474,7 +474,7 @@ def get_unicode_from_response(r):
         ' warning should only appear once.)'),
         DeprecationWarning)
 
-    tried_encodings = []
+    tried_encodings = set()
 
     # Try charset from content-type
     encoding = get_encoding_from_headers(r.headers)
@@ -483,7 +483,19 @@ def get_unicode_from_response(r):
         try:
             return str(r.content, encoding)
         except UnicodeError:
-            tried_encodings.append(encoding)
+            tried_encodings.add(encoding.lower())
+
+    # Try charsets from meta tags
+    encodings = get_encodings_from_content(r.content)
+
+    if encodings:
+        for encoding in encodings:
+            if encoding.lower() in tried_encodings:
+                continue
+            try:
+                return str(r.content, encoding)
+            except UnicodeError:
+                tried_encodings.add(encoding.lower())
 
     # Fall back:
     try:
