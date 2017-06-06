@@ -23,7 +23,7 @@ else:
 
 
 def _implementation():
-    """Return a dict with the Python implementation and verison.
+    """Return a dict with the Python implementation and version.
 
     Provide both the name and the version of the Python implementation
     currently running. For example, on CPython 2.7.5 it will return
