@@ -183,3 +183,4 @@ Patches and Suggestions
 - Shmuel Amar (`@shmuelamar <https://github.com/shmuelamar>`_)
 - Gary Wu (`@garywu <https://github.com/garywu>`_)
 - Ryan Pineo (`@ryanpineo <https://github.com/ryanpineo>`_)
+- Matt Liu <liumatt@gmail.com> (`@mlcrazy <https://github.com/mlcrazy>`_)
