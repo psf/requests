@@ -6,6 +6,11 @@ Release History
 dev
 +++
 
+**Improvements**
+
+- ``Response`` is now a context manager, so can be used directly in a `with` statement
+  without first having to be wrapped by ``contextlib.closing()``.
+
 **Bugfixes**
 
 - Resolve installation failure if multiprocessing is not available
