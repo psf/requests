@@ -5,6 +5,7 @@ nosetests.xml
 junit-report.xml
 pylint.txt
 toy.py
+.cache/
 cover/
 build/
 docs/_build
