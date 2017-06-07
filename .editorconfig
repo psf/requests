@@ -1,0 +1,22 @@
+# editorconfig.org
+
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+
+# 4-space indentation for all .py files
+[*.py]
+indent_style = space
+indent_size = 4
+
+# Tab indentation for Makefile
+[Makefile]
+indent_style = tab
+
+# 2-space indentation
+[{appveyor.yml,.travis.yml}]
+indent_style = space
+indent_size = 2
