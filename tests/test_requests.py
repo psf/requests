@@ -2080,6 +2080,20 @@ class TestTimeout:
         except ConnectTimeout:
             pass
 
+    @pytest.mark.parametrize(
+        'timeout', (
+            (0.1, 0.1),
+            Urllib3Timeout(connect=0.1, read=0.1)
+        ))
+
+    def test_max_retries(self, timeout):
+        try:
+            s = requests.Session()
+            s.mount('http://', HTTPAdapter(max_retries=2))
+            s.get(TARPIT, timeout=timeout)
+        except ConnectTimeout as e:
+            assert e, "Max retry"
+
     def test_encoded_methods(self, httpbin):
         """See: https://github.com/requests/requests/issues/2316"""
         r = requests.request(b'GET', httpbin('get'))
