@@ -34,6 +34,12 @@ from .structures import CaseInsensitiveDict
 from .exceptions import (
     InvalidURL, InvalidHeader, FileModeWarning, UnrewindableBodyError)
 
+try:
+    import netrc as _netrc
+except ImportError as _exc:
+    _netrc = None
+    _netrc_err = None
+
 NETRC_FILES = ('.netrc', '_netrc')
 
 DEFAULT_CA_BUNDLE_PATH = certs.where()
@@ -42,11 +48,11 @@ DEFAULT_CA_BUNDLE_PATH = certs.where()
 if platform.system() == 'Windows':
     # provide a proxy_bypass version on Windows without DNS lookups
 
+    if is_py3:
+        import winreg
+    else:
+        import _winreg as winreg
     def proxy_bypass_registry(host):
-        if is_py3:
-            import winreg
-        else:
-            import _winreg as winreg
         try:
             internetSettings = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                 r'Software\Microsoft\Windows\CurrentVersion\Internet Settings')
@@ -161,8 +167,9 @@ def get_netrc_auth(url, raise_errors=False):
     """Returns the Requests tuple auth for a given url from netrc."""
 
     try:
-        from netrc import netrc, NetrcParseError
-
+        if _netrc is None:
+            raise _netrc_err
+        netrc, NetrcParseError = _netrc.netrc, _netrc.NetrcParseError
         netrc_path = None
 
         for f in NETRC_FILES:
@@ -192,12 +199,12 @@ def get_netrc_auth(url, raise_errors=False):
         host = ri.netloc.split(splitstr)[0]
 
         try:
-            _netrc = netrc(netrc_path).authenticators(host)
-            if _netrc:
+            netrc = _netrc.netrc(netrc_path).authenticators(host)
+            if netrc:
                 # Return with login / password
-                login_i = (0 if _netrc[0] else 1)
-                return (_netrc[login_i], _netrc[2])
-        except (NetrcParseError, IOError):
+                login_i = (0 if netrc[0] else 1)
+                return (netrc[login_i], netrc[2])
+        except (_netrc.NetrcParseError, IOError):
             # If there was a parsing error or a permissions issue reading the file,
             # we'll just skip netrc auth unless explicitly asked to raise errors.
             if raise_errors:

@@ -16,6 +16,13 @@ import sys
 # such as in Embedded Python. See https://github.com/requests/requests/issues/3578.
 import encodings.idna
 
+try:
+    import idna as _idna
+except ImportError as _exc:
+    # Re-raised when the idna module is actually needed.
+    _idna = None
+    _idna_err = _exc
+
 from urllib3.fields import RequestField
 from urllib3.filepost import encode_multipart_formdata
 from urllib3.util import parse_url
@@ -336,11 +343,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     @staticmethod
     def _get_idna_encoded_host(host):
-        import idna
-
+        if _idna is None:
+            raise _idna_err
         try:
-            host = idna.encode(host, uts46=True).decode('utf-8')
-        except idna.IDNAError:
+            host = _idna.encode(host, uts46=True).decode('utf-8')
+        except _idna.IDNAError:
             raise UnicodeError
         return host
 
