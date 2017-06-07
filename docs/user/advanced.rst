@@ -301,14 +301,10 @@ release the connection back to the pool unless you consume all the data or call
 :meth:`Response.close <requests.Response.close>`. This can lead to
 inefficiency with connections. If you find yourself partially reading request
 bodies (or not reading them at all) while using ``stream=True``, you should
-consider using ``contextlib.closing`` (`documented here`_), like this::
+make the request within a ``with`` statement to ensure it's always closed::
 
-    from contextlib import closing
-
-    with closing(requests.get('http://httpbin.org/get', stream=True)) as r:
+    with requests.get('http://httpbin.org/get', stream=True) as r:
         # Do things with the response here.
-
-.. _`documented here`: http://docs.python.org/2/library/contextlib.html#contextlib.closing
 
 .. _keep-alive:
 

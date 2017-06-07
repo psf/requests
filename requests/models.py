@@ -634,6 +634,12 @@ class Response(object):
         #: is a response.
         self.request = None
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
     def __getstate__(self):
         # Consume everything; accessing the content attribute makes
         # sure the content has been fully read.
