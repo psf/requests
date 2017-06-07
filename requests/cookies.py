@@ -10,6 +10,7 @@ requests.utils imports from here, so be careful with imports.
 """
 
 import copy
+import re
 import time
 import calendar
 import collections
@@ -102,18 +103,28 @@ class MockResponse(object):
     the way `cookielib` expects to see them.
     """
 
-    def __init__(self, headers):
+    SEPARATOR = re.compile(r",\s*(?=[\w-]+=)")
+
+    def __init__(self, response):
         """Make a MockResponse for `cookielib` to read.
 
-        :param headers: a httplib.HTTPMessage or analogous carrying the headers
+        :param response: a HTTPResponse or analogous carrying the headers
         """
-        self._headers = headers
+        self._response = response
 
     def info(self):
-        return self._headers
+        return self
 
     def getheaders(self, name):
-        self._headers.getheaders(name)
+        """Return headers from the original response within urllib3 object."""
+        if (hasattr(self._response, '_original_response') and
+                self._response._original_response):
+            return self._response._original_response.msg.getheaders(name)
+        # Return the headers within the default urllib3 object.
+        if hasattr(self._response, 'getheader'):
+            headers = self._response.getheader(name)
+            return self.SEPARATOR.split(headers) if headers else []
+        return []
 
 
 def extract_cookies_to_jar(jar, request, response):
@@ -123,13 +134,10 @@ def extract_cookies_to_jar(jar, request, response):
     :param request: our own requests.Request object
     :param response: urllib3.HTTPResponse object
     """
-    if not (hasattr(response, '_original_response') and
-            response._original_response):
-        return
     # the _original_response field is the wrapped httplib.HTTPResponse object,
     req = MockRequest(request)
     # pull out the HTTPMessage with the headers and put it in the mock:
-    res = MockResponse(response._original_response.msg)
+    res = MockResponse(response)
     jar.extract_cookies(res, req)
 
 
