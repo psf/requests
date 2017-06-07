@@ -424,6 +424,7 @@ class Session(SessionRedirectMixin):
             files=request.files,
             data=request.data,
             json=request.json,
+            msg_pack=request.msg_pack,
             headers=merge_setting(request.headers, self.headers, dict_class=CaseInsensitiveDict),
             params=merge_setting(request.params, self.params),
             auth=merge_setting(auth, self.auth),
@@ -435,7 +436,8 @@ class Session(SessionRedirectMixin):
     def request(self, method, url,
             params=None, data=None, headers=None, cookies=None, files=None,
             auth=None, timeout=None, allow_redirects=True, proxies=None,
-            hooks=None, stream=None, verify=None, cert=None, json=None):
+            hooks=None, stream=None, verify=None, cert=None, json=None,
+            msg_pack=None):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -446,6 +448,8 @@ class Session(SessionRedirectMixin):
         :param data: (optional) Dictionary, bytes, or file-like object to send
             in the body of the :class:`Request`.
         :param json: (optional) json to send in the body of the
+            :class:`Request`.
+        :param msg_pack: (optional) msg_pack to send in the body of the
             :class:`Request`.
         :param headers: (optional) Dictionary of HTTP Headers to send with the
             :class:`Request`.
@@ -480,6 +484,7 @@ class Session(SessionRedirectMixin):
             files=files,
             data=data or {},
             json=json,
+            msg_pack=msg_pack,
             params=params or {},
             auth=auth,
             cookies=cookies,

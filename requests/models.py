@@ -9,13 +9,13 @@ This module contains the primary objects that power Requests.
 
 import collections
 import datetime
-import sys
 
 # Import encoding now, to avoid implicit import later.
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
 # such as in Embedded Python. See https://github.com/requests/requests/issues/3578.
 import encodings.idna
 
+import msgpack
 from urllib3.fields import RequestField
 from urllib3.filepost import encode_multipart_formdata
 from urllib3.util import parse_url
@@ -217,7 +217,8 @@ class Request(RequestHooksMixin):
 
     def __init__(self,
             method=None, url=None, headers=None, files=None, data=None,
-            params=None, auth=None, cookies=None, hooks=None, json=None):
+            params=None, auth=None, cookies=None, hooks=None, json=None,
+            msg_pack=None):
 
         # Default empty dicts for dict params.
         data = [] if data is None else data
@@ -236,6 +237,7 @@ class Request(RequestHooksMixin):
         self.files = files
         self.data = data
         self.json = json
+        self.msg_pack = msg_pack
         self.params = params
         self.auth = auth
         self.cookies = cookies
@@ -253,6 +255,7 @@ class Request(RequestHooksMixin):
             files=self.files,
             data=self.data,
             json=self.json,
+            msg_pack=self.msg_pack,
             params=self.params,
             auth=self.auth,
             cookies=self.cookies,
@@ -298,14 +301,15 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare(self,
             method=None, url=None, headers=None, files=None, data=None,
-            params=None, auth=None, cookies=None, hooks=None, json=None):
+            params=None, auth=None, cookies=None, hooks=None, json=None,
+            msg_pack=None):
         """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)
         self.prepare_url(url, params)
         self.prepare_headers(headers)
         self.prepare_cookies(cookies)
-        self.prepare_body(data, files, json)
+        self.prepare_body(data, files, json, msg_pack)
         self.prepare_auth(auth, url)
 
         # Note that prepare_auth must be last to enable authentication schemes
@@ -441,7 +445,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 name, value = header
                 self.headers[to_native_string(name)] = value
 
-    def prepare_body(self, data, files, json=None):
+    def prepare_body(self, data, files, json=None, msg_pack=None):
         """Prepares the given HTTP body data."""
 
         # Check if file, fo, generator, iterator.
@@ -458,6 +462,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             body = complexjson.dumps(json)
             if not isinstance(body, bytes):
                 body = body.encode('utf-8')
+
+        if not (data or json) and msg_pack:
+            content_type = 'application/msgpack'
+            body = msgpack.packb(msg_pack)
 
         is_stream = all([
             hasattr(data, '__iter__'),
@@ -866,6 +874,16 @@ class Response(object):
             content = str(self.content, errors='replace')
 
         return content
+
+    def msgpack(self, **kwargs):
+        """Returns the msgpack-encoded content of a response, if any.
+
+        :param \*\*kwargs: Optional arguments that ``msgpack.unpackb`` takes.
+        :raises UnpackException: If the response body does not contain valid
+            msgpack data.
+        """
+        if self.content:
+            return msgpack.unpackb(self.content, **kwargs)
 
     def json(self, **kwargs):
         r"""Returns the json-encoded content of a response, if any.
