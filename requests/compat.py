@@ -8,7 +8,10 @@ This module handles import compatibility issues between Python 2 and
 Python 3.
 """
 
-import chardet
+try:
+    import cchardet as chardet
+except ImportError:
+    import chardet
 
 import sys
 

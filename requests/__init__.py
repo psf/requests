@@ -39,15 +39,18 @@ is at <http://python-requests.org>.
 :copyright: (c) 2017 by Kenneth Reitz.
 :license: Apache 2.0, see LICENSE for more details.
 """
+def get_version(package):
+    version = package.__version__.split('.')[:3]
+    if len(version) == 2:
+          version.append('0')
+    major, minor, patch = version
+    major, minor, patch = int(major), int(minor), int(patch)
+    return major, minor, patch
 
 # Check urllib3 for compatibility.
 import urllib3
-urllib3_version = urllib3.__version__.split('.')
-# Sometimes, urllib3 only reports its version as 16.1.
-if len(urllib3_version) == 2:
-    urllib3_version.append('0')
-major, minor, patch = urllib3_version
-major, minor, patch = int(major), int(minor), int(patch)
+
+major, minor, patch = get_version(urllib3)
 # urllib3 >= 1.21.1, < 1.22
 try:
     assert major == 1
@@ -56,18 +59,33 @@ try:
 except AssertionError:
     raise RuntimeError('Requests dependency \'urllib3\' must be version >= 1.21.1, < 1.22!')
 
+import warnings
 
-# Check chardet for compatibility.
-import chardet
-major, minor, patch = chardet.__version__.split('.')[:3]
-major, minor, patch = int(major), int(minor), int(patch)
-# chardet >= 3.0.2, < 3.1.0
 try:
-    assert major == 3
-    assert minor < 1
-    assert patch >= 2
-except AssertionError:
-    raise RuntimeError('Requests dependency \'chardet\' must be version >= 3.0.2, < 3.1.0!')
+    # Check cchardet for compatibility.
+    import cchardet as chardet
+    major, minor, patch = get_version(chardet)
+    # cchardet >= 2.1.0
+    try:
+        assert major == 2
+        assert minor >= 1
+        assert minor < 2
+        assert patch >= 0
+    except AssertionError:
+        warnings.warn('Requests dependency \'cchardet\' must be version >= 2.1.0, < 2.2.0! Falling back to chardet')
+        raise
+
+except (ImportError, AssertionError):
+    # Check chardet for compatibility.
+    import chardet
+    major, minor, patch = get_version(chardet)
+    # chardet >= 3.0.2, < 3.1.0
+    try:
+        assert major == 3
+        assert minor < 1
+        assert patch >= 2
+    except AssertionError:
+        raise RuntimeError('Requests dependency \'chardet\' must be version >= 3.0.2, < 3.1.0!')
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
@@ -75,8 +93,6 @@ try:
     pyopenssl.inject_into_urllib3()
 except ImportError:
     pass
-
-import warnings
 
 # urllib3's DependencyWarnings should be silenced.
 from urllib3.exceptions import DependencyWarning
