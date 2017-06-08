@@ -40,34 +40,44 @@ is at <http://python-requests.org>.
 :license: Apache 2.0, see LICENSE for more details.
 """
 
-# Check urllib3 for compatibility.
 import urllib3
-urllib3_version = urllib3.__version__.split('.')
-# Sometimes, urllib3 only reports its version as 16.1.
-if len(urllib3_version) == 2:
-    urllib3_version.append('0')
-major, minor, patch = urllib3_version
-major, minor, patch = int(major), int(minor), int(patch)
-# urllib3 >= 1.21.1, < 1.22
-try:
+import chardet
+import warnings
+from .exceptions import RequestsDependencyWarning
+
+
+def check_compatibility(urllib3_version, chardet_version):
+    urllib3_version = urllib3_version.split('.')
+    assert urllib3_version != ['dev']  # Verify urllib3 isn't installed from git.
+
+    # Sometimes, urllib3 only reports its version as 16.1.
+    if len(urllib3_version) == 2:
+        urllib3_version.append('0')
+
+    # Check urllib3 for compatibility.
+    major, minor, patch = urllib3_version  # noqa: F811
+    major, minor, patch = int(major), int(minor), int(patch)
+    # urllib3 >= 1.21.1, < 1.22
     assert major == 1
     assert minor >= 21
     assert minor <= 22
-except AssertionError:
-    raise RuntimeError('Requests dependency \'urllib3\' must be version >= 1.21.1, < 1.22!')
 
-
-# Check chardet for compatibility.
-import chardet
-major, minor, patch = chardet.__version__.split('.')[:3]
-major, minor, patch = int(major), int(minor), int(patch)
-# chardet >= 3.0.2, < 3.1.0
-try:
+    # Check chardet for compatibility.
+    major, minor, patch = chardet_version.split('.')[:3]
+    major, minor, patch = int(major), int(minor), int(patch)
+    # chardet >= 3.0.2, < 3.1.0
     assert major == 3
     assert minor < 1
     assert patch >= 2
-except AssertionError:
-    raise RuntimeError('Requests dependency \'chardet\' must be version >= 3.0.2, < 3.1.0!')
+
+
+# Check imported dependencies for compatibility.
+try:
+    check_compatibility(urllib3.__version__, chardet.__version__)
+except (AssertionError, ValueError):
+    warnings.warn("urllib3 ({0}) or chardet ({1}) doesn't match a supported "
+                  "version!".format(urllib3.__version__, chardet.__version__),
+                  RequestsDependencyWarning)
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
@@ -75,8 +85,6 @@ try:
     pyopenssl.inject_into_urllib3()
 except ImportError:
     pass
-
-import warnings
 
 # urllib3's DependencyWarnings should be silenced.
 from urllib3.exceptions import DependencyWarning
