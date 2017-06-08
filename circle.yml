@@ -1,0 +1,6 @@
+dependencies:
+  pre:
+    - make
+test:
+   override:
+     - detox
