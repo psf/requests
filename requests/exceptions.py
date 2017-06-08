@@ -24,6 +24,13 @@ class RequestException(IOError):
             self.request = self.response.request
         super(RequestException, self).__init__(*args, **kwargs)
 
+    def __str__(self):
+        supstr = super(RequestException, self).__str__()
+        if self.request:
+            return "%s: %s" % (self.request.url, supstr)
+        else:
+            return supstr
+
 
 class HTTPError(RequestException):
     """An HTTP error occurred."""
