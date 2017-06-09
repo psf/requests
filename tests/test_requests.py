@@ -1668,6 +1668,12 @@ class TestRequests:
         next(it)
         assert len(list(it)) == 3
 
+    def test_response_context_manager(self, httpbin):
+        with requests.get(httpbin('stream/4'), stream=True) as response:
+            assert isinstance(response, requests.Response)
+
+        assert response.raw.closed
+
     def test_unconsumed_session_response_closes_connection(self, httpbin):
         s = requests.session()
 

@@ -8,7 +8,7 @@ ci:
 	py.test -n 8 --boxed --junitxml=report.xml
 
 test-readme:
-	python setup.py check -r -s
+	@python setup.py check --restructuredtext --strict && ([ $$? -eq 0 ] && echo "README.rst and HISTORY.rst ok") || echo "Invalid markup in README.rst or HISTORY.rst!"
 
 flake8:
 	flake8 --ignore=E501,F401,E128,E402,E731,F821 requests
