@@ -10,6 +10,7 @@ dev
 
 - Resolve installation failure if multiprocessing is not available
 - Resolve tests crash if multiprocessing is not able to determine the number of CPU cores
+- Resolve error swallowing in utils set_environ generator
 
 
 2.17.3 (2017-05-29)
@@ -1476,4 +1477,3 @@ This is not a backwards compatible change.
 
 * Frustration
 * Conception
-
