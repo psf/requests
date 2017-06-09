@@ -612,18 +612,18 @@ def set_environ(env_name, value):
     the environment variable 'env_name'.
 
     If 'value' is None, do nothing"""
-    if value is not None:
+    value_changed = value is not None
+    if value_changed:
         old_value = os.environ.get(env_name)
         os.environ[env_name] = value
     try:
         yield
     finally:
-        if value is None:
-            return
-        if old_value is None:
-            del os.environ[env_name]
-        else:
-            os.environ[env_name] = old_value
+        if value_changed:
+            if old_value is None:
+                del os.environ[env_name]
+            else:
+                os.environ[env_name] = old_value
 
 
 def should_bypass_proxies(url, no_proxy):
