@@ -7,7 +7,7 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-  - "3.7-dev"
+  # - "3.7-dev"
   # - "pypy"  -- appears to hang
   # - "pypy3"
 # command to install dependencies
@@ -16,7 +16,17 @@ install: "make"
 script:
   - |
     if [[ "$TRAVIS_PYTHON_VERSION" != "2.6" ]] ; then make test-readme; fi
-  - make coverage
-after_success:
-  - pipenv run codecov
+  - make ci
 cache: pip
+jobs:
+  include:
+    - stage: test
+      script:
+        - |
+          if [[ "$TRAVIS_PYTHON_VERSION" != "2.6" ]] ; then make test-readme; fi
+        - make ci
+    - stage: coverage
+      python: 3.6
+      script: codecov
+
+

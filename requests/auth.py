@@ -163,7 +163,7 @@ class HTTPDigestAuth(AuthBase):
         elif qop == 'auth' or 'auth' in qop.split(','):
             noncebit = "%s:%s:%s:%s:%s" % (
                 nonce, ncvalue, cnonce, 'auth', HA2
-                )
+            )
             respdig = KD(HA1, noncebit)
         else:
             # XXX handle auth-int.
@@ -198,7 +198,7 @@ class HTTPDigestAuth(AuthBase):
         """
 
         # If response is not 4xx, do not auth
-        # See https://github.com/kennethreitz/requests/issues/3772
+        # See https://github.com/requests/requests/issues/3772
         if not 400 <= r.status_code < 500:
             self._thread_local.num_401_calls = 1
             return r

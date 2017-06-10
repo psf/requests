@@ -20,7 +20,7 @@ import socket
 import struct
 import warnings
 
-from . import __version__
+from .__version__ import __version__
 from . import certs
 # to_native_string is unused here, but imported here for backwards compatibility
 from ._internal_utils import to_native_string
@@ -171,7 +171,7 @@ def get_netrc_auth(url, raise_errors=False):
             except KeyError:
                 # os.path.expanduser can fail when $HOME is undefined and
                 # getpwuid fails. See http://bugs.python.org/issue20164 &
-                # https://github.com/kennethreitz/requests/issues/1846
+                # https://github.com/requests/requests/issues/1846
                 return
 
             if os.path.exists(loc):
@@ -489,8 +489,7 @@ def get_unicode_from_response(r):
 
 # The unreserved URI characters (RFC 3986)
 UNRESERVED_SET = frozenset(
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-    + "0123456789-._~")
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~")
 
 
 def unquote_unreserved(uri):
@@ -698,7 +697,7 @@ def should_bypass_proxies(url, no_proxy):
     return False
 
 
-def get_environ_proxies(url, no_proxy):
+def get_environ_proxies(url, no_proxy=None):
     """
     Return a dict of environment proxies.
 
@@ -789,6 +788,7 @@ def parse_header_links(value):
 
     return links
 
+
 def is_valid_location(response):
     """Verify that multiple Location headers weren't
     returned from the last response.
@@ -800,6 +800,7 @@ def is_valid_location(response):
             return len(getlist('location')) <= 1
     # If response.raw isn't urllib3-like we can't reliably check this
     return True
+
 
 # Null bytes; no need to recreate these on each call to guess_json_utf
 _null = '\x00'.encode('ascii')  # encoding to ASCII for Python 3
@@ -875,6 +876,7 @@ def get_auth_from_url(url):
 # Moved outside of function to avoid recompile every call
 _CLEAN_HEADER_REGEX_BYTE = re.compile(b'^\\S[^\\r\\n]*$|^$')
 _CLEAN_HEADER_REGEX_STR = re.compile(r'^\S[^\r\n]*$|^$')
+
 
 def check_header_validity(header):
     """Verifies that header value is a string which doesn't contain

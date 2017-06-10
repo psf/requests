@@ -14,8 +14,14 @@ import sys
 
 # Import encoding now, to avoid implicit import later.
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
-# such as in Embedded Python. See https://github.com/kennethreitz/requests/issues/3578.
+# such as in Embedded Python. See https://github.com/requests/requests/issues/3578.
 import encodings.idna
+
+from urllib3.fields import RequestField
+from urllib3.filepost import encode_multipart_formdata
+from urllib3.util import parse_url
+from urllib3.exceptions import (
+    DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
 
 from io import UnsupportedOperation
 from .hooks import default_hooks
@@ -24,12 +30,6 @@ from .structures import CaseInsensitiveDict
 import requests
 from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
-from .packages.urllib3.fields import RequestField
-from .packages.urllib3.filepost import encode_multipart_formdata
-from .packages.urllib3.util import parse_url
-from .packages.urllib3.exceptions import (
-    DecodeError, ReadTimeoutError, ProtocolError,
-    LocationParseError, ConnectionError)
 from .exceptions import (
     HTTPError, MissingScheme, InvalidURL, ChunkedEncodingError,
     ContentDecodingError, ConnectionError, StreamConsumedError,
@@ -219,8 +219,9 @@ class Request(RequestHooksMixin):
       <PreparedRequest [GET]>
     """
 
-    def __init__(self, method=None, url=None, headers=None, files=None,
-        data=None, params=None, auth=None, cookies=None, hooks=None, json=None):
+    def __init__(self,
+            method=None, url=None, headers=None, files=None, data=None,
+            params=None, auth=None, cookies=None, hooks=None, json=None):
 
         # Default empty dicts for dict params.
         data = [] if data is None else data
@@ -299,8 +300,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         #: integer denoting starting position of a readable file-like body.
         self._body_position = None
 
-    def prepare(self, method=None, url=None, headers=None, files=None,
-        data=None, params=None, auth=None, cookies=None, hooks=None, json=None):
+    def prepare(self,
+            method=None, url=None, headers=None, files=None, data=None,
+            params=None, auth=None, cookies=None, hooks=None, json=None):
         """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)
@@ -335,17 +337,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.method = method
         if self.method is None:
             raise ValueError('Request method cannot be "None"')
-        self.method = to_native_string(self.method).upper()
+        self.method = to_native_string(self.method.upper())
 
     @staticmethod
     def _get_idna_encoded_host(host):
-        try:
-            from .packages import idna
-        except ImportError:
-            # tolerate the possibility of downstream repackagers unvendoring `requests`
-            # For more information, read: packages/__init__.py
-            import idna
-            sys.modules['requests.packages.idna'] = idna
+        import idna
 
         try:
             host = idna.encode(host, uts46=True).decode('utf-8')
@@ -359,7 +355,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         #: We're unable to blindly call unicode/str functions
         #: as this will include the bytestring indicator (b'')
         #: on python 3.x.
-        #: https://github.com/kennethreitz/requests/pull/2238
+        #: https://github.com/requests/requests/pull/2238
         if isinstance(url, bytes):
             url = url.decode('utf8')
         else:
@@ -506,7 +502,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_content_length(self, body):
         """Prepares Content-Length header.
-        
+
         If the length of the body of the request can be computed, Content-Length
         is set using ``super_len``. If user has manually set either a
         Transfer-Encoding or Content-Length header when it should not be set
@@ -606,6 +602,7 @@ class Response(object):
 
         self._content = False
         self._content_consumed = False
+        self._next = None
 
         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
         self.status_code = None
@@ -700,12 +697,17 @@ class Response(object):
 
     @property
     def is_permanent_redirect(self):
-        """True if this Response one of the permanent versions of redirect"""
+        """True if this Response one of the permanent versions of redirect."""
         return ('location' in self.headers and self.status_code in (codes.moved_permanently, codes.permanent_redirect))
 
     @property
+    def next(self):
+        """Returns a PreparedRequest for the next request in a redirect chain, if there is one."""
+        return self._next
+
+    @property
     def apparent_encoding(self):
-        """The apparent encoding, provided by the chardet library"""
+        """The apparent encoding, provided by the chardet library."""
         return chardet.detect(self.content)['encoding']
 
     def iter_content(self, chunk_size=1, decode_unicode=False):

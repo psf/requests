@@ -25,9 +25,8 @@ from .utils import to_key_val_list, default_headers
 from .exceptions import (
     TooManyRedirects, InvalidScheme, ChunkedEncodingError,
     ConnectionError, ContentDecodingError, InvalidHeader)
-from .packages.urllib3._collections import RecentlyUsedContainer
-from .structures import CaseInsensitiveDict
 
+from .structures import CaseInsensitiveDict
 from .adapters import HTTPAdapter
 
 from .utils import (
@@ -39,8 +38,6 @@ from .status_codes import codes
 
 # formerly defined here, reexposed here for backward compatibility
 from .models import REDIRECT_STATI
-
-REDIRECT_CACHE_SIZE = 1000
 
 # Preferred clock, based on which one is more accurate on a given system.
 if platform.system() == 'Windows':
@@ -99,6 +96,7 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 
 class SessionRedirectMixin(object):
+
     def get_redirect_target(self, response):
         """Receives a Response. Returns a redirect URI or ``None``"""
         if response.is_redirect:
@@ -119,13 +117,14 @@ class SessionRedirectMixin(object):
         return None
 
     def resolve_redirects(self, response, request, stream=False, timeout=None,
-                          verify=True, cert=None, proxies=None, **adapter_kwargs):
+                          verify=True, cert=None, proxies=None,
+                          yield_requests=False, **adapter_kwargs):
         """Given a Response, yields Responses until 'Location' header-based
         redirection ceases, or the Session.max_redirects limit has been
         reached.
         """
 
-        history = [response] # keep track of history; seed it with the original response
+        history = [response]  # keep track of history; seed it with the original response
 
         location_url = self.get_redirect_target(response)
 
@@ -161,16 +160,13 @@ class SessionRedirectMixin(object):
                 location_url = requote_uri(location_url)
 
             prepared_request.url = to_native_string(location_url)
-            # Cache the url, unless it redirects to itself.
-            if response.is_permanent_redirect and request.url != prepared_request.url:
-                self.redirect_cache[request.url] = prepared_request.url
 
             method_changed = self.rebuild_method(prepared_request, response)
 
             # https://github.com/kennethreitz/requests/issues/2590
             # If method is changed to GET we need to remove body and associated headers.
             if method_changed and prepared_request.method == 'GET':
-                # https://github.com/kennethreitz/requests/issues/3490
+                # https://github.com/requests/requests/issues/3490
                 purged_headers = ('Content-Length', 'Content-Type', 'Transfer-Encoding')
                 for header in purged_headers:
                     prepared_request.headers.pop(header, None)
@@ -208,26 +204,30 @@ class SessionRedirectMixin(object):
             # Override the original request.
             request = prepared_request
 
-            response = self.send(
-                request,
-                stream=stream,
-                timeout=timeout,
-                verify=verify,
-                cert=cert,
-                proxies=proxies,
-                allow_redirects=False,
-                **adapter_kwargs
-            )
-            # copy our history tracker into the response
-            response.history = history[:]
-            # append the new response to the history tracker for the next iteration
-            history.append(response)
+            if yield_requests:
+                yield request
+            else:
 
-            extract_cookies_to_jar(self.cookies, prepared_request, response.raw)
+                response = self.send(
+                    request,
+                    stream=stream,
+                    timeout=timeout,
+                    verify=verify,
+                    cert=cert,
+                    proxies=proxies,
+                    allow_redirects=False,
+                    **adapter_kwargs
+                )
+                # copy our history tracker into the response
+                response.history = history[:]
+                # append the new response to the history tracker for the next iteration
+                history.append(response)
 
-            # extract redirect url, if any, for the next loop
-            location_url = self.get_redirect_target(response)
-            yield response
+                extract_cookies_to_jar(self.cookies, prepared_request, response.raw)
+
+                # extract redirect url, if any, for the next loop
+                location_url = self.get_redirect_target(response)
+                yield response
 
     def rebuild_auth(self, prepared_request, response):
         """When being redirected we may want to strip authentication from the
@@ -400,9 +400,6 @@ class Session(SessionRedirectMixin):
         self.mount('https://', HTTPAdapter())
         self.mount('http://', HTTPAdapter())
 
-        # Only store 1000 redirects to prevent using infinite memory
-        self.redirect_cache = RecentlyUsedContainer(REDIRECT_CACHE_SIZE)
-
     def __enter__(self):
         return self
 
@@ -450,20 +447,9 @@ class Session(SessionRedirectMixin):
         return p
 
     def request(self, method, url,
-        params=None,
-        data=None,
-        headers=None,
-        cookies=None,
-        files=None,
-        auth=None,
-        timeout=None,
-        allow_redirects=True,
-        proxies=None,
-        hooks=None,
-        stream=None,
-        verify=None,
-        cert=None,
-        json=None):
+            params=None, data=None, headers=None, cookies=None, files=None,
+            auth=None, timeout=None, allow_redirects=True, proxies=None,
+            hooks=None, stream=None, verify=None, cert=None, json=None):
         """Constructs a :class:`Request <Request>`, prepares it, and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -502,16 +488,16 @@ class Session(SessionRedirectMixin):
         """
         # Create the Request.
         req = Request(
-            method = method.upper(),
-            url = url,
-            headers = headers,
-            files = files,
-            data = data or {},
-            json = json,
-            params = params or {},
-            auth = auth,
-            cookies = cookies,
-            hooks = hooks,
+            method=method.upper(),
+            url=url,
+            headers=headers,
+            files=files,
+            data=data or {},
+            json=json,
+            params=params or {},
+            auth=auth,
+            cookies=cookies,
+            hooks=hooks,
         )
         prep = self.prepare_request(req)
 
@@ -596,7 +582,7 @@ class Session(SessionRedirectMixin):
         :rtype: requests.Response
         """
 
-        return self.request('PATCH', url,  data=data, **kwargs)
+        return self.request('PATCH', url, data=data, **kwargs)
 
     def delete(self, url, **kwargs):
         r"""Sends a DELETE request. Returns :class:`Response` object.
@@ -609,8 +595,7 @@ class Session(SessionRedirectMixin):
         return self.request('DELETE', url, **kwargs)
 
     def send(self, request, **kwargs):
-        """
-        Send a given PreparedRequest.
+        """Send a given PreparedRequest.
 
         :rtype: requests.Response
         """
@@ -631,16 +616,6 @@ class Session(SessionRedirectMixin):
         allow_redirects = kwargs.pop('allow_redirects', True)
         stream = kwargs.get('stream')
         hooks = request.hooks
-
-        # Resolve URL in redirect cache, if available.
-        if allow_redirects:
-            checked_urls = set()
-            while request.url in self.redirect_cache:
-                checked_urls.add(request.url)
-                new_url = self.redirect_cache.get(request.url)
-                if new_url in checked_urls:
-                    break
-                request.url = new_url
 
         # Get the appropriate adapter to use
         adapter = self.get_adapter(url=request.url)
@@ -677,7 +652,13 @@ class Session(SessionRedirectMixin):
         if history:
             r = history.pop()
 
-        # Automatically download response body, if not in streaming mode.
+        # If redirects aren't being followed, store the response on the Request for Response.next().
+        if not allow_redirects:
+            try:
+                r._next = next(self.resolve_redirects(r, request, yield_requests=True, **kwargs))
+            except StopIteration:
+                pass
+
         if not stream:
             r.content
 
@@ -756,17 +737,11 @@ class Session(SessionRedirectMixin):
 
     def __getstate__(self):
         state = dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
-        state['redirect_cache'] = dict(self.redirect_cache)
         return state
 
     def __setstate__(self, state):
-        redirect_cache = state.pop('redirect_cache', {})
         for attr, value in state.items():
             setattr(self, attr, value)
-
-        self.redirect_cache = RecentlyUsedContainer(REDIRECT_CACHE_SIZE)
-        for redirect, to in redirect_cache.items():
-            self.redirect_cache[redirect] = to
 
 
 def session():
