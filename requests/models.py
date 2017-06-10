@@ -306,7 +306,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.prepare_headers(headers)
         self.prepare_cookies(cookies)
         self.prepare_body(data, files, json)
-        self.prepare_auth(auth, url)
+        self.prepare_auth(auth)
 
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
@@ -523,7 +523,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             # but don't provide one. (i.e. not GET or HEAD)
             self.headers['Content-Length'] = '0'
 
-    def prepare_auth(self, auth, url=''):
+    def prepare_auth(self, auth):
         """Prepares the given HTTP auth data."""
 
         # If no Auth is explicitly provided, extract it from the URL first.
