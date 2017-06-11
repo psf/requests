@@ -2369,7 +2369,7 @@ class TestPreparingURLs(object):
     )
     def test_parameters_for_nonstandard_schemes(self, input, params, expected):
         """
-        Setting paramters for nonstandard schemes is allowed if those schemes
+        Setting parameters for nonstandard schemes is allowed if those schemes
         begin with "http", and is forbidden otherwise.
         """
         r = requests.Request('GET', url=input, params=params)
