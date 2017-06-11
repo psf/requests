@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """Tests for Requests."""
@@ -1668,6 +1667,12 @@ class TestRequests:
         next(it)
         assert len(list(it)) == 3
 
+    def test_response_context_manager(self, httpbin):
+        with requests.get(httpbin('stream/4'), stream=True) as response:
+            assert isinstance(response, requests.Response)
+
+        assert response.raw.closed
+
     def test_unconsumed_session_response_closes_connection(self, httpbin):
         s = requests.session()
 
@@ -2364,7 +2369,7 @@ class TestPreparingURLs(object):
     )
     def test_parameters_for_nonstandard_schemes(self, input, params, expected):
         """
-        Setting paramters for nonstandard schemes is allowed if those schemes
+        Setting parameters for nonstandard schemes is allowed if those schemes
         begin with "http", and is forbidden otherwise.
         """
         r = requests.Request('GET', url=input, params=params)
