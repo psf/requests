@@ -3,6 +3,13 @@
 Release History
 ---------------
 
+dev
++++
+
+**Improvements**
+
+**Bugfixes**
+
 2.18.0 (2017-06-14)
 +++++++++++++++++++
 
