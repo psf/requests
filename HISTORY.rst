@@ -3,12 +3,12 @@
 Release History
 ---------------
 
-dev
-+++
+2.18.0 (2017-06-14)
++++++++++++++++++++
 
 **Improvements**
 
-- ``Response`` is now a context manager, so can be used directly in a `with` statement
+- ``Response`` is now a context manager, so can be used directly in a ``with`` statement
   without first having to be wrapped by ``contextlib.closing()``.
 
 **Bugfixes**
