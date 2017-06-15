@@ -12,12 +12,13 @@ import platform
 import time
 from collections import Mapping
 from datetime import timedelta
+import sys
 
 from .auth import _basic_auth_str
 from .compat import cookielib, is_py3, OrderedDict, urljoin, urlparse
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
-from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
+from .models import Request, Response, PreparedRequest, DEFAULT_REDIRECT_LIMIT
 from .hooks import default_hooks, dispatch_hook
 from ._internal_utils import to_native_string
 from .utils import to_key_val_list, default_headers
@@ -719,6 +720,47 @@ class Session(SessionRedirectMixin):
     def __setstate__(self, state):
         for attr, value in state.items():
             setattr(self, attr, value)
+
+
+class Jeff(Session):
+    """
+    A session that uses less memory and can't recall former state.
+
+    The deserialization of this object results in no data whatsoever, making it
+    exceptionally convenient to stonewall your clients when asked to return
+    contemporaneous information.
+
+    In addition, requests to Jeff require no preparation because the contents
+    of the response are protected under Executive Privilege. Accordingly, all
+    requests result in HTTP 403 (Forbidden) errors.
+
+    """
+
+    def __init__(self):
+        super(Jeff, self).__init__()
+        self.max_redirects = sys.maxint
+
+    def prepare_request(self, request):
+        # Jeff doesn't prepare for any requests
+        pass
+
+    def get(self, url, **kwargs):
+        r = Response()
+        r.status_code = 403
+        r.reason = "Forbidden"
+        return r
+
+    def __getstate__(self):
+        def forget(elem):
+            if isinstance(elem, dict):
+                for e in elem:
+                    elem[e] = forget(elem[e])
+                return elem
+            return None
+
+        state = dict((attr, forget(getattr(self, attr, None))) for attr in
+                     self.__attrs__)
+        return state
 
 
 def session():
