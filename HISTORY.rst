@@ -8,7 +8,22 @@ dev
 
 **Improvements**
 
-- ``Response`` is now a context manager, so can be used directly in a `with` statement
+**Bugfixes**
+
+2.18.1 (2017-06-14)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Fix an error in the packaging whereby the *.whl contained incorrect data that
+  regressed the fix in v2.17.3.
+
+2.18.0 (2017-06-14)
++++++++++++++++++++
+
+**Improvements**
+
+- ``Response`` is now a context manager, so can be used directly in a ``with`` statement
   without first having to be wrapped by ``contextlib.closing()``.
 
 **Bugfixes**
