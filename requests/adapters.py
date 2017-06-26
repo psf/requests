@@ -49,6 +49,67 @@ DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
 
 
+def _pool_kwargs(verify, cert):
+    """Create a dictionary of keyword arguments to pass to a
+    :class:`PoolManager <urllib3.poolmanager.PoolManager>` with the
+    necessary SSL configuration.
+
+    :param verify: Whether we should actually verify the certificate;
+                   optionally a path to a CA certificate bundle or
+                   directory of CA certificates.
+    :param cert: The path to the client certificate and key, if any.
+                 This can either be the path to the certificate and
+                 key concatenated in a single file, or as a tuple of
+                 (cert_file, key_file).
+    """
+    pool_kwargs = {}
+    if verify:
+
+        cert_loc = None
+
+        # Allow self-specified cert location.
+        if verify is not True:
+            cert_loc = verify
+
+        if not cert_loc:
+            cert_loc = DEFAULT_CA_BUNDLE_PATH
+
+        if not cert_loc or not os.path.exists(cert_loc):
+            raise IOError("Could not find a suitable TLS CA certificate bundle, "
+                          "invalid path: {0}".format(cert_loc))
+
+        pool_kwargs['cert_reqs'] = 'CERT_REQUIRED'
+
+        if not os.path.isdir(cert_loc):
+            pool_kwargs['ca_certs'] = cert_loc
+            pool_kwargs['ca_cert_dir'] = None
+        else:
+            pool_kwargs['ca_cert_dir'] = cert_loc
+            pool_kwargs['ca_certs'] = None
+    else:
+        pool_kwargs['cert_reqs'] = 'CERT_NONE'
+        pool_kwargs['ca_certs'] = None
+        pool_kwargs['ca_cert_dir'] = None
+
+    if cert:
+        if not isinstance(cert, basestring):
+            pool_kwargs['cert_file'] = cert[0]
+            pool_kwargs['key_file'] = cert[1]
+        else:
+            pool_kwargs['cert_file'] = cert
+            pool_kwargs['key_file'] = None
+
+        cert_file = pool_kwargs['cert_file']
+        key_file = pool_kwargs['key_file']
+        if cert_file and not os.path.exists(cert_file):
+            raise IOError("Could not find the TLS certificate file, "
+                          "invalid path: {0}".format(cert_file))
+        if key_file and not os.path.exists(key_file):
+            raise IOError("Could not find the TLS key file, "
+                          "invalid path: {0}".format(key_file))
+    return pool_kwargs
+
+
 class BaseAdapter(object):
     """The Base Transport Adapter"""
 
@@ -198,69 +259,6 @@ class HTTPAdapter(BaseAdapter):
 
         return manager
 
-    @staticmethod
-    def _pool_kwargs(verify, cert):
-        """Create a dictionary of keyword arguments to pass to a
-        :class:`PoolManager <urllib3.poolmanager.PoolManager>` with the
-        necessary SSL configuration. This method should not be called from
-        user code, and is only exposed for use when subclassing the
-        :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
-
-        :param verify: Whether we should actually verify the certificate;
-                       optionally a path to a CA certificate bundle or
-                       directory of CA certificates.
-        :param cert: The path to the client certificate and key, if any.
-                     This can either be the path to the certificate and
-                     key concatenated in a single file, or as a tuple of
-                     (cert_file, key_file).
-        """
-        pool_kwargs = {}
-        if verify:
-
-            cert_loc = None
-
-            # Allow self-specified cert location.
-            if verify is not True:
-                cert_loc = verify
-
-            if not cert_loc:
-                cert_loc = DEFAULT_CA_BUNDLE_PATH
-
-            if not cert_loc or not os.path.exists(cert_loc):
-                raise IOError("Could not find a suitable TLS CA certificate bundle, "
-                              "invalid path: {0}".format(cert_loc))
-
-            pool_kwargs['cert_reqs'] = 'CERT_REQUIRED'
-
-            if not os.path.isdir(cert_loc):
-                pool_kwargs['ca_certs'] = cert_loc
-                pool_kwargs['ca_cert_dir'] = None
-            else:
-                pool_kwargs['ca_cert_dir'] = cert_loc
-                pool_kwargs['ca_certs'] = None
-        else:
-            pool_kwargs['cert_reqs'] = 'CERT_NONE'
-            pool_kwargs['ca_certs'] = None
-            pool_kwargs['ca_cert_dir'] = None
-
-        if cert:
-            if not isinstance(cert, basestring):
-                pool_kwargs['cert_file'] = cert[0]
-                pool_kwargs['key_file'] = cert[1]
-            else:
-                pool_kwargs['cert_file'] = cert
-                pool_kwargs['key_file'] = None
-
-            cert_file = pool_kwargs['cert_file']
-            key_file = pool_kwargs['key_file']
-            if cert_file and not os.path.exists(cert_file):
-                raise IOError("Could not find the TLS certificate file, "
-                              "invalid path: {0}".format(cert_file))
-            if key_file and not os.path.exists(key_file):
-                raise IOError("Could not find the TLS key file, "
-                              "invalid path: {0}".format(key_file))
-        return pool_kwargs
-
     def build_response(self, req, resp):
         """Builds a :class:`Response <requests.Response>` object from a urllib3
         response. This should not be called from user code, and is only exposed
@@ -307,7 +305,7 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
         :rtype: urllib3.ConnectionPool
         """
-        pool_kwargs = self._pool_kwargs(verify, cert)
+        pool_kwargs = _pool_kwargs(verify, cert)
         proxy = select_proxy(url, proxies)
 
         if proxy:
