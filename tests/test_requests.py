@@ -2939,8 +2939,10 @@ class TestGetConnection(object):
         adapter = requests.adapters.HTTPAdapter()
         connection = adapter.get_connection(
             'https://example.com', proxies=proxies, verify=verify, cert=cert)
-        actual_config = {key: value for key, value in connection.__dict__.items()
-                         if key in expected}
+        actual_config = {}
+        for key, value in connection.__dict__.items():
+            if key in expected:
+                actual_config[key] = value
         assert actual_config == expected
 
     @pytest.mark.parametrize(
