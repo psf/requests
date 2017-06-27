@@ -506,6 +506,10 @@ class HTTPAdapter(BaseAdapter):
 
                 low_conn = conn._get_conn(timeout=DEFAULT_POOL_TIMEOUT)
 
+                if hasattr(conn, 'proxy'):
+                    if conn.proxy is not None and not getattr(low_conn, 'sock', None):
+                        conn._prepare_proxy(low_conn)
+
                 try:
                     skip_host = "Host" in request.headers
                     low_conn.putrequest(
