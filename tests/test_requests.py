@@ -31,6 +31,7 @@ from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
+from requests.utils import DEFAULT_CA_BUNDLE_PATH
 
 from .compat import StringIO, u
 from .utils import override_environ
@@ -2765,3 +2766,200 @@ class TestPreparingURLs(object):
         r = requests.Request('GET', url=input, params=params)
         p = r.prepare()
         assert p.url == expected
+
+
+class TestGetConnection(object):
+    """
+    Tests for the :meth:`requests.adapters.HTTPAdapter.get_connection` that assert
+    the connections are correctly configured.
+    """
+    @pytest.mark.parametrize(
+        'proxies, verify, cert, expected',
+        (
+            (
+                {},
+                True,
+                None,
+                {
+                    'cert_reqs': 'CERT_REQUIRED',
+                    'ca_certs': DEFAULT_CA_BUNDLE_PATH,
+                    'ca_cert_dir': None,
+                    'cert_file': None,
+                    'key_file': None,
+                },
+            ),
+            (
+                {},
+                False,
+                None,
+                {
+                    'cert_reqs': 'CERT_NONE',
+                    'ca_certs': None,
+                    'ca_cert_dir': None,
+                    'cert_file': None,
+                    'key_file': None,
+                },
+            ),
+            (
+                {},
+                __file__,
+                None,
+                {
+                    'cert_reqs': 'CERT_REQUIRED',
+                    'ca_certs': __file__,
+                    'ca_cert_dir': None,
+                    'cert_file': None,
+                    'key_file': None,
+                },
+            ),
+            (
+                {},
+                os.path.dirname(__file__),
+                None,
+                {
+                    'cert_reqs': 'CERT_REQUIRED',
+                    'ca_certs': None,
+                    'ca_cert_dir': os.path.dirname(__file__),
+                    'cert_file': None,
+                    'key_file': None,
+                },
+            ),
+            (
+                {},
+                True,
+                None,
+                {
+                    'cert_reqs': 'CERT_REQUIRED',
+                    'ca_certs': DEFAULT_CA_BUNDLE_PATH,
+                    'ca_cert_dir': None,
+                    'cert_file': None,
+                    'key_file': None,
+                },
+            ),
+            (
+                {},
+                True,
+                __file__,
+                {
+                    'cert_reqs': 'CERT_REQUIRED',
+                    'ca_certs': DEFAULT_CA_BUNDLE_PATH,
+                    'ca_cert_dir': None,
+                    'cert_file': __file__,
+                    'key_file': None,
+                },
+            ),
+            (
+                {},
+                True,
+                (__file__, __file__),
+                {
+                    'cert_reqs': 'CERT_REQUIRED',
+                    'ca_certs': DEFAULT_CA_BUNDLE_PATH,
+                    'ca_cert_dir': None,
+                    'cert_file': __file__,
+                    'key_file': __file__,
+                },
+            ),
+            (
+                {},
+                True,
+                (__file__, __file__),
+                {
+                    'cert_reqs': 'CERT_REQUIRED',
+                    'ca_certs': DEFAULT_CA_BUNDLE_PATH,
+                    'ca_cert_dir': None,
+                    'cert_file': __file__,
+                    'key_file': __file__,
+                },
+            ),
+            (
+                {'http': 'http://proxy.example.com', 'https': 'http://proxy.example.com'},
+                True,
+                None,
+                {
+                    'cert_reqs': 'CERT_REQUIRED',
+                    'ca_certs': DEFAULT_CA_BUNDLE_PATH,
+                    'ca_cert_dir': None,
+                    'cert_file': None,
+                    'key_file': None,
+                },
+            ),
+            (
+                {'http': 'http://proxy.example.com', 'https': 'http://proxy.example.com'},
+                os.path.dirname(__file__),
+                None,
+                {
+                    'cert_reqs': 'CERT_REQUIRED',
+                    'ca_certs': None,
+                    'ca_cert_dir': os.path.dirname(__file__),
+                    'cert_file': None,
+                    'key_file': None,
+                },
+            ),
+            (
+                {'http': 'http://proxy.example.com', 'https': 'http://proxy.example.com'},
+                __file__,
+                None,
+                {
+                    'cert_reqs': 'CERT_REQUIRED',
+                    'ca_certs': __file__,
+                    'ca_cert_dir': None,
+                    'cert_file': None,
+                    'key_file': None,
+                },
+            ),
+            (
+                {'http': 'http://proxy.example.com', 'https': 'http://proxy.example.com'},
+                True,
+                __file__,
+                {
+                    'cert_reqs': 'CERT_REQUIRED',
+                    'ca_certs': DEFAULT_CA_BUNDLE_PATH,
+                    'ca_cert_dir': None,
+                    'cert_file': __file__,
+                    'key_file': None,
+                },
+            ),
+            (
+                {'http': 'http://proxy.example.com', 'https': 'http://proxy.example.com'},
+                True,
+                (__file__, __file__),
+                {
+                    'cert_reqs': 'CERT_REQUIRED',
+                    'ca_certs': DEFAULT_CA_BUNDLE_PATH,
+                    'ca_cert_dir': None,
+                    'cert_file': __file__,
+                    'key_file': __file__,
+                },
+            ),
+        )
+    )
+    def test_get_https_connection(self, proxies, verify, cert, expected):
+        """Assert connections are configured correctly."""
+        adapter = requests.adapters.HTTPAdapter()
+        connection = adapter.get_connection(
+            'https://example.com', proxies=proxies, verify=verify, cert=cert)
+        actual_config = {}
+        for key, value in connection.__dict__.items():
+            if key in expected:
+                actual_config[key] = value
+        assert actual_config == expected
+
+    @pytest.mark.parametrize(
+        'verify, cert',
+        (
+            ('a/path/that/does/not/exist', None),
+            (True, 'a/path/that/does/not/exist'),
+            (True, (__file__, 'a/path/that/does/not/exist')),
+            (True, ('a/path/that/does/not/exist', __file__)),
+        )
+    )
+    def test_cert_files_missing(self, verify, cert):
+        """
+        Assert an IOError is raised when one of the certificate files or
+        directories can't be found.
+        """
+        adapter = requests.adapters.HTTPAdapter()
+        with pytest.raises(IOError) as excinfo:
+            adapter.get_connection('https://example.com', verify=verify, cert=cert)
+        excinfo.match('invalid path: a/path/that/does/not/exist')
