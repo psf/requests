@@ -658,8 +658,7 @@ def should_bypass_proxies(url, no_proxy):
                     # matches the IP of the index
                     return True
         else:
-            port = parsed.port or (80 if parsed.scheme == "http" else 443)
-            hostport = parsed.hostname + ":" + str(port)
+            hostport = parsed.hostname + ":" + str(parsed.port) if parsed.port else parsed.hostname
 
             for host in no_proxy:
                 if hostport.endswith(host) or parsed.hostname.endswith(host):
