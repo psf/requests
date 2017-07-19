@@ -32,6 +32,21 @@ except (ImportError, SyntaxError):
     # because of u'...' Unicode literals.
     import json
 
+try:
+    integer_types = (int, long)  # Python 2
+    numeric_types = (int, long, float)
+except NameError:
+    integer_types = (int, )      # Python 3
+    numeric_types = (int, float)
+    
+builtin_str = str
+try:
+    basestring                   # Python 2
+    bytes = str
+    str = unicode
+except NameError:
+    basestring = (str, bytes)    # Python 3
+
 # ---------
 # Specifics
 # ---------
@@ -45,16 +60,7 @@ if is_py2:
     import cookielib
     from Cookie import Morsel
     from StringIO import StringIO
-
     from urllib3.packages.ordered_dict import OrderedDict
-
-    builtin_str = str
-    bytes = str
-    str = unicode
-    basestring = basestring
-    numeric_types = (int, long, float)
-    integer_types = (int, long)
-
 elif is_py3:
     from urllib.parse import urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote, quote_plus, unquote_plus, urldefrag
     from urllib.request import parse_http_list, getproxies, proxy_bypass, proxy_bypass_environment, getproxies_environment
@@ -62,10 +68,3 @@ elif is_py3:
     from http.cookies import Morsel
     from io import StringIO
     from collections import OrderedDict
-
-    builtin_str = str
-    str = str
-    bytes = bytes
-    basestring = (str, bytes)
-    numeric_types = (int, float)
-    integer_types = (int,)
