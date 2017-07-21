@@ -93,7 +93,7 @@ To install Requests, simply:
     $ pip install requests
     ✨🍰✨
 
-Satisfaction, guaranteed.
+Satisfaction guaranteed.
 
 Documentation
 -------------
