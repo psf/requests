@@ -933,7 +933,7 @@ class TestRequests:
 
     def test_urlencoded_get_query_multivalued_param(self, httpbin):
 
-        r = requests.get(httpbin('get'), params=dict(test=['foo', 'baz']))
+        r = requests.get(httpbin('get'), params={'test': ['foo', 'baz']})
         assert r.status_code == 200
         assert r.url == httpbin('get?test=foo&test=baz')
 
