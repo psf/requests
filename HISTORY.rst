@@ -10,6 +10,18 @@ dev
 
 **Bugfixes**
 
+2.18.2 (2017-07-25)
++++++++++++++++++++
+
+**Bugfixes**
+
+- ``requests.help`` no longer fails on Python 2.6 due to the absence of
+  ``ssl.OPENSSL_VERSION_NUMBER``.
+
+**Dependencies**
+
+- We now support urllib3 v1.22.
+
 2.18.1 (2017-06-14)
 +++++++++++++++++++
 

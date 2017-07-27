@@ -97,6 +97,12 @@ class SessionRedirectMixin(object):
 
     def get_redirect_target(self, resp):
         """Receives a Response. Returns a redirect URI or ``None``"""
+        # Due to the nature of how requests processes redirects this method will
+        # be called at least once upon the original response and at least twice
+        # on each subsequent redirect response (if any).
+        # If a custom mixin is used to handle this logic, it may be advantageous
+        # to cache the redirect location onto the response object as a private
+        # attribute.
         if resp.is_redirect:
             location = resp.headers['location']
             # Currently the underlying http module on py3 decode headers
@@ -704,7 +710,7 @@ class Session(SessionRedirectMixin):
     def mount(self, prefix, adapter):
         """Registers a connection adapter to a prefix.
 
-        Adapters are sorted in descending order by key length.
+        Adapters are sorted in descending order by prefix length.
         """
         self.adapters[prefix] = adapter
         keys_to_move = [k for k in self.adapters if len(k) < len(prefix)]
