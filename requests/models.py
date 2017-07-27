@@ -586,8 +586,6 @@ class Response(object):
     ]
 
     def __init__(self):
-        super(Response, self).__init__()
-
         self._content = False
         self._content_consumed = False
         self._next = None
