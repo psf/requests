@@ -8,6 +8,8 @@ dev
 
 **Improvements**
 
+- Running ``$ python -m requests.help`` now includes the installed version of idna.
+
 **Bugfixes**
 
 2.18.2 (2017-07-25)
