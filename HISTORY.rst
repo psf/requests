@@ -12,6 +12,9 @@ dev
 
 **Bugfixes**
 
+- Fixed issue where Requests would raise ``ConnectionError`` instead of
+  ``SSLError`` when encoutering SSL problems when using urllib3 v1.22.
+
 2.18.2 (2017-07-25)
 +++++++++++++++++++
 

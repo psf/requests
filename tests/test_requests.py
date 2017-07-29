@@ -23,7 +23,7 @@ from requests.cookies import (
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
     MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError, InvalidHeader, UnrewindableBodyError)
+    ProxyError, InvalidHeader, UnrewindableBodyError, SSLError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -811,6 +811,15 @@ class TestRequests:
         warnings_category = tuple(
             item.category.__name__ for item in warning_records)
         assert warnings_category == warnings_expected
+
+    def test_certificate_failure(self, httpbin_secure):
+        """
+        When underlying SSL problems occur, an SSLError is raised.
+        """
+        with pytest.raises(SSLError):
+            # Our local httpbin does not have a trusted CA, so this call will
+            # fail if we use our default trust bundle.
+            requests.get(httpbin_secure('status', '200'))
 
     def test_urlencoded_get_query_multivalued_param(self, httpbin):
 
