@@ -10,13 +10,6 @@ Keepers of the Four Crystals
 - Nate Prewitt <nate.prewitt@gmail.com> `@nateprewitt <https://github.com/nateprewitt>`_
 
 
-
-Urllib3
-```````
-
-- Andrey Petrov <andrey.petrov@shazow.net>
-
-
 Patches and Suggestions
 ```````````````````````
 
