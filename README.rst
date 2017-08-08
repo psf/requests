@@ -1,6 +1,8 @@
 Requests: HTTP for Humans
 =========================
 
+TEST FOR CI
+
 .. image:: https://img.shields.io/pypi/v/requests.svg
     :target: https://pypi.python.org/pypi/requests
 
