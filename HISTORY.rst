@@ -10,6 +10,10 @@ dev
 
 **Bugfixes**
 
+**Dependencies**
+
+- We now support idna v2.6.
+
 2.18.3 (2017-08-02)
 +++++++++++++++++++
 
