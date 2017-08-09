@@ -593,6 +593,10 @@ as using a HTTP one::
         'https': 'socks5://user:pass@host:port'
     }
 
+Using socks5 proxy resolve domains through the client instead of the proxy server. This  is done to be
+in line with curl, which uses different schemes to decide whether to resolve via the proxy or via the client.
+You need to use the scheme socks5h is you want to resolve domains through the proxy server.
+
 .. _compliance:
 
 Compliance
