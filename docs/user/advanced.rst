@@ -593,6 +593,8 @@ as using a HTTP one::
         'https': 'socks5://user:pass@host:port'
     }
 
+Using the scheme ``socks5`` causes the DNS resolution to happen on the client, rather than on the proxy server. This is in line with curl, which uses the scheme to decide whether to do the DNS resolution on the client or proxy. If you want to resolve the domains on the proxy server, use ``socks5h`` as the scheme.
+
 .. _compliance:
 
 Compliance
