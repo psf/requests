@@ -909,7 +909,7 @@ class Response(object):
 
         return l
 
-    def raise_for_status(self):
+    def raise_for_status(self, include_text=False, max_text_length=500):
         """Raises stored :class:`HTTPError`, if one occurred."""
 
         http_error_msg = ''
@@ -924,7 +924,7 @@ class Response(object):
                 reason = self.reason.decode('iso-8859-1')
         else:
             reason = self.reason
-
+        
         if 400 <= self.status_code < 500:
             http_error_msg = u'%s Client Error: %s for url: %s' % (self.status_code, reason, self.url)
 
@@ -932,6 +932,8 @@ class Response(object):
             http_error_msg = u'%s Server Error: %s for url: %s' % (self.status_code, reason, self.url)
 
         if http_error_msg:
+            if isinstance(self.text, basestring) and include_text:
+                http_error_msg += u' Response Body: %s' % body_text[:max_text_length]
             raise HTTPError(http_error_msg, response=self)
 
     def close(self):
