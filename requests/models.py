@@ -945,7 +945,7 @@ class Response(object):
 
         if http_error_msg:
             if isinstance(body_text, basestring):
-                http_error_msq += u' Response Body: %s' % body_text
+                http_error_msg += u' Response Body: %s' % body_text
             raise HTTPError(http_error_msg, response=self)
 
     def close(self):
