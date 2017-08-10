@@ -10,6 +10,22 @@ dev
 
 **Bugfixes**
 
+**Dependencies**
+
+- We now support idna v2.6.
+
+2.18.3 (2017-08-02)
++++++++++++++++++++
+
+**Improvements**
+
+- Running ``$ python -m requests.help`` now includes the installed version of idna.
+
+**Bugfixes**
+
+- Fixed issue where Requests would raise ``ConnectionError`` instead of
+  ``SSLError`` when encountering SSL problems when using urllib3 v1.22.
+
 2.18.2 (2017-07-25)
 +++++++++++++++++++
 

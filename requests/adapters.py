@@ -501,6 +501,10 @@ class HTTPAdapter(BaseAdapter):
             if isinstance(e.reason, _ProxyError):
                 raise ProxyError(e, request=request)
 
+            if isinstance(e.reason, _SSLError):
+                # This branch is for urllib3 v1.22 and later.
+                raise SSLError(e, request=request)
+
             raise ConnectionError(e, request=request)
 
         except ClosedPoolError as e:
@@ -511,6 +515,7 @@ class HTTPAdapter(BaseAdapter):
 
         except (_SSLError, _HTTPError) as e:
             if isinstance(e, _SSLError):
+                # This branch is for urllib3 versions earlier than v1.22
                 raise SSLError(e, request=request)
             elif isinstance(e, ReadTimeoutError):
                 raise ReadTimeout(e, request=request)
