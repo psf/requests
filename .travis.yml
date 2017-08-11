@@ -1,8 +1,6 @@
 sudo: false
 language: python
-# command to install dependencies
 install: "make"
-# command to run tests
 script: make ci
 cache: pip
 jobs:
