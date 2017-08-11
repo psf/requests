@@ -868,8 +868,8 @@ def check_header_validity(header):
         if not pat.match(value):
             raise InvalidHeader("Invalid return character or leading space in header: %s" % name)
     except TypeError:
-        raise InvalidHeader("Header value %s must be of type str or bytes, "
-                            "not %s" % (value, type(value)))
+        raise InvalidHeader("Header %s value %s must be of type str or bytes, "
+                            "not %s" % (name, value, type(value)))
 
 
 def urldefragauth(url):
