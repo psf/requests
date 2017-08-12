@@ -7,6 +7,7 @@ dev
 +++
 
 **Improvements**
+- Error messages for invalid headers now include the header name for easier debugging
 
 **Bugfixes**
 
