@@ -3,6 +3,13 @@
 Release History
 ---------------
 
+dev
++++
+
+**Improvements**
+
+**Bugfixes**
+
 2.18.4 (2017-08-15)
 +++++++++++++++++++
 
