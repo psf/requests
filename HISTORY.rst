@@ -3,13 +3,12 @@
 Release History
 ---------------
 
-dev
-+++
+2.18.4 (2017-08-15)
++++++++++++++++++++
 
 **Improvements**
-- Error messages for invalid headers now include the header name for easier debugging
 
-**Bugfixes**
+- Error messages for invalid headers now include the header name for easier debugging
 
 **Dependencies**
 
