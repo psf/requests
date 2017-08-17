@@ -743,7 +743,7 @@ def default_headers():
 
 
 def parse_header_links(value):
-    """Return a dict of parsed link headers proxies.
+    """Return a list of parsed link headers proxies.
 
     i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
 
@@ -753,6 +753,10 @@ def parse_header_links(value):
     links = []
 
     replace_chars = ' \'"'
+
+    value = value.strip(replace_chars)
+    if not value:
+        return links
 
     for val in re.split(', *<', value):
         try:
