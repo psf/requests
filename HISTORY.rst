@@ -10,6 +10,8 @@ dev
 
 **Bugfixes**
 
+- Parsing empty ``Link`` headers with ``parse_header_links()`` no longer return one bogus entry
+
 2.18.4 (2017-08-15)
 +++++++++++++++++++
 
