@@ -10,6 +10,15 @@ dev
 
 **Bugfixes**
 
+- Parsing empty ``Link`` headers with ``parse_header_links()`` no longer return one bogus entry
+
+2.18.4 (2017-08-15)
++++++++++++++++++++
+
+**Improvements**
+
+- Error messages for invalid headers now include the header name for easier debugging
+
 **Dependencies**
 
 - We now support idna v2.6.

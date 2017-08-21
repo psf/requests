@@ -498,6 +498,10 @@ def test_iter_slices(value, length):
                 {'url': 'http://.../back.jpeg'}
             ]
         ),
+        (
+            '',
+            []
+        ),
     ))
 def test_parse_header_links(value, expected):
     assert parse_header_links(value) == expected

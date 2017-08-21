@@ -1401,14 +1401,17 @@ class TestRequests:
         headers_list = {'baz': ['foo', 'bar']}
 
         # Test for int
-        with pytest.raises(InvalidHeader):
+        with pytest.raises(InvalidHeader) as excinfo:
             r = requests.get(httpbin('get'), headers=headers_int)
+        assert 'foo' in str(excinfo.value)
         # Test for dict
-        with pytest.raises(InvalidHeader):
+        with pytest.raises(InvalidHeader) as excinfo:
             r = requests.get(httpbin('get'), headers=headers_dict)
+        assert 'bar' in str(excinfo.value)
         # Test for list
-        with pytest.raises(InvalidHeader):
+        with pytest.raises(InvalidHeader) as excinfo:
             r = requests.get(httpbin('get'), headers=headers_list)
+        assert 'baz' in str(excinfo.value)
 
     def test_header_no_return_chars(self, httpbin):
         """Ensure that a header containing return character sequences raise an
