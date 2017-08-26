@@ -5,7 +5,7 @@ test:
 	# This runs all of the tests, on both Python 2 and Python 3.
 	detox
 ci:
-	py.test -n 8 --boxed --junitxml=report.xml
+	py.test -vv
 
 test-readme:
 	@python setup.py check --restructuredtext --strict && ([ $$? -eq 0 ] && echo "README.rst and HISTORY.rst ok") || echo "Invalid markup in README.rst or HISTORY.rst!"
