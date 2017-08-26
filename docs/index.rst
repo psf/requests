@@ -82,7 +82,7 @@ Institutions that prefer to be unnamed claim to use Requests internally.
     simple, Pythonic.*
 
 Requests is one of the most downloaded Python packages of all time, pulling in
-over 11,000,000 downloads every month. All the cool kids are doing it!
+over 13,000,000 downloads every month. All the cool kids are doing it!
 
 Beloved Features
 ----------------
