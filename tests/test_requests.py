@@ -153,6 +153,8 @@ class TestRequests:
         # s.proxies = getproxies()
         parts = urlparse(httpbin('get'))
         url = scheme + parts.netloc + parts.path
+        print(url)
+        pytest.fail("This test breaks")
         r = requests.Request('GET', url)
         r = s.send(r.prepare())
         assert r.status_code == 200, 'failed for scheme {0}'.format(scheme)
