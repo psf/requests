@@ -150,7 +150,7 @@ class TestRequests:
     @pytest.mark.parametrize('scheme', ('http://', 'HTTP://', 'hTTp://', 'HttP://'))
     def test_mixed_case_scheme_acceptable(self, httpbin, scheme):
         s = requests.Session()
-        s.proxies = getproxies()
+        # s.proxies = getproxies()
         parts = urlparse(httpbin('get'))
         url = scheme + parts.netloc + parts.path
         r = requests.Request('GET', url)
