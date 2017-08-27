@@ -1,7 +1,7 @@
 -e .[socks]
 pytest>=2.8.0
 codecov
-pytest-httpbin==0.0.7
+pytest-httpbin==0.2.3
 pytest-mock
 pytest-cov
 pytest-xdist
