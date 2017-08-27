@@ -162,7 +162,8 @@ class TestRequests:
     def test_HTTP_200_OK_GET_ALTERNATIVE(self, httpbin):
         r = requests.Request('GET', httpbin('get'))
         s = requests.Session()
-        s.proxies = getproxies()
+        # s.proxies = getproxies()
+        pytest.fail("This test also breaks")
 
         r = s.send(r.prepare())
 
