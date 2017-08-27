@@ -150,9 +150,11 @@ class TestRequests:
     @pytest.mark.parametrize('scheme', ('http://', 'HTTP://', 'hTTp://', 'HttP://'))
     def test_mixed_case_scheme_acceptable(self, httpbin, scheme):
         s = requests.Session()
-        s.proxies = getproxies()
+        # s.proxies = getproxies()
         parts = urlparse(httpbin('get'))
         url = scheme + parts.netloc + parts.path
+        print(url)
+        pytest.fail("This test breaks")
         r = requests.Request('GET', url)
         r = s.send(r.prepare())
         assert r.status_code == 200, 'failed for scheme {0}'.format(scheme)
@@ -160,7 +162,8 @@ class TestRequests:
     def test_HTTP_200_OK_GET_ALTERNATIVE(self, httpbin):
         r = requests.Request('GET', httpbin('get'))
         s = requests.Session()
-        s.proxies = getproxies()
+        # s.proxies = getproxies()
+        pytest.fail("This test also breaks")
 
         r = s.send(r.prepare())
 
