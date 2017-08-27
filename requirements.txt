@@ -14,3 +14,4 @@ docutils
 flake8
 tox
 detox
+httpbin!=0.6.0
