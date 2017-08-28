@@ -28,9 +28,7 @@ Release v\ |version|. (:ref:`Installation <install>`)
 **Requests** is the only *Non-GMO* HTTP library for Python, safe for human
 consumption.
 
-*Warning: Recreational use of the Python standard library for HTTP may result in dangerous side-effects,
-including: security vulnerabilities, verbose code, reinventing the wheel,
-constantly reading documentation, depression, headaches, or even death.*
+.. warning:: The use of Python 3 is highly preferred over Python 2. Please consider upgrading your applications and infrastructure, if you find yourself *still* using Python 2 in production. If you are using Python 3, congratulations — you are indeed a person of excellent taste.*
 
 -------------------
 
