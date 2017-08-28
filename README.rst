@@ -86,11 +86,11 @@ Requests officially supports Python 2.6–2.7 & 3.3–3.7, and runs great on PyP
 Installation
 ------------
 
-To install Requests, simply:
+To install Requests, simply use `pipenv <http://pipenv.org/>`_ (or pip, of course):
 
 .. code-block:: bash
 
-    $ pip install requests
+    $ pipenv install requests
     ✨🍰✨
 
 Satisfaction guaranteed.
