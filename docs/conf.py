@@ -58,7 +58,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Requests'
-copyright = u'MMXVII. A <a href="http://kennethreitz.com/bitcoin">Kenneth Reitz</a> Project'
+copyright = u'MMXVII. A <a href="http://kennethreitz.com/pages/open-projects.html">Kenneth Reitz</a> Project'
 author = u'Kenneth Reitz'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -128,8 +128,9 @@ html_theme_options = {
     'show_powered_by': False,
     'github_user': 'requests',
     'github_repo': 'requests',
-    'github_banner': False,
-    'show_related': False
+    'github_banner': True,
+    'show_related': False,
+    'note_bg': '#FFF59C'
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -167,7 +168,7 @@ html_static_path = ['_static']
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
-html_use_smartypants = True
+html_use_smartypants = False
 
 # Custom sidebar templates, maps document names to template names.
 html_sidebars = {
