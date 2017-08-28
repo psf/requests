@@ -187,6 +187,25 @@ applied, replace the call to :meth:`Request.prepare()
 
     print(resp.status_code)
 
+When you are using the prepared request flow, keep in mind that it does not take into account the environment.
+This can cause problems if you are using environment variables to change the behaviour of requests.
+For example: Self-signed SSL certificates specified in ``REQUESTS_CA_BUNDLE`` will not be taken into account.
+As a result an ``SSL: CERTIFICATE_VERIFY_FAILED`` is thrown.
+You can get around this behaviour by explicity merging the environment settings into your session:
+
+    from requests import Request, Session
+    
+    s = Session()
+    req = Request('GET', url)
+    
+    prepped = s.prepare_request(req)
+    
+    # Merge environment settings into session
+    settings = s.merge_environment_settings(prepped.url, None, None, None, None)
+    resp = s.send(prepped, **settings)
+    
+    print(resp.status_code)
+    
 .. _verification:
 
 SSL Cert Verification
