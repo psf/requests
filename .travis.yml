@@ -1,29 +1,21 @@
 sudo: false
 language: python
-python:
-  - "2.6"
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  # - "3.7-dev"
-  # - "pypy"  -- appears to hang
-  # - "pypy3"
-# command to install dependencies
 install: "make"
-# command to run tests
-script:
-  - |
-    if [[ "$TRAVIS_PYTHON_VERSION" != "2.6" ]] ; then make test-readme; fi
-  - make ci
+script: make ci
 cache: pip
 jobs:
   include:
+    - stage: readme
+      python: 3.6
+      script: make test-readme
     - stage: test
-      script:
-        - |
-          if [[ "$TRAVIS_PYTHON_VERSION" != "2.6" ]] ; then make test-readme; fi
-        - make ci
+      script: make ci
+      python:
+        - "2.6"
+        - "2.7"
+        - "3.4"
+        - "3.5"
+        - "3.6"
     - stage: coverage
       python: 3.6
       script: codecov
