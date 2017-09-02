@@ -39,6 +39,7 @@ is at <http://python-requests.org>.
 :copyright: (c) 2017 by Kenneth Reitz.
 :license: Apache 2.0, see LICENSE for more details.
 """
+import os
 
 import urllib3
 import chardet
@@ -81,8 +82,9 @@ except (AssertionError, ValueError):
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
-    from urllib3.contrib import pyopenssl
-    pyopenssl.inject_into_urllib3()
+    if not 'REQUESTS_DONT_USE_PYOPENSSL' in os.environ:
+        from urllib3.contrib import pyopenssl
+        pyopenssl.inject_into_urllib3()
 except ImportError:
     pass
 
