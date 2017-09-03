@@ -82,7 +82,7 @@ except (AssertionError, ValueError):
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
-    if not 'REQUESTS_DONT_USE_PYOPENSSL' in os.environ:
+    if 'REQUESTS_DONT_USE_PYOPENSSL' not in os.environ:
         from urllib3.contrib import pyopenssl
         pyopenssl.inject_into_urllib3()
 except ImportError:
