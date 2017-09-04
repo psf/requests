@@ -1,6 +1,8 @@
 How to Help
 ===========
 
+.. image:: https://farm5.staticflickr.com/4290/34450900104_bc1d424213_k_d.jpg
+
 Requests is under active development, and contributions are more than welcome!
 
 #. Check for open issues or open a fresh issue to start a discussion around a bug.
