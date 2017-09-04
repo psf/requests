@@ -1,6 +1,8 @@
 Integrations
 ============
 
+.. image:: https://farm5.staticflickr.com/4239/34450900674_15863ddea0_k_d.jpg
+
 Python for iOS
 --------------
 
