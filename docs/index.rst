@@ -130,8 +130,9 @@ This part of the documentation, which is mostly prose, details the
 Requests ecosystem and community.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 3
 
+   commmunity/extensions
    community/faq
    community/recommended
    community/out-there
