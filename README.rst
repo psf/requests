@@ -25,10 +25,6 @@ consumption.
 
 .. image:: https://farm5.staticflickr.com/4317/35198386374_1939af3de6_k_d.jpg
 
-**Warning:** Recreational use of the Python standard library for HTTP may result in dangerous side-effects,
-including: security vulnerabilities, verbose code, reinventing the wheel,
-constantly reading documentation, depression, headaches, or even death.
-
 Behold, the power of Requests:
 
 .. code-block:: python
