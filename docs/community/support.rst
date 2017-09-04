@@ -3,6 +3,8 @@
 Support
 =======
 
+.. image:: https://farm5.staticflickr.com/4198/34080352913_5c13ffb336_k_d.jpg
+
 If you have questions or issues about Requests, there are several options:
 
 StackOverflow
