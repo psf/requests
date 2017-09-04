@@ -1,6 +1,8 @@
 Vulnerability Disclosure
 ========================
 
+.. image:: https://farm5.staticflickr.com/4211/34709353644_b041e9e1c2_k_d.jpg
+
 If you think you have found a potential security vulnerability in requests,
 please email `sigmavirus24 <mailto:graffatcolmingov@gmail.com>`_ and
 `Lukasa <mailto:cory@lukasa.co.uk>`_ directly. **Do not file a public issue.**
