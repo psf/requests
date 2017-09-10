@@ -331,7 +331,7 @@ class Session(SessionRedirectMixin):
       <Response [200]>
     """
 
-    __attrs__ = [
+    _attrs = [
         'headers', 'cookies', 'auth', 'proxies', 'hooks', 'params', 'verify',
         'cert', 'prefetch', 'adapters', 'stream', 'trust_env',
         'max_redirects',
@@ -719,7 +719,7 @@ class Session(SessionRedirectMixin):
             self.adapters[key] = self.adapters.pop(key)
 
     def __getstate__(self):
-        state = dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
+        state = dict((attr, getattr(self, attr, None)) for attr in self._attrs)
         return state
 
     def __setstate__(self, state):
