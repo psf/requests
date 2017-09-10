@@ -31,7 +31,7 @@ from .compat import urlparse, basestring
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     prepend_scheme_if_needed, get_auth_from_url, urldefragauth,
                     select_proxy)
-from .structures import CaseInsensitiveDict
+from .structures import HTTPHeaderDict
 from .cookies import extract_cookies_to_jar
 from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
                          ProxyError, RetryError, InvalidSchema)
@@ -266,7 +266,7 @@ class HTTPAdapter(BaseAdapter):
         response.status_code = getattr(resp, 'status', None)
 
         # Make headers case-insensitive.
-        response.headers = CaseInsensitiveDict(getattr(resp, 'headers', {}))
+        response.headers = HTTPHeaderDict(getattr(resp, 'headers', {}))
 
         # Set encoding.
         response.encoding = get_encoding_from_headers(response.headers)
