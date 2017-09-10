@@ -416,6 +416,10 @@ represented in the dictionary within a single mapping, as per
     of the message, by appending each subsequent field value to the combined
     field value in order, separated by a comma.
 
+If you do need to access each individual value sent with the same header, then
+you can use the ``multiget`` method to get a sequence of all the values returned
+for a particular header.
+
 Cookies
 -------
 

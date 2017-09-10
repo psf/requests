@@ -8,6 +8,10 @@ dev
 
 **Improvements**
 
+- Use `HTTPHeaderDict` for response headers, allowing easier access to
+  individual values when multiple response headers are sent using the same
+  header name.
+
 **Bugfixes**
 
 - Parsing empty ``Link`` headers with ``parse_header_links()`` no longer return one bogus entry
@@ -52,7 +56,7 @@ dev
 
 **Bugfixes**
 
-- Fix an error in the packaging whereby the *.whl contained incorrect data that
+- Fix an error in the packaging whereby the \*.whl contained incorrect data that
   regressed the fix in v2.17.3.
 
 2.18.0 (2017-06-14)
