@@ -2186,6 +2186,12 @@ class TestRequests:
         fruits = resp.headers['fruit']
         assert fruits == 'Apple, Blood Orange, Banana, Berry, Blue'
 
+        # As we are using HTTPHeaderDict, we should be able to extract the
+        # individual header values too.
+        assert resp.headers.multiget('fruit') == (
+            'Apple', 'Blood Orange', 'Banana', 'Berry, Blue'
+        )
+
     def test_multiple_response_headers_with_same_name_diff_case(self, httpbin):
         # urllib3 seems to have trouble guaranteeing the order of the items when
         # the case is different, so we just need to make sure all of the items
@@ -2196,8 +2202,13 @@ class TestRequests:
         # These are all possible acceptable combinations for the header.
         fruit_choices = ['Apple', 'Blood Orange', 'Banana', 'Berry, Blue']
         fruit_permutations = itertools.permutations(fruit_choices)
-        fruit_headers = set(', '.join(fp) for fp in fruit_permutations)
+        fruit_multiheaders = set(tuple(fp) for fp in fruit_permutations)
+        fruit_headers = set(', '.join(fp) for fp in fruit_multiheaders)
         assert resp.headers['fruit'] in fruit_headers
+
+        # As we are using HTTPHeaderDict, we should be able to extract the
+        # individual header values too.
+        assert resp.headers.multiget('fruit') in fruit_multiheaders
 
 
 class TestCaseInsensitiveDict:
