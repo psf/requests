@@ -104,7 +104,7 @@ class HTTPAdapter(BaseAdapter):
       >>> a = requests.adapters.HTTPAdapter(max_retries=3)
       >>> s.mount('http://', a)
     """
-    __attrs__ = ['max_retries', 'config', '_pool_connections', '_pool_maxsize',
+    _attrs = ['max_retries', 'config', '_pool_connections', '_pool_maxsize',
                  '_pool_block']
 
     def __init__(self, pool_connections=DEFAULT_POOLSIZE,
@@ -127,10 +127,10 @@ class HTTPAdapter(BaseAdapter):
 
     def __getstate__(self):
         return dict((attr, getattr(self, attr, None)) for attr in
-                    self.__attrs__)
+                    self._attrs)
 
     def __setstate__(self, state):
-        # Can't handle by adding 'proxy_manager' to self.__attrs__ because
+        # Can't handle by adding 'proxy_manager' to self._attrs because
         # self.poolmanager uses a lambda function, which isn't pickleable.
         self.proxy_manager = {}
         self.config = {}

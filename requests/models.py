@@ -580,7 +580,7 @@ class Response(object):
     server's response to an HTTP request.
     """
 
-    __attrs__ = [
+    _attrs = [
         '_content', 'status_code', 'headers', 'url', 'history',
         'encoding', 'reason', 'cookies', 'elapsed', 'request'
     ]
@@ -646,7 +646,7 @@ class Response(object):
 
         return dict(
             (attr, getattr(self, attr, None))
-            for attr in self.__attrs__
+            for attr in self._attrs
         )
 
     def __setstate__(self, state):
