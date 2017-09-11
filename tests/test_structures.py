@@ -86,7 +86,7 @@ class TestHTTPHeaderDict:
         # equivalent to each other.
         self.extra_hd = hd2 = HTTPHeaderDict(ANIMAL=['Dog', 'elephant'])
         hd2['cake'] = 'Babka'
-        hd2.multiset('sound', ('quiet', 'LOUD'))
+        hd2.setlist('sound', ['quiet', 'LOUD'])
         hd2['CUTLERY'] = 'fork'
 
         self.extra_tuple_pairs = tuple_pairs = [
@@ -153,30 +153,30 @@ class TestHTTPHeaderDict:
         assert hd is not hd2
         assert hd == hd2
 
-    def test_multi_get_and_set(self):
+    def test_get_and_set_list(self):
         hd = HTTPHeaderDict(self.kvs)
-        assert hd.multiget('SAUCE') == ('Bread', 'Cherry, or Plum Tomato')
-        assert hd.multiget('CAKE') == ('Cheese!',)
-        assert hd.multiget('DRINK') == ()
+        assert hd.getlist('SAUCE') == ['Bread', 'Cherry, or Plum Tomato']
+        assert hd.getlist('CAKE') == ['Cheese!']
+        assert hd.getlist('DRINK') == []
 
         # Needs to be a regular sequence type containing just strings.
-        pytest.raises(ValueError, hd.multiset, 'Drink', 'Water')
-        pytest.raises(ValueError, hd.multiset, 'Drink', ['H', 2, 'O'])
+        pytest.raises(ValueError, hd.setlist, 'Drink', 'Water')
+        pytest.raises(ValueError, hd.setlist, 'Drink', ['H', 2, 'O'])
 
         # Test multi-setting.
-        hd.multiset('Drink', ['Water', 'Juice'])
-        assert hd.multiget('DRINK') == ('Water', 'Juice')
+        hd.setlist('Drink', ['Water', 'Juice'])
+        assert hd.getlist('DRINK') == ['Water', 'Juice']
 
         # Setting to an empty sequence should remove the entry.
-        hd.multiset('DRInk', [])
+        hd.setlist('DRInk', [])
         pytest.raises(KeyError, hd.__getitem__, 'DrinK')
-        assert hd.multiget('DRiNK') == ()
+        assert hd.getlist('DRiNK') == []
 
     def test_add(self):
         hd = HTTPHeaderDict()
         hd.add('sound', 'quiet')
         hd.add('SOUND', 'LOUD')
-        assert hd.multiget('Sound') == ('quiet', 'LOUD')
+        assert hd.getlist('Sound') == ['quiet', 'LOUD']
 
         # Enforce type-checking in the add method.
         pytest.raises(ValueError, hd.add, 'Sound', 5)
@@ -206,29 +206,29 @@ class TestHTTPHeaderDict:
             hd.extend(extras, **item)
 
         # Test all the stored values are what we expect.
-        mget = hd.multiget
+        mget = hd.getlist
 
         # Depending on the item we merged in, we might be able to make
         # assumptions what the overall order of the structure is.
         animal_seq = mget('animal')
         if animal_arg_is_ordered:
-            assert animal_seq == ('chicken', 'Cow', 'Dog', 'elephant')
+            assert animal_seq == ['chicken', 'Cow', 'Dog', 'elephant']
         else:
             # The existing order in HTTPHeadersDict of the first two values
             # should be preserved - no guarantees in which order the other
             # two values are added.
             assert animal_seq in [
-                ('chicken', 'Cow', 'Dog', 'elephant'),
-                ('chicken', 'Cow', 'elephant', 'Dog')
+                ['chicken', 'Cow', 'Dog', 'elephant'],
+                ['chicken', 'Cow', 'elephant', 'Dog']
             ]
 
-        assert mget('cake') == ('Cheese!', 'Babka')
-        assert mget('sound') == ('quiet', 'LOUD')
+        assert mget('cake') == ['Cheese!', 'Babka']
+        assert mget('sound') == ['quiet', 'LOUD']
 
         # We don't mandate the order in which these dictionaries are
         # processed, so it's fine whichever order it is.
         assert mget('cutlery') in [
-            ('fork', 'knife'), ('knife', 'fork')
+            ['fork', 'knife'], ['knife', 'fork']
         ]
 
     def test_extend_type_checking(self):
