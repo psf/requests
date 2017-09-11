@@ -118,12 +118,12 @@ class HTTPHeaderDict(CaseInsensitiveDict):
     def copy(self):
         return type(self)(self)
 
-    def multiget(self, key):
-        """Returns a tuple of all the values for the named field. Returns an
-        empty tuple if the key isn't present in the dictionary."""
-        return self._store.get(key.lower(), (None, ()))[1]
+    def getlist(self, key):
+        """Returns a list of all the values for the named field. Returns an
+        empty list if the key isn't present in the dictionary."""
+        return list(self._store.get(key.lower(), (None, []))[1])
 
-    def multiset(self, key, values):
+    def setlist(self, key, values):
         """Set a sequence of strings to the associated key - this will overwrite
         any previously stored value."""
         if not isinstance(values, (list, tuple)):
@@ -168,9 +168,7 @@ class HTTPHeaderDict(CaseInsensitiveDict):
                 # See if looks like a HTTPHeaderDict (either urllib3's
                 # implementation or ours). If so, then we have to add values
                 # in one go for each key.
-                multiget = getattr(other, 'multiget', None)
-                if not multiget:
-                    multiget = getattr(other, 'getlist', None)
+                multiget = getattr(other, 'getlist', None)
                 if multiget:
                     for key in other:
                         self._extend(key, tuple(multiget(key)))
