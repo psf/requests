@@ -186,3 +186,4 @@ Patches and Suggestions
 - Shmuel Amar (`@shmuelamar <https://github.com/shmuelamar>`_)
 - Gary Wu (`@garywu <https://github.com/garywu>`_)
 - Ryan Pineo (`@ryanpineo <https://github.com/ryanpineo>`_)
+- Allan Crooks (`@the-allanc <https://github.com/the-allanc>`_)
