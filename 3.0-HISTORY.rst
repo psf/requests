@@ -66,5 +66,9 @@
 
 - ``Response.raise_for_status()`` now returns the response object for good responses
 
+- Use ``HTTPHeaderDict`` for response headers, allowing easier access to
+  individual values when multiple response headers are sent using the same
+  header name.
+
 .. _#2002: https://github.com/kennethreitz/requests/issues/2002
 .. _#2631: https://github.com/kennethreitz/requests/issues/2631
