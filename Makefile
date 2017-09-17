@@ -1,5 +1,6 @@
 .PHONY: docs
 init:
+	pip install pipenv --upgrade
 	pipenv install --dev --skip-lock
 test:
 	# This runs all of the tests, on both Python 2 and Python 3.
