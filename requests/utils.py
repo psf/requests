@@ -649,7 +649,7 @@ def should_bypass_proxies(url, no_proxy):
         # We need to see if we match the end of the netloc, accounting for a
         # 'username[:password]@' at the beginning and a ':port' at the end.
 
-        host_or_ip = netloc.split('@')[-1].split(':')[0]
+        host_or_ip = netloc.rsplit('@')[-1].split(':')[0]
         if is_ipv4_address(host_or_ip):
             for proxy_ip in no_proxy:
                 if is_valid_cidr(proxy_ip):
