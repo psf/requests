@@ -52,8 +52,8 @@ dev
 
 **Bugfixes**
 
-- Fix an error in the packaging whereby the *.whl contained incorrect data that
-  regressed the fix in v2.17.3.
+- Fix an error in the packaging whereby the ``*.whl`` contained incorrect data
+  that regressed the fix in v2.17.3.
 
 2.18.0 (2017-06-14)
 +++++++++++++++++++
