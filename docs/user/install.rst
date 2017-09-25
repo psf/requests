@@ -21,6 +21,21 @@ If you don't have `pipenv <http://pipenv.org/>`_ installed (tisk tisk!), head ov
 `this Python installation guide <http://docs.python-guide.org/en/latest/starting/installation/>`_
 can guide you through the process.
 
+For library authors
+-------------------
+
+Simply add 'requests >= 2, < 3' to your list of `install_requires`
+```python
+
+setup(
+    ...
+    install_requires=[
+        ...
+        'requests >= 2, < 3', # remember to use a version range that excludes 3!
+    ],
+)
+```
+
 Get the Source Code
 -------------------
 
