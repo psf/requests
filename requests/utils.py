@@ -14,10 +14,10 @@ import collections
 import contextlib
 import io
 import os
-import platform
 import re
 import socket
 import struct
+import sys
 import warnings
 
 from .__version__ import __version__
@@ -39,7 +39,7 @@ NETRC_FILES = ('.netrc', '_netrc')
 DEFAULT_CA_BUNDLE_PATH = certs.where()
 
 
-if platform.system() == 'Windows':
+if sys.platform == 'win32':
     # provide a proxy_bypass version on Windows without DNS lookups
 
     def proxy_bypass_registry(host):
