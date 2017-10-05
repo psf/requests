@@ -465,13 +465,9 @@ class HTTPAdapter(BaseAdapter):
                     low_conn.send(b'0\r\n\r\n')
 
                     # Receive the response from the server
-                    try:
-                        # For Python 2.7+ versions, use buffering of HTTP
-                        # responses
-                        r = low_conn.getresponse(buffering=True)
-                    except TypeError:
-                        # For compatibility with Python 2.6 versions and back
-                        r = low_conn.getresponse()
+                    # For Python 2.7+ versions, use buffering of HTTP
+                    # responses
+                    r = low_conn.getresponse(buffering=True)
 
                     resp = HTTPResponse.from_httplib(
                         r,

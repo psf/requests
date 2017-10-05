@@ -30,8 +30,8 @@ consumption.
 
 .. note:: The use of **Python 3** is *highly* preferred over Python 2. Consider upgrading your applications and infrastructure if you find yourself *still* using Python 2 in production today. If you are using Python 3, congratulations — you are indeed a person of excellent taste.
   —*Kenneth Reitz*
-  
-  
+
+
 -------------------
 
 **Behold, the power of Requests**::
@@ -104,7 +104,7 @@ Requests is ready for today's web.
 - Chunked Requests
 - ``.netrc`` Support
 
-Requests officially supports Python 2.6–2.7 & 3.4–3.7, and runs great on PyPy.
+Requests officially supports Python 2.7 & 3.4–3.7, and runs great on PyPy.
 
 
 The User Guide
