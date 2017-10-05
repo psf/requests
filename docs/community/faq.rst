@@ -70,7 +70,7 @@ These errors occur when :ref:`SSL certificate verification <verification>`
 fails to match the certificate the server responds with to the hostname
 Requests thinks it's contacting. If you're certain the server's SSL setup is
 correct (for example, because you can visit the site with your browser) and
-you're using Python 2.6 or 2.7, a possible explanation is that you need
+you're using Python 2.7, a possible explanation is that you need
 Server-Name-Indication.
 
 `Server-Name-Indication`_, or SNI, is an official extension to SSL where the
