@@ -44,8 +44,6 @@ if is_py2:
     from Cookie import Morsel
     from StringIO import StringIO
 
-    from urllib3.packages.ordered_dict import OrderedDict
-
     builtin_str = str
     bytes = str
     str = unicode
@@ -59,7 +57,6 @@ elif is_py3:
     from http import cookiejar as cookielib
     from http.cookies import Morsel
     from io import StringIO
-    from collections import OrderedDict
 
     builtin_str = str
     str = str

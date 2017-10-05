@@ -26,7 +26,7 @@ from . import certs
 from ._internal_utils import to_native_string
 from .compat import parse_http_list as _parse_list_header
 from .compat import (
-    quote, urlparse, bytes, str, OrderedDict, unquote, getproxies,
+    quote, urlparse, bytes, str, unquote, getproxies,
     proxy_bypass, urlunparse, basestring, integer_types, is_py3,
     proxy_bypass_environment, getproxies_environment)
 from .cookies import cookiejar_from_dict
@@ -238,7 +238,7 @@ def from_key_val_list(value):
     if isinstance(value, (str, bytes, bool, int)):
         raise ValueError('cannot encode objects that are not 2-tuples')
 
-    return OrderedDict(value)
+    return collections.OrderedDict(value)
 
 
 def to_key_val_list(value):
@@ -667,15 +667,8 @@ def should_bypass_proxies(url, no_proxy):
 
     # If the system proxy settings indicate that this URL should be bypassed,
     # don't proxy.
-    # The proxy_bypass function is incredibly buggy on OS X in early versions
-    # of Python 2.6, so allow this call to fail. Only catch the specific
-    # exceptions we've seen, though: this call failing in other ways can reveal
-    # legitimate problems.
     with set_environ('no_proxy', no_proxy_arg):
-        try:
-            bypass = proxy_bypass(netloc)
-        except (TypeError, socket.gaierror):
-            bypass = False
+        bypass = proxy_bypass(netloc)
 
     if bypass:
         return True
