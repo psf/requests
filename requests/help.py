@@ -89,6 +89,10 @@ def info():
         'version': getattr(idna, '__version__', ''),
     }
 
+    system_ssl_info = {
+        'version': getattr(ssl, 'OPENSSL_VERSION_NUMBER', '')
+    }
+
     return {
         'platform': platform_info,
         'implementation': implementation_info,
