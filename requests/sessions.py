@@ -10,11 +10,11 @@ requests (cookies, auth, proxies).
 import os
 import platform
 import time
-from collections import Mapping
+from collections import OrderedDict, Mapping
 from datetime import timedelta
 
 from .auth import _basic_auth_str
-from .compat import cookielib, is_py3, OrderedDict, urljoin, urlparse
+from .compat import cookielib, is_py3, urljoin, urlparse
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
