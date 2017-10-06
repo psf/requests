@@ -26,7 +26,7 @@ from . import certs
 from ._internal_utils import to_native_string
 from .compat import parse_http_list as _parse_list_header
 from .compat import (
-    quote, urlparse, bytes, str, OrderedDict, unquote, getproxies,
+    quote, urlparse, bytes, str, unquote, getproxies,
     proxy_bypass, urlunparse, basestring, integer_types, is_py2, is_py3,
     proxy_bypass_environment, getproxies_environment)
 from .cookies import cookiejar_from_dict
@@ -224,11 +224,11 @@ def from_key_val_list(value):
     ::
 
         >>> from_key_val_list([('key', 'val')])
-        OrderedDict([('key', 'val')])
+        collections.OrderedDict([('key', 'val')])
         >>> from_key_val_list('string')
         ValueError: need more than 1 value to unpack
         >>> from_key_val_list({'key': 'val'})
-        OrderedDict([('key', 'val')])
+        collections.OrderedDict([('key', 'val')])
 
     :rtype: OrderedDict
     """
@@ -238,7 +238,7 @@ def from_key_val_list(value):
     if isinstance(value, (str, bytes, bool, int)):
         raise ValueError('cannot encode objects that are not 2-tuples')
 
-    return OrderedDict(value)
+    return collections.OrderedDict(value)
 
 
 def to_key_val_list(value):

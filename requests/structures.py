@@ -9,8 +9,6 @@ Data structures that power Requests.
 
 import collections
 
-from .compat import OrderedDict
-
 
 class CaseInsensitiveDict(collections.MutableMapping):
     """A case-insensitive ``dict``-like object.
@@ -40,7 +38,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
     """
 
     def __init__(self, data=None, **kwargs):
-        self._store = OrderedDict()
+        self._store = collections.OrderedDict()
         if data is None:
             data = {}
         self.update(data, **kwargs)
