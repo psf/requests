@@ -34,7 +34,7 @@ from .structures import CaseInsensitiveDict
 from .exceptions import (
     InvalidURL, InvalidHeader, FileModeWarning, UnrewindableBodyError)
 
-NETRC_FILES = ('.netrc', '_netrc')
+NETRC_FILES = os.environ.get('NETRC', ('~/.netrc', '~/_netrc'))
 
 DEFAULT_CA_BUNDLE_PATH = certs.where()
 
@@ -166,13 +166,14 @@ def get_netrc_auth(url, raise_errors=False):
         netrc_path = None
 
         for f in NETRC_FILES:
-            try:
-                loc = os.path.expanduser('~/{0}'.format(f))
-            except KeyError:
-                # os.path.expanduser can fail when $HOME is undefined and
-                # getpwuid fails. See http://bugs.python.org/issue20164 &
-                # https://github.com/requests/requests/issues/1846
-                return
+            if f.startswith('~'):
+                try:
+                    loc = os.path.expanduser('~/{0}'.format(f))
+                except KeyError:
+                    # os.path.expanduser can fail when $HOME is undefined and
+                    # getpwuid fails. See http://bugs.python.org/issue20164 &
+                    # https://github.com/requests/requests/issues/1846
+                    return
 
             if os.path.exists(loc):
                 netrc_path = loc
