@@ -8,6 +8,8 @@ dev
 
 **Improvements**
 
+- Warn user about possible slowdown when using cryptography version < 1.3.4
+
 **Bugfixes**
 
 - Parsing empty ``Link`` headers with ``parse_header_links()`` no longer return one bogus entry
