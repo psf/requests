@@ -39,7 +39,7 @@ from .models import REDIRECT_STATI
 
 # Preferred clock, based on which one is more accurate on a given system.
 if platform.system() == 'Windows':
-    try:  # Python 3.3+
+    try:  # Python 3.4+
         preferred_clock = time.perf_counter
     except AttributeError:  # Earlier than Python 3.
         preferred_clock = time.clock
