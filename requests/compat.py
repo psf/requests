@@ -25,7 +25,6 @@ is_py2 = (_ver[0] == 2)
 #: Python 3.x?
 is_py3 = (_ver[0] == 3)
 
-
 # ---------
 # Specifics
 # ---------

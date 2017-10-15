@@ -3,6 +3,8 @@
 Contributor's Guide
 ===================
 
+.. image:: https://farm5.staticflickr.com/4237/35550408335_7671fde302_k_d.jpg
+
 If you're reading this, you're probably interested in contributing to Requests.
 Thank you very much! Open source projects live-and-die based on the support
 they receive from others, and the fact that you're even considering

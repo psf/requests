@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Learn more: https://github.com/kennethreitz/setup.py
 
 import os
 import re
@@ -43,8 +44,8 @@ packages = ['requests']
 
 requires = [
     'chardet>=3.0.2,<3.1.0',
-    'idna>=2.5,<2.6',
-    'urllib3>=1.21.1,<1.22',
+    'idna>=2.5,<2.7',
+    'urllib3>=1.21.1,<1.23',
     'certifi>=2017.4.17'
 
 ]
@@ -83,7 +84,6 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',

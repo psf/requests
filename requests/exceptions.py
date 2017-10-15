@@ -119,3 +119,8 @@ class RequestsWarning(Warning):
 class FileModeWarning(RequestsWarning, DeprecationWarning):
     """A file was opened in text mode, but Requests determined its binary length."""
     pass
+
+
+class RequestsDependencyWarning(RequestsWarning):
+    """An imported dependency doesn't match the expected version range."""
+    pass

@@ -10,11 +10,6 @@ environment:
       PYTHON_ARCH: "64"
       TOXENV: "py27"
 
-    - PYTHON: "C:\\Python33-x64"
-      PYTHON_VERSION: "3.3.x"
-      PYTHON_ARCH: "64"
-      TOXENV: "py33"
-
     - PYTHON: "C:\\Python34-x64"
       PYTHON_VERSION: "3.4.x"
       PYTHON_ARCH: "64"
@@ -53,4 +48,4 @@ test_script:
   - "C:\\MinGW\\bin\\mingw32-make coverage"
 
 on_success:
-  - "codecov -f coverage.xml"
+  - "pipenv run codecov -f coverage.xml"

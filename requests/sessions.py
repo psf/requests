@@ -41,7 +41,7 @@ from .models import REDIRECT_STATI
 
 # Preferred clock, based on which one is more accurate on a given system.
 if platform.system() == 'Windows':
-    try:  # Python 3.3+
+    try:  # Python 3.4+
         preferred_clock = time.perf_counter
     except AttributeError:  # Earlier than Python 3.
         preferred_clock = time.clock
@@ -99,12 +99,19 @@ class SessionRedirectMixin(object):
 
     def get_redirect_target(self, response):
         """Receives a Response. Returns a redirect URI or ``None``"""
+        # Due to the nature of how requests processes redirects this method will
+        # be called at least once upon the original response and at least twice
+        # on each subsequent redirect response (if any).
+        # If a custom mixin is used to handle this logic, it may be advantageous
+        # to cache the redirect location onto the response object as a private
+        # attribute.
         if response.is_redirect:
             if not is_valid_location(response):
                 raise InvalidHeader('Response contains multiple Location headers. '
                                     'Unable to perform redirect.')
 
             location = response.headers['location']
+
             # Currently the underlying http module on py3 decode headers
             # in latin1, but empirical evidence suggests that latin1 is very
             # rarely used with non-ASCII characters in HTTP headers.
@@ -727,7 +734,7 @@ class Session(SessionRedirectMixin):
     def mount(self, prefix, adapter):
         """Registers a connection adapter to a prefix.
 
-        Adapters are sorted in descending order by key length.
+        Adapters are sorted in descending order by prefix length.
         """
         self.adapters[prefix] = adapter
         keys_to_move = [k for k in self.adapters if len(k) < len(prefix)]

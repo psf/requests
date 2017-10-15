@@ -3,6 +3,8 @@
 Advanced Usage
 ==============
 
+.. image:: https://farm5.staticflickr.com/4263/35163665790_d182d84f5e_k_d.jpg
+
 This document covers some of Requests more advanced features.
 
 .. _session-objects:
@@ -187,6 +189,25 @@ applied, replace the call to :meth:`Request.prepare()
 
     print(resp.status_code)
 
+When you are using the prepared request flow, keep in mind that it does not take into account the environment.
+This can cause problems if you are using environment variables to change the behaviour of requests.
+For example: Self-signed SSL certificates specified in ``REQUESTS_CA_BUNDLE`` will not be taken into account.
+As a result an ``SSL: CERTIFICATE_VERIFY_FAILED`` is thrown.
+You can get around this behaviour by explicity merging the environment settings into your session::
+
+    from requests import Request, Session
+    
+    s = Session()
+    req = Request('GET', url)
+    
+    prepped = s.prepare_request(req)
+    
+    # Merge environment settings into session
+    settings = s.merge_environment_settings(prepped.url, None, None, None, None)
+    resp = s.send(prepped, **settings)
+    
+    print(resp.status_code)
+    
 .. _verification:
 
 SSL Cert Verification
@@ -301,14 +322,10 @@ release the connection back to the pool unless you consume all the data or call
 :meth:`Response.close <requests.Response.close>`. This can lead to
 inefficiency with connections. If you find yourself partially reading request
 bodies (or not reading them at all) while using ``stream=True``, you should
-consider using ``contextlib.closing`` (`documented here`_), like this::
+make the request within a ``with`` statement to ensure it's always closed::
 
-    from contextlib import closing
-
-    with closing(requests.get('http://httpbin.org/get', stream=True)) as r:
+    with requests.get('http://httpbin.org/get', stream=True) as r:
         # Do things with the response here.
-
-.. _`documented here`: http://docs.python.org/2/library/contextlib.html#contextlib.closing
 
 .. _keep-alive:
 
@@ -596,6 +613,8 @@ as using a HTTP one::
         'http': 'socks5://user:pass@host:port',
         'https': 'socks5://user:pass@host:port'
     }
+
+Using the scheme ``socks5`` causes the DNS resolution to happen on the client, rather than on the proxy server. This is in line with curl, which uses the scheme to decide whether to do the DNS resolution on the client or proxy. If you want to resolve the domains on the proxy server, use ``socks5h`` as the scheme.
 
 .. _compliance:
 
@@ -938,8 +957,9 @@ response at a time. However, these calls will still block.
 
 If you are concerned about the use of blocking IO, there are lots of projects
 out there that combine Requests with one of Python's asynchronicity frameworks.
-Two excellent examples are `grequests`_ and `requests-futures`_.
+Some excellent examples are `requests-threads`_, `grequests`_,  and `requests-futures`_.
 
+.. _`requests-threads`: https://github.com/requests/requests-threads
 .. _`grequests`: https://github.com/kennethreitz/grequests
 .. _`requests-futures`: https://github.com/ross/requests-futures
 

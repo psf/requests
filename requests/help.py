@@ -6,6 +6,7 @@ import platform
 import sys
 import ssl
 
+import idna
 import urllib3
 import chardet
 
@@ -23,7 +24,7 @@ else:
 
 
 def _implementation():
-    """Return a dict with the Python implementation and verison.
+    """Return a dict with the Python implementation and version.
 
     Provide both the name and the version of the Python implementation
     currently running. For example, on CPython 2.7.5 it will return
@@ -84,18 +85,26 @@ def info():
     cryptography_info = {
         'version': getattr(cryptography, '__version__', ''),
     }
+    idna_info = {
+        'version': getattr(idna, '__version__', ''),
+    }
+
+    # OPENSSL_VERSION_NUMBER doesn't exist in the Python 2.6 ssl module.
+    system_ssl = getattr(ssl, 'OPENSSL_VERSION_NUMBER', None)
+    system_ssl_info = {
+        'version': '%x' % system_ssl if system_ssl is not None else ''
+    }
 
     return {
         'platform': platform_info,
         'implementation': implementation_info,
-        'system_ssl': {
-            'version': '%x' % ssl.OPENSSL_VERSION_NUMBER,
-        },
+        'system_ssl': system_ssl_info,
         'using_pyopenssl': pyopenssl is not None,
         'pyOpenSSL': pyopenssl_info,
         'urllib3': urllib3_info,
         'chardet': chardet_info,
         'cryptography': cryptography_info,
+        'idna': idna_info,
         'requests': {
             'version': requests_version,
         },

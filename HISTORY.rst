@@ -6,10 +6,70 @@ Release History
 dev
 +++
 
+**Improvements**
+
+- Warn user about possible slowdown when using cryptography version < 1.3.4
+
+**Bugfixes**
+
+- Parsing empty ``Link`` headers with ``parse_header_links()`` no longer return one bogus entry
+
+2.18.4 (2017-08-15)
++++++++++++++++++++
+
+**Improvements**
+
+- Error messages for invalid headers now include the header name for easier debugging
+
+**Dependencies**
+
+- We now support idna v2.6.
+
+2.18.3 (2017-08-02)
++++++++++++++++++++
+
+**Improvements**
+
+- Running ``$ python -m requests.help`` now includes the installed version of idna.
+
+**Bugfixes**
+
+- Fixed issue where Requests would raise ``ConnectionError`` instead of
+  ``SSLError`` when encountering SSL problems when using urllib3 v1.22.
+
+2.18.2 (2017-07-25)
++++++++++++++++++++
+
+**Bugfixes**
+
+- ``requests.help`` no longer fails on Python 2.6 due to the absence of
+  ``ssl.OPENSSL_VERSION_NUMBER``.
+
+**Dependencies**
+
+- We now support urllib3 v1.22.
+
+2.18.1 (2017-06-14)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Fix an error in the packaging whereby the ``*.whl`` contained incorrect data
+  that regressed the fix in v2.17.3.
+
+2.18.0 (2017-06-14)
++++++++++++++++++++
+
+**Improvements**
+
+- ``Response`` is now a context manager, so can be used directly in a ``with`` statement
+  without first having to be wrapped by ``contextlib.closing()``.
+
 **Bugfixes**
 
 - Resolve installation failure if multiprocessing is not available
 - Resolve tests crash if multiprocessing is not able to determine the number of CPU cores
+- Resolve error swallowing in utils set_environ generator
 
 
 2.17.3 (2017-05-29)
@@ -1481,4 +1541,3 @@ This is not a backwards compatible change.
 
 * Frustration
 * Conception
-

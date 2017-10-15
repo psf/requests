@@ -3,6 +3,8 @@
 Recommended Packages and Extensions
 ===================================
 
+.. image:: https://farm5.staticflickr.com/4218/35224319272_cfc0e621fb_k_d.jpg
+
 Requests has a great variety of powerful and useful third-party extensions.
 This page provides an overview of some of the best of them.
 
@@ -33,6 +35,14 @@ by members of the Requests core team, and reflects the functionality most
 requested by users within the community.
 
 .. _Requests-Toolbelt: http://toolbelt.readthedocs.io/en/latest/index.html
+
+
+Requests-Threads
+----------------
+
+`Requests-Threads` is a Requests session that returns the amazing Twisted's awaitable Deferreds instead of Response objects. This allows the use of ``async``/``await`` keyword usage on Python 3, or Twisted's style of programming, if desired.
+
+.. _Requests-Threads: https://github.com/requests/requests-threads
 
 Requests-OAuthlib
 -----------------

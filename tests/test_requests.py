@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """Tests for Requests."""
@@ -25,7 +24,8 @@ from requests.cookies import (
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidScheme, InvalidURL,
     MissingScheme, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError, InvalidHeader, UnrewindableBodyError, InvalidBodyError)
+    ProxyError, InvalidHeader, UnrewindableBodyError, InvalidBodyError,
+    SSLError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -749,7 +749,7 @@ class TestRequests:
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
 
-        with open('requirements.txt') as f:
+        with open('Pipfile') as f:
             post2 = requests.post(url, files={'some': f})
         assert post2.status_code == 200
 
@@ -809,7 +809,7 @@ class TestRequests:
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
 
-        with open('requirements.txt') as f:
+        with open('Pipfile') as f:
             post2 = requests.post(url, data={'some': 'data'}, files={'some': f})
         assert post2.status_code == 200
 
@@ -846,7 +846,7 @@ class TestRequests:
 
     def test_conflicting_post_params(self, httpbin):
         url = httpbin('post')
-        with open('requirements.txt') as f:
+        with open('Pipfile') as f:
             pytest.raises(ValueError, "requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})")
             pytest.raises(ValueError, "requests.post(url, data=u('[{\"some\": \"data\"}]'), files={'some': f})")
 
@@ -930,6 +930,15 @@ class TestRequests:
         warnings_category = tuple(
             item.category.__name__ for item in warning_records)
         assert warnings_category == warnings_expected
+
+    def test_certificate_failure(self, httpbin_secure):
+        """
+        When underlying SSL problems occur, an SSLError is raised.
+        """
+        with pytest.raises(SSLError):
+            # Our local httpbin does not have a trusted CA, so this call will
+            # fail if we use our default trust bundle.
+            requests.get(httpbin_secure('status', '200'))
 
     def test_urlencoded_get_query_multivalued_param(self, httpbin):
 
@@ -1629,14 +1638,17 @@ class TestRequests:
         headers_list = {'baz': ['foo', 'bar']}
 
         # Test for int
-        with pytest.raises(InvalidHeader):
+        with pytest.raises(InvalidHeader) as excinfo:
             r = requests.get(httpbin('get'), headers=headers_int)
+        assert 'foo' in str(excinfo.value)
         # Test for dict
-        with pytest.raises(InvalidHeader):
+        with pytest.raises(InvalidHeader) as excinfo:
             r = requests.get(httpbin('get'), headers=headers_dict)
+        assert 'bar' in str(excinfo.value)
         # Test for list
-        with pytest.raises(InvalidHeader):
+        with pytest.raises(InvalidHeader) as excinfo:
             r = requests.get(httpbin('get'), headers=headers_list)
+        assert 'baz' in str(excinfo.value)
 
     def test_header_no_return_chars(self, httpbin):
         """Ensure that a header containing return character sequences raise an
@@ -1905,6 +1917,12 @@ class TestRequests:
         it = r.iter_lines(decode_unicode=decode_unicode)
         next(it)
         assert len(list(it)) == 3
+
+    def test_response_context_manager(self, httpbin):
+        with requests.get(httpbin('stream/4'), stream=True) as response:
+            assert isinstance(response, requests.Response)
+
+        assert response.raw.closed
 
     def test_unconsumed_session_response_closes_connection(self, httpbin):
         s = requests.session()
@@ -2760,7 +2778,7 @@ class TestPreparingURLs(object):
     )
     def test_parameters_for_nonstandard_schemes(self, input, params, expected):
         """
-        Setting paramters for nonstandard schemes is allowed if those schemes
+        Setting parameters for nonstandard schemes is allowed if those schemes
         begin with "http", and is forbidden otherwise.
         """
         r = requests.Request('GET', url=input, params=params)

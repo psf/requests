@@ -129,7 +129,8 @@ html_theme_options = {
     'github_user': 'requests',
     'github_repo': 'requests',
     'github_banner': True,
-    'show_related': False
+    'show_related': False,
+    'note_bg': '#FFF59C'
 }
 
 # Add any paths that contain custom themes here, relative to this directory.

@@ -1,4 +1,34 @@
 <!-- Alabaster (krTheme++) Hacks -->
+<aside id="python27">
+    Python 3, the new best practice, is here to stay.
+    Python 2 will retire in only <time></time> months!
+</aside>
+
+<!-- Python 2 Death Clock™ -->
+<style type="text/css">
+  body { margin-top: 4em; }
+  #python27 {
+      position: fixed;
+      top: 0;
+      left: 0; right: 0;
+      height:  auto;
+      text-align: center;
+      color: white;
+      background-color: black;
+      font-size: larger;
+      line-height: 3;
+  }
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script>
+  var death = new Date('2020-04-12');
+
+  var diff = moment.duration(death - moment());
+
+  document.querySelector('#python27 time').innerText = (diff.years() * 12) + diff.months();
+</script>
+
 
 <!-- CSS Adjustments (I'm very picky.) -->
 <style type="text/css">
@@ -26,6 +56,7 @@
 
 </style>
 
+
 <!-- Analytics tracking for Kenneth. -->
 <script type="text/javascript">
   var _gauges = _gauges || [];
@@ -41,6 +72,7 @@
     s.parentNode.insertBefore(t, s);
   })();
 </script>
+
 
 <!-- There are no more hacks. -->
 <!--         இڿڰۣ-ڰۣ—         -->

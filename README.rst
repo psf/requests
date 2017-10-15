@@ -20,14 +20,10 @@ Requests: HTTP for Humans
 .. image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg
     :target: https://saythanks.io/to/kennethreitz
 
-
-
 Requests is the only *Non-GMO* HTTP library for Python, safe for human
 consumption.
 
-**Warning:** Recreational use of the Python standard library for HTTP may result in dangerous side-effects,
-including: security vulnerabilities, verbose code, reinventing the wheel,
-constantly reading documentation, depression, headaches, or even death.
+.. image:: https://farm5.staticflickr.com/4317/35198386374_1939af3de6_k_d.jpg
 
 Behold, the power of Requests:
 
@@ -81,19 +77,19 @@ Requests is ready for today's web.
 - ``.netrc`` Support
 - Chunked Requests
 
-Requests officially supports Python 2.7 & 3.3–3.7, and runs great on PyPy.
+Requests officially supports Python 2.7 & 3.4–3.7, and runs great on PyPy.
 
 Installation
 ------------
 
-To install Requests, simply:
+To install Requests, simply use `pipenv <http://pipenv.org/>`_ (or pip, of course):
 
 .. code-block:: bash
 
-    $ pip install requests
+    $ pipenv install requests
     ✨🍰✨
 
-Satisfaction, guaranteed.
+Satisfaction guaranteed.
 
 Documentation
 -------------

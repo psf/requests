@@ -626,18 +626,18 @@ def set_environ(env_name, value):
     the environment variable 'env_name'.
 
     If 'value' is None, do nothing"""
-    if value is not None:
+    value_changed = value is not None
+    if value_changed:
         old_value = os.environ.get(env_name)
         os.environ[env_name] = value
     try:
         yield
     finally:
-        if value is None:
-            return
-        if old_value is None:
-            del os.environ[env_name]
-        else:
-            os.environ[env_name] = old_value
+        if value_changed:
+            if old_value is None:
+                del os.environ[env_name]
+            else:
+                os.environ[env_name] = old_value
 
 
 def should_bypass_proxies(url, no_proxy):
@@ -743,7 +743,7 @@ def default_headers():
 
 
 def parse_header_links(value):
-    """Return a dict of parsed link headers proxies.
+    """Return a list of parsed link headers proxies.
 
     i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
 
@@ -753,6 +753,10 @@ def parse_header_links(value):
     links = []
 
     replace_chars = ' \'"'
+
+    value = value.strip(replace_chars)
+    if not value:
+        return links
 
     for val in re.split(', *<', value):
         try:
@@ -881,8 +885,8 @@ def check_header_validity(header):
         if not pat.match(value):
             raise InvalidHeader("Invalid return character or leading space in header: %s" % name)
     except TypeError:
-        raise InvalidHeader("Header value %s must be of type str or bytes, "
-                            "not %s" % (value, type(value)))
+        raise InvalidHeader("Value for header {%s: %s} must be of type str or "
+                            "bytes, not %s" % (name, value, type(value)))
 
 
 def urldefragauth(url):

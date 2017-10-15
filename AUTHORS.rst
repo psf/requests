@@ -10,13 +10,6 @@ Keepers of the Four Crystals
 - Nate Prewitt <nate.prewitt@gmail.com> `@nateprewitt <https://github.com/nateprewitt>`_
 
 
-
-Urllib3
-```````
-
-- Andrey Petrov <andrey.petrov@shazow.net>
-
-
 Patches and Suggestions
 ```````````````````````
 
@@ -186,3 +179,6 @@ Patches and Suggestions
 - Shmuel Amar (`@shmuelamar <https://github.com/shmuelamar>`_)
 - Gary Wu (`@garywu <https://github.com/garywu>`_)
 - Ryan Pineo (`@ryanpineo <https://github.com/ryanpineo>`_)
+- Ed Morley (`@edmorley <https://github.com/edmorley>`_)
+- Matt Liu <liumatt@gmail.com> (`@mlcrazy <https://github.com/mlcrazy>`_)
+- Taylor Hoff <primdevs@protonmail.com> (`@PrimordialHelios <https://github.com/PrimordialHelios>`_)

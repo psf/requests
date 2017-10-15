@@ -28,10 +28,10 @@ Release v\ |version|. (:ref:`Installation <install>`)
 **Requests** is the only *Non-GMO* HTTP library for Python, safe for human
 consumption.
 
-*Warning: Recreational use of the Python standard library for HTTP may result in dangerous side-effects,
-including: security vulnerabilities, verbose code, reinventing the wheel,
-constantly reading documentation, depression, headaches, or even death.*
-
+.. note:: The use of **Python 3** is *highly* preferred over Python 2. Consider upgrading your applications and infrastructure if you find yourself *still* using Python 2 in production today. If you are using Python 3, congratulations — you are indeed a person of excellent taste.
+  —*Kenneth Reitz*
+  
+  
 -------------------
 
 **Behold, the power of Requests**::
@@ -81,7 +81,7 @@ Institutions that prefer to be unnamed claim to use Requests internally.
     simple, Pythonic.*
 
 Requests is one of the most downloaded Python packages of all time, pulling in
-over 11,000,000 downloads every month. All the cool kids are doing it!
+over 13,000,000 downloads every month. All the cool kids are doing it!
 
 Beloved Features
 ----------------
@@ -104,7 +104,7 @@ Requests is ready for today's web.
 - Chunked Requests
 - ``.netrc`` Support
 
-Requests officially supports Python 2.7 & 3.3–3.7, and runs great on PyPy.
+Requests officially supports Python 2.7 & 3.4–3.7, and runs great on PyPy.
 
 
 The User Guide
@@ -131,10 +131,10 @@ This part of the documentation, which is mostly prose, details the
 Requests ecosystem and community.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   community/faq
    community/recommended
+   community/faq
    community/out-there
    community/support
    community/vulnerabilities

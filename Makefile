@@ -1,20 +1,21 @@
 .PHONY: docs
 init:
-	pip install -r requirements.txt
+	pip install pipenv --upgrade
+	pipenv install --dev --skip-lock
 test:
 	# This runs all of the tests, on both Python 2 and Python 3.
 	detox
 ci:
-	py.test -n 8 --boxed --junitxml=report.xml
+	pipenv run py.test -n 8 --boxed --junitxml=report.xml
 
 test-readme:
-	python setup.py check -r -s
+	@pipenv run python setup.py check --restructuredtext --strict && ([ $$? -eq 0 ] && echo "README.rst and HISTORY.rst ok") || echo "Invalid markup in README.rst or HISTORY.rst!"
 
 flake8:
-	flake8 --ignore=E501,F401,E128,E402,E731,F821 requests
+	pipenv run flake8 --ignore=E501,F401,E128,E402,E731,F821 requests
 
 coverage:
-	py.test --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=requests tests
+	pipenv run py.test --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=requests tests
 
 publish:
 	pip install 'twine>=1.5.0'

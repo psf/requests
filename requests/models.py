@@ -598,8 +598,6 @@ class Response(object):
     ]
 
     def __init__(self):
-        super(Response, self).__init__()
-
         self._content = False
         self._content_consumed = False
         self._next = None
@@ -646,6 +644,12 @@ class Response(object):
         #: The :class:`PreparedRequest <PreparedRequest>` object to which this
         #: is a response.
         self.request = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
 
     def __getstate__(self):
         # Consume everything; accessing the content attribute makes
