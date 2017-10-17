@@ -224,11 +224,11 @@ def from_key_val_list(value):
     ::
 
         >>> from_key_val_list([('key', 'val')])
-        collections.OrderedDict([('key', 'val')])
+        OrderedDict([('key', 'val')])
         >>> from_key_val_list('string')
         ValueError: need more than 1 value to unpack
         >>> from_key_val_list({'key': 'val'})
-        collections.OrderedDict([('key', 'val')])
+        OrderedDict([('key', 'val')])
 
     :rtype: OrderedDict
     """
