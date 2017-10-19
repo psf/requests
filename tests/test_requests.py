@@ -1351,6 +1351,18 @@ class TestRequests:
         assert 'http://' in s2.adapters
         assert 'https://' in s2.adapters
 
+    def test_session_get_adapter_prefix_matching_is_case_insensitive(self, httpbin):
+        mixed_case_prefix = 'hTtPs://eXamPle.CoM/MixEd_CAse_PREfix'
+        url_matching_prefix = mixed_case_prefix + '/full_url'
+        url_matching_prefix_with_different_case = 'HtTpS://exaMPLe.cOm/MiXeD_caSE_preFIX/another_url'
+
+        s = requests.Session()
+        my_adapter = HTTPAdapter()
+        s.mount(mixed_case_prefix, my_adapter)
+
+        assert s.get_adapter(url_matching_prefix) is my_adapter
+        assert s.get_adapter(url_matching_prefix_with_different_case) is my_adapter
+
     def test_header_remove_is_case_insensitive(self, httpbin):
         # From issue #1321
         s = requests.Session()
