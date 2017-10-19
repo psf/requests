@@ -3,6 +3,9 @@
 
 - Support for Python 2.6 has been dropped.
 
+  - The ``OrderedDict`` import no longer exists in compat.py because it is part
+    of ``collections`` in Python 2.7 and newer.
+
 - Simplified logic for determining Content-Length and Transfer-Encoding.
   Requests will now avoid setting both headers on the same request, and
   raise an exception if this is done manually by a user.
