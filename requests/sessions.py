@@ -696,7 +696,7 @@ class Session(SessionRedirectMixin):
         """
         for (prefix, adapter) in self.adapters.items():
 
-            if url.lower().startswith(prefix):
+            if url.lower().startswith(prefix.lower()):
                 return adapter
 
         # Nothing matches :-/
