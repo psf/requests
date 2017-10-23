@@ -436,7 +436,7 @@ You can assign a hook function on a per-request basis by passing a
 ``{hook_name: callback_function}`` dictionary to the ``hooks`` request
 parameter::
 
-    hooks=dict(response=print_url)
+    hooks={'response': print_url}
 
 That ``callback_function`` will receive a chunk of data as its first
 argument.
@@ -454,7 +454,7 @@ anything, nothing else is effected.
 
 Let's print some request method arguments at runtime::
 
-    >>> requests.get('http://httpbin.org', hooks=dict(response=print_url))
+    >>> requests.get('http://httpbin.org', hooks={'response': print_url})
     http://httpbin.org
     <Response [200]>
 
@@ -462,7 +462,7 @@ You can also assign hooks to a ``Session`` instance.  The hook will then be
 called on every request made to the session.  For example::
 
    >>> s = requests.Session()
-   >>> s.hooks = dict(response=print_url)
+   >>> s.hooks['response'].append(print_url)
    >>> s.get('http://httpbin.org')
     http://httpbin.org
     <Response [200]>
