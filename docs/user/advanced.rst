@@ -458,6 +458,15 @@ Let's print some request method arguments at runtime::
     http://httpbin.org
     <Response [200]>
 
+You can also assign hooks to a ``Session`` instance.  The hook will then be
+called on every request made to the session.  For example::
+
+   >>> s = requests.Session()
+   >>> s.hooks = dict(response=print_url)
+   >>> s.get('http://httpbin.org')
+    http://httpbin.org
+    <Response [200]>
+
 .. _custom-auth:
 
 Custom Authentication
