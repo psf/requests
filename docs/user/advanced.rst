@@ -452,11 +452,23 @@ If the callback function returns a value, it is assumed that it is to
 replace the data that was passed in. If the function doesn't return
 anything, nothing else is effected.
 
+::
+
+    def record_hook(r, *args, **kwargs):
+        r.hook_called = True
+        return r
+
 Let's print some request method arguments at runtime::
 
     >>> requests.get('http://httpbin.org', hooks={'response': print_url})
     http://httpbin.org
     <Response [200]>
+
+You can add multiple hooks to a single request.  Let's call two hooks at once::
+
+    >>> r = requests.get('http://httpbin.org', hooks={'response': [print_url, record_hook]})
+    >>> r.hook_called
+    True
 
 You can also add hooks to a ``Session`` instance.  Any hooks you add will then
 be called on every request made to the session.  For example::
