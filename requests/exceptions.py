@@ -85,6 +85,10 @@ class InvalidHeader(RequestException, ValueError):
     """The header value provided was somehow invalid."""
 
 
+class InvalidProxyURL(InvalidURL):
+    """The proxy URL provided is invalid."""
+
+
 class ChunkedEncodingError(RequestException):
     """The server declared chunked encoding but sent an invalid chunk."""
 
