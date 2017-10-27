@@ -745,7 +745,7 @@ class Response(object):
                     for chunk in self.raw.stream(chunk_size, decode_content=True):
                         yield chunk
                 except ProtocolError as e:
-                    raise ChunkedEncodingError(e)
+                    raise ChunkedEncodingError(e, response=self)
                 except DecodeError as e:
                     raise ContentDecodingError(e)
                 except ReadTimeoutError as e:
