@@ -480,7 +480,7 @@ class HTTPAdapter(BaseAdapter):
                         preload_content=False,
                         decode_content=False
                     )
-                except:
+                except BaseException:
                     # If we hit any problems here, clean up the connection.
                     # Then, reraise so that we can handle the actual exception.
                     low_conn.close()
