@@ -161,6 +161,10 @@ class HTTPAdapter(BaseAdapter):
         self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize,
                                        block=block, strict=True, **pool_kwargs)
 
+        #bugfix_issue4325 by AzePUG team member Elshad Agayev
+        # need to reinitialize poolmanager on every connection
+        return self.poolmanager
+
     def proxy_manager_for(self, proxy, **proxy_kwargs):
         """Return urllib3 ProxyManager for the given proxy.
 
@@ -310,7 +314,10 @@ class HTTPAdapter(BaseAdapter):
             # Only scheme should be lower case
             parsed = urlparse(url)
             url = parsed.geturl()
-            conn = self.poolmanager.connection_from_url(url)
+            
+            #bugfix_issue4325 by AzePUG team member Elshad Agayev
+            # need to reinitialize poolmanager on every connection
+            conn = self.init_poolmanager(self._pool_connections, self._pool_maxsize, block=self._pool_block).connection_from_url(url)
 
         return conn
 
