@@ -30,7 +30,7 @@ from .models import Response
 from .compat import urlparse, basestring
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     prepend_scheme_if_needed, get_auth_from_url, urldefragauth,
-                    select_proxy)
+                    select_proxy, validate_url)
 from .structures import CaseInsensitiveDict
 from .cookies import extract_cookies_to_jar
 from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
@@ -299,6 +299,10 @@ class HTTPAdapter(BaseAdapter):
         proxy = select_proxy(url, proxies)
 
         if proxy:
+            # bugfix_issue4353 by AzePUG team member Elshad Agayev
+            if not validate_url(proxy):
+                raise ProxyError("Proxy is not valid. Proxy url: " + proxy)
+
             proxy = prepend_scheme_if_needed(proxy, 'http')
             proxy_manager = self.proxy_manager_for(proxy)
             conn = proxy_manager.connection_from_url(url)
