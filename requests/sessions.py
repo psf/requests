@@ -113,7 +113,11 @@ class SessionRedirectMixin(object):
             # To solve this, we re-encode the location in latin1.
             if is_py3:
                 location = location.encode('latin1')
-            return to_native_string(location, 'utf8')
+            try:
+                return to_native_string(location, 'utf8')
+            except UnicodeDecodeError:
+                # The header was definitely not using UTF-8, retain original
+                return resp.headers['location']
         return None
 
     def resolve_redirects(self, resp, req, stream=False, timeout=None,
