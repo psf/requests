@@ -13,6 +13,9 @@ dev
 **Bugfixes**
 
 - Parsing empty ``Link`` headers with ``parse_header_links()`` no longer return one bogus entry
+- Fixed issue where loading the default certificate bundle from a zip archive
+  would raise an ``IOError``
+
 
 2.18.4 (2017-08-15)
 +++++++++++++++++++

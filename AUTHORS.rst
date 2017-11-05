@@ -179,3 +179,4 @@ Patches and Suggestions
 - Ed Morley (`@edmorley <https://github.com/edmorley>`_)
 - Matt Liu <liumatt@gmail.com> (`@mlcrazy <https://github.com/mlcrazy>`_)
 - Taylor Hoff <primdevs@protonmail.com> (`@PrimordialHelios <https://github.com/PrimordialHelios>`_)
+- Arthur Vigil (`@ahvigil <https://github.com/ahvigil>`_)
