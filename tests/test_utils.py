@@ -2,14 +2,16 @@
 
 import os
 import copy
+import filecmp
 from io import BytesIO
+import zipfile
 
 import pytest
 from requests import compat
 from requests.cookies import RequestsCookieJar
 from requests.structures import CaseInsensitiveDict
 from requests.utils import (
-    address_in_network, dotted_netmask,
+    address_in_network, dotted_netmask, extract_zipped_paths,
     get_auth_from_url, get_encoding_from_headers,
     get_encodings_from_content, get_environ_proxies,
     guess_filename, guess_json_utf, is_ipv4_address,
@@ -254,6 +256,32 @@ class TestGuessFilename:
         result = guess_filename(obj)
         assert result == value
         assert isinstance(result, expected_type)
+
+
+class TestExtractZippedPaths:
+
+    @pytest.mark.parametrize(
+        'path', (
+            '/',
+            __file__,
+            pytest.__file__,
+            '/etc/invalid/location',
+        ))
+    def test_unzipped_paths_unchanged(self, path):
+        assert path == extract_zipped_paths(path)
+
+    def test_zipped_paths_extracted(self, tmpdir):
+        zipped_py = tmpdir.join('test.zip')
+        with zipfile.ZipFile(zipped_py.strpath, 'w') as f:
+            f.write(__file__)
+
+        _, name = os.path.splitdrive(__file__)
+        zipped_path = os.path.join(zipped_py.strpath, name.lstrip(r'\/'))
+        extracted_path = extract_zipped_paths(zipped_path)
+
+        assert extracted_path != zipped_path
+        assert os.path.exists(extracted_path)
+        assert filecmp.cmp(extracted_path, __file__)
 
 
 class TestContentEncodingDetection:
