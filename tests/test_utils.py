@@ -677,6 +677,13 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
             elif value_name == 'ProxyOverride':
                 return [override]
 
+    def QueryValueEx2(key, value_name):
+        if key is ie_settings:
+            if value_name == 'ProxyEnable':
+                return ["1"] # this could be a string (REG_SZ) or a 32-bit number (REG_DWORD)
+            elif value_name == 'ProxyOverride':
+                return [override]
+
     monkeypatch.setenv('http_proxy', '')
     monkeypatch.setenv('https_proxy', '')
     monkeypatch.setenv('ftp_proxy', '')
