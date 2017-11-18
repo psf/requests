@@ -23,7 +23,7 @@ from requests.cookies import (
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
     MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError, InvalidHeader, UnrewindableBodyError, SSLError)
+    ProxyError, InvalidHeader, UnrewindableBodyError, SSLError, InvalidProxyURL)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -525,6 +525,19 @@ class TestRequests:
         # any proxy related error (address resolution, no route to host, etc) should result in a ProxyError
         with pytest.raises(ProxyError):
             requests.get('http://localhost:1', proxies={'http': 'non-resolvable-address'})
+
+    def test_proxy_error_on_bad_url(self, httpbin, httpbin_secure):
+        with pytest.raises(InvalidProxyURL):
+            requests.get(httpbin_secure(), proxies={'https': 'http:/badproxyurl:3128'})
+
+        with pytest.raises(InvalidProxyURL):
+            requests.get(httpbin(), proxies={'http': 'http://:8080'})
+
+        with pytest.raises(InvalidProxyURL):
+            requests.get(httpbin_secure(), proxies={'https': 'https://'})
+
+        with pytest.raises(InvalidProxyURL):
+            requests.get(httpbin(), proxies={'http': 'http:///example.com:8080'})
 
     def test_basicauth_with_netrc(self, httpbin):
         auth = ('user', 'pass')
