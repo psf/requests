@@ -688,7 +688,7 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
     monkeypatch.setenv('NO_PROXY', '')
     monkeypatch.setattr(winreg, 'OpenKey', OpenKey)
     monkeypatch.setattr(winreg, 'QueryValueEx', QueryValueEx)
-    assert should_bypass_proxies(url) == expected
+    assert should_bypass_proxies(url, None) == expected
 
 
 @pytest.mark.parametrize(
