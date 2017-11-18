@@ -9,6 +9,7 @@ dev
 **Improvements**
 
 - Warn user about possible slowdown when using cryptography version < 1.3.4
+- Check for invalid host in proxy URL, before forwarding request to adapter.
 
 **Bugfixes**
 

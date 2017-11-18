@@ -110,7 +110,7 @@ using, and change it, using the ``r.encoding`` property::
 If you change the encoding, Requests will use the new value of ``r.encoding``
 whenever you call ``r.text``. You might want to do this in any situation where
 you can apply special logic to work out what the encoding of the content will
-be. For example, HTTP and XML have the ability to specify their encoding in
+be. For example, HTML and XML have the ability to specify their encoding in
 their body. In situations like this, you should use ``r.content`` to find the
 encoding, and then set ``r.encoding``. This will let you use ``r.text`` with
 the correct encoding.
