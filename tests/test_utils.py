@@ -5,6 +5,7 @@ import copy
 import filecmp
 from io import BytesIO
 import zipfile
+from collections import deque
 
 import pytest
 from requests import compat
@@ -666,6 +667,7 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
             pass
 
     ie_settings = RegHandle()
+    proxyEnableValues = deque([1, "1"])
 
     def OpenKey(key, subkey):
         return ie_settings
@@ -673,14 +675,9 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
     def QueryValueEx(key, value_name):
         if key is ie_settings:
             if value_name == 'ProxyEnable':
-                return [1]
-            elif value_name == 'ProxyOverride':
-                return [override]
-
-    def QueryValueEx2(key, value_name):
-        if key is ie_settings:
-            if value_name == 'ProxyEnable':
-                return ["1"] # this could be a string (REG_SZ) or a 32-bit number (REG_DWORD)
+                # this could be a string (REG_SZ) or a 32-bit number (REG_DWORD)
+                proxyEnableValues.rotate()
+                return [proxyEnableValues[0]]
             elif value_name == 'ProxyOverride':
                 return [override]
 
@@ -691,6 +688,7 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
     monkeypatch.setenv('NO_PROXY', '')
     monkeypatch.setattr(winreg, 'OpenKey', OpenKey)
     monkeypatch.setattr(winreg, 'QueryValueEx', QueryValueEx)
+    assert should_bypass_proxies(url) == expected
 
 
 @pytest.mark.parametrize(
