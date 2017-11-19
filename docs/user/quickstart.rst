@@ -189,6 +189,14 @@ download, the above is the preferred and recommended way to retrieve the
 content. Note that ``chunk_size`` can be freely adjusted to a number that
 may better fit your use cases.
 
+.. note::
+
+   An important note about using ``Response.iter_content`` versus ``Response.raw``.
+   ``Response.iter_content`` will automatically decode the ``gzip`` and ``deflate``
+   transfer-encodings.  ``Response.raw`` is a raw stream of bytes -- it does not
+   transform the response content.  If you really need access to the bytes as they
+   were returned, use ``Response.raw``.
+
 
 Custom Headers
 --------------
