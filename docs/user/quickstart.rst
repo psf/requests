@@ -281,6 +281,7 @@ the ``json`` parameter (added in version 2.4.2) and it will be encoded automatic
 
     >>> r = requests.post(url, json=payload)
 
+Note, the ``json`` parameter is ignored if either ``data`` or ``files`` is passed.
 
 POST a Multipart-Encoded File
 -----------------------------
