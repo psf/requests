@@ -16,6 +16,7 @@ dev
 - Parsing empty ``Link`` headers with ``parse_header_links()`` no longer return one bogus entry
 - Fixed issue where loading the default certificate bundle from a zip archive
   would raise an ``IOError``
+- Fixed issue with unexpected ``ImportError`` on windows system which do not support ``winreg`` module
 
 
 2.18.4 (2017-08-15)
