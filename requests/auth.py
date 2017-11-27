@@ -153,6 +153,18 @@ class HTTPDigestAuth(AuthBase):
                     x = x.encode('utf-8')
                 return hashlib.sha1(x).hexdigest()
             hash_utf8 = sha_utf8
+        elif _algorithm == 'SHA-256':
+            def sha256_utf8(x):
+                if isinstance(x, str):
+                    x = x.encode('utf-8')
+                return hashlib.sha256(x).hexdigest()
+            hash_utf8 = sha256_utf8
+        elif _algorithm == 'SHA-512':
+            def sha512_utf8(x):
+                if isinstance(x, str):
+                    x = x.encode('utf-8')
+                return hashlib.sha512(x).hexdigest()
+            hash_utf8 = sha512_utf8
 
         KD = lambda s, d: hash_utf8("%s:%s" % (s, d))
 
