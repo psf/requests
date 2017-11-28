@@ -157,10 +157,10 @@ def super_len(o):
                     # partially read file-like objects
                     o.seek(current_position or 0)
                 except (OSError, IOError):
-                    total_length = 0
+                    total_length = None
 
     if total_length is None:
-        total_length = 0
+        return None
 
     return max(0, total_length - current_position)
 
