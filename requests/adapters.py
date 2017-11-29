@@ -16,6 +16,7 @@ from urllib3.response import HTTPResponse
 from urllib3.util import parse_url
 from urllib3.util import Timeout as TimeoutSauce
 from urllib3.util.retry import Retry
+from urllib3.util.ssl_ import create_urllib3_context as default_ssl_context
 from urllib3.exceptions import ClosedPoolError
 from urllib3.exceptions import ConnectTimeoutError
 from urllib3.exceptions import HTTPError as _HTTPError
@@ -48,6 +49,22 @@ DEFAULT_POOLBLOCK = False
 DEFAULT_POOLSIZE = 10
 DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
+
+def get_timeout(timeout):
+    """Converts int, tuple, or None timeout to TimeoutSauce"""
+    if isinstance(timeout, TimeoutSauce):
+        return timeout
+    if isinstance(timeout, tuple):
+        try:
+            connect, read = timeout
+            return TimeoutSauce(connect=connect, read=read)
+        except ValueError:
+            # this may raise a string formatting error.
+            err = ("Invalid timeout {0}. Pass a (connect, read) "
+                   "timeout tuple, or a single float to set "
+                   "both timeouts to the same value".format(timeout))
+            raise ValueError(err)
+    return TimeoutSauce(connect=timeout, read=timeout)
 
 
 class BaseAdapter(object):
@@ -106,11 +123,12 @@ class HTTPAdapter(BaseAdapter):
       >>> s.mount('http://', a)
     """
     __attrs__ = ['max_retries', 'config', '_pool_connections', '_pool_maxsize',
-                 '_pool_block']
+                 '_pool_block', '_ssl_context']
 
     def __init__(self, pool_connections=DEFAULT_POOLSIZE,
                  pool_maxsize=DEFAULT_POOLSIZE, max_retries=DEFAULT_RETRIES,
-                 pool_block=DEFAULT_POOLBLOCK):
+                 pool_block=DEFAULT_POOLBLOCK,
+                 ssl_context=None, with_ssl=False):
         if max_retries == DEFAULT_RETRIES:
             self.max_retries = Retry(0, read=False)
         else:
@@ -123,12 +141,23 @@ class HTTPAdapter(BaseAdapter):
         self._pool_connections = pool_connections
         self._pool_maxsize = pool_maxsize
         self._pool_block = pool_block
+        # only create SSLContext object for adapter that will get https requests
+        self._ssl_context = ssl_context or (with_ssl and default_ssl_context()) or None
 
-        self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
+        self.init_poolmanager(
+            pool_connections,
+            pool_maxsize,
+            block=pool_block,
+            ssl_context=self._ssl_context
+        )
 
     def __getstate__(self):
-        return dict((attr, getattr(self, attr, None)) for attr in
-                    self.__attrs__)
+        state = dict((attr, getattr(self, attr, None)) for attr in self.__attrs__)
+        if state['_ssl_context']:
+            # need to pickle the protocol with SSLContext
+            protocol = (self._ssl_context.protocol,)
+            state['_ssl_context'] = (self._ssl_context.__class__, protocol)
+        return state
 
     def __setstate__(self, state):
         # Can't handle by adding 'proxy_manager' to self.__attrs__ because
@@ -139,10 +168,14 @@ class HTTPAdapter(BaseAdapter):
         for attr, value in state.items():
             setattr(self, attr, value)
 
-        self.init_poolmanager(self._pool_connections, self._pool_maxsize,
-                              block=self._pool_block)
+        self.init_poolmanager(
+            self._pool_connections,
+            self._pool_maxsize,
+            block=self._pool_block,
+            ssl_context=self._ssl_context
+        )
 
-    def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK, **pool_kwargs):
+    def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK, ssl_context=None, **pool_kwargs):
         """Initializes a urllib3 PoolManager.
 
         This method should not be called from user code, and is only
@@ -158,9 +191,16 @@ class HTTPAdapter(BaseAdapter):
         self._pool_connections = connections
         self._pool_maxsize = maxsize
         self._pool_block = block
+        self._ssl_context = ssl_context
 
-        self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize,
-                                       block=block, strict=True, **pool_kwargs)
+        self.poolmanager = PoolManager(
+            num_pools=connections,
+            maxsize=maxsize,
+            block=block,
+            strict=True,
+            ssl_context=ssl_context,
+            **pool_kwargs
+        )
 
     def proxy_manager_for(self, proxy, **proxy_kwargs):
         """Return urllib3 ProxyManager for the given proxy.
@@ -390,6 +430,63 @@ class HTTPAdapter(BaseAdapter):
 
         return headers
 
+    def send_chunked(self, conn, request, url):
+        """Sends chunked request, returns HTTPResponse
+
+        :param conn: The connection pool to use
+        :param request: The :class:`PreparedRequest <PreparedRequest>` to send
+        :param url: The url for the request
+        :rtype: urllib.response.HTTPResponse
+        """
+        if hasattr(conn, 'proxy_pool'):
+            conn = conn.proxy_pool
+
+        low_conn = conn._get_conn(timeout=DEFAULT_POOL_TIMEOUT)
+
+        try:
+            low_conn.putrequest(
+                request.method,
+                url,
+                skip_accept_encoding=True
+            )
+
+            for header, value in request.headers.items():
+                low_conn.putheader(header, value)
+
+            low_conn.endheaders()
+
+            for i in request.body:
+                low_conn.send(hex(len(i))[2:].encode('utf-8'))
+                low_conn.send(b'\r\n')
+                low_conn.send(i)
+                low_conn.send(b'\r\n')
+            low_conn.send(b'0\r\n\r\n')
+
+            # Receive the response from the server
+            try:
+                # For Python 2.7+ versions, use buffering of HTTP
+                # responses
+                r = low_conn.getresponse(buffering=True)
+            except TypeError:
+                # For compatibility with Python 2.6 versions and back
+                r = low_conn.getresponse()
+
+            resp = HTTPResponse.from_httplib(
+                r,
+                pool=conn,
+                connection=low_conn,
+                preload_content=False,
+                decode_content=False
+            )
+        except:
+            # If we hit any problems here, clean up the connection.
+            # Then, reraise so that we can handle the actual exception.
+            low_conn.close()
+            raise
+        return resp
+
+
+
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
         """Sends PreparedRequest object. Returns Response object.
 
@@ -415,23 +512,12 @@ class HTTPAdapter(BaseAdapter):
 
         chunked = not (request.body is None or 'Content-Length' in request.headers)
 
-        if isinstance(timeout, tuple):
-            try:
-                connect, read = timeout
-                timeout = TimeoutSauce(connect=connect, read=read)
-            except ValueError as e:
-                # this may raise a string formatting error.
-                err = ("Invalid timeout {0}. Pass a (connect, read) "
-                       "timeout tuple, or a single float to set "
-                       "both timeouts to the same value".format(timeout))
-                raise ValueError(err)
-        elif isinstance(timeout, TimeoutSauce):
-            pass
-        else:
-            timeout = TimeoutSauce(connect=timeout, read=timeout)
+        timeout = get_timeout(timeout)
 
         try:
-            if not chunked:
+            if chunked:
+                resp = self.send_chunked(conn, request, url)
+            else:
                 resp = conn.urlopen(
                     method=request.method,
                     url=url,
@@ -444,52 +530,6 @@ class HTTPAdapter(BaseAdapter):
                     retries=self.max_retries,
                     timeout=timeout
                 )
-
-            # Send the request.
-            else:
-                if hasattr(conn, 'proxy_pool'):
-                    conn = conn.proxy_pool
-
-                low_conn = conn._get_conn(timeout=DEFAULT_POOL_TIMEOUT)
-
-                try:
-                    low_conn.putrequest(request.method,
-                                        url,
-                                        skip_accept_encoding=True)
-
-                    for header, value in request.headers.items():
-                        low_conn.putheader(header, value)
-
-                    low_conn.endheaders()
-
-                    for i in request.body:
-                        low_conn.send(hex(len(i))[2:].encode('utf-8'))
-                        low_conn.send(b'\r\n')
-                        low_conn.send(i)
-                        low_conn.send(b'\r\n')
-                    low_conn.send(b'0\r\n\r\n')
-
-                    # Receive the response from the server
-                    try:
-                        # For Python 2.7+ versions, use buffering of HTTP
-                        # responses
-                        r = low_conn.getresponse(buffering=True)
-                    except TypeError:
-                        # For compatibility with Python 2.6 versions and back
-                        r = low_conn.getresponse()
-
-                    resp = HTTPResponse.from_httplib(
-                        r,
-                        pool=conn,
-                        connection=low_conn,
-                        preload_content=False,
-                        decode_content=False
-                    )
-                except:
-                    # If we hit any problems here, clean up the connection.
-                    # Then, reraise so that we can handle the actual exception.
-                    low_conn.close()
-                    raise
 
         except (ProtocolError, socket.error) as err:
             raise ConnectionError(err, request=request)

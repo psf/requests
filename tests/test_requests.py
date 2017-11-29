@@ -2438,3 +2438,13 @@ class TestPreparingURLs(object):
         r = requests.Request('GET', url=input, params=params)
         p = r.prepare()
         assert p.url == expected
+
+def test_single_ssl_context():
+    conn = HTTPAdapter(with_ssl=True).get_connection('https://example.com')
+    c1 = conn._new_conn().ssl_context
+    assert c1 is not None
+    assert c1 is conn._new_conn().ssl_context
+
+def test_http_no_default_ssl_context():
+    adapter = HTTPAdapter()
+    assert adapter._ssl_context is None
