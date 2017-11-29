@@ -389,7 +389,7 @@ class Session(SessionRedirectMixin):
 
         # Default connection adapters.
         self.adapters = OrderedDict()
-        self.mount('https://', HTTPAdapter())
+        self.mount('https://', HTTPAdapter(with_ssl=True))
         self.mount('http://', HTTPAdapter())
 
     def __enter__(self):
