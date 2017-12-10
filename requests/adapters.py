@@ -15,6 +15,7 @@ from urllib3.poolmanager import PoolManager, proxy_from_url
 from urllib3.response import HTTPResponse
 from urllib3.util import Timeout as TimeoutSauce
 from urllib3.util.retry import Retry
+from urllib3.util.ssl_ import create_urllib3_context
 from urllib3.exceptions import ClosedPoolError
 from urllib3.exceptions import ConnectTimeoutError
 from urllib3.exceptions import HTTPError as _HTTPError
@@ -177,6 +178,7 @@ class HTTPAdapter(BaseAdapter):
             self.max_retries = Retry.from_int(max_retries)
         self.config = {}
         self.proxy_manager = {}
+        self.ssl_contexts = {}
 
         super(HTTPAdapter, self).__init__()
 
@@ -194,6 +196,7 @@ class HTTPAdapter(BaseAdapter):
         # self.poolmanager uses a lambda function, which isn't pickleable.
         self.proxy_manager = {}
         self.config = {}
+        self.ssl_contexts = {}
 
         for attr, value in state.items():
             setattr(self, attr, value)
@@ -295,6 +298,15 @@ class HTTPAdapter(BaseAdapter):
 
         return response
 
+    def get_ssl_context(self, pool_kwargs):
+        """Returns correct SSLContext for settings in pool_kwargs"""
+        paths = (pool_kwargs.get(p, None) for p in ('ca_cert_dir', 'ca_certs', 'cert_file', 'key_file'))
+        # use real paths to avoid creating extra SSLContexts for same files
+        key = tuple(None if p is None else os.path.realpath(p) for p in paths)
+        if key not in self.ssl_contexts:
+            self.ssl_contexts[key] = create_urllib3_context()
+        return self.ssl_contexts[key]
+
     def get_connection(self, url, proxies=None, verify=None, cert=None):
         """Returns a urllib3 connection for the given URL. This should not be
         called from user code, and is only exposed for use when subclassing the
@@ -305,6 +317,9 @@ class HTTPAdapter(BaseAdapter):
         :rtype: urllib3.ConnectionPool
         """
         pool_kwargs = _pool_kwargs(verify, cert)
+        if url.lower().startswith('https'):
+            pool_kwargs['ssl_context'] = self.get_ssl_context(pool_kwargs)
+
         proxy = select_proxy(url, proxies)
 
         if proxy:
