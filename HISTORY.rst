@@ -17,7 +17,8 @@ dev
 - Fixed issue where loading the default certificate bundle from a zip archive
   would raise an ``IOError``
 - Fixed issue with unexpected ``ImportError`` on windows system which do not support ``winreg`` module
-
+- DNS resolution in proxy bypass no longer includes the username and password in
+  the request. This also fixes the issue of DNS queries failing on macOS.
 
 2.18.4 (2017-08-15)
 +++++++++++++++++++
