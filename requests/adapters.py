@@ -110,6 +110,11 @@ def _pool_kwargs(verify, cert):
                           "invalid path: {0}".format(key_file))
     return pool_kwargs
 
+def _consistent_path(path):
+    """Get cosistent path for cert files"""
+    if not path:
+        return None
+    return os.path.normcase(os.path.realpath(path))
 
 class BaseAdapter(object):
     """The Base Transport Adapter"""
@@ -300,9 +305,8 @@ class HTTPAdapter(BaseAdapter):
 
     def get_ssl_context(self, pool_kwargs):
         """Returns correct SSLContext for settings in pool_kwargs"""
-        paths = (pool_kwargs.get(p, None) for p in ('ca_cert_dir', 'ca_certs', 'cert_file', 'key_file'))
-        # use real paths to avoid creating extra SSLContexts for same files
-        key = tuple(None if p is None else os.path.realpath(p) for p in paths)
+        fields = ('ca_cert_dir', 'ca_certs', 'cert_file', 'key_file')
+        key = tuple(_consistent_path(pool_kwargs.get(f, None)) for f in fields)
         if key not in self.ssl_contexts:
             self.ssl_contexts[key] = create_urllib3_context()
         return self.ssl_contexts[key]
