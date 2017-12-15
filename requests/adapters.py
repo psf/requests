@@ -13,6 +13,7 @@ import socket
 
 from urllib3.poolmanager import PoolManager, proxy_from_url
 from urllib3.response import HTTPResponse
+from urllib3.util import parse_url
 from urllib3.util import Timeout as TimeoutSauce
 from urllib3.util.retry import Retry
 from urllib3.exceptions import ClosedPoolError
@@ -28,13 +29,13 @@ from urllib3.exceptions import ResponseError
 
 from .models import Response
 from .compat import urlparse, basestring
-from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
-                    prepend_scheme_if_needed, get_auth_from_url, urldefragauth,
-                    select_proxy)
+from .utils import (DEFAULT_CA_BUNDLE_PATH, extract_zipped_paths,
+                    get_encoding_from_headers, prepend_scheme_if_needed,
+                    get_auth_from_url, urldefragauth, select_proxy)
 from .structures import CaseInsensitiveDict
 from .cookies import extract_cookies_to_jar
 from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
-                         ProxyError, RetryError, InvalidSchema)
+                         ProxyError, RetryError, InvalidSchema, InvalidProxyURL)
 from .auth import _basic_auth_str
 
 try:
@@ -219,7 +220,7 @@ class HTTPAdapter(BaseAdapter):
                 cert_loc = verify
 
             if not cert_loc:
-                cert_loc = DEFAULT_CA_BUNDLE_PATH
+                cert_loc = extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH)
 
             if not cert_loc or not os.path.exists(cert_loc):
                 raise IOError("Could not find a suitable TLS CA certificate bundle, "
@@ -300,6 +301,10 @@ class HTTPAdapter(BaseAdapter):
 
         if proxy:
             proxy = prepend_scheme_if_needed(proxy, 'http')
+            proxy_url = parse_url(proxy)
+            if not proxy_url.host:
+                raise InvalidProxyURL("Please check proxy URL. It is malformed"
+                                      " and could be missing the host.")
             proxy_manager = self.proxy_manager_for(proxy)
             conn = proxy_manager.connection_from_url(url)
         else:

@@ -2,14 +2,17 @@
 
 import os
 import copy
+import filecmp
 from io import BytesIO
+import zipfile
+from collections import deque
 
 import pytest
 from requests import compat
 from requests.cookies import RequestsCookieJar
 from requests.structures import CaseInsensitiveDict
 from requests.utils import (
-    address_in_network, dotted_netmask,
+    address_in_network, dotted_netmask, extract_zipped_paths,
     get_auth_from_url, get_encoding_from_headers,
     get_encodings_from_content, get_environ_proxies,
     guess_filename, guess_json_utf, is_ipv4_address,
@@ -254,6 +257,32 @@ class TestGuessFilename:
         result = guess_filename(obj)
         assert result == value
         assert isinstance(result, expected_type)
+
+
+class TestExtractZippedPaths:
+
+    @pytest.mark.parametrize(
+        'path', (
+            '/',
+            __file__,
+            pytest.__file__,
+            '/etc/invalid/location',
+        ))
+    def test_unzipped_paths_unchanged(self, path):
+        assert path == extract_zipped_paths(path)
+
+    def test_zipped_paths_extracted(self, tmpdir):
+        zipped_py = tmpdir.join('test.zip')
+        with zipfile.ZipFile(zipped_py.strpath, 'w') as f:
+            f.write(__file__)
+
+        _, name = os.path.splitdrive(__file__)
+        zipped_path = os.path.join(zipped_py.strpath, name.lstrip(r'\/'))
+        extracted_path = extract_zipped_paths(zipped_path)
+
+        assert extracted_path != zipped_path
+        assert os.path.exists(extracted_path)
+        assert filecmp.cmp(extracted_path, __file__)
 
 
 class TestContentEncodingDetection:
@@ -638,6 +667,7 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
             pass
 
     ie_settings = RegHandle()
+    proxyEnableValues = deque([1, "1"])
 
     def OpenKey(key, subkey):
         return ie_settings
@@ -645,7 +675,9 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
     def QueryValueEx(key, value_name):
         if key is ie_settings:
             if value_name == 'ProxyEnable':
-                return [1]
+                # this could be a string (REG_SZ) or a 32-bit number (REG_DWORD)
+                proxyEnableValues.rotate()
+                return [proxyEnableValues[0]]
             elif value_name == 'ProxyOverride':
                 return [override]
 
@@ -656,6 +688,7 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
     monkeypatch.setenv('NO_PROXY', '')
     monkeypatch.setattr(winreg, 'OpenKey', OpenKey)
     monkeypatch.setattr(winreg, 'QueryValueEx', QueryValueEx)
+    assert should_bypass_proxies(url, None) == expected
 
 
 @pytest.mark.parametrize(

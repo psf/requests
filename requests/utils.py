@@ -14,11 +14,13 @@ import collections
 import contextlib
 import io
 import os
-import platform
 import re
 import socket
 import struct
+import sys
+import tempfile
 import warnings
+import zipfile
 
 from .__version__ import __version__
 from . import certs
@@ -39,19 +41,25 @@ NETRC_FILES = ('.netrc', '_netrc')
 DEFAULT_CA_BUNDLE_PATH = certs.where()
 
 
-if platform.system() == 'Windows':
+if sys.platform == 'win32':
     # provide a proxy_bypass version on Windows without DNS lookups
 
     def proxy_bypass_registry(host):
-        if is_py3:
-            import winreg
-        else:
-            import _winreg as winreg
+        try:
+            if is_py3:
+                import winreg
+            else:
+                import _winreg as winreg
+        except ImportError:
+            return False
+
         try:
             internetSettings = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                 r'Software\Microsoft\Windows\CurrentVersion\Internet Settings')
-            proxyEnable = winreg.QueryValueEx(internetSettings,
-                                              'ProxyEnable')[0]
+            # ProxyEnable could be REG_SZ or REG_DWORD, normalizing it
+            proxyEnable = int(winreg.QueryValueEx(internetSettings,
+                                              'ProxyEnable')[0])
+            # ProxyOverride is almost always a string
             proxyOverride = winreg.QueryValueEx(internetSettings,
                                                 'ProxyOverride')[0]
         except OSError:
@@ -214,6 +222,38 @@ def guess_filename(obj):
     if (name and isinstance(name, basestring) and name[0] != '<' and
             name[-1] != '>'):
         return os.path.basename(name)
+
+
+def extract_zipped_paths(path):
+    """Replace nonexistant paths that look like they refer to a member of a zip
+    archive with the location of an extracted copy of the target, or else
+    just return the provided path unchanged.
+    """
+    if os.path.exists(path):
+        # this is already a valid path, no need to do anything further
+        return path
+
+    # find the first valid part of the provided path and treat that as a zip archive
+    # assume the rest of the path is the name of a member in the archive
+    archive, member = os.path.split(path)
+    while archive and not os.path.exists(archive):
+        archive, prefix = os.path.split(archive)
+        member = '/'.join([prefix, member])
+
+    if not zipfile.is_zipfile(archive):
+        return path
+
+    zip_file = zipfile.ZipFile(archive)
+    if member not in zip_file.namelist():
+        return path
+
+    # we have a valid zip archive and a valid member of that archive
+    tmp = tempfile.gettempdir()
+    extracted_path = os.path.join(tmp, *member.split('/'))
+    if not os.path.exists(extracted_path):
+        extracted_path = zip_file.extract(member, path=tmp)
+
+    return extracted_path
 
 
 def from_key_val_list(value):

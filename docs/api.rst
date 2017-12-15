@@ -109,17 +109,7 @@ Status Code Lookup
 
 .. autoclass:: requests.codes
 
-::
-
-    >>> requests.codes['temporary_redirect']
-    307
-
-    >>> requests.codes.teapot
-    418
-
-    >>> requests.codes['\o/']
-    200
-
+.. automodule:: requests.status_codes
 
 
 Migrating to 1.x
