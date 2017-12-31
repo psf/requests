@@ -454,9 +454,8 @@ def get_encoding_from_headers(headers):
     """
     def parse_header(content_type):
         #Inner function to parse header
-        content_type_and_params_delimiter = ';'
-
         #append delimiter on end to ensure atleast two elements when split by ';'
+        content_type_and_params_delimiter = ';'
         content_type += content_type_and_params_delimiter
 
         tokens = content_type.split(content_type_and_params_delimiter)
