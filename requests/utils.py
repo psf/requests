@@ -446,33 +446,49 @@ def get_encodings_from_content(content):
             xml_re.findall(content))
 
 
+def _parse_content_type_header(header):
+    """Returns content type and parameters from given header
+
+    :param header: string
+    :return: tuple containing content type and dictionary of
+         parameters
+    """
+    if not header:
+        return None
+    # append delimiter on end to ensure at least two elements when split by ';'
+    header += ';'
+    # split content type's main value from params
+    tokens = header.split(';', 1)
+    content_type_index = 0
+    params_index = 1
+
+    content_type = tokens[content_type_index].strip()
+    params = tokens[params_index]
+    params_dict = dict()
+
+    for param in params.split(';'):
+        if param and not param.isspace():
+            param = param.strip()
+            key, value = param, True
+            if '=' in param:
+                param_tokens = [x.strip('\'" ') for x in param.split('=', 1)]
+                key, value = param_tokens[0], param_tokens[1]
+            params_dict[key] = value
+    return content_type, params_dict
+
 def get_encoding_from_headers(headers):
     """Returns encodings from given HTTP Header Dict.
 
     :param headers: dictionary to extract encoding from.
     :rtype: str
     """
-    def parse_header(content_type):
-        #Inner function to parse header
-        #append delimiter on end to ensure atleast two elements when split by ';'
-        content_type_and_params_delimiter = ';'
-        content_type += content_type_and_params_delimiter
-
-        tokens = content_type.split(content_type_and_params_delimiter)
-        content_type_index = 0
-        params_index = 1
-
-        content_type = tokens[content_type_index]
-        params = tokens[params_index]
-        params_dict = dict(param.split('=') for param in params.split())
-        return content_type,params_dict
 
     content_type = headers.get('content-type')
 
     if not content_type:
         return None
 
-    content_type, params = parse_header(content_type)
+    content_type, params = _parse_content_type_header(content_type)
 
     if 'charset' in params:
         return params['charset'].strip("'\"")

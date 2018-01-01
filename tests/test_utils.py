@@ -13,7 +13,7 @@ from requests.cookies import RequestsCookieJar
 from requests.structures import CaseInsensitiveDict
 from requests.utils import (
     address_in_network, dotted_netmask, extract_zipped_paths,
-    get_auth_from_url, get_encoding_from_headers,
+    get_auth_from_url, _parse_content_type_header, get_encoding_from_headers,
     get_encodings_from_content, get_environ_proxies,
     guess_filename, guess_json_utf, is_ipv4_address,
     is_valid_cidr, iter_slices, parse_dict_header,
@@ -468,6 +468,41 @@ def test_select_proxies(url, expected, proxies):
     ))
 def test_parse_dict_header(value, expected):
     assert parse_dict_header(value) == expected
+
+
+@pytest.mark.parametrize(
+    'value, expected', (
+        (
+            None,
+            None
+        ),
+(
+            '',
+            None
+        ),
+        (
+            'application/xml',
+            ('application/xml', dict())
+        ),
+        (
+            'application/json ; charset=utf-8',
+            ('application/json', {'charset': 'utf-8'})
+        ),
+        (
+            'text/plain',
+            ('text/plain', dict())
+        ),
+        (
+            'multipart/form-data; boundary = something ; \'boundary2=something_else\' ; no_equals ',
+            ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
+        ),
+        (
+            'application/json ;; ; ',
+            ('application/json', dict())
+        )
+    ))
+def test__parse_content_type_header(value, expected):
+    assert _parse_content_type_header(value) == expected
 
 
 @pytest.mark.parametrize(
