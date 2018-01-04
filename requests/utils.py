@@ -8,7 +8,6 @@ This module provides utility functions that are used within Requests
 that are also useful for external consumption.
 """
 
-import cgi
 import codecs
 import collections
 import contextlib
@@ -447,6 +446,31 @@ def get_encodings_from_content(content):
             xml_re.findall(content))
 
 
+def _parse_content_type_header(header):
+    """Returns content type and parameters from given header
+
+    :param header: string
+    :return: tuple containing content type and dictionary of
+         parameters
+    """
+
+    tokens = header.split(';')
+    content_type, params = tokens[0].strip(), tokens[1:]
+    params_dict = {}
+    items_to_strip = "\"' "
+
+    for param in params:
+        param = param.strip()
+        if param:
+            key, value = param, True
+            index_of_equals = param.find("=")
+            if index_of_equals != -1:
+                key = param[:index_of_equals].strip(items_to_strip)
+                value = param[index_of_equals + 1:].strip(items_to_strip)
+            params_dict[key] = value
+    return content_type, params_dict
+
+
 def get_encoding_from_headers(headers):
     """Returns encodings from given HTTP Header Dict.
 
@@ -459,7 +483,7 @@ def get_encoding_from_headers(headers):
     if not content_type:
         return None
 
-    content_type, params = cgi.parse_header(content_type)
+    content_type, params = _parse_content_type_header(content_type)
 
     if 'charset' in params:
         return params['charset'].strip("'\"")
