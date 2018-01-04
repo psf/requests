@@ -485,11 +485,19 @@ def test_parse_dict_header(value, expected):
             ('text/plain', {})
         ),
         (
+            'multipart/form-data; boundary = something ; boundary2=\'something_else\' ; no_equals ',
+            ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
+        ),
+        (
+                'multipart/form-data; boundary = something ; boundary2="something_else" ; no_equals ',
+                ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
+        ),
+        (
             'multipart/form-data; boundary = something ; \'boundary2=something_else\' ; no_equals ',
             ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
         ),
         (
-            'multipart/form-data; boundary = something ; \"boundary2=something_else\" ; no_equals ',
+            'multipart/form-data; boundary = something ; "boundary2=something_else" ; no_equals ',
             ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
         ),
         (
