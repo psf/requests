@@ -465,10 +465,8 @@ def _parse_content_type_header(header):
             key, value = param, True
             index_of_equals = param.find("=")
             if index_of_equals != -1:
-                before_equals = slice(0, index_of_equals)
-                after_equals = slice(index_of_equals + 1, len(param))
-                key = param[before_equals].strip(items_to_strip)
-                value = param[after_equals].strip(items_to_strip)
+                key = param[:index_of_equals].strip(items_to_strip)
+                value = param[index_of_equals + 1:].strip(items_to_strip)
             params_dict[key] = value
     return content_type, params_dict
 
