@@ -456,7 +456,7 @@ def _parse_content_type_header(header):
 
     tokens = header.split(';')
     content_type, params = tokens[0].strip(), tokens[1:]
-    params_dict = {}  # Using dict is actually slower than a dictionary literal. Weird but tru
+    params_dict = {} 
 
     for param in params:
         if param and not param.isspace():
