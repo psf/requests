@@ -474,7 +474,7 @@ def test_parse_dict_header(value, expected):
     'value, expected', (
         (
             'application/xml',
-            ('application/xml', dict())
+            ('application/xml', {})
         ),
         (
             'application/json ; charset=utf-8',
@@ -482,15 +482,19 @@ def test_parse_dict_header(value, expected):
         ),
         (
             'text/plain',
-            ('text/plain', dict())
+            ('text/plain', {})
         ),
         (
             'multipart/form-data; boundary = something ; \'boundary2=something_else\' ; no_equals ',
             ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
         ),
         (
-            'application/json ;; ; ',
-            ('application/json', dict())
+            'multipart/form-data; boundary = something ; \"boundary2=something_else\" ; no_equals ',
+            ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
+        ),
+        (
+            'application/json ; ; ',
+            ('application/json', {})
         )
     ))
 def test__parse_content_type_header(value, expected):

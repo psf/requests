@@ -456,15 +456,19 @@ def _parse_content_type_header(header):
 
     tokens = header.split(';')
     content_type, params = tokens[0].strip(), tokens[1:]
-    params_dict = {} 
+    params_dict = {}
+    items_to_strip = "\"' "
 
     for param in params:
-        if param and not param.isspace():
-            param = param.strip()
+        param = param.strip()
+        if param:
             key, value = param, True
-            if '=' in param:
-                param_tokens = [x.strip('\'" ') for x in param.split('=', 1)]
-                key, value = param_tokens[0], param_tokens[1]
+            index_of_equals = param.find("=")
+            if index_of_equals != -1:
+                before_equals = slice(0, index_of_equals)
+                after_equals = slice(index_of_equals + 1, len(param))
+                key = param[before_equals].strip(items_to_strip)
+                value = param[after_equals].strip(items_to_strip)
             params_dict[key] = value
     return content_type, params_dict
 
