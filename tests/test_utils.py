@@ -473,14 +473,6 @@ def test_parse_dict_header(value, expected):
 @pytest.mark.parametrize(
     'value, expected', (
         (
-            None,
-            None
-        ),
-(
-            '',
-            None
-        ),
-        (
             'application/xml',
             ('application/xml', dict())
         ),

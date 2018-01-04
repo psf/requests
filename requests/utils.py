@@ -453,20 +453,12 @@ def _parse_content_type_header(header):
     :return: tuple containing content type and dictionary of
          parameters
     """
-    if not header:
-        return None
-    # append delimiter on end to ensure at least two elements when split by ';'
-    header += ';'
-    # split content type's main value from params
-    tokens = header.split(';', 1)
-    content_type_index = 0
-    params_index = 1
 
-    content_type = tokens[content_type_index].strip()
-    params = tokens[params_index]
-    params_dict = dict()
+    tokens = header.split(';')
+    content_type, params = tokens[0].strip(), tokens[1:]
+    params_dict = {}  # Using dict is actually slower than a dictionary literal. Weird but tru
 
-    for param in params.split(';'):
+    for param in params:
         if param and not param.isspace():
             param = param.strip()
             key, value = param, True
@@ -475,6 +467,7 @@ def _parse_content_type_header(header):
                 key, value = param_tokens[0], param_tokens[1]
             params_dict[key] = value
     return content_type, params_dict
+
 
 def get_encoding_from_headers(headers):
     """Returns encodings from given HTTP Header Dict.
