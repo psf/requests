@@ -9,7 +9,12 @@ and maintain connections.
 """
 
 import os.path
+try:
+    import queue
+except ImportError:
+    import Queue as queue
 import socket
+import threading
 
 from urllib3.poolmanager import PoolManager, proxy_from_url
 from urllib3.response import HTTPResponse
@@ -462,29 +467,54 @@ class HTTPAdapter(BaseAdapter):
 
                     low_conn.endheaders()
 
-                    for i in request.body:
-                        low_conn.send(hex(len(i))[2:].encode('utf-8'))
-                        low_conn.send(b'\r\n')
-                        low_conn.send(i)
-                        low_conn.send(b'\r\n')
-                    low_conn.send(b'0\r\n\r\n')
+                    # handle response in a thread since 404 errors etc can occur as soon as the headers have been sent
+                    response_queue = queue.Queue()
+                    def _response_reader():
+                        try:
+                            # Receive the response from the server
+                            try:
+                                # For Python 2.7+ versions, use buffering of HTTP
+                                # responses
+                                r = low_conn.getresponse(buffering=True)
+                            except TypeError:
+                                # For compatibility with Python 2.6 versions and back
+                                r = low_conn.getresponse()
 
-                    # Receive the response from the server
+                            resp = HTTPResponse.from_httplib(
+                                r,
+                                pool=conn,
+                                connection=low_conn,
+                                preload_content=False,
+                                decode_content=False
+                            )
+                            response_queue.put(resp)
+                        except Exception as e:
+                            response_queue.put(e)
+
+                    t = threading.Thread(target=_response_reader)
+                    t.start()
+
                     try:
-                        # For Python 2.7+ versions, use buffering of HTTP
-                        # responses
-                        r = low_conn.getresponse(buffering=True)
-                    except TypeError:
-                        # For compatibility with Python 2.6 versions and back
-                        r = low_conn.getresponse()
+                        for i in request.body:
+                            if not response_queue.empty():
+                                break
+                            low_conn.send(hex(len(i))[2:].encode('utf-8'))
+                            low_conn.send(b'\r\n')
+                            low_conn.send(i)
+                            low_conn.send(b'\r\n')
+                        if response_queue.empty():
+                            low_conn.send(b'0\r\n\r\n')
+                    except socket.error:
+                        # ignore connection closed errors since these can be valid in the case of 404 responses etc
+                        # and any unexpected closures will be propagated from the response reader
+                        pass
 
-                    resp = HTTPResponse.from_httplib(
-                        r,
-                        pool=conn,
-                        connection=low_conn,
-                        preload_content=False,
-                        decode_content=False
-                    )
+                    t.join()
+                    resp_result = response_queue.get()
+                    if isinstance(resp_result, BaseException):
+                        raise resp_result
+                    else:
+                        resp = resp_result
                 except:
                     # If we hit any problems here, clean up the connection.
                     # Then, reraise so that we can handle the actual exception.
