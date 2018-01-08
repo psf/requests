@@ -235,3 +235,75 @@ def test_redirect_rfc1808_to_non_ascii_location():
         assert r.url == u'{0}/{1}'.format(url, expected_path.decode('ascii'))
 
         close_server.set()
+
+def test_fragment_not_sent_with_request():
+    """Verify that the fragment portion of a URI isn't sent to the server."""
+    def response_handler(sock):
+        req = consume_socket_content(sock, timeout=0.5)
+        sock.send(
+            b'HTTP/1.1 200 OK\r\n'
+            b'Content-Length: '+bytes(len(req))+b'\r\n'
+            b'\r\n'+req
+        )
+
+    close_server = threading.Event()
+    server = Server(response_handler, wait_to_close_event=close_server)
+
+    with server as (host, port):
+        url = 'http://{0}:{1}/path/to/thing/#view=edit&token=hunter2'.format(host, port)
+        r = requests.get(url)
+        raw_request = r.content
+
+        assert r.status_code == 200
+        headers, body = raw_request.split(b'\r\n\r\n', 1)
+        status_line, headers = headers.split(b'\r\n', 1)
+
+        assert status_line == b'GET /path/to/thing/ HTTP/1.1'
+        for frag in (b'view', b'edit', b'token', b'hunter2'):
+            assert frag not in headers
+            assert frag not in body
+
+        close_server.set()
+
+def test_fragment_update_on_redirect():
+    """Verify we only append previous fragment if one doesn't exist on new
+    location. If a new fragment is encounterd in a Location header, it should
+    be added to all subsequent requests.
+    """
+
+    def response_handler(sock):
+        consume_socket_content(sock, timeout=0.5)
+        sock.send(
+            b'HTTP/1.1 302 FOUND\r\n'
+            b'Content-Length: 0\r\n'
+            b'Location: /get#relevant-section\r\n\r\n'
+        )
+        consume_socket_content(sock, timeout=0.5)
+        sock.send(
+            b'HTTP/1.1 302 FOUND\r\n'
+            b'Content-Length: 0\r\n'
+            b'Location: /final-url/\r\n\r\n'
+        )
+        consume_socket_content(sock, timeout=0.5)
+        sock.send(
+            b'HTTP/1.1 200 OK\r\n\r\n'
+        )
+
+    close_server = threading.Event()
+    server = Server(response_handler, wait_to_close_event=close_server)
+
+    with server as (host, port):
+        url = 'http://{0}:{1}/path/to/thing/#view=edit&token=hunter2'.format(host, port)
+        r = requests.get(url)
+        raw_request = r.content
+
+        assert r.status_code == 200
+        assert len(r.history) == 2
+        assert r.history[0].request.url == url
+
+        # Verify we haven't overwritten the location with our previous fragment.
+        assert r.history[1].request.url == 'http://{0}:{1}/get#relevant-section'.format(host, port)
+        # Verify previous fragment is used and not the original.
+        assert r.url == 'http://{0}:{1}/final-url/#relevant-section'.format(host, port)
+
+        close_server.set()
