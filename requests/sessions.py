@@ -53,6 +53,7 @@ class _RedirectedExceptionData(Exception):
     local exception used to migrate data when there are errors in redirects.
     this should not be used elsewhere.
     """
+    exception = None
     url = None
     history = None
 
@@ -136,7 +137,10 @@ class SessionRedirectMixin(object):
         while url:
             prepared_request = req.copy()
 
+            # is the response a redirected exception? If so, exit early.
+            # this should only match if set within the loop
             if isinstance(resp, _RedirectedExceptionData):
+                # it would be best to raise the wrapped exception with these new attributes. but for now this works.
                 raise ConnectTimeout('The was an error on a redirected url.', response=resp, request=req)
 
             # Update history and keep track of redirects.
@@ -219,6 +223,7 @@ class SessionRedirectMixin(object):
             if yield_requests:
                 yield req
             else:
+                # wrap `.send()` in a try block to catch errors that should persist history
                 try:
                     resp = self.send(
                         req,
@@ -236,7 +241,10 @@ class SessionRedirectMixin(object):
                     # extract redirect url, if any, for the next loop
                     url = self.get_redirect_target(resp)
                     yield resp
+
                 except ConnectionError as exc:
+                    # if we match certain types of exceptions, then we must
+                    # save the data to push into the next loop
                     resp = _RedirectedExceptionData("ConnectionError")
                     resp.exception = exc
                     resp.url = req.url
