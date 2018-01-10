@@ -113,7 +113,7 @@ class HTTPAdapter(BaseAdapter):
                  pool_block=DEFAULT_POOLBLOCK):
         if max_retries == DEFAULT_RETRIES:
             self.max_retries = Retry(0, read=False)
-        else:
+        elif isinstance(max_retries, int):
             self.max_retries = Retry.from_int(max_retries)
         self.config = {}
         self.proxy_manager = {}
