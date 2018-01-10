@@ -115,6 +115,8 @@ class HTTPAdapter(BaseAdapter):
             self.max_retries = Retry(0, read=False)
         elif isinstance(max_retries, int):
             self.max_retries = Retry.from_int(max_retries)
+        else:
+            self.max_retries = max_retries
         self.config = {}
         self.proxy_manager = {}
 
