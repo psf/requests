@@ -137,12 +137,6 @@ class SessionRedirectMixin(object):
         while url:
             prepared_request = req.copy()
 
-            # is the response a redirected exception? If so, exit early.
-            # this should only match if set within the loop
-            if isinstance(resp, _RedirectedExceptionData):
-                # it would be best to raise the wrapped exception with these new attributes. but for now this works.
-                raise ConnectTimeout('The was an error on a redirected url.', response=resp, request=req)
-
             # Update history and keep track of redirects.
             # resp.history must ignore the original request in this loop
             hist.append(resp)
@@ -243,13 +237,13 @@ class SessionRedirectMixin(object):
                     yield resp
 
                 except ConnectionError as exc:
-                    # if we match certain types of exceptions, then we must
-                    # save the data to push into the next loop
+                    # if we match certain types of exceptions, then we 
+                    # migrate the relevant data into a holding item
                     resp = _RedirectedExceptionData("ConnectionError")
                     resp.exception = exc
                     resp.url = req.url
                     resp.history = hist
-                    yield resp
+                    raise exc.__class__(exc, response=resp, request=req)
 
     def rebuild_auth(self, prepared_request, response):
         """When being redirected we may want to strip authentication from the
