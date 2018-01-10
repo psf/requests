@@ -22,7 +22,8 @@ from .hooks import default_hooks, dispatch_hook
 from ._internal_utils import to_native_string
 from .utils import to_key_val_list, default_headers
 from .exceptions import (
-    TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError)
+    TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError,
+    ConnectTimeout, ConnectionError, )
 
 from .structures import CaseInsensitiveDict
 from .adapters import HTTPAdapter
@@ -45,6 +46,15 @@ if sys.platform == 'win32':
         preferred_clock = time.clock
 else:
     preferred_clock = time.time
+
+
+class _RedirectedExceptionData(Exception):
+    """
+    local exception used to migrate data when there are errors in redirects.
+    this should not be used elsewhere.
+    """
+    url = None
+    history = None
 
 
 def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
@@ -126,6 +136,9 @@ class SessionRedirectMixin(object):
         while url:
             prepared_request = req.copy()
 
+            if isinstance(resp, _RedirectedExceptionData):
+                raise ConnectTimeout('The was an error on a redirected url.', response=resp, request=req)
+
             # Update history and keep track of redirects.
             # resp.history must ignore the original request in this loop
             hist.append(resp)
@@ -206,23 +219,29 @@ class SessionRedirectMixin(object):
             if yield_requests:
                 yield req
             else:
+                try:
+                    resp = self.send(
+                        req,
+                        stream=stream,
+                        timeout=timeout,
+                        verify=verify,
+                        cert=cert,
+                        proxies=proxies,
+                        allow_redirects=False,
+                        **adapter_kwargs
+                    )
 
-                resp = self.send(
-                    req,
-                    stream=stream,
-                    timeout=timeout,
-                    verify=verify,
-                    cert=cert,
-                    proxies=proxies,
-                    allow_redirects=False,
-                    **adapter_kwargs
-                )
+                    extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
 
-                extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
-
-                # extract redirect url, if any, for the next loop
-                url = self.get_redirect_target(resp)
-                yield resp
+                    # extract redirect url, if any, for the next loop
+                    url = self.get_redirect_target(resp)
+                    yield resp
+                except ConnectionError as exc:
+                    resp = _RedirectedExceptionData("ConnectionError")
+                    resp.exception = exc
+                    resp.url = req.url
+                    resp.history = hist
+                    yield resp
 
     def rebuild_auth(self, prepared_request, response):
         """When being redirected we may want to strip authentication from the
