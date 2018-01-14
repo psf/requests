@@ -23,6 +23,10 @@
 
 - Streaming responses with ``Response.iter_lines`` or ``Response.iter_content``
   now requires an encoding to be set if one isn't provided by the server.
+  
+- Exception raised during read timeout for ``Response.iter_content`` and 
+  ``Response.iter_lines`` changed from ``ConnectionError`` to more 
+  specific ``ReadTimeout``.
 
 - Raise exception if multiple locations are returned during a redirect.
 
