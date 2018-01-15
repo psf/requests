@@ -706,25 +706,26 @@ def should_bypass_proxies(url, no_proxy):
     netloc = urlparse(url).netloc
 
     if no_proxy:
-        # We need to check whether we match here. We need to see if we match
-        # the end of the netloc, both with and without the port.
         no_proxy = (
             host for host in no_proxy.replace(' ', '').split(',') if host
         )
 
-        ip = netloc.split(':')[0]
-        if is_ipv4_address(ip):
+        # We need to see if we match the end of the netloc, accounting for a
+        # 'username[:password]@' at the beginning and a ':port' at the end.
+
+        host_or_ip = netloc.rsplit('@')[-1].split(':')[0]
+        if is_ipv4_address(host_or_ip):
             for proxy_ip in no_proxy:
                 if is_valid_cidr(proxy_ip):
-                    if address_in_network(ip, proxy_ip):
+                    if address_in_network(host_or_ip, proxy_ip):
                         return True
-                elif ip == proxy_ip:
+                elif host_or_ip == proxy_ip:
                     # If no_proxy ip was defined in plain IP notation instead of cidr notation &
                     # matches the IP of the index
                     return True
         else:
             for host in no_proxy:
-                if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
+                if host_or_ip.endswith(host):
                     # The URL does match something in no_proxy, so we don't want
                     # to apply the proxies on this URL.
                     return True

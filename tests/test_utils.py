@@ -160,10 +160,20 @@ class TestGetEnvironProxies:
     @pytest.mark.parametrize(
         'url', (
             'http://192.168.0.1:5000/',
+            'http://user@192.168.0.1:5000/',
+            'http://user:password@192.168.0.1:5000/',
             'http://192.168.0.1/',
+            'http://user@192.168.0.1/',
+            'http://user:password@192.168.0.1/',
             'http://172.16.1.1/',
+            'http://user@172.16.1.1/',
+            'http://user:password@172.16.1.1/',
             'http://172.16.1.1:5000/',
-            'http://localhost.localdomain:5000/v1.0/',
+            'http://user@172.16.1.1:5000/',
+            'http://user:password@172.16.1.1:5000/',
+            'http://localhost.localdomain:5000/v1.0/'
+            'http://user@localhost.localdomain:5000/v1.0/',
+            'http://user:password@localhost.localdomain:5000/v1.0/',
         ))
     def test_bypass(self, url):
         assert get_environ_proxies(url, no_proxy=None) == {}
@@ -171,8 +181,14 @@ class TestGetEnvironProxies:
     @pytest.mark.parametrize(
         'url', (
             'http://192.168.1.1:5000/',
+            'http://user@192.168.1.1:5000/',
+            'http://user:password@192.168.1.1:5000/',
             'http://192.168.1.1/',
+            'http://user@192.168.1.1/',
+            'http://user:password@192.168.1.1/',
             'http://www.requests.com/',
+            'http://user@www.requests.com/',
+            'http://user:password@www.requests.com/',
         ))
     def test_not_bypass(self, url):
         assert get_environ_proxies(url, no_proxy=None) != {}
@@ -180,8 +196,14 @@ class TestGetEnvironProxies:
     @pytest.mark.parametrize(
         'url', (
             'http://192.168.1.1:5000/',
+            'http://user@192.168.1.1:5000/',
+            'http://user:password@192.168.1.1:5000/',
             'http://192.168.1.1/',
+            'http://user@192.168.1.1/',
+            'http://user:password@192.168.1.1/',
             'http://www.requests.com/',
+            'http://user@www.requests.com/',
+            'http://user:password@www.requests.com/',
         ))
     def test_bypass_no_proxy_keyword(self, url):
         no_proxy = '192.168.1.1,requests.com'
@@ -190,10 +212,20 @@ class TestGetEnvironProxies:
     @pytest.mark.parametrize(
         'url', (
             'http://192.168.0.1:5000/',
+            'http://user@192.168.0.1:5000/',
+            'http://user:password@192.168.0.1:5000/',
             'http://192.168.0.1/',
+            'http://user@192.168.0.1/',
+            'http://user:password@192.168.0.1/',
             'http://172.16.1.1/',
+            'http://user@172.16.1.1/',
+            'http://user:password@172.16.1.1/',
             'http://172.16.1.1:5000/',
+            'http://user@172.16.1.1:5000/',
+            'http://user:password@172.16.1.1:5000/',
             'http://localhost.localdomain:5000/v1.0/',
+            'http://user@localhost.localdomain:5000/v1.0/',
+            'http://user:password@localhost.localdomain:5000/v1.0/',
         ))
     def test_not_bypass_no_proxy_keyword(self, url, monkeypatch):
         # This is testing that the 'no_proxy' argument overrides the
@@ -610,13 +642,29 @@ def test_urldefragauth(url, expected):
 @pytest.mark.parametrize(
     'url, expected', (
             ('http://192.168.0.1:5000/', True),
+            ('http://user@192.168.0.1:5000/', True),
+            ('http://user:password@192.168.0.1:5000/', True),
             ('http://192.168.0.1/', True),
+            ('http://user@192.168.0.1/', True),
+            ('http://user:password@192.168.0.1/', True),
             ('http://172.16.1.1/', True),
+            ('http://user@172.16.1.1/', True),
+            ('http://user:password@172.16.1.1/', True),
             ('http://172.16.1.1:5000/', True),
+            ('http://user@172.16.1.1:5000/', True),
+            ('http://user:password@172.16.1.1:5000/', True),
             ('http://localhost.localdomain:5000/v1.0/', True),
+            ('http://user@localhost.localdomain:5000/v1.0/', True),
+            ('http://user:password@localhost.localdomain:5000/v1.0/', True),
             ('http://172.16.1.12/', False),
+            ('http://user@172.16.1.12/', False),
+            ('http://user:password@172.16.1.12/', False),
             ('http://172.16.1.12:5000/', False),
+            ('http://user@172.16.1.12:5000/', False),
+            ('http://user:password@172.16.1.12:5000/', False),
             ('http://google.com:5000/v1.0/', False),
+            ('http://user@google.com:5000/v1.0/', False),
+            ('http://user:password@google.com:5000/v1.0/', False),
     ))
 def test_should_bypass_proxies(url, expected, monkeypatch):
     """Tests for function should_bypass_proxies to check if proxy
@@ -657,13 +705,29 @@ def test_unicode_is_ascii(value, expected):
 @pytest.mark.parametrize(
     'url, expected', (
             ('http://192.168.0.1:5000/', True),
+            ('http://user@192.168.0.1:5000/', True),
+            ('http://user:password@192.168.0.1:5000/', True),
             ('http://192.168.0.1/', True),
+            ('http://user@192.168.0.1/', True),
+            ('http://user:password@192.168.0.1/', True),
             ('http://172.16.1.1/', True),
+            ('http://user@172.16.1.1/', True),
+            ('http://user:password@172.16.1.1/', True),
             ('http://172.16.1.1:5000/', True),
+            ('http://user@172.16.1.1:5000/', True),
+            ('http://user:password@172.16.1.1:5000/', True),
             ('http://localhost.localdomain:5000/v1.0/', True),
+            ('http://user@localhost.localdomain:5000/v1.0/', True),
+            ('http://user:password@localhost.localdomain:5000/v1.0/', True),
             ('http://172.16.1.12/', False),
+            ('http://user@172.16.1.12/', False),
+            ('http://user:password@172.16.1.12/', False),
             ('http://172.16.1.12:5000/', False),
+            ('http://user@172.16.1.12:5000/', False),
+            ('http://user:password@172.16.1.12:5000/', False),
             ('http://google.com:5000/v1.0/', False),
+            ('http://user@google.com:5000/v1.0/', False),
+            ('http://user:password@google.com:5000/v1.0/', False),
     ))
 def test_should_bypass_proxies_no_proxy(
         url, expected, monkeypatch):
