@@ -182,3 +182,4 @@ Patches and Suggestions
 - Arthur Vigil (`@ahvigil <https://github.com/ahvigil>`_)
 - Nehal J Wani (`@nehaljwani <https://github.com/nehaljwani>`_)
 - Demetrios Bairaktaris (`@DemetriosBairaktaris <https://github.com/demetriosbairaktaris>`_)
+- Darren Dormer (`@ddormer <https://github.com/ddormer>`_)
