@@ -287,7 +287,7 @@ system.
 For the sake of security we recommend upgrading certifi frequently!
 
 .. _HTTP persistent connection: https://en.wikipedia.org/wiki/HTTP_persistent_connection
-.. _connection pooling: http://urllib3.readthedocs.io/en/latest/reference/index.html#module-urllib3.connectionpool
+.. _connection pooling: https://urllib3.readthedocs.io/en/latest/reference/index.html#module-urllib3.connectionpool
 .. _certifi: http://certifi.io/
 .. _Mozilla trust store: https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
 
@@ -436,7 +436,7 @@ You can assign a hook function on a per-request basis by passing a
 ``{hook_name: callback_function}`` dictionary to the ``hooks`` request
 parameter::
 
-    hooks=dict(response=print_url)
+    hooks={'response': print_url}
 
 That ``callback_function`` will receive a chunk of data as its first
 argument.
@@ -452,11 +452,35 @@ If the callback function returns a value, it is assumed that it is to
 replace the data that was passed in. If the function doesn't return
 anything, nothing else is effected.
 
+::
+
+    def record_hook(r, *args, **kwargs):
+        r.hook_called = True
+        return r
+
 Let's print some request method arguments at runtime::
 
-    >>> requests.get('http://httpbin.org', hooks=dict(response=print_url))
+    >>> requests.get('http://httpbin.org', hooks={'response': print_url})
     http://httpbin.org
     <Response [200]>
+
+You can add multiple hooks to a single request.  Let's call two hooks at once::
+
+    >>> r = requests.get('http://httpbin.org', hooks={'response': [print_url, record_hook]})
+    >>> r.hook_called
+    True
+
+You can also add hooks to a ``Session`` instance.  Any hooks you add will then
+be called on every request made to the session.  For example::
+
+   >>> s = requests.Session()
+   >>> s.hooks['response'].append(print_url)
+   >>> s.get('http://httpbin.org')
+    http://httpbin.org
+    <Response [200]>
+
+A ``Session`` can have multiple hooks, which will be called in the order
+they are added.
 
 .. _custom-auth:
 
@@ -633,7 +657,7 @@ When you receive a response, Requests makes a guess at the encoding to
 use for decoding the response when you access the :attr:`Response.text
 <requests.Response.text>` attribute. Requests will first check for an
 encoding in the HTTP header, and if none is present, will use `chardet
-<http://pypi.python.org/pypi/chardet>`_ to attempt to guess the encoding.
+<https://pypi.python.org/pypi/chardet>`_ to attempt to guess the encoding.
 
 The only time Requests will not do this is if no explicit charset
 is present in the HTTP headers **and** the ``Content-Type``
@@ -860,7 +884,7 @@ Link Headers
 Many HTTP APIs feature Link headers. They make APIs more self describing and
 discoverable.
 
-GitHub uses these for `pagination <http://developer.github.com/v3/#pagination>`_
+GitHub uses these for `pagination <https://developer.github.com/v3/#pagination>`_
 in their API, for example::
 
     >>> url = 'https://api.github.com/users/kennethreitz/repos?page=1&per_page=10'

@@ -77,7 +77,7 @@ Requests is ready for today's web.
 - ``.netrc`` Support
 - Chunked Requests
 
-Requests officially supports Python 2.6–2.7 & 3.3–3.7, and runs great on PyPy.
+Requests officially supports Python 2.6–2.7 & 3.4–3.6, and runs great on PyPy.
 
 Installation
 ------------
@@ -105,6 +105,6 @@ How to Contribute
 #. Write a test which shows that the bug was fixed or that the feature works as expected.
 #. Send a pull request and bug the maintainer until it gets merged and published. :) Make sure to add yourself to AUTHORS_.
 
-.. _`the repository`: http://github.com/requests/requests
+.. _`the repository`: https://github.com/requests/requests
 .. _AUTHORS: https://github.com/requests/requests/blob/master/AUTHORS.rst
 .. _Contributor Friendly: https://github.com/requests/requests/issues?direction=desc&labels=Contributor+Friendly&page=1&sort=updated&state=open

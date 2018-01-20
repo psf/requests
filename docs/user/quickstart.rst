@@ -110,7 +110,7 @@ using, and change it, using the ``r.encoding`` property::
 If you change the encoding, Requests will use the new value of ``r.encoding``
 whenever you call ``r.text``. You might want to do this in any situation where
 you can apply special logic to work out what the encoding of the content will
-be. For example, HTTP and XML have the ability to specify their encoding in
+be. For example, HTML and XML have the ability to specify their encoding in
 their body. In situations like this, you should use ``r.content`` to find the
 encoding, and then set ``r.encoding``. This will let you use ``r.text`` with
 the correct encoding.
@@ -188,6 +188,14 @@ have to handle when using ``Response.raw`` directly. When streaming a
 download, the above is the preferred and recommended way to retrieve the
 content. Note that ``chunk_size`` can be freely adjusted to a number that
 may better fit your use cases.
+
+.. note::
+
+   An important note about using ``Response.iter_content`` versus ``Response.raw``.
+   ``Response.iter_content`` will automatically decode the ``gzip`` and ``deflate``
+   transfer-encodings.  ``Response.raw`` is a raw stream of bytes -- it does not
+   transform the response content.  If you really need access to the bytes as they
+   were returned, use ``Response.raw``.
 
 
 Custom Headers
@@ -273,6 +281,7 @@ the ``json`` parameter (added in version 2.4.2) and it will be encoded automatic
 
     >>> r = requests.post(url, json=payload)
 
+Note, the ``json`` parameter is ignored if either ``data`` or ``files`` is passed.
 
 POST a Multipart-Encoded File
 -----------------------------

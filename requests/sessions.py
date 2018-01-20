@@ -8,7 +8,7 @@ This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
 """
 import os
-import platform
+import sys
 import time
 from collections import Mapping
 from datetime import timedelta
@@ -38,8 +38,8 @@ from .status_codes import codes
 from .models import REDIRECT_STATI
 
 # Preferred clock, based on which one is more accurate on a given system.
-if platform.system() == 'Windows':
-    try:  # Python 3.3+
+if sys.platform == 'win32':
+    try:  # Python 3.4+
         preferred_clock = time.perf_counter
     except AttributeError:  # Earlier than Python 3.
         preferred_clock = time.clock
@@ -696,7 +696,7 @@ class Session(SessionRedirectMixin):
         """
         for (prefix, adapter) in self.adapters.items():
 
-            if url.lower().startswith(prefix):
+            if url.lower().startswith(prefix.lower()):
                 return adapter
 
         # Nothing matches :-/

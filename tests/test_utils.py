@@ -2,15 +2,18 @@
 
 import os
 import copy
+import filecmp
 from io import BytesIO
+import zipfile
+from collections import deque
 
 import pytest
 from requests import compat
 from requests.cookies import RequestsCookieJar
 from requests.structures import CaseInsensitiveDict
 from requests.utils import (
-    address_in_network, dotted_netmask,
-    get_auth_from_url, get_encoding_from_headers,
+    address_in_network, dotted_netmask, extract_zipped_paths,
+    get_auth_from_url, _parse_content_type_header, get_encoding_from_headers,
     get_encodings_from_content, get_environ_proxies,
     guess_filename, guess_json_utf, is_ipv4_address,
     is_valid_cidr, iter_slices, parse_dict_header,
@@ -256,6 +259,32 @@ class TestGuessFilename:
         assert isinstance(result, expected_type)
 
 
+class TestExtractZippedPaths:
+
+    @pytest.mark.parametrize(
+        'path', (
+            '/',
+            __file__,
+            pytest.__file__,
+            '/etc/invalid/location',
+        ))
+    def test_unzipped_paths_unchanged(self, path):
+        assert path == extract_zipped_paths(path)
+
+    def test_zipped_paths_extracted(self, tmpdir):
+        zipped_py = tmpdir.join('test.zip')
+        with zipfile.ZipFile(zipped_py.strpath, 'w') as f:
+            f.write(__file__)
+
+        _, name = os.path.splitdrive(__file__)
+        zipped_path = os.path.join(zipped_py.strpath, name.lstrip(r'\/'))
+        extracted_path = extract_zipped_paths(zipped_path)
+
+        assert extracted_path != zipped_path
+        assert os.path.exists(extracted_path)
+        assert filecmp.cmp(extracted_path, __file__)
+
+
 class TestContentEncodingDetection:
 
     def test_none(self):
@@ -444,6 +473,45 @@ def test_parse_dict_header(value, expected):
 @pytest.mark.parametrize(
     'value, expected', (
         (
+            'application/xml',
+            ('application/xml', {})
+        ),
+        (
+            'application/json ; charset=utf-8',
+            ('application/json', {'charset': 'utf-8'})
+        ),
+        (
+            'text/plain',
+            ('text/plain', {})
+        ),
+        (
+            'multipart/form-data; boundary = something ; boundary2=\'something_else\' ; no_equals ',
+            ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
+        ),
+        (
+                'multipart/form-data; boundary = something ; boundary2="something_else" ; no_equals ',
+                ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
+        ),
+        (
+            'multipart/form-data; boundary = something ; \'boundary2=something_else\' ; no_equals ',
+            ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
+        ),
+        (
+            'multipart/form-data; boundary = something ; "boundary2=something_else" ; no_equals ',
+            ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
+        ),
+        (
+            'application/json ; ; ',
+            ('application/json', {})
+        )
+    ))
+def test__parse_content_type_header(value, expected):
+    assert _parse_content_type_header(value) == expected
+
+
+@pytest.mark.parametrize(
+    'value, expected', (
+        (
             CaseInsensitiveDict(),
             None
         ),
@@ -546,6 +614,7 @@ def test_urldefragauth(url, expected):
             ('http://172.16.1.1/', True),
             ('http://172.16.1.1:5000/', True),
             ('http://localhost.localdomain:5000/v1.0/', True),
+            ('http://google.com:6000/', True),
             ('http://172.16.1.12/', False),
             ('http://172.16.1.12:5000/', False),
             ('http://google.com:5000/v1.0/', False),
@@ -554,9 +623,29 @@ def test_should_bypass_proxies(url, expected, monkeypatch):
     """Tests for function should_bypass_proxies to check if proxy
     can be bypassed or not
     """
-    monkeypatch.setenv('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
-    monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
+    monkeypatch.setenv('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1, google.com:6000')
+    monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1, google.com:6000')
     assert should_bypass_proxies(url, no_proxy=None) == expected
+
+
+@pytest.mark.parametrize(
+    'url, expected', (
+            ('http://172.16.1.1/', '172.16.1.1'),
+            ('http://172.16.1.1:5000/', '172.16.1.1'),
+            ('http://user:pass@172.16.1.1', '172.16.1.1'),
+            ('http://user:pass@172.16.1.1:5000', '172.16.1.1'),
+            ('http://hostname/', 'hostname'),
+            ('http://hostname:5000/', 'hostname'),
+            ('http://user:pass@hostname', 'hostname'),
+            ('http://user:pass@hostname:5000', 'hostname'),
+    ))
+def test_should_bypass_proxies_pass_only_hostname(url, expected, mocker):
+    """The proxy_bypass function should be called with a hostname or IP without
+    a port number or auth credentials.
+    """
+    proxy_bypass = mocker.patch('requests.utils.proxy_bypass')
+    should_bypass_proxies(url, no_proxy=None)
+    proxy_bypass.assert_called_once_with(expected)
 
 
 @pytest.mark.parametrize(
@@ -638,6 +727,7 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
             pass
 
     ie_settings = RegHandle()
+    proxyEnableValues = deque([1, "1"])
 
     def OpenKey(key, subkey):
         return ie_settings
@@ -645,7 +735,9 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
     def QueryValueEx(key, value_name):
         if key is ie_settings:
             if value_name == 'ProxyEnable':
-                return [1]
+                # this could be a string (REG_SZ) or a 32-bit number (REG_DWORD)
+                proxyEnableValues.rotate()
+                return [proxyEnableValues[0]]
             elif value_name == 'ProxyOverride':
                 return [override]
 
@@ -656,6 +748,7 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
     monkeypatch.setenv('NO_PROXY', '')
     monkeypatch.setattr(winreg, 'OpenKey', OpenKey)
     monkeypatch.setattr(winreg, 'QueryValueEx', QueryValueEx)
+    assert should_bypass_proxies(url, None) == expected
 
 
 @pytest.mark.parametrize(

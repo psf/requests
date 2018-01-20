@@ -34,7 +34,7 @@ but do not belong in Requests proper. This library is actively maintained
 by members of the Requests core team, and reflects the functionality most
 requested by users within the community.
 
-.. _Requests-Toolbelt: http://toolbelt.readthedocs.io/en/latest/index.html
+.. _Requests-Toolbelt: https://toolbelt.readthedocs.io/en/latest/index.html
 
 
 Requests-Threads
