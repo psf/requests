@@ -15,7 +15,7 @@ Certifi CA Bundle
 validating the trustworthiness of SSL certificates while verifying the
 identity of TLS hosts. It has been extracted from the Requests project.
 
-.. _Certifi: http://certifi.io/en/latest/
+.. _Certifi: https://github.com/certifi/python-certifi
 
 CacheControl
 ------------
