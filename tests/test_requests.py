@@ -294,6 +294,14 @@ class TestRequests:
         for header in purged_headers:
             assert header not in next_resp.request.headers
 
+    def test_fragment_maintained_on_redirect(self, httpbin):
+        fragment = "#view=edit&token=hunter2"
+        r = requests.get(httpbin('redirect-to?url=get')+fragment)
+
+        assert len(r.history) > 0
+        assert r.history[0].request.url == httpbin('redirect-to?url=get')+fragment
+        assert r.url == httpbin('get')+fragment
+
     def test_HTTP_200_OK_GET_WITH_PARAMS(self, httpbin):
         heads = {'User-agent': 'Mozilla/5.0'}
 
