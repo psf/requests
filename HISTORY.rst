@@ -10,6 +10,7 @@ dev
 
 - Warn user about possible slowdown when using cryptography version < 1.3.4
 - Check for invalid host in proxy URL, before forwarding request to adapter.
+- Fragments are now properly maintained across redirects. (RFC7231 7.1.2)
 
 **Bugfixes**
 
