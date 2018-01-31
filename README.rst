@@ -87,8 +87,8 @@ To install Requests, simply use `pipenv <http://pipenv.org/>`_ (or pip, of cours
 .. code-block:: bash
 
     $ pipenv install requests
-    ✨🍰✨
-
+    
+    
 Satisfaction guaranteed.
 
 Documentation
