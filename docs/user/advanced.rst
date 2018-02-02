@@ -274,15 +274,14 @@ If you specify a wrong path or an invalid cert, you'll get a SSLError::
 CA Certificates
 ---------------
 
-By default, Requests bundles a set of root CAs that it trusts, sourced from the
-`Mozilla trust store`_. However, these are only updated once for each Requests
-version. This means that if you pin a Requests version your certificates can
-become extremely out of date.
+Requests uses certificates from the package `certifi`_. This allows for users
+to update their trusted certificates without changing the version of Requests.
 
-From Requests version 2.4.0 onwards, Requests will attempt to use certificates
-from `certifi`_ if it is present on the system. This allows for users to update
-their trusted certificates without having to change the code that runs on their
-system.
+Before version 2.16, Requests bundled a set of root CAs that it trusted,
+sourced from the `Mozilla trust store`_. The certificates were only updated
+once for each Requests version. When ``certifi`` was not installed, this led to
+extremely out-of-date certificate bundles when using significantly older
+versions of Requests.
 
 For the sake of security we recommend upgrading certifi frequently!
 
