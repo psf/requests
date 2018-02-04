@@ -196,18 +196,18 @@ As a result an ``SSL: CERTIFICATE_VERIFY_FAILED`` is thrown.
 You can get around this behaviour by explicity merging the environment settings into your session::
 
     from requests import Request, Session
-    
+
     s = Session()
     req = Request('GET', url)
-    
+
     prepped = s.prepare_request(req)
-    
+
     # Merge environment settings into session
     settings = s.merge_environment_settings(prepped.url, None, None, None, None)
     resp = s.send(prepped, **settings)
-    
+
     print(resp.status_code)
-    
+
 .. _verification:
 
 SSL Cert Verification
