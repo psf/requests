@@ -62,6 +62,3 @@ Betamax
 A VCR imitation designed only for Python-Requests.
 
 .. _betamax: https://github.com/sigmavirus24/betamax
-
-
-
