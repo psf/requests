@@ -29,6 +29,7 @@ from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
+from requests.compat import MutableMapping
 
 from .compat import StringIO, u
 from .utils import override_environ
@@ -726,7 +727,7 @@ class TestRequests:
             requests.post(url, files=['bad file data'])
 
     def test_post_with_custom_mapping(self, httpbin):
-        class CustomMapping(collections.MutableMapping):
+        class CustomMapping(MutableMapping):
             def __init__(self, *args, **kwargs):
                 self.data = dict(*args, **kwargs)
 
