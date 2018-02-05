@@ -950,9 +950,9 @@ passed-through to `urllib3`. We'll make a Transport Adapter that instructs the
 library to use SSLv3::
 
     import ssl
+    from urllib3.poolmanager import PoolManager
 
     from requests.adapters import HTTPAdapter
-    from requests.packages.urllib3.poolmanager import PoolManager
 
 
     class Ssl3HttpAdapter(HTTPAdapter):
