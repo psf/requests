@@ -43,6 +43,7 @@ if is_py2:
     import cookielib
     from Cookie import Morsel
     from StringIO import StringIO
+    from collections import Callable, Mapping, MutableMapping
 
     from urllib3.packages.ordered_dict import OrderedDict
 
@@ -60,6 +61,7 @@ elif is_py3:
     from http.cookies import Morsel
     from io import StringIO
     from collections import OrderedDict
+    from collections.abc import Callable, Mapping, MutableMapping
 
     builtin_str = str
     str = str
