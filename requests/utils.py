@@ -224,7 +224,7 @@ def guess_filename(obj):
 
 
 def extract_zipped_paths(path):
-    """Replace nonexistant paths that look like they refer to a member of a zip
+    """Replace nonexistent paths that look like they refer to a member of a zip
     archive with the location of an extracted copy of the target, or else
     just return the provided path unchanged.
     """
