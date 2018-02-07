@@ -17,7 +17,7 @@ from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urlparse,
-    builtin_str, OrderedDict)
+    builtin_str, OrderedDict, is_py2)
 from requests.cookies import (
     cookiejar_from_dict, morsel_to_cookie)
 from requests.exceptions import (
@@ -1212,7 +1212,10 @@ class TestRequests:
         r.encoding = None
         with pytest.raises(requests.exceptions.HTTPError) as e:
             r.raise_for_status()
-        assert reason in e.value.args[0]
+        if is_py2:
+            assert 'Komponenttia ei lydy' in str(e)
+        else:
+            assert reason in str(e)
 
     def test_response_chunk_size_type(self):
         """Ensure that chunk_size is passed as None or an integer, otherwise
