@@ -61,5 +61,4 @@ Requests currently supports the following versions of Python:
 Google AppEngine is not officially supported although support is available
 with the `Requests-Toolbelt`_.
 
-.. _Requests-Toolbelt: http://toolbelt.readthedocs.io/
-
+.. _Requests-Toolbelt: https://toolbelt.readthedocs.io/

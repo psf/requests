@@ -8,7 +8,6 @@ This module provides utility functions that are used within Requests
 that are also useful for external consumption.
 """
 
-import cgi
 import codecs
 import collections
 import contextlib
@@ -225,7 +224,7 @@ def guess_filename(obj):
 
 
 def extract_zipped_paths(path):
-    """Replace nonexistant paths that look like they refer to a member of a zip
+    """Replace nonexistent paths that look like they refer to a member of a zip
     archive with the location of an extracted copy of the target, or else
     just return the provided path unchanged.
     """
@@ -447,6 +446,31 @@ def get_encodings_from_content(content):
             xml_re.findall(content))
 
 
+def _parse_content_type_header(header):
+    """Returns content type and parameters from given header
+
+    :param header: string
+    :return: tuple containing content type and dictionary of
+         parameters
+    """
+
+    tokens = header.split(';')
+    content_type, params = tokens[0].strip(), tokens[1:]
+    params_dict = {}
+    items_to_strip = "\"' "
+
+    for param in params:
+        param = param.strip()
+        if param:
+            key, value = param, True
+            index_of_equals = param.find("=")
+            if index_of_equals != -1:
+                key = param[:index_of_equals].strip(items_to_strip)
+                value = param[index_of_equals + 1:].strip(items_to_strip)
+            params_dict[key] = value
+    return content_type, params_dict
+
+
 def get_encoding_from_headers(headers):
     """Returns encodings from given HTTP Header Dict.
 
@@ -459,7 +483,7 @@ def get_encoding_from_headers(headers):
     if not content_type:
         return None
 
-    content_type, params = cgi.parse_header(content_type)
+    content_type, params = _parse_content_type_header(content_type)
 
     if 'charset' in params:
         return params['charset'].strip("'\"")
@@ -679,28 +703,31 @@ def should_bypass_proxies(url, no_proxy):
     no_proxy_arg = no_proxy
     if no_proxy is None:
         no_proxy = get_proxy('no_proxy')
-    netloc = urlparse(url).netloc
+    parsed = urlparse(url)
 
     if no_proxy:
         # We need to check whether we match here. We need to see if we match
-        # the end of the netloc, both with and without the port.
+        # the end of the hostname, both with and without the port.
         no_proxy = (
             host for host in no_proxy.replace(' ', '').split(',') if host
         )
 
-        ip = netloc.split(':')[0]
-        if is_ipv4_address(ip):
+        if is_ipv4_address(parsed.hostname):
             for proxy_ip in no_proxy:
                 if is_valid_cidr(proxy_ip):
-                    if address_in_network(ip, proxy_ip):
+                    if address_in_network(parsed.hostname, proxy_ip):
                         return True
-                elif ip == proxy_ip:
+                elif parsed.hostname == proxy_ip:
                     # If no_proxy ip was defined in plain IP notation instead of cidr notation &
                     # matches the IP of the index
                     return True
         else:
+            host_with_port = parsed.hostname
+            if parsed.port:
+                host_with_port += ':{0}'.format(parsed.port)
+
             for host in no_proxy:
-                if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
+                if parsed.hostname.endswith(host) or host_with_port.endswith(host):
                     # The URL does match something in no_proxy, so we don't want
                     # to apply the proxies on this URL.
                     return True
@@ -713,7 +740,7 @@ def should_bypass_proxies(url, no_proxy):
     # legitimate problems.
     with set_environ('no_proxy', no_proxy_arg):
         try:
-            bypass = proxy_bypass(netloc)
+            bypass = proxy_bypass(parsed.hostname)
         except (TypeError, socket.gaierror):
             bypass = False
 

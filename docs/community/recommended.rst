@@ -15,7 +15,7 @@ Certifi CA Bundle
 validating the trustworthiness of SSL certificates while verifying the
 identity of TLS hosts. It has been extracted from the Requests project.
 
-.. _Certifi: http://certifi.io/en/latest/
+.. _Certifi: https://github.com/certifi/python-certifi
 
 CacheControl
 ------------
@@ -34,7 +34,7 @@ but do not belong in Requests proper. This library is actively maintained
 by members of the Requests core team, and reflects the functionality most
 requested by users within the community.
 
-.. _Requests-Toolbelt: http://toolbelt.readthedocs.io/en/latest/index.html
+.. _Requests-Toolbelt: https://toolbelt.readthedocs.io/en/latest/index.html
 
 
 Requests-Threads
@@ -62,6 +62,3 @@ Betamax
 A VCR imitation designed only for Python-Requests.
 
 .. _betamax: https://github.com/sigmavirus24/betamax
-
-
-
