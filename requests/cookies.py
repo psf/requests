@@ -415,9 +415,13 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     def copy(self):
         """Return a copy of this RequestsCookieJar."""
         new_cj = RequestsCookieJar()
-        new_cj.set_policy(self._policy)
+        new_cj.set_policy(self.get_policy())
         new_cj.update(self)
         return new_cj
+
+    def get_policy(self):
+        """Return the CookiePolicy instance used."""
+        return self._policy
 
 
 def _copy_cookie_jar(jar):
