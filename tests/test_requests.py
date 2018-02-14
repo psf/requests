@@ -1171,6 +1171,14 @@ class TestRequests:
         with pytest.raises(requests.cookies.CookieConflictError):
             jar.get(key)
 
+    def test_cookie_policy_copy(self):
+        class MyCookiePolicy(cookielib.DefaultCookiePolicy):
+            pass
+
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set_policy(MyCookiePolicy())
+        assert isinstance(jar.copy()._policy, MyCookiePolicy)
+
     def test_time_elapsed_blank(self, httpbin):
         r = requests.get(httpbin('get'))
         td = r.elapsed
