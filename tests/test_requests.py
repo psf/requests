@@ -1177,7 +1177,7 @@ class TestRequests:
 
         jar = requests.cookies.RequestsCookieJar()
         jar.set_policy(MyCookiePolicy())
-        assert isinstance(jar.copy()._policy, MyCookiePolicy)
+        assert isinstance(jar.copy().get_policy(), MyCookiePolicy)
 
     def test_time_elapsed_blank(self, httpbin):
         r = requests.get(httpbin('get'))
