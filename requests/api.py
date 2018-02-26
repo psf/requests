@@ -150,3 +150,16 @@ def delete(url, **kwargs):
     """
 
     return request('delete', url, **kwargs)
+
+
+def purge(url, **kwargs):
+    r"""Sends a PURGE request.
+
+    :param url: URL for the new :class:`Request` object.
+    :param \*\*kwargs: Optional arguments that ``request`` takes.
+    :return: :class:`Response <Response>` object
+    :rtype: requests.Response
+    """
+
+    kwargs.setdefault('allow_redirects', True)
+    return request('purge', url, **kwargs)
