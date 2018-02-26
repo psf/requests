@@ -112,7 +112,7 @@ from .__version__ import __copyright__, __cake__
 from . import utils
 from . import packages
 from .models import Request, Response, PreparedRequest
-from .api import request, get, head, post, patch, put, delete, options
+from .api import request, get, head, post, patch, put, delete, options, purge
 from .sessions import session, Session
 from .status_codes import codes
 from .exceptions import (
