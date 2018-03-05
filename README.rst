@@ -105,6 +105,6 @@ How to Contribute
 #. Write a test which shows that the bug was fixed or that the feature works as expected.
 #. Send a pull request and bug the maintainer until it gets merged and published. :) Make sure to add yourself to AUTHORS_.
 
-.. _`the repository`: http://github.com/requests/requests
+.. _`the repository`: https://github.com/requests/requests
 .. _AUTHORS: https://github.com/requests/requests/blob/master/AUTHORS.rst
 .. _Contributor Friendly: https://github.com/requests/requests/issues?direction=desc&labels=Contributor+Friendly&page=1&sort=updated&state=open

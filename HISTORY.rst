@@ -10,6 +10,7 @@ dev
 
 - Warn user about possible slowdown when using cryptography version < 1.3.4
 - Check for invalid host in proxy URL, before forwarding request to adapter.
+- Fragments are now properly maintained across redirects. (RFC7231 7.1.2)
 
 **Bugfixes**
 
@@ -17,7 +18,8 @@ dev
 - Fixed issue where loading the default certificate bundle from a zip archive
   would raise an ``IOError``
 - Fixed issue with unexpected ``ImportError`` on windows system which do not support ``winreg`` module
-
+- DNS resolution in proxy bypass no longer includes the username and password in
+  the request. This also fixes the issue of DNS queries failing on macOS.
 
 2.18.4 (2017-08-15)
 +++++++++++++++++++
@@ -129,7 +131,7 @@ dev
 
 - Further restored the ``requests.packages`` namespace for compatibility reasons.
 
-No code modification (noted below) should be neccessary any longer.
+No code modification (noted below) should be necessary any longer.
 
 2.16.1 (2017-05-27)
 +++++++++++++++++++

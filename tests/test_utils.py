@@ -13,7 +13,7 @@ from requests.cookies import RequestsCookieJar
 from requests.structures import CaseInsensitiveDict
 from requests.utils import (
     address_in_network, dotted_netmask, extract_zipped_paths,
-    get_auth_from_url, get_encoding_from_headers,
+    get_auth_from_url, _parse_content_type_header, get_encoding_from_headers,
     get_encodings_from_content, get_environ_proxies,
     guess_filename, guess_json_utf, is_ipv4_address,
     is_valid_cidr, iter_slices, parse_dict_header,
@@ -473,6 +473,45 @@ def test_parse_dict_header(value, expected):
 @pytest.mark.parametrize(
     'value, expected', (
         (
+            'application/xml',
+            ('application/xml', {})
+        ),
+        (
+            'application/json ; charset=utf-8',
+            ('application/json', {'charset': 'utf-8'})
+        ),
+        (
+            'text/plain',
+            ('text/plain', {})
+        ),
+        (
+            'multipart/form-data; boundary = something ; boundary2=\'something_else\' ; no_equals ',
+            ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
+        ),
+        (
+                'multipart/form-data; boundary = something ; boundary2="something_else" ; no_equals ',
+                ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
+        ),
+        (
+            'multipart/form-data; boundary = something ; \'boundary2=something_else\' ; no_equals ',
+            ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
+        ),
+        (
+            'multipart/form-data; boundary = something ; "boundary2=something_else" ; no_equals ',
+            ('multipart/form-data', {'boundary': 'something', 'boundary2': 'something_else', 'no_equals': True})
+        ),
+        (
+            'application/json ; ; ',
+            ('application/json', {})
+        )
+    ))
+def test__parse_content_type_header(value, expected):
+    assert _parse_content_type_header(value) == expected
+
+
+@pytest.mark.parametrize(
+    'value, expected', (
+        (
             CaseInsensitiveDict(),
             None
         ),
@@ -575,6 +614,7 @@ def test_urldefragauth(url, expected):
             ('http://172.16.1.1/', True),
             ('http://172.16.1.1:5000/', True),
             ('http://localhost.localdomain:5000/v1.0/', True),
+            ('http://google.com:6000/', True),
             ('http://172.16.1.12/', False),
             ('http://172.16.1.12:5000/', False),
             ('http://google.com:5000/v1.0/', False),
@@ -583,9 +623,29 @@ def test_should_bypass_proxies(url, expected, monkeypatch):
     """Tests for function should_bypass_proxies to check if proxy
     can be bypassed or not
     """
-    monkeypatch.setenv('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
-    monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
+    monkeypatch.setenv('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1, google.com:6000')
+    monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1, google.com:6000')
     assert should_bypass_proxies(url, no_proxy=None) == expected
+
+
+@pytest.mark.parametrize(
+    'url, expected', (
+            ('http://172.16.1.1/', '172.16.1.1'),
+            ('http://172.16.1.1:5000/', '172.16.1.1'),
+            ('http://user:pass@172.16.1.1', '172.16.1.1'),
+            ('http://user:pass@172.16.1.1:5000', '172.16.1.1'),
+            ('http://hostname/', 'hostname'),
+            ('http://hostname:5000/', 'hostname'),
+            ('http://user:pass@hostname', 'hostname'),
+            ('http://user:pass@hostname:5000', 'hostname'),
+    ))
+def test_should_bypass_proxies_pass_only_hostname(url, expected, mocker):
+    """The proxy_bypass function should be called with a hostname or IP without
+    a port number or auth credentials.
+    """
+    proxy_bypass = mocker.patch('requests.utils.proxy_bypass')
+    should_bypass_proxies(url, no_proxy=None)
+    proxy_bypass.assert_called_once_with(expected)
 
 
 @pytest.mark.parametrize(

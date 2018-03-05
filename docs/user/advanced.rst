@@ -196,18 +196,18 @@ As a result an ``SSL: CERTIFICATE_VERIFY_FAILED`` is thrown.
 You can get around this behaviour by explicity merging the environment settings into your session::
 
     from requests import Request, Session
-    
+
     s = Session()
     req = Request('GET', url)
-    
+
     prepped = s.prepare_request(req)
-    
+
     # Merge environment settings into session
     settings = s.merge_environment_settings(prepped.url, None, None, None, None)
     resp = s.send(prepped, **settings)
-    
+
     print(resp.status_code)
-    
+
 .. _verification:
 
 SSL Cert Verification
@@ -274,20 +274,19 @@ If you specify a wrong path or an invalid cert, you'll get a SSLError::
 CA Certificates
 ---------------
 
-By default, Requests bundles a set of root CAs that it trusts, sourced from the
-`Mozilla trust store`_. However, these are only updated once for each Requests
-version. This means that if you pin a Requests version your certificates can
-become extremely out of date.
+Requests uses certificates from the package `certifi`_. This allows for users
+to update their trusted certificates without changing the version of Requests.
 
-From Requests version 2.4.0 onwards, Requests will attempt to use certificates
-from `certifi`_ if it is present on the system. This allows for users to update
-their trusted certificates without having to change the code that runs on their
-system.
+Before version 2.16, Requests bundled a set of root CAs that it trusted,
+sourced from the `Mozilla trust store`_. The certificates were only updated
+once for each Requests version. When ``certifi`` was not installed, this led to
+extremely out-of-date certificate bundles when using significantly older
+versions of Requests.
 
 For the sake of security we recommend upgrading certifi frequently!
 
 .. _HTTP persistent connection: https://en.wikipedia.org/wiki/HTTP_persistent_connection
-.. _connection pooling: http://urllib3.readthedocs.io/en/latest/reference/index.html#module-urllib3.connectionpool
+.. _connection pooling: https://urllib3.readthedocs.io/en/latest/reference/index.html#module-urllib3.connectionpool
 .. _certifi: http://certifi.io/
 .. _Mozilla trust store: https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
 
@@ -657,7 +656,7 @@ When you receive a response, Requests makes a guess at the encoding to
 use for decoding the response when you access the :attr:`Response.text
 <requests.Response.text>` attribute. Requests will first check for an
 encoding in the HTTP header, and if none is present, will use `chardet
-<http://pypi.python.org/pypi/chardet>`_ to attempt to guess the encoding.
+<https://pypi.python.org/pypi/chardet>`_ to attempt to guess the encoding.
 
 The only time Requests will not do this is if no explicit charset
 is present in the HTTP headers **and** the ``Content-Type``
@@ -884,7 +883,7 @@ Link Headers
 Many HTTP APIs feature Link headers. They make APIs more self describing and
 discoverable.
 
-GitHub uses these for `pagination <http://developer.github.com/v3/#pagination>`_
+GitHub uses these for `pagination <https://developer.github.com/v3/#pagination>`_
 in their API, for example::
 
     >>> url = 'https://api.github.com/users/kennethreitz/repos?page=1&per_page=10'
@@ -951,9 +950,9 @@ passed-through to `urllib3`. We'll make a Transport Adapter that instructs the
 library to use SSLv3::
 
     import ssl
+    from urllib3.poolmanager import PoolManager
 
     from requests.adapters import HTTPAdapter
-    from requests.packages.urllib3.poolmanager import PoolManager
 
 
     class Ssl3HttpAdapter(HTTPAdapter):

@@ -58,7 +58,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Requests'
-copyright = u'MMXVII. A <a href="http://kennethreitz.com/pages/open-projects.html">Kenneth Reitz</a> Project'
+copyright = u'MMXVIII. A <a href="http://kennethreitz.com/pages/open-projects.html">Kenneth Reitz</a> Project'
 author = u'Kenneth Reitz'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -376,4 +376,4 @@ epub_exclude_files = ['search.html']
 # If false, no index is generated.
 #epub_use_index = True
 
-intersphinx_mapping = {'urllib3': ('http://urllib3.readthedocs.io/en/latest', None)}
+intersphinx_mapping = {'urllib3': ('https://urllib3.readthedocs.io/en/latest', None)}
