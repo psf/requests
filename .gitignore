@@ -21,3 +21,5 @@ t.py
 
 t2.py
 dist
+
+/.mypy_cache/
