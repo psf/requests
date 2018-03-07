@@ -2,6 +2,10 @@ body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-ch
   width: 100%!important;
 }
 
+#python27 > a {
+  color: white;
+}
+
 #carbonads {
   display: block;
   overflow: hidden;
