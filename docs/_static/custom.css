@@ -1,3 +1,7 @@
+select {
+  width: 100%;
+}
+
 #carbonads {
   display: block;
   overflow: hidden;
