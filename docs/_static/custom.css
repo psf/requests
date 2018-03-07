@@ -1,4 +1,4 @@
-select {
+body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-child(2) > td > select {
   width: 100%!important;
 }
 
