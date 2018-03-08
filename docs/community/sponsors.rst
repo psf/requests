@@ -25,8 +25,8 @@ By becoming a patron–level sponsor, your organization will receive the followi
 
 Organizations that sign up (if any decide to) will be listed in order — first come first serve!
 
-Major Contibutors
------------------
+Major Sponsors
+--------------
 
 The following organizations have significantly contributed towards Requests' sustainability:
 
@@ -44,3 +44,7 @@ Slack has generously donated a large sum towards the `2018 Requests 3.0 fundrais
 and is helping the world become a better place through connectiveness, and reducing the amount of email we all have
 to deal with on a daily basis.
 
+
+----------------
+
+If your organization is interested in becoming either a sponsor or a patron, please `send us an email <mailto:me@kennethreitz.org>`_.
