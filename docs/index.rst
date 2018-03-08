@@ -64,7 +64,7 @@ PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
 Post, SoundCloud, Kippt, Sony, and Federal U.S.
 Institutions that prefer to be unnamed claim to use Requests internally.
 
-**Armin Ronacher**—
+**Armin Ronacher**, creator of Flask—
     *Requests is the perfect example how beautiful an API can be with the
     right level of abstraction.*
 
@@ -74,7 +74,7 @@ Institutions that prefer to be unnamed claim to use Requests internally.
 
 **Daniel Greenfeld**—
     *Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to
-    Kenneth Reitz's request library. Today has been AWESOME.*
+    Kenneth Reitz's Requests library. Today has been AWESOME.*
 
 **Kenny Meyers**—
     *Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful,
@@ -82,6 +82,10 @@ Institutions that prefer to be unnamed claim to use Requests internally.
 
 Requests is one of the most downloaded Python packages of all time, pulling in
 over 13,000,000 downloads every month. All the cool kids are doing it!
+
+If your organization uses Requests internally, consider `supporting the development of 3.0 <https://www.kennethreitz.org/requests3>`_. Your
+generosity will be greatly appreciated, and help drive the project forward
+into the future.
 
 Beloved Features
 ----------------
