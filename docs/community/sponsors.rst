@@ -1,4 +1,4 @@
-Corporate Sponsors
+Community Sponsors
 ==================
 
 **tl;dr**: Requests development is currently `funded by the Python community <https://www.kennethreitz.org/requests3>`_, and
