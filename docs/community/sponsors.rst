@@ -4,6 +4,10 @@ Community Sponsors
 **tl;dr**: Requests development is currently `funded by the Python community <https://www.kennethreitz.org/requests3>`_, and
 some wonderful organizations that utilize the software in their businesses.
 
+
+-------------------
+
+
 Requests is one of the most heavily–utilized Python packages in the world.
 
 It is used by major corporations worldwide for all tasks, both small and large — from writing one–off scripts to orchestrating millions of dollars of critical infrastructure.
