@@ -137,6 +137,7 @@ Requests ecosystem and community.
 .. toctree::
    :maxdepth: 2
 
+   community/sponsors
    community/recommended
    community/faq
    community/out-there
