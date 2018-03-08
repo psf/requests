@@ -37,8 +37,7 @@ The following organizations have significantly contributed towards Requests' sus
 `Slack — Bring your team together <https://slack.com>`_
 ///////////////////////////////////////////////////////
 
-Slack has generously donated a large sum towards the `2018 Requests 3.0 fundraiser <https://www.kennethreitz.org/requests3>`_,
-and is helping the world become a better place through connectiveness, and reducing the amount of email we all have
+Slack was extremely kind to be the first organization to generously donate a large sum towards the `2018 Requests 3.0 fundraiser <https://www.kennethreitz.org/requests3>`_, surpassing our entire fundraising goal immediately! They are helping the world become a better place through connectiveness, and reducing the amount of email we all have
 to deal with on a daily basis.
 
 `Heroku <https://heroku.com/python>`_
