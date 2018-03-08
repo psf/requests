@@ -31,7 +31,7 @@ Major Contibutors
 Heroku
 //////
 
-Heroku has allowed Kenneth Reitz to work on open source projects for work,
+Heroku has allowed Kenneth Reitz to work on some open source projects during work hours,
 including Requests (but mostly Pipenv), from time–to–time, so they are listed
 here as an honorable mention.
 
