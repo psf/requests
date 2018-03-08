@@ -470,7 +470,8 @@ class Session(SessionRedirectMixin):
             data before giving up, as a float, or a :ref:`(connect timeout,
             read timeout) <timeouts>` tuple.
         :type timeout: float or tuple
-        :param allow_redirects: (optional) Set to True by default.
+        :param allow_redirects: (optional) Set to False by default for HEAD,
+            True by default for all others.
         :type allow_redirects: bool
         :param proxies: (optional) Dictionary mapping protocol or protocol and
             hostname to the URL of the proxy.
