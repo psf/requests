@@ -30,13 +30,6 @@ Major Sponsors
 
 The following organizations have significantly contributed towards Requests' sustainability:
 
-`Heroku <https://heroku.com/python>`_
-/////////////////////////////////////
-
-Heroku has allowed Kenneth Reitz to work on some open source projects during work hours,
-including Requests (but mostly Pipenv), from time–to–time, so they are listed
-here as an honorable mention.
-
 `Slack — Bring your team together <https://slack.com>`_
 ///////////////////////////////////////////////////////
 
@@ -44,6 +37,12 @@ Slack has generously donated a large sum towards the `2018 Requests 3.0 fundrais
 and is helping the world become a better place through connectiveness, and reducing the amount of email we all have
 to deal with on a daily basis.
 
+`Heroku <https://heroku.com/python>`_
+/////////////////////////////////////
+
+Heroku has allowed Kenneth Reitz to work on some open source projects during work hours,
+including Requests (but mostly Pipenv), from time–to–time, so they are listed
+here as an honorable mention.
 
 ----------------
 
