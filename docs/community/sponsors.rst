@@ -17,7 +17,7 @@ Patron Sponsors
 
 We don't have any patrons yet — this slot is reserved for ethical organizations willing to invest $10,000 or more in Requests per year.
 
-By becoming a patron, your organization will receive the following benefits:
+By becoming a patron–level sponsor, your organization will receive the following benefits:
 
 - Priminent placement on the Requests documentation sidebar (~11,000 uniques / day).
 - Honorable mention here, with logo.
