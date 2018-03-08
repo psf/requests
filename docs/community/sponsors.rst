@@ -38,7 +38,7 @@ here as an honorable mention.
 Slack — Bring your team together
 ////////////////////////////////
 
-Slack has generously donated a large sum towards the `2018 Requests 3.0 fundraiser <https://www.kennethreitz.org/requests3>>`_,
+Slack has generously donated a large sum towards the `2018 Requests 3.0 fundraiser <https://www.kennethreitz.org/requests3>`_,
 and is helping the world become a better place through connectiveness, and reducing the amount of email we all have
 to deal with on a daily basis.
 
