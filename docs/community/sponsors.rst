@@ -28,6 +28,8 @@ Organizations that sign up (if any decide to) will be listed in order — first
 Major Contibutors
 -----------------
 
+The following organizations have significantly contributed towards Requests' sustainability:
+
 `Heroku <https://heroku.com/python>`_
 /////////////////////////////////////
 
