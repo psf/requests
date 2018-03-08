@@ -51,3 +51,11 @@ here as an honorable mention.
 ----------------
 
 If your organization is interested in becoming either a sponsor or a patron, please `send us an email <mailto:me@kennethreitz.org>`_.
+
+
+Individual Sponsors
+-------------------
+
+Countless individuals, too many to list here, have individually contributed towards the sustainability of the Requests
+project over the years. Some, financially, others, with code. Contributions (from humans) of all kinds are greatly
+appreciated.
