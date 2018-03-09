@@ -23,7 +23,7 @@ We don't have any patrons yet — this slot is reserved for ethical organization
 
 By becoming a patron–level sponsor, your organization will receive the following benefits:
 
-- Priminent placement on the Requests documentation sidebar (~11,000 uniques / day).
+- Prominent placement on the Requests documentation sidebar (~11,000 uniques / day).
 - Honorable mention here, with logo.
 - Peace of mind knowing that the infrastructure you rely on is being actively maintained.
 
