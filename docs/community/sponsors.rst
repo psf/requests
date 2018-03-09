@@ -50,10 +50,10 @@ Twilio was the second organization to generously donate a large sum towards the 
 providing easy–to–use APIs, and empowering developers world-over to help humans communicate in meaningful and effictive ways.
 
 
-`Microsoft Cloud Developer Advocates <https://developer.microsoft.com/en-us/advocates/>`_
-/////////////////////////////////////////////////////////////////////////////////////////
+`Azure Cloud Developer Advocates <https://developer.microsoft.com/en-us/advocates/>`_
+/////////////////////////////////////////////////////////////////////////////////////
 
-Microsoft was the third organization to generously donate a large sum towards the `2018 Requests 3.0 fundraiser <https://www.kennethreitz.org/requests3>`_, matching the donation of Twilio! Awesome group of generous folks :)
+Azure was the third organization to generously donate a large sum towards the `2018 Requests 3.0 fundraiser <https://www.kennethreitz.org/requests3>`_, matching the donation of Twilio! Awesome group of generous folks :)
 
 
 
