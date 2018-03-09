@@ -50,10 +50,11 @@ Twilio was the second organization to generously donate a large sum towards the 
 providing easy–to–use APIs, and empowering developers world-over to help humans communicate in meaningful and effictive ways.
 
 
-`Linode — SSD Cloud Hosting & Linux Servers <https://www.linode.com>`_
-//////////////////////////////////////////////////////////////////////
+`Microsoft Cloud Developer Advocates <https://developer.microsoft.com/en-us/advocates/>`_
+/////////////////////////////////////////////////////////////////////////////////////////
 
-Whether you’re just getting started or deploying a complex system, launching a Linode cloud server has never been easier. They offer the fastest hardware and network in the industry with scalable environments, and their 24x7 customer support team is always standing by to help with any questions.
+Microsoft was the third organization to generously donate a large sum towards the `2018 Requests 3.0 fundraiser <https://www.kennethreitz.org/requests3>`_, matching the donation of Twilio! Awesome group of generous folks :)
+
 
 
 `Heroku <https://heroku.com/python>`_
