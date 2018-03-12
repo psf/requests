@@ -1,11 +1,12 @@
 from typing import (
     Callable, Optional, Union, Any, Iterable, List, Mapping, MutableMapping,
-    Tuple, IO, Text
+    Tuple, IO, Text, Type
 )
 
 from . import auth
 from .models import Response, PreparedRequest
 from .cookies import RequestsCookieJar
+from .sessions import Session
 
 _ParamsMappingValueType = Union[str, bytes, int, float, Iterable[Union[str, bytes, int, float]]]
 Params = Optional[

@@ -21,6 +21,7 @@ from http import cookiejar as cookielib
 from http.cookies import Morsel
 from io import StringIO
 
+
 builtin_str = str
 str = str
 bytes = bytes
