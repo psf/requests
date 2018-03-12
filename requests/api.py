@@ -13,7 +13,8 @@ This module implements the Requests API.
 from . import sessions
 from . import types
 
-def request(method: types.Method, url: types.URL, session: types.Session = None, **kwargs) -> types.Response:
+
+def request(method: types.Method, url: types.URL, *, session: types.Session = None, **kwargs) -> types.Response:
     """Constructs and sends a :class:`Request <Request>`.
 
     :param method: method for the new :class:`Request` object.
@@ -62,7 +63,7 @@ def request(method: types.Method, url: types.URL, session: types.Session = None,
         return session.request(method=method, url=url, **kwargs)
 
 
-def get(url: types.URL, params: types.Params = None, **kwargs) -> types.Response:
+def get(url: types.URL, *, params: types.Params = None, **kwargs) -> types.Response:
     r"""Sends a GET request.
 
     :param url: URL for the new :class:`Request` object.
@@ -102,7 +103,7 @@ def head(url: types.URL, **kwargs) -> types.Response:
     return request('head', url, **kwargs)
 
 
-def post(url: types.URL, data: types.Data = None, json: types.JSON = None, **kwargs) -> types.Response:
+def post(url: types.URL, *, data: types.Data = None, json: types.JSON = None, **kwargs) -> types.Response:
     r"""Sends a POST request.
 
     :param url: URL for the new :class:`Request` object.
@@ -116,7 +117,7 @@ def post(url: types.URL, data: types.Data = None, json: types.JSON = None, **kwa
     return request('post', url, data=data, json=json, **kwargs)
 
 
-def put(url: types.URL, data: types.Data = None, **kwargs) -> types.Response:
+def put(url: types.URL, *, data: types.Data = None, **kwargs) -> types.Response:
     r"""Sends a PUT request.
 
     :param url: URL for the new :class:`Request` object.
@@ -130,7 +131,7 @@ def put(url: types.URL, data: types.Data = None, **kwargs) -> types.Response:
     return request('put', url, data=data, **kwargs)
 
 
-def patch(url: types.URL, data: types.Data = None, **kwargs) -> types.Response:
+def patch(url: types.URL, *, data: types.Data = None, **kwargs) -> types.Response:
     r"""Sends a PATCH request.
 
     :param url: URL for the new :class:`Request` object.
