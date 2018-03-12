@@ -40,7 +40,7 @@ from .utils import (
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
     iter_slices, guess_json_utf, super_len, check_header_validity,
     is_stream)
-from .compat import (
+from .basics import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes,
     is_py2, chardet, builtin_str, basestring)
 import json as complexjson

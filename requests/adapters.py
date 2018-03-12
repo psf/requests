@@ -27,7 +27,7 @@ from urllib3.exceptions import SSLError as _SSLError
 from urllib3.exceptions import ResponseError
 
 from .models import Response
-from .compat import urlparse, basestring
+from .basics import urlparse, basestring
 from .utils import (DEFAULT_CA_BUNDLE_PATH, get_encoding_from_headers,
                     prepend_scheme_if_needed, get_auth_from_url, urldefragauth,
                     select_proxy)

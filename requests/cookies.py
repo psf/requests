@@ -15,7 +15,7 @@ import calendar
 import collections
 
 from ._internal_utils import to_native_string
-from .compat import cookielib, urlparse, urlunparse, Morsel
+from .basics import cookielib, urlparse, urlunparse, Morsel
 
 try:
     import threading

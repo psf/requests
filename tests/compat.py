@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from requests.compat import is_py3
+from requests.basics import is_py3
 
 
 try:

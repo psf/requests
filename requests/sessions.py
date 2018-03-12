@@ -14,7 +14,7 @@ from collections import Mapping, OrderedDict
 from datetime import timedelta
 
 from .auth import _basic_auth_str
-from .compat import cookielib, urljoin, urlparse, is_py3, str
+from .basics import cookielib, urljoin, urlparse, is_py3, str
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar,
     merge_cookies, _copy_cookie_jar)

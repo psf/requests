@@ -16,7 +16,7 @@ import pytest
 import pytest_httpbin
 from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
-from requests.compat import (
+from requests.basics import (
     Morsel, cookielib, getproxies, str, urlparse,
     builtin_str)
 from requests.cookies import (

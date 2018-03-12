@@ -5,7 +5,7 @@ import copy
 from io import BytesIO
 
 import pytest
-from requests import compat
+from requests import basics
 from requests.cookies import RequestsCookieJar
 from requests.structures import CaseInsensitiveDict
 from requests.utils import (
@@ -246,8 +246,8 @@ class TestGuessFilename:
 
     @pytest.mark.parametrize(
         'value, expected_type', (
-            (b'value', compat.bytes),
-            (b'value'.decode('utf-8'), compat.str)
+            (b'value', basics.bytes),
+            (b'value'.decode('utf-8'), basics.str)
         ))
     def test_guess_filename_valid(self, value, expected_type):
         obj = type('Fake', (object,), {'name': value})()
@@ -314,8 +314,8 @@ class TestGuessJSONUTF:
 
 
 USER = PASSWORD = "%!*'();:@&=+$,/?#[] "
-ENCODED_USER = compat.quote(USER, '')
-ENCODED_PASSWORD = compat.quote(PASSWORD, '')
+ENCODED_USER = basics.quote(USER, '')
+ENCODED_PASSWORD = basics.quote(PASSWORD, '')
 
 
 @pytest.mark.parametrize(
@@ -561,7 +561,7 @@ def test_should_bypass_proxies(url, expected, monkeypatch):
 
 @pytest.mark.parametrize(
     'cookiejar', (
-        compat.cookielib.CookieJar(),
+        basics.cookielib.CookieJar(),
         RequestsCookieJar()
     ))
 def test_add_dict_to_cookiejar(cookiejar):
@@ -628,7 +628,7 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
     """
     if override is None:
         override = '192.168.*;127.0.0.1;localhost.localdomain;172.16.1.1'
-    if compat.is_py3:
+    if basics.is_py3:
         import winreg
     else:
         import _winreg as winreg
