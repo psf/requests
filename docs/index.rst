@@ -81,7 +81,7 @@ Institutions that prefer to be unnamed claim to use Requests internally.
     simple, Pythonic.*
 
 Requests is one of the most downloaded Python packages of all time, pulling in
-over 13,000,000 downloads every month. All the cool kids are doing it!
+over 400,000 downloads **every day**.
 
 If your organization uses Requests internally, consider `supporting the development of 3.0 <https://www.kennethreitz.org/requests3>`_. Your
 generosity will be greatly appreciated, and help drive the project forward
