@@ -17,10 +17,7 @@ class PyTest(TestCommand):
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
-        try:
-            self.pytest_args = ['-n', 'auto']
-        except (ImportError, NotImplementedError):
-            self.pytest_args = ['-n', '1', '--boxed']
+        self.pytest_args = ['-n', 'auto']
 
     def finalize_options(self):
         TestCommand.finalize_options(self)
