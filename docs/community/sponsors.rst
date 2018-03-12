@@ -25,6 +25,8 @@ Patron Sponsors
 
 Whether you’re just getting started or deploying a complex system, launching a Linode cloud server has never been easier. They offer the fastest hardware and network in the industry with scalable environments, and their 24x7 customer support team is always standing by to help with any questions.
 
+✨🍰✨
+//////
 
 ----------------------------------
 
