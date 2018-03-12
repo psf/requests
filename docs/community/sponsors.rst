@@ -19,7 +19,16 @@ After losing our primary open source maintainer (who was sponsored by a company 
 Patron Sponsors
 ----------------
 
-We don't have any patrons yet — this slot is reserved for ethical organizations willing to invest $10,000 or more in Requests per year.
+
+`Linode — SSD Cloud Hosting & Linux Servers <https://www.linode.com>`_
+//////////////////////////////////////////////////////////////////////
+
+Whether you’re just getting started or deploying a complex system, launching a Linode cloud server has never been easier. They offer the fastest hardware and network in the industry with scalable environments, and their 24x7 customer support team is always standing by to help with any questions.
+
+
+----------------------------------
+
+This slot is reserved for ethical organizations willing to invest $10,000 or more in Requests per year.
 
 By becoming a patron–level sponsor, your organization will receive the following benefits:
 
