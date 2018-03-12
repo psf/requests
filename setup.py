@@ -2,7 +2,6 @@
 # Learn more: https://github.com/kennethreitz/setup.py
 
 import os
-import re
 import sys
 
 from codecs import open
@@ -11,6 +10,7 @@ from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
 here = os.path.abspath(os.path.dirname(__file__))
+
 
 class PyTest(TestCommand):
     user_options = [('pytest-args=', 'a', "Arguments to pass into py.test")]
@@ -29,6 +29,26 @@ class PyTest(TestCommand):
 
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
+
+
+class MyPyTest(TestCommand):
+    user_options = [('pytest-args=', 'a', "Arguments to pass into py.test")]
+
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = ['-n', 'auto', '--mypy', 'tests']
+
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+
+        errno = pytest.main(self.pytest_args)
+        sys.exit(errno)
+
 
 # 'setup.py publish' shortcut.
 if sys.argv[-1] == 'publish':
@@ -86,7 +106,10 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
     ),
-    cmdclass={'test': PyTest},
+    cmdclass={
+        'test': PyTest,
+        'mypy': MyPyTest
+    },
     tests_require=test_requirements,
     extras_require={
         'security': ['pyOpenSSL>=0.14', 'cryptography>=1.3.4', 'idna>=2.0.0'],
