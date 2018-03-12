@@ -27,3 +27,4 @@ pytest-mypy = "*"
 [packages]
 
 "e1839a8" = {path = ".", editable = true, extras=["socks"]}
+mypy = "==0.540"
