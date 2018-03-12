@@ -22,9 +22,9 @@ from http.cookies import Morsel
 from io import StringIO
 
 
-builtin_str = str
-str = str
-bytes = bytes
+builtin_str = str   # type: ignore
+str = str   # type: ignore
+bytes = bytes   # type: ignore
 basestring = (str, bytes)
 numeric_types = (int, float)
 integer_types = (int,)
