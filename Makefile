@@ -5,6 +5,8 @@ init:
 test:
 	# This runs all of the tests, on both Python 2 and Python 3.
 	python setup.py test
+mypy:
+	python setup.py test -a--mypy
 ci:
 	pipenv run py.test -n 8 --boxed --junitxml=report.xml
 
