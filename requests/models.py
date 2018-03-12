@@ -52,11 +52,11 @@ from .status_codes import codes
 #: The set of HTTP status codes that indicate an automatically
 #: processable redirect.
 REDIRECT_STATI = (
-    codes[301],
-    codes[302],
-    codes[303],
-    codes[303],
-    codes[308],
+    codes['moved'],               # 301
+    codes['found'],               # 302
+    codes['other'],               # 303
+    codes['temporary_redirect'],  # 307
+    codes['permanent_redirect'],  # 308
 )
 
 DEFAULT_REDIRECT_LIMIT = 30
