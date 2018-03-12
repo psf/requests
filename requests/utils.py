@@ -27,7 +27,7 @@ from ._internal_utils import to_native_string
 from .basics import parse_http_list as _parse_list_header
 from .basics import (
     quote, urlparse, bytes, str, unquote, getproxies,
-    proxy_bypass, urlunparse, basestring, integer_types, is_py2, is_py3,
+    proxy_bypass, urlunparse, basestring, integer_types,
     proxy_bypass_environment, getproxies_environment)
 from .cookies import cookiejar_from_dict
 from .structures import CaseInsensitiveDict
@@ -43,10 +43,7 @@ if platform.system() == 'Windows':
     # provide a proxy_bypass version on Windows without DNS lookups
 
     def proxy_bypass_registry(host):
-        if is_py3:
-            import winreg
-        else:
-            import _winreg as winreg
+        import winreg
         try:
             internetSettings = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                 r'Software\Microsoft\Windows\CurrentVersion\Internet Settings')
@@ -502,9 +499,7 @@ def unquote_unreserved(uri):
     # In Python 3, `chr` returns a unicode string, while in Python 2 it returns
     # a bytestring. Here we deal with that by optionally converting.
     def convert(is_bytes, c):
-        if is_py2 and not is_bytes:
-            return c.decode('ascii')
-        elif is_py3 and is_bytes:
+        if is_bytes:
             return c.encode('ascii')
         else:
             return c

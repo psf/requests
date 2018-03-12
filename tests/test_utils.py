@@ -18,7 +18,8 @@ from requests.utils import (
     requote_uri, select_proxy, should_bypass_proxies, super_len,
     to_key_val_list, to_native_string,
     unquote_header_value, unquote_unreserved,
-    urldefragauth, add_dict_to_cookiejar, set_environ)
+    urldefragauth, add_dict_to_cookiejar, set_environ
+)
 from requests._internal_utils import unicode_is_ascii
 
 from .compat import StringIO, cStringIO

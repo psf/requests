@@ -14,7 +14,7 @@ from collections import Mapping, OrderedDict
 from datetime import timedelta
 
 from .auth import _basic_auth_str
-from .basics import cookielib, urljoin, urlparse, is_py3, str
+from .basics import cookielib, urljoin, urlparse, str
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar,
     merge_cookies, _copy_cookie_jar)
@@ -118,8 +118,7 @@ class SessionRedirectMixin(object):
             # It is more likely to get UTF8 header rather than latin1.
             # This causes incorrect handling of UTF8 encoded location headers.
             # To solve this, we re-encode the location in latin1.
-            if is_py3:
-                location = location.encode('latin1')
+            location = location.encode('latin1')
             return to_native_string(location, 'utf8')
         return None
 

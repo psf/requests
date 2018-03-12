@@ -33,16 +33,19 @@ from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
 from .exceptions import (
     HTTPError, MissingScheme, InvalidURL, ChunkedEncodingError,
     ContentDecodingError, ConnectionError, StreamConsumedError,
-    InvalidHeader, InvalidBodyError, ReadTimeout)
+    InvalidHeader, InvalidBodyError, ReadTimeout
+)
 from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
     iter_slices, guess_json_utf, super_len, check_header_validity,
-    is_stream)
+    is_stream
+)
 from .basics import (
     cookielib, urlunparse, urlsplit, urlencode, str, bytes,
-    is_py2, chardet, builtin_str, basestring)
+    chardet, builtin_str, basestring
+)
 import json as complexjson
 from .status_codes import codes
 
@@ -359,7 +362,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if isinstance(url, bytes):
             url = url.decode('utf8')
         else:
-            url = unicode(url) if is_py2 else str(url)
+            url = str(url)
 
         # Ignore any leading and trailing whitespace characters.
         url = url.strip()
@@ -409,18 +412,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Bare domains aren't valid URLs.
         if not path:
             path = '/'
-
-        if is_py2:
-            if isinstance(scheme, str):
-                scheme = scheme.encode('utf-8')
-            if isinstance(netloc, str):
-                netloc = netloc.encode('utf-8')
-            if isinstance(path, str):
-                path = path.encode('utf-8')
-            if isinstance(query, str):
-                query = query.encode('utf-8')
-            if isinstance(fragment, str):
-                fragment = fragment.encode('utf-8')
 
         if isinstance(params, (str, bytes)):
             params = to_native_string(params)
