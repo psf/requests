@@ -15,8 +15,14 @@ import sys
 # Specifics
 # ---------
 
-from urllib.parse import urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote, quote_plus, unquote_plus, urldefrag
-from urllib.request import parse_http_list, getproxies, proxy_bypass, proxy_bypass_environment, getproxies_environment
+from urllib.parse import (
+    urlparse, urlunparse, urljoin, urlsplit, urlencode, quote, unquote,
+    quote_plus, unquote_plus, urldefrag
+)
+from urllib.request import (
+    parse_http_list, getproxies,
+    proxy_bypass, proxy_bypass_environment, getproxies_environment
+)
 from http import cookiejar as cookielib
 from http.cookies import Morsel
 from io import StringIO

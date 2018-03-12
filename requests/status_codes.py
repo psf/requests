@@ -85,7 +85,7 @@ _codes = {
 codes = LookupDict(name='status_codes')
 
 for code, titles in _codes.items():
-    for title in titles:
+    for title in titles:   # type: ignore
         setattr(codes, title, code)
         if not title.startswith(('\\', '/')):
             setattr(codes, title.upper(), code)

@@ -99,5 +99,8 @@ class LookupDict(dict):
 
         return self.__dict__.get(key, None)
 
+    def __iter__(self):
+        return super(LookupDict, self).__dir__()
+
     def get(self, key, default=None):
         return self.__dict__.get(key, default)

@@ -20,7 +20,7 @@ from .basics import cookielib, urlparse, urlunparse, Morsel
 try:
     import threading
 except ImportError:
-    import dummy_threading as threading
+    import dummy_threading as threading   # type: ignore
 
 
 class MockRequest(object):
