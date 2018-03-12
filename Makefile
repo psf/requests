@@ -4,7 +4,7 @@ init:
 	pipenv install --dev --skip-lock
 test:
 	# This runs all of the tests, on both Python 2 and Python 3.
-	detox
+	python setup.py test
 ci:
 	pipenv run py.test -n 8 --boxed --junitxml=report.xml
 
