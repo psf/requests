@@ -22,7 +22,7 @@ from requests.utils import (
 )
 from requests._internal_utils import unicode_is_ascii
 
-from .compat import StringIO, cStringIO
+from .compat import StringIO
 
 
 class TestSuperLen:
@@ -30,8 +30,7 @@ class TestSuperLen:
     @pytest.mark.parametrize(
         'stream, value', (
             (StringIO.StringIO, 'Test'),
-            (BytesIO, b'Test'),
-            pytest.mark.skipif('cStringIO is None')((cStringIO, 'Test')),
+            (BytesIO, b'Test')
         ))
     def test_io_streams(self, stream, value):
         """Ensures that we properly deal with different kinds of IO streams."""
