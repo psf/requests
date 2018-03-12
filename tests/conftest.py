@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from requests.compat import urljoin
+from urllib.parse import urljoin
 
 
 def prepare_url(value):
