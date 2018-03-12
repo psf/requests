@@ -36,7 +36,7 @@ By becoming a patron–level sponsor, your organization will receive the followi
 - Honorable mention here, with logo.
 - Peace of mind knowing that the infrastructure you rely on is being actively maintained.
 
-Organizations that sign up (if any decide to) will be listed in order — first come first serve!
+Organizations that sign up will be listed in order — first come first serve!
 
 Major Sponsors
 --------------
