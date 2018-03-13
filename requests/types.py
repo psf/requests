@@ -1,6 +1,6 @@
 from typing import (
     Callable, Optional, Union, Any, Iterable, List, Mapping, MutableMapping,
-    Tuple, IO, Text, Type
+    Tuple, IO, Text, Type, Dict
 )
 
 from . import auth
@@ -47,3 +47,4 @@ Stream = Optional[bool]
 Verify = Union[None, bool, Text]
 Cert = Union[Text, Tuple[Text, Text]]
 JSON = Optional[MutableMapping]
+Help = Dict

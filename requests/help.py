@@ -10,7 +10,7 @@ import idna
 import urllib3
 import chardet
 
-from typing import Dict
+from . import types
 
 from . import __version__ as requests_version
 
@@ -25,7 +25,7 @@ else:
     import cryptography
 
 
-def _implementation() -> Dict:
+def _implementation() -> types.Help:
     """Return a dict with the Python implementation and version.
 
     Provide both the name and the version of the Python implementation
@@ -58,7 +58,7 @@ def _implementation() -> Dict:
     return {'name': implementation, 'version': implementation_version}
 
 
-def info() -> Dict:
+def info() -> types.Help:
     """Generate information for a bug report."""
     try:
         platform_info = {
