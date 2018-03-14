@@ -46,7 +46,7 @@ import warnings
 from .exceptions import RequestsDependencyWarning
 
 
-def check_compatibility(urllib3_version, chardet_version):
+def check_compatibility(urllib3_version: str, chardet_version: str) -> None:
     urllib3_version = urllib3_version.split('.')
     assert urllib3_version != ['dev']  # Verify urllib3 isn't installed from git.
 
@@ -71,7 +71,7 @@ def check_compatibility(urllib3_version, chardet_version):
     assert patch >= 2
 
 
-def _check_cryptography(cryptography_version):
+def _check_cryptography(cryptography_version: str) -> None:
     # cryptography < 1.3.4
     try:
         cryptography_version = list(map(int, cryptography_version.split('.')))
