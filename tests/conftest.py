@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import pytest
 from urllib.parse import urljoin
 

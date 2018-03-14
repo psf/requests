@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 requests.api
 ~~~~~~~~~~~~
@@ -10,11 +9,13 @@ This module implements the Requests API.
 :license: Apache2, see LICENSE for more details.
 """
 
-from . import sessions
-from . import types
+from .import sessions
+from .import types
 
 
-def request(method: types.Method, url: types.URL, *, session: types.Session = None, **kwargs) -> types.Response:
+def request(
+    method: types.Method, url: types.URL, *, session: types.Session = None, **kwargs
+) -> types.Response:
     """Constructs and sends a :class:`Request <Request>`.
 
     :param method: method for the new :class:`Request` object.
@@ -52,13 +53,10 @@ def request(method: types.Method, url: types.URL, *, session: types.Session = No
       >>> req = requests.request('GET', 'http://httpbin.org/get')
       <Response [200]>
     """
-
     # By using the 'with' statement we are sure the session is closed, thus we
     # avoid leaving sockets open which can trigger a ResourceWarning in some
     # cases, and look like a memory leak in others.
-
     session = sessions.Session() if session is None else session
-
     with session:
         return session.request(method=method, url=url, **kwargs)
 
@@ -72,7 +70,6 @@ def get(url: types.URL, *, params: types.Params = None, **kwargs) -> types.Respo
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
     kwargs.setdefault('allow_redirects', True)
     return request('get', url, params=params, **kwargs)
 
@@ -85,7 +82,6 @@ def options(url: types.URL, **kwargs) -> types.Response:
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
     kwargs.setdefault('allow_redirects', True)
     return request('options', url, **kwargs)
 
@@ -98,12 +94,13 @@ def head(url: types.URL, **kwargs) -> types.Response:
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
     kwargs.setdefault('allow_redirects', False)
     return request('head', url, **kwargs)
 
 
-def post(url: types.URL, *, data: types.Data = None, json: types.JSON = None, **kwargs) -> types.Response:
+def post(
+    url: types.URL, *, data: types.Data = None, json: types.JSON = None, **kwargs
+) -> types.Response:
     r"""Sends a POST request.
 
     :param url: URL for the new :class:`Request` object.
@@ -113,7 +110,6 @@ def post(url: types.URL, *, data: types.Data = None, json: types.JSON = None, **
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
     return request('post', url, data=data, json=json, **kwargs)
 
 
@@ -127,7 +123,6 @@ def put(url: types.URL, *, data: types.Data = None, **kwargs) -> types.Response:
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
     return request('put', url, data=data, **kwargs)
 
 
@@ -141,7 +136,6 @@ def patch(url: types.URL, *, data: types.Data = None, **kwargs) -> types.Respons
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
     return request('patch', url, data=data, **kwargs)
 
 
@@ -153,5 +147,4 @@ def delete(url: types.URL, **kwargs) -> types.Response:
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
     return request('delete', url, **kwargs)

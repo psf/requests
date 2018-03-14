@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import os
 import copy
 from io import BytesIO
@@ -9,16 +8,31 @@ from requests import basics
 from requests.cookies import RequestsCookieJar
 from requests.structures import CaseInsensitiveDict
 from requests.utils import (
-    address_in_network, dotted_netmask,
-    get_auth_from_url, get_encoding_from_headers,
-    get_encodings_from_content, get_environ_proxies,
-    guess_filename, guess_json_utf, is_ipv4_address,
-    is_valid_cidr, iter_slices, parse_dict_header,
-    parse_header_links, prepend_scheme_if_needed,
-    requote_uri, select_proxy, should_bypass_proxies, super_len,
-    to_key_val_list, to_native_string,
-    unquote_header_value, unquote_unreserved,
-    urldefragauth, add_dict_to_cookiejar, set_environ
+    address_in_network,
+    dotted_netmask,
+    get_auth_from_url,
+    get_encoding_from_headers,
+    get_encodings_from_content,
+    get_environ_proxies,
+    guess_filename,
+    guess_json_utf,
+    is_ipv4_address,
+    is_valid_cidr,
+    iter_slices,
+    parse_dict_header,
+    parse_header_links,
+    prepend_scheme_if_needed,
+    requote_uri,
+    select_proxy,
+    should_bypass_proxies,
+    super_len,
+    to_key_val_list,
+    to_native_string,
+    unquote_header_value,
+    unquote_unreserved,
+    urldefragauth,
+    add_dict_to_cookiejar,
+    set_environ,
 )
 from requests._internal_utils import unicode_is_ascii
 
@@ -28,10 +42,8 @@ from .compat import StringIO
 class TestSuperLen:
 
     @pytest.mark.parametrize(
-        'stream, value', (
-            (StringIO.StringIO, 'Test'),
-            (BytesIO, b'Test')
-        ))
+        'stream, value', ((StringIO.StringIO, 'Test'), (BytesIO, b'Test'))
+    )
     def test_io_streams(self, stream, value):
         """Ensures that we properly deal with different kinds of IO streams."""
         assert super_len(stream()) == 0
@@ -46,7 +58,9 @@ class TestSuperLen:
     @pytest.mark.parametrize('error', [IOError, OSError])
     def test_super_len_handles_files_raising_weird_errors_in_tell(self, error):
         """If tell() raises errors, assume the cursor is at position zero."""
+
         class BoomFile(object):
+
             def __len__(self):
                 return 5
 
@@ -58,7 +72,9 @@ class TestSuperLen:
     @pytest.mark.parametrize('error', [IOError, OSError])
     def test_super_len_tell_ioerror(self, error):
         """Ensure that if tell gives an IOError super_len doesn't fail"""
+
         class NoLenBoomFile(object):
+
             def tell(self):
                 raise error()
 
@@ -70,11 +86,7 @@ class TestSuperLen:
     def test_string(self):
         assert super_len('Test') == 4
 
-    @pytest.mark.parametrize(
-        'mode, warnings_num', (
-            ('r', 1),
-            ('rb', 0),
-        ))
+    @pytest.mark.parametrize('mode, warnings_num', (('r', 1), ('rb', 0)))
     def test_file(self, tmpdir, mode, warnings_num, recwarn):
         file_obj = tmpdir.join('test.txt')
         file_obj.write('Test')
@@ -83,12 +95,14 @@ class TestSuperLen:
         assert len(recwarn) == warnings_num
 
     def test_super_len_with__len__(self):
-        foo = [1,2,3,4]
+        foo = [1, 2, 3, 4]
         len_foo = super_len(foo)
         assert len_foo == 4
 
     def test_super_len_with_no__len__(self):
+
         class LenFile(object):
+
             def __init__(self):
                 self.len = 5
 
@@ -114,12 +128,14 @@ class TestSuperLen:
 class TestToKeyValList:
 
     @pytest.mark.parametrize(
-        'value, expected', (
+        'value, expected',
+        (
             ([('key', 'val')], [('key', 'val')]),
-            ((('key', 'val'), ), [('key', 'val')]),
+            ((('key', 'val'),), [('key', 'val')]),
             ({'key': 'val'}, [('key', 'val')]),
-            (None, None)
-        ))
+            (None, None),
+        ),
+    )
     def test_valid(self, value, expected):
         assert to_key_val_list(value) == expected
 
@@ -131,13 +147,15 @@ class TestToKeyValList:
 class TestUnquoteHeaderValue:
 
     @pytest.mark.parametrize(
-        'value, expected', (
+        'value, expected',
+        (
             (None, None),
             ('Test', 'Test'),
             ('"Test"', 'Test'),
             ('"Test\\\\"', 'Test\\'),
             ('"\\\\Comp\\Res"', '\\Comp\\Res'),
-        ))
+        ),
+    )
     def test_valid(self, value, expected):
         assert unquote_header_value(value) == expected
 
@@ -152,46 +170,48 @@ class TestGetEnvironProxies:
 
     @pytest.fixture(autouse=True, params=['no_proxy', 'NO_PROXY'])
     def no_proxy(self, request, monkeypatch):
-        monkeypatch.setenv(request.param, '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
+        monkeypatch.setenv(
+            request.param, '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1'
+        )
 
     @pytest.mark.parametrize(
-        'url', (
+        'url',
+        (
             'http://192.168.0.1:5000/',
             'http://192.168.0.1/',
             'http://172.16.1.1/',
             'http://172.16.1.1:5000/',
             'http://localhost.localdomain:5000/v1.0/',
-        ))
+        ),
+    )
     def test_bypass(self, url):
         assert get_environ_proxies(url, no_proxy=None) == {}
 
     @pytest.mark.parametrize(
-        'url', (
-            'http://192.168.1.1:5000/',
-            'http://192.168.1.1/',
-            'http://www.requests.com/',
-        ))
+        'url',
+        ('http://192.168.1.1:5000/', 'http://192.168.1.1/', 'http://www.requests.com/'),
+    )
     def test_not_bypass(self, url):
         assert get_environ_proxies(url, no_proxy=None) != {}
 
     @pytest.mark.parametrize(
-        'url', (
-            'http://192.168.1.1:5000/',
-            'http://192.168.1.1/',
-            'http://www.requests.com/',
-        ))
+        'url',
+        ('http://192.168.1.1:5000/', 'http://192.168.1.1/', 'http://www.requests.com/'),
+    )
     def test_bypass_no_proxy_keyword(self, url):
         no_proxy = '192.168.1.1,requests.com'
         assert get_environ_proxies(url, no_proxy=no_proxy) == {}
 
     @pytest.mark.parametrize(
-        'url', (
+        'url',
+        (
             'http://192.168.0.1:5000/',
             'http://192.168.0.1/',
             'http://172.16.1.1/',
             'http://172.16.1.1:5000/',
             'http://localhost.localdomain:5000/v1.0/',
-        ))
+        ),
+    )
     def test_not_bypass_no_proxy_keyword(self, url, monkeypatch):
         # This is testing that the 'no_proxy' argument overrides the
         # environment variable 'no_proxy'
@@ -216,13 +236,15 @@ class TestIsValidCIDR:
         assert is_valid_cidr('192.168.1.0/24')
 
     @pytest.mark.parametrize(
-        'value', (
+        'value',
+        (
             '8.8.8.8',
             '192.168.1.0/a',
             '192.168.1.0/128',
             '192.168.1.0/-1',
             '192.168.1.999/24',
-        ))
+        ),
+    )
     def test_invalid(self, value):
         assert not is_valid_cidr(value)
 
@@ -238,17 +260,14 @@ class TestAddressInNetwork:
 
 class TestGuessFilename:
 
-    @pytest.mark.parametrize(
-        'value', (1, type('Fake', (object,), {'name': 1})()),
-    )
+    @pytest.mark.parametrize('value', (1, type('Fake', (object,), {'name': 1})()))
     def test_guess_filename_invalid(self, value):
         assert guess_filename(value) is None
 
     @pytest.mark.parametrize(
-        'value, expected_type', (
-            (b'value', basics.bytes),
-            (b'value'.decode('utf-8'), basics.str)
-        ))
+        'value, expected_type',
+        ((b'value', basics.bytes), (b'value'.decode('utf-8'), basics.str)),
+    )
     def test_guess_filename_valid(self, value, expected_type):
         obj = type('Fake', (object,), {'name': value})()
         result = guess_filename(obj)
@@ -263,16 +282,13 @@ class TestContentEncodingDetection:
         assert not len(encodings)
 
     @pytest.mark.parametrize(
-        'content', (
-            # HTML5 meta charset attribute
-            '<meta charset="UTF-8">',
-            # HTML4 pragma directive
-            '<meta http-equiv="Content-type" content="text/html;charset=UTF-8">',
-            # XHTML 1.x served with text/html MIME type
-            '<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />',
-            # XHTML 1.x served as XML
-            '<?xml version="1.0" encoding="UTF-8"?>',
-        ))
+        'content',
+        ('<meta charset="UTF-8">', '<meta http-equiv="Content-type" content="text/html;charset=UTF-8">', '<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />', '<?xml version="1.0" encoding="UTF-8"?>'),
+        # HTML5 meta charset attribute
+        # HTML4 pragma directive
+        # XHTML 1.x served with text/html MIME type
+        # XHTML 1.x served as XML
+    )
     def test_pragmas(self, content):
         encodings = get_encodings_from_content(content)
         assert len(encodings) == 1
@@ -283,17 +299,26 @@ class TestContentEncodingDetection:
         <?xml version="1.0" encoding="XML"?>
         <meta charset="HTML5">
         <meta http-equiv="Content-type" content="text/html;charset=HTML4" />
-        '''.strip()
+        '''.strip(
+        )
         assert get_encodings_from_content(content) == ['HTML5', 'HTML4', 'XML']
 
 
 class TestGuessJSONUTF:
 
     @pytest.mark.parametrize(
-        'encoding', (
-            'utf-32', 'utf-8-sig', 'utf-16', 'utf-8', 'utf-16-be', 'utf-16-le',
-            'utf-32-be', 'utf-32-le'
-        ))
+        'encoding',
+        (
+            'utf-32',
+            'utf-8-sig',
+            'utf-16',
+            'utf-8',
+            'utf-16-be',
+            'utf-16-le',
+            'utf-32-be',
+            'utf-32-le',
+        ),
+    )
     def test_encoded(self, encoding):
         data = '{}'.encode(encoding)
         assert guess_json_utf(data) == encoding
@@ -302,12 +327,14 @@ class TestGuessJSONUTF:
         assert guess_json_utf(b'\x00\x00\x00\x00') is None
 
     @pytest.mark.parametrize(
-        ('encoding', 'expected'), (
+        ('encoding', 'expected'),
+        (
             ('utf-16-be', 'utf-16'),
             ('utf-16-le', 'utf-16'),
             ('utf-32-be', 'utf-32'),
-            ('utf-32-le', 'utf-32')
-        ))
+            ('utf-32-le', 'utf-32'),
+        ),
+    )
     def test_guess_by_bom(self, encoding, expected):
         data = u'\ufeff{}'.encode(encoding)
         assert guess_json_utf(data) == expected
@@ -319,156 +346,119 @@ ENCODED_PASSWORD = basics.quote(PASSWORD, '')
 
 
 @pytest.mark.parametrize(
-    'url, auth', (
+    'url, auth',
+    (
         (
-            'http://' + ENCODED_USER + ':' + ENCODED_PASSWORD + '@' +
+            'http://' +
+            ENCODED_USER +
+            ':' +
+            ENCODED_PASSWORD +
+            '@' +
             'request.com/url.html#test',
-            (USER, PASSWORD)
+            (USER, PASSWORD),
         ),
-        (
-            'http://user:pass@complex.url.com/path?query=yes',
-            ('user', 'pass')
-        ),
+        ('http://user:pass@complex.url.com/path?query=yes', ('user', 'pass')),
         (
             'http://user:pass%20pass@complex.url.com/path?query=yes',
-            ('user', 'pass pass')
+            ('user', 'pass pass'),
         ),
-        (
-            'http://user:pass pass@complex.url.com/path?query=yes',
-            ('user', 'pass pass')
-        ),
+        ('http://user:pass pass@complex.url.com/path?query=yes', ('user', 'pass pass')),
         (
             'http://user%25user:pass@complex.url.com/path?query=yes',
-            ('user%user', 'pass')
+            ('user%user', 'pass'),
         ),
         (
             'http://user:pass%23pass@complex.url.com/path?query=yes',
-            ('user', 'pass#pass')
+            ('user', 'pass#pass'),
         ),
-        (
-            'http://complex.url.com/path?query=yes',
-            ('', '')
-        ),
-    ))
+        ('http://complex.url.com/path?query=yes', ('', '')),
+    ),
+)
 def test_get_auth_from_url(url, auth):
     assert get_auth_from_url(url) == auth
 
 
 @pytest.mark.parametrize(
-    'uri, expected', (
-        (
-            # Ensure requoting doesn't break expectations
-            'http://example.com/fiz?buz=%25ppicture',
-            'http://example.com/fiz?buz=%25ppicture',
-        ),
-        (
-            # Ensure we handle unquoted percent signs in redirects
-            'http://example.com/fiz?buz=%ppicture',
-            'http://example.com/fiz?buz=%25ppicture',
-        ),
-    ))
+    'uri, expected',
+    (('http://example.com/fiz?buz=%25ppicture', 'http://example.com/fiz?buz=%25ppicture'), ('http://example.com/fiz?buz=%ppicture', 'http://example.com/fiz?buz=%25ppicture')),
+    # Ensure requoting doesn't break expectations
+    # Ensure we handle unquoted percent signs in redirects
+)
 def test_requote_uri_with_unquoted_percents(uri, expected):
     """See: https://github.com/requests/requests/issues/2356"""
     assert requote_uri(uri) == expected
 
 
 @pytest.mark.parametrize(
-    'uri, expected', (
-        (
-            # Illegal bytes
-            'http://example.com/?a=%--',
-            'http://example.com/?a=%--',
-        ),
-        (
-            # Reserved characters
-            'http://example.com/?a=%300',
-            'http://example.com/?a=00',
-        )
-    ))
+    'uri, expected',
+    (('http://example.com/?a=%--', 'http://example.com/?a=%--'), ('http://example.com/?a=%300', 'http://example.com/?a=00')),
+    # Illegal bytes
+    # Reserved characters
+)
 def test_unquote_unreserved(uri, expected):
     assert unquote_unreserved(uri) == expected
 
 
 @pytest.mark.parametrize(
-    'mask, expected', (
-        (8, '255.0.0.0'),
-        (24, '255.255.255.0'),
-        (25, '255.255.255.128'),
-    ))
+    'mask, expected', ((8, '255.0.0.0'), (24, '255.255.255.0'), (25, '255.255.255.128'))
+)
 def test_dotted_netmask(mask, expected):
     assert dotted_netmask(mask) == expected
 
 
-http_proxies = {'http': 'http://http.proxy',
-                'http://some.host': 'http://some.host.proxy'}
-all_proxies = {'all': 'socks5://http.proxy',
-               'all://some.host': 'socks5://some.host.proxy'}
-mixed_proxies = {'http': 'http://http.proxy',
-                 'http://some.host': 'http://some.host.proxy',
-                 'all': 'socks5://http.proxy'}
+http_proxies = {
+    'http': 'http://http.proxy', 'http://some.host': 'http://some.host.proxy'
+}
+all_proxies = {
+    'all': 'socks5://http.proxy', 'all://some.host': 'socks5://some.host.proxy'
+}
+mixed_proxies = {
+    'http': 'http://http.proxy',
+    'http://some.host': 'http://some.host.proxy',
+    'all': 'socks5://http.proxy',
+}
+
+
 @pytest.mark.parametrize(
-    'url, expected, proxies', (
-        ('hTTp://u:p@Some.Host/path', 'http://some.host.proxy', http_proxies),
-        ('hTTp://u:p@Other.Host/path', 'http://http.proxy', http_proxies),
-        ('hTTp:///path', 'http://http.proxy', http_proxies),
-        ('hTTps://Other.Host', None, http_proxies),
-        ('file:///etc/motd', None, http_proxies),
-
-        ('hTTp://u:p@Some.Host/path', 'socks5://some.host.proxy', all_proxies),
-        ('hTTp://u:p@Other.Host/path', 'socks5://http.proxy', all_proxies),
-        ('hTTp:///path', 'socks5://http.proxy', all_proxies),
-        ('hTTps://Other.Host', 'socks5://http.proxy', all_proxies),
-
-        ('http://u:p@other.host/path', 'http://http.proxy', mixed_proxies),
-        ('http://u:p@some.host/path', 'http://some.host.proxy', mixed_proxies),
-        ('https://u:p@other.host/path', 'socks5://http.proxy', mixed_proxies),
-        ('https://u:p@some.host/path', 'socks5://http.proxy', mixed_proxies),
-        ('https://', 'socks5://http.proxy', mixed_proxies),
-        # XXX: unsure whether this is reasonable behavior
-        ('file:///etc/motd', 'socks5://http.proxy', all_proxies),
-    ))
+    'url, expected, proxies',
+    (('hTTp://u:p@Some.Host/path', 'http://some.host.proxy', http_proxies), ('hTTp://u:p@Other.Host/path', 'http://http.proxy', http_proxies), ('hTTp:///path', 'http://http.proxy', http_proxies), ('hTTps://Other.Host', None, http_proxies), ('file:///etc/motd', None, http_proxies), ('hTTp://u:p@Some.Host/path', 'socks5://some.host.proxy', all_proxies), ('hTTp://u:p@Other.Host/path', 'socks5://http.proxy', all_proxies), ('hTTp:///path', 'socks5://http.proxy', all_proxies), ('hTTps://Other.Host', 'socks5://http.proxy', all_proxies), ('http://u:p@other.host/path', 'http://http.proxy', mixed_proxies), ('http://u:p@some.host/path', 'http://some.host.proxy', mixed_proxies), ('https://u:p@other.host/path', 'socks5://http.proxy', mixed_proxies), ('https://u:p@some.host/path', 'socks5://http.proxy', mixed_proxies), ('https://', 'socks5://http.proxy', mixed_proxies), ('file:///etc/motd', 'socks5://http.proxy', all_proxies)),
+    # XXX: unsure whether this is reasonable behavior
+)
 def test_select_proxies(url, expected, proxies):
     """Make sure we can select per-host proxies correctly."""
     assert select_proxy(url, proxies) == expected
 
 
 @pytest.mark.parametrize(
-    'value, expected', (
+    'value, expected',
+    (
         ('foo="is a fish", bar="as well"', {'foo': 'is a fish', 'bar': 'as well'}),
-        ('key_without_value', {'key_without_value': None})
-    ))
+        ('key_without_value', {'key_without_value': None}),
+    ),
+)
 def test_parse_dict_header(value, expected):
     assert parse_dict_header(value) == expected
 
 
 @pytest.mark.parametrize(
-    'value, expected', (
-        (
-            CaseInsensitiveDict(),
-            None
-        ),
+    'value, expected',
+    (
+        (CaseInsensitiveDict(), None),
         (
             CaseInsensitiveDict({'content-type': 'application/json; charset=utf-8'}),
-            'utf-8'
+            'utf-8',
         ),
-        (
-            CaseInsensitiveDict({'content-type': 'text/plain'}),
-            'ISO-8859-1'
-        ),
-    ))
+        (CaseInsensitiveDict({'content-type': 'text/plain'}), 'ISO-8859-1'),
+    ),
+)
 def test_get_encoding_from_headers(value, expected):
     assert get_encoding_from_headers(value) == expected
 
 
 @pytest.mark.parametrize(
-    'value, length', (
-        ('', 0),
-        ('T', 1),
-        ('Test', 4),
-        ('Cont', 0),
-        ('Other', -5),
-        ('Content', None),
-    ))
+    'value, length',
+    (('', 0), ('T', 1), ('Test', 4), ('Cont', 0), ('Other', -5), ('Content', None)),
+)
 def test_iter_slices(value, length):
     if length is None or (length <= 0 and len(value) > 0):
         # Reads all content at once
@@ -478,127 +468,119 @@ def test_iter_slices(value, length):
 
 
 @pytest.mark.parametrize(
-    'value, expected', (
+    'value, expected',
+    (
         (
             '<http:/.../front.jpeg>; rel=front; type="image/jpeg"',
-            [{'url': 'http:/.../front.jpeg', 'rel': 'front', 'type': 'image/jpeg'}]
+            [{'url': 'http:/.../front.jpeg', 'rel': 'front', 'type': 'image/jpeg'}],
         ),
-        (
-            '<http:/.../front.jpeg>',
-            [{'url': 'http:/.../front.jpeg'}]
-        ),
-        (
-            '<http:/.../front.jpeg>;',
-            [{'url': 'http:/.../front.jpeg'}]
-        ),
+        ('<http:/.../front.jpeg>', [{'url': 'http:/.../front.jpeg'}]),
+        ('<http:/.../front.jpeg>;', [{'url': 'http:/.../front.jpeg'}]),
         (
             '<http:/.../front.jpeg>; type="image/jpeg",<http://.../back.jpeg>;',
             [
                 {'url': 'http:/.../front.jpeg', 'type': 'image/jpeg'},
-                {'url': 'http://.../back.jpeg'}
-            ]
+                {'url': 'http://.../back.jpeg'},
+            ],
         ),
-        (
-            '',
-            []
-        ),
-    ))
+        ('', []),
+    ),
+)
 def test_parse_header_links(value, expected):
     assert parse_header_links(value) == expected
 
 
 @pytest.mark.parametrize(
-    'value, expected', (
+    'value, expected',
+    (
         ('example.com/path', 'http://example.com/path'),
         ('//example.com/path', 'http://example.com/path'),
-    ))
+    ),
+)
 def test_prepend_scheme_if_needed(value, expected):
     assert prepend_scheme_if_needed(value, 'http') == expected
 
 
-@pytest.mark.parametrize(
-    'value, expected', (
-        ('T', 'T'),
-        (b'T', 'T'),
-        (u'T', 'T'),
-    ))
+@pytest.mark.parametrize('value, expected', (('T', 'T'), (b'T', 'T'), (u'T', 'T')))
 def test_to_native_string(value, expected):
     assert to_native_string(value) == expected
 
 
 @pytest.mark.parametrize(
-    'url, expected', (
+    'url, expected',
+    (
         ('http://u:p@example.com/path?a=1#test', 'http://example.com/path?a=1'),
         ('http://example.com/path', 'http://example.com/path'),
         ('//u:p@example.com/path', '//example.com/path'),
         ('//example.com/path', '//example.com/path'),
         ('example.com/path', '//example.com/path'),
         ('scheme:u:p@example.com/path', 'scheme://example.com/path'),
-    ))
+    ),
+)
 def test_urldefragauth(url, expected):
     assert urldefragauth(url) == expected
 
 
 @pytest.mark.parametrize(
-    'url, expected', (
-            ('http://192.168.0.1:5000/', True),
-            ('http://192.168.0.1/', True),
-            ('http://172.16.1.1/', True),
-            ('http://172.16.1.1:5000/', True),
-            ('http://localhost.localdomain:5000/v1.0/', True),
-            ('http://172.16.1.12/', False),
-            ('http://172.16.1.12:5000/', False),
-            ('http://google.com:5000/v1.0/', False),
-    ))
+    'url, expected',
+    (
+        ('http://192.168.0.1:5000/', True),
+        ('http://192.168.0.1/', True),
+        ('http://172.16.1.1/', True),
+        ('http://172.16.1.1:5000/', True),
+        ('http://localhost.localdomain:5000/v1.0/', True),
+        ('http://172.16.1.12/', False),
+        ('http://172.16.1.12:5000/', False),
+        ('http://google.com:5000/v1.0/', False),
+    ),
+)
 def test_should_bypass_proxies(url, expected, monkeypatch):
     """Tests for function should_bypass_proxies to check if proxy
     can be bypassed or not
     """
-    monkeypatch.setenv('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
-    monkeypatch.setenv('NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1')
+    monkeypatch.setenv(
+        'no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1'
+    )
+    monkeypatch.setenv(
+        'NO_PROXY', '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1'
+    )
     assert should_bypass_proxies(url, no_proxy=None) == expected
 
 
 @pytest.mark.parametrize(
-    'cookiejar', (
-        basics.cookielib.CookieJar(),
-        RequestsCookieJar()
-    ))
+    'cookiejar', (basics.cookielib.CookieJar(), RequestsCookieJar())
+)
 def test_add_dict_to_cookiejar(cookiejar):
     """Ensure add_dict_to_cookiejar works for
     non-RequestsCookieJar CookieJars
     """
-    cookiedict = {'test': 'cookies',
-                  'good': 'cookies'}
+    cookiedict = {'test': 'cookies', 'good': 'cookies'}
     cj = add_dict_to_cookiejar(cookiejar, cookiedict)
     cookies = {cookie.name: cookie.value for cookie in cj}
     assert cookiedict == cookies
 
 
 @pytest.mark.parametrize(
-    'value, expected', (
-                (u'test', True),
-                (u'æíöû', False),
-                (u'ジェーピーニック', False),
-    )
+    'value, expected', ((u'test', True), (u'æíöû', False), (u'ジェーピーニック', False))
 )
 def test_unicode_is_ascii(value, expected):
     assert unicode_is_ascii(value) is expected
 
 
 @pytest.mark.parametrize(
-    'url, expected', (
-            ('http://192.168.0.1:5000/', True),
-            ('http://192.168.0.1/', True),
-            ('http://172.16.1.1/', True),
-            ('http://172.16.1.1:5000/', True),
-            ('http://localhost.localdomain:5000/v1.0/', True),
-            ('http://172.16.1.12/', False),
-            ('http://172.16.1.12:5000/', False),
-            ('http://google.com:5000/v1.0/', False),
-    ))
-def test_should_bypass_proxies_no_proxy(
-        url, expected, monkeypatch):
+    'url, expected',
+    (
+        ('http://192.168.0.1:5000/', True),
+        ('http://192.168.0.1/', True),
+        ('http://172.16.1.1/', True),
+        ('http://172.16.1.1:5000/', True),
+        ('http://localhost.localdomain:5000/v1.0/', True),
+        ('http://172.16.1.12/', False),
+        ('http://172.16.1.12:5000/', False),
+        ('http://google.com:5000/v1.0/', False),
+    ),
+)
+def test_should_bypass_proxies_no_proxy(url, expected, monkeypatch):
     """Tests for function should_bypass_proxies to check if proxy
     can be bypassed or not using the 'no_proxy' argument
     """
@@ -609,20 +591,21 @@ def test_should_bypass_proxies_no_proxy(
 
 @pytest.mark.skipif(os.name != 'nt', reason='Test only on Windows')
 @pytest.mark.parametrize(
-    'url, expected, override', (
-            ('http://192.168.0.1:5000/', True, None),
-            ('http://192.168.0.1/', True, None),
-            ('http://172.16.1.1/', True, None),
-            ('http://172.16.1.1:5000/', True, None),
-            ('http://localhost.localdomain:5000/v1.0/', True, None),
-            ('http://172.16.1.22/', False, None),
-            ('http://172.16.1.22:5000/', False, None),
-            ('http://google.com:5000/v1.0/', False, None),
-            ('http://mylocalhostname:5000/v1.0/', True, '<local>'),
-            ('http://192.168.0.1/', False, ''),
-    ))
-def test_should_bypass_proxies_win_registry(url, expected, override,
-                                            monkeypatch):
+    'url, expected, override',
+    (
+        ('http://192.168.0.1:5000/', True, None),
+        ('http://192.168.0.1/', True, None),
+        ('http://172.16.1.1/', True, None),
+        ('http://172.16.1.1:5000/', True, None),
+        ('http://localhost.localdomain:5000/v1.0/', True, None),
+        ('http://172.16.1.22/', False, None),
+        ('http://172.16.1.22:5000/', False, None),
+        ('http://google.com:5000/v1.0/', False, None),
+        ('http://mylocalhostname:5000/v1.0/', True, '<local>'),
+        ('http://192.168.0.1/', False, ''),
+    ),
+)
+def test_should_bypass_proxies_win_registry(url, expected, override, monkeypatch):
     """Tests for function should_bypass_proxies to check if proxy
     can be bypassed or not with Windows registry settings
     """
@@ -634,6 +617,7 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
         import _winreg as winreg
 
     class RegHandle:
+
         def Close(self):
             pass
 
@@ -646,6 +630,7 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
         if key is ie_settings:
             if value_name == 'ProxyEnable':
                 return [1]
+
             elif value_name == 'ProxyOverride':
                 return [override]
 
@@ -659,18 +644,19 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
 
 
 @pytest.mark.parametrize(
-    'env_name, value', (
-            ('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain'),
-            ('no_proxy', None),
-            ('a_new_key', '192.168.0.0/24,127.0.0.1,localhost.localdomain'),
-            ('a_new_key', None),
-    ))
+    'env_name, value',
+    (
+        ('no_proxy', '192.168.0.0/24,127.0.0.1,localhost.localdomain'),
+        ('no_proxy', None),
+        ('a_new_key', '192.168.0.0/24,127.0.0.1,localhost.localdomain'),
+        ('a_new_key', None),
+    ),
+)
 def test_set_environ(env_name, value):
     """Tests set_environ will set environ values and will restore the environ."""
     environ_copy = copy.deepcopy(os.environ)
     with set_environ(env_name, value):
         assert os.environ.get(env_name) == value
-
     assert os.environ == environ_copy
 
 

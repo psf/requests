@@ -22,9 +22,11 @@ tox = "*"
 detox = "*"
 httpbin = "==0.5.0"
 pytest-mypy = "*"
+black = {git = "https://github.com/ambv/black.git", editable = true}
+"e1839a8" = {path = ".", editable = true, extras=["socks"]}
+mypy = "==0.540"
+win-inet-ptonsocks = {version="*", os_name = "=='windows'"}
 
 
 [packages]
 
-"e1839a8" = {path = ".", editable = true, extras=["socks"]}
-mypy = "==0.540"

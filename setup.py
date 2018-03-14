@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # Learn more: https://github.com/kennethreitz/setup.py
-
 import os
 import sys
 
@@ -55,27 +54,30 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist bdist_wheel')
     os.system('twine upload dist/*')
     sys.exit()
-
 packages = ['requests']
-
 requires = [
     'chardet>=3.0.2,<3.1.0',
     'idna>=2.5,<2.7',
     'urllib3>=1.21.1,<1.23',
-    'certifi>=2017.4.17'
-
+    'certifi>=2017.4.17',
 ]
-test_requirements = ['pytest-httpbin==0.0.7', 'pytest-cov', 'pytest-mock', 'pytest-xdist', 'PySocks>=1.5.6, !=1.5.7', 'pytest>=2.8.0', 'pytest-mypy', 'mypy==0.540']
-
+test_requirements = [
+    'pytest-httpbin==0.0.7',
+    'pytest-cov',
+    'pytest-mock',
+    'pytest-xdist',
+    'PySocks>=1.5.6, !=1.5.7',
+    'pytest>=2.8.0',
+    'pytest-mypy',
+    'mypy==0.540',
+]
 about = {}
 with open(os.path.join(here, 'requests', '__version__.py'), 'r', 'utf-8') as f:
-    exec(f.read(), about)
-
+    exec (f.read(), about)
 with open('README.rst', 'r', 'utf-8') as f:
     readme = f.read()
 with open('HISTORY.rst', 'r', 'utf-8') as f:
     history = f.read()
-
 setup(
     name=about['__title__'],
     version=about['__version__'],
@@ -102,12 +104,9 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy'
+        'Programming Language :: Python :: Implementation :: PyPy',
     ),
-    cmdclass={
-        'test': PyTest,
-        'mypy': MyPyTest
-    },
+    cmdclass={'test': PyTest, 'mypy': MyPyTest},
     tests_require=test_requirements,
     extras_require={
         'security': ['pyOpenSSL>=0.14', 'cryptography>=1.3.4', 'idna>=2.0.0'],

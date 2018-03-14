@@ -10,12 +10,12 @@ import idna
 import urllib3
 import chardet
 
-from . import types
+from .import types
 
-from . import __version__ as requests_version
+from .import __version__ as requests_version
 
 try:
-    from .packages.urllib3.contrib import pyopenssl
+    from . packages.urllib3.contrib import pyopenssl
 except ImportError:
     pyopenssl = None
     OpenSSL = None
@@ -37,66 +37,47 @@ def _implementation() -> types.Help:
     to work out the correct shape of the code for those platforms.
     """
     implementation = platform.python_implementation()
-
     if implementation == 'CPython':
         implementation_version = platform.python_version()
     elif implementation == 'PyPy':
-        implementation_version = '%s.%s.%s' % (sys.pypy_version_info.major,
-                                               sys.pypy_version_info.minor,
-                                               sys.pypy_version_info.micro)
+        implementation_version = '%s.%s.%s' % (
+            sys.pypy_version_info.major,
+            sys.pypy_version_info.minor,
+            sys.pypy_version_info.micro,
+        )
         if sys.pypy_version_info.releaselevel != 'final':
-            implementation_version = ''.join([
-                implementation_version, sys.pypy_version_info.releaselevel
-            ])
+            implementation_version = ''.join(
+                [implementation_version, sys.pypy_version_info.releaselevel]
+            )
     elif implementation == 'Jython':
         implementation_version = platform.python_version()  # Complete Guess
     elif implementation == 'IronPython':
         implementation_version = platform.python_version()  # Complete Guess
     else:
         implementation_version = 'Unknown'
-
     return {'name': implementation, 'version': implementation_version}
 
 
 def info() -> types.Help:
     """Generate information for a bug report."""
     try:
-        platform_info = {
-            'system': platform.system(),
-            'release': platform.release(),
-        }
+        platform_info = {'system': platform.system(), 'release': platform.release()}
     except IOError:
-        platform_info = {
-            'system': 'Unknown',
-            'release': 'Unknown',
-        }
-
+        platform_info = {'system': 'Unknown', 'release': 'Unknown'}
     implementation_info = _implementation()
     urllib3_info = {'version': urllib3.__version__}
     chardet_info = {'version': chardet.__version__}
-
-    pyopenssl_info = {
-        'version': None,
-        'openssl_version': '',
-    }
+    pyopenssl_info = {'version': None, 'openssl_version': ''}
     if OpenSSL:
         pyopenssl_info = {
             'version': OpenSSL.__version__,
             'openssl_version': '%x' % OpenSSL.SSL.OPENSSL_VERSION_NUMBER,
         }
-    cryptography_info = {
-        'version': getattr(cryptography, '__version__', ''),
-    }
-    idna_info = {
-        'version': getattr(idna, '__version__', ''),
-    }
-
+    cryptography_info = {'version': getattr(cryptography, '__version__', '')}
+    idna_info = {'version': getattr(idna, '__version__', '')}
     # OPENSSL_VERSION_NUMBER doesn't exist in the Python 2.6 ssl module.
     system_ssl = getattr(ssl, 'OPENSSL_VERSION_NUMBER', None)
-    system_ssl_info = {
-        'version': '%x' % system_ssl if system_ssl is not None else ''
-    }
-
+    system_ssl_info = {'version': '%x' % system_ssl if system_ssl is not None else ''}
     return {
         'platform': platform_info,
         'implementation': implementation_info,
@@ -107,9 +88,7 @@ def info() -> types.Help:
         'chardet': chardet_info,
         'cryptography': cryptography_info,
         'idna': idna_info,
-        'requests': {
-            'version': requests_version,
-        },
+        'requests': {'version': requests_version},
     }
 
 

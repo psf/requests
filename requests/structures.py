@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 requests.structures
 ~~~~~~~~~~~~~~~~~~~
@@ -62,19 +61,17 @@ class CaseInsensitiveDict(collections.MutableMapping):
 
     def lower_items(self):
         """Like iteritems(), but with all lowercase keys."""
-        return (
-            (lowerkey, keyval[1])
-            for (lowerkey, keyval)
-            in self._store.items()
-        )
+        return ((lowerkey, keyval[1]) for (lowerkey, keyval) in self._store.items())
 
     def __eq__(self, other):
         if isinstance(other, collections.Mapping):
             other = CaseInsensitiveDict(other)
         else:
             return NotImplemented
+
         # Compare insensitively
         return dict(self.lower_items()) == dict(other.lower_items())
+
 
     # Copy is required
     def copy(self):
@@ -96,7 +93,6 @@ class LookupDict(dict):
 
     def __getitem__(self, key):
         # We allow fall-through here, so values default to None
-
         return self.__dict__.get(key, None)
 
     def __iter__(self):

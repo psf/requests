@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-
 from .structures import LookupDict
 
 _codes = {
-
     # Informational.
     100: ('continue',),
     101: ('switching_protocols',),
@@ -20,7 +18,6 @@ _codes = {
     207: ('multi_status', 'multiple_status', 'multi_stati', 'multiple_stati'),
     208: ('already_reported',),
     226: ('im_used',),
-
     # Redirection.
     300: ('multiple_choices',),
     301: ('moved_permanently', 'moved', '\\o-'),
@@ -30,9 +27,8 @@ _codes = {
     305: ('use_proxy',),
     306: ('switch_proxy',),
     307: ('temporary_redirect', 'temporary_moved', 'temporary'),
-    308: ('permanent_redirect',
-          'resume_incomplete', 'resume',),  # These 2 to be removed in 3.0
-
+    308: ('permanent_redirect', 'resume_incomplete', 'resume'),
+    # These 2 to be removed in 3.0
     # Client Error.
     400: ('bad_request', 'bad'),
     401: ('unauthorized',),
@@ -50,7 +46,9 @@ _codes = {
     413: ('request_entity_too_large',),
     414: ('request_uri_too_large',),
     415: ('unsupported_media_type', 'unsupported_media', 'media_type'),
-    416: ('requested_range_not_satisfiable', 'requested_range', 'range_not_satisfiable'),
+    416: (
+        'requested_range_not_satisfiable', 'requested_range', 'range_not_satisfiable'
+    ),
     417: ('expectation_failed',),
     418: ('im_a_teapot', 'teapot', 'i_am_a_teapot'),
     421: ('misdirected_request',),
@@ -67,7 +65,6 @@ _codes = {
     450: ('blocked_by_windows_parental_controls', 'parental_controls'),
     451: ('unavailable_for_legal_reasons', 'legal_reasons'),
     499: ('client_closed_request',),
-
     # Server Error.
     500: ('internal_server_error', 'server_error', '/o\\', '✗'),
     501: ('not_implemented',),
@@ -81,11 +78,9 @@ _codes = {
     510: ('not_extended',),
     511: ('network_authentication_required', 'network_auth', 'network_authentication'),
 }
-
 codes = LookupDict(name='status_codes')
-
 for code, titles in _codes.items():
-    for title in titles:   # type: ignore
+    for title in titles:  # type: ignore
         setattr(codes, title, code)
         if not title.startswith(('\\', '/')):
             setattr(codes, title.upper(), code)

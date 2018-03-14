@@ -1,24 +1,36 @@
 from typing import (
-    Callable, Optional, Union, Any, Iterable, List, Mapping, MutableMapping,
-    Tuple, IO, Text, Type, Dict
+    Callable,
+    Optional,
+    Union,
+    Any,
+    Iterable,
+    List,
+    Mapping,
+    MutableMapping,
+    Tuple,
+    IO,
+    Text,
+    Type,
+    Dict,
 )
 
-from . import auth
+from .import auth
 from .models import Response, PreparedRequest
 from .cookies import RequestsCookieJar
 from .sessions import Session
 
-_ParamsMappingValueType = Union[str, bytes, int, float, Iterable[Union[str, bytes, int, float]]]
+_ParamsMappingValueType = Union[
+    str, bytes, int, float, Iterable[Union[str, bytes, int, float]]
+]
 Params = Optional[
     Union[
-        Mapping[
-            Union[str, bytes, int, float], _ParamsMappingValueType],
-            Union[str, bytes],
-            Tuple[Union[str, bytes, int, float], _ParamsMappingValueType],
-            Mapping[str, _ParamsMappingValueType],
-            Mapping[bytes, _ParamsMappingValueType],
-            Mapping[int, _ParamsMappingValueType],
-            Mapping[float, _ParamsMappingValueType]
+        Mapping[Union[str, bytes, int, float], _ParamsMappingValueType],
+        Union[str, bytes],
+        Tuple[Union[str, bytes, int, float], _ParamsMappingValueType],
+        Mapping[str, _ParamsMappingValueType],
+        Mapping[bytes, _ParamsMappingValueType],
+        Mapping[int, _ParamsMappingValueType],
+        Mapping[float, _ParamsMappingValueType],
     ]
 ]
 Data = Union[
@@ -29,16 +41,17 @@ Data = Union[
     MutableMapping[Text, str],
     MutableMapping[Text, Text],
     Iterable[Tuple[str, str]],
-    IO
+    IO,
 ]
 _Hook = Callable[[Response], Any]
-
 Method = str
 URL = str
 Headers = Optional[Union[None, MutableMapping[Text, Text]]]
 Cookies = Optional[Union[None, RequestsCookieJar, MutableMapping[Text, Text]]]
 Files = Optional[MutableMapping[Text, IO]]
-Auth = Union[None, Tuple[Text, Text], auth.AuthBase, Callable[[PreparedRequest], PreparedRequest]]
+Auth = Union[
+    None, Tuple[Text, Text], auth.AuthBase, Callable[[PreparedRequest], PreparedRequest]
+]
 Timeout = Union[None, float, Tuple[float, float]]
 AllowRedirects = Optional[bool]
 Proxies = Optional[MutableMapping[Text, Text]]

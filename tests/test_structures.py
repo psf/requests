@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import pytest
 
 from requests.structures import CaseInsensitiveDict, LookupDict
@@ -16,7 +15,9 @@ class TestCaseInsensitiveDict:
     def test_list(self):
         assert list(self.case_insensitive_dict) == ['Accept']
 
-    possible_keys = pytest.mark.parametrize('key', ('accept', 'ACCEPT', 'aCcEpT', 'Accept'))
+    possible_keys = pytest.mark.parametrize(
+        'key', ('accept', 'ACCEPT', 'aCcEpT', 'Accept')
+    )
 
     @possible_keys
     def test_getitem(self, key):
@@ -28,7 +29,9 @@ class TestCaseInsensitiveDict:
         assert key not in self.case_insensitive_dict
 
     def test_lower_items(self):
-        assert list(self.case_insensitive_dict.lower_items()) == [('accept', 'application/json')]
+        assert list(self.case_insensitive_dict.lower_items()) == [
+            ('accept', 'application/json')
+        ]
 
     def test_repr(self):
         assert repr(self.case_insensitive_dict) == "{'Accept': 'application/json'}"
@@ -39,11 +42,8 @@ class TestCaseInsensitiveDict:
         assert copy == self.case_insensitive_dict
 
     @pytest.mark.parametrize(
-        'other, result', (
-            ({'AccePT': 'application/json'}, True),
-            ({}, False),
-            (None, False)
-        )
+        'other, result',
+        (({'AccePT': 'application/json'}, True), ({}, False), (None, False)),
     )
     def test_instance_equality(self, other, result):
         assert (self.case_insensitive_dict == other) is result
@@ -61,10 +61,7 @@ class TestLookupDict:
         assert repr(self.lookup_dict) == "<lookup 'test'>"
 
     get_item_parameters = pytest.mark.parametrize(
-        'key, value', (
-            ('bad_gateway', 502),
-            ('not_a_key', None)
-        )
+        'key, value', (('bad_gateway', 502), ('not_a_key', None))
     )
 
     @get_item_parameters

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import contextlib
 import os
 
@@ -14,6 +13,7 @@ def override_environ(**kwargs):
             os.environ[key] = value
     try:
         yield
+
     finally:
         os.environ.clear()
         os.environ.update(save_env)

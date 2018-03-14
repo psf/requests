@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 requests.cookies
 ~~~~~~~~~~~~~~~~
@@ -20,7 +19,7 @@ from .basics import cookielib, urlparse, urlunparse, Morsel
 try:
     import threading
 except ImportError:
-    import dummy_threading as threading   # type: ignore
+    import dummy_threading as threading  # type: ignore
 
 
 class MockRequest(object):
@@ -54,14 +53,21 @@ class MockRequest(object):
         # header
         if not self._r.headers.get('Host'):
             return self._r.url
+
         # If they did set it, retrieve it and reconstruct the expected domain
         host = to_native_string(self._r.headers['Host'], encoding='utf-8')
         parsed = urlparse(self._r.url)
         # Reconstruct the URL as we expect it
-        return urlunparse([
-            parsed.scheme, host, parsed.path, parsed.params, parsed.query,
-            parsed.fragment
-        ])
+        return urlunparse(
+            [
+                parsed.scheme,
+                host,
+                parsed.path,
+                parsed.params,
+                parsed.query,
+                parsed.fragment,
+            ]
+        )
 
     def is_unverifiable(self):
         return True
@@ -74,7 +80,9 @@ class MockRequest(object):
 
     def add_header(self, key, val):
         """cookielib has no legitimate use for this method; add it back if you find one."""
-        raise NotImplementedError("Cookie headers should be added with add_unredirected_header()")
+        raise NotImplementedError(
+            "Cookie headers should be added with add_unredirected_header()"
+        )
 
     def add_unredirected_header(self, name, value):
         self._new_headers[name] = value
@@ -123,9 +131,9 @@ def extract_cookies_to_jar(jar, request, response):
     :param request: our own requests.Request object
     :param response: urllib3.HTTPResponse object
     """
-    if not (hasattr(response, '_original_response') and
-            response._original_response):
+    if not (hasattr(response, '_original_response') and response._original_response):
         return
+
     # the _original_response field is the wrapped httplib.HTTPResponse object,
     req = MockRequest(request)
     # pull out the HTTPMessage with the headers and put it in the mock:
@@ -153,12 +161,14 @@ def remove_cookie_by_name(cookiejar, name, domain=None, path=None):
     for cookie in cookiejar:
         if cookie.name != name:
             continue
+
         if domain is not None and domain != cookie.domain:
             continue
+
         if path is not None and path != cookie.path:
             continue
-        clearables.append((cookie.domain, cookie.path, cookie.name))
 
+        clearables.append((cookie.domain, cookie.path, cookie.name))
     for domain, path, name in clearables:
         cookiejar.clear(domain, path, name)
 
@@ -196,6 +206,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         """
         try:
             return self._find_no_duplicates(name, domain, path)
+
         except KeyError:
             return default
 
@@ -206,7 +217,9 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         """
         # support client code that unsets cookies by assignment of a None value:
         if value is None:
-            remove_cookie_by_name(self, name, domain=kwargs.get('domain'), path=kwargs.get('path'))
+            remove_cookie_by_name(
+                self, name, domain=kwargs.get('domain'), path=kwargs.get('path')
+            )
             return
 
         if isinstance(value, Morsel):
@@ -294,6 +307,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         for cookie in iter(self):
             if cookie.domain is not None and cookie.domain in domains:
                 return True
+
             domains.append(cookie.domain)
         return False  # there is only one domain in jar
 
@@ -316,6 +330,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
     def __contains__(self, name):
         try:
             return super(RequestsCookieJar, self).__contains__(name)
+
         except CookieConflictError:
             return True
 
@@ -342,7 +357,11 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         remove_cookie_by_name(self, name)
 
     def set_cookie(self, cookie, *args, **kwargs):
-        if hasattr(cookie.value, 'startswith') and cookie.value.startswith('"') and cookie.value.endswith('"'):
+        if hasattr(cookie.value, 'startswith') and cookie.value.startswith(
+            '"'
+        ) and cookie.value.endswith(
+            '"'
+        ):
             cookie.value = cookie.value.replace('\\"', '')
         return super(RequestsCookieJar, self).set_cookie(cookie, *args, **kwargs)
 
@@ -392,11 +411,14 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
                 if domain is None or cookie.domain == domain:
                     if path is None or cookie.path == path:
                         if toReturn is not None:  # if there are multiple cookies that meet passed in criteria
-                            raise CookieConflictError('There are multiple cookies with name, %r' % (name))
-                        toReturn = cookie.value  # we will eventually return this as long as no cookie conflict
+                            raise CookieConflictError(
+                                'There are multiple cookies with name, %r' % (name)
+                            )
 
+                        toReturn = cookie.value  # we will eventually return this as long as no cookie conflict
         if toReturn:
             return toReturn
+
         raise KeyError('name=%r, domain=%r, path=%r' % (name, domain, path))
 
     def __getstate__(self):
@@ -426,6 +448,7 @@ def _copy_cookie_jar(jar):
     if hasattr(jar, 'copy'):
         # We're dealing with an instance of RequestsCookieJar
         return jar.copy()
+
     # We're dealing with a generic CookieJar instance
     new_jar = copy.copy(jar)
     new_jar.clear()
@@ -455,7 +478,6 @@ def create_cookie(name, value, **kwargs):
         'rest': {'HttpOnly': None},
         'rfc2109': False,
     }
-
     badargs = set(kwargs) - set(result)
     if badargs:
         err = 'create_cookie() got unexpected keyword arguments: %s'
@@ -466,24 +488,21 @@ def create_cookie(name, value, **kwargs):
     result['domain_specified'] = bool(result['domain'])
     result['domain_initial_dot'] = result['domain'].startswith('.')
     result['path_specified'] = bool(result['path'])
-
     return cookielib.Cookie(**result)
 
 
 def morsel_to_cookie(morsel):
     """Convert a Morsel object into a Cookie containing the one k/v pair."""
-
     expires = None
     if morsel['max-age']:
         try:
             expires = int(time.time() + int(morsel['max-age']))
         except ValueError:
             raise TypeError('max-age: %s must be integer' % morsel['max-age'])
+
     elif morsel['expires']:
         time_template = '%a, %d-%b-%Y %H:%M:%S GMT'
-        expires = calendar.timegm(
-            time.strptime(morsel['expires'], time_template)
-        )
+        expires = calendar.timegm(time.strptime(morsel['expires'], time_template))
     return create_cookie(
         comment=morsel['comment'],
         comment_url=bool(morsel['comment']),
@@ -511,13 +530,11 @@ def cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True):
     """
     if cookiejar is None:
         cookiejar = RequestsCookieJar()
-
     if cookie_dict is not None:
         names_from_jar = [cookie.name for cookie in cookiejar]
         for name in cookie_dict:
             if overwrite or (name not in names_from_jar):
                 cookiejar.set_cookie(create_cookie(name, cookie_dict[name]))
-
     return cookiejar
 
 
@@ -531,13 +548,11 @@ def merge_cookies(cookiejar, cookies):
         raise ValueError('You can only merge into CookieJar')
 
     if isinstance(cookies, dict):
-        cookiejar = cookiejar_from_dict(
-            cookies, cookiejar=cookiejar, overwrite=False)
+        cookiejar = cookiejar_from_dict(cookies, cookiejar=cookiejar, overwrite=False)
     elif isinstance(cookies, cookielib.CookieJar):
         try:
             cookiejar.update(cookies)
         except AttributeError:
             for cookie_in_jar in cookies:
                 cookiejar.set_cookie(cookie_in_jar)
-
     return cookiejar

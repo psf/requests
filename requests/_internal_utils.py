@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 requests._internal_utils
 ~~~~~~~~~~~~~~
@@ -20,7 +19,6 @@ def to_native_string(string, encoding='ascii'):
         out = string
     else:
         out = string.decode(encoding)
-
     return out
 
 
@@ -35,5 +33,6 @@ def unicode_is_ascii(u_string):
     try:
         u_string.encode('ascii')
         return True
+
     except UnicodeEncodeError:
         return False

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 requests.utils
 ~~~~~~~~~~~~~~
@@ -21,38 +20,49 @@ import struct
 import warnings
 
 from .__version__ import __version__
-from . import certs
+from .import certs
+
 # to_native_string is unused here, but imported here for backwards compatibility
 from ._internal_utils import to_native_string
 from .basics import parse_http_list as _parse_list_header
 from .basics import (
-    quote, urlparse, bytes, str, unquote, getproxies,
-    proxy_bypass, urlunparse, basestring, integer_types,
-    proxy_bypass_environment, getproxies_environment)
+    quote,
+    urlparse,
+    bytes,
+    str,
+    unquote,
+    getproxies,
+    proxy_bypass,
+    urlunparse,
+    basestring,
+    integer_types,
+    proxy_bypass_environment,
+    getproxies_environment,
+)
 from .cookies import cookiejar_from_dict
 from .structures import CaseInsensitiveDict
 from .exceptions import (
-    InvalidURL, InvalidHeader, FileModeWarning, UnrewindableBodyError)
+    InvalidURL, InvalidHeader, FileModeWarning, UnrewindableBodyError
+)
 
 NETRC_FILES = ('.netrc', '_netrc')
-
 DEFAULT_CA_BUNDLE_PATH = certs.where()
-
-
 if platform.system() == 'Windows':
-    # provide a proxy_bypass version on Windows without DNS lookups
 
+    # provide a proxy_bypass version on Windows without DNS lookups
     def proxy_bypass_registry(host):
         import winreg
+
         try:
-            internetSettings = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                r'Software\Microsoft\Windows\CurrentVersion\Internet Settings')
-            proxyEnable = winreg.QueryValueEx(internetSettings,
-                                              'ProxyEnable')[0]
-            proxyOverride = winreg.QueryValueEx(internetSettings,
-                                                'ProxyOverride')[0]
+            internetSettings = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                r'Software\Microsoft\Windows\CurrentVersion\Internet Settings',
+            )
+            proxyEnable = winreg.QueryValueEx(internetSettings, 'ProxyEnable')[0]
+            proxyOverride = winreg.QueryValueEx(internetSettings, 'ProxyOverride')[0]
         except OSError:
             return False
+
         if not proxyEnable or not proxyOverride:
             return False
 
@@ -65,11 +75,13 @@ if platform.system() == 'Windows':
             if test == '<local>':
                 if '.' not in host:
                     return True
-            test = test.replace(".", r"\.")     # mask dots
-            test = test.replace("*", r".*")     # change glob sequence
-            test = test.replace("?", r".")      # change glob char
+
+            test = test.replace(".", r"\.")  # mask dots
+            test = test.replace("*", r".*")  # change glob sequence
+            test = test.replace("?", r".")  # change glob char
             if re.match(test, host, re.I):
                 return True
+
         return False
 
     def proxy_bypass(host):  # noqa
@@ -80,29 +92,25 @@ if platform.system() == 'Windows':
         """
         if getproxies_environment():
             return proxy_bypass_environment(host)
+
         else:
             return proxy_bypass_registry(host)
 
 
 def dict_to_sequence(d):
     """Returns an internal sequence dictionary update."""
-
     if hasattr(d, 'items'):
         d = d.items()
-
     return d
 
 
 def super_len(o):
     total_length = None
     current_position = 0
-
     if hasattr(o, '__len__'):
         total_length = len(o)
-
     elif hasattr(o, 'len'):
         total_length = o.len
-
     elif hasattr(o, 'fileno'):
         try:
             fileno = o.fileno()
@@ -110,20 +118,20 @@ def super_len(o):
             pass
         else:
             total_length = os.fstat(fileno).st_size
-
             # Having used fstat to determine the file length, we need to
             # confirm that this file was opened up in binary mode.
             if 'b' not in o.mode:
-                warnings.warn((
-                    "Requests has determined the content-length for this "
-                    "request using the binary size of the file: however, the "
-                    "file has been opened in text mode (i.e. without the 'b' "
-                    "flag in the mode). This may lead to an incorrect "
-                    "content-length. In Requests 3.0, support will be removed "
-                    "for files in text mode."),
-                    FileModeWarning
+                warnings.warn(
+                    (
+                        "Requests has determined the content-length for this "
+                        "request using the binary size of the file: however, the "
+                        "file has been opened in text mode (i.e. without the 'b' "
+                        "flag in the mode). This may lead to an incorrect "
+                        "content-length. In Requests 3.0, support will be removed "
+                        "for files in text mode."
+                    ),
+                    FileModeWarning,
                 )
-
     if hasattr(o, 'tell'):
         try:
             current_position = o.tell()
@@ -141,27 +149,22 @@ def super_len(o):
                     # seek to end of file
                     o.seek(0, 2)
                     total_length = o.tell()
-
                     # seek back to current position to support
                     # partially read file-like objects
                     o.seek(current_position or 0)
                 except (OSError, IOError):
                     total_length = 0
-
     if total_length is None:
         total_length = 0
-
     return max(0, total_length - current_position)
 
 
 def get_netrc_auth(url, raise_errors=False):
     """Returns the Requests tuple auth for a given url from netrc."""
-
     try:
         from netrc import netrc, NetrcParseError
 
         netrc_path = None
-
         for f in NETRC_FILES:
             try:
                 loc = os.path.expanduser('~/{0}'.format(f))
@@ -180,20 +183,19 @@ def get_netrc_auth(url, raise_errors=False):
             return
 
         ri = urlparse(url)
-
         # Strip port numbers from netloc. This weird `if...encode`` dance is
         # used for Python 3.2, which doesn't support unicode literals.
         splitstr = b':'
         if isinstance(url, str):
             splitstr = splitstr.decode('ascii')
         host = ri.netloc.split(splitstr)[0]
-
         try:
             _netrc = netrc(netrc_path).authenticators(host)
             if _netrc:
                 # Return with login / password
                 login_i = (0 if _netrc[0] else 1)
                 return (_netrc[login_i], _netrc[2])
+
         except (NetrcParseError, IOError):
             # If there was a parsing error or a permissions issue reading the file,
             # we'll just skip netrc auth unless explicitly asked to raise errors.
@@ -208,8 +210,7 @@ def get_netrc_auth(url, raise_errors=False):
 def guess_filename(obj):
     """Tries to guess the filename of the given object."""
     name = getattr(obj, 'name', None)
-    if (name and isinstance(name, basestring) and name[0] != '<' and
-            name[-1] != '>'):
+    if (name and isinstance(name, basestring) and name[0] != '<' and name[-1] != '>'):
         return os.path.basename(name)
 
 
@@ -261,8 +262,9 @@ def to_key_val_list(value):
 
     if isinstance(value, collections.Mapping):
         value = value.items()
-
     return list(value)
+
+
 
 
 # From mitsuhiko/werkzeug (used with permission).
@@ -297,6 +299,8 @@ def parse_list_header(value):
     return result
 
 
+
+
 # From mitsuhiko/werkzeug (used with permission).
 def parse_dict_header(value):
     """Parse lists of key, value pairs as described by RFC 2068 Section 2 and
@@ -325,11 +329,14 @@ def parse_dict_header(value):
         if '=' not in item:
             result[item] = None
             continue
+
         name, value = item.split('=', 1)
         if value[:1] == value[-1:] == '"':
             value = unquote_header_value(value[1:-1])
         result[name] = value
     return result
+
+
 
 
 # From mitsuhiko/werkzeug (used with permission).
@@ -347,7 +354,6 @@ def unquote_header_value(value, is_filename=False):
         # probably some other browsers as well.  IE for example is
         # uploading files with "C:\foo\bar.txt" as filename
         value = value[1:-1]
-
         # if this is a filename and the starting characters look like
         # a UNC path, then just return the value without quotes.  Using the
         # replace sequence below on a UNC path has the effect of turning
@@ -355,6 +361,7 @@ def unquote_header_value(value, is_filename=False):
         # _fix_ie_filename() doesn't work correctly.  See #458.
         if not is_filename or value[:2] != '\\\\':
             return value.replace('\\\\', '\\').replace('\\"', '"')
+
     return value
 
 
@@ -364,12 +371,9 @@ def dict_from_cookiejar(cj):
     :param cj: CookieJar object to extract cookies from.
     :rtype: dict
     """
-
     cookie_dict = {}
-
     for cookie in cj:
         cookie_dict[cookie.name] = cookie.value
-
     return cookie_dict
 
 
@@ -380,7 +384,6 @@ def add_dict_to_cookiejar(cj, cookie_dict):
     :param cookie_dict: Dict of key/values to insert into CookieJar.
     :rtype: CookieJar
     """
-
     return cookiejar_from_dict(cookie_dict, cj)
 
 
@@ -389,19 +392,22 @@ def get_encodings_from_content(content):
 
     :param content: bytestring to extract encodings from.
     """
-    warnings.warn((
-        'In requests 3.0, get_encodings_from_content will be removed. For '
-        'more information, please see the discussion on issue #2266. (This'
-        ' warning should only appear once.)'),
-        DeprecationWarning)
-
+    warnings.warn(
+        (
+            'In requests 3.0, get_encodings_from_content will be removed. For '
+            'more information, please see the discussion on issue #2266. (This'
+            ' warning should only appear once.)'
+        ),
+        DeprecationWarning,
+    )
     charset_re = re.compile(r'<meta.*?charset=["\']*(.+?)["\'>]', flags=re.I)
     pragma_re = re.compile(r'<meta.*?content=["\']*;?charset=(.+?)["\'>]', flags=re.I)
     xml_re = re.compile(r'^<\?xml.*?encoding=["\']*(.+?)["\'>]')
-
-    return (charset_re.findall(content) +
-            pragma_re.findall(content) +
-            xml_re.findall(content))
+    return (
+        charset_re.findall(content) +
+        pragma_re.findall(content) +
+        xml_re.findall(content)
+    )
 
 
 def get_encoding_from_headers(headers):
@@ -410,14 +416,11 @@ def get_encoding_from_headers(headers):
     :param headers: dictionary to extract encoding from.
     :rtype: str
     """
-
     content_type = headers.get('content-type')
-
     if not content_type:
         return None
 
     content_type, params = cgi.parse_header(content_type)
-
     if 'charset' in params:
         return params['charset'].strip("'\"")
 
@@ -427,12 +430,12 @@ def get_encoding_from_headers(headers):
 
 def stream_decode_response_unicode(iterator, r):
     """Stream decodes a iterator."""
-
     decoder = codecs.getincrementaldecoder(r.encoding)(errors='replace')
     for chunk in iterator:
         rv = decoder.decode(chunk)
         if rv:
             yield rv
+
     rv = decoder.decode(b'', final=True)
     if rv:
         yield rv
@@ -444,7 +447,8 @@ def iter_slices(string, slice_length):
     if slice_length is None or slice_length <= 0:
         slice_length = len(string)
     while pos < len(string):
-        yield string[pos:pos + slice_length]
+        yield string[pos: pos + slice_length]
+
         pos += slice_length
 
 
@@ -460,33 +464,35 @@ def get_unicode_from_response(r):
 
     :rtype: str
     """
-    warnings.warn((
-        'In requests 3.0, get_unicode_from_response will be removed. For '
-        'more information, please see the discussion on issue #2266. (This'
-        ' warning should only appear once.)'),
-        DeprecationWarning)
-
+    warnings.warn(
+        (
+            'In requests 3.0, get_unicode_from_response will be removed. For '
+            'more information, please see the discussion on issue #2266. (This'
+            ' warning should only appear once.)'
+        ),
+        DeprecationWarning,
+    )
     tried_encodings = []
-
     # Try charset from content-type
     encoding = get_encoding_from_headers(r.headers)
-
     if encoding:
         try:
             return str(r.content, encoding)
+
         except UnicodeError:
             tried_encodings.append(encoding)
-
     # Fall back:
     try:
         return str(r.content, encoding, errors='replace')
+
     except TypeError:
         return r.content
 
 
 # The unreserved URI characters (RFC 3986)
 UNRESERVED_SET = frozenset(
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~")
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~"
+)
 
 
 def unquote_unreserved(uri):
@@ -495,12 +501,14 @@ def unquote_unreserved(uri):
 
     :rtype: str
     """
+
     # This convert function is used to optionally convert the output of `chr`.
     # In Python 3, `chr` returns a unicode string, while in Python 2 it returns
     # a bytestring. Here we deal with that by optionally converting.
     def convert(is_bytes, c):
         if is_bytes:
             return c.encode('ascii')
+
         else:
             return c
 
@@ -511,7 +519,6 @@ def unquote_unreserved(uri):
     if is_bytes:
         splitchar = splitchar.encode('ascii')
         base = base.encode('ascii')
-
     parts = uri.split(splitchar)
     for i in range(1, len(parts)):
         h = parts[i][0:2]
@@ -545,6 +552,7 @@ def requote_uri(uri):
         # Then quote only illegal characters (do not quote reserved,
         # unreserved, or '%')
         return quote(unquote_unreserved(uri), safe=safe_with_percent)
+
     except InvalidURL:
         # We couldn't unquote the given URI, so let's try quoting it, but
         # there may be unquoted '%'s in the URI. We need to make sure they're
@@ -564,7 +572,7 @@ def address_in_network(ip, net):
     netaddr, bits = net.split('/')
     netmask = struct.unpack('=L', socket.inet_aton(dotted_netmask(int(bits))))[0]
     network = struct.unpack('=L', socket.inet_aton(netaddr))[0] & netmask
-    return (ipaddr & netmask) == (network & netmask)
+    return ( ipaddr & netmask) == ( network & netmask)
 
 
 def dotted_netmask(mask):
@@ -586,6 +594,7 @@ def is_ipv4_address(string_ip):
         socket.inet_aton(string_ip)
     except socket.error:
         return False
+
     return True
 
 
@@ -608,8 +617,10 @@ def is_valid_cidr(string_network):
             socket.inet_aton(string_network.split('/')[0])
         except socket.error:
             return False
+
     else:
         return False
+
     return True
 
 
@@ -627,6 +638,7 @@ def set_environ(env_name, value):
         os.environ[env_name] = value
     try:
         yield
+
     finally:
         if value_changed:
             if old_value is None:
@@ -642,31 +654,28 @@ def should_bypass_proxies(url, no_proxy):
     :rtype: bool
     """
     get_proxy = lambda k: os.environ.get(k) or os.environ.get(k.upper())
-
     # First check whether no_proxy is defined. If it is, check that the URL
     # we're getting isn't in the no_proxy list.
     no_proxy_arg = no_proxy
     if no_proxy is None:
         no_proxy = get_proxy('no_proxy')
     netloc = urlparse(url).netloc
-
     if no_proxy:
         # We need to check whether we match here. We need to see if we match
         # the end of the netloc, both with and without the port.
-        no_proxy = (
-            host for host in no_proxy.replace(' ', '').split(',') if host
-        )
-
+        no_proxy = (host for host in no_proxy.replace(' ', '').split(',') if host)
         ip = netloc.split(':')[0]
         if is_ipv4_address(ip):
             for proxy_ip in no_proxy:
                 if is_valid_cidr(proxy_ip):
                     if address_in_network(ip, proxy_ip):
                         return True
+
                 elif ip == proxy_ip:
                     # If no_proxy ip was defined in plain IP notation instead of cidr notation &
                     # matches the IP of the index
                     return True
+
         else:
             for host in no_proxy:
                 if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
@@ -686,6 +695,7 @@ def get_environ_proxies(url, no_proxy=None):
     """
     if should_bypass_proxies(url, no_proxy=no_proxy):
         return {}
+
     else:
         return getproxies()
 
@@ -729,12 +739,14 @@ def default_headers():
     """
     :rtype: requests.structures.CaseInsensitiveDict
     """
-    return CaseInsensitiveDict({
-        'User-Agent': default_user_agent(),
-        'Accept-Encoding': ', '.join(('gzip', 'deflate')),
-        'Accept': '*/*',
-        'Connection': 'keep-alive',
-    })
+    return CaseInsensitiveDict(
+        {
+            'User-Agent': default_user_agent(),
+            'Accept-Encoding': ', '.join(('gzip', 'deflate')),
+            'Accept': '*/*',
+            'Connection': 'keep-alive',
+        }
+    )
 
 
 def parse_header_links(value):
@@ -744,11 +756,8 @@ def parse_header_links(value):
 
     :rtype: list
     """
-
     links = []
-
     replace_chars = ' \'"'
-
     value = value.strip(replace_chars)
     if not value:
         return links
@@ -758,9 +767,7 @@ def parse_header_links(value):
             url, params = val.split(';', 1)
         except ValueError:
             url, params = val, ''
-
         link = {'url': url.strip('<> \'"')}
-
         for param in params.split(';'):
             try:
                 key, value = param.split('=')
@@ -768,9 +775,7 @@ def parse_header_links(value):
                 break
 
             link[key.strip(replace_chars)] = value.strip(replace_chars)
-
         links.append(link)
-
     return links
 
 
@@ -783,6 +788,7 @@ def is_valid_location(response):
         getlist = getattr(headers, 'getlist', None)
         if getlist is not None:
             return len(getlist('location')) <= 1
+
     # If response.raw isn't urllib3-like we can't reliably check this
     return True
 
@@ -802,26 +808,34 @@ def guess_json_utf(data):
     # determine the encoding. Also detect a BOM, if present.
     sample = data[:4]
     if sample in (codecs.BOM_UTF32_LE, codecs.BOM_UTF32_BE):
-        return 'utf-32'     # BOM included
+        return 'utf-32'  # BOM included
+
     if sample[:3] == codecs.BOM_UTF8:
         return 'utf-8-sig'  # BOM included, MS style (discouraged)
+
     if sample[:2] in (codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE):
-        return 'utf-16'     # BOM included
+        return 'utf-16'  # BOM included
+
     nullcount = sample.count(_null)
     if nullcount == 0:
         return 'utf-8'
+
     if nullcount == 2:
-        if sample[::2] == _null2:   # 1st and 3rd are null
+        if sample[::2] == _null2:  # 1st and 3rd are null
             return 'utf-16-be'
+
         if sample[1::2] == _null2:  # 2nd and 4th are null
             return 'utf-16-le'
-        # Did not detect 2 valid UTF-16 ascii-range characters
+
+    # Did not detect 2 valid UTF-16 ascii-range characters
     if nullcount == 3:
         if sample[:3] == _null3:
             return 'utf-32-be'
+
         if sample[1:] == _null3:
             return 'utf-32-le'
-        # Did not detect a valid UTF-32 ascii-range character
+
+    # Did not detect a valid UTF-32 ascii-range character
     return None
 
 
@@ -832,13 +846,11 @@ def prepend_scheme_if_needed(url, new_scheme):
     :rtype: str
     """
     scheme, netloc, path, params, query, fragment = urlparse(url, new_scheme)
-
     # urlparse is a finicky beast, and sometimes decides that there isn't a
     # netloc present. Assume that it's being over-cautious, and switch netloc
     # and path if urlparse decided there was no netloc.
     if not netloc:
         netloc, path = path, netloc
-
     return urlunparse((scheme, netloc, path, params, query, fragment))
 
 
@@ -849,12 +861,10 @@ def get_auth_from_url(url):
     :rtype: (str,str)
     """
     parsed = urlparse(url)
-
     try:
         auth = (unquote(parsed.username), unquote(parsed.password))
     except (AttributeError, TypeError):
         auth = ('', '')
-
     return auth
 
 
@@ -871,17 +881,21 @@ def check_header_validity(header):
     :param header: tuple, in the format (name, value).
     """
     name, value = header
-
     if isinstance(value, bytes):
         pat = _CLEAN_HEADER_REGEX_BYTE
     else:
         pat = _CLEAN_HEADER_REGEX_STR
     try:
         if not pat.match(value):
-            raise InvalidHeader("Invalid return character or leading space in header: %s" % name)
+            raise InvalidHeader(
+                "Invalid return character or leading space in header: %s" % name
+            )
+
     except TypeError:
-        raise InvalidHeader("Value for header {%s: %s} must be of type str or "
-                            "bytes, not %s" % (name, value, type(value)))
+        raise InvalidHeader(
+            "Value for header {%s: %s} must be of type str or "
+            "bytes, not %s" % (name, value, type(value))
+        )
 
 
 def urldefragauth(url):
@@ -891,13 +905,10 @@ def urldefragauth(url):
     :rtype: str
     """
     scheme, netloc, path, params, query, fragment = urlparse(url)
-
     # see func:`prepend_scheme_if_needed`
     if not netloc:
         netloc, path = path, netloc
-
     netloc = netloc.rsplit('@', 1)[-1]
-
     return urlunparse((scheme, netloc, path, params, query, ''))
 
 
@@ -906,12 +917,16 @@ def rewind_body(prepared_request):
     so it can be read again on redirect.
     """
     body_seek = getattr(prepared_request.body, 'seek', None)
-    if body_seek is not None and isinstance(prepared_request._body_position, integer_types):
+    if body_seek is not None and isinstance(
+        prepared_request._body_position, integer_types
+    ):
         try:
             body_seek(prepared_request._body_position)
         except (IOError, OSError):
-            raise UnrewindableBodyError("An error occurred when rewinding request "
-                                        "body for redirect.")
+            raise UnrewindableBodyError(
+                "An error occurred when rewinding request " "body for redirect."
+            )
+
     else:
         raise UnrewindableBodyError("Unable to rewind request body for redirect.")
 
