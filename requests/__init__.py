@@ -45,23 +45,23 @@ from .exceptions import RequestsDependencyWarning
 
 
 def check_compatibility(urllib3_version: str, chardet_version: str) -> None:
-    urllib3_version = urllib3_version.split('.')
+    urllib3_version = urllib3_version.split('.')  # type: ignore
     assert urllib3_version != [
         'dev'
     ]  # Verify urllib3 isn't installed from git.
     # Sometimes, urllib3 only reports its version as 16.1.
     if len(urllib3_version) == 2:
-        urllib3_version.append('0')
+        urllib3_version.append('0')  # type: ignore
     # Check urllib3 for compatibility.
     major, minor, patch = urllib3_version  # noqa: F811
-    major, minor, patch = int(major), int(minor), int(patch)
+    major, minor, patch = int(major), int(minor), int(patch)  # type: ignore
     # urllib3 >= 1.21.1, <= 1.22
-    assert major == 1
-    assert minor >= 21
-    assert minor <= 22
+    assert major == 1  # type: ignore
+    assert minor >= 21  # type: ignore
+    assert minor <= 22  # type: ignore
     # Check chardet for compatibility.
     major, minor, patch = chardet_version.split('.')[:3]
-    major, minor, patch = int(major), int(minor), int(patch)
+    major, minor, patch = int(major), int(minor), int(patch)  # type: ignore
     # chardet >= 3.0.2, < 3.1.0
     assert major == 3  # type: ignore
     assert minor < 1  # type: ignore
@@ -71,11 +71,13 @@ def check_compatibility(urllib3_version: str, chardet_version: str) -> None:
 def _check_cryptography(cryptography_version: str) -> None:
     # cryptography < 1.3.4
     try:
-        cryptography_version = list(map(int, cryptography_version.split('.')))
+        cryptography_version = list(
+            map(int, cryptography_version.split('.'))
+        )  # type: ignore
     except ValueError:
         return
 
-    if cryptography_version < [1, 3, 4]:
+    if cryptography_version < [1, 3, 4]:  # type: ignore
         warning = 'Old version of cryptography ({0}) may cause slowdown.'.format(
             cryptography_version
         )

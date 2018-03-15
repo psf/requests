@@ -180,7 +180,7 @@ def get_netrc_auth(
         netrc_path = None
         for f in NETRC_FILES:
             try:
-                loc = os.path.expanduser('~/{0}'.format(f))
+                loc = os.path.expanduser(f'~/{f}')
             except KeyError:
                 # os.path.expanduser can fail when $HOME is undefined and
                 # getpwuid fails. See http://bugs.python.org/issue20164 &

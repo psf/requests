@@ -96,7 +96,7 @@ class HTTPHeaderDict(CaseInsensitiveDict):
         self.extend({} if data is None else data, **kwargs)
 
 
-    #
+    # 
     # We'll store tuples in the internal dictionary, but present them as a
     # concatenated string when we use item access methods.
     #
