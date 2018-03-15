@@ -25,6 +25,7 @@ pytest-mypy = "*"
 white = {version="*"}
 "e1839a8" = {path = ".", editable = true, extras=["socks"]}
 mypy = "==0.540"
+"rfc3986" = "*"
 
 
 [packages]

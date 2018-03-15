@@ -8,7 +8,7 @@ Data structures that power Requests.
 
 import collections
 
-from .compat import basestring, OrderedDict
+from .basics import basestring, OrderedDict
 
 
 class CaseInsensitiveDict(collections.MutableMapping):

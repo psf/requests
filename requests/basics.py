@@ -35,6 +35,7 @@ from urllib.request import (
 from http import cookiejar as cookielib
 from http.cookies import Morsel
 from io import StringIO
+from collections import OrderedDict
 
 builtin_str = str  # type: ignore
 str = str  # type: ignore

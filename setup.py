@@ -74,6 +74,7 @@ requires = [
     'idna>=2.5,<2.7',
     'urllib3>=1.21.1,<1.23',
     'certifi>=2017.4.17',
+    'rfc3986>=1.1.0<2',
 ]
 test_requirements = [
     'pytest-httpbin==0.0.7',
