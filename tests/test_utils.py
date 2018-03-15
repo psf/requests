@@ -27,7 +27,6 @@ from requests.utils import (
     should_bypass_proxies,
     super_len,
     to_key_val_list,
-    to_native_string,
     unquote_header_value,
     unquote_unreserved,
     urldefragauth,
@@ -532,13 +531,6 @@ def test_parse_header_links(value, expected):
 )
 def test_prepend_scheme_if_needed(value, expected):
     assert prepend_scheme_if_needed(value, 'http') == expected
-
-
-@pytest.mark.parametrize(
-    'value, expected', (('T', 'T'), (b'T', 'T'), (u'T', 'T'))
-)
-def test_to_native_string(value, expected):
-    assert to_native_string(value) == expected
 
 
 @pytest.mark.parametrize(

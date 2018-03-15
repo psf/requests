@@ -96,18 +96,24 @@ class HTTPHeaderDict(CaseInsensitiveDict):
         self.extend({} if data is None else data, **kwargs)
 
 
-    # 
+    #
     # We'll store tuples in the internal dictionary, but present them as a
     # concatenated string when we use item access methods.
     #
     def __setitem__(self, key, val):
-        if not isinstance(val, basestring):
+        # Special–case null values.
+        if (not isinstance(val, basestring)) and (val is not None):
             raise ValueError('only string-type values are allowed')
 
         super(HTTPHeaderDict, self).__setitem__(key, (val,))
 
     def __getitem__(self, key):
-        return ', '.join(super(HTTPHeaderDict, self).__getitem__(key))
+        val = super(HTTPHeaderDict, self).__getitem__(key)
+        # Special–case null values.
+        if len(val) == 1 and val[0] is None:
+            return val[0]
+
+        return ', '.join(val)
 
     def lower_items(self):
         return (
