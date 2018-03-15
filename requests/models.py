@@ -245,6 +245,19 @@ class Request(RequestHooksMixin):
       <PreparedRequest [GET]>
     """
 
+    __slots__ = (
+        'method',
+        'url',
+        'headers',
+        'files',
+        'data',
+        'params',
+        'auth',
+        'cookies',
+        'hooks',
+        'json'
+    )
+
     def __init__(
         self,
         method=None,
