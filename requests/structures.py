@@ -37,7 +37,6 @@ class CaseInsensitiveDict(collections.MutableMapping):
     operations are given keys that have equal ``.lower()``s, the
     behavior is undefined.
     """
-
     __slots__ = ('_store')
 
     def __init__(self, data=None, **kwargs):
@@ -98,7 +97,6 @@ class HTTPHeaderDict(CaseInsensitiveDict):
         self.extend({} if data is None else data, **kwargs)
 
 
-    #
     # We'll store tuples in the internal dictionary, but present them as a
     # concatenated string when we use item access methods.
     #

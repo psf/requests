@@ -353,7 +353,7 @@ class Session(SessionRedirectMixin):
       >>>     s.get('http://httpbin.org/get')
       <Response [200]>
     """
-    __attrs__ = [
+    __slots__ = [
         'headers',
         'cookies',
         'auth',
@@ -368,6 +368,8 @@ class Session(SessionRedirectMixin):
         'trust_env',
         'max_redirects',
     ]
+
+    __slots__
 
     def __init__(self):
         # : A case-insensitive dictionary of headers to be sent on each
@@ -735,18 +737,9 @@ class Session(SessionRedirectMixin):
             self.adapters[key] = self.adapters.pop(key)
 
     def __getstate__(self):
-        state = {attr: getattr(self, attr, None) for attr in self.__attrs__}
+        state = {attr: getattr(self, attr, None) for attr in self.__slots__}
         return state
 
     def __setstate__(self, state):
         for attr, value in state.items():
             setattr(self, attr, value)
-
-
-def session():
-    """
-    Returns a :class:`Session` for context-management.
-
-    :rtype: Session
-    """
-    return Session()
