@@ -5,10 +5,24 @@ import sys
 
 from codecs import open
 
-from setuptools import setup
+from setuptools import setup, Command
 from setuptools.command.test import test as TestCommand
 
 here = os.path.abspath(os.path.dirname(__file__))
+
+
+class Format(TestCommand):
+    user_options = []
+
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run_tests(self):
+        os.system('white requests')
 
 
 class PyTest(TestCommand):
@@ -70,6 +84,7 @@ test_requirements = [
     'pytest>=2.8.0',
     'pytest-mypy',
     'mypy==0.540',
+    'white',
 ]
 about = {}
 with open(os.path.join(here, 'requests', '__version__.py'), 'r', 'utf-8') as f:
@@ -106,7 +121,7 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ),
-    cmdclass={'test': PyTest, 'mypy': MyPyTest},
+    cmdclass={'test': PyTest, 'mypy': MyPyTest, 'format': Format},
     tests_require=test_requirements,
     extras_require={
         'security': ['pyOpenSSL>=0.14', 'cryptography>=1.3.4', 'idna>=2.0.0'],
