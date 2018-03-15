@@ -21,10 +21,10 @@ docutils = "*"
 tox = "*"
 detox = "*"
 httpbin = "==0.5.0"
-pytest-mypy = "*"
+pytest-mypy = {git = "https://github.com/petr-muller/pytest-mypy", editable = true, ref = "flush-errors"}
 white = {version="*"}
 "e1839a8" = {path = ".", editable = true, extras=["socks"]}
-mypy = "==0.540"
+mypy = "*"
 "rfc3986" = "*"
 
 

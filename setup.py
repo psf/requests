@@ -84,7 +84,7 @@ test_requirements = [
     'PySocks>=1.5.6, !=1.5.7',
     'pytest>=2.8.0',
     'pytest-mypy',
-    'mypy==0.540',
+    'mypy',
     'white',
 ]
 about = {}
