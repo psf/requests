@@ -2567,7 +2567,7 @@ def test_proxy_env_vars_override_default(var, url, proxy, s):
     kwargs = {var: proxy}
     scheme = urlparse(url).scheme
     with override_environ(**kwargs):
-        proxies = session.rebuild_proxies(prep, {})
+        proxies = s.rebuild_proxies(prep, {})
         assert scheme in proxies
         assert proxies[scheme] == proxy
 
