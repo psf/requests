@@ -168,8 +168,8 @@ class HTTPHeaderDict(CaseInsensitiveDict):
         """
         if len(args) > 1:
             raise TypeError(
-                "extend() takes at most 1 positional "
-                "arguments ({0} given)".format(len(args))
+                f"extend() takes at most 1 positional "
+                "arguments ({len(args)} given)"
             )
 
         for other in args + (kwargs,):
@@ -216,7 +216,7 @@ class LookupDict(dict):
         super(LookupDict, self).__init__()
 
     def __repr__(self):
-        return '<lookup \'%s\'>' % (self.name)
+        return f'<lookup \'{self.name}\'>'
 
     def __getitem__(self, key):
         # We allow fall-through here, so values default to None
