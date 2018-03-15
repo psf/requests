@@ -10,6 +10,7 @@ dev
 
 - Warn user about possible slowdown when using cryptography version < 1.3.4
 - Use rfc3986 for URL parsing.
+- Use __slots__ for often–called classes.
 
 **Bugfixes**
 
