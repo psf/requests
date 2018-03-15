@@ -381,7 +381,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.prepare_hooks(hooks)
 
     def __repr__(self):
-        return '<PreparedRequest [%s]>' % (self.method)
+        return f'<PreparedRequest [{self.method}]>'
 
     def copy(self):
         p = PreparedRequest()
@@ -439,17 +439,17 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if validate:
                 rfc3986.normalize_uri(url)
         except rfc3986.exceptions.RFC3986Exception:
-            raise InvalidURL("Invalid URL %r: URL is imporoper." % url)
+            raise InvalidURL(f"Invalid URL {url!r}: URL is imporoper.")
 
         if not uri.scheme:
             error = (
-                "Invalid URL {0!r}: No scheme supplied. Perhaps you meant http://{0}?"
+                "Invalid URL {!r}: No scheme supplied. Perhaps you meant http://{}?"
             )
             error = error.format(to_native_string(url, 'utf8'))
             raise MissingScheme(error)
 
         if not uri.host:
-            raise InvalidURL("Invalid URL %r: No host supplied" % url)
+            raise InvalidURL(f"Invalid URL {url!r}: No host supplied")
 
         # In general, we want to try IDNA encoding the hostname if the string contains
         # non-ASCII characters. This allows users to automatically get the correct IDNA
