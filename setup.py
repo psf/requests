@@ -5,7 +5,7 @@ import sys
 
 from codecs import open
 
-from setuptools import setup, Command
+from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
 here = os.path.abspath(os.path.dirname(__file__))
