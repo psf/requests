@@ -196,11 +196,16 @@ class HTTPHeaderDict(CaseInsensitiveDict):
                 else:
                     self._extend(ik, tuple(iv))
 
-    def __repr__(self):
+    @property
+    def _as_dict(self):
+        """A dictionary representation of the HTTPHeaderDict."""
         d = {}
         for k, vals in self._store.values():
             d[k] = vals[0] if len(vals) == 1 else vals
-        return repr(d)
+        return d
+
+    def __repr__(self):
+        return repr(self._as_dict)
 
 
 class LookupDict(dict):
