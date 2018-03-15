@@ -443,7 +443,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         if not uri.scheme:
             error = (
-                "Invalid URL {!r}: No scheme supplied. Perhaps you meant http://{}?"
+                "Invalid URL {0!r}: No scheme supplied. Perhaps you meant http://{0}?"
             )
             error = error.format(to_native_string(url, 'utf8'))
             raise MissingScheme(error)
