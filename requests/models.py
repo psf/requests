@@ -244,7 +244,6 @@ class Request(RequestHooksMixin):
       >>> req.prepare()
       <PreparedRequest [GET]>
     """
-
     __slots__ = (
         'method',
         'url',
@@ -255,7 +254,7 @@ class Request(RequestHooksMixin):
         'auth',
         'cookies',
         'hooks',
-        'json'
+        'json',
     )
 
     def __init__(
@@ -640,7 +639,6 @@ class Response(object):
         'elapsed',
         'request',
     ]
-
     __slots__ = __attrs__ + ['_content_consumed', 'raw', '_next', 'connection']
 
     def __init__(self):

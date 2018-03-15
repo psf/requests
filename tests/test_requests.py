@@ -2229,7 +2229,6 @@ class TestRequests:
         resp = requests.get(httpbin('response-headers?' + qs))
         fruits = resp.headers['fruit']
         assert fruits == 'Apple, Blood Orange, Banana, Berry, Blue'
-
         # As we are using HTTPHeaderDict, we should be able to extract the
         # individual header values too.
         assert resp.headers.getlist('fruit') == [
@@ -2242,14 +2241,12 @@ class TestRequests:
         # are there, rather than asserting a particular order.
         qs = 'Fruit=Apple&Fruit=Blood+Orange&Fruit=Banana&Fruit=Berry,+Blue'
         resp = requests.get(httpbin('response-headers?' + qs))
-
         # These are all possible acceptable combinations for the header.
         fruit_choices = ['Apple', 'Blood Orange', 'Banana', 'Berry, Blue']
         fruit_permutations = itertools.permutations(fruit_choices)
         fruit_multiheaders = [list(fp) for fp in fruit_permutations]
         fruit_headers = set(', '.join(fp) for fp in fruit_multiheaders)
         assert resp.headers['fruit'] in fruit_headers
-
         # As we are using HTTPHeaderDict, we should be able to extract the
         # individual header values too.
         assert resp.headers.getlist('fruit') in fruit_multiheaders
@@ -2752,20 +2749,16 @@ class TestPreparingURLs(object):
 
     @pytest.mark.parametrize(
         'input, expected',
-        (
-            # TODO: Bugs in rfc3986, apparently.
-            # (
-            #     b"http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
-            #     u"http+unix://%2Fvar%2Frun%2Fsocket/path~",
-            # ),
-            # (
-            #     u"http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
-            #     u"http+unix://%2Fvar%2Frun%2Fsocket/path~",
-            # ),
-            (b"mailto:user@example.org", u"mailto:user@example.org"),
-            (u"mailto:user@example.org", u"mailto:user@example.org"),
-            (b"data:SSDimaUgUHl0aG9uIQ==", u"data:SSDimaUgUHl0aG9uIQ=="),
-        ),
+        ((b"mailto:user@example.org", u"mailto:user@example.org"), (u"mailto:user@example.org", u"mailto:user@example.org"), (b"data:SSDimaUgUHl0aG9uIQ==", u"data:SSDimaUgUHl0aG9uIQ==")),
+        # TODO: Bugs in rfc3986, apparently.
+        # (
+        #     b"http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
+        #     u"http+unix://%2Fvar%2Frun%2Fsocket/path~",
+        # ),
+        # (
+        #     u"http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
+        #     u"http+unix://%2Fvar%2Frun%2Fsocket/path~",
+        # ),
     )
     def test_url_mutation(self, input, expected):
         """
@@ -2780,29 +2773,18 @@ class TestPreparingURLs(object):
 
     @pytest.mark.parametrize(
         'input, params, expected',
-        (
-            # TODO:
-            # (
-            #     b"http+unix://%2Fvar%2Frun%2Fsocket/path",
-            #     {"key": "value"},
-            #     u"http+unix://%2Fvar%2Frun%2Fsocket/path?key=value",
-            # ),
-            # (
-            #     u"http+unix://%2Fvar%2Frun%2Fsocket/path",
-            #     {"key": "value"},
-            #     u"http+unix://%2Fvar%2Frun%2Fsocket/path?key=value",
-            # ),
-            (
-                b"mailto:user@example.org",
-                {"key": "value"},
-                u"mailto:user@example.org",
-            ),
-            (
-                u"mailto:user@example.org",
-                {"key": "value"},
-                u"mailto:user@example.org",
-            ),
-        ),
+        ((b"mailto:user@example.org", {"key": "value"}, u"mailto:user@example.org"), (u"mailto:user@example.org", {"key": "value"}, u"mailto:user@example.org")),
+        # TODO:
+        # (
+        #     b"http+unix://%2Fvar%2Frun%2Fsocket/path",
+        #     {"key": "value"},
+        #     u"http+unix://%2Fvar%2Frun%2Fsocket/path?key=value",
+        # ),
+        # (
+        #     u"http+unix://%2Fvar%2Frun%2Fsocket/path",
+        #     {"key": "value"},
+        #     u"http+unix://%2Fvar%2Frun%2Fsocket/path?key=value",
+        # ),
     )
     def test_parameters_for_nonstandard_schemes(self, input, params, expected):
         """
