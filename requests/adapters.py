@@ -35,7 +35,7 @@ from .utils import (
     urldefragauth,
     select_proxy,
 )
-from .structures import CaseInsensitiveDict
+from .structures import HTTPHeaderDict
 from .cookies import extract_cookies_to_jar
 from .exceptions import (
     ConnectionError,
@@ -304,7 +304,8 @@ class HTTPAdapter(BaseAdapter):
         # Fallback to None if there's no status_code, for whatever reason.
         response.status_code = getattr(resp, 'status', None)
         # Make headers case-insensitive.
-        response.headers = CaseInsensitiveDict(getattr(resp, 'headers', {}))
+        response.headers = HTTPHeaderDict(getattr(resp, 'headers', {}))
+
         # Set encoding.
         response.encoding = get_encoding_from_headers(response.headers)
         response.raw = resp

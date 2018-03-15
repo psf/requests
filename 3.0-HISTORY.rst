@@ -23,9 +23,9 @@
 
 - Streaming responses with ``Response.iter_lines`` or ``Response.iter_content``
   now requires an encoding to be set if one isn't provided by the server.
-  
-- Exception raised during read timeout for ``Response.iter_content`` and 
-  ``Response.iter_lines`` changed from ``ConnectionError`` to more 
+
+- Exception raised during read timeout for ``Response.iter_content`` and
+  ``Response.iter_lines`` changed from ``ConnectionError`` to more
   specific ``ReadTimeout``.
 
 - Raise exception if multiple locations are returned during a redirect.
@@ -72,6 +72,10 @@
 - URLs are now automatically stripped of leading/trailing whitespace.
 
 - ``Response.raise_for_status()`` now returns the response object for good responses
+
+- Use ``HTTPHeaderDict`` for response headers, allowing easier access to
+  individual values when multiple response headers are sent using the same
+  header name.
 
 .. _#2002: https://github.com/kennethreitz/requests/issues/2002
 .. _#2631: https://github.com/kennethreitz/requests/issues/2631

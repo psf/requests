@@ -179,7 +179,11 @@ Patches and Suggestions
 - Shmuel Amar (`@shmuelamar <https://github.com/shmuelamar>`_)
 - Gary Wu (`@garywu <https://github.com/garywu>`_)
 - Ryan Pineo (`@ryanpineo <https://github.com/ryanpineo>`_)
+<<<<<<< HEAD
 - Ed Morley (`@edmorley <https://github.com/edmorley>`_)
 - Matt Liu <liumatt@gmail.com> (`@mlcrazy <https://github.com/mlcrazy>`_)
 - Taylor Hoff <primdevs@protonmail.com> (`@PrimordialHelios <https://github.com/PrimordialHelios>`_)
 - Hugo van Kemenade (`@hugovk <https://github.com/hugovk>`_)
+=======
+- Allan Crooks (`@the-allanc <https://github.com/the-allanc>`_)
+>>>>>>> 4f0b496d2b3c91d72a951bebdd6be9cec33c17d6

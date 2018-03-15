@@ -2,6 +2,7 @@
 """Tests for Requests."""
 
 from __future__ import division
+import itertools
 import json
 import os
 import pickle
@@ -2220,6 +2221,36 @@ class TestRequests:
         assert r.history[1].status_code == 200
         assert not r.history[1].is_redirect
         assert r.url == urls_test[2]
+
+    def test_multiple_response_headers_with_same_name_same_case(self, httpbin):
+        qs = 'Fruit=Apple&Fruit=Blood+Orange&Fruit=Banana&Fruit=Berry,+Blue'
+        resp = requests.get(httpbin('response-headers?' + qs))
+        fruits = resp.headers['fruit']
+        assert fruits == 'Apple, Blood Orange, Banana, Berry, Blue'
+
+        # As we are using HTTPHeaderDict, we should be able to extract the
+        # individual header values too.
+        assert resp.headers.getlist('fruit') == [
+            'Apple', 'Blood Orange', 'Banana', 'Berry, Blue'
+        ]
+
+    def test_multiple_response_headers_with_same_name_diff_case(self, httpbin):
+        # urllib3 seems to have trouble guaranteeing the order of the items when
+        # the case is different, so we just need to make sure all of the items
+        # are there, rather than asserting a particular order.
+        qs = 'Fruit=Apple&Fruit=Blood+Orange&Fruit=Banana&Fruit=Berry,+Blue'
+        resp = requests.get(httpbin('response-headers?' + qs))
+
+        # These are all possible acceptable combinations for the header.
+        fruit_choices = ['Apple', 'Blood Orange', 'Banana', 'Berry, Blue']
+        fruit_permutations = itertools.permutations(fruit_choices)
+        fruit_multiheaders = [list(fp) for fp in fruit_permutations]
+        fruit_headers = set(', '.join(fp) for fp in fruit_multiheaders)
+        assert resp.headers['fruit'] in fruit_headers
+
+        # As we are using HTTPHeaderDict, we should be able to extract the
+        # individual header values too.
+        assert resp.headers.getlist('fruit') in fruit_multiheaders
 
 
 class TestCaseInsensitiveDict:
