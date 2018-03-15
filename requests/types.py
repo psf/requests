@@ -64,3 +64,7 @@ Verify = Union[None, bool, Text]
 Cert = Union[Text, Tuple[Text, Text]]
 JSON = Optional[MutableMapping]
 Help = Dict
+Host = str
+Sequence = List
+Filename = str
+KeyValueList = List[Tuple[Text, Text]]
