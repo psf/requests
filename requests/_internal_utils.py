@@ -29,7 +29,9 @@ def unicode_is_ascii(u_string):
         and not Python 2 `str`.
     :rtype: bool
     """
-    assert isinstance(u_string, str)
+    if not isinstance(u_string, str):
+        return None
+
     try:
         u_string.encode('ascii')
         return True

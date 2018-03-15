@@ -14,11 +14,11 @@ import sys
 # Import encoding now, to avoid implicit import later.
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
 # such as in Embedded Python. See https://github.com/requests/requests/issues/3578.
+import rfc3986
 import encodings.idna
 
 from urllib3.fields import RequestField
 from urllib3.filepost import encode_multipart_formdata
-from urllib3.util import parse_url
 from urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError, LocationParseError
 )
@@ -413,55 +413,62 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         # Support for unicode domain names and paths.
         try:
-            scheme, auth, host, port, path, query, fragment = parse_url(url)
-        except LocationParseError as e:
-            raise InvalidURL(* e.args)
+            uri = rfc3986.urlparse(url)
+            rfc3986.normalize_uri(url)
+        except rfc3986.exceptions.RFC3986Exception:
+            raise InvalidURL("Invalid URL %r: URL is imporoper." % url)
 
-        if not scheme:
+
+
+
+        if not uri.scheme:
             error = (
                 "Invalid URL {0!r}: No scheme supplied. Perhaps you meant http://{0}?"
             )
             error = error.format(to_native_string(url, 'utf8'))
             raise MissingScheme(error)
 
-        if not host:
+        if not uri.host:
             raise InvalidURL("Invalid URL %r: No host supplied" % url)
 
         # In general, we want to try IDNA encoding the hostname if the string contains
         # non-ASCII characters. This allows users to automatically get the correct IDNA
         # behaviour. For strings containing only ASCII characters, we need to also verify
         # it doesn't start with a wildcard (*), before allowing the unencoded hostname.
-        if not unicode_is_ascii(host):
+        if not unicode_is_ascii(uri.host):
             try:
-                host = self._get_idna_encoded_host(host)
+                uri = uri.copy_with(host=self._get_idna_encoded_host(uri.host))
             except UnicodeError:
                 raise InvalidURL('URL has an invalid label.')
 
-        elif host.startswith(u'*'):
+        elif uri.host.startswith(u'*'):
             raise InvalidURL('URL has an invalid label.')
 
         # Carefully reconstruct the network location
-        netloc = auth or ''
+        netloc = uri.userinfo or ''
         if netloc:
             netloc += '@'
-        netloc += host
-        if port:
-            netloc += ':' + str(port)
+        netloc += uri.host
+        if uri.port:
+            netloc += ':' + str(uri.port)
+
         # Bare domains aren't valid URLs.
-        if not path:
-            path = '/'
+        if not uri.path:
+            uri = uri.copy_with(path='/')
         if isinstance(params, (str, bytes)):
             params = to_native_string(params)
         enc_params = self._encode_params(params)
         if enc_params:
-            if query:
-                query = '%s&%s' % (query, enc_params)
+            if uri.query:
+                uri = uri.copy_with(query=f'{uri.query}&{enc_params}')
             else:
-                query = enc_params
+                uri = uri.copy_with(query=enc_params)
         url = requote_uri(
-            urlunparse([scheme, netloc, path, None, query, fragment])
+            # urlunparse([scheme, netloc, path, None, query, fragment])
+            urlunparse([uri.scheme, netloc, uri.path, None, uri.query, uri.fragment])
         )
-        self.url = url
+        # Normalize the URI.
+        self.url = rfc3986.normalize_uri(url)
 
     def prepare_headers(self, headers):
         """Prepares the given HTTP headers."""
