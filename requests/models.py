@@ -391,7 +391,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         return host
 
-    def prepare_url(self, url, params):
+    def prepare_url(self, url, params, validate=False):
         """Prepares the given HTTP URL."""
         # : Accept objects that have string representations.
         #: We're unable to blindly call unicode/str functions
@@ -414,12 +414,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Support for unicode domain names and paths.
         try:
             uri = rfc3986.urlparse(url)
-            rfc3986.normalize_uri(url)
+            if validate:
+                rfc3986.normalize_uri(url)
         except rfc3986.exceptions.RFC3986Exception:
             raise InvalidURL("Invalid URL %r: URL is imporoper." % url)
-
-
-
 
         if not uri.scheme:
             error = (
