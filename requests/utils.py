@@ -51,7 +51,7 @@ if platform.system() == 'Windows':
 
     # provide a proxy_bypass version on Windows without DNS lookups
     def proxy_bypass_registry(host: str) -> bool:
-        import winreg
+        import winreg   # typing: ignore
 
         try:
             internetSettings = winreg.OpenKey(
@@ -103,10 +103,10 @@ if platform.system() == 'Windows':
             return proxy_bypass_registry(host)
 
 
-def dict_to_sequence(d: dict) -> typing.List:
+def dict_to_sequence(d: dict) -> typing.Union[typing.Optional[typing.ItemsView[typing.Any, typing.Any]], dict]:
     """Returns an internal sequence dictionary update."""
     if hasattr(d, 'items'):
-        d = d.items()
+        return d.items()
     return d
 
 
@@ -167,7 +167,7 @@ def super_len(o) -> int:
 
 def get_netrc_auth(
     url: str, raise_errors: bool = False
-) -> typing.Tuple[typing.Text, typing.Text]:
+) -> typing.Optional[typing.Tuple[typing.Text, typing.Text]]:
     """Returns the Requests tuple auth for a given url from netrc."""
     try:
         from netrc import netrc, NetrcParseError
@@ -180,7 +180,7 @@ def get_netrc_auth(
                 # os.path.expanduser can fail when $HOME is undefined and
                 # getpwuid fails. See http://bugs.python.org/issue20164 &
                 # https://github.com/requests/requests/issues/1846
-                return
+                return None
 
             if os.path.exists(loc):
                 netrc_path = loc
@@ -188,15 +188,10 @@ def get_netrc_auth(
 
         # Abort early if there isn't one.
         if netrc_path is None:
-            return
+            return None
 
         ri = urlparse(url)
-        # Strip port numbers from netloc. This weird `if...encode`` dance is
-        # used for Python 3.2, which doesn't support unicode literals.
-        splitstr = b':'
-        if isinstance(url, str):
-            splitstr = splitstr.decode('ascii')
-        host = ri.netloc.split(splitstr)[0]
+        host = ri.netloc.split(':')[0]
         try:
             _netrc = netrc(netrc_path).authenticators(host)
             if _netrc:
@@ -213,6 +208,8 @@ def get_netrc_auth(
     # AppEngine hackiness.
     except (ImportError, AttributeError):
         pass
+
+    return None
 
 
 def guess_filename(obj) -> str:
@@ -337,7 +334,7 @@ def parse_dict_header(value) -> dict:
     :return: :class:`dict`
     :rtype: dict
     """
-    result = {}
+    result = {}   # type: dict
     for item in _parse_list_header(value):
         if '=' not in item:
             result[item] = None
@@ -493,12 +490,8 @@ def unquote_unreserved(uri: str) -> str:
             return c
 
     # Handle both bytestrings and unicode strings.
-    is_bytes = isinstance(uri, bytes)
-    splitchar = u'%'
-    base = u''
-    if is_bytes:
-        splitchar = splitchar.encode('ascii')
-        base = base.encode('ascii')
+    splitchar = '%'
+    base = ''
     parts = uri.split(splitchar)
     for i in range(1, len(parts)):
         h = parts[i][0:2]
@@ -509,7 +502,7 @@ def unquote_unreserved(uri: str) -> str:
                 raise InvalidURL("Invalid percent-escape sequence: '%s'" % h)
 
             if c in UNRESERVED_SET:
-                parts[i] = convert(is_bytes, c) + parts[i][2:]
+                parts[i] = convert(is_bytes=False, c=c) + parts[i][2:]
             else:
                 parts[i] = splitchar + parts[i]
         else:
@@ -607,7 +600,7 @@ def is_valid_cidr(string_network: str) -> bool:
 
 
 @contextlib.contextmanager
-def set_environ(env_name: str, value: typing.Optional[str]) -> None:
+def set_environ(env_name: str, value: typing.Optional[str]) -> typing.Generator:
     """Set the environment variable 'env_name' to 'value'
 
     Save previous value, yield, and then restore the previous value stored in
@@ -629,7 +622,7 @@ def set_environ(env_name: str, value: typing.Optional[str]) -> None:
                 os.environ[env_name] = old_value
 
 
-def should_bypass_proxies(url: str, no_proxy: bool) -> bool:
+def should_bypass_proxies(url: str, no_proxy: typing.Optional[str]) -> bool:
     """
     Returns whether we should bypass proxies or not.
 
@@ -744,7 +737,7 @@ def parse_header_links(value: str) -> typing.List[typing.MutableMapping]:
 
     :rtype: list
     """
-    links = []
+    links = []   # type: typing.List
     replace_chars = ' \'"'
     value = value.strip(replace_chars)
     if not value:
@@ -767,7 +760,7 @@ def parse_header_links(value: str) -> typing.List[typing.MutableMapping]:
     return links
 
 
-def is_valid_location(response: 'Response') -> bool:
+def is_valid_location(response) -> bool:
     """Verify that multiple Location headers weren't
     returned from the last response.
     """
@@ -869,10 +862,7 @@ def check_header_validity(header: typing.Tuple[typing.Text, typing.Text]) -> Non
     :param header: tuple, in the format (name, value).
     """
     name, value = header
-    if isinstance(value, bytes):
-        pat = _CLEAN_HEADER_REGEX_BYTE
-    else:
-        pat = _CLEAN_HEADER_REGEX_STR
+    pat = _CLEAN_HEADER_REGEX_STR
     try:
         if not pat.match(value):
             raise InvalidHeader(
@@ -901,7 +891,7 @@ def urldefragauth(url: str) -> str:
     return urlunparse((scheme, netloc, path, params, query, ''))
 
 
-def rewind_body(prepared_request: 'PreparedRequest') -> None:
+def rewind_body(prepared_request) -> None:
     """Move file pointer back to its recorded starting position
     so it can be read again on redirect.
     """
