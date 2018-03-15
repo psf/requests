@@ -51,7 +51,7 @@ if platform.system() == 'Windows':
 
     # provide a proxy_bypass version on Windows without DNS lookups
     def proxy_bypass_registry(host: str) -> bool:
-        import winreg   # typing: ignore
+        import winreg  # typing: ignore
 
         try:
             internetSettings = winreg.OpenKey(
@@ -103,10 +103,15 @@ if platform.system() == 'Windows':
             return proxy_bypass_registry(host)
 
 
-def dict_to_sequence(d: dict) -> typing.Union[typing.Optional[typing.ItemsView[typing.Any, typing.Any]], dict]:
+def dict_to_sequence(
+    d: dict
+) -> typing.Union[
+    typing.Optional[typing.ItemsView[typing.Any, typing.Any]], dict
+]:
     """Returns an internal sequence dictionary update."""
     if hasattr(d, 'items'):
         return d.items()
+
     return d
 
 
@@ -208,7 +213,6 @@ def get_netrc_auth(
     # AppEngine hackiness.
     except (ImportError, AttributeError):
         pass
-
     return None
 
 
@@ -249,7 +253,9 @@ def from_key_val_list(value):
     return collections.OrderedDict(value)
 
 
-def to_key_val_list(value) -> typing.List[typing.Tuple[typing.Text, typing.Text]]:
+def to_key_val_list(
+    value
+) -> typing.List[typing.Tuple[typing.Text, typing.Text]]:
     """Take an object and test to see if it can be represented as a
     dictionary. If it can be, return a list of tuples, e.g.,
 
@@ -334,7 +340,7 @@ def parse_dict_header(value) -> dict:
     :return: :class:`dict`
     :rtype: dict
     """
-    result = {}   # type: dict
+    result = {}  # type: dict
     for item in _parse_list_header(value):
         if '=' not in item:
             result[item] = None
@@ -600,7 +606,9 @@ def is_valid_cidr(string_network: str) -> bool:
 
 
 @contextlib.contextmanager
-def set_environ(env_name: str, value: typing.Optional[str]) -> typing.Generator:
+def set_environ(
+    env_name: str, value: typing.Optional[str]
+) -> typing.Generator:
     """Set the environment variable 'env_name' to 'value'
 
     Save previous value, yield, and then restore the previous value stored in
@@ -681,7 +689,10 @@ def get_environ_proxies(
         return getproxies()
 
 
-def select_proxy(url: str, proxies: typing.Optional[typing.MutableMapping[typing.Text, typing.Text]]):
+def select_proxy(
+    url: str,
+    proxies: typing.Optional[typing.MutableMapping[typing.Text, typing.Text]],
+):
     """Select a proxy for the url, if applicable.
 
     :param url: The url being for the request
@@ -737,7 +748,7 @@ def parse_header_links(value: str) -> typing.List[typing.MutableMapping]:
 
     :rtype: list
     """
-    links = []   # type: typing.List
+    links = []  # type: typing.List
     replace_chars = ' \'"'
     value = value.strip(replace_chars)
     if not value:
@@ -854,7 +865,9 @@ _CLEAN_HEADER_REGEX_BYTE = re.compile(b'^\\S[^\\r\\n]*$|^$')
 _CLEAN_HEADER_REGEX_STR = re.compile(r'^\S[^\r\n]*$|^$')
 
 
-def check_header_validity(header: typing.Tuple[typing.Text, typing.Text]) -> None:
+def check_header_validity(
+    header: typing.Tuple[typing.Text, typing.Text]
+) -> None:
     """Verifies that header value is a string which doesn't contain
     leading whitespace or return characters. This prevents unintended
     header injection.

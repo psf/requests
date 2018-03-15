@@ -174,13 +174,13 @@ class TestRequests:
         prep = session.prepare_request(request)
         assert prep.url == 'http://example.com/?z=1&a=1&k=1&d=1'
 
+
     # def test_params_bytes_are_encoded(self):
     #     request = requests.Request(
     #         'GET', 'http://example.com', params=b'test=foo'
     #     ).prepare(
     #     )
     #     assert request.url == 'http://example.com/?test=foo'
-
     def test_binary_put(self):
         request = requests.Request(
             'PUT', 'http://example.com', data=u"ööö".encode("utf-8")
@@ -650,6 +650,7 @@ class TestRequests:
             requests.auth._basic_auth_str(username, password)
         assert 'must be of type str or bytes' in str(e)
 
+
     # def test_basicauth_encodes_byte_strings(self):
     #     """Ensure b'test' formats as the byte string "test" rather
     #     than the unicode string "b'test'" in Python 3.
@@ -658,7 +659,6 @@ class TestRequests:
     #     r = requests.Request('GET', 'http://localhost', auth=auth)
     #     p = r.prepare()
     #     assert p.headers['Authorization'] == 'Basic xa9zZXJuYW1lOnRlc3TGtg=='
-
     @pytest.mark.parametrize(
         'url, exception',
         (('http://doesnotexist.google.com', ConnectionError), ('http://localhost:1', ConnectionError), ('http://fe80::5054:ff:fe5a:fc0', InvalidURL)),
@@ -1119,12 +1119,12 @@ class TestRequests:
             'Dummy-Auth-Test'
         ] == 'dummy-auth-test-ok'
 
+
     # def test_prepare_request_with_bytestring_url(self):
     #     req = requests.Request('GET', b'https://httpbin.org/')
     #     s = requests.Session()
     #     prep = s.prepare_request(req)
     #     assert prep.url == "https://httpbin.org/"
-
     # def test_request_with_bytestring_host(self, httpbin):
     #     s = requests.Session()
     #     resp = s.request(
@@ -1134,7 +1134,6 @@ class TestRequests:
     #         headers={'Host': b'httpbin.org'},
     #     )
     #     assert resp.cookies.get('cookie') == 'value'
-
     def test_links(self):
         r = requests.Response()
         r.headers = {
@@ -1633,10 +1632,7 @@ class TestRequests:
     def test_header_validation(self, httpbin):
         """Ensure prepare_headers regex isn't flagging valid header contents."""
         headers_ok = {
-            'foo': 'bar baz qux',
-            'bar': 'fbbq',
-            'baz': '',
-            'qux': '1',
+            'foo': 'bar baz qux', 'bar': 'fbbq', 'baz': '', 'qux': '1'
         }
         r = requests.get(httpbin('get'), headers=headers_ok)
         assert r.request.headers['foo'] == headers_ok['foo']
