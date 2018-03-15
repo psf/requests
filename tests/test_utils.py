@@ -644,10 +644,8 @@ def test_should_bypass_proxies_win_registry(
     """
     if override is None:
         override = '192.168.*;127.0.0.1;localhost.localdomain;172.16.1.1'
-    if basics.is_py3:
-        import winreg
-    else:
-        import _winreg as winreg
+
+    import winreg
 
     class RegHandle:
 
