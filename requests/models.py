@@ -315,6 +315,15 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
       >>> s.send(r)
       <Response [200]>
     """
+    __slots__ = (
+        'method',
+        'url',
+        'headers',
+        '_cookies',
+        'body',
+        'hooks',
+        '_body_position',
+    )
 
     def __init__(self):
         # : HTTP verb to send to the server.
@@ -442,14 +451,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         elif uri.host.startswith(u'*'):
             raise InvalidURL('URL has an invalid label.')
 
-        # Carefully reconstruct the network location
-        netloc = uri.userinfo or ''
-        if netloc:
-            netloc += '@'
-        netloc += uri.host
-        if uri.port:
-            netloc += ':' + str(uri.port)
-
         # Bare domains aren't valid URLs.
         if not uri.path:
             uri = uri.copy_with(path='/')
@@ -461,12 +462,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 uri = uri.copy_with(query=f'{uri.query}&{enc_params}')
             else:
                 uri = uri.copy_with(query=enc_params)
-        url = requote_uri(
-            # urlunparse([scheme, netloc, path, None, query, fragment])
-            urlunparse([uri.scheme, netloc, uri.path, None, uri.query, uri.fragment])
-        )
+        # url = requote_uri(
+        #     urlunparse([uri.scheme, uri.authority, uri.path, None, uri.query, uri.fragment])
+        # )
         # Normalize the URI.
-        self.url = rfc3986.normalize_uri(url)
+        self.url = rfc3986.normalize_uri(uri.unsplit())
 
     def prepare_headers(self, headers):
         """Prepares the given HTTP headers."""

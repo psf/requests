@@ -37,6 +37,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
     operations are given keys that have equal ``.lower()``s, the
     behavior is undefined.
     """
+
     def __init__(self, data=None, **kwargs):
         self._store = collections.OrderedDict()
         if data is None:
@@ -94,14 +95,15 @@ class HTTPHeaderDict(CaseInsensitiveDict):
         super(HTTPHeaderDict, self).__init__()
         self.extend({} if data is None else data, **kwargs)
 
-    #
+
+    # 
     # We'll store tuples in the internal dictionary, but present them as a
     # concatenated string when we use item access methods.
     #
-
     def __setitem__(self, key, val):
         if not isinstance(val, basestring):
             raise ValueError('only string-type values are allowed')
+
         super(HTTPHeaderDict, self).__setitem__(key, (val,))
 
     def __getitem__(self, key):
@@ -109,9 +111,7 @@ class HTTPHeaderDict(CaseInsensitiveDict):
 
     def lower_items(self):
         return (
-            (lk, ', '.join(vals))
-            for (lk, (k, vals))
-            in self._store.items()
+            (lk, ', '.join(vals)) for (lk, (k, vals)) in self._store.items()
         )
 
     def copy(self):
@@ -127,16 +127,18 @@ class HTTPHeaderDict(CaseInsensitiveDict):
         any previously stored value."""
         if not isinstance(values, (list, tuple)):
             raise ValueError('argument is not sequence')
+
         if any(not isinstance(v, basestring) for v in values):
             raise ValueError('non-string items in sequence')
+
         if not values:
             self.pop(key, None)
             return
+
         super(HTTPHeaderDict, self).__setitem__(key, tuple(values))
 
     def _extend(self, key, values):
         new_value_tpl = key, values
-
         # Inspired by urllib3's implementation - use one call which should be
         # suitable for the common case.
         old_value_tpl = self._store.setdefault(key.lower(), new_value_tpl)
@@ -150,6 +152,7 @@ class HTTPHeaderDict(CaseInsensitiveDict):
         """
         if not isinstance(val, basestring):
             raise ValueError('value must be a string-type object')
+
         self._extend(key, (val,))
 
     def extend(self, *args, **kwargs):
@@ -158,12 +161,13 @@ class HTTPHeaderDict(CaseInsensitiveDict):
         tuples - values in these objects can be strings or sequence of strings.
         """
         if len(args) > 1:
-            raise TypeError("extend() takes at most 1 positional "
-                            "arguments ({0} given)".format(len(args)))
+            raise TypeError(
+                "extend() takes at most 1 positional "
+                "arguments ({0} given)".format(len(args))
+            )
 
         for other in args + (kwargs,):
             if isinstance(other, collections.Mapping):
-
                 # See if looks like a HTTPHeaderDict (either urllib3's
                 # implementation or ours). If so, then we have to add values
                 # in one go for each key.
@@ -177,12 +181,12 @@ class HTTPHeaderDict(CaseInsensitiveDict):
                 item_seq = other.items()
             else:
                 item_seq = other
-
             for ik, iv in item_seq:
                 if isinstance(iv, basestring):
                     self._extend(ik, (iv,))
                 elif any(not isinstance(v, basestring) for v in iv):
                     raise ValueError('non-string items in sequence')
+
                 else:
                     self._extend(ik, tuple(iv))
 

@@ -305,7 +305,6 @@ class HTTPAdapter(BaseAdapter):
         response.status_code = getattr(resp, 'status', None)
         # Make headers case-insensitive.
         response.headers = HTTPHeaderDict(getattr(resp, 'headers', {}))
-
         # Set encoding.
         response.encoding = get_encoding_from_headers(response.headers)
         response.raw = resp
