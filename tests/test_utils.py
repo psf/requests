@@ -171,7 +171,8 @@ class TestGetEnvironProxies:
     @pytest.fixture(autouse=True, params=['no_proxy', 'NO_PROXY'])
     def no_proxy(self, request, monkeypatch):
         monkeypatch.setenv(
-            request.param, '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1'
+            request.param,
+            '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1',
         )
 
     @pytest.mark.parametrize(
@@ -189,14 +190,22 @@ class TestGetEnvironProxies:
 
     @pytest.mark.parametrize(
         'url',
-        ('http://192.168.1.1:5000/', 'http://192.168.1.1/', 'http://www.requests.com/'),
+        (
+            'http://192.168.1.1:5000/',
+            'http://192.168.1.1/',
+            'http://www.requests.com/',
+        ),
     )
     def test_not_bypass(self, url):
         assert get_environ_proxies(url, no_proxy=None) != {}
 
     @pytest.mark.parametrize(
         'url',
-        ('http://192.168.1.1:5000/', 'http://192.168.1.1/', 'http://www.requests.com/'),
+        (
+            'http://192.168.1.1:5000/',
+            'http://192.168.1.1/',
+            'http://www.requests.com/',
+        ),
     )
     def test_bypass_no_proxy_keyword(self, url):
         no_proxy = '192.168.1.1,requests.com'
@@ -260,7 +269,9 @@ class TestAddressInNetwork:
 
 class TestGuessFilename:
 
-    @pytest.mark.parametrize('value', (1, type('Fake', (object,), {'name': 1})()))
+    @pytest.mark.parametrize(
+        'value', (1, type('Fake', (object,), {'name': 1})())
+    )
     def test_guess_filename_invalid(self, value):
         assert guess_filename(value) is None
 
@@ -362,7 +373,10 @@ ENCODED_PASSWORD = basics.quote(PASSWORD, '')
             'http://user:pass%20pass@complex.url.com/path?query=yes',
             ('user', 'pass pass'),
         ),
-        ('http://user:pass pass@complex.url.com/path?query=yes', ('user', 'pass pass')),
+        (
+            'http://user:pass pass@complex.url.com/path?query=yes',
+            ('user', 'pass pass'),
+        ),
         (
             'http://user%25user:pass@complex.url.com/path?query=yes',
             ('user%user', 'pass'),
@@ -400,7 +414,8 @@ def test_unquote_unreserved(uri, expected):
 
 
 @pytest.mark.parametrize(
-    'mask, expected', ((8, '255.0.0.0'), (24, '255.255.255.0'), (25, '255.255.255.128'))
+    'mask, expected',
+    ((8, '255.0.0.0'), (24, '255.255.255.0'), (25, '255.255.255.128')),
 )
 def test_dotted_netmask(mask, expected):
     assert dotted_netmask(mask) == expected
@@ -432,7 +447,10 @@ def test_select_proxies(url, expected, proxies):
 @pytest.mark.parametrize(
     'value, expected',
     (
-        ('foo="is a fish", bar="as well"', {'foo': 'is a fish', 'bar': 'as well'}),
+        (
+            'foo="is a fish", bar="as well"',
+            {'foo': 'is a fish', 'bar': 'as well'},
+        ),
         ('key_without_value', {'key_without_value': None}),
     ),
 )
@@ -445,7 +463,9 @@ def test_parse_dict_header(value, expected):
     (
         (CaseInsensitiveDict(), None),
         (
-            CaseInsensitiveDict({'content-type': 'application/json; charset=utf-8'}),
+            CaseInsensitiveDict(
+                {'content-type': 'application/json; charset=utf-8'}
+            ),
             'utf-8',
         ),
         (CaseInsensitiveDict({'content-type': 'text/plain'}), 'ISO-8859-1'),
@@ -457,7 +477,14 @@ def test_get_encoding_from_headers(value, expected):
 
 @pytest.mark.parametrize(
     'value, length',
-    (('', 0), ('T', 1), ('Test', 4), ('Cont', 0), ('Other', -5), ('Content', None)),
+    (
+        ('', 0),
+        ('T', 1),
+        ('Test', 4),
+        ('Cont', 0),
+        ('Other', -5),
+        ('Content', None),
+    ),
 )
 def test_iter_slices(value, length):
     if length is None or (length <= 0 and len(value) > 0):
@@ -472,7 +499,13 @@ def test_iter_slices(value, length):
     (
         (
             '<http:/.../front.jpeg>; rel=front; type="image/jpeg"',
-            [{'url': 'http:/.../front.jpeg', 'rel': 'front', 'type': 'image/jpeg'}],
+            [
+                {
+                    'url': 'http:/.../front.jpeg',
+                    'rel': 'front',
+                    'type': 'image/jpeg',
+                }
+            ],
         ),
         ('<http:/.../front.jpeg>', [{'url': 'http:/.../front.jpeg'}]),
         ('<http:/.../front.jpeg>;', [{'url': 'http:/.../front.jpeg'}]),
@@ -501,7 +534,9 @@ def test_prepend_scheme_if_needed(value, expected):
     assert prepend_scheme_if_needed(value, 'http') == expected
 
 
-@pytest.mark.parametrize('value, expected', (('T', 'T'), (b'T', 'T'), (u'T', 'T')))
+@pytest.mark.parametrize(
+    'value, expected', (('T', 'T'), (b'T', 'T'), (u'T', 'T'))
+)
 def test_to_native_string(value, expected):
     assert to_native_string(value) == expected
 
@@ -509,7 +544,10 @@ def test_to_native_string(value, expected):
 @pytest.mark.parametrize(
     'url, expected',
     (
-        ('http://u:p@example.com/path?a=1#test', 'http://example.com/path?a=1'),
+        (
+            'http://u:p@example.com/path?a=1#test',
+            'http://example.com/path?a=1',
+        ),
         ('http://example.com/path', 'http://example.com/path'),
         ('//u:p@example.com/path', '//example.com/path'),
         ('//example.com/path', '//example.com/path'),
@@ -561,7 +599,8 @@ def test_add_dict_to_cookiejar(cookiejar):
 
 
 @pytest.mark.parametrize(
-    'value, expected', ((u'test', True), (u'æíöû', False), (u'ジェーピーニック', False))
+    'value, expected',
+    ((u'test', True), (u'æíöû', False), (u'ジェーピーニック', False)),
 )
 def test_unicode_is_ascii(value, expected):
     assert unicode_is_ascii(value) is expected
@@ -605,7 +644,9 @@ def test_should_bypass_proxies_no_proxy(url, expected, monkeypatch):
         ('http://192.168.0.1/', False, ''),
     ),
 )
-def test_should_bypass_proxies_win_registry(url, expected, override, monkeypatch):
+def test_should_bypass_proxies_win_registry(
+    url, expected, override, monkeypatch
+):
     """Tests for function should_bypass_proxies to check if proxy
     can be bypassed or not with Windows registry settings
     """

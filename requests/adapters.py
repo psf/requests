@@ -117,7 +117,8 @@ def _pool_kwargs(verify, cert):
 
         if key_file and not os.path.exists(key_file):
             raise IOError(
-                "Could not find the TLS key file, " "invalid path: {0}".format(key_file)
+                "Could not find the TLS key file, "
+                "invalid path: {0}".format(key_file)
             )
 
     return pool_kwargs
@@ -130,7 +131,13 @@ class BaseAdapter(object):
         super(BaseAdapter, self).__init__()
 
     def send(
-        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+        self,
+        request,
+        stream=False,
+        timeout=None,
+        verify=True,
+        cert=None,
+        proxies=None,
     ):
         """Sends PreparedRequest object. Returns Response object.
 
@@ -180,7 +187,11 @@ class HTTPAdapter(BaseAdapter):
       >>> s.mount('http://', a)
     """
     __attrs__ = [
-        'max_retries', 'config', '_pool_connections', '_pool_maxsize', '_pool_block'
+        'max_retries',
+        'config',
+        '_pool_connections',
+        '_pool_maxsize',
+        '_pool_block',
     ]
 
     def __init__(
@@ -323,12 +334,16 @@ class HTTPAdapter(BaseAdapter):
         if proxy:
             proxy = prepend_scheme_if_needed(proxy, 'http')
             proxy_manager = self.proxy_manager_for(proxy)
-            conn = proxy_manager.connection_from_url(url, pool_kwargs=pool_kwargs)
+            conn = proxy_manager.connection_from_url(
+                url, pool_kwargs=pool_kwargs
+            )
         else:
             # Only scheme should be lower case
             parsed = urlparse(url)
             url = parsed.geturl()
-            conn = self.poolmanager.connection_from_url(url, pool_kwargs=pool_kwargs)
+            conn = self.poolmanager.connection_from_url(
+                url, pool_kwargs=pool_kwargs
+            )
         return conn
 
     def close(self):
@@ -397,11 +412,19 @@ class HTTPAdapter(BaseAdapter):
         headers = {}
         username, password = get_auth_from_url(proxy)
         if username:
-            headers['Proxy-Authorization'] = _basic_auth_str(username, password)
+            headers['Proxy-Authorization'] = _basic_auth_str(
+                username, password
+            )
         return headers
 
     def send(
-        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+        self,
+        request,
+        stream=False,
+        timeout=None,
+        verify=True,
+        cert=None,
+        proxies=None,
     ):
         """Sends PreparedRequest object. Returns Response object.
 
@@ -421,7 +444,9 @@ class HTTPAdapter(BaseAdapter):
         conn = self.get_connection(request.url, proxies, verify, cert)
         url = self.request_url(request, proxies)
         self.add_headers(request)
-        chunked = not (request.body is None or 'Content-Length' in request.headers)
+        chunked = not (
+            request.body is None or 'Content-Length' in request.headers
+        )
         if isinstance(timeout, tuple):
             try:
                 connect, read = timeout
@@ -460,7 +485,9 @@ class HTTPAdapter(BaseAdapter):
                     conn = conn.proxy_pool
                 low_conn = conn._get_conn(timeout=DEFAULT_POOL_TIMEOUT)
                 try:
-                    low_conn.putrequest(request.method, url, skip_accept_encoding=True)
+                    low_conn.putrequest(
+                        request.method, url, skip_accept_encoding=True
+                    )
                     for header, value in request.headers.items():
                         low_conn.putheader(header, value)
                     low_conn.endheaders()

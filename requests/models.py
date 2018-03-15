@@ -458,7 +458,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 query = '%s&%s' % (query, enc_params)
             else:
                 query = enc_params
-        url = requote_uri(urlunparse([scheme, netloc, path, None, query, fragment]))
+        url = requote_uri(
+            urlunparse([scheme, netloc, path, None, query, fragment])
+        )
         self.url = url
 
     def prepare_headers(self, headers):
@@ -707,14 +709,18 @@ class Response(object):
         """True if this Response is a well-formed HTTP redirect that could have
         been processed automatically (by :meth:`Session.resolve_redirects`).
         """
-        return ('location' in self.headers and self.status_code in REDIRECT_STATI)
+        return (
+            'location' in self.headers and self.status_code in REDIRECT_STATI
+        )
 
     @property
     def is_permanent_redirect(self):
         """True if this Response one of the permanent versions of redirect."""
         return (
             'location' in self.headers and
-            self.status_code in (codes.moved_permanently, codes.permanent_redirect)
+            self.status_code in (
+                codes.moved_permanently, codes.permanent_redirect
+            )
         )
 
     @property
@@ -748,7 +754,9 @@ class Response(object):
             # Special case for urllib3.
             if hasattr(self.raw, 'stream'):
                 try:
-                    for chunk in self.raw.stream(chunk_size, decode_content=True):
+                    for chunk in self.raw.stream(
+                        chunk_size, decode_content=True
+                    ):
                         yield chunk
 
                 except ProtocolError as e:
@@ -780,7 +788,8 @@ class Response(object):
 
         elif chunk_size is not None and not isinstance(chunk_size, int):
             raise TypeError(
-                "chunk_size must be an int, it is instead a %s." % type(chunk_size)
+                "chunk_size must be an int, it is instead a %s." %
+                type(chunk_size)
             )
 
         # simulate reading small chunks of the content
@@ -790,7 +799,8 @@ class Response(object):
         if decode_unicode:
             if self.encoding is None:
                 raise TypeError(
-                    'encoding must be set before consuming streaming ' 'responses'
+                    'encoding must be set before consuming streaming '
+                    'responses'
                 )
 
             # check encoding value here, don't wait for the generator to be
@@ -880,7 +890,9 @@ class Response(object):
         if self._content is False:
             # Read the contents.
             if self._content_consumed:
-                raise RuntimeError('The content for this response was already consumed')
+                raise RuntimeError(
+                    'The content for this response was already consumed'
+                )
 
             if self.status_code == 0 or self.raw is None:
                 self._content = None
@@ -942,7 +954,9 @@ class Response(object):
             encoding = guess_json_utf(self.content)
             if encoding is not None:
                 try:
-                    return complexjson.loads(self.content.decode(encoding), **kwargs)
+                    return complexjson.loads(
+                        self.content.decode(encoding), **kwargs
+                    )
 
                 except UnicodeDecodeError:
                     # Wrong UTF codec detected; usually because it's not UTF-8

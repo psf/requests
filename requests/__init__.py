@@ -46,7 +46,9 @@ from .exceptions import RequestsDependencyWarning
 
 def check_compatibility(urllib3_version: str, chardet_version: str) -> None:
     urllib3_version = urllib3_version.split('.')
-    assert urllib3_version != ['dev']  # Verify urllib3 isn't installed from git.
+    assert urllib3_version != [
+        'dev'
+    ]  # Verify urllib3 isn't installed from git.
     # Sometimes, urllib3 only reports its version as 16.1.
     if len(urllib3_version) == 2:
         urllib3_version.append('0')

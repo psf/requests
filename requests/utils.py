@@ -58,8 +58,14 @@ if platform.system() == 'Windows':
                 winreg.HKEY_CURRENT_USER,
                 r'Software\Microsoft\Windows\CurrentVersion\Internet Settings',
             )
-            proxyEnable = winreg.QueryValueEx(internetSettings, 'ProxyEnable')[0]
-            proxyOverride = winreg.QueryValueEx(internetSettings, 'ProxyOverride')[0]
+            proxyEnable = winreg.QueryValueEx(internetSettings, 'ProxyEnable')[
+                0
+            ]
+            proxyOverride = winreg.QueryValueEx(
+                internetSettings, 'ProxyOverride'
+            )[
+                0
+            ]
         except OSError:
             return False
 
@@ -210,7 +216,12 @@ def get_netrc_auth(url, raise_errors=False):
 def guess_filename(obj):
     """Tries to guess the filename of the given object."""
     name = getattr(obj, 'name', None)
-    if (name and isinstance(name, basestring) and name[0] != '<' and name[-1] != '>'):
+    if (
+        name and
+        isinstance(name, basestring) and
+        name[0] != '<' and
+        name[-1] != '>'
+    ):
         return os.path.basename(name)
 
 
@@ -401,7 +412,9 @@ def get_encodings_from_content(content):
         DeprecationWarning,
     )
     charset_re = re.compile(r'<meta.*?charset=["\']*(.+?)["\'>]', flags=re.I)
-    pragma_re = re.compile(r'<meta.*?content=["\']*;?charset=(.+?)["\'>]', flags=re.I)
+    pragma_re = re.compile(
+        r'<meta.*?content=["\']*;?charset=(.+?)["\'>]', flags=re.I
+    )
     xml_re = re.compile(r'^<\?xml.*?encoding=["\']*(.+?)["\'>]')
     return (
         charset_re.findall(content) +
@@ -570,7 +583,9 @@ def address_in_network(ip, net):
     """
     ipaddr = struct.unpack('=L', socket.inet_aton(ip))[0]
     netaddr, bits = net.split('/')
-    netmask = struct.unpack('=L', socket.inet_aton(dotted_netmask(int(bits))))[0]
+    netmask = struct.unpack('=L', socket.inet_aton(dotted_netmask(int(bits))))[
+        0
+    ]
     network = struct.unpack('=L', socket.inet_aton(netaddr))[0] & netmask
     return ( ipaddr & netmask) == ( network & netmask)
 
@@ -663,7 +678,9 @@ def should_bypass_proxies(url, no_proxy):
     if no_proxy:
         # We need to check whether we match here. We need to see if we match
         # the end of the netloc, both with and without the port.
-        no_proxy = (host for host in no_proxy.replace(' ', '').split(',') if host)
+        no_proxy = (
+            host for host in no_proxy.replace(' ', '').split(',') if host
+        )
         ip = netloc.split(':')[0]
         if is_ipv4_address(ip):
             for proxy_ip in no_proxy:
@@ -678,7 +695,9 @@ def should_bypass_proxies(url, no_proxy):
 
         else:
             for host in no_proxy:
-                if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
+                if netloc.endswith(host) or netloc.split(':')[0].endswith(
+                    host
+                ):
                     # The URL does match something in no_proxy, so we don't want
                     # to apply the proxies on this URL.
                     return True
@@ -888,7 +907,8 @@ def check_header_validity(header):
     try:
         if not pat.match(value):
             raise InvalidHeader(
-                "Invalid return character or leading space in header: %s" % name
+                "Invalid return character or leading space in header: %s" %
+                name
             )
 
     except TypeError:
@@ -924,15 +944,20 @@ def rewind_body(prepared_request):
             body_seek(prepared_request._body_position)
         except (IOError, OSError):
             raise UnrewindableBodyError(
-                "An error occurred when rewinding request " "body for redirect."
+                "An error occurred when rewinding request "
+                "body for redirect."
             )
 
     else:
-        raise UnrewindableBodyError("Unable to rewind request body for redirect.")
+        raise UnrewindableBodyError(
+            "Unable to rewind request body for redirect."
+        )
 
 
 def is_stream(data):
     """Given data, determines if it should be sent as a stream."""
     is_iterable = getattr(data, '__iter__', False)
-    is_io_type = not isinstance(data, (basestring, list, tuple, collections.Mapping))
+    is_io_type = not isinstance(
+        data, (basestring, list, tuple, collections.Mapping)
+    )
     return is_iterable and is_io_type

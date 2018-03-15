@@ -60,7 +60,9 @@ class TestTestServer:
     def test_basic_waiting_server(self):
         """the server waits for the block_server event to be set before closing"""
         block_server = threading.Event()
-        with Server.basic_response_server(wait_to_close_event=block_server) as (
+        with Server.basic_response_server(
+            wait_to_close_event=block_server
+        ) as (
             host, port
         ):
             sock = socket.socket()
@@ -73,7 +75,9 @@ class TestTestServer:
     def test_multiple_requests(self):
         """multiple requests can be served"""
         requests_to_handle = 5
-        server = Server.basic_response_server(requests_to_handle=requests_to_handle)
+        server = Server.basic_response_server(
+            requests_to_handle=requests_to_handle
+        )
         with server as (host, port):
             server_url = 'http://{0}:{1}'.format(host, port)
             for _ in range(requests_to_handle):
@@ -83,7 +87,9 @@ class TestTestServer:
             with pytest.raises(requests.exceptions.ConnectionError):
                 r = requests.get(server_url)
 
-    @pytest.mark.skip(reason="this fails non-deterministically under pytest-xdist")
+    @pytest.mark.skip(
+        reason="this fails non-deterministically under pytest-xdist"
+    )
     def test_request_recovery(self):
         """can check the requests content"""
         # TODO: figure out why this sometimes fails when using pytest-xdist.

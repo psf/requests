@@ -75,7 +75,8 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
 
     # Bypass if not a dictionary (e.g. verify)
     if not (
-        isinstance(session_setting, Mapping) and isinstance(request_setting, Mapping)
+        isinstance(session_setting, Mapping) and
+        isinstance(request_setting, Mapping)
     ):
         return request_setting
 
@@ -166,7 +167,8 @@ class SessionRedirectMixin(object):
                 response.raw.read(decode_content=False)
             if len(response.history) >= self.max_redirects:
                 raise TooManyRedirects(
-                    'Exceeded %s redirects.' % self.max_redirects, response=response
+                    'Exceeded %s redirects.' % self.max_redirects,
+                    response=response,
                 )
 
             # Release the connection back into the pool.
@@ -193,7 +195,9 @@ class SessionRedirectMixin(object):
             # If method is changed to GET we need to remove body and associated headers.
             if method_changed and prepared_request.method == 'GET':
                 # https://github.com/requests/requests/issues/3490
-                purged_headers = ('Content-Length', 'Content-Type', 'Transfer-Encoding')
+                purged_headers = (
+                    'Content-Length', 'Content-Type', 'Transfer-Encoding'
+                )
                 for header in purged_headers:
                     prepared_request.headers.pop(header, None)
                 prepared_request.body = None
@@ -205,7 +209,9 @@ class SessionRedirectMixin(object):
             # Extract any cookies sent on the response to the cookiejar
             # in the new request. Because we've mutated our copied prepared
             # request, use the old one that we haven't yet touched.
-            extract_cookies_to_jar(prepared_request._cookies, request, response.raw)
+            extract_cookies_to_jar(
+                prepared_request._cookies, request, response.raw
+            )
             merge_cookies(prepared_request._cookies, self.cookies)
             prepared_request.prepare_cookies(prepared_request._cookies)
             # Rebuild auth and proxy information.
@@ -241,7 +247,9 @@ class SessionRedirectMixin(object):
                 response.history = history[:]
                 # append the new response to the history tracker for the next iteration
                 history.append(response)
-                extract_cookies_to_jar(self.cookies, prepared_request, response.raw)
+                extract_cookies_to_jar(
+                    self.cookies, prepared_request, response.raw
+                )
                 # extract redirect url, if any, for the next loop
                 location_url = self.get_redirect_target(response)
                 yield response
@@ -298,7 +306,9 @@ class SessionRedirectMixin(object):
         except KeyError:
             username, password = None, None
         if username and password:
-            headers['Proxy-Authorization'] = _basic_auth_str(username, password)
+            headers['Proxy-Authorization'] = _basic_auth_str(
+                username, password
+            )
         return new_proxies
 
     def rebuild_method(self, prepared_request, response):
@@ -317,7 +327,9 @@ class SessionRedirectMixin(object):
         # of HTTP RFCs. While some browsers transform other methods to GET, little of
         # that has been standardized. For that reason, we're using curl as a model
         # which only supports POST->GET.
-        if response.status_code in (codes.found, codes.moved) and method == 'POST':
+        if response.status_code in (
+            codes.found, codes.moved
+        ) and method == 'POST':
             method = 'GET'
         prepared_request.method = method
         return method != original_method
@@ -642,7 +654,9 @@ class Session(SessionRedirectMixin):
         if not allow_redirects:
             try:
                 r._next = next(
-                    self.resolve_redirects(r, request, yield_requests=True, **kwargs)
+                    self.resolve_redirects(
+                        r, request, yield_requests=True, **kwargs
+                    )
                 )
             except StopIteration:
                 pass
@@ -685,7 +699,12 @@ class Session(SessionRedirectMixin):
             env_proxies = get_environ_proxies(url, no_proxy=no_proxy) or {}
         new_proxies = merge_setting(self.proxies, env_proxies)
         proxies = merge_setting(proxies, new_proxies)
-        return {'verify': verify, 'proxies': proxies, 'stream': stream, 'cert': cert}
+        return {
+            'verify': verify,
+            'proxies': proxies,
+            'stream': stream,
+            'cert': cert,
+        }
 
     def get_adapter(self, url):
         """

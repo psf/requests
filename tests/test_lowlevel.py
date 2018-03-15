@@ -51,7 +51,9 @@ def test_digestauth_401_count_reset_on_redirect():
         b'realm="me@kennethreitz.com", qop=auth\r\n\r\n'
     )
     text_302 = (
-        b'HTTP/1.1 302 FOUND\r\n' b'Content-Length: 0\r\n' b'Location: /\r\n\r\n'
+        b'HTTP/1.1 302 FOUND\r\n'
+        b'Content-Length: 0\r\n'
+        b'Location: /\r\n\r\n'
     )
     text_200 = (b'HTTP/1.1 200 OK\r\n' b'Content-Length: 0\r\n\r\n')
     expected_digest = (
@@ -130,7 +132,9 @@ def test_digestauth_401_only_sent_once():
         return request_content
 
     close_server = threading.Event()
-    server = Server(digest_failed_response_handler, wait_to_close_event=close_server)
+    server = Server(
+        digest_failed_response_handler, wait_to_close_event=close_server
+    )
     with server as (host, port):
         url = 'http://{0}:{1}/'.format(host, port)
         r = requests.get(url, auth=auth)
@@ -188,7 +192,8 @@ _proxy_combos += [(var.upper(), scheme) for var, scheme in _proxy_combos]
 @pytest.mark.parametrize("var,scheme", _proxy_combos)
 def test_use_proxy_from_environment(httpbin, var, scheme):
     url = "{0}://httpbin.org".format(scheme)
-    fake_proxy = Server()  # do nothing with the requests; just close the socket
+    fake_proxy = Server(
+    )  # do nothing with the requests; just close the socket
     with fake_proxy as (host, port):
         proxy_url = "socks5://{0}:{1}".format(host, port)
         kwargs = {var: proxy_url}
@@ -227,6 +232,8 @@ def test_redirect_rfc1808_to_non_ascii_location():
         assert r.status_code == 200
         assert len(r.history) == 1
         assert r.history[0].status_code == 301
-        assert redirect_request[0].startswith(b'GET /' + expected_path + b' HTTP/1.1')
+        assert redirect_request[0].startswith(
+            b'GET /' + expected_path + b' HTTP/1.1'
+        )
         assert r.url == u'{0}/{1}'.format(url, expected_path.decode('ascii'))
         close_server.set()

@@ -14,7 +14,11 @@ from .import types
 
 
 def request(
-    method: types.Method, url: types.URL, *, session: types.Session = None, **kwargs
+    method: types.Method,
+    url: types.URL,
+    *,
+    session: types.Session = None,
+    **kwargs,
 ) -> types.Response:
     """Constructs and sends a :class:`Request <Request>`.
 
@@ -61,7 +65,9 @@ def request(
         return session.request(method=method, url=url, **kwargs)
 
 
-def get(url: types.URL, *, params: types.Params = None, **kwargs) -> types.Response:
+def get(
+    url: types.URL, *, params: types.Params = None, **kwargs
+) -> types.Response:
     r"""Sends a GET request.
 
     :param url: URL for the new :class:`Request` object.
@@ -99,7 +105,11 @@ def head(url: types.URL, **kwargs) -> types.Response:
 
 
 def post(
-    url: types.URL, *, data: types.Data = None, json: types.JSON = None, **kwargs
+    url: types.URL,
+    *,
+    data: types.Data = None,
+    json: types.JSON = None,
+    **kwargs,
 ) -> types.Response:
     r"""Sends a POST request.
 
@@ -113,7 +123,9 @@ def post(
     return request('post', url, data=data, json=json, **kwargs)
 
 
-def put(url: types.URL, *, data: types.Data = None, **kwargs) -> types.Response:
+def put(
+    url: types.URL, *, data: types.Data = None, **kwargs
+) -> types.Response:
     r"""Sends a PUT request.
 
     :param url: URL for the new :class:`Request` object.
@@ -126,7 +138,9 @@ def put(url: types.URL, *, data: types.Data = None, **kwargs) -> types.Response:
     return request('put', url, data=data, **kwargs)
 
 
-def patch(url: types.URL, *, data: types.Data = None, **kwargs) -> types.Response:
+def patch(
+    url: types.URL, *, data: types.Data = None, **kwargs
+) -> types.Response:
     r"""Sends a PATCH request.
 
     :param url: URL for the new :class:`Request` object.

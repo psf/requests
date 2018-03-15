@@ -50,7 +50,10 @@ Headers = Optional[Union[None, MutableMapping[Text, Text]]]
 Cookies = Optional[Union[None, RequestsCookieJar, MutableMapping[Text, Text]]]
 Files = Optional[MutableMapping[Text, IO]]
 Auth = Union[
-    None, Tuple[Text, Text], auth.AuthBase, Callable[[PreparedRequest], PreparedRequest]
+    None,
+    Tuple[Text, Text],
+    auth.AuthBase,
+    Callable[[PreparedRequest], PreparedRequest],
 ]
 Timeout = Union[None, float, Tuple[float, float]]
 AllowRedirects = Optional[bool]
