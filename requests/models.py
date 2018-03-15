@@ -628,6 +628,8 @@ class Response(object):
         'request',
     ]
 
+    __slots__ = __attrs__ + ['_content_consumed', 'raw', '_next', 'connection']
+
     def __init__(self):
         self._content = False
         self._content_consumed = False
