@@ -283,6 +283,8 @@ the ``json`` parameter (added in version 2.4.2) and it will be encoded automatic
 
 Note, the ``json`` parameter is ignored if either ``data`` or ``files`` is passed.
 
+Using the ``json`` parameter in the request will change the ``Content-Type`` in the header to ``application/json``.
+
 POST a Multipart-Encoded File
 -----------------------------
 
