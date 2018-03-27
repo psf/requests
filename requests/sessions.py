@@ -397,6 +397,9 @@ class Session(SessionRedirectMixin):
         self.mount('https://', HTTPAdapter())
         self.mount('http://', HTTPAdapter())
 
+        # Set default timeout
+        self.timeout = None
+
     def __enter__(self):
         return self
 
@@ -506,7 +509,7 @@ class Session(SessionRedirectMixin):
 
         # Send the request.
         send_kwargs = {
-            'timeout': timeout,
+            'timeout': timeout or self.timeout,
             'allow_redirects': allow_redirects,
         }
         send_kwargs.update(settings)
@@ -602,6 +605,7 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault('verify', self.verify)
         kwargs.setdefault('cert', self.cert)
         kwargs.setdefault('proxies', self.proxies)
+        kwargs.setdefault('timeout', self.timeout)
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
