@@ -226,6 +226,11 @@ class SessionRedirectMixin(object):
                 extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
 
                 # extract redirect url, if any, for the next loop
+                if resp.is_redirect and len(hist) < self.max_redirects:
+                    retry_after = resp.headers.get('retry-after', None)
+                    if retry_after is not None:
+                        time.sleep(int(retry_after))
+
                 url = self.get_redirect_target(resp)
                 yield resp
 
