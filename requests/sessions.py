@@ -339,7 +339,7 @@ class Session(SessionRedirectMixin):
     __attrs__ = [
         'headers', 'cookies', 'auth', 'proxies', 'hooks', 'params', 'verify',
         'cert', 'prefetch', 'adapters', 'stream', 'trust_env',
-        'max_redirects',
+        'max_redirects', 'timeout'
     ]
 
     def __init__(self):
