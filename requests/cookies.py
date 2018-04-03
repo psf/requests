@@ -292,7 +292,7 @@ class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
         """
         domains = []
         for cookie in iter(self):
-            if cookie.domain is not None and cookie.domain in domains:
+            if cookie.domain is not None and domains and cookie.domain not in domains:
                 return True
             domains.append(cookie.domain)
         return False  # there is only one domain in jar

@@ -183,3 +183,4 @@ Patches and Suggestions
 - Matt Liu <liumatt@gmail.com> (`@mlcrazy <https://github.com/mlcrazy>`_)
 - Taylor Hoff <primdevs@protonmail.com> (`@PrimordialHelios <https://github.com/PrimordialHelios>`_)
 - Hugo van Kemenade (`@hugovk <https://github.com/hugovk>`_)
+- Elliot Humbert
