@@ -514,7 +514,7 @@ class Session(SessionRedirectMixin):
 
         return resp
 
-    def get(self, url, **kwargs):
+    def get(self, url, params=None **kwargs):
         r"""Sends a GET request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -523,7 +523,7 @@ class Session(SessionRedirectMixin):
         """
 
         kwargs.setdefault('allow_redirects', True)
-        return self.request('GET', url, **kwargs)
+        return self.request('GET', url, params=params **kwargs)
 
     def options(self, url, **kwargs):
         r"""Sends a OPTIONS request. Returns :class:`Response` object.
