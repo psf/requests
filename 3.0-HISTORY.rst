@@ -73,5 +73,8 @@
 
 - ``Response.raise_for_status()`` now returns the response object for good responses
 
+- ``RequestCookieJar.multiple_domains()`` will return the correct boolean value
+  when exectued. See `#4557`_.
+
 .. _#2002: https://github.com/kennethreitz/requests/issues/2002
 .. _#2631: https://github.com/kennethreitz/requests/issues/2631

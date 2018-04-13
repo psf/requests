@@ -452,6 +452,24 @@ class TestRequests:
         # Make sure the cookie was sent
         assert r.json()['cookies']['foo'] == 'bar'
 
+    def test_cookies_multiple_domains_returns_correct_value(self, httpbin):
+        """Tests that multiple_domains() returns the correct value. 
+
+        See GH #4557
+        """
+        s = requests.session()
+        r = s.get(httpbin('cookies'))
+
+        r.cookies.set('foo', 'bar', domain='.google.com')
+        assert r.cookies.multiple_domains() == False
+
+        r.cookies.set('baz', 'foo')
+        assert r.cookies.multiple_domains() == False
+
+        r.cookies.set('baz', 'foo', domain='.google.com')
+        r.cookies.set('zin', 'foo', domain='.github.com')
+        assert r.cookies.multiple_domains() == True
+
     def test_cookielib_cookiejar_on_redirect(self, httpbin):
         """Tests resolve_redirect doesn't fail when merging cookies
         with non-RequestsCookieJar cookiejar.
