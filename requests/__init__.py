@@ -42,6 +42,7 @@ is at <http://python-requests.org>.
 
 import urllib3
 import chardet
+import ssl
 import warnings
 from .exceptions import RequestsDependencyWarning
 
@@ -90,16 +91,17 @@ except (AssertionError, ValueError):
                   "version!".format(urllib3.__version__, chardet.__version__),
                   RequestsDependencyWarning)
 
-# Attempt to enable urllib3's SNI support, if possible
-try:
-    from urllib3.contrib import pyopenssl
-    pyopenssl.inject_into_urllib3()
+if not getattr(ssl, 'HAS_SNI'):
+    # Attempt to enable urllib3's SNI support, if possible
+    try:
+        from urllib3.contrib import pyopenssl
+        pyopenssl.inject_into_urllib3()
 
-    # Check cryptography version
-    from cryptography import __version__ as cryptography_version
-    _check_cryptography(cryptography_version)
-except ImportError:
-    pass
+        # Check cryptography version
+        from cryptography import __version__ as cryptography_version
+        _check_cryptography(cryptography_version)
+    except ImportError:
+        pass
 
 # urllib3's DependencyWarnings should be silenced.
 from urllib3.exceptions import DependencyWarning
