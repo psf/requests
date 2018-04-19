@@ -9,13 +9,13 @@ Requests: HTTP for Humans
 Release v\ |version|. (:ref:`Installation <install>`)
 
 .. image:: https://img.shields.io/pypi/l/requests.svg
-    :target: https://pypi.python.org/pypi/requests
+    :target: https://pypi.org/project/requests/
 
 .. image:: https://img.shields.io/pypi/wheel/requests.svg
-    :target: https://pypi.python.org/pypi/requests
+    :target: https://pypi.org/project/requests/
 
 .. image:: https://img.shields.io/pypi/pyversions/requests.svg
-    :target: https://pypi.python.org/pypi/requests
+    :target: https://pypi.org/project/requests/
 
 .. image:: https://codecov.io/github/requests/requests/coverage.svg?branch=master
     :target: https://codecov.io/github/requests/requests
