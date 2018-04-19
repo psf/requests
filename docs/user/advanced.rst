@@ -656,7 +656,7 @@ When you receive a response, Requests makes a guess at the encoding to
 use for decoding the response when you access the :attr:`Response.text
 <requests.Response.text>` attribute. Requests will first check for an
 encoding in the HTTP header, and if none is present, will use `chardet
-<https://pypi.python.org/pypi/chardet>`_ to attempt to guess the encoding.
+<https://pypi.org/project/chardet/>`_ to attempt to guess the encoding.
 
 The only time Requests will not do this is if no explicit charset
 is present in the HTTP headers **and** the ``Content-Type``
