@@ -486,7 +486,7 @@ class Session(SessionRedirectMixin):
         # Create the Request.
         req = Request(
             method=method.upper(),
-            url=url,
+            url=url if isinstance(url, str) else '/'.join(list(map(str, url))),
             headers=headers,
             files=files,
             data=data or {},
