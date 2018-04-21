@@ -9,6 +9,7 @@ requests (cookies, auth, proxies).
 """
 import os
 import sys
+import six
 import time
 from collections import Mapping
 from datetime import timedelta
@@ -486,7 +487,7 @@ class Session(SessionRedirectMixin):
         # Create the Request.
         req = Request(
             method=method.upper(),
-            url=url,
+            url=url if isinstance(url, six.string_types) else '/'.join(list(map(str, url))),
             headers=headers,
             files=files,
             data=data or {},
