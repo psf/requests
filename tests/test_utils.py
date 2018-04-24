@@ -68,7 +68,7 @@ class TestSuperLen:
             def seek(self, offset, whence):
                 pass
 
-        assert super_len(NoLenBoomFile()) == 0
+        assert super_len(NoLenBoomFile()) is None
 
     def test_string(self):
         assert super_len('Test') == 4
@@ -111,7 +111,7 @@ class TestSuperLen:
 
     def test_super_len_with_no_matches(self):
         """Ensure that objects without any length methods default to 0"""
-        assert super_len(object()) == 0
+        assert super_len(object()) is None
 
 
 class TestToKeyValList:
