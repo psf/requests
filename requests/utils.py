@@ -158,10 +158,10 @@ def super_len(o):
                 except (OSError, IOError):
                     total_length = 0
 
-    if total_length is None:
-        total_length = 0
+    if total_length is not None:
+        total_length = max(0, total_length - current_position)
 
-    return max(0, total_length - current_position)
+    return total_length
 
 
 def get_netrc_auth(url, raise_errors=False):
