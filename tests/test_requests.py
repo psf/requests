@@ -1813,8 +1813,8 @@ class TestRequests:
         file_obj = io.BytesIO(b'')
         r = requests.Request('POST', url, auth=auth, data=file_obj)
         prepared_request = r.prepare()
-        assert 'Transfer-Encoding' in prepared_request.headers
-        assert 'Content-Length' not in prepared_request.headers
+        assert 'Transfer-Encoding' not in prepared_request.headers
+        assert 'Content-Length' in prepared_request.headers
 
     def test_stream_with_auth_does_not_set_transfer_encoding_header(self, httpbin):
         """Ensure that a byte stream with size > 0 will not set both a Content-Length
