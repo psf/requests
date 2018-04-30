@@ -671,9 +671,10 @@ class Session(SessionRedirectMixin):
         :rtype: dict
         """
         # Gather clues from the surrounding environment.
+        proxies = proxies or {}
         if self.trust_env:
             # Set environment's proxies.
-            no_proxy = proxies.get('no_proxy') if proxies is not None else None
+            no_proxy = proxies.get('no_proxy')
             env_proxies = get_environ_proxies(url, no_proxy=no_proxy)
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)
