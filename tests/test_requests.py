@@ -547,6 +547,11 @@ class TestRequests:
         with pytest.raises(InvalidProxyURL):
             requests.get(httpbin(), proxies={'http': 'http:///example.com:8080'})
 
+    def test_proxy_strip_spaces(self):
+        # Don't yet have testing proxies sorted out.
+        with pytest.raises(ProxyError):
+            requests.get('http://localhost:1', proxies={'http': 'http://localhost:1234 '})
+
     def test_basicauth_with_netrc(self, httpbin):
         auth = ('user', 'pass')
         wrong_auth = ('wronguser', 'wrongpass')
