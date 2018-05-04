@@ -3,6 +3,7 @@
 """Tests for Requests."""
 
 from __future__ import division
+import base64
 import json
 import os
 import pickle
@@ -1737,6 +1738,15 @@ class TestRequests:
         it = r.iter_lines()
         next(it)
         assert len(list(it)) == 3
+
+    @pytest.mark.parametrize('chunk', (3, 4))
+    @pytest.mark.parametrize('decode', (True, False))
+    def test_response_iter_lines_crlf_across_chunks(self, httpbin, chunk, decode):
+        b64_body = base64.b64encode(b'one\r\ntwo\r\rthree\r').decode('ascii')
+        r = requests.get(httpbin('base64/' + b64_body), stream=True)
+
+        it = r.iter_lines(chunk_size=chunk, decode_unicode=decode)
+        assert [len(line) for line in it] == [3, 3, 0, 5]
 
     def test_response_context_manager(self, httpbin):
         with requests.get(httpbin('stream/4'), stream=True) as response:
