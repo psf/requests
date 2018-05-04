@@ -300,7 +300,7 @@ class HTTPAdapter(BaseAdapter):
         proxy = select_proxy(url, proxies)
 
         if proxy:
-            proxy = prepend_scheme_if_needed(proxy, 'http')
+            proxy = prepend_scheme_if_needed(proxy, 'http').strip()
             proxy_url = parse_url(proxy)
             if not proxy_url.host:
                 raise InvalidProxyURL("Please check proxy URL. It is malformed"
