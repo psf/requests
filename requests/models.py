@@ -785,6 +785,7 @@ class Response(object):
         """
 
         pending = None
+        carriage_return = u'\r' if decode_unicode else b'\r'
 
         for chunk in self.iter_content(chunk_size=chunk_size, decode_unicode=decode_unicode):
 
@@ -798,6 +799,8 @@ class Response(object):
 
             if lines and lines[-1] and chunk and lines[-1][-1] == chunk[-1]:
                 pending = lines.pop()
+            elif not delimiter and lines and chunk.endswith(carriage_return):
+                pending = lines.pop() + carriage_return
             else:
                 pending = None
 
@@ -805,6 +808,8 @@ class Response(object):
                 yield line
 
         if pending is not None:
+            if not delimiter:
+                pending = pending.rstrip(carriage_return)
             yield pending
 
     @property
