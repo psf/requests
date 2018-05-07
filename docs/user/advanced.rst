@@ -449,7 +449,7 @@ If an error occurs while executing your callback, a warning is given.
 
 If the callback function returns a value, it is assumed that it is to
 replace the data that was passed in. If the function doesn't return
-anything, nothing else is effected.
+anything, nothing else is affected.
 
 ::
 
