@@ -675,8 +675,9 @@ class Session(SessionRedirectMixin):
             # Set environment's proxies.
             no_proxy = proxies.get('no_proxy') if proxies is not None else None
             env_proxies = get_environ_proxies(url, no_proxy=no_proxy)
-            for (k, v) in env_proxies.items():
-                proxies.setdefault(k, v)
+            if proxies is not None:
+                for (k, v) in env_proxies.items():
+                    proxies.setdefault(k, v)
 
             # Look for requests environment configuration and be compatible
             # with cURL.
