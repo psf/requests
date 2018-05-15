@@ -349,7 +349,8 @@
         },
         "pluggy": {
             "hashes": [
-                "sha256:bd60171dbb250fdebafad46ed16d97065369da40568ae948ef7117eee8536e94"
+                "sha256:bd60171dbb250fdebafad46ed16d97065369da40568ae948ef7117eee8536e94",
+                "sha256:cab5800ece3d679358782c4d674be9912f52918bc919888b228fdf5705fcd067"
             ],
             "version": "==0.5.2"
         },
