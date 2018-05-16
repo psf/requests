@@ -1,3 +1,11 @@
+body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-child(2) > td > select {
+  width: 100%!important;
+}
+
+#python27 > a {
+  color: white;
+}
+
 #carbonads {
   display: block;
   overflow: hidden;

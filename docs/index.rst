@@ -9,13 +9,13 @@ Requests: HTTP for Humans
 Release v\ |version|. (:ref:`Installation <install>`)
 
 .. image:: https://img.shields.io/pypi/l/requests.svg
-    :target: https://pypi.python.org/pypi/requests
+    :target: https://pypi.org/project/requests/
 
 .. image:: https://img.shields.io/pypi/wheel/requests.svg
-    :target: https://pypi.python.org/pypi/requests
+    :target: https://pypi.org/project/requests/
 
 .. image:: https://img.shields.io/pypi/pyversions/requests.svg
-    :target: https://pypi.python.org/pypi/requests
+    :target: https://pypi.org/project/requests/
 
 .. image:: https://codecov.io/github/requests/requests/coverage.svg?branch=master
     :target: https://codecov.io/github/requests/requests
@@ -64,7 +64,7 @@ PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
 Post, SoundCloud, Kippt, Sony, and Federal U.S.
 Institutions that prefer to be unnamed claim to use Requests internally.
 
-**Armin Ronacher**—
+**Armin Ronacher**, creator of Flask—
     *Requests is the perfect example how beautiful an API can be with the
     right level of abstraction.*
 
@@ -74,14 +74,18 @@ Institutions that prefer to be unnamed claim to use Requests internally.
 
 **Daniel Greenfeld**—
     *Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to
-    Kenneth Reitz's request library. Today has been AWESOME.*
+    Kenneth Reitz's Requests library. Today has been AWESOME.*
 
 **Kenny Meyers**—
     *Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful,
     simple, Pythonic.*
 
 Requests is one of the most downloaded Python packages of all time, pulling in
-over 13,000,000 downloads every month. All the cool kids are doing it!
+over 400,000 downloads **each day**. Join the party!
+
+If your organization uses Requests internally, consider `supporting the development of 3.0 <https://www.kennethreitz.org/requests3>`_. Your
+generosity will be greatly appreciated, and help drive the project forward
+into the future.
 
 Beloved Features
 ----------------
@@ -133,6 +137,7 @@ Requests ecosystem and community.
 .. toctree::
    :maxdepth: 2
 
+   community/sponsors
    community/recommended
    community/faq
    community/out-there
