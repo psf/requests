@@ -43,6 +43,7 @@ install:
   # about it being out of date.
   - "python -m pip install --upgrade pip wheel"
   - "C:\\MinGW\\bin\\mingw32-make"
+  - "pipenv install -e .[socks] --skip-lock"
 
 test_script:
   - "C:\\MinGW\\bin\\mingw32-make coverage"

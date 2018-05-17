@@ -696,6 +696,8 @@ def should_bypass_proxies(url, no_proxy):
 
     :rtype: bool
     """
+    # Prioritize lowercase environment variables over uppercase
+    # to keep a consistent behaviour with other http projects (curl, wget).
     get_proxy = lambda k: os.environ.get(k) or os.environ.get(k.upper())
 
     # First check whether no_proxy is defined. If it is, check that the URL
