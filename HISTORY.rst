@@ -23,6 +23,7 @@ dev
 - DNS resolution in proxy bypass no longer includes the username and password in
   the request. This also fixes the issue of DNS queries failing on macOS.
 - Properly normalize adapter prefixes for url comparison.
+- Passing ``None`` as a file pointer to the ``files`` param no longer raises an exception.
 
 2.18.4 (2017-08-15)
 +++++++++++++++++++
