@@ -287,7 +287,7 @@ For the sake of security we recommend upgrading certifi frequently!
 
 .. _HTTP persistent connection: https://en.wikipedia.org/wiki/HTTP_persistent_connection
 .. _connection pooling: https://urllib3.readthedocs.io/en/latest/reference/index.html#module-urllib3.connectionpool
-.. _certifi: http://certifi.io/
+.. _certifi: https://certifiio.readthedocs.io/
 .. _Mozilla trust store: https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
 
 .. _body-content-workflow:
@@ -449,7 +449,7 @@ If an error occurs while executing your callback, a warning is given.
 
 If the callback function returns a value, it is assumed that it is to
 replace the data that was passed in. If the function doesn't return
-anything, nothing else is effected.
+anything, nothing else is affected.
 
 ::
 
