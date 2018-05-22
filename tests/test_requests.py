@@ -550,15 +550,16 @@ class TestRequests:
             requests.get(httpbin(), proxies={'http': 'http:///example.com:8080'})
 
     @pytest.mark.parametrize('proxies', (
-        {'http': 'localhost:1234'},
-        {'http': ' http://localhost:1234'},
-        None,
-        {'http': 'http://localhost:1234 '}
+        {'http': 'localhost:3128'},
+        {'http': ' http://localhost:3128'},
+        {'http': None},
+        {'http': 'http://localhost:3128'},
+        {'http': 'http://localhost:3128 '}
     ))
     def test_proxy_strip_spaces(self, proxies):
         # Don't yet have testing proxies sorted out.
         with pytest.raises(ProxyError):
-            requests.get('http://localhost:1', proxies)
+            requests.get('http://www.google.com', proxies=proxies)
 
     def test_basicauth_with_netrc(self, httpbin):
         auth = ('user', 'pass')
