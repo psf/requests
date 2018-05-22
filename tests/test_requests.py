@@ -681,6 +681,14 @@ class TestRequests:
         with pytest.raises(ValueError):
             requests.post(url, files=['bad file data'])
 
+    def test_invalid_files_input(self, httpbin):
+
+        url = httpbin('post')
+        post = requests.post(url,
+                             files={"random-file-1": None, "random-file-2": 1})
+        assert b'name="random-file-1"' not in post.request.body
+        assert b'name="random-file-2"' in post.request.body
+
     def test_POSTBIN_SEEKED_OBJECT_WITH_NO_ITER(self, httpbin):
 
         class TestStream(object):
