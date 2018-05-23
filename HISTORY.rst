@@ -11,6 +11,8 @@ dev
 - Warn user about possible slowdown when using cryptography version < 1.3.4
 - Check for invalid host in proxy URL, before forwarding request to adapter.
 - Fragments are now properly maintained across redirects. (RFC7231 7.1.2)
+- Removed use of cgi module to expedite library load time.
+- Added support for SHA-256 and SHA-512 digest auth algorithms.
 
 **Bugfixes**
 
@@ -20,6 +22,8 @@ dev
 - Fixed issue with unexpected ``ImportError`` on windows system which do not support ``winreg`` module
 - DNS resolution in proxy bypass no longer includes the username and password in
   the request. This also fixes the issue of DNS queries failing on macOS.
+- Properly normalize adapter prefixes for url comparison.
+- Passing ``None`` as a file pointer to the ``files`` param no longer raises an exception.
 
 2.18.4 (2017-08-15)
 +++++++++++++++++++
