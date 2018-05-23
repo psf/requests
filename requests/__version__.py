@@ -2,6 +2,8 @@
 # |(  |-  |.| | | |-  `-.  |  `-.
 # ' ' `-' `-`.`-' `-' `-'  '  `-'
 
+"""Contains project metadata (name, version, etc)."""
+
 __title__ = 'requests'
 __description__ = 'Python HTTP for Humans.'
 __url__ = 'http://python-requests.org'
