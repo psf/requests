@@ -42,6 +42,8 @@ if sys.argv[-1] == 'publish':
 
 packages = ['requests']
 
+# Don't forget to update check_compatibility() in requests/__init__.py
+# when bumping chardet and/or urllib3!
 requires = [
     'chardet>=3.0.2,<3.1.0',
     'idna>=2.5,<2.7',
