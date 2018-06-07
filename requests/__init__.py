@@ -60,7 +60,7 @@ def check_compatibility(urllib3_version, chardet_version):
     # urllib3 >= 1.21.1, <= 1.22
     assert major == 1
     assert minor >= 21
-    assert minor <= 22
+    assert minor <= 23
 
     # Check chardet for compatibility.
     major, minor, patch = chardet_version.split('.')[:3]
