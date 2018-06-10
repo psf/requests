@@ -357,7 +357,7 @@ file-like object for your body::
              be set to the number of *bytes* in the file. Errors may occur if
              you open the file in *text mode*.
 
-.. _binary mode: https://docs.python.org/2/tutorial/inputoutput.html#reading-and-writing-files
+.. _binary mode: https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
 
 
 .. _chunk-encoding:
@@ -414,7 +414,7 @@ To do that, just set files to a list of tuples of ``(form_field_name, file_info)
              be set to the number of *bytes* in the file. Errors may occur if
              you open the file in *text mode*.
 
-.. _binary mode: https://docs.python.org/2/tutorial/inputoutput.html#reading-and-writing-files
+.. _binary mode: https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
 
 
 .. _event-hooks:
