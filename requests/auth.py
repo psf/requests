@@ -16,7 +16,7 @@ import warnings
 
 from base64 import b64encode
 
-from .compat import urlparse, str, basestring
+from .compat import urlparse, str, basestring, is_py3
 from .cookies import extract_cookies_to_jar
 from ._internal_utils import to_native_string
 from .utils import parse_dict_header
@@ -80,8 +80,12 @@ class HTTPBasicAuth(AuthBase):
     """Attaches HTTP Basic Authentication to the given Request object."""
 
     def __init__(self, username, password):
-        self.username = username
-        self.password = password
+        if is_py3:
+            self.username = username.encode('utf-8')
+            self.password = password.encode('utf-8')
+        else:
+            self.username = username
+            self.password = password
 
     def __eq__(self, other):
         return all([
