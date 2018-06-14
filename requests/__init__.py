@@ -42,9 +42,10 @@ import urllib3
 import chardet
 import warnings
 from .exceptions import RequestsDependencyWarning
+from .import types
 
 
-def check_compatibility(urllib3_version: str, chardet_version: str) -> None:
+def check_compatibility(urllib3_version: types.String, chardet_version: types.String) -> None:
     urllib3_version = urllib3_version.split('.')  # type: ignore
     assert urllib3_version != [
         'dev'
@@ -68,7 +69,7 @@ def check_compatibility(urllib3_version: str, chardet_version: str) -> None:
     assert patch >= 2  # type: ignore
 
 
-def _check_cryptography(cryptography_version: str) -> None:
+def _check_cryptography(cryptography_version: types.String) -> None:
     # cryptography < 1.3.4
     try:
         cryptography_version = list(

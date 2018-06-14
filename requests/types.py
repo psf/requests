@@ -68,3 +68,5 @@ Host = str
 Sequence = List
 Filename = str
 KeyValueList = List[Tuple[Text, Text]]
+String = str
+Boolean = Union[bool, None]
