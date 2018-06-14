@@ -8,8 +8,16 @@ dev
 
 - [Short description of non-trivial change.]
 
+2.19.1 (2018-06-14)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Fixed issue where status_codes.py's ``init`` function failed trying to append to
+  a ``__doc__`` value of ``None``.
+
 2.19.0 (2018-06-12)
-++++++++++++++++++
++++++++++++++++++++
 
 **Improvements**
 
