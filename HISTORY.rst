@@ -6,20 +6,45 @@ Release History
 dev
 +++
 
+- [Short description of non-trivial change.]
+
+2.19.1 (2018-06-14)
++++++++++++++++++++
+
+**Bugfixes**
+
+- Fixed issue where status_codes.py's ``init`` function failed trying to append to
+  a ``__doc__`` value of ``None``.
+
+2.19.0 (2018-06-12)
++++++++++++++++++++
+
 **Improvements**
 
 - Warn user about possible slowdown when using cryptography version < 1.3.4
 - Check for invalid host in proxy URL, before forwarding request to adapter.
 - Fragments are now properly maintained across redirects. (RFC7231 7.1.2)
+- Removed use of cgi module to expedite library load time.
+- Added support for SHA-256 and SHA-512 digest auth algorithms.
+- Minor performance improvement to ``Request.content``.
+- Migrate to using collections.abc for 3.7 compatibility.
 
 **Bugfixes**
 
-- Parsing empty ``Link`` headers with ``parse_header_links()`` no longer return one bogus entry
+- Parsing empty ``Link`` headers with ``parse_header_links()`` no longer return one bogus entry.
 - Fixed issue where loading the default certificate bundle from a zip archive
-  would raise an ``IOError``
-- Fixed issue with unexpected ``ImportError`` on windows system which do not support ``winreg`` module
+  would raise an ``IOError``.
+- Fixed issue with unexpected ``ImportError`` on windows system which do not support ``winreg`` module.
 - DNS resolution in proxy bypass no longer includes the username and password in
   the request. This also fixes the issue of DNS queries failing on macOS.
+- Properly normalize adapter prefixes for url comparison.
+- Passing ``None`` as a file pointer to the ``files`` param no longer raises an exception.
+- Calling ``copy`` on a ``RequestsCookieJar`` will now preserve the cookie policy correctly.
+
+**Dependencies**
+
+- We now support idna v2.7.
+- We now support urllib3 v1.23.
 
 2.18.4 (2017-08-15)
 +++++++++++++++++++
