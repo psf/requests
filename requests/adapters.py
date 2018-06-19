@@ -52,10 +52,6 @@ DEFAULT_POOL_TIMEOUT = None
 
 class BaseAdapter(object):
     """The Base Transport Adapter"""
-
-    def __init__(self):
-        super(BaseAdapter, self).__init__()
-
     def send(self, request, stream=False, timeout=None, verify=True,
              cert=None, proxies=None):
         """Sends PreparedRequest object. Returns Response object.
