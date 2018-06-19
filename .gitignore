@@ -23,3 +23,6 @@ t2.py
 dist
 
 /.mypy_cache/
+
+# PyCharm settings
+.idea/
