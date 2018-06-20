@@ -13,7 +13,7 @@ import warnings
 import io
 import requests
 import pytest
-from requests.adapters import HTTPAdapter
+from requests.adapters import BaseAdapter, HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urlparse,
@@ -1909,6 +1909,24 @@ class TestRequests:
         assert r.history[1].status_code == 200
         assert not r.history[1].is_redirect
         assert r.url == urls_test[2]
+
+    def test_base_adapter_multiple_inheritance(self):
+        """Ensure if a subclass of BaseAdapter inherits from multiple
+        classes, it will invoke both parent classes when initialized.
+
+        See: https://github.com/requests/requests/pull/4697#issuecomment-398814166
+        """
+        class BaseClass(object):
+            def __init__(self):
+                self.foo = True
+
+        class DerivedClass(BaseAdapter, BaseClass):
+            def __init__(self):
+                self.foo = False
+                super(DerivedClass, self).__init__()
+
+        derived = DerivedClass()
+        assert derived.foo is True
 
 
 class TestCaseInsensitiveDict:
