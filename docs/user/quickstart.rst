@@ -261,6 +261,23 @@ useful when the form has multiple elements that use the same key::
       ...
     }
 
+An alternative method to express multiple elements with the same key is to use
+a dictionary and list the element values as a list::
+
+    >>> payload = {'key1': ['value1', 'value2']}
+    >>> r = requests.post('http://httpbin.org/post', data=payload)
+    >>> print(r.text)
+    {
+      ...
+      "form": {
+        "key1": [
+          "value1",
+          "value2"
+        ]
+      },
+      ...
+    }
+
 There are times that you may want to send data that is not form-encoded. If
 you pass in a ``string`` instead of a ``dict``, that data will be posted directly.
 
