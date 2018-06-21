@@ -59,9 +59,9 @@ class TestRequests:
 
     def test_entry_points(self):
 
-        requests.session
-        requests.session().get
-        requests.session().head
+        requests.Session
+        requests.Session().get
+        requests.Session().head
         requests.get
         requests.head
         requests.put
@@ -202,7 +202,7 @@ class TestRequests:
             pytest.fail('Expected redirect to raise TooManyRedirects but it did not')
 
     def test_HTTP_302_TOO_MANY_REDIRECTS_WITH_PARAMS(self, httpbin):
-        s = requests.session()
+        s = requests.Session()
         s.max_redirects = 5
         try:
             s.get(httpbin('relative-redirect', '50'))
@@ -320,19 +320,19 @@ class TestRequests:
         assert r.status_code == 200
 
     def test_set_cookie_on_301(self, httpbin):
-        s = requests.session()
+        s = requests.Session()
         url = httpbin('cookies/set?foo=bar')
         s.get(url)
         assert s.cookies['foo'] == 'bar'
 
     def test_cookie_sent_on_redirect(self, httpbin):
-        s = requests.session()
+        s = requests.Session()
         s.get(httpbin('cookies/set?foo=bar'))
         r = s.get(httpbin('redirect/1'))  # redirects to httpbin('get')
         assert 'Cookie' in r.json()['headers']
 
     def test_cookie_removed_on_expire(self, httpbin):
-        s = requests.session()
+        s = requests.Session()
         s.get(httpbin('cookies/set?foo=bar'))
         assert s.cookies['foo'] == 'bar'
         s.get(
@@ -345,18 +345,18 @@ class TestRequests:
         assert 'foo' not in s.cookies
 
     def test_cookie_quote_wrapped(self, httpbin):
-        s = requests.session()
+        s = requests.Session()
         s.get(httpbin('cookies/set?foo="bar:baz"'))
         assert s.cookies['foo'] == '"bar:baz"'
 
     def test_cookie_persists_via_api(self, httpbin):
-        s = requests.session()
+        s = requests.Session()
         r = s.get(httpbin('redirect/1'), cookies={'foo': 'bar'})
         assert 'foo' in r.request.headers['Cookie']
         assert 'foo' in r.history[0].request.headers['Cookie']
 
     def test_request_cookie_overrides_session_cookie(self, httpbin):
-        s = requests.session()
+        s = requests.Session()
         s.cookies['foo'] = 'bar'
         r = s.get(httpbin('cookies'), cookies={'foo': 'baz'})
         assert r.json()['cookies']['foo'] == 'baz'
@@ -364,7 +364,7 @@ class TestRequests:
         assert s.cookies['foo'] == 'bar'
 
     def test_request_cookies_not_persisted(self, httpbin):
-        s = requests.session()
+        s = requests.Session()
         s.get(httpbin('cookies'), cookies={'foo': 'baz'})
         # Sending a request with cookies should not add cookies to the session
         assert not s.cookies
@@ -372,7 +372,7 @@ class TestRequests:
     def test_generic_cookiejar_works(self, httpbin):
         cj = cookielib.CookieJar()
         cookiejar_from_dict({'foo': 'bar'}, cj)
-        s = requests.session()
+        s = requests.Session()
         s.cookies = cj
         r = s.get(httpbin('cookies'))
         # Make sure the cookie was sent
@@ -383,7 +383,7 @@ class TestRequests:
     def test_param_cookiejar_works(self, httpbin):
         cj = cookielib.CookieJar()
         cookiejar_from_dict({'foo': 'bar'}, cj)
-        s = requests.session()
+        s = requests.Session()
         r = s.get(httpbin('cookies'), cookies=cj)
         # Make sure the cookie was sent
         assert r.json()['cookies']['foo'] == 'bar'
@@ -488,7 +488,7 @@ class TestRequests:
         r = requests.get(url)
         assert r.status_code == 401
 
-        s = requests.session()
+        s = requests.Session()
         s.auth = auth
         r = s.get(url)
         assert r.status_code == 200
@@ -570,7 +570,7 @@ class TestRequests:
             r = requests.get(url, auth=wrong_auth)
             assert r.status_code == 401
 
-            s = requests.session()
+            s = requests.Session()
 
             # Should use netrc and work.
             r = s.get(url)
@@ -596,7 +596,7 @@ class TestRequests:
             assert r.status_code == 401
             print(r.headers['WWW-Authenticate'])
 
-            s = requests.session()
+            s = requests.Session()
             s.auth = HTTPDigestAuth('user', 'pass')
             r = s.get(url)
             assert r.status_code == 200
@@ -645,7 +645,7 @@ class TestRequests:
             r = requests.get(url)
             assert r.status_code == 401
 
-            s = requests.session()
+            s = requests.Session()
             s.auth = auth
             r = s.get(url)
             assert r.status_code == 401
@@ -1773,7 +1773,7 @@ class TestRequests:
         assert response.raw.closed
 
     def test_unconsumed_session_response_closes_connection(self, httpbin):
-        s = requests.session()
+        s = requests.Session()
 
         with contextlib.closing(s.get(httpbin('stream/4'), stream=True)) as response:
             pass
