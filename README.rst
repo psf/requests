@@ -17,6 +17,9 @@ Requests: HTTP for Humans
 .. image:: https://img.shields.io/github/contributors/requests/requests.svg
     :target: https://github.com/requests/requests/graphs/contributors
 
+.. image:: https://api.dependabot.com/badges/compatibility_score?dependency-name=requests&package-manager=pip&version-scheme=semver
+    :target: https://dependabot.com/compatibility-score.html?dependency-name=requests&package-manager=pip&version-scheme=semver
+
 .. image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg
     :target: https://saythanks.io/to/kennethreitz
 
