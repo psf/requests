@@ -18,7 +18,7 @@ and use the tag ``python-requests``.
 Send a Tweet
 ------------
 
-If your question is less than 140 characters, feel free to send a tweet to
+If your question is less than 280 characters, feel free to send a tweet to
 `@kennethreitz <https://twitter.com/kennethreitz>`_,
 `@sigmavirus24 <https://twitter.com/sigmavirus24>`_, or
 `@lukasaoz <https://twitter.com/lukasaoz>`_.
