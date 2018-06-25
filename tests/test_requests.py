@@ -1910,6 +1910,13 @@ class TestRequests:
         assert not r.history[1].is_redirect
         assert r.url == urls_test[2]
 
+    def test_session_lowercase(self):
+        """Ensure `requests.session` returns an instance of `requests.Session`
+        for backwards compatibility.
+        """
+        s = requests.session()
+        assert isinstance(s, requests.Session)
+
 
 class TestCaseInsensitiveDict:
 
