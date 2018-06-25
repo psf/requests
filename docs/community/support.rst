@@ -7,12 +7,12 @@ Support
 
 If you have questions or issues about Requests, there are several options:
 
-StackOverflow
+Stack Overflow
 -------------
 
 If your question does not contain sensitive (possibly proprietary)
 information or can be properly anonymized, please ask a question on
-`StackOverflow <https://stackoverflow.com/questions/tagged/python-requests>`_
+`Stack Overflow <https://stackoverflow.com/questions/tagged/python-requests>`_
 and use the tag ``python-requests``.
 
 Send a Tweet
