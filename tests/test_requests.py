@@ -1605,13 +1605,11 @@ class TestRequests:
 
     def test_prepare_body_position_non_stream(self):
         data = b'the data'
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position is None
 
     def test_rewind_body(self):
         data = io.BytesIO(b'the data')
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position == 0
         assert prep.body.read() == b'the data'
@@ -1625,7 +1623,6 @@ class TestRequests:
 
     def test_rewind_partially_read_body(self):
         data = io.BytesIO(b'the data')
-        s = requests.Session()
         data.read(4)  # read some data
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position == 4
@@ -1650,7 +1647,6 @@ class TestRequests:
                 return
 
         data = BadFileObj('the data')
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position == 0
 
@@ -1674,7 +1670,6 @@ class TestRequests:
                 return
 
         data = BadFileObj('the data')
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position == 0
 
@@ -1695,7 +1690,6 @@ class TestRequests:
                 return
 
         data = BadFileObj('the data')
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position is not None
 
