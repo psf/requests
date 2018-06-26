@@ -378,7 +378,7 @@ class HTTPAdapter(BaseAdapter):
         when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
-        :param proxies: The url of the proxy being used for this request.
+        :param proxy: The url of the proxy being used for this request.
         :rtype: dict
         """
         headers = {}
