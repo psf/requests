@@ -538,7 +538,7 @@ def test_get_encoding_from_headers(value, expected):
         ('Content', None),
     ))
 def test_iter_slices(value, length):
-    if length is None or (length <= 0 and len(value) > 0):
+    if length is None or (length <= 0 < len(value)):
         # Reads all content at once
         assert len(list(iter_slices(value, length))) == 1
     else:
