@@ -1581,7 +1581,17 @@ class TestRequests:
             auth=('user', 'pass'),
         )
         assert r.history[0].request.headers['Authorization']
-        assert not r.request.headers.get('Authorization', '')
+        assert 'Authorization' not in r.request.headers
+
+    def test_auth_is_stripped_on_scheme_redirect(self, httpbin, httpbin_secure, httpbin_ca_bundle):
+        r = requests.get(
+            httpbin_secure('redirect-to'),
+            params={'url': httpbin('get')},
+            auth=('user', 'pass'),
+            verify=httpbin_ca_bundle
+        )
+        assert r.history[0].request.headers['Authorization']
+        assert 'Authorization' not in r.request.headers
 
     def test_auth_is_retained_for_redirect_on_host(self, httpbin):
         r = requests.get(httpbin('redirect/1'), auth=('user', 'pass'))

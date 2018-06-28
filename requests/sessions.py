@@ -242,7 +242,9 @@ class SessionRedirectMixin(object):
             original_parsed = urlparse(response.request.url)
             redirect_parsed = urlparse(url)
 
-            if (original_parsed.hostname != redirect_parsed.hostname):
+            if (original_parsed.hostname != redirect_parsed.hostname
+                    or original_parsed.port != redirect_parsed.port
+                    or original_parsed.scheme != redirect_parsed.scheme):
                 del headers['Authorization']
 
         # .netrc might have more auth for us on our new host.
