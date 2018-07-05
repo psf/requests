@@ -706,6 +706,10 @@ def should_bypass_proxies(url, no_proxy):
         no_proxy = get_proxy('no_proxy')
     parsed = urlparse(url)
 
+    if parsed.hostname is None:
+        # URLs don't always have hostnames, e.g. file:/// urls.
+        return True
+
     if no_proxy:
         # We need to check whether we match here. We need to see if we match
         # the end of the hostname, both with and without the port.

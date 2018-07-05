@@ -622,6 +622,7 @@ def test_urldefragauth(url, expected):
             ('http://172.16.1.12/', False),
             ('http://172.16.1.12:5000/', False),
             ('http://google.com:5000/v1.0/', False),
+            ('file:///some/path/on/disk', True),
     ))
 def test_should_bypass_proxies(url, expected, monkeypatch):
     """Tests for function should_bypass_proxies to check if proxy
