@@ -7,7 +7,7 @@ import select
 
 def consume_socket_content(sock, timeout=0.5):
     chunks = 65536
-    content = b''
+    content = ''
 
     while True:
         more_to_read = select.select([sock], [], [], timeout)[0]
