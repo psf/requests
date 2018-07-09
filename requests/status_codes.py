@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""
+r"""
 The ``codes`` object defines a mapping from common names for HTTP statuses
 to their numerical codes, accessible either as attributes or as dictionary
 items.
@@ -114,6 +114,7 @@ def _init():
 
     global __doc__
     __doc__ = (__doc__ + '\n' +
-               '\n'.join(doc(code) for code in sorted(_codes)))
+               '\n'.join(doc(code) for code in sorted(_codes))
+               if __doc__ is not None else None)
 
 _init()

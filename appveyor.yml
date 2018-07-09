@@ -41,8 +41,9 @@ install:
 
   # Upgrade to the latest version of pip to avoid it displaying warnings
   # about it being out of date.
-  - "pip install --disable-pip-version-check --user --upgrade pip"
+  - "python -m pip install --upgrade pip wheel"
   - "C:\\MinGW\\bin\\mingw32-make"
+  - "pipenv install -e .[socks] --skip-lock"
 
 test_script:
   - "C:\\MinGW\\bin\\mingw32-make coverage"

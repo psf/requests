@@ -10,11 +10,10 @@ requests (cookies, auth, proxies).
 import os
 import sys
 import time
-from collections import Mapping
 from datetime import timedelta
 
 from .auth import _basic_auth_str
-from .compat import cookielib, is_py3, OrderedDict, urljoin, urlparse
+from .compat import cookielib, is_py3, OrderedDict, urljoin, urlparse, Mapping
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
@@ -736,7 +735,12 @@ def session():
     """
     Returns a :class:`Session` for context-management.
 
+    .. deprecated:: 1.0.0
+
+        This method has been deprecated since version 1.0.0 and is only kept for
+        backwards compatibility. New code should use :class:`~requests.sessions.Session`
+        to create a session. This may be removed at a future date.
+
     :rtype: Session
     """
-
     return Session()

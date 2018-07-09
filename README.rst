@@ -2,13 +2,13 @@ Requests: HTTP for Humans
 =========================
 
 .. image:: https://img.shields.io/pypi/v/requests.svg
-    :target: https://pypi.python.org/pypi/requests
+    :target: https://pypi.org/project/requests/
 
 .. image:: https://img.shields.io/pypi/l/requests.svg
-    :target: https://pypi.python.org/pypi/requests
+    :target: https://pypi.org/project/requests/
 
 .. image:: https://img.shields.io/pypi/pyversions/requests.svg
-    :target: https://pypi.python.org/pypi/requests
+    :target: https://pypi.org/project/requests/
 
 .. image:: https://codecov.io/github/requests/requests/coverage.svg?branch=master
     :target: https://codecov.io/github/requests/requests
@@ -77,7 +77,7 @@ Requests is ready for today's web.
 - ``.netrc`` Support
 - Chunked Requests
 
-Requests officially supports Python 2.6–2.7 & 3.4–3.6, and runs great on PyPy.
+Requests officially supports Python 2.7 & 3.4–3.6, and runs great on PyPy.
 
 Installation
 ------------

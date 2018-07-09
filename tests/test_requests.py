@@ -29,6 +29,7 @@ from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
+from requests.compat import MutableMapping
 
 from .compat import StringIO, u
 from .utils import override_environ
@@ -53,6 +54,8 @@ except AttributeError:
 
 
 class TestRequests:
+
+    digest_auth_algo = ('MD5', 'SHA-256', 'SHA-512')
 
     def test_entry_points(self):
 
@@ -582,70 +585,79 @@ class TestRequests:
 
     def test_DIGEST_HTTP_200_OK_GET(self, httpbin):
 
-        auth = HTTPDigestAuth('user', 'pass')
-        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+        for authtype in self.digest_auth_algo:
+            auth = HTTPDigestAuth('user', 'pass')
+            url = httpbin('digest-auth', 'auth', 'user', 'pass', authtype, 'never')
 
-        r = requests.get(url, auth=auth)
-        assert r.status_code == 200
+            r = requests.get(url, auth=auth)
+            assert r.status_code == 200
 
-        r = requests.get(url)
-        assert r.status_code == 401
+            r = requests.get(url)
+            assert r.status_code == 401
+            print(r.headers['WWW-Authenticate'])
 
-        s = requests.session()
-        s.auth = HTTPDigestAuth('user', 'pass')
-        r = s.get(url)
-        assert r.status_code == 200
+            s = requests.session()
+            s.auth = HTTPDigestAuth('user', 'pass')
+            r = s.get(url)
+            assert r.status_code == 200
 
     def test_DIGEST_AUTH_RETURNS_COOKIE(self, httpbin):
-        url = httpbin('digest-auth', 'auth', 'user', 'pass')
-        auth = HTTPDigestAuth('user', 'pass')
-        r = requests.get(url)
-        assert r.cookies['fake'] == 'fake_value'
 
-        r = requests.get(url, auth=auth)
-        assert r.status_code == 200
+        for authtype in self.digest_auth_algo:
+            url = httpbin('digest-auth', 'auth', 'user', 'pass', authtype)
+            auth = HTTPDigestAuth('user', 'pass')
+            r = requests.get(url)
+            assert r.cookies['fake'] == 'fake_value'
+
+            r = requests.get(url, auth=auth)
+            assert r.status_code == 200
 
     def test_DIGEST_AUTH_SETS_SESSION_COOKIES(self, httpbin):
-        url = httpbin('digest-auth', 'auth', 'user', 'pass')
-        auth = HTTPDigestAuth('user', 'pass')
-        s = requests.Session()
-        s.get(url, auth=auth)
-        assert s.cookies['fake'] == 'fake_value'
+
+        for authtype in self.digest_auth_algo:
+            url = httpbin('digest-auth', 'auth', 'user', 'pass', authtype)
+            auth = HTTPDigestAuth('user', 'pass')
+            s = requests.Session()
+            s.get(url, auth=auth)
+            assert s.cookies['fake'] == 'fake_value'
 
     def test_DIGEST_STREAM(self, httpbin):
 
-        auth = HTTPDigestAuth('user', 'pass')
-        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+        for authtype in self.digest_auth_algo:
+            auth = HTTPDigestAuth('user', 'pass')
+            url = httpbin('digest-auth', 'auth', 'user', 'pass', authtype)
 
-        r = requests.get(url, auth=auth, stream=True)
-        assert r.raw.read() != b''
+            r = requests.get(url, auth=auth, stream=True)
+            assert r.raw.read() != b''
 
-        r = requests.get(url, auth=auth, stream=False)
-        assert r.raw.read() == b''
+            r = requests.get(url, auth=auth, stream=False)
+            assert r.raw.read() == b''
 
     def test_DIGESTAUTH_WRONG_HTTP_401_GET(self, httpbin):
 
-        auth = HTTPDigestAuth('user', 'wrongpass')
-        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+        for authtype in self.digest_auth_algo:
+            auth = HTTPDigestAuth('user', 'wrongpass')
+            url = httpbin('digest-auth', 'auth', 'user', 'pass', authtype)
 
-        r = requests.get(url, auth=auth)
-        assert r.status_code == 401
+            r = requests.get(url, auth=auth)
+            assert r.status_code == 401
 
-        r = requests.get(url)
-        assert r.status_code == 401
+            r = requests.get(url)
+            assert r.status_code == 401
 
-        s = requests.session()
-        s.auth = auth
-        r = s.get(url)
-        assert r.status_code == 401
+            s = requests.session()
+            s.auth = auth
+            r = s.get(url)
+            assert r.status_code == 401
 
     def test_DIGESTAUTH_QUOTES_QOP_VALUE(self, httpbin):
 
-        auth = HTTPDigestAuth('user', 'pass')
-        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+        for authtype in self.digest_auth_algo:
+            auth = HTTPDigestAuth('user', 'pass')
+            url = httpbin('digest-auth', 'auth', 'user', 'pass', authtype)
 
-        r = requests.get(url, auth=auth)
-        assert '"auth"' in r.request.headers['Authorization']
+            r = requests.get(url, auth=auth)
+            assert '"auth"' in r.request.headers['Authorization']
 
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
 
@@ -664,6 +676,14 @@ class TestRequests:
 
         with pytest.raises(ValueError):
             requests.post(url, files=['bad file data'])
+
+    def test_invalid_files_input(self, httpbin):
+
+        url = httpbin('post')
+        post = requests.post(url,
+                             files={"random-file-1": None, "random-file-2": 1})
+        assert b'name="random-file-1"' not in post.request.body
+        assert b'name="random-file-2"' in post.request.body
 
     def test_POSTBIN_SEEKED_OBJECT_WITH_NO_ITER(self, httpbin):
 
@@ -726,7 +746,7 @@ class TestRequests:
             requests.post(url, files=['bad file data'])
 
     def test_post_with_custom_mapping(self, httpbin):
-        class CustomMapping(collections.MutableMapping):
+        class CustomMapping(MutableMapping):
             def __init__(self, *args, **kwargs):
                 self.data = dict(*args, **kwargs)
 
@@ -1151,6 +1171,14 @@ class TestRequests:
         jar.set(key, value)
         with pytest.raises(requests.cookies.CookieConflictError):
             jar.get(key)
+
+    def test_cookie_policy_copy(self):
+        class MyCookiePolicy(cookielib.DefaultCookiePolicy):
+            pass
+
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set_policy(MyCookiePolicy())
+        assert isinstance(jar.copy().get_policy(), MyCookiePolicy)
 
     def test_time_elapsed_blank(self, httpbin):
         r = requests.get(httpbin('get'))
@@ -1577,13 +1605,11 @@ class TestRequests:
 
     def test_prepare_body_position_non_stream(self):
         data = b'the data'
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position is None
 
     def test_rewind_body(self):
         data = io.BytesIO(b'the data')
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position == 0
         assert prep.body.read() == b'the data'
@@ -1597,7 +1623,6 @@ class TestRequests:
 
     def test_rewind_partially_read_body(self):
         data = io.BytesIO(b'the data')
-        s = requests.Session()
         data.read(4)  # read some data
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position == 4
@@ -1622,7 +1647,6 @@ class TestRequests:
                 return
 
         data = BadFileObj('the data')
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position == 0
 
@@ -1646,7 +1670,6 @@ class TestRequests:
                 return
 
         data = BadFileObj('the data')
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position == 0
 
@@ -1667,7 +1690,6 @@ class TestRequests:
                 return
 
         data = BadFileObj('the data')
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position is not None
 

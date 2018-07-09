@@ -40,12 +40,18 @@ if sys.argv[-1] == 'publish':
     os.system('twine upload dist/*')
     sys.exit()
 
+# pyOpenSSL version 18.0.0 dropped support for Python 2.6
+if sys.version_info < (2, 7):
+    PYOPENSSL_VERSION = 'pyOpenSSL >= 0.14, < 18.0.0'
+else:
+    PYOPENSSL_VERSION = 'pyOpenSSL >= 0.14'
+
 packages = ['requests']
 
 requires = [
     'chardet>=3.0.2,<3.1.0',
-    'idna>=2.5,<2.7',
-    'urllib3>=1.21.1,<1.23',
+    'idna>=2.5,<2.8',
+    'urllib3>=1.21.1,<1.24',
     'certifi>=2017.4.17'
 
 ]
@@ -65,6 +71,7 @@ setup(
     version=about['__version__'],
     description=about['__description__'],
     long_description=readme + '\n\n' + history,
+    long_description_content_type='text/x-rst',
     author=about['__author__'],
     author_email=about['__author_email__'],
     url=about['__url__'],
@@ -83,7 +90,6 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
@@ -95,7 +101,7 @@ setup(
     cmdclass={'test': PyTest},
     tests_require=test_requirements,
     extras_require={
-        'security': ['pyOpenSSL>=0.14', 'cryptography>=1.3.4', 'idna>=2.0.0'],
+        'security': [PYOPENSSL_VERSION, 'cryptography>=1.3.4', 'idna>=2.0.0'],
         'socks': ['PySocks>=1.5.6, !=1.5.7'],
         'socks:sys_platform == "win32" and (python_version == "2.7" or python_version == "2.6")': ['win_inet_pton'],
     },

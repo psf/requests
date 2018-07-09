@@ -7,18 +7,18 @@ Support
 
 If you have questions or issues about Requests, there are several options:
 
-StackOverflow
+Stack Overflow
 -------------
 
 If your question does not contain sensitive (possibly proprietary)
 information or can be properly anonymized, please ask a question on
-`StackOverflow <https://stackoverflow.com/questions/tagged/python-requests>`_
+`Stack Overflow <https://stackoverflow.com/questions/tagged/python-requests>`_
 and use the tag ``python-requests``.
 
 Send a Tweet
 ------------
 
-If your question is less than 140 characters, feel free to send a tweet to
+If your question is less than 280 characters, feel free to send a tweet to
 `@kennethreitz <https://twitter.com/kennethreitz>`_,
 `@sigmavirus24 <https://twitter.com/sigmavirus24>`_, or
 `@lukasaoz <https://twitter.com/lukasaoz>`_.
