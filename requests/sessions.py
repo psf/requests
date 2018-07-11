@@ -420,7 +420,7 @@ class Session(SessionRedirectMixin):
 
         # Merge with session cookies
         merged_cookies = merge_cookies(
-            merge_cookies(RequestsCookieJar(), self.cookies), cookies)
+            merge_cookies(self.cookies.__class__(), self.cookies), cookies)
 
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
