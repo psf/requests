@@ -16,7 +16,7 @@ from .auth import _basic_auth_str
 from .compat import cookielib, is_py3, OrderedDict, urljoin, urlparse, Mapping
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
-from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
+from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT, Response
 from .hooks import default_hooks, dispatch_hook
 from ._internal_utils import to_native_string
 from .utils import to_key_val_list, default_headers
@@ -385,6 +385,12 @@ class Session(SessionRedirectMixin):
         #: authentication and similar.
         self.trust_env = True
 
+        #: Last response from request.
+        self.last_response = Response()
+
+        #: Last request that the user made.
+        self.last_request = Request()
+
         #: A CookieJar containing all currently outstanding cookies set on this
         #: session. By default it is a
         #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but
@@ -495,6 +501,9 @@ class Session(SessionRedirectMixin):
             cookies=cookies,
             hooks=hooks,
         )
+
+        self.last_request = req
+
         prep = self.prepare_request(req)
 
         proxies = proxies or {}
@@ -510,6 +519,7 @@ class Session(SessionRedirectMixin):
         }
         send_kwargs.update(settings)
         resp = self.send(prep, **send_kwargs)
+        self.last_response = resp
 
         return resp
 
