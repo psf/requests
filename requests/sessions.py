@@ -388,6 +388,9 @@ class Session(SessionRedirectMixin):
         #: Last response from request.
         self.last_response = Response()
 
+        #: Last request that the user made.
+        self.last_request = Request()
+
         #: A CookieJar containing all currently outstanding cookies set on this
         #: session. By default it is a
         #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but
@@ -498,6 +501,9 @@ class Session(SessionRedirectMixin):
             cookies=cookies,
             hooks=hooks,
         )
+
+        self.last_request = req
+
         prep = self.prepare_request(req)
 
         proxies = proxies or {}
