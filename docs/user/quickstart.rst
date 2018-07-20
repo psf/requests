@@ -244,12 +244,16 @@ dictionary of data will automatically be form-encoded when the request is made::
       ...
     }
 
-You can also pass a list of tuples to the ``data`` argument. This is particularly
-useful when the form has multiple elements that use the same key::
+The ``data`` argument can also have multiple values for each key. This can be
+done by making ``data`` either a list of tuples or a dictionary with lists
+as values. This is particularly useful when the form has multiple elements that
+use the same key::
 
-    >>> payload = (('key1', 'value1'), ('key1', 'value2'))
-    >>> r = requests.post('http://httpbin.org/post', data=payload)
-    >>> print(r.text)
+    >>> payload_tuples = [('key1', 'value1'), ('key1', 'value2')]
+    >>> r1 = requests.post('http://httpbin.org/post', data=payload_tuples)
+    >>> payload_dict = {'key1': ['value1', 'value2']}
+    >>> r2 = requests.post('http://httpbin.org/post', data=payload_dict)
+    >>> print(r1.text)
     {
       ...
       "form": {
@@ -260,6 +264,8 @@ useful when the form has multiple elements that use the same key::
       },
       ...
     }
+    >>> r1.text == r2.text
+    True
 
 There are times that you may want to send data that is not form-encoded. If
 you pass in a ``string`` instead of a ``dict``, that data will be posted directly.
