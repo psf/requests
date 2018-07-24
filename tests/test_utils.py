@@ -481,6 +481,10 @@ def test_parse_dict_header(value, expected):
             ('application/json', {'charset': 'utf-8'})
         ),
         (
+            'application/json ; Charset=utf-8',
+            ('application/json', {'charset': 'utf-8'})
+        ),
+        (
             'text/plain',
             ('text/plain', {})
         ),

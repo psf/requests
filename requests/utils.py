@@ -466,7 +466,7 @@ def _parse_content_type_header(header):
             if index_of_equals != -1:
                 key = param[:index_of_equals].strip(items_to_strip)
                 value = param[index_of_equals + 1:].strip(items_to_strip)
-            params_dict[key] = value
+            params_dict[key.lower()] = value
     return content_type, params_dict
 
 
