@@ -38,7 +38,7 @@ from .utils import (
 from .compat import (
     Callable, Mapping,
     cookielib, urlunparse, urlsplit, urlencode, str, bytes,
-    is_py2, chardet, builtin_str, basestring)
+    is_py2, chardet, builtin_str, basestring, unicode)
 from .compat import json as complexjson
 from .status_codes import codes
 
@@ -362,7 +362,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if isinstance(url, bytes):
             url = url.decode('utf8')
         else:
-            url = unicode(url) if is_py2 else str(url)
+            url = unicode(url)
 
         # Remove leading whitespaces from url
         url = url.lstrip()
