@@ -590,7 +590,8 @@ class Response(object):
 
     __attrs__ = [
         '_content', 'status_code', 'headers', 'url', 'history',
-        'encoding', 'reason', 'cookies', 'elapsed', 'request'
+        'encoding', 'reason', 'cookies', 'elapsed', 'request',
+        'peercert'
     ]
 
     def __init__(self):
@@ -639,6 +640,10 @@ class Response(object):
         #: The :class:`PreparedRequest <PreparedRequest>` object to which this
         #: is a response.
         self.request = None
+
+        #: The certificate dictionary returned by :class 'ssl.SSLSocket'
+        #: or :class 'urllib3.contrib.pyopenssl.WrappedSocket' (python2)
+        self.peercert = None
 
     def __enter__(self):
         return self

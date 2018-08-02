@@ -274,6 +274,13 @@ class HTTPAdapter(BaseAdapter):
         response.raw = resp
         response.reason = response.raw.reason
 
+        # Keep x509 content prior to connection release
+        try:
+          response.peercert = response.raw._connection.sock.getpeercert()
+        # Not an SSL sock
+        except AttributeError:
+          pass
+
         if isinstance(req.url, bytes):
             response.url = req.url.decode('utf-8')
         else:
