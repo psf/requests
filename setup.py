@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # Learn more: https://github.com/kennethreitz/setup.py
-
 import os
 import re
 import sys
@@ -83,7 +82,7 @@ setup(
     install_requires=requires,
     license=about['__license__'],
     zip_safe=False,
-    classifiers=(
+    classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Natural Language :: English',
@@ -98,7 +97,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
-    ),
+    ],
     cmdclass={'test': PyTest},
     tests_require=test_requirements,
     extras_require={
