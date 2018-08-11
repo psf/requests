@@ -6,6 +6,9 @@ Release History
 dev
 +++
 
+**Bugfixes**
+- Content-Type header parsing is now case-insensitive (e.g. charset=utf8 v Charset=utf8).
+
 - [Short description of non-trivial change.]
 
 2.19.1 (2018-06-14)
