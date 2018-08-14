@@ -1573,17 +1573,7 @@ class TestRequests:
             preq = req.prepare()
             assert test_url == preq.url
 
-    @pytest.mark.xfail(raises=ConnectionError)
-    def test_auth_is_stripped_on_redirect_off_host(self, httpbin):
-        r = requests.get(
-            httpbin('redirect-to'),
-            params={'url': 'http://www.google.co.uk'},
-            auth=('user', 'pass'),
-        )
-        assert r.history[0].request.headers['Authorization']
-        assert 'Authorization' not in r.request.headers
-
-    def test_auth_is_stripped_on_scheme_redirect(self, httpbin, httpbin_secure, httpbin_ca_bundle):
+    def test_auth_is_stripped_on_http_downgrade(self, httpbin, httpbin_secure, httpbin_ca_bundle):
         r = requests.get(
             httpbin_secure('redirect-to'),
             params={'url': httpbin('get')},
@@ -1599,6 +1589,27 @@ class TestRequests:
         h2 = r.request.headers['Authorization']
 
         assert h1 == h2
+
+    def test_should_strip_auth_host_change(self):
+        s = requests.Session()
+        assert s.should_strip_auth('http://example.com/foo', 'http://another.example.com/')
+
+    def test_should_strip_auth_http_downgrade(self):
+        s = requests.Session()
+        assert s.should_strip_auth('https://example.com/foo', 'http://example.com/bar')
+
+    def test_should_strip_auth_https_upgrade(self):
+        s = requests.Session()
+        assert not s.should_strip_auth('http://example.com/foo', 'https://example.com/bar')
+        assert not s.should_strip_auth('http://example.com:80/foo', 'https://example.com/bar')
+        assert not s.should_strip_auth('http://example.com/foo', 'https://example.com:443/bar')
+        # Non-standard ports should trigger stripping
+        assert s.should_strip_auth('http://example.com:8080/foo', 'https://example.com/bar')
+        assert s.should_strip_auth('http://example.com/foo', 'https://example.com:8443/bar')
+
+    def test_should_strip_auth_port_change(self):
+        s = requests.Session()
+        assert s.should_strip_auth('http://example.com:1234/foo', 'https://example.com:4321/bar')
 
     def test_manual_redirect_with_partial_body_read(self, httpbin):
         s = requests.Session()

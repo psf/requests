@@ -115,6 +115,22 @@ class SessionRedirectMixin(object):
             return to_native_string(location, 'utf8')
         return None
 
+    def should_strip_auth(self, old_url, new_url):
+        """Decide whether Authorization header should be removed when redirecting"""
+        old_parsed = urlparse(old_url)
+        new_parsed = urlparse(new_url)
+        if old_parsed.hostname != new_parsed.hostname:
+            return True
+        # Special case: allow http -> https redirect when using the standard
+        # ports. This isn't specified by RFC 7235, but is kept to avoid
+        # breaking backwards compatibility with older versions of requests
+        # that allowed any redirects on the same host.
+        if (old_parsed.scheme == 'http' and old_parsed.port in (80, None)
+                and new_parsed.scheme == 'https' and new_parsed.port in (443, None)):
+            return False
+        # Standard case: root URI must match
+        return old_parsed.port != new_parsed.port or old_parsed.scheme != new_parsed.scheme
+
     def resolve_redirects(self, resp, req, stream=False, timeout=None,
                           verify=True, cert=None, proxies=None, yield_requests=False, **adapter_kwargs):
         """Receives a Response. Returns a generator of Responses or Requests."""
@@ -236,16 +252,10 @@ class SessionRedirectMixin(object):
         headers = prepared_request.headers
         url = prepared_request.url
 
-        if 'Authorization' in headers:
+        if 'Authorization' in headers and self.should_strip_auth(response.request.url, url):
             # If we get redirected to a new host, we should strip out any
             # authentication headers.
-            original_parsed = urlparse(response.request.url)
-            redirect_parsed = urlparse(url)
-
-            if (original_parsed.hostname != redirect_parsed.hostname
-                    or original_parsed.port != redirect_parsed.port
-                    or original_parsed.scheme != redirect_parsed.scheme):
-                del headers['Authorization']
+            del headers['Authorization']
 
         # .netrc might have more auth for us on our new host.
         new_auth = get_netrc_auth(url) if self.trust_env else None
