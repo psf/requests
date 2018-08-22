@@ -297,7 +297,6 @@ POST a Multipart-Encoded File
 Requests makes it simple to upload Multipart-encoded files::
 
     >>> url = 'http://httpbin.org/post'
-    >>> files = {'file': open('report.xls', 'rb')}
     >>> with open('report.xls', 'rb') as f:
             r = requests.post(url, files={'file': f})
             r.text
