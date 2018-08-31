@@ -1922,7 +1922,7 @@ class TestRequests:
                      ]
 
         class CustomRedirectSession(requests.Session):
-            def get_redirect_target(self, resp):
+            def get_redirect_target(self, resp, req):
                 # default behavior
                 if resp.is_redirect:
                     return resp.headers['location']
@@ -2339,7 +2339,7 @@ def test_double_encoded_redirect(httpbin, req_url, redirect_location, expected_r
     assert r0.request.method == 'GET'
     assert session.calls[-1] == SendCall((r0.request,), {})
 
-    response_redirect_url = session.get_redirect_target(r0)
+    response_redirect_url = session.get_redirect_target(r0, prep)
     assert r0.request.method == 'GET'
     assert response_redirect_url == httpbin(expected_result)
 

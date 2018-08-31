@@ -28,7 +28,7 @@ from .adapters import HTTPAdapter
 
 from .utils import (
     requote_uri, get_environ_proxies, get_netrc_auth, should_bypass_proxies,
-    get_auth_from_url, rewind_body
+    get_auth_from_url, rewind_body, fix_double_quoted_redirect
 )
 
 from .status_codes import codes
@@ -94,7 +94,7 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 class SessionRedirectMixin(object):
 
-    def get_redirect_target(self, resp):
+    def get_redirect_target(self, resp, req):
         """Receives a Response. Returns a redirect URI or ``None``"""
         # Due to the nature of how requests processes redirects this method will
         # be called at least once upon the original response and at least twice
@@ -103,7 +103,12 @@ class SessionRedirectMixin(object):
         # to cache the redirect location onto the response object as a private
         # attribute.
         if resp.is_redirect:
-            location = resp.headers['location']
+            # Work around misconfigured servers that send broken redirects. 
+            location = fix_double_quoted_redirect(
+                req.url,
+                resp.headers['location']
+            )
+
             # Currently the underlying http module on py3 decode headers
             # in latin1, but empirical evidence suggests that latin1 is very
             # rarely used with non-ASCII characters in HTTP headers.
@@ -146,7 +151,7 @@ class SessionRedirectMixin(object):
 
         hist = []  # keep track of history
 
-        url = self.get_redirect_target(resp)
+        url = self.get_redirect_target(resp, req)
         previous_fragment = urlparse(req.url).fragment
         while url:
             prepared_request = req.copy()
@@ -250,7 +255,7 @@ class SessionRedirectMixin(object):
                 extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
 
                 # extract redirect url, if any, for the next loop
-                url = self.get_redirect_target(resp)
+                url = self.get_redirect_target(resp, req)
                 yield resp
 
     def rebuild_auth(self, prepared_request, response):

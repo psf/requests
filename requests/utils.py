@@ -608,6 +608,46 @@ def requote_uri(uri):
         return quote(uri, safe=safe_without_percent)
 
 
+def fix_double_quoted_redirect(request_uri, redirect_uri):
+    """Some misconfigured servers will take an already-quoted URI and
+    double-quote parts of it when returning a redirect response.  What this
+    does is to transform '%' characters in quoted entities into '%25'.  When
+    the client then attempts to make use of this location, it predictably does
+    not work as intended.  We attempt to detect this misconfiguration by
+    counting substrings in the original URI and in the redirect URI.  If the
+    original URI has zero '%25' substrings, we count the number of '%' signs
+    in it.  Then we count the number of '%25' substrings in the redirect URI.
+    If the redirect URI contains as many '%25' substrings as the request URI
+    contained '%' signs, we unquote the redirect URI and pass it along for
+    further processing.
+
+    :param request_uri: original request URI that we sent
+    :param redirect_uri: URI from the 'location' header that we received
+
+    :rtype: str
+    """
+    if request_uri.count('%25') > 0 or redirect_uri.count('%25') == 0:
+        #
+        # We cannot reliably handle the situation in which the original
+        # request contained encoded percent signs, so punt.
+        #
+        # If there are no encoded percent signs in the redirect, there is
+        # nothing to do, so punt there, too.
+        #
+        return redirect_uri
+
+    nreq_percent = request_uri.count('%')
+    nred_p25 = redirect_uri.count('%25')
+
+    if nreq_percent == nred_p25:
+        #
+        # This is likely a botched double-encoding.
+        #
+        return unquote(redirect_uri)
+    else:
+        return redirect_uri
+
+
 def address_in_network(ip, net):
     """This function allows you to check if an IP belongs to a network subnet
 
