@@ -2284,6 +2284,66 @@ def test_requests_are_updated_each_time(httpbin):
         assert session.calls[-1] == send_call
 
 
+class BrokenRedirectSession(RedirectSession):
+    def __init__(self, order_of_redirects, redirect_location):
+        self.redirect_location = redirect_location
+        super().__init__(order_of_redirects)
+
+    def build_response(self):
+        request = self.calls[-1].args[0]
+        r = requests.Response()
+
+        try:
+            r.status_code = int(self.redirects.pop(0))
+        except IndexError:
+            r.status_code = 200
+
+        r.headers = CaseInsensitiveDict({'Location': self.redirect_location})
+        r.raw = self._build_raw()
+        r.request = request
+        return r
+
+
+@pytest.mark.parametrize(
+    "req_url, redirect_location, expected_result", [
+
+        # test case - correctly-quoted request, redirect with double-percent
+        # quoting
+        ('job/groupname/job/sub-group/job/project/job/jobname/42/api/python?depth=0?tree=artifacts%5BrelativePath%2CfileName%5D',
+         'jenkins/job/groupname/job/sub-group/job/project/job/jobname/42/api/python?depth=0?tree=artifacts%255BrelativePath%252CfileName%255D',
+         'jenkins/job/groupname/job/sub-group/job/project/job/jobname/42/api/python?depth=0?tree=artifacts%5BrelativePath%2CfileName%5D'),
+
+        # test case - correctly-quoted request, correctly-quoted redirect
+        ('job/groupname/job/sub-group/job/project/job/jobname/42/api/python?depth=0?tree=artifacts%5BrelativePath%2CfileName%5D',
+         'jenkins/job/groupname/job/sub-group/job/project/job/jobname/42/api/python?depth=0?tree=artifacts%5BrelativePath%2CfileName%5D',
+         'jenkins/job/groupname/job/sub-group/job/project/job/jobname/42/api/python?depth=0?tree=artifacts%5BrelativePath%2CfileName%5D'),
+
+        # test case - correctly-quoted request w/quoted percent sign, redirect
+        # w/double-percent quoting
+        ('job/groupname/job/sub-group/job/project/job/jobname/42/api/python?depth=0?tree=artifacts%25%5BrelativePath%2CfileName%5D',
+         'jenkins/job/groupname/job/sub-group/job/project/job/jobname/42/api/python?depth=0?tree=artifacts%255BrelativePath%252CfileName%255D',
+         'jenkins/job/groupname/job/sub-group/job/project/job/jobname/42/api/python?depth=0?tree=artifacts%255BrelativePath%252CfileName%255D'),
+
+        # test case - request with double-quoted percent sign, redirect
+        # w/double-percent quoting
+        ('job/groupname/job/sub-group/job/project/job/jobname/42/api/python?depth=0?tree=artifacts%255BrelativePath%2CfileName%5D',
+         'jenkins/job/groupname/job/sub-group/job/project/job/jobname/42/api/python?depth=0?tree=artifacts%255BrelativePath%252CfileName%255D',
+         'jenkins/job/groupname/job/sub-group/job/project/job/jobname/42/api/python?depth=0?tree=artifacts%255BrelativePath%252CfileName%255D'),
+    ]
+)
+def test_double_encoded_redirect(httpbin, req_url, redirect_location, expected_result):
+    session = BrokenRedirectSession([302], httpbin(redirect_location))
+
+    prep = requests.Request('GET', httpbin(req_url)).prepare()
+    r0 = session.send(prep)
+    assert r0.request.method == 'GET'
+    assert session.calls[-1] == SendCall((r0.request,), {})
+
+    response_redirect_url = session.get_redirect_target(r0)
+    assert r0.request.method == 'GET'
+    assert response_redirect_url == httpbin(expected_result)
+
+
 @pytest.mark.parametrize("var,url,proxy", [
     ('http_proxy', 'http://example.com', 'socks5://proxy.com:9876'),
     ('https_proxy', 'https://example.com', 'socks5://proxy.com:9876'),
