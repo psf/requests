@@ -65,8 +65,9 @@ body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-ch
 .native-js[data-state=visible] {
   position: fixed;
   bottom: 0;
+  left: 0;
+  right: 0;
   visibility: visible;
-  width: 100%;
   box-shadow: 0 -1px 4px 1px hsla(0, 0%, 0%, .15);
   opacity: 1;
 }
