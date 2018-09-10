@@ -104,7 +104,6 @@ body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-ch
   text-decoration: none;
 
   flex-flow: row nowrap;
-  justify-content: space-between;
   align-items: center;
 }
 
