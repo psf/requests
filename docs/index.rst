@@ -83,7 +83,7 @@ Institutions that prefer to be unnamed claim to use Requests internally.
 Requests is one of the most downloaded Python packages of all time, pulling in
 over 400,000 downloads **each day**. Join the party!
 
-If your organization uses Requests internally, consider `supporting the development of 3.0 <http://docs.python-requests.org/en/master/community/sponsors/>`_. Your
+If your organization uses Requests internally, consider `supporting the development of 3.0 <https://www.kennethreitz.org/requests3>`_. Your
 generosity will be greatly appreciated, and help drive the project forward
 into the future.
 
