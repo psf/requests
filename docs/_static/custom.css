@@ -100,7 +100,7 @@ body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-ch
 
 .native-flex {
   display: flex;
-  padding: 20px 20px 40px;
+  padding: 0 20px 30px;
   text-decoration: none;
 
   flex-flow: row nowrap;
