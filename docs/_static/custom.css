@@ -6,15 +6,16 @@ body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-ch
   color: white;
 }
 
+/* Carbon by BuySellAds */
 #carbonads {
   display: block;
   overflow: hidden;
+  margin: 1.5em 0 2em;
   padding: 1em;
+  border: solid 1px #cccccc;
+  border-radius: 2px;
   background-color: #eeeeee;
   text-align: center;
-  border: solid 1px #cccccc;
-  margin: 1.5em 0 2em;
-  border-radius: 2px;
   line-height: 1.5;
 }
 
@@ -42,6 +43,140 @@ body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-ch
   display: block;
   text-transform: uppercase;
   letter-spacing: 1px;
-  line-height: 1;
   font-size: 10px;
+  line-height: 1;
+}
+
+
+/* Native CPC by BuySellAds */
+
+.native-js {
+  visibility: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial,
+  sans-serif;
+  opacity: 0;
+  transition: all .25s ease-in-out;
+  transform: translateY(calc(100% - 35px));
+
+  flex-flow: column nowrap;
+}
+
+.native-js[data-state=visible] {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  visibility: visible;
+  box-shadow: 0 -1px 4px 1px hsla(0, 0%, 0%, .15);
+  opacity: 1;
+}
+
+.native-js[data-state=visible]:hover {
+  transform: translateY(0);
+}
+
+.native-img {
+  margin-right: 20px;
+  max-height: 50px;
+  border-radius: 3px;
+}
+
+.native-sponsor {
+  margin: 10px 20px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-size: 12px;
+  transition: all .3s ease-in-out;
+  transform-origin: left;
+}
+
+.native-js[data-state=visible]:hover .native-sponsor {
+  margin: 0 20px;
+  opacity: 0;
+  transform: scaleY(0);
+}
+
+.native-flex {
+  display: flex;
+  padding: 0 20px 30px;
+  text-decoration: none;
+
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
+.native-flex:hover {
+  text-decoration: none;
+}
+
+.native-main {
+  display: flex;
+
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
+.native-details {
+  display: flex;
+  margin-right: 30px;
+
+  flex-flow: column nowrap;
+}
+
+.native-company {
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 10px;
+}
+
+.native-desc {
+  letter-spacing: 1px;
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+.native-cta {
+  padding: 10px 14px;
+  border-radius: 3px;
+  box-shadow: 0 6px 13px 0 hsla(0, 0%, 0%, .15);
+  text-transform: uppercase;
+  white-space: nowrap;
+  letter-spacing: 1px;
+  font-weight: 400;
+  font-size: 12px;
+  transition: all .3s ease-in-out;
+  transform: translateY(-1px);
+}
+
+.native-cta:hover {
+  box-shadow: none;
+  transform: translateY(1px);
+}
+
+@media only screen and (min-width: 320px) and (max-width: 759px) {
+  .native-flex {
+    flex-direction: column;
+
+    flex-wrap: wrap;
+  }
+
+  .native-img {
+    margin: 0;
+  }
+
+  .native-details {
+    margin: 0;
+  }
+
+  .native-main {
+    flex-direction: column;
+    margin-bottom: 20px;
+    text-align: center;
+
+    flex-wrap: wrap;
+    align-content: center;
+  }
 }
