@@ -267,7 +267,7 @@ def test_fragment_not_sent_with_request():
 
 def test_fragment_update_on_redirect():
     """Verify we only append previous fragment if one doesn't exist on new
-    location. If a new fragment is encounterd in a Location header, it should
+    location. If a new fragment is encountered in a Location header, it should
     be added to all subsequent requests.
     """
 
