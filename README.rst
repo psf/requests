@@ -1,6 +1,8 @@
 Requests: HTTP for Humans
 =========================
 
+**If you're interested in supporting Kenneth Reitz projects financially, visit `this link <https://cash.me/$KennethReitz>`_. It really helps with motivation!**
+
 .. image:: https://img.shields.io/pypi/v/requests.svg
     :target: https://pypi.org/project/requests/
 
@@ -45,6 +47,8 @@ See `the similar code, sans Requests <https://gist.github.com/973705>`_.
 
 .. image:: https://raw.githubusercontent.com/requests/requests/master/docs/_static/requests-logo-small.png
     :target: http://docs.python-requests.org/
+    
+
 
 
 Requests allows you to send *organic, grass-fed* HTTP/1.1 requests, without the
