@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Requests: HTTP for Humans
-=========================
+Requests: HTTP for Humans™
+==========================
 
 Release v\ |version|. (:ref:`Installation <install>`)
 
