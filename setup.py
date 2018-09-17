@@ -54,23 +54,30 @@ requires = [
     'certifi>=2017.4.17'
 
 ]
-test_requirements = ['pytest-httpbin==0.0.7', 'pytest-cov', 'pytest-mock', 'pytest-xdist', 'PySocks>=1.5.6, !=1.5.7', 'pytest>=2.8.0']
+test_requirements = [
+    'pytest-httpbin==0.0.7',
+    'pytest-cov',
+    'pytest-mock',
+    'pytest-xdist',
+    'PySocks>=1.5.6, !=1.5.7',
+    'pytest>=2.8.0'
+]
 
 about = {}
 with open(os.path.join(here, 'requests', '__version__.py'), 'r', 'utf-8') as f:
     exec(f.read(), about)
 
-with open('README.rst', 'r', 'utf-8') as f:
+with open('README.md', 'r', 'utf-8') as f:
     readme = f.read()
-with open('HISTORY.rst', 'r', 'utf-8') as f:
+with open('HISTORY.md', 'r', 'utf-8') as f:
     history = f.read()
 
 setup(
     name=about['__title__'],
     version=about['__version__'],
     description=about['__description__'],
-    long_description=readme + '\n\n' + history,
-    long_description_content_type='text/x-rst',
+    long_description=readme,
+    long_description_content_type='text/markdown',
     author=about['__author__'],
     author_email=about['__author_email__'],
     url=about['__url__'],
