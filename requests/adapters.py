@@ -306,7 +306,8 @@ class HTTPAdapter(BaseAdapter):
                 raise InvalidProxyURL("Please check proxy URL. It is malformed"
                                       " and could be missing the host.")
             proxy_manager = self.proxy_manager_for(proxy)
-            proxy_manager.proxy_headers.update(proxies.get('headers', {}))
+            if hasattr(proxy_manager, 'proxy_headers') and 'headers' in proxies: 
+                 proxy_manager.proxy_headers.update(proxies.get('headers', {}))
             conn = proxy_manager.connection_from_url(url)
         else:
             # Only scheme should be lower case
