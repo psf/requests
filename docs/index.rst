@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Requests: HTTP for Humans
-=========================
+Requests: HTTP for Humans™
+==========================
 
 Release v\ |version|. (:ref:`Installation <install>`)
 
@@ -30,6 +30,9 @@ consumption.
 
 .. note:: The use of **Python 3** is *highly* preferred over Python 2. Consider upgrading your applications and infrastructure if you find yourself *still* using Python 2 in production today. If you are using Python 3, congratulations — you are indeed a person of excellent taste.
   —*Kenneth Reitz*
+  
+  
+If you're interested in financially supporting Kenneth Reitz open source, consider visiting  `this link <https://cash.me/kennethreitz>`_. Your support helps tremendously with sustainability of motivation, as Open Source is no longer part of my day job.
 
 
 -------------------
