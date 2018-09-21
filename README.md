@@ -10,7 +10,7 @@ Requests: HTTP for Humans™
 
 **If you're interested in financially supporting Kenneth Reitz open source, consider [visiting this link](https://cash.me/$KennethReitz). Your support helps tremendously with sustainability of motivation, as Open Source is no longer part of my day job.**
 
-Rquests is the only *Non-GMO* HTTP library for Python, safe for human
+Requests is the only *Non-GMO* HTTP library for Python, safe for human
 consumption.
 
 ![image](https://farm5.staticflickr.com/4317/35198386374_1939af3de6_k_d.jpg)
