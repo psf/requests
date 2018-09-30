@@ -139,7 +139,7 @@ API Changes
       s = requests.Session()    # formerly, session took parameters
       s.auth = auth
       s.headers.update(headers)
-      r = s.get('http://httpbin.org/headers')
+      r = s.get('https://httpbin.org/headers')
 
 * All request hooks have been removed except 'response'.
 
@@ -185,7 +185,7 @@ API Changes
       requests_log.setLevel(logging.DEBUG)
       requests_log.propagate = True
 
-      requests.get('http://httpbin.org/headers')
+      requests.get('https://httpbin.org/headers')
 
 
 
@@ -197,8 +197,8 @@ license from the ISC_ license to the `Apache 2.0`_ license. The Apache 2.0
 license ensures that contributions to Requests are also covered by the Apache
 2.0 license.
 
-.. _ISC: http://opensource.org/licenses/ISC
-.. _Apache 2.0: http://opensource.org/licenses/Apache-2.0
+.. _ISC: https://opensource.org/licenses/ISC
+.. _Apache 2.0: https://opensource.org/licenses/Apache-2.0
 
 
 Migrating to 2.x
@@ -213,7 +213,7 @@ For more details on the changes in this release including new APIs, links
 to the relevant GitHub issues and some of the bug fixes, read Cory's blog_
 on the subject.
 
-.. _blog: http://lukasa.co.uk/2013/09/Requests_20/
+.. _blog: https://lukasa.co.uk/2013/09/Requests_20/
 
 
 API Changes

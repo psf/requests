@@ -218,7 +218,7 @@ class Request(RequestHooksMixin):
     Usage::
 
       >>> import requests
-      >>> req = requests.Request('GET', 'http://httpbin.org/get')
+      >>> req = requests.Request('GET', 'https://httpbin.org/get')
       >>> req.prepare()
       <PreparedRequest [GET]>
     """
@@ -278,7 +278,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     Usage::
 
       >>> import requests
-      >>> req = requests.Request('GET', 'http://httpbin.org/get')
+      >>> req = requests.Request('GET', 'https://httpbin.org/get')
       >>> r = req.prepare()
       <PreparedRequest [GET]>
 

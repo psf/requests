@@ -37,8 +37,8 @@ closed-source software.
 
 Requests is released under terms of `Apache2 License`_.
 
-.. _`GPL Licensed`: http://www.opensource.org/licenses/gpl-license.php
-.. _`Apache2 License`: http://opensource.org/licenses/Apache-2.0
+.. _`GPL Licensed`: https://opensource.org/licenses/gpl-license.php
+.. _`Apache2 License`: https://opensource.org/licenses/Apache-2.0
 
 
 Requests License

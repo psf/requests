@@ -49,7 +49,7 @@ def request(method, url, **kwargs):
     Usage::
 
       >>> import requests
-      >>> req = requests.request('GET', 'http://httpbin.org/get')
+      >>> req = requests.request('GET', 'https://httpbin.org/get')
       <Response [200]>
     """
 

@@ -646,7 +646,7 @@ documentation](http://docs.python-requests.org/en/latest/community/release-proce
 **Bugfixes**
 
 -   Revert changes to our vendored certificate bundle. For more context
-    see (\#2455, \#2456, and <http://bugs.python.org/issue23476>)
+    see (\#2455, \#2456, and <https://bugs.python.org/issue23476>)
 
 2.5.2 (2015-02-23)
 ------------------
