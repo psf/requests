@@ -4,8 +4,12 @@ Release History
 dev
 ---
 
-**Bugfixes** - Content-Type header parsing is now case-insensitive (e.g.
-charset=utf8 v Charset=utf8).
+**Bugfixes**
+
+-   Content-Type header parsing is now case-insensitive (e.g.
+    charset=utf8 v Charset=utf8).
+-   Fixed exception leak where certain redirect urls would raise
+    uncaught urllib3 exceptions.
 
 -   \[Short description of non-trivial change.\]
 
