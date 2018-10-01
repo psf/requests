@@ -727,12 +727,16 @@ def should_bypass_proxies(url, no_proxy):
                     # matches the IP of the index
                     return True
         else:
-            host_with_port = parsed.hostname
+            host_without_port = '.' + parsed.hostname
+            host_with_port = host_without_port
             if parsed.port:
                 host_with_port += ':{0}'.format(parsed.port)
 
             for host in no_proxy:
-                if parsed.hostname.endswith(host) or host_with_port.endswith(host):
+                if not host.startswith('.'):
+                    host = '.' + host
+
+                if host_without_port.endswith(host) or host_with_port.endswith(host):
                     # The URL does match something in no_proxy, so we don't want
                     # to apply the proxies on this URL.
                     return True
