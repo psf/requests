@@ -157,7 +157,7 @@ model methods (e.g. ``__repr__``) are typically the exception to this rule.
 
 Thanks for helping to make the world a better place!
 
-.. _PEP 8: http://pep8.org
+.. _PEP 8: https://pep8.org/
 .. _line continuations: https://www.python.org/dev/peps/pep-0008/#indentation
 
 Documentation Contributions

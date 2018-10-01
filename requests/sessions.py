@@ -311,7 +311,7 @@ class SessionRedirectMixin(object):
         """
         method = prepared_request.method
 
-        # http://tools.ietf.org/html/rfc7231#section-6.4.4
+        # https://tools.ietf.org/html/rfc7231#section-6.4.4
         if response.status_code == codes.see_other and method != 'HEAD':
             method = 'GET'
 
@@ -337,13 +337,13 @@ class Session(SessionRedirectMixin):
 
       >>> import requests
       >>> s = requests.Session()
-      >>> s.get('http://httpbin.org/get')
+      >>> s.get('https://httpbin.org/get')
       <Response [200]>
 
     Or as a context manager::
 
       >>> with requests.Session() as s:
-      >>>     s.get('http://httpbin.org/get')
+      >>>     s.get('https://httpbin.org/get')
       <Response [200]>
     """
 

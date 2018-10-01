@@ -25,8 +25,8 @@ Let's persist some cookies across requests::
 
     s = requests.Session()
 
-    s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
-    r = s.get('http://httpbin.org/cookies')
+    s.get('https://httpbin.org/cookies/set/sessioncookie/123456789')
+    r = s.get('https://httpbin.org/cookies')
 
     print(r.text)
     # '{"cookies": {"sessioncookie": "123456789"}}'
@@ -40,7 +40,7 @@ is done by providing data to the properties on a Session object::
     s.headers.update({'x-test': 'true'})
 
     # both 'x-test' and 'x-test2' are sent
-    s.get('http://httpbin.org/headers', headers={'x-test2': 'true'})
+    s.get('https://httpbin.org/headers', headers={'x-test2': 'true'})
 
 
 Any dictionaries that you pass to a request method will be merged with the
@@ -53,11 +53,11 @@ with the first request, but not the second::
 
     s = requests.Session()
 
-    r = s.get('http://httpbin.org/cookies', cookies={'from-my': 'browser'})
+    r = s.get('https://httpbin.org/cookies', cookies={'from-my': 'browser'})
     print(r.text)
     # '{"cookies": {"from-my": "browser"}}'
 
-    r = s.get('http://httpbin.org/cookies')
+    r = s.get('https://httpbin.org/cookies')
     print(r.text)
     # '{"cookies": {}}'
 
@@ -69,7 +69,7 @@ If you want to manually add cookies to your session, use the
 Sessions can also be used as context managers::
 
     with requests.Session() as s:
-        s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
+        s.get('https://httpbin.org/cookies/set/sessioncookie/123456789')
 
 This will make sure the session is closed as soon as the ``with`` block is
 exited, even if unhandled exceptions occurred.
@@ -97,7 +97,7 @@ The ``Response`` object contains all of the information returned by the server a
 also contains the ``Request`` object you created originally. Here is a simple
 request to get some very important information from Wikipedia's servers::
 
-    >>> r = requests.get('http://en.wikipedia.org/wiki/Monty_Python')
+    >>> r = requests.get('https://en.wikipedia.org/wiki/Monty_Python')
 
 If we want to access the headers the server sent back to us, we do this::
 
@@ -323,7 +323,7 @@ inefficiency with connections. If you find yourself partially reading request
 bodies (or not reading them at all) while using ``stream=True``, you should
 make the request within a ``with`` statement to ensure it's always closed::
 
-    with requests.get('http://httpbin.org/get', stream=True) as r:
+    with requests.get('https://httpbin.org/get', stream=True) as r:
         # Do things with the response here.
 
 .. _keep-alive:
@@ -393,7 +393,7 @@ upload image files to an HTML form with a multiple file field 'images'::
 
 To do that, just set files to a list of tuples of ``(form_field_name, file_info)``::
 
-    >>> url = 'http://httpbin.org/post'
+    >>> url = 'https://httpbin.org/post'
     >>> multiple_files = [
             ('images', ('foo.png', open('foo.png', 'rb'), 'image/png')),
             ('images', ('bar.png', open('bar.png', 'rb'), 'image/png'))]
@@ -455,13 +455,13 @@ anything, nothing else is affected.
 
 Let's print some request method arguments at runtime::
 
-    >>> requests.get('http://httpbin.org', hooks={'response': print_url})
-    http://httpbin.org
+    >>> requests.get('https://httpbin.org/', hooks={'response': print_url})
+    https://httpbin.org/
     <Response [200]>
 
 You can add multiple hooks to a single request.  Let's call two hooks at once::
 
-    >>> r = requests.get('http://httpbin.org', hooks={'response': [print_url, record_hook]})
+    >>> r = requests.get('https://httpbin.org/', hooks={'response': [print_url, record_hook]})
     >>> r.hook_called
     True
 
@@ -470,8 +470,8 @@ be called on every request made to the session.  For example::
 
    >>> s = requests.Session()
    >>> s.hooks['response'].append(print_url)
-   >>> s.get('http://httpbin.org')
-    http://httpbin.org
+   >>> s.get('https://httpbin.org/')
+    https://httpbin.org/
     <Response [200]>
 
 A ``Session`` can have multiple hooks, which will be called in the order
@@ -529,7 +529,7 @@ set ``stream`` to ``True`` and iterate over the response with
     import json
     import requests
 
-    r = requests.get('http://httpbin.org/stream/20', stream=True)
+    r = requests.get('https://httpbin.org/stream/20', stream=True)
 
     for line in r.iter_lines():
 
@@ -543,7 +543,7 @@ When using `decode_unicode=True` with
 :meth:`Response.iter_content() <requests.Response.iter_content>`, you'll want
 to provide a fallback encoding in the event the server doesn't provide one::
 
-    r = requests.get('http://httpbin.org/stream/20', stream=True)
+    r = requests.get('https://httpbin.org/stream/20', stream=True)
 
     if r.encoding is None:
         r.encoding = 'utf-8'
@@ -657,7 +657,7 @@ encoding in the HTTP header, and if none is present, will use `chardet
 The only time Requests will not do this is if no explicit charset
 is present in the HTTP headers **and** the ``Content-Type``
 header contains ``text``. In this situation, `RFC 2616
-<http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7.1>`_ specifies
+<https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7.1>`_ specifies
 that the default charset must be ``ISO-8859-1``. Requests follows the
 specification in this case. If you require a different encoding, you can
 manually set the :attr:`Response.encoding <requests.Response.encoding>`
@@ -921,7 +921,7 @@ it should apply to.
 ::
 
     >>> s = requests.Session()
-    >>> s.mount('http://www.github.com', MyAdapter())
+    >>> s.mount('https://github.com/', MyAdapter())
 
 The mount call registers a specific instance of a Transport Adapter to a
 prefix. Once mounted, any HTTP request made using that session whose URL starts
@@ -959,7 +959,7 @@ library to use SSLv3::
                 num_pools=connections, maxsize=maxsize,
                 block=block, ssl_version=ssl.PROTOCOL_SSLv3)
 
-.. _`described here`: http://www.kennethreitz.org/essays/the-future-of-python-http
+.. _`described here`: https://www.kennethreitz.org/essays/the-future-of-python-http
 .. _`urllib3`: https://github.com/shazow/urllib3
 
 .. _blocking-or-nonblocking:
@@ -1003,7 +1003,7 @@ The **connect** timeout is the number of seconds Requests will wait for your
 client to establish a connection to a remote machine (corresponding to the
 `connect()`_) call on the socket. It's a good practice to set connect timeouts
 to slightly larger than a multiple of 3, which is the default `TCP packet
-retransmission window <http://www.hjp.at/doc/rfc/rfc2988.txt>`_.
+retransmission window <https://www.hjp.at/doc/rfc/rfc2988.txt>`_.
 
 Once your client has connected to the server and sent the HTTP request, the
 **read** timeout is the number of seconds the client will wait for the server
@@ -1028,4 +1028,4 @@ coffee.
 
     r = requests.get('https://github.com', timeout=None)
 
-.. _`connect()`: http://linux.die.net/man/2/connect
+.. _`connect()`: https://linux.die.net/man/2/connect

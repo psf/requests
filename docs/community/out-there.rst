@@ -15,10 +15,10 @@ To give it a try, simply::
 
 Articles & Talks
 ================
-- `Python for the Web <http://gun.io/blog/python-for-the-web/>`_ teaches how to use Python to interact with the web, using Requests.
-- `Daniel Greenfeld's Review of Requests <http://pydanny.blogspot.com/2011/05/python-http-requests-for-humans.html>`_
-- `My 'Python for Humans' talk <http://python-for-humans.heroku.com>`_ ( `audio <http://codeconf.s3.amazonaws.com/2011/pycodeconf/talks/PyCodeConf2011%20-%20Kenneth%20Reitz.m4a>`_ )
+- `Python for the Web <https://www.gun.io/blog/python-for-the-web>`_ teaches how to use Python to interact with the web, using Requests.
+- `Daniel Greenfeld's Review of Requests <https://pydanny.blogspot.com/2011/05/python-http-requests-for-humans.html>`_
+- `My 'Python for Humans' talk <http://python-for-humans.heroku.com>`_ ( `audio <https://codeconf.s3.amazonaws.com/2011/pycodeconf/talks/PyCodeConf2011%20-%20Kenneth%20Reitz.m4a>`_ )
 - `Issac Kelly's 'Consuming Web APIs' talk <https://issackelly.github.com/Consuming-Web-APIs-with-Python-Talk/slides/slides.html>`_
-- `Blog post about Requests via Yum <http://arunsag.wordpress.com/2011/08/17/new-package-python-requests-http-for-humans/>`_
-- `Russian blog post introducing Requests <http://habrahabr.ru/blogs/python/126262/>`_
+- `Blog post about Requests via Yum <https://arunsag.wordpress.com/2011/08/17/new-package-python-requests-http-for-humans/>`_
+- `Russian blog post introducing Requests <https://habr.com/post/126262/>`_
 - `Sending JSON in Requests <http://www.coglib.com/~icordasc/blog/2014/11/sending-json-in-requests.html>`_
