@@ -2427,6 +2427,16 @@ class TestPreparingURLs(object):
             r.prepare()
 
     @pytest.mark.parametrize(
+        'url, exception',
+        (
+            ('http://localhost:-1', InvalidURL),
+        )
+    )
+    def test_redirecting_to_bad_url(self, httpbin, url, exception):
+        with pytest.raises(exception):
+            r = requests.get(httpbin('redirect-to'), params={'url': url})
+
+    @pytest.mark.parametrize(
         'input, expected',
         (
             (

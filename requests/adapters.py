@@ -26,6 +26,7 @@ from urllib3.exceptions import ProtocolError
 from urllib3.exceptions import ReadTimeoutError
 from urllib3.exceptions import SSLError as _SSLError
 from urllib3.exceptions import ResponseError
+from urllib3.exceptions import LocationValueError
 
 from .models import Response
 from .compat import urlparse, basestring
@@ -35,7 +36,8 @@ from .utils import (DEFAULT_CA_BUNDLE_PATH, extract_zipped_paths,
 from .structures import CaseInsensitiveDict
 from .cookies import extract_cookies_to_jar
 from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
-                         ProxyError, RetryError, InvalidSchema, InvalidProxyURL)
+                         ProxyError, RetryError, InvalidSchema, InvalidProxyURL,
+                         InvalidURL)
 from .auth import _basic_auth_str
 
 try:
@@ -407,7 +409,10 @@ class HTTPAdapter(BaseAdapter):
         :rtype: requests.Response
         """
 
-        conn = self.get_connection(request.url, proxies)
+        try:
+            conn = self.get_connection(request.url, proxies)
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
 
         self.cert_verify(conn, request.url, verify, cert)
         url = self.request_url(request, proxies)
