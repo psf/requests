@@ -171,15 +171,17 @@ API Changes
       import logging
 
       # Enabling debugging at http.client level (requests->urllib3->http.client)
-      # you will see the REQUEST, including HEADERS and DATA, and RESPONSE with HEADERS but without DATA.
+      # you will see the REQUEST, including HEADERS and DATA,
+      # and RESPONSE with HEADERS but without DATA.
       # the only thing missing will be the response.body which is not logged.
-      try: # for Python 3
+      try:  # for Python 3
           from http.client import HTTPConnection
       except ImportError:
           from httplib import HTTPConnection
       HTTPConnection.debuglevel = 1
 
-      logging.basicConfig() # you need to initialize logging, otherwise you will not see anything from requests
+      # you need to initialize logging, otherwise you will not see anything from requests
+      logging.basicConfig()
       logging.getLogger().setLevel(logging.DEBUG)
       requests_log = logging.getLogger("urllib3")
       requests_log.setLevel(logging.DEBUG)
@@ -238,7 +240,7 @@ API Changes
   ::
 
       proxies = {
-        "http": "10.10.1.10:3128",    # use http://10.10.1.10:3128 instead
+          "http": "10.10.1.10:3128",  # use http://10.10.1.10:3128 instead
       }
 
       # In requests 1.x, this was legal, in requests 2.x,

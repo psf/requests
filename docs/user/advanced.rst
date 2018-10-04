@@ -142,7 +142,8 @@ request. The simple recipe for this is the following::
     # do something with prepped.headers
     del prepped.headers['Content-Type']
 
-    resp = s.send(prepped,
+    resp = s.send(
+        prepped,
         stream=stream,
         verify=verify,
         proxies=proxies,
@@ -169,7 +170,7 @@ applied, replace the call to :meth:`Request.prepare()
     from requests import Request, Session
 
     s = Session()
-    req = Request('GET',  url, data=data, headers=headers)
+    req = Request('GET', url, data=data, headers=headers)
 
     prepped = s.prepare_request(req)
 
@@ -179,7 +180,8 @@ applied, replace the call to :meth:`Request.prepare()
     # do something with prepped.headers
     prepped.headers['Keep-Dead'] = 'parrot'
 
-    resp = s.send(prepped,
+    resp = s.send(
+        prepped,
         stream=stream,
         verify=verify,
         proxies=proxies,
@@ -253,7 +255,8 @@ You can also specify a local cert to use as client side certificate, as a single
 file (containing the private key and the certificate) or as a tuple of both
 files' paths::
 
-    >>> requests.get('https://kennethreitz.org', cert=('/path/client.cert', '/path/client.key'))
+    >>> requests.get('https://kennethreitz.org',
+    ...              cert=('/path/client.cert', '/path/client.key'))
     <Response [200]>
 
 or persistent::
@@ -307,8 +310,8 @@ At this point only the response headers have been downloaded and the connection
 remains open, hence allowing us to make content retrieval conditional::
 
     if int(r.headers['content-length']) < TOO_LONG:
-      content = r.content
-      ...
+        content = r.content
+        ...
 
 You can further control the workflow by use of the :meth:`Response.iter_content() <requests.Response.iter_content>`
 and :meth:`Response.iter_lines() <requests.Response.iter_lines>` methods.
@@ -325,6 +328,7 @@ make the request within a ``with`` statement to ensure it's always closed::
 
     with requests.get('https://httpbin.org/get', stream=True) as r:
         # Do things with the response here.
+        pass
 
 .. _keep-alive:
 
@@ -371,6 +375,7 @@ a length) for your body::
         yield 'hi'
         yield 'there'
 
+
     requests.post('http://some.url/chunked', data=gen())
 
 For chunked encoded responses, it's best to iterate over the data using
@@ -395,8 +400,8 @@ To do that, just set files to a list of tuples of ``(form_field_name, file_info)
 
     >>> url = 'https://httpbin.org/post'
     >>> multiple_files = [
-            ('images', ('foo.png', open('foo.png', 'rb'), 'image/png')),
-            ('images', ('bar.png', open('bar.png', 'rb'), 'image/png'))]
+    ...     ('images', ('foo.png', open('foo.png', 'rb'), 'image/png')),
+    ...     ('images', ('bar.png', open('bar.png', 'rb'), 'image/png'))]
     >>> r = requests.post(url, files=multiple_files)
     >>> r.text
     {
@@ -431,7 +436,7 @@ You can assign a hook function on a per-request basis by passing a
 ``{hook_name: callback_function}`` dictionary to the ``hooks`` request
 parameter::
 
-    hooks={'response': print_url}
+    hooks = {'response': print_url}
 
 That ``callback_function`` will receive a chunk of data as its first
 argument.
@@ -461,7 +466,8 @@ Let's print some request method arguments at runtime::
 
 You can add multiple hooks to a single request.  Let's call two hooks at once::
 
-    >>> r = requests.get('https://httpbin.org/', hooks={'response': [print_url, record_hook]})
+    >>> r = requests.get('https://httpbin.org/',
+    ...                  hooks={'response': [print_url, record_hook]})
     >>> r.hook_called
     True
 
@@ -498,6 +504,7 @@ Let's pretend that we have a web service that will only respond if the
 ::
 
     from requests.auth import AuthBase
+
 
     class PizzaAuth(AuthBase):
         """Attaches HTTP Pizza Authentication to the given Request object."""
@@ -578,8 +585,8 @@ If you need to use a proxy, you can configure individual requests with the
     import requests
 
     proxies = {
-      'http': 'http://10.10.1.10:3128',
-      'https': 'http://10.10.1.10:1080',
+        'http': 'http://10.10.1.10:3128',
+        'https': 'http://10.10.1.10:1080',
     }
 
     requests.get('http://example.org', proxies=proxies)
@@ -815,10 +822,8 @@ that.
 
     >>> print(content[u"id"])
     5804413
-
     >>> body = json.dumps({u"body": u"Sounds great! I'll get right on it once I feed my cat."})
     >>> url = u"https://api.github.com/repos/requests/requests/issues/comments/5804413"
-
     >>> r = requests.patch(url=url, data=body, auth=auth)
     >>> r.status_code
     200
