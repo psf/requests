@@ -39,12 +39,12 @@ get all the information we need from this object.
 Requests' simple API means that all forms of HTTP request are as obvious. For
 example, this is how you make an HTTP POST request::
 
-    >>> r = requests.post('https://httpbin.org/post', data = {'key':'value'})
+    >>> r = requests.post('https://httpbin.org/post', data={'key': 'value'})
 
 Nice, right? What about the other HTTP request types: PUT, DELETE, HEAD and
 OPTIONS? These are all just as simple::
 
-    >>> r = requests.put('https://httpbin.org/put', data = {'key':'value'})
+    >>> r = requests.put('https://httpbin.org/put', data={'key': 'value'})
     >>> r = requests.delete('https://httpbin.org/delete')
     >>> r = requests.head('https://httpbin.org/get')
     >>> r = requests.options('https://httpbin.org/get')
@@ -273,10 +273,8 @@ you pass in a ``string`` instead of a ``dict``, that data will be posted directl
 For example, the GitHub API v3 accepts JSON-Encoded POST/PATCH data::
 
     >>> import json
-
     >>> url = 'https://api.github.com/some/endpoint'
     >>> payload = {'some': 'data'}
-
     >>> r = requests.post(url, data=json.dumps(payload))
 
 Instead of encoding the ``dict`` yourself, you can also pass it directly using
@@ -284,7 +282,6 @@ the ``json`` parameter (added in version 2.4.2) and it will be encoded automatic
 
     >>> url = 'https://api.github.com/some/endpoint'
     >>> payload = {'some': 'data'}
-
     >>> r = requests.post(url, json=payload)
 
 Note, the ``json`` parameter is ignored if either ``data`` or ``files`` is passed.
@@ -298,7 +295,6 @@ Requests makes it simple to upload Multipart-encoded files::
 
     >>> url = 'https://httpbin.org/post'
     >>> files = {'file': open('report.xls', 'rb')}
-
     >>> r = requests.post(url, files=files)
     >>> r.text
     {
@@ -312,8 +308,8 @@ Requests makes it simple to upload Multipart-encoded files::
 You can set the filename, content_type and headers explicitly::
 
     >>> url = 'https://httpbin.org/post'
-    >>> files = {'file': ('report.xls', open('report.xls', 'rb'), 'application/vnd.ms-excel', {'Expires': '0'})}
-
+    >>> files = {'file': ('report.xls', open('report.xls', 'rb'),
+    ...                   'application/vnd.ms-excel', {'Expires': '0'})}
     >>> r = requests.post(url, files=files)
     >>> r.text
     {
@@ -328,7 +324,6 @@ If you want, you can send strings to be received as files::
 
     >>> url = 'https://httpbin.org/post'
     >>> files = {'file': ('report.csv', 'some,data,to,send\nanother,row,to,send\n')}
-
     >>> r = requests.post(url, files=files)
     >>> r.text
     {
@@ -377,7 +372,6 @@ can raise it with
     >>> bad_r = requests.get('https://httpbin.org/status/404')
     >>> bad_r.status_code
     404
-
     >>> bad_r.raise_for_status()
     Traceback (most recent call last):
       File "requests/models.py", line 832, in raise_for_status
