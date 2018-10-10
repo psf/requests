@@ -39,4 +39,6 @@ jobs:
       sudo: true     
     - stage: coverage
       python: 3.6
-      script: codecov
+      script:
+        - make ci
+        - codecov
