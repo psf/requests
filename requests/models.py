@@ -640,6 +640,9 @@ class Response(object):
         #: is a response.
         self.request = None
 
+        self._read_iter = None
+        self._read_leftover = None
+
     def __enter__(self):
         return self
 
@@ -814,6 +817,53 @@ class Response(object):
 
         if pending is not None:
             yield pending
+
+    def read(self, size=-1):
+        ce = self.headers.get('content-encoding', '')
+        if 'gzip' in ce or 'deflate' in ce:
+            return self._read_compressed(size)
+        else:
+            # python3 generally wants fd.read(size=None), py2 fd.read(size=-1)
+            if size is None or size < 0:
+                return self.raw.read()
+            return self.raw.read(size)
+
+    def _read_compressed(self, size=None):
+        if not self._read_iter:
+            self._read_iter = self.iter_content()
+
+        if self._content_consumed:
+            return bytes()
+
+        if (size is None or size < 0):
+            # read everything
+            ret = self.leftover
+            self._read_leftover = bytes()
+            for buf in self.r_iter:
+                ret += buf
+            self._content_consumed = True
+            return ret
+
+        ret = bytes()
+
+        if self._read_leftover:
+            if len(self._read_leftover) > size:
+                ret = self._read_leftover[0:size]
+                self._read_leftover = self._read_leftover[size:]
+                return ret
+            ret = self._read_leftover
+            self._read_leftover = bytes()
+
+        while True:
+            try:
+                ret += next(self._read_iter)
+                if len(ret) >= size:
+                    self._read_leftover = ret[size:]
+                    ret = ret[0:size]
+                    break
+            except StopIteration:
+                break
+        return ret
 
     @property
     def content(self):
