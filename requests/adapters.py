@@ -532,4 +532,5 @@ class HTTPAdapter(BaseAdapter):
             else:
                 raise
 
+        print('foo')
         return self.build_response(request, resp)
