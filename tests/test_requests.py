@@ -14,7 +14,7 @@ import io
 import requests
 import pytest
 from requests.adapters import HTTPAdapter
-from requests.auth import HTTPDigestAuth, _basic_auth_str
+from requests.auth import HTTPDigestAuth, HTTPHeaderAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urlparse,
     builtin_str, OrderedDict)
@@ -658,6 +658,39 @@ class TestRequests:
 
             r = requests.get(url, auth=auth)
             assert '"auth"' in r.request.headers['Authorization']
+
+    def test_HEADERAUTH_HTTP_200_OK_GET(self, httpbin):
+        url = httpbin('bearer')
+        auth = HTTPHeaderAuth('somevalue')
+
+        r = requests.get(url, auth=auth)
+        assert r.status_code == 200
+
+        r = requests.get(url)
+        assert r.status_code == 401
+
+        s = requests.session()
+        s.auth = auth
+        r = s.get(url)
+        assert r.status_code == 200
+
+    def test_set_headerauth(self, httpbin):
+        auth = HTTPHeaderAuth('somevalue')
+        url = httpbin('get')
+
+        r = requests.Request('GET', url, auth=auth)
+        p = r.prepare()
+
+        assert p.headers['Authorization'] == 'somevalue'
+
+    def test_set_headerauth_with_custom_headere(self, httpbin):
+        auth = HTTPHeaderAuth('somevalue', header='X-Authorization')
+        url = httpbin('get')
+
+        r = requests.Request('GET', url, auth=auth)
+        p = r.prepare()
+
+        assert p.headers['X-Authorization'] == 'somevalue'
 
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
 
