@@ -76,7 +76,38 @@ class AuthBase(object):
         raise NotImplementedError('Auth hooks must be callable.')
 
 
-class HTTPBasicAuth(AuthBase):
+class HTTPHeaderAuth(AuthBase):
+    """Attaches HTTP header Authentication to the given Request object."""
+
+    DEFAULT_HEADER = 'Authorization'
+
+    def __init__(self, value, header=DEFAULT_HEADER):
+        self._header = header
+        self._value = value
+
+    @property
+    def value(self):
+        return self._value
+
+    @property
+    def header(self):
+        return getattr(self, '_header', self.DEFAULT_HEADER)
+
+    def __eq__(self, other):
+        return all([
+            self.header == getattr(other, 'header', None),
+            self.value == getattr(other, 'value', None),
+        ])
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __call__(self, r):
+        r.headers[self.header] = self.value
+        return r
+
+
+class HTTPBasicAuth(HTTPHeaderAuth):
     """Attaches HTTP Basic Authentication to the given Request object."""
 
     def __init__(self, username, password):
@@ -92,9 +123,9 @@ class HTTPBasicAuth(AuthBase):
     def __ne__(self, other):
         return not self == other
 
-    def __call__(self, r):
-        r.headers['Authorization'] = _basic_auth_str(self.username, self.password)
-        return r
+    @property
+    def value(self):
+        return _basic_auth_str(self.username, self.password)
 
 
 class HTTPProxyAuth(HTTPBasicAuth):
