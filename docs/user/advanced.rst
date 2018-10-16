@@ -271,25 +271,24 @@ If you specify a wrong path or an invalid cert, you'll get a SSLError::
 
 .. _sni-support:
 
-SNI support with legacy Python
-------------------------------
+SSL support with old Python versions
+------------------------------------
 
-.. versionadded:: 2.4.1
-
-It's possible to enable `Server Name Indication (SNI)`_ via `urllib3's SNI support`_
-for legacy Python versions (older than 2.7.9) by installing a few optional dependencies
+It's possible to enable OpenSSL support & `Server Name Indication (SNI)`_ for old Python
+versions (older than 2.7.9 & 3.4.3) by installing a few optional dependencies
 using the ``security`` extra::
 
     $ pipenv install requests[security]
 
-This will install PyOpenSSL and its dependencies and setup ``urllib3`` automatically
-when Requests is imported.
+This will install PyOpenSSL, its dependencies and setup `urllib3 certificate validation`_
+automatically when Requests is imported.
 
-However, it should not be required if you're using Python 3 and you could save a bit
-of time when importing Requests by not including it.
+However, it is not required if you're using a recent version of Python with `PEP 476`_.
+This is included from Python 2.7.9 and 3.4.3.
 
 .. _`Server Name Indication (SNI)`: https://en.wikipedia.org/wiki/Server_Name_Indication
-.. _`urllib3's SNI support`: https://urllib3.readthedocs.io/en/latest/user-guide.html#certificate-verification-in-python-2
+.. _`urllib3 certificate validation`: https://urllib3.readthedocs.io/en/latest/user-guide.html#certificate-verification-in-python-2
+.. _`PEP 476`: https://www.python.org/dev/peps/pep-0476/
 
 .. _ca-certificates:
 
