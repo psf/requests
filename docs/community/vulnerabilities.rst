@@ -97,11 +97,11 @@ Previous CVEs
 
 - Fixed in 2.6.0
 
-  - `CVE 2015-2296 <http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=2015-2296>`_,
+  - `CVE 2015-2296 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=2015-2296>`_,
     reported by Matthew Daley of `BugFuzz <https://bugfuzz.com/>`_.
 
 - Fixed in 2.3.0
 
-  - `CVE 2014-1829 <http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=2014-1829>`_
+  - `CVE 2014-1829 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=2014-1829>`_
 
-  - `CVE 2014-1830 <http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=2014-1830>`_
+  - `CVE 2014-1830 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=2014-1830>`_
