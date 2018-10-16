@@ -39,12 +39,6 @@ if sys.argv[-1] == 'publish':
     os.system('twine upload dist/*')
     sys.exit()
 
-# pyOpenSSL version 18.0.0 dropped support for Python 2.6
-if sys.version_info < (2, 7):
-    PYOPENSSL_VERSION = 'pyOpenSSL >= 0.14, < 18.0.0'
-else:
-    PYOPENSSL_VERSION = 'pyOpenSSL >= 0.14'
-
 packages = ['requests']
 
 requires = [
@@ -85,7 +79,7 @@ setup(
     package_data={'': ['LICENSE', 'NOTICE'], 'requests': ['*.pem']},
     package_dir={'requests': 'requests'},
     include_package_data=True,
-    python_requires=">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
     install_requires=requires,
     license=about['__license__'],
     zip_safe=False,
@@ -108,8 +102,8 @@ setup(
     cmdclass={'test': PyTest},
     tests_require=test_requirements,
     extras_require={
-        'security': [PYOPENSSL_VERSION, 'cryptography>=1.3.4', 'idna>=2.0.0'],
+        'security': ['pyOpenSSL >= 0.14', 'cryptography>=1.3.4', 'idna>=2.0.0'],
         'socks': ['PySocks>=1.5.6, !=1.5.7'],
-        'socks:sys_platform == "win32" and (python_version == "2.7" or python_version == "2.6")': ['win_inet_pton'],
+        'socks:sys_platform == "win32" and python_version == "2.7"': ['win_inet_pton'],
     },
 )

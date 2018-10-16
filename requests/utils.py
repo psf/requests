@@ -173,7 +173,7 @@ def get_netrc_auth(url, raise_errors=False):
 
         for f in NETRC_FILES:
             try:
-                loc = os.path.expanduser('~/{0}'.format(f))
+                loc = os.path.expanduser('~/{}'.format(f))
             except KeyError:
                 # os.path.expanduser can fail when $HOME is undefined and
                 # getpwuid fails. See https://bugs.python.org/issue20164 &
@@ -729,7 +729,7 @@ def should_bypass_proxies(url, no_proxy):
         else:
             host_with_port = parsed.hostname
             if parsed.port:
-                host_with_port += ':{0}'.format(parsed.port)
+                host_with_port += ':{}'.format(parsed.port)
 
             for host in no_proxy:
                 if parsed.hostname.endswith(host) or host_with_port.endswith(host):
@@ -737,13 +737,8 @@ def should_bypass_proxies(url, no_proxy):
                     # to apply the proxies on this URL.
                     return True
 
-    # If the system proxy settings indicate that this URL should be bypassed,
-    # don't proxy.
-    # The proxy_bypass function is incredibly buggy on OS X in early versions
-    # of Python 2.6, so allow this call to fail. Only catch the specific
-    # exceptions we've seen, though: this call failing in other ways can reveal
-    # legitimate problems.
     with set_environ('no_proxy', no_proxy_arg):
+        # parsed.hostname can be `None` in cases such as a file URI.
         try:
             bypass = proxy_bypass(parsed.hostname)
         except (TypeError, socket.gaierror):
