@@ -16,7 +16,7 @@ def test_chunked_upload():
     data = iter([b'a', b'b', b'c'])
 
     with server as (host, port):
-        url = 'http://{0}:{1}/'.format(host, port)
+        url = 'http://{}:{}/'.format(host, port)
         r = requests.post(url, data=data, stream=True)
         close_server.set()  # release server block
 
@@ -77,7 +77,7 @@ def test_digestauth_401_count_reset_on_redirect():
     server = Server(digest_response_handler, wait_to_close_event=close_server)
 
     with server as (host, port):
-        url = 'http://{0}:{1}/'.format(host, port)
+        url = 'http://{}:{}/'.format(host, port)
         r = requests.get(url, auth=auth)
         # Verify server succeeded in authenticating.
         assert r.status_code == 200
@@ -127,7 +127,7 @@ def test_digestauth_401_only_sent_once():
     server = Server(digest_failed_response_handler, wait_to_close_event=close_server)
 
     with server as (host, port):
-        url = 'http://{0}:{1}/'.format(host, port)
+        url = 'http://{}:{}/'.format(host, port)
         r = requests.get(url, auth=auth)
         # Verify server didn't authenticate us.
         assert r.status_code == 401
@@ -164,7 +164,7 @@ def test_digestauth_only_on_4xx():
     server = Server(digest_response_handler, wait_to_close_event=close_server)
 
     with server as (host, port):
-        url = 'http://{0}:{1}/'.format(host, port)
+        url = 'http://{}:{}/'.format(host, port)
         r = requests.get(url, auth=auth)
         # Verify server didn't receive auth from us.
         assert r.status_code == 200
@@ -181,17 +181,17 @@ _schemes_by_var_prefix = [
 _proxy_combos = []
 for prefix, schemes in _schemes_by_var_prefix:
     for scheme in schemes:
-        _proxy_combos.append(("{0}_proxy".format(prefix), scheme))
+        _proxy_combos.append(("{}_proxy".format(prefix), scheme))
 
 _proxy_combos += [(var.upper(), scheme) for var, scheme in _proxy_combos]
 
 
 @pytest.mark.parametrize("var,scheme", _proxy_combos)
 def test_use_proxy_from_environment(httpbin, var, scheme):
-    url = "{0}://httpbin.org".format(scheme)
+    url = "{}://httpbin.org".format(scheme)
     fake_proxy = Server()  # do nothing with the requests; just close the socket
     with fake_proxy as (host, port):
-        proxy_url = "socks5://{0}:{1}".format(host, port)
+        proxy_url = "socks5://{}:{}".format(host, port)
         kwargs = {var: proxy_url}
         with override_environ(**kwargs):
             # fake proxy's lack of response will cause a ConnectionError
@@ -212,7 +212,7 @@ def test_redirect_rfc1808_to_non_ascii_location():
 
     def redirect_resp_handler(sock):
         consume_socket_content(sock, timeout=0.5)
-        location = u'//{0}:{1}/{2}'.format(host, port, path)
+        location = u'//{}:{}/{}'.format(host, port, path)
         sock.send(
             b'HTTP/1.1 301 Moved Permanently\r\n'
             b'Content-Length: 0\r\n'
@@ -226,13 +226,13 @@ def test_redirect_rfc1808_to_non_ascii_location():
     server = Server(redirect_resp_handler, wait_to_close_event=close_server)
 
     with server as (host, port):
-        url = u'http://{0}:{1}'.format(host, port)
+        url = u'http://{}:{}'.format(host, port)
         r = requests.get(url=url, allow_redirects=True)
         assert r.status_code == 200
         assert len(r.history) == 1
         assert r.history[0].status_code == 301
         assert redirect_request[0].startswith(b'GET /' + expected_path + b' HTTP/1.1')
-        assert r.url == u'{0}/{1}'.format(url, expected_path.decode('ascii'))
+        assert r.url == u'{}/{}'.format(url, expected_path.decode('ascii'))
 
         close_server.set()
 
@@ -250,7 +250,7 @@ def test_fragment_not_sent_with_request():
     server = Server(response_handler, wait_to_close_event=close_server)
 
     with server as (host, port):
-        url = 'http://{0}:{1}/path/to/thing/#view=edit&token=hunter2'.format(host, port)
+        url = 'http://{}:{}/path/to/thing/#view=edit&token=hunter2'.format(host, port)
         r = requests.get(url)
         raw_request = r.content
 
@@ -293,7 +293,7 @@ def test_fragment_update_on_redirect():
     server = Server(response_handler, wait_to_close_event=close_server)
 
     with server as (host, port):
-        url = 'http://{0}:{1}/path/to/thing/#view=edit&token=hunter2'.format(host, port)
+        url = 'http://{}:{}/path/to/thing/#view=edit&token=hunter2'.format(host, port)
         r = requests.get(url)
         raw_request = r.content
 
@@ -302,8 +302,8 @@ def test_fragment_update_on_redirect():
         assert r.history[0].request.url == url
 
         # Verify we haven't overwritten the location with our previous fragment.
-        assert r.history[1].request.url == 'http://{0}:{1}/get#relevant-section'.format(host, port)
+        assert r.history[1].request.url == 'http://{}:{}/get#relevant-section'.format(host, port)
         # Verify previous fragment is used and not the original.
-        assert r.url == 'http://{0}:{1}/final-url/#relevant-section'.format(host, port)
+        assert r.url == 'http://{}:{}/final-url/#relevant-section'.format(host, port)
 
         close_server.set()

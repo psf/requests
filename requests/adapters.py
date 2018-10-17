@@ -129,8 +129,7 @@ class HTTPAdapter(BaseAdapter):
         self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
 
     def __getstate__(self):
-        return dict((attr, getattr(self, attr, None)) for attr in
-                    self.__attrs__)
+        return {attr: getattr(self, attr, None) for attr in self.__attrs__}
 
     def __setstate__(self, state):
         # Can't handle by adding 'proxy_manager' to self.__attrs__ because
@@ -226,7 +225,7 @@ class HTTPAdapter(BaseAdapter):
 
             if not cert_loc or not os.path.exists(cert_loc):
                 raise IOError("Could not find a suitable TLS CA certificate bundle, "
-                              "invalid path: {0}".format(cert_loc))
+                              "invalid path: {}".format(cert_loc))
 
             conn.cert_reqs = 'CERT_REQUIRED'
 
@@ -248,10 +247,10 @@ class HTTPAdapter(BaseAdapter):
                 conn.key_file = None
             if conn.cert_file and not os.path.exists(conn.cert_file):
                 raise IOError("Could not find the TLS certificate file, "
-                              "invalid path: {0}".format(conn.cert_file))
+                              "invalid path: {}".format(conn.cert_file))
             if conn.key_file and not os.path.exists(conn.key_file):
                 raise IOError("Could not find the TLS key file, "
-                              "invalid path: {0}".format(conn.key_file))
+                              "invalid path: {}".format(conn.key_file))
 
     def build_response(self, req, resp):
         """Builds a :class:`Response <requests.Response>` object from a urllib3
@@ -426,7 +425,7 @@ class HTTPAdapter(BaseAdapter):
                 timeout = TimeoutSauce(connect=connect, read=read)
             except ValueError as e:
                 # this may raise a string formatting error.
-                err = ("Invalid timeout {0}. Pass a (connect, read) "
+                err = ("Invalid timeout {}. Pass a (connect, read) "
                        "timeout tuple, or a single float to set "
                        "both timeouts to the same value".format(timeout))
                 raise ValueError(err)
@@ -475,13 +474,7 @@ class HTTPAdapter(BaseAdapter):
                     low_conn.send(b'0\r\n\r\n')
 
                     # Receive the response from the server
-                    try:
-                        # For Python 2.7+ versions, use buffering of HTTP
-                        # responses
-                        r = low_conn.getresponse(buffering=True)
-                    except TypeError:
-                        # For compatibility with Python 2.6 versions and back
-                        r = low_conn.getresponse()
+                    r = low_conn.getresponse(buffering=True)
 
                     resp = HTTPResponse.from_httplib(
                         r,

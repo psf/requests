@@ -9,6 +9,7 @@ import pickle
 import collections
 import contextlib
 import warnings
+from collections import OrderedDict
 
 import io
 import requests
@@ -17,7 +18,7 @@ from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urlparse,
-    builtin_str, OrderedDict)
+    builtin_str)
 from requests.cookies import (
     cookiejar_from_dict, morsel_to_cookie)
 from requests.exceptions import (
@@ -158,7 +159,7 @@ class TestRequests:
         url = scheme + parts.netloc + parts.path
         r = requests.Request('GET', url)
         r = s.send(r.prepare())
-        assert r.status_code == 200, 'failed for scheme {0}'.format(scheme)
+        assert r.status_code == 200, 'failed for scheme {}'.format(scheme)
 
     def test_HTTP_200_OK_GET_ALTERNATIVE(self, httpbin):
         r = requests.Request('GET', httpbin('get'))
@@ -816,17 +817,17 @@ class TestRequests:
         INVALID_PATH = '/garbage'
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), verify=INVALID_PATH)
-        assert str(e.value) == 'Could not find a suitable TLS CA certificate bundle, invalid path: {0}'.format(INVALID_PATH)
+        assert str(e.value) == 'Could not find a suitable TLS CA certificate bundle, invalid path: {}'.format(INVALID_PATH)
 
     def test_invalid_ssl_certificate_files(self, httpbin_secure):
         INVALID_PATH = '/garbage'
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), cert=INVALID_PATH)
-        assert str(e.value) == 'Could not find the TLS certificate file, invalid path: {0}'.format(INVALID_PATH)
+        assert str(e.value) == 'Could not find the TLS certificate file, invalid path: {}'.format(INVALID_PATH)
 
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), cert=('.', INVALID_PATH))
-        assert str(e.value) == 'Could not find the TLS key file, invalid path: {0}'.format(INVALID_PATH)
+        assert str(e.value) == 'Could not find the TLS key file, invalid path: {}'.format(INVALID_PATH)
 
     def test_http_with_certificate(self, httpbin):
         r = requests.get(httpbin(), cert='.')
@@ -1458,7 +1459,7 @@ class TestRequests:
         assert r.json()['args'] == {'foo': 'bar', 'FOO': 'bar'}
 
     def test_long_authinfo_in_url(self):
-        url = 'http://{0}:{1}@{2}:9000/path?query#frag'.format(
+        url = 'http://{}:{}@{}:9000/path?query#frag'.format(
             'E8A3BE87-9E3F-4620-8858-95478E385B5B',
             'EA770032-DA4D-4D84-8CE9-29C6D910BF1E',
             'exactly-------------sixty-----------three------------characters',
