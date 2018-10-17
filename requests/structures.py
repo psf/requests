@@ -6,8 +6,9 @@ requests.structures
 
 Data structures that power Requests.
 """
+from collections import OrderedDict
 
-from .compat import OrderedDict, Mapping, MutableMapping
+from .compat import Mapping, MutableMapping
 
 
 class CaseInsensitiveDict(MutableMapping):
