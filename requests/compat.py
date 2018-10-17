@@ -45,7 +45,10 @@ if is_py2:
     from StringIO import StringIO
     from collections import Callable, Mapping, MutableMapping
 
-    from urllib3.packages.ordered_dict import OrderedDict
+    try:
+        from collections import OrderedDict
+    except ImportError:
+        from urllib3.packages.ordered_dict import OrderedDict
 
     builtin_str = str
     bytes = str
