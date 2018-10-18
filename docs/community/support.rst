@@ -20,8 +20,9 @@ Send a Tweet
 
 If your question is less than 280 characters, feel free to send a tweet to
 `@kennethreitz <https://twitter.com/kennethreitz>`_,
-`@sigmavirus24 <https://twitter.com/sigmavirus24>`_, or
-`@lukasaoz <https://twitter.com/lukasaoz>`_.
+`@sigmavirus24 <https://twitter.com/sigmavirus24>`_,
+`@lukasaoz <https://twitter.com/lukasaoz>`_, or
+`@nateprewitt <https://twitter.com/nateprewitt>`_.
 
 File an Issue
 -------------

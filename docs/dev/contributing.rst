@@ -13,11 +13,12 @@ contributing to the Requests project is *very* generous of you.
 This document lays out guidelines and advice for contributing to this project.
 If you're thinking of contributing, please start by reading this document and
 getting a feel for how contributing to this project works. If you have any
-questions, feel free to reach out to either `Ian Cordasco`_ or `Cory Benfield`_,
-the primary maintainers.
+questions, feel free to reach out to either `Ian Cordasco`_, `Cory Benfield`_,
+or `Nate Prewitt`_, the primary maintainers.
 
 .. _Ian Cordasco: http://www.coglib.com/~icordasc/
 .. _Cory Benfield: https://lukasa.co.uk/about
+.. _Nate Prewitt: https://www.nateprewitt.com/
 
 If you have non-technical feedback, philosophical ponderings, crazy ideas, or
 other general thoughts about Requests or its position within the Python
