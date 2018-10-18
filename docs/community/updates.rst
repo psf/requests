@@ -28,4 +28,4 @@ Follow `@kennethreitz <https://twitter.com/kennethreitz>`_ for updates.
 Release and Version History
 ===========================
 
-.. include:: ../../HISTORY.rst
+.. include:: ../../HISTORY.md
