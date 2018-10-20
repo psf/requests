@@ -29,7 +29,7 @@ from urllib3.exceptions import ResponseError
 from urllib3.exceptions import LocationValueError
 
 from .models import Response
-from .compat import urlparse, basestring
+from .compat import urlparse, basestring, is_py2
 from .utils import (DEFAULT_CA_BUNDLE_PATH, extract_zipped_paths,
                     get_encoding_from_headers, prepend_scheme_if_needed,
                     get_auth_from_url, urldefragauth, select_proxy)
@@ -418,6 +418,12 @@ class HTTPAdapter(BaseAdapter):
         self.add_headers(request, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
 
         chunked = not (request.body is None or 'Content-Length' in request.headers)
+        if is_py2 and request.body and not hasattr(request.body, 'read') and hasattr(request.body, '__iter__'):
+            try:
+                # httplib's send will work if body supports the buffer protocol
+                memoryview(request.body)
+            except TypeError:
+                chunked = True
 
         if isinstance(timeout, tuple):
             try:
@@ -466,12 +472,16 @@ class HTTPAdapter(BaseAdapter):
 
                     low_conn.endheaders()
 
-                    for i in request.body:
-                        low_conn.send(hex(len(i))[2:].encode('utf-8'))
-                        low_conn.send(b'\r\n')
-                        low_conn.send(i)
-                        low_conn.send(b'\r\n')
-                    low_conn.send(b'0\r\n\r\n')
+                    if 'Content-Length' in request.headers:
+                        for i in request.body:
+                            low_conn.send(i)
+                    else:
+                        for i in request.body:
+                            low_conn.send(hex(len(i))[2:].encode('utf-8'))
+                            low_conn.send(b'\r\n')
+                            low_conn.send(i)
+                            low_conn.send(b'\r\n')
+                        low_conn.send(b'0\r\n\r\n')
 
                     # Receive the response from the server
                     try:

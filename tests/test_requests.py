@@ -727,6 +727,35 @@ class TestRequests:
         assert post2.status_code == 200
         assert post2.json()['data'] == 'st'
 
+    def test_POSTBIN_WITH_ITER(self, httpbin):
+
+        class TestIteratorWithLength(object):
+            def __init__(self, data):
+                self.data = data.encode()
+                self.length = len(self.data)
+                self.itersize = 2**20
+
+            def __len__(self):
+                return self.length
+
+            def __iter__(self):
+                return self
+
+            def __next__(self):
+                if self.data:
+                    ret = self.data[:self.itersize]
+                    self.data = self.data[self.itersize:]
+                    return ret
+                else:
+                    raise StopIteration()
+
+            next = __next__
+
+        test = TestIteratorWithLength('test')
+        post1 = requests.post(httpbin('post'), data=test)
+        assert post1.status_code == 200
+        assert post1.json()['data'] == 'test'
+
     def test_POSTBIN_GET_POST_FILES_WITH_DATA(self, httpbin):
 
         url = httpbin('post')
