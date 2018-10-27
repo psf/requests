@@ -282,3 +282,30 @@ pip-selfcheck.json
 
 
 # End of https://www.gitignore.io/api/git,python,virtualenv,pycharm+all,jetbrains+all
+
+## old ignore ##
+.coverage
+MANIFEST
+coverage.xml
+nosetests.xml
+junit-report.xml
+pylint.txt
+toy.py
+.cache/
+cover/
+build/
+docs/_build
+requests.egg-info/
+*.pyc
+*.swp
+*.egg
+env/
+
+.workon
+
+t.py
+
+t2.py
+dist
+
+/.mypy_cache/
