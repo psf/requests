@@ -23,12 +23,13 @@ from requests.cookies import (
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
     MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError, InvalidHeader, UnrewindableBodyError, SSLError)
+    ProxyError, InvalidHeader, UnrewindableBodyError, SSLError, InvalidProxyURL)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
+from requests.compat import MutableMapping
 
 from .compat import StringIO, u
 from .utils import override_environ
@@ -53,6 +54,8 @@ except AttributeError:
 
 
 class TestRequests:
+
+    digest_auth_algo = ('MD5', 'SHA-256', 'SHA-512')
 
     def test_entry_points(self):
 
@@ -155,7 +158,7 @@ class TestRequests:
         url = scheme + parts.netloc + parts.path
         r = requests.Request('GET', url)
         r = s.send(r.prepare())
-        assert r.status_code == 200, 'failed for scheme {0}'.format(scheme)
+        assert r.status_code == 200, 'failed for scheme {}'.format(scheme)
 
     def test_HTTP_200_OK_GET_ALTERNATIVE(self, httpbin):
         r = requests.Request('GET', httpbin('get'))
@@ -293,6 +296,14 @@ class TestRequests:
         assert next_resp.request.body is None
         for header in purged_headers:
             assert header not in next_resp.request.headers
+
+    def test_fragment_maintained_on_redirect(self, httpbin):
+        fragment = "#view=edit&token=hunter2"
+        r = requests.get(httpbin('redirect-to?url=get')+fragment)
+
+        assert len(r.history) > 0
+        assert r.history[0].request.url == httpbin('redirect-to?url=get')+fragment
+        assert r.url == httpbin('get')+fragment
 
     def test_HTTP_200_OK_GET_WITH_PARAMS(self, httpbin):
         heads = {'User-agent': 'Mozilla/5.0'}
@@ -526,6 +537,19 @@ class TestRequests:
         with pytest.raises(ProxyError):
             requests.get('http://localhost:1', proxies={'http': 'non-resolvable-address'})
 
+    def test_proxy_error_on_bad_url(self, httpbin, httpbin_secure):
+        with pytest.raises(InvalidProxyURL):
+            requests.get(httpbin_secure(), proxies={'https': 'http:/badproxyurl:3128'})
+
+        with pytest.raises(InvalidProxyURL):
+            requests.get(httpbin(), proxies={'http': 'http://:8080'})
+
+        with pytest.raises(InvalidProxyURL):
+            requests.get(httpbin_secure(), proxies={'https': 'https://'})
+
+        with pytest.raises(InvalidProxyURL):
+            requests.get(httpbin(), proxies={'http': 'http:///example.com:8080'})
+
     def test_basicauth_with_netrc(self, httpbin):
         auth = ('user', 'pass')
         wrong_auth = ('wronguser', 'wrongpass')
@@ -561,70 +585,79 @@ class TestRequests:
 
     def test_DIGEST_HTTP_200_OK_GET(self, httpbin):
 
-        auth = HTTPDigestAuth('user', 'pass')
-        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+        for authtype in self.digest_auth_algo:
+            auth = HTTPDigestAuth('user', 'pass')
+            url = httpbin('digest-auth', 'auth', 'user', 'pass', authtype, 'never')
 
-        r = requests.get(url, auth=auth)
-        assert r.status_code == 200
+            r = requests.get(url, auth=auth)
+            assert r.status_code == 200
 
-        r = requests.get(url)
-        assert r.status_code == 401
+            r = requests.get(url)
+            assert r.status_code == 401
+            print(r.headers['WWW-Authenticate'])
 
-        s = requests.session()
-        s.auth = HTTPDigestAuth('user', 'pass')
-        r = s.get(url)
-        assert r.status_code == 200
+            s = requests.session()
+            s.auth = HTTPDigestAuth('user', 'pass')
+            r = s.get(url)
+            assert r.status_code == 200
 
     def test_DIGEST_AUTH_RETURNS_COOKIE(self, httpbin):
-        url = httpbin('digest-auth', 'auth', 'user', 'pass')
-        auth = HTTPDigestAuth('user', 'pass')
-        r = requests.get(url)
-        assert r.cookies['fake'] == 'fake_value'
 
-        r = requests.get(url, auth=auth)
-        assert r.status_code == 200
+        for authtype in self.digest_auth_algo:
+            url = httpbin('digest-auth', 'auth', 'user', 'pass', authtype)
+            auth = HTTPDigestAuth('user', 'pass')
+            r = requests.get(url)
+            assert r.cookies['fake'] == 'fake_value'
+
+            r = requests.get(url, auth=auth)
+            assert r.status_code == 200
 
     def test_DIGEST_AUTH_SETS_SESSION_COOKIES(self, httpbin):
-        url = httpbin('digest-auth', 'auth', 'user', 'pass')
-        auth = HTTPDigestAuth('user', 'pass')
-        s = requests.Session()
-        s.get(url, auth=auth)
-        assert s.cookies['fake'] == 'fake_value'
+
+        for authtype in self.digest_auth_algo:
+            url = httpbin('digest-auth', 'auth', 'user', 'pass', authtype)
+            auth = HTTPDigestAuth('user', 'pass')
+            s = requests.Session()
+            s.get(url, auth=auth)
+            assert s.cookies['fake'] == 'fake_value'
 
     def test_DIGEST_STREAM(self, httpbin):
 
-        auth = HTTPDigestAuth('user', 'pass')
-        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+        for authtype in self.digest_auth_algo:
+            auth = HTTPDigestAuth('user', 'pass')
+            url = httpbin('digest-auth', 'auth', 'user', 'pass', authtype)
 
-        r = requests.get(url, auth=auth, stream=True)
-        assert r.raw.read() != b''
+            r = requests.get(url, auth=auth, stream=True)
+            assert r.raw.read() != b''
 
-        r = requests.get(url, auth=auth, stream=False)
-        assert r.raw.read() == b''
+            r = requests.get(url, auth=auth, stream=False)
+            assert r.raw.read() == b''
 
     def test_DIGESTAUTH_WRONG_HTTP_401_GET(self, httpbin):
 
-        auth = HTTPDigestAuth('user', 'wrongpass')
-        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+        for authtype in self.digest_auth_algo:
+            auth = HTTPDigestAuth('user', 'wrongpass')
+            url = httpbin('digest-auth', 'auth', 'user', 'pass', authtype)
 
-        r = requests.get(url, auth=auth)
-        assert r.status_code == 401
+            r = requests.get(url, auth=auth)
+            assert r.status_code == 401
 
-        r = requests.get(url)
-        assert r.status_code == 401
+            r = requests.get(url)
+            assert r.status_code == 401
 
-        s = requests.session()
-        s.auth = auth
-        r = s.get(url)
-        assert r.status_code == 401
+            s = requests.session()
+            s.auth = auth
+            r = s.get(url)
+            assert r.status_code == 401
 
     def test_DIGESTAUTH_QUOTES_QOP_VALUE(self, httpbin):
 
-        auth = HTTPDigestAuth('user', 'pass')
-        url = httpbin('digest-auth', 'auth', 'user', 'pass')
+        for authtype in self.digest_auth_algo:
+            auth = HTTPDigestAuth('user', 'pass')
+            url = httpbin('digest-auth', 'auth', 'user', 'pass', authtype)
 
-        r = requests.get(url, auth=auth)
-        assert '"auth"' in r.request.headers['Authorization']
+            r = requests.get(url, auth=auth)
+            assert '"auth"' in r.request.headers['Authorization']
 
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
 
@@ -634,7 +667,7 @@ class TestRequests:
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
 
-        with open('requirements.txt') as f:
+        with open('Pipfile') as f:
             post2 = requests.post(url, files={'some': f})
         assert post2.status_code == 200
 
@@ -643,6 +676,14 @@ class TestRequests:
 
         with pytest.raises(ValueError):
             requests.post(url, files=['bad file data'])
+
+    def test_invalid_files_input(self, httpbin):
+
+        url = httpbin('post')
+        post = requests.post(url,
+                             files={"random-file-1": None, "random-file-2": 1})
+        assert b'name="random-file-1"' not in post.request.body
+        assert b'name="random-file-2"' in post.request.body
 
     def test_POSTBIN_SEEKED_OBJECT_WITH_NO_ITER(self, httpbin):
 
@@ -694,7 +735,7 @@ class TestRequests:
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
 
-        with open('requirements.txt') as f:
+        with open('Pipfile') as f:
             post2 = requests.post(url, data={'some': 'data'}, files={'some': f})
         assert post2.status_code == 200
 
@@ -705,7 +746,7 @@ class TestRequests:
             requests.post(url, files=['bad file data'])
 
     def test_post_with_custom_mapping(self, httpbin):
-        class CustomMapping(collections.MutableMapping):
+        class CustomMapping(MutableMapping):
             def __init__(self, *args, **kwargs):
                 self.data = dict(*args, **kwargs)
 
@@ -731,7 +772,7 @@ class TestRequests:
 
     def test_conflicting_post_params(self, httpbin):
         url = httpbin('post')
-        with open('requirements.txt') as f:
+        with open('Pipfile') as f:
             pytest.raises(ValueError, "requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})")
             pytest.raises(ValueError, "requests.post(url, data=u('[{\"some\": \"data\"}]'), files={'some': f})")
 
@@ -775,17 +816,17 @@ class TestRequests:
         INVALID_PATH = '/garbage'
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), verify=INVALID_PATH)
-        assert str(e.value) == 'Could not find a suitable TLS CA certificate bundle, invalid path: {0}'.format(INVALID_PATH)
+        assert str(e.value) == 'Could not find a suitable TLS CA certificate bundle, invalid path: {}'.format(INVALID_PATH)
 
     def test_invalid_ssl_certificate_files(self, httpbin_secure):
         INVALID_PATH = '/garbage'
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), cert=INVALID_PATH)
-        assert str(e.value) == 'Could not find the TLS certificate file, invalid path: {0}'.format(INVALID_PATH)
+        assert str(e.value) == 'Could not find the TLS certificate file, invalid path: {}'.format(INVALID_PATH)
 
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), cert=('.', INVALID_PATH))
-        assert str(e.value) == 'Could not find the TLS key file, invalid path: {0}'.format(INVALID_PATH)
+        assert str(e.value) == 'Could not find the TLS key file, invalid path: {}'.format(INVALID_PATH)
 
     def test_http_with_certificate(self, httpbin):
         r = requests.get(httpbin(), cert='.')
@@ -823,9 +864,15 @@ class TestRequests:
 
     def test_urlencoded_get_query_multivalued_param(self, httpbin):
 
-        r = requests.get(httpbin('get'), params=dict(test=['foo', 'baz']))
+        r = requests.get(httpbin('get'), params={'test': ['foo', 'baz']})
         assert r.status_code == 200
         assert r.url == httpbin('get?test=foo&test=baz')
+
+    def test_form_encoded_post_query_multivalued_element(self, httpbin):
+        r = requests.Request(method='POST', url=httpbin('post'),
+                             data=dict(test=['foo', 'baz']))
+        prep = r.prepare()
+        assert prep.body == 'test=foo&test=baz'
 
     def test_different_encodings_dont_break_post(self, httpbin):
         r = requests.post(httpbin('post'),
@@ -1131,6 +1178,14 @@ class TestRequests:
         with pytest.raises(requests.cookies.CookieConflictError):
             jar.get(key)
 
+    def test_cookie_policy_copy(self):
+        class MyCookiePolicy(cookielib.DefaultCookiePolicy):
+            pass
+
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set_policy(MyCookiePolicy())
+        assert isinstance(jar.copy().get_policy(), MyCookiePolicy)
+
     def test_time_elapsed_blank(self, httpbin):
         r = requests.get(httpbin('get'))
         td = r.elapsed
@@ -1351,6 +1406,44 @@ class TestRequests:
         assert 'http://' in s2.adapters
         assert 'https://' in s2.adapters
 
+    def test_session_get_adapter_prefix_matching(self):
+        prefix = 'https://example.com'
+        more_specific_prefix = prefix + '/some/path'
+
+        url_matching_only_prefix = prefix + '/another/path'
+        url_matching_more_specific_prefix = more_specific_prefix + '/longer/path'
+        url_not_matching_prefix = 'https://another.example.com/'
+
+        s = requests.Session()
+        prefix_adapter = HTTPAdapter()
+        more_specific_prefix_adapter = HTTPAdapter()
+        s.mount(prefix, prefix_adapter)
+        s.mount(more_specific_prefix, more_specific_prefix_adapter)
+
+        assert s.get_adapter(url_matching_only_prefix) is prefix_adapter
+        assert s.get_adapter(url_matching_more_specific_prefix) is more_specific_prefix_adapter
+        assert s.get_adapter(url_not_matching_prefix) not in (prefix_adapter, more_specific_prefix_adapter)
+
+    def test_session_get_adapter_prefix_matching_mixed_case(self):
+        mixed_case_prefix = 'hTtPs://eXamPle.CoM/MixEd_CAse_PREfix'
+        url_matching_prefix = mixed_case_prefix + '/full_url'
+
+        s = requests.Session()
+        my_adapter = HTTPAdapter()
+        s.mount(mixed_case_prefix, my_adapter)
+
+        assert s.get_adapter(url_matching_prefix) is my_adapter
+
+    def test_session_get_adapter_prefix_matching_is_case_insensitive(self):
+        mixed_case_prefix = 'hTtPs://eXamPle.CoM/MixEd_CAse_PREfix'
+        url_matching_prefix_with_different_case = 'HtTpS://exaMPLe.cOm/MiXeD_caSE_preFIX/another_url'
+
+        s = requests.Session()
+        my_adapter = HTTPAdapter()
+        s.mount(mixed_case_prefix, my_adapter)
+
+        assert s.get_adapter(url_matching_prefix_with_different_case) is my_adapter
+
     def test_header_remove_is_case_insensitive(self, httpbin):
         # From issue #1321
         s = requests.Session()
@@ -1365,7 +1458,7 @@ class TestRequests:
         assert r.json()['args'] == {'foo': 'bar', 'FOO': 'bar'}
 
     def test_long_authinfo_in_url(self):
-        url = 'http://{0}:{1}@{2}:9000/path?query#frag'.format(
+        url = 'http://{}:{}@{}:9000/path?query#frag'.format(
             'E8A3BE87-9E3F-4620-8858-95478E385B5B',
             'EA770032-DA4D-4D84-8CE9-29C6D910BF1E',
             'exactly-------------sixty-----------three------------characters',
@@ -1401,14 +1494,17 @@ class TestRequests:
         headers_list = {'baz': ['foo', 'bar']}
 
         # Test for int
-        with pytest.raises(InvalidHeader):
+        with pytest.raises(InvalidHeader) as excinfo:
             r = requests.get(httpbin('get'), headers=headers_int)
+        assert 'foo' in str(excinfo.value)
         # Test for dict
-        with pytest.raises(InvalidHeader):
+        with pytest.raises(InvalidHeader) as excinfo:
             r = requests.get(httpbin('get'), headers=headers_dict)
+        assert 'bar' in str(excinfo.value)
         # Test for list
-        with pytest.raises(InvalidHeader):
+        with pytest.raises(InvalidHeader) as excinfo:
             r = requests.get(httpbin('get'), headers=headers_list)
+        assert 'baz' in str(excinfo.value)
 
     def test_header_no_return_chars(self, httpbin):
         """Ensure that a header containing return character sequences raise an
@@ -1477,15 +1573,15 @@ class TestRequests:
             preq = req.prepare()
             assert test_url == preq.url
 
-    @pytest.mark.xfail(raises=ConnectionError)
-    def test_auth_is_stripped_on_redirect_off_host(self, httpbin):
+    def test_auth_is_stripped_on_http_downgrade(self, httpbin, httpbin_secure, httpbin_ca_bundle):
         r = requests.get(
-            httpbin('redirect-to'),
-            params={'url': 'http://www.google.co.uk'},
+            httpbin_secure('redirect-to'),
+            params={'url': httpbin('get')},
             auth=('user', 'pass'),
+            verify=httpbin_ca_bundle
         )
         assert r.history[0].request.headers['Authorization']
-        assert not r.request.headers.get('Authorization', '')
+        assert 'Authorization' not in r.request.headers
 
     def test_auth_is_retained_for_redirect_on_host(self, httpbin):
         r = requests.get(httpbin('redirect/1'), auth=('user', 'pass'))
@@ -1493,6 +1589,27 @@ class TestRequests:
         h2 = r.request.headers['Authorization']
 
         assert h1 == h2
+
+    def test_should_strip_auth_host_change(self):
+        s = requests.Session()
+        assert s.should_strip_auth('http://example.com/foo', 'http://another.example.com/')
+
+    def test_should_strip_auth_http_downgrade(self):
+        s = requests.Session()
+        assert s.should_strip_auth('https://example.com/foo', 'http://example.com/bar')
+
+    def test_should_strip_auth_https_upgrade(self):
+        s = requests.Session()
+        assert not s.should_strip_auth('http://example.com/foo', 'https://example.com/bar')
+        assert not s.should_strip_auth('http://example.com:80/foo', 'https://example.com/bar')
+        assert not s.should_strip_auth('http://example.com/foo', 'https://example.com:443/bar')
+        # Non-standard ports should trigger stripping
+        assert s.should_strip_auth('http://example.com:8080/foo', 'https://example.com/bar')
+        assert s.should_strip_auth('http://example.com/foo', 'https://example.com:8443/bar')
+
+    def test_should_strip_auth_port_change(self):
+        s = requests.Session()
+        assert s.should_strip_auth('http://example.com:1234/foo', 'https://example.com:4321/bar')
 
     def test_manual_redirect_with_partial_body_read(self, httpbin):
         s = requests.Session()
@@ -1515,13 +1632,11 @@ class TestRequests:
 
     def test_prepare_body_position_non_stream(self):
         data = b'the data'
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position is None
 
     def test_rewind_body(self):
         data = io.BytesIO(b'the data')
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position == 0
         assert prep.body.read() == b'the data'
@@ -1535,7 +1650,6 @@ class TestRequests:
 
     def test_rewind_partially_read_body(self):
         data = io.BytesIO(b'the data')
-        s = requests.Session()
         data.read(4)  # read some data
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position == 4
@@ -1560,7 +1674,6 @@ class TestRequests:
                 return
 
         data = BadFileObj('the data')
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position == 0
 
@@ -1584,7 +1697,6 @@ class TestRequests:
                 return
 
         data = BadFileObj('the data')
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position == 0
 
@@ -1605,7 +1717,6 @@ class TestRequests:
                 return
 
         data = BadFileObj('the data')
-        s = requests.Session()
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
         assert prep._body_position is not None
 
@@ -1711,12 +1822,12 @@ class TestRequests:
         proxies['one'].clear.assert_called_once_with()
         proxies['two'].clear.assert_called_once_with()
 
-    def test_proxy_auth(self, httpbin):
+    def test_proxy_auth(self):
         adapter = HTTPAdapter()
         headers = adapter.proxy_headers("http://user:pass@httpbin.org")
         assert headers == {'Proxy-Authorization': 'Basic dXNlcjpwYXNz'}
 
-    def test_proxy_auth_empty_pass(self, httpbin):
+    def test_proxy_auth_empty_pass(self):
         adapter = HTTPAdapter()
         headers = adapter.proxy_headers("http://user:@httpbin.org")
         assert headers == {'Proxy-Authorization': 'Basic dXNlcjo='}
@@ -2314,6 +2425,16 @@ class TestPreparingURLs(object):
         r = requests.Request('GET', url=url)
         with pytest.raises(requests.exceptions.InvalidURL):
             r.prepare()
+
+    @pytest.mark.parametrize(
+        'url, exception',
+        (
+            ('http://localhost:-1', InvalidURL),
+        )
+    )
+    def test_redirecting_to_bad_url(self, httpbin, url, exception):
+        with pytest.raises(exception):
+            r = requests.get(httpbin('redirect-to'), params={'url': url})
 
     @pytest.mark.parametrize(
         'input, expected',

@@ -38,7 +38,7 @@ def _basic_auth_str(username, password):
     if not isinstance(username, basestring):
         warnings.warn(
             "Non-string usernames will no longer be supported in Requests "
-            "3.0.0. Please convert the object you've passed in ({0!r}) to "
+            "3.0.0. Please convert the object you've passed in ({!r}) to "
             "a string or bytes object in the near future to avoid "
             "problems.".format(username),
             category=DeprecationWarning,
@@ -48,7 +48,7 @@ def _basic_auth_str(username, password):
     if not isinstance(password, basestring):
         warnings.warn(
             "Non-string passwords will no longer be supported in Requests "
-            "3.0.0. Please convert the object you've passed in ({0!r}) to "
+            "3.0.0. Please convert the object you've passed in ({!r}) to "
             "a string or bytes object in the near future to avoid "
             "problems.".format(password),
             category=DeprecationWarning,
@@ -153,6 +153,18 @@ class HTTPDigestAuth(AuthBase):
                     x = x.encode('utf-8')
                 return hashlib.sha1(x).hexdigest()
             hash_utf8 = sha_utf8
+        elif _algorithm == 'SHA-256':
+            def sha256_utf8(x):
+                if isinstance(x, str):
+                    x = x.encode('utf-8')
+                return hashlib.sha256(x).hexdigest()
+            hash_utf8 = sha256_utf8
+        elif _algorithm == 'SHA-512':
+            def sha512_utf8(x):
+                if isinstance(x, str):
+                    x = x.encode('utf-8')
+                return hashlib.sha512(x).hexdigest()
+            hash_utf8 = sha512_utf8
 
         KD = lambda s, d: hash_utf8("%s:%s" % (s, d))
 

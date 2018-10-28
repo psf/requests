@@ -1,13 +1,17 @@
 Requests is written and maintained by Kenneth Reitz and
 various contributors:
 
-Keepers of the Four Crystals
-````````````````````````````
+Keepers of the Crystals
+```````````````````````
 
 - Kenneth Reitz <me@kennethreitz.org> `@kennethreitz <https://github.com/kennethreitz>`_, Keeper of the Master Crystal.
+- Ian Cordasco <graffatcolmingov@gmail.com> `@sigmavirus24 <https://github.com/sigmavirus24>`_.
+- Nate Prewitt <nate.prewitt@gmail.com> `@nateprewitt <https://github.com/nateprewitt>`_.
+
+Previous Keepers of Crystals
+````````````````````````````
+
 - Cory Benfield <cory@lukasa.co.uk> `@lukasa <https://github.com/lukasa>`_
-- Ian Cordasco <graffatcolmingov@gmail.com> `@sigmavirus24 <https://github.com/sigmavirus24>`_
-- Nate Prewitt <nate.prewitt@gmail.com> `@nateprewitt <https://github.com/nateprewitt>`_
 
 
 Patches and Suggestions
@@ -121,7 +125,7 @@ Patches and Suggestions
 - Bryce Boe <bbzbryce@gmail.com> (`@bboe <https://github.com/bboe>`_)
 - Colin Dunklau <colin.dunklau@gmail.com> (`@cdunklau <https://github.com/cdunklau>`_)
 - Bob Carroll <bob.carroll@alum.rit.edu> (`@rcarz <https://github.com/rcarz>`_)
-- Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar> (`@hobarrera <https://github.com/hobarrera>`_)
+- Hugo Osvaldo Barrera <hugo@barrera.io> (`@hobarrera <https://github.com/hobarrera>`_)
 - Łukasz Langa <lukasz@langa.pl>
 - Dave Shawley <daveshawley@gmail.com>
 - James Clarke (`@jam <https://github.com/jam>`_)
@@ -178,3 +182,10 @@ Patches and Suggestions
 - Ryan Pineo (`@ryanpineo <https://github.com/ryanpineo>`_)
 - Ed Morley (`@edmorley <https://github.com/edmorley>`_)
 - Matt Liu <liumatt@gmail.com> (`@mlcrazy <https://github.com/mlcrazy>`_)
+- Taylor Hoff <primdevs@protonmail.com> (`@PrimordialHelios <https://github.com/PrimordialHelios>`_)
+- Arthur Vigil (`@ahvigil <https://github.com/ahvigil>`_)
+- Nehal J Wani (`@nehaljwani <https://github.com/nehaljwani>`_)
+- Demetrios Bairaktaris (`@DemetriosBairaktaris <https://github.com/demetriosbairaktaris>`_)
+- Darren Dormer (`@ddormer <https://github.com/ddormer>`_)
+- Rajiv Mayani (`@mayani <https://github.com/mayani>`_)
+- Antti Kaihola (`@akaihola <https://github.com/akaihola>`_)

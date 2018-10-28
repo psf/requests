@@ -1,6 +1,8 @@
 Release Process and Rules
 =========================
 
+.. image:: https://farm5.staticflickr.com/4215/34450901614_b74ae720db_k_d.jpg
+
 .. versionadded:: v2.6.2
 
 Starting with the version to be released after ``v2.6.2``, the following rules
@@ -17,19 +19,18 @@ Breaking changes are changes that break backwards compatibility with prior
 versions. If the project were to change the ``text`` attribute on a
 ``Response`` object to a method, that would only happen in a Major release.
 
-Major releases may also include miscellaneous bug fixes and upgrades to
-vendored packages. The core developers of Requests are committed to providing
-a good user experience. This means we're also committed to preserving
-backwards compatibility as much as possible. Major releases will be infrequent
-and will need strong justifications before they are considered.
+Major releases may also include miscellaneous bug fixes. The core developers of
+Requests are committed to providing a good user experience. This means we're
+also committed to preserving backwards compatibility as much as possible. Major
+releases will be infrequent and will need strong justifications before they are
+considered.
 
 Minor Releases
 --------------
 
-A minor release will not include breaking changes but may include
-miscellaneous bug fixes and upgrades to vendored packages. If the previous
-version of Requests released was ``v10.2.7`` a minor release would be
-versioned as ``v10.3.0``.
+A minor release will not include breaking changes but may include miscellaneous
+bug fixes. If the previous version of Requests released was ``v10.2.7`` a minor
+release would be versioned as ``v10.3.0``.
 
 Minor releases will be backwards compatible with releases that have the same
 major version number. In other words, all versions that would start with

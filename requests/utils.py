@@ -8,17 +8,17 @@ This module provides utility functions that are used within Requests
 that are also useful for external consumption.
 """
 
-import cgi
 import codecs
-import collections
 import contextlib
 import io
 import os
-import platform
 import re
 import socket
 import struct
+import sys
+import tempfile
 import warnings
+import zipfile
 
 from .__version__ import __version__
 from . import certs
@@ -28,7 +28,7 @@ from .compat import parse_http_list as _parse_list_header
 from .compat import (
     quote, urlparse, bytes, str, OrderedDict, unquote, getproxies,
     proxy_bypass, urlunparse, basestring, integer_types, is_py3,
-    proxy_bypass_environment, getproxies_environment)
+    proxy_bypass_environment, getproxies_environment, Mapping)
 from .cookies import cookiejar_from_dict
 from .structures import CaseInsensitiveDict
 from .exceptions import (
@@ -39,19 +39,25 @@ NETRC_FILES = ('.netrc', '_netrc')
 DEFAULT_CA_BUNDLE_PATH = certs.where()
 
 
-if platform.system() == 'Windows':
+if sys.platform == 'win32':
     # provide a proxy_bypass version on Windows without DNS lookups
 
     def proxy_bypass_registry(host):
-        if is_py3:
-            import winreg
-        else:
-            import _winreg as winreg
+        try:
+            if is_py3:
+                import winreg
+            else:
+                import _winreg as winreg
+        except ImportError:
+            return False
+
         try:
             internetSettings = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                 r'Software\Microsoft\Windows\CurrentVersion\Internet Settings')
-            proxyEnable = winreg.QueryValueEx(internetSettings,
-                                              'ProxyEnable')[0]
+            # ProxyEnable could be REG_SZ or REG_DWORD, normalizing it
+            proxyEnable = int(winreg.QueryValueEx(internetSettings,
+                                              'ProxyEnable')[0])
+            # ProxyOverride is almost always a string
             proxyOverride = winreg.QueryValueEx(internetSettings,
                                                 'ProxyOverride')[0]
         except OSError:
@@ -167,10 +173,10 @@ def get_netrc_auth(url, raise_errors=False):
 
         for f in NETRC_FILES:
             try:
-                loc = os.path.expanduser('~/{0}'.format(f))
+                loc = os.path.expanduser('~/{}'.format(f))
             except KeyError:
                 # os.path.expanduser can fail when $HOME is undefined and
-                # getpwuid fails. See http://bugs.python.org/issue20164 &
+                # getpwuid fails. See https://bugs.python.org/issue20164 &
                 # https://github.com/requests/requests/issues/1846
                 return
 
@@ -214,6 +220,38 @@ def guess_filename(obj):
     if (name and isinstance(name, basestring) and name[0] != '<' and
             name[-1] != '>'):
         return os.path.basename(name)
+
+
+def extract_zipped_paths(path):
+    """Replace nonexistent paths that look like they refer to a member of a zip
+    archive with the location of an extracted copy of the target, or else
+    just return the provided path unchanged.
+    """
+    if os.path.exists(path):
+        # this is already a valid path, no need to do anything further
+        return path
+
+    # find the first valid part of the provided path and treat that as a zip archive
+    # assume the rest of the path is the name of a member in the archive
+    archive, member = os.path.split(path)
+    while archive and not os.path.exists(archive):
+        archive, prefix = os.path.split(archive)
+        member = '/'.join([prefix, member])
+
+    if not zipfile.is_zipfile(archive):
+        return path
+
+    zip_file = zipfile.ZipFile(archive)
+    if member not in zip_file.namelist():
+        return path
+
+    # we have a valid zip archive and a valid member of that archive
+    tmp = tempfile.gettempdir()
+    extracted_path = os.path.join(tmp, *member.split('/'))
+    if not os.path.exists(extracted_path):
+        extracted_path = zip_file.extract(member, path=tmp)
+
+    return extracted_path
 
 
 def from_key_val_list(value):
@@ -262,7 +300,7 @@ def to_key_val_list(value):
     if isinstance(value, (str, bytes, bool, int)):
         raise ValueError('cannot encode objects that are not 2-tuples')
 
-    if isinstance(value, collections.Mapping):
+    if isinstance(value, Mapping):
         value = value.items()
 
     return list(value)
@@ -407,6 +445,31 @@ def get_encodings_from_content(content):
             xml_re.findall(content))
 
 
+def _parse_content_type_header(header):
+    """Returns content type and parameters from given header
+
+    :param header: string
+    :return: tuple containing content type and dictionary of
+         parameters
+    """
+
+    tokens = header.split(';')
+    content_type, params = tokens[0].strip(), tokens[1:]
+    params_dict = {}
+    items_to_strip = "\"' "
+
+    for param in params:
+        param = param.strip()
+        if param:
+            key, value = param, True
+            index_of_equals = param.find("=")
+            if index_of_equals != -1:
+                key = param[:index_of_equals].strip(items_to_strip)
+                value = param[index_of_equals + 1:].strip(items_to_strip)
+            params_dict[key.lower()] = value
+    return content_type, params_dict
+
+
 def get_encoding_from_headers(headers):
     """Returns encodings from given HTTP Header Dict.
 
@@ -419,7 +482,7 @@ def get_encoding_from_headers(headers):
     if not content_type:
         return None
 
-    content_type, params = cgi.parse_header(content_type)
+    content_type, params = _parse_content_type_header(content_type)
 
     if 'charset' in params:
         return params['charset'].strip("'\"")
@@ -632,6 +695,8 @@ def should_bypass_proxies(url, no_proxy):
 
     :rtype: bool
     """
+    # Prioritize lowercase environment variables over uppercase
+    # to keep a consistent behaviour with other http projects (curl, wget).
     get_proxy = lambda k: os.environ.get(k) or os.environ.get(k.upper())
 
     # First check whether no_proxy is defined. If it is, check that the URL
@@ -639,41 +704,43 @@ def should_bypass_proxies(url, no_proxy):
     no_proxy_arg = no_proxy
     if no_proxy is None:
         no_proxy = get_proxy('no_proxy')
-    netloc = urlparse(url).netloc
+    parsed = urlparse(url)
+
+    if parsed.hostname is None:
+        # URLs don't always have hostnames, e.g. file:/// urls.
+        return True
 
     if no_proxy:
         # We need to check whether we match here. We need to see if we match
-        # the end of the netloc, both with and without the port.
+        # the end of the hostname, both with and without the port.
         no_proxy = (
             host for host in no_proxy.replace(' ', '').split(',') if host
         )
 
-        ip = netloc.split(':')[0]
-        if is_ipv4_address(ip):
+        if is_ipv4_address(parsed.hostname):
             for proxy_ip in no_proxy:
                 if is_valid_cidr(proxy_ip):
-                    if address_in_network(ip, proxy_ip):
+                    if address_in_network(parsed.hostname, proxy_ip):
                         return True
-                elif ip == proxy_ip:
+                elif parsed.hostname == proxy_ip:
                     # If no_proxy ip was defined in plain IP notation instead of cidr notation &
                     # matches the IP of the index
                     return True
         else:
+            host_with_port = parsed.hostname
+            if parsed.port:
+                host_with_port += ':{}'.format(parsed.port)
+
             for host in no_proxy:
-                if netloc.endswith(host) or netloc.split(':')[0].endswith(host):
+                if parsed.hostname.endswith(host) or host_with_port.endswith(host):
                     # The URL does match something in no_proxy, so we don't want
                     # to apply the proxies on this URL.
                     return True
 
-    # If the system proxy settings indicate that this URL should be bypassed,
-    # don't proxy.
-    # The proxy_bypass function is incredibly buggy on OS X in early versions
-    # of Python 2.6, so allow this call to fail. Only catch the specific
-    # exceptions we've seen, though: this call failing in other ways can reveal
-    # legitimate problems.
     with set_environ('no_proxy', no_proxy_arg):
+        # parsed.hostname can be `None` in cases such as a file URI.
         try:
-            bypass = proxy_bypass(netloc)
+            bypass = proxy_bypass(parsed.hostname)
         except (TypeError, socket.gaierror):
             bypass = False
 
@@ -743,7 +810,7 @@ def default_headers():
 
 
 def parse_header_links(value):
-    """Return a dict of parsed link headers proxies.
+    """Return a list of parsed link headers proxies.
 
     i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
 
@@ -753,6 +820,10 @@ def parse_header_links(value):
     links = []
 
     replace_chars = ' \'"'
+
+    value = value.strip(replace_chars)
+    if not value:
+        return links
 
     for val in re.split(', *<', value):
         try:
@@ -868,8 +939,8 @@ def check_header_validity(header):
         if not pat.match(value):
             raise InvalidHeader("Invalid return character or leading space in header: %s" % name)
     except TypeError:
-        raise InvalidHeader("Header value %s must be of type str or bytes, "
-                            "not %s" % (value, type(value)))
+        raise InvalidHeader("Value for header {%s: %s} must be of type str or "
+                            "bytes, not %s" % (name, value, type(value)))
 
 
 def urldefragauth(url):

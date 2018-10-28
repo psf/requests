@@ -13,7 +13,7 @@ import chardet
 from . import __version__ as requests_version
 
 try:
-    from .packages.urllib3.contrib import pyopenssl
+    from urllib3.contrib import pyopenssl
 except ImportError:
     pyopenssl = None
     OpenSSL = None
@@ -89,8 +89,7 @@ def info():
         'version': getattr(idna, '__version__', ''),
     }
 
-    # OPENSSL_VERSION_NUMBER doesn't exist in the Python 2.6 ssl module.
-    system_ssl = getattr(ssl, 'OPENSSL_VERSION_NUMBER', None)
+    system_ssl = ssl.OPENSSL_VERSION_NUMBER
     system_ssl_info = {
         'version': '%x' % system_ssl if system_ssl is not None else ''
     }

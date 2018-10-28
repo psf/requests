@@ -3,19 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Requests: HTTP for Humans
-=========================
+Requests: HTTP for Humans™
+==========================
 
 Release v\ |version|. (:ref:`Installation <install>`)
 
 .. image:: https://img.shields.io/pypi/l/requests.svg
-    :target: https://pypi.python.org/pypi/requests
+    :target: https://pypi.org/project/requests/
 
 .. image:: https://img.shields.io/pypi/wheel/requests.svg
-    :target: https://pypi.python.org/pypi/requests
+    :target: https://pypi.org/project/requests/
 
 .. image:: https://img.shields.io/pypi/pyversions/requests.svg
-    :target: https://pypi.python.org/pypi/requests
+    :target: https://pypi.org/project/requests/
 
 .. image:: https://codecov.io/github/requests/requests/coverage.svg?branch=master
     :target: https://codecov.io/github/requests/requests
@@ -28,9 +28,12 @@ Release v\ |version|. (:ref:`Installation <install>`)
 **Requests** is the only *Non-GMO* HTTP library for Python, safe for human
 consumption.
 
-*Warning: Recreational use of the Python standard library for HTTP may result in dangerous side-effects,
-including: security vulnerabilities, verbose code, reinventing the wheel,
-constantly reading documentation, depression, headaches, or even death.*
+.. note:: The use of **Python 3** is *highly* preferred over Python 2. Consider upgrading your applications and infrastructure if you find yourself *still* using Python 2 in production today. If you are using Python 3, congratulations — you are indeed a person of excellent taste.
+  —*Kenneth Reitz*
+  
+  
+If you're interested in financially supporting Kenneth Reitz open source, consider visiting  `this link <https://cash.me/kennethreitz>`_. Your support helps tremendously with sustainability of motivation, as Open Source is no longer part of my day job.
+
 
 -------------------
 
@@ -59,12 +62,12 @@ are 100% automatic, thanks to `urllib3 <https://github.com/shazow/urllib3>`_.
 User Testimonials
 -----------------
 
-Twitter, Spotify, Microsoft, Amazon, Lyft, BuzzFeed, Reddit, The NSA, Her Majesty's Government, Google, Twilio, Runscope, Mozilla, Heroku,
+Nike, Twitter, Spotify, Microsoft, Amazon, Lyft, BuzzFeed, Reddit, The NSA, Her Majesty's Government, Google, Twilio, Runscope, Mozilla, Heroku,
 PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
 Post, SoundCloud, Kippt, Sony, and Federal U.S.
 Institutions that prefer to be unnamed claim to use Requests internally.
 
-**Armin Ronacher**—
+**Armin Ronacher**, creator of Flask—
     *Requests is the perfect example how beautiful an API can be with the
     right level of abstraction.*
 
@@ -74,14 +77,18 @@ Institutions that prefer to be unnamed claim to use Requests internally.
 
 **Daniel Greenfeld**—
     *Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to
-    Kenneth Reitz's request library. Today has been AWESOME.*
+    Kenneth Reitz's Requests library. Today has been AWESOME.*
 
 **Kenny Meyers**—
     *Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful,
     simple, Pythonic.*
 
 Requests is one of the most downloaded Python packages of all time, pulling in
-over 11,000,000 downloads every month. All the cool kids are doing it!
+over 400,000 downloads **each day**. Join the party!
+
+If your organization uses Requests internally, consider `supporting the development of 3.0 <https://www.kennethreitz.org/requests3>`_. Your
+generosity will be greatly appreciated, and help drive the project forward
+into the future.
 
 Beloved Features
 ----------------
@@ -104,7 +111,7 @@ Requests is ready for today's web.
 - Chunked Requests
 - ``.netrc`` Support
 
-Requests officially supports Python 2.6–2.7 & 3.3–3.7, and runs great on PyPy.
+Requests officially supports Python 2.7 & 3.4–3.7, and runs great on PyPy.
 
 
 The User Guide
@@ -131,10 +138,11 @@ This part of the documentation, which is mostly prose, details the
 Requests ecosystem and community.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   community/faq
+   community/sponsors
    community/recommended
+   community/faq
    community/out-there
    community/support
    community/vulnerabilities

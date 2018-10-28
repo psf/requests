@@ -3,19 +3,22 @@
 Installation of Requests
 ========================
 
+.. image:: https://farm5.staticflickr.com/4230/35550376215_da1bf77a8c_k_d.jpg
+
+
 This part of the documentation covers the installation of Requests.
 The first step to using any software package is getting it properly installed.
 
 
-$ pip install requests
-----------------------
+$ pipenv install requests
+-------------------------
 
 To install Requests, simply run this simple command in your terminal of choice::
 
-    $ pip install requests
+    $ pipenv install requests
 
-If you don't have `pip <https://pip.pypa.io>`_ installed (tisk tisk!),
-`this Python installation guide <http://docs.python-guide.org/en/latest/starting/installation/>`_
+If you don't have `pipenv <http://pipenv.org/>`_ installed (tisk tisk!), head over to the Pipenv website for installation instructions. Or, if you prefer to just use pip and don't have it installed,
+`this Python installation guide <https://docs.python-guide.org/starting/installation/>`_
 can guide you through the process.
 
 Get the Source Code

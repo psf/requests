@@ -3,6 +3,8 @@
 Authentication
 ==============
 
+.. image:: https://farm5.staticflickr.com/4258/35550409215_3b08d49d22_k_d.jpg
+
 This document discusses using various kinds of authentication with Requests.
 
 Many web services require authentication, and there are many different types.
@@ -51,7 +53,7 @@ Another very popular form of HTTP Authentication is Digest Authentication,
 and Requests supports this out of the box as well::
 
     >>> from requests.auth import HTTPDigestAuth
-    >>> url = 'http://httpbin.org/digest-auth/auth/user/pass'
+    >>> url = 'https://httpbin.org/digest-auth/auth/user/pass'
     >>> requests.get(url, auth=HTTPDigestAuth('user', 'pass'))
     <Response [200]>
 
@@ -120,7 +122,7 @@ To do so, subclass :class:`AuthBase <requests.auth.AuthBase>` and implement the
     ...         # Implement my authentication
     ...         return r
     ...
-    >>> url = 'http://httpbin.org/get'
+    >>> url = 'https://httpbin.org/get'
     >>> requests.get(url, auth=MyAuth())
     <Response [200]>
 
@@ -132,13 +134,13 @@ authentication will additionally add hooks to provide further functionality.
 Further examples can be found under the `Requests organization`_ and in the
 ``auth.py`` file.
 
-.. _OAuth: http://oauth.net/
+.. _OAuth: https://oauth.net/
 .. _requests_oauthlib: https://github.com/requests/requests-oauthlib
-.. _requests-oauthlib OAuth2 documentation: http://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html
-.. _Web Application Flow: http://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#web-application-flow
-.. _Mobile Application Flow: http://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#mobile-application-flow
-.. _Legacy Application Flow:  http://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#legacy-application-flow
-.. _Backend Application Flow:  http://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#backend-application-flow
+.. _requests-oauthlib OAuth2 documentation: https://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html
+.. _Web Application Flow: https://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#web-application-flow
+.. _Mobile Application Flow: https://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#mobile-application-flow
+.. _Legacy Application Flow: https://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#legacy-application-flow
+.. _Backend Application Flow: https://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html#backend-application-flow
 .. _Kerberos: https://github.com/requests/requests-kerberos
 .. _NTLM: https://github.com/requests/requests-ntlm
 .. _Requests organization: https://github.com/requests
