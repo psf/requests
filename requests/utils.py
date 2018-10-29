@@ -38,6 +38,8 @@ NETRC_FILES = ('.netrc', '_netrc')
 
 DEFAULT_CA_BUNDLE_PATH = certs.where()
 
+DEFAULT_PORTS = {'http': 80, 'https': 443}
+
 
 if sys.platform == 'win32':
     # provide a proxy_bypass version on Windows without DNS lookups
