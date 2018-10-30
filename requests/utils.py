@@ -266,7 +266,7 @@ def from_key_val_list(value):
         >>> from_key_val_list([('key', 'val')])
         OrderedDict([('key', 'val')])
         >>> from_key_val_list('string')
-        ValueError: need more than 1 value to unpack
+        ValueError: cannot encode objects that are not 2-tuples
         >>> from_key_val_list({'key': 'val'})
         OrderedDict([('key', 'val')])
 
