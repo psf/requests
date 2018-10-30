@@ -17,7 +17,7 @@ consumption.
 
 Behold, the power of Requests:
 
-``` {.sourceCode .python}
+```python
 >>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
 >>> r.status_code
 200
@@ -75,7 +75,7 @@ Installation
 To install Requests, simply use [pipenv](http://pipenv.org/) (or pip, of
 course):
 
-``` {.sourceCode .bash}
+```bash
 $ pipenv install requests
 ✨🍰✨
 ```
