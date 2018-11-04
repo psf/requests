@@ -10,7 +10,6 @@ that are also useful for external consumption.
 
 import codecs
 import contextlib
-from contextlib import suppress
 import io
 import os
 import re
@@ -164,6 +163,14 @@ def super_len(o):
         total_length = 0
 
     return max(0, total_length - current_position)
+
+
+@contextlib.contextmanager
+def suppress(*exceptions):
+    try:
+        yield
+    except exceptions:
+        pass
 
 
 def get_netrc_auth(url, raise_errors=False):
