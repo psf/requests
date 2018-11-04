@@ -10,6 +10,7 @@ that are also useful for external consumption.
 
 import codecs
 import contextlib
+from contextlib import suppress
 import io
 import os
 import re
@@ -168,7 +169,7 @@ def super_len(o):
 def get_netrc_auth(url, raise_errors=False):
     """Returns the Requests tuple auth for a given url from netrc."""
 
-    try:
+    with suppress(ImportError, AttributeError):
         from netrc import netrc, NetrcParseError
 
         netrc_path = None
@@ -212,8 +213,6 @@ def get_netrc_auth(url, raise_errors=False):
                 raise
 
     # AppEngine hackiness.
-    except (ImportError, AttributeError):
-        pass
 
 
 def guess_filename(obj):

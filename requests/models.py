@@ -34,7 +34,7 @@ from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, check_header_validity)
+    iter_slices, guess_json_utf, super_len, check_header_validity, suppress)
 from .compat import (
     Callable, Mapping,
     cookielib, urlunparse, urlsplit, urlencode, str, bytes,
@@ -884,16 +884,15 @@ class Response(object):
             # a best guess).
             encoding = guess_json_utf(self.content)
             if encoding is not None:
-                try:
-                    return complexjson.loads(
-                        self.content.decode(encoding), **kwargs
-                    )
-                except UnicodeDecodeError:
+                with suppress(UnicodeDecodeError):
+                    # Exception suppressing reason:
                     # Wrong UTF codec detected; usually because it's not UTF-8
                     # but some other 8-bit codec.  This is an RFC violation,
                     # and the server didn't bother to tell us what codec *was*
                     # used.
-                    pass
+                    return complexjson.loads(
+                        self.content.decode(encoding), **kwargs
+                    )
         return complexjson.loads(self.text, **kwargs)
 
     @property

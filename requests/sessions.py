@@ -28,7 +28,7 @@ from .adapters import HTTPAdapter
 
 from .utils import (
     requote_uri, get_environ_proxies, get_netrc_auth, should_bypass_proxies,
-    get_auth_from_url, rewind_body
+    get_auth_from_url, rewind_body, suppress
 )
 
 from .status_codes import codes
@@ -201,10 +201,8 @@ class SessionRedirectMixin(object):
                 prepared_request.body = None
 
             headers = prepared_request.headers
-            try:
+            with suppress(KeyError):
                 del headers['Cookie']
-            except KeyError:
-                pass
 
             # Extract any cookies sent on the response to the cookiejar
             # in the new request. Because we've mutated our copied prepared
@@ -677,10 +675,8 @@ class Session(SessionRedirectMixin):
 
         # If redirects aren't being followed, store the response on the Request for Response.next().
         if not allow_redirects:
-            try:
+            with suppress(StopIteration):
                 r._next = next(self.resolve_redirects(r, request, yield_requests=True, **kwargs))
-            except StopIteration:
-                pass
 
         if not stream:
             r.content
