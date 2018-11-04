@@ -19,7 +19,7 @@ from requests.utils import (
     is_valid_cidr, iter_slices, parse_dict_header,
     parse_header_links, prepend_scheme_if_needed,
     requote_uri, select_proxy, should_bypass_proxies, super_len,
-    to_key_val_list, to_native_string,
+    to_key_val_list, to_native_string, suppress,
     unquote_header_value, unquote_unreserved,
     urldefragauth, add_dict_to_cookiejar, set_environ)
 from requests._internal_utils import unicode_is_ascii
@@ -340,6 +340,18 @@ class TestGuessJSONUTF:
     def test_guess_by_bom(self, encoding, expected):
         data = u'\ufeff{}'.encode(encoding)
         assert guess_json_utf(data) == expected
+
+
+class TestIgnored:
+    def test_exception_raised(self):
+        with pytest.raises(Exception):
+            with suppress(KeyError, ImportError):
+                1 / 0
+
+    def test_exception_suppressed(self):
+        with suppress(KeyError):
+            dct_test = {"Test": "test"}
+            dct_test["NonExistingKey"]
 
 
 USER = PASSWORD = "%!*'();:@&=+$,/?#[] "
