@@ -481,7 +481,7 @@ response.
 
 For example, GitHub redirects all HTTP requests to HTTPS::
 
-    >>> r = requests.get('https://github.com/')
+    >>> r = requests.get('http://github.com/')
 
     >>> r.url
     'https://github.com/'
@@ -496,7 +496,7 @@ For example, GitHub redirects all HTTP requests to HTTPS::
 If you're using GET, OPTIONS, POST, PUT, PATCH or DELETE, you can disable
 redirection handling with the ``allow_redirects`` parameter::
 
-    >>> r = requests.get('https://github.com/', allow_redirects=False)
+    >>> r = requests.get('http://github.com/', allow_redirects=False)
 
     >>> r.status_code
     301
@@ -506,7 +506,7 @@ redirection handling with the ``allow_redirects`` parameter::
 
 If you're using HEAD, you can enable redirection as well::
 
-    >>> r = requests.head('https://github.com/', allow_redirects=True)
+    >>> r = requests.head('http://github.com/', allow_redirects=True)
 
     >>> r.url
     'https://github.com/'

@@ -6,12 +6,29 @@ dev
 
 **Bugfixes**
 
+-   \[Short description of non-trivial change.\]
+
+2.20.0 (2018-10-18)
+-------------------
+
+**Bugfixes**
+
 -   Content-Type header parsing is now case-insensitive (e.g.
     charset=utf8 v Charset=utf8).
 -   Fixed exception leak where certain redirect urls would raise
     uncaught urllib3 exceptions.
+-   Requests removes Authorization header from requests redirected
+    from https to http on the same hostname. (CVE-2018-18074)
+-   `should_bypass_proxies` now handles URIs without hostnames (e.g.
+    files).
 
--   \[Short description of non-trivial change.\]
+**Dependencies**
+
+- Requests now supports urllib3 v1.24.
+
+**Deprecations**
+
+- Requests has officially stopped support for Python 2.6.
 
 2.19.1 (2018-06-14)
 -------------------

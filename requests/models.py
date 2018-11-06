@@ -652,10 +652,7 @@ class Response(object):
         if not self._content_consumed:
             self.content
 
-        return dict(
-            (attr, getattr(self, attr, None))
-            for attr in self.__attrs__
-        )
+        return {attr: getattr(self, attr, None) for attr in self.__attrs__}
 
     def __setstate__(self, state):
         for name, value in state.items():

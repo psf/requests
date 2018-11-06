@@ -43,9 +43,8 @@ if is_py2:
     import cookielib
     from Cookie import Morsel
     from StringIO import StringIO
-    from collections import Callable, Mapping, MutableMapping
+    from collections import Callable, Mapping, MutableMapping, OrderedDict
 
-    from urllib3.packages.ordered_dict import OrderedDict
 
     builtin_str = str
     bytes = str

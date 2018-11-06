@@ -444,20 +444,21 @@ def create_cookie(name, value, **kwargs):
     By default, the pair of `name` and `value` will be set for the domain ''
     and sent on every request (this is sometimes called a "supercookie").
     """
-    result = dict(
-        version=0,
-        name=name,
-        value=value,
-        port=None,
-        domain='',
-        path='/',
-        secure=False,
-        expires=None,
-        discard=True,
-        comment=None,
-        comment_url=None,
-        rest={'HttpOnly': None},
-        rfc2109=False,)
+    result = {
+        'version': 0,
+        'name': name,
+        'value': value,
+        'port': None,
+        'domain': '',
+        'path': '/',
+        'secure': False,
+        'expires': None,
+        'discard': True,
+        'comment': None,
+        'comment_url': None,
+        'rest': {'HttpOnly': None},
+        'rfc2109': False,
+    }
 
     badargs = set(kwargs) - set(result)
     if badargs:

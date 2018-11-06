@@ -11,7 +11,7 @@ Management Style
 
 `Kenneth Reitz <https://www.kennethreitz.org/>`_ is the BDFL. He has final say in any decision related to the Requests project. Kenneth is responsible for the direction and form of the library, as well as its presentation. In addition to making decisions based on technical merit, he is responsible for making decisions based on the development philosophy of Requests.
 
-`Ian Cordasco <http://www.coglib.com/~icordasc/>`_ and `Cory Benfield <https://lukasa.co.uk/about/>`_ are the core contributors. They are responsible for triaging bug reports, reviewing pull requests and ensuring that Kenneth is kept up to speed with developments around the library. The day-to-day managing of the project is done by the core contributors. They are responsible for making judgements about whether or not a feature request is likely to be accepted by Kenneth. Their word is, in some ways, more final than Kenneth's.
+`Ian Cordasco <http://www.coglib.com/~icordasc/>`_, `Cory Benfield <https://lukasa.co.uk/about/>`_, and `Nate Prewitt <https://www.nateprewitt.com/>`_ are the core contributors. They are responsible for triaging bug reports, reviewing pull requests and ensuring that Kenneth is kept up to speed with developments around the library. The day-to-day managing of the project is done by the core contributors. They are responsible for making judgements about whether or not a feature request is likely to be accepted by Kenneth. Their word is, in some ways, more final than Kenneth's.
 
 Values
 ~~~~~~

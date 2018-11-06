@@ -5,13 +5,13 @@ Vulnerability Disclosure
 
 If you think you have found a potential security vulnerability in requests,
 please email `sigmavirus24 <mailto:graffatcolmingov@gmail.com>`_ and
-`Lukasa <mailto:cory@lukasa.co.uk>`_ directly. **Do not file a public issue.**
+`Nate <mailto:nate.prewitt@gmail.com>`_ directly. **Do not file a public issue.**
 
 Our PGP Key fingerprints are:
 
 - 0161 BB7E B208 B5E0 4FDC  9F81 D9DA 0A04 9113 F853 (@sigmavirus24)
 
-- 90DC AE40 FEA7 4B14 9B70  662D F25F 2144 EEC1 373D (@lukasa)
+- 8722 7E29 AD9C FF5C FAC3  EA6A 44D3 FF97 B80D C864 (@nateprewitt)
 
 If English is not your first language, please try to describe the problem and
 its impact to the best of your ability. For greater detail, please use your
@@ -95,13 +95,16 @@ if upgrading is not an option.
 Previous CVEs
 -------------
 
+- Fixed in 2.20.0
+  - `CVE 2018-18074 <https://cve.mitre.org/cgi-bin/cvename.cgi?name=2018-18074>`_
+
 - Fixed in 2.6.0
 
-  - `CVE 2015-2296 <http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=2015-2296>`_,
+  - `CVE 2015-2296 <https://cve.mitre.org/cgi-bin/cvename.cgi?name=2015-2296>`_,
     reported by Matthew Daley of `BugFuzz <https://bugfuzz.com/>`_.
 
 - Fixed in 2.3.0
 
-  - `CVE 2014-1829 <http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=2014-1829>`_
+  - `CVE 2014-1829 <https://cve.mitre.org/cgi-bin/cvename.cgi?name=2014-1829>`_
 
-  - `CVE 2014-1830 <http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=2014-1830>`_
+  - `CVE 2014-1830 <https://cve.mitre.org/cgi-bin/cvename.cgi?name=2014-1830>`_
