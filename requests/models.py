@@ -90,7 +90,7 @@ class RequestEncodingMixin(object):
 
         if isinstance(data, (str, bytes)):
             return data
-        elif hasattr(data, 'read'):
+        elif hasattr(data, 'read') and callable(data.read):
             return data
         elif hasattr(data, '__iter__'):
             result = []
