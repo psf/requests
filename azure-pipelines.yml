@@ -1,0 +1,4 @@
+jobs:
+- template: _azure-pipelines/template-linux.yml
+
+- template: _azure-pipelines/template-windows.yml

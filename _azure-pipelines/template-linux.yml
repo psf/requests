@@ -1,0 +1,33 @@
+jobs:
+- job: Linux
+  pool:
+    vmImage: 'Ubuntu-16.04'
+  strategy:
+    matrix:
+      Python27:
+        PYTHON_VERSION: '2.7'
+      Python34:
+        PYTHON_VERSION: '3.4'    
+      Python35:
+        PYTHON_VERSION: '3.5'
+      Python36:
+        PYTHON_VERSION: '3.6'    
+      Python37:
+        PYTHON_VERSION: '3.7'          
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: $(PYTHON_VERSION)
+    displayName: 'Install Python'
+  - script: |
+      make
+      make test-readme
+      make ci
+  - script: |
+      pipenv run codecov
+    displayName: 'Coverage'
+  - task: PublishTestResults@2
+    displayName: 'Publish test results'
+    inputs:
+      testResultsFiles: 'report.xml'
+      testRunTitle: Python $(PYTHON_VERSION)    
