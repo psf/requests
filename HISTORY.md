@@ -8,6 +8,14 @@ dev
 
 -   \[Short description of non-trivial change.\]
 
+2.20.1 (2018-11-08)
+-------------------
+
+**Bugfixes**
+
+- Fixed bug with unintended Authorization header stripping for
+  redirects using default ports (http/80, https/443).
+
 2.20.0 (2018-10-18)
 -------------------
 
