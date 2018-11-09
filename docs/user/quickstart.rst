@@ -384,7 +384,7 @@ can raise it with
         raise http_error
     requests.exceptions.HTTPError: 404 Client Error
 
-But, since our ``status_code`` for ``r`` was ``200``, when we call
+Note that in the first example, since the ``status_code`` for ``r`` was ``200``, when we call
 ``raise_for_status()`` we get::
 
     >>> r.raise_for_status()
