@@ -29,18 +29,13 @@ jobs:
     - script: |
         make test-readme
         make ci
-      displayName: 'Test and CI' 
+      displayName: 'Test and CI'
     - task: PublishTestResults@2
       displayName: 'Publish test results'
       inputs:
         testResultsFiles: 'report.xml'
         testRunTitle: Python $(PYTHON_VERSION)
 
-  - ${{ if eq(parameters.name, 'Windows') }}:
-    - script: |
-        make coverage
-      displayName: 'Coverage'
-  
   - script: |
       pipenv run codecov -f coverage.xml
     displayName: 'Run codecov'
