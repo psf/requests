@@ -1,0 +1,25 @@
+{
+  "files.exclude": {
+    ".coverage": "explorerExcludedFiles",
+    "MANIFEST": "explorerExcludedFiles",
+    "coverage.xml": "explorerExcludedFiles",
+    "nosetests.xml": "explorerExcludedFiles",
+    "junit-report.xml": "explorerExcludedFiles",
+    "pylint.txt": "explorerExcludedFiles",
+    "toy.py": "explorerExcludedFiles",
+    ".cache/": "explorerExcludedFiles",
+    "cover/": "explorerExcludedFiles",
+    "build/": "explorerExcludedFiles",
+    "docs/_build": "explorerExcludedFiles",
+    "requests.egg-info/": "explorerExcludedFiles",
+    "*.pyc": "explorerExcludedFiles",
+    "*.swp": "explorerExcludedFiles",
+    "*.egg": "explorerExcludedFiles",
+    "env/": "explorerExcludedFiles",
+    ".workon": "explorerExcludedFiles",
+    "t.py": "explorerExcludedFiles",
+    "t2.py": "explorerExcludedFiles",
+    "dist": "explorerExcludedFiles",
+    ".mypy_cache/": "explorerExcludedFiles"
+  }
+}
