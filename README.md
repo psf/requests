@@ -7,6 +7,7 @@ Requests: HTTP for Humans™
 [![codecov.io](https://codecov.io/github/requests/requests/coverage.svg?branch=master)](https://codecov.io/github/requests/requests)
 [![image](https://img.shields.io/github/contributors/requests/requests.svg)](https://github.com/requests/requests/graphs/contributors)
 [![image](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/kennethreitz)
+[![Build Status](https://kennethreitz.visualstudio.com/requests/_apis/build/status/requests-CI)](https://kennethreitz.visualstudio.com/requests/_build/latest?definitionId=1)
 
 **If you're interested in financially supporting Kenneth Reitz open source, consider [visiting this link](https://cash.me/$KennethReitz). Your support helps tremendously with sustainability of motivation, as Open Source is no longer part of my day job.**
 
