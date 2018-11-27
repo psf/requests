@@ -29,7 +29,7 @@ from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
 from .exceptions import (
     HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
-    ContentDecodingError, ConnectionError, StreamConsumedError)
+    ContentDecodingError, ReadTimeout, StreamConsumedError)
 from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -754,7 +754,7 @@ class Response(object):
                 except DecodeError as e:
                     raise ContentDecodingError(e)
                 except ReadTimeoutError as e:
-                    raise ConnectionError(e)
+                    raise ReadTimeout(e)
             else:
                 # Standard file-like object.
                 while True:
