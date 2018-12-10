@@ -8,6 +8,13 @@ dev
 
 -   \[Short description of non-trivial change.\]
 
+2.21.0 (2018-12-10)
+-------------------
+
+**Dependencies**
+
+- Requests now supports idna v2.8.
+
 2.20.1 (2018-11-08)
 -------------------
 
