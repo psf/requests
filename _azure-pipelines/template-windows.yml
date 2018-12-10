@@ -1,0 +1,36 @@
+jobs:
+- job: Windows
+  pool:
+    vmImage: 'vs2017-win2016'
+  strategy:
+    matrix:
+      Python27:
+        PYTHON_VERSION: '2.7'
+      Python34:
+        PYTHON_VERSION: '3.4'    
+      Python35:
+        PYTHON_VERSION: '3.5'   
+      Python36:
+        PYTHON_VERSION: '3.6'        
+      Python37:
+        PYTHON_VERSION: '3.7'      
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: $(PYTHON_VERSION)
+      architecture: 'x64'
+    displayName: 'Install Python'
+  - script: |
+      make init
+      python -m pip install --upgrade pip wheel
+    displayName: 'Ensure latest'
+  - script: |
+      make
+      pipenv install -e .[socks] --skip-lock
+  - script: |
+      make coverage
+    displayName: 'Test script'      
+  - script: |
+      pipenv run codecov -f coverage.xml
+    displayName: 'Coverage'
+
