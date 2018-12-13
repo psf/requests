@@ -19,7 +19,6 @@ docutils = "*"
 tox = "*"
 detox = "*"
 httpbin = ">=0.7.0"
-json = "*"
 
 [packages]
 "e1839a8" = {path = ".", editable = true, extras = ["socks"]}
