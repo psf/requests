@@ -21,6 +21,8 @@ from urllib3.util import parse_url
 from urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
 
+from json import JSONDecodeError
+
 from io import UnsupportedOperation
 from .hooks import default_hooks
 from .structures import CaseInsensitiveDict
@@ -894,7 +896,11 @@ class Response(object):
                     # and the server didn't bother to tell us what codec *was*
                     # used.
                     pass
-        return complexjson.loads(self.text, **kwargs)
+        try:
+            return complexjson.loads(self.text, **kwargs)
+        except JSONDecodeError:
+            print('Response content is not in the json format')
+
 
     @property
     def links(self):
