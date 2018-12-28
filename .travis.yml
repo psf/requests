@@ -1,12 +1,8 @@
+dist: xenial
 sudo: false
 language: python
 # command to install dependencies
 install: "make"
-# command to run tests
-script:
-  - |
-    if [[ "$TRAVIS_PYTHON_VERSION" != "2.6" ]] ; then make test-readme; fi
-  - make ci
 cache: pip
 jobs:
   include:
@@ -35,8 +31,6 @@ jobs:
         - make test-readme
         - make ci
       python: '3.7'
-      dist: xenial
-      sudo: true     
     - stage: coverage
-      python: 3.6
+      python: '3.7'
       script: codecov
