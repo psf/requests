@@ -249,7 +249,7 @@ class TestGuessFilename:
 
     @pytest.mark.parametrize(
         'value, expected_type', (
-            (b'value', compat.bytes),
+            (b'value', bytes),
             (b'value'.decode('utf-8'), compat.str)
         ))
     def test_guess_filename_valid(self, value, expected_type):
