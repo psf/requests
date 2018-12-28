@@ -137,7 +137,7 @@ if "%1" == "devhelp" (
 	%SPHINXBUILD% -b devhelp %ALLSPHINXOPTS% %BUILDDIR%/devhelp
 	if errorlevel 1 exit /b 1
 	echo.
-	echo.Build finished.
+	echo.Build finished. The devhelp file is in %BUILDDIR%/devhelp
 	goto end
 )
 
