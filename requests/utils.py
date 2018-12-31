@@ -796,7 +796,13 @@ def default_user_agent(name="python-requests"):
 
     :rtype: str
     """
-    return '%s/%s' % (name, __version__)
+    try:
+        python_name = sys.subversion[0]
+    except AttributeError:
+        python_name = sys.implementation.name
+    user_agent = '%s/%s %s' % (name, __version__, python_name)
+    user_agent += ' {}.{}.{}-{}{}'.format(*sys.version_info)
+    return user_agent
 
 
 def default_headers():
