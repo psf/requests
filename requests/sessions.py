@@ -19,7 +19,6 @@ from .cookies import (
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
 from .hooks import default_hooks, dispatch_hook
 from ._internal_utils import to_native_string
-from .utils import to_key_val_list, default_headers, DEFAULT_PORTS
 from .exceptions import (
     TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError)
 
@@ -27,8 +26,9 @@ from .structures import CaseInsensitiveDict
 from .adapters import HTTPAdapter
 
 from .utils import (
+    to_key_val_list, default_headers, DEFAULT_PORTS, get_auth_from_url,
     requote_uri, get_environ_proxies, get_netrc_auth, should_bypass_proxies,
-    get_auth_from_url, rewind_body
+    rewind_body
 )
 
 from .status_codes import codes
