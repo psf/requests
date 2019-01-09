@@ -112,7 +112,11 @@ class SessionRedirectMixin(object):
             # To solve this, we re-encode the location in latin1.
             if is_py3:
                 location = location.encode('latin1')
-            return to_native_string(location, 'utf8')
+
+            try:
+                return to_native_string(location, 'utf8')
+            except UnicodeDecodeError:
+                return to_native_string(location, 'latin1')
         return None
 
     def should_strip_auth(self, old_url, new_url):
