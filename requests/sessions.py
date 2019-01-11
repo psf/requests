@@ -541,7 +541,7 @@ class Session(SessionRedirectMixin):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-
+        kawrgs.setdefault('verify', self.verify)
         kwargs.setdefault('allow_redirects', True)
         return self.request('GET', url, **kwargs)
 
