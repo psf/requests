@@ -58,7 +58,7 @@ P.S. They're `hiring <https://slack.com/careers#openings>`_!
 /////////////////////////////////////////////////////////////////////
 
 Twilio was the second organization to generously donate a large sum towards the `2018 Requests 3.0 fundraiser <https://www.kennethreitz.org/requests3>`_, matching the donation of Slack! They are helping the world become a better place through interconnectivity,
-providing easy–to–use APIs, and empowering developers world-over to help humans communicate in meaningful and effictive ways.
+providing easy–to–use APIs, and empowering developers world-over to help humans communicate in meaningful and effective ways.
 
 
 `Azure Cloud Developer Advocates <https://developer.microsoft.com/en-us/advocates/>`_
