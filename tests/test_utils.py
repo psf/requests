@@ -6,6 +6,7 @@ import filecmp
 from io import BytesIO
 import zipfile
 from collections import deque
+import sys
 
 import pytest
 from requests import compat
@@ -182,6 +183,7 @@ class TestGetEnvironProxies:
             'http://192.168.1.1:5000/',
             'http://192.168.1.1/',
             'http://www.requests.com/',
+            'http://requests.com/',
         ))
     def test_bypass_no_proxy_keyword(self, url):
         no_proxy = '192.168.1.1,requests.com'
@@ -194,6 +196,13 @@ class TestGetEnvironProxies:
             'http://172.16.1.1/',
             'http://172.16.1.1:5000/',
             'http://localhost.localdomain:5000/v1.0/',
+            pytest.param(
+                'http://somerequests.com',
+                marks=pytest.mark.skipif(
+                    (sys.version_info[0], sys.version_info[1]) == (3, 4),
+                    reason='Python 3.4 implementation of no_proxy is greedy',
+                ),
+            ),
         ))
     def test_not_bypass_no_proxy_keyword(self, url, monkeypatch):
         # This is testing that the 'no_proxy' argument overrides the
@@ -619,6 +628,7 @@ def test_urldefragauth(url, expected):
             ('http://172.16.1.1:5000/', True),
             ('http://localhost.localdomain:5000/v1.0/', True),
             ('http://google.com:6000/', True),
+            ('http://zgoogle.com:6000/', False),
             ('http://172.16.1.12/', False),
             ('http://172.16.1.12:5000/', False),
             ('http://google.com:5000/v1.0/', False),
