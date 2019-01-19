@@ -38,5 +38,5 @@ jobs:
       dist: xenial
       sudo: true     
     - stage: coverage
-      python: 3.6
+      python: '3.6'
       script: codecov
