@@ -30,7 +30,7 @@ from .compat import StringIO, cStringIO
 class TestSuperLen:
     @pytest.mark.parametrize(
         'stream, value', [
-            (StringIO, 'Test'),
+            (StringIO.StringIO, 'Test'),
             (BytesIO, b'Test'),
             pytest.param(cStringIO, 'Test', marks=pytest.mark.skipif),
         ]
