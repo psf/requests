@@ -38,8 +38,6 @@ NETRC_FILES = ('.netrc', '_netrc')
 
 DEFAULT_CA_BUNDLE_PATH = certs.where()
 
-DEFAULT_PORTS = {'http': 80, 'https': 443}
-
 
 if sys.platform == 'win32':
     # provide a proxy_bypass version on Windows without DNS lookups
@@ -810,6 +808,14 @@ def default_headers():
         'Connection': 'keep-alive',
     })
 
+def default_ports():
+  """
+  :rtype: requests.structures.CaseInsensitiveDict
+  """
+  return CaseInsensitiveDict({
+    'http': 80,
+    'https': 443,
+  })
 
 def parse_header_links(value):
     """Return a list of parsed link headers proxies.

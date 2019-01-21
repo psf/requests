@@ -19,7 +19,7 @@ from .cookies import (
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
 from .hooks import default_hooks, dispatch_hook
 from ._internal_utils import to_native_string
-from .utils import to_key_val_list, default_headers, DEFAULT_PORTS
+from .utils import to_key_val_list, default_headers, default_ports
 from .exceptions import (
     TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError)
 
@@ -132,7 +132,7 @@ class SessionRedirectMixin(object):
         # Handle default port usage corresponding to scheme.
         changed_port = old_parsed.port != new_parsed.port
         changed_scheme = old_parsed.scheme != new_parsed.scheme
-        default_port = (DEFAULT_PORTS.get(old_parsed.scheme, None), None)
+        default_port = (default_ports().get(old_parsed.scheme, None), None)
         if (not changed_scheme and old_parsed.port in default_port
                 and new_parsed.port in default_port):
             return False
