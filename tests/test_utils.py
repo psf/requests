@@ -28,13 +28,13 @@ from .compat import StringIO, cStringIO
 
 
 class TestSuperLen:
-
     @pytest.mark.parametrize(
-        'stream, value', (
-            (StringIO.StringIO, 'Test'),
+        'stream, value', [
+            (StringIO, 'Test'),
             (BytesIO, b'Test'),
-            pytest.mark.skipif('cStringIO is None')((cStringIO, 'Test')),
-        ))
+            pytest.param(cStringIO, 'Test', marks=pytest.mark.skipif),
+        ]
+    )
     def test_io_streams(self, stream, value):
         """Ensures that we properly deal with different kinds of IO streams."""
         assert super_len(stream()) == 0
