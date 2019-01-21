@@ -9,6 +9,7 @@ import pickle
 import collections
 import contextlib
 import warnings
+import re
 
 import io
 import requests
@@ -2418,9 +2419,17 @@ class TestPreparingURLs(object):
         )
     )
     def test_preparing_url(self, url, expected):
+
+        def normalize_percent_encode(x):
+            # Helper function that normalizes equivalent 
+            # percent-encoded bytes before comparisons
+            for c in re.findall(r'%[a-fA-F0-9]{2}', x):
+                x = x.replace(c, c.upper())
+            return x
+        
         r = requests.Request('GET', url=url)
         p = r.prepare()
-        assert p.url == expected
+        assert normalize_percent_encode(p.url) == expected
 
     @pytest.mark.parametrize(
         'url',
