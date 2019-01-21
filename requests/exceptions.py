@@ -26,7 +26,14 @@ class RequestException(IOError):
 
 
 class HTTPError(RequestException):
-    """An HTTP error occurred."""
+    """An HTTP error (status code >= 400) occurred.
+
+    Keep in mind that, by default, you don't need to handle this exception when
+    performing a request, since it is raised only when you ask requests to do
+    so, via the
+    :meth:`Response.raise_for_status() <requests.Response.raise_for_status>`
+    method. See also :ref:`errors-and-exceptions`.
+    """
 
 
 class ConnectionError(RequestException):

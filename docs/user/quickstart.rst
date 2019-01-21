@@ -538,6 +538,8 @@ to hang indefinitely::
     not time out.
 
 
+.. _errors-and-exceptions:
+
 Errors and Exceptions
 ---------------------
 
