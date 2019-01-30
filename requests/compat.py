@@ -45,7 +45,6 @@ if is_py2:
     from StringIO import StringIO
     from collections import Callable, Mapping, MutableMapping, OrderedDict
 
-
     builtin_str = str
     bytes = str
     str = unicode
