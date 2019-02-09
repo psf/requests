@@ -17,6 +17,8 @@ env/
 .venv/
 .eggs/
 .tox/
+.pytest_cache/
+.vscode/
 
 .workon
 
