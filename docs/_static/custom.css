@@ -50,29 +50,21 @@ body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-ch
 
 /* Native CPC by BuySellAds */
 
-.native-js {
-  visibility: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-  Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial,
-  sans-serif;
-  opacity: 0;
+#native-ribbon #_custom_ {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  box-shadow: 0 -1px 4px 1px hsla(0, 0%, 0%, .15);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu,
+    Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
   transition: all .25s ease-in-out;
   transform: translateY(calc(100% - 35px));
 
   flex-flow: column nowrap;
 }
 
-.native-js[data-state=visible] {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  visibility: visible;
-  box-shadow: 0 -1px 4px 1px hsla(0, 0%, 0%, .15);
-  opacity: 1;
-}
-
-.native-js[data-state=visible]:hover {
+#native-ribbon #_custom_:hover {
   transform: translateY(0);
 }
 
@@ -92,7 +84,7 @@ body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-ch
   transform-origin: left;
 }
 
-.native-js[data-state=visible]:hover .native-sponsor {
+#native-ribbon #_custom_:hover .native-sponsor {
   margin: 0 20px;
   opacity: 0;
   transform: scaleY(0);
@@ -100,15 +92,12 @@ body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-ch
 
 .native-flex {
   display: flex;
-  padding: 0 20px 30px;
+  padding: 10px 20px 25px;
   text-decoration: none;
 
   flex-flow: row nowrap;
+  justify-content: center;
   align-items: center;
-}
-
-.native-flex:hover {
-  text-decoration: none;
 }
 
 .native-main {
@@ -135,6 +124,7 @@ body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-ch
 .native-desc {
   letter-spacing: 1px;
   font-weight: 300;
+  font-size: 14px;
   line-height: 1.4;
 }
 
@@ -158,6 +148,7 @@ body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-ch
 
 @media only screen and (min-width: 320px) and (max-width: 759px) {
   .native-flex {
+    padding: 5px 5px 15px;
     flex-direction: column;
 
     flex-wrap: wrap;
@@ -165,6 +156,7 @@ body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-ch
 
   .native-img {
     margin: 0;
+    display: none;
   }
 
   .native-details {
@@ -173,10 +165,13 @@ body > div.document > div.sphinxsidebar > div > form > table > tbody > tr:nth-ch
 
   .native-main {
     flex-direction: column;
-    margin-bottom: 20px;
-    text-align: center;
+    text-align: left;
 
     flex-wrap: wrap;
     align-content: center;
+  }
+
+  .native-cta {
+    display: none;
   }
 }
