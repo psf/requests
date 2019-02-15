@@ -94,6 +94,10 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 class SessionRedirectMixin(object):
 
+    def __init__(self):
+        #: A list of domains that will be excluded from auth stripping
+        self.trusted_domains = []
+
     def get_redirect_target(self, resp):
         """Receives a Response. Returns a redirect URI or ``None``"""
         # Due to the nature of how requests processes redirects this method will
@@ -119,7 +123,8 @@ class SessionRedirectMixin(object):
         """Decide whether Authorization header should be removed when redirecting"""
         old_parsed = urlparse(old_url)
         new_parsed = urlparse(new_url)
-        if old_parsed.hostname != new_parsed.hostname:
+        if (old_parsed.hostname != new_parsed.hostname
+                and new_parsed.hostname not in self.trusted_domains):
             return True
         # Special case: allow http -> https redirect when using the standard
         # ports. This isn't specified by RFC 7235, but is kept to avoid
@@ -416,6 +421,8 @@ class Session(SessionRedirectMixin):
         self.adapters = OrderedDict()
         self.mount('https://', HTTPAdapter())
         self.mount('http://', HTTPAdapter())
+
+        super().__init__()
 
     def __enter__(self):
         return self
