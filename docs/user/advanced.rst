@@ -203,7 +203,7 @@ You can get around this behaviour by explicity merging the environment settings 
     prepped = s.prepare_request(req)
 
     # Merge environment settings into session
-    settings = s.merge_environment_settings(prepped.url, None, None, None, None)
+    settings = s.merge_environment_settings(prepped.url, {}, None, None, None)
     resp = s.send(prepped, **settings)
 
     print(resp.status_code)

@@ -1,4 +1,3 @@
-sudo: false
 language: python
 # command to install dependencies
 install: "make"
@@ -35,8 +34,7 @@ jobs:
         - make test-readme
         - make ci
       python: '3.7'
-      dist: xenial
-      sudo: true     
+      dist: xenial   
     - stage: coverage
-      python: 3.6
+      python: '3.6'
       script: codecov
