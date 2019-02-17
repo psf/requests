@@ -19,7 +19,7 @@ Basic GET usage:
    >>> b'Python is a programming language' in r.content
    True
 
-Basic POST usage:
+... or POST:
 
    >>> payload = dict(key1='value1', key2='value2')
    >>> r = requests.post('https://httpbin.org/post', data=payload)
