@@ -50,6 +50,7 @@ def request(method, url, **kwargs):
 
       >>> import requests
       >>> req = requests.request('GET', 'https://httpbin.org/get')
+      >>> req
       <Response [200]>
     """
 

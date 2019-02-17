@@ -266,6 +266,8 @@ def from_key_val_list(value):
         >>> from_key_val_list([('key', 'val')])
         OrderedDict([('key', 'val')])
         >>> from_key_val_list('string')
+        Traceback (most recent call last):
+        ...
         ValueError: cannot encode objects that are not 2-tuples
         >>> from_key_val_list({'key': 'val'})
         OrderedDict([('key', 'val')])
@@ -292,7 +294,9 @@ def to_key_val_list(value):
         >>> to_key_val_list({'key': 'val'})
         [('key', 'val')]
         >>> to_key_val_list('string')
-        ValueError: cannot encode objects that are not 2-tuples.
+        Traceback (most recent call last):
+        ...
+        ValueError: cannot encode objects that are not 2-tuples
 
     :rtype: list
     """

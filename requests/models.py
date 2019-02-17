@@ -280,6 +280,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
       >>> import requests
       >>> req = requests.Request('GET', 'https://httpbin.org/get')
       >>> r = req.prepare()
+      >>> r
       <PreparedRequest [GET]>
 
       >>> s = requests.Session()

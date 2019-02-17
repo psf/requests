@@ -9,29 +9,22 @@
 Requests HTTP Library
 ~~~~~~~~~~~~~~~~~~~~~
 
-Requests is an HTTP library, written in Python, for human beings. Basic GET
-usage:
+Requests is an HTTP library, written in Python, for human beings.
+Basic GET usage:
 
    >>> import requests
    >>> r = requests.get('https://www.python.org')
    >>> r.status_code
    200
-   >>> 'Python is a programming language' in r.content
+   >>> b'Python is a programming language' in r.content
    True
 
-... or POST:
+Basic POST usage:
 
    >>> payload = dict(key1='value1', key2='value2')
    >>> r = requests.post('https://httpbin.org/post', data=payload)
-   >>> print(r.text)
-   {
-     ...
-     "form": {
-       "key2": "value2",
-       "key1": "value1"
-     },
-     ...
-   }
+   >>> r.json()
+   {'args': {}, 'data': '', 'files': {}, 'form': {'key1': 'value1', 'key2': 'value2'}, 'headers': {'Accept': '*/*', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'close', 'Content-Length': '23', 'Content-Type': 'application/x-www-form-urlencoded', 'Host': 'httpbin.org', 'User-Agent': 'python-requests/...'}, 'json': None, 'origin': '...', 'url': 'https://httpbin.org/post'}
 
 The other HTTP methods are supported - see `requests.api`. Full documentation
 is at <http://python-requests.org>.
