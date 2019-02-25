@@ -82,6 +82,7 @@ def _check_cryptography(cryptography_version):
         warning = 'Old version of cryptography ({}) may cause slowdown.'.format(cryptography_version)
         warnings.warn(warning, RequestsDependencyWarning)
 
+
 # Check imported dependencies for compatibility.
 try:
     check_compatibility(urllib3.__version__, chardet.__version__)

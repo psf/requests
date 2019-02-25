@@ -902,17 +902,16 @@ class Response(object):
 
         header = self.headers.get('link')
 
-        # l = MultiDict()
-        l = {}
+        parsed_links = {}
 
         if header:
             links = parse_header_links(header)
 
             for link in links:
                 key = link.get('rel') or link.get('url')
-                l[key] = link
+                parsed_links[key] = link
 
-        return l
+        return parsed_links
 
     def raise_for_status(self):
         """Raises stored :class:`HTTPError`, if one occurred."""

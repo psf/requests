@@ -423,7 +423,7 @@ class HTTPAdapter(BaseAdapter):
             try:
                 connect, read = timeout
                 timeout = TimeoutSauce(connect=connect, read=read)
-            except ValueError as e:
+            except ValueError:
                 # this may raise a string formatting error.
                 err = ("Invalid timeout {}. Pass a (connect, read) "
                        "timeout tuple, or a single float to set "
@@ -488,7 +488,7 @@ class HTTPAdapter(BaseAdapter):
                         preload_content=False,
                         decode_content=False
                     )
-                except:
+                except Exception:
                     # If we hit any problems here, clean up the connection.
                     # Then, reraise so that we can handle the actual exception.
                     low_conn.close()
