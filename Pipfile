@@ -18,7 +18,7 @@ docutils = "*"
 "flake8" = "*"
 tox = "*"
 detox = "*"
-httpbin = ">=0.7.0"
+httpbin = ">=0.7.0,<1.0"
 
 [packages]
 "e1839a8" = {path = ".", editable = true, extras = ["socks"]}
