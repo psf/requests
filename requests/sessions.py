@@ -518,7 +518,12 @@ class Session(SessionRedirectMixin):
         )
         prep = self.prepare_request(req)
 
-        proxies = proxies or {}
+        if proxies:  # def arg
+            proxies = proxies
+        elif self.proxies:  # session arg
+            proxies = self.proxies
+        else:
+            proxies = {}
 
         settings = self.merge_environment_settings(
             prep.url, proxies, stream, verify, cert
