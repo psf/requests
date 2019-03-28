@@ -464,9 +464,9 @@ class Session(SessionRedirectMixin):
         return p
 
     def request(self, method, url,
-            params=None, data=None, headers=None, cookies=None, files=None,
-            auth=None, timeout=None, allow_redirects=True, proxies=None,
-            hooks=None, stream=None, verify=None, cert=None, json=None):
+                params=None, data=None, headers=None, cookies=None, files=None,
+                auth=None, timeout=None, allow_redirects=True, proxies=None,
+                hooks=None, stream=None, verify=None, cert=None, json=None):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -518,12 +518,7 @@ class Session(SessionRedirectMixin):
         )
         prep = self.prepare_request(req)
 
-        if proxies:  # def arg
-            proxies = proxies
-        elif self.proxies:  # session arg
-            proxies = self.proxies
-        else:
-            proxies = {}
+        proxies = proxies or {}
 
         settings = self.merge_environment_settings(
             prep.url, proxies, stream, verify, cert
@@ -698,6 +693,12 @@ class Session(SessionRedirectMixin):
 
         :rtype: dict
         """
+        # setting by configuration in Session.
+        proxies = merge_setting(proxies, self.proxies)
+        verify = merge_setting(verify, self.verify)
+        stream = merge_setting(stream, self.stream)
+        cert = merge_setting(cert, self.cert)
+
         # Gather clues from the surrounding environment.
         if self.trust_env:
             # Set environment's proxies.
@@ -711,12 +712,6 @@ class Session(SessionRedirectMixin):
             if verify is True or verify is None:
                 verify = (os.environ.get('REQUESTS_CA_BUNDLE') or
                           os.environ.get('CURL_CA_BUNDLE'))
-
-        # Merge all the kwargs.
-        proxies = merge_setting(proxies, self.proxies)
-        stream = merge_setting(stream, self.stream)
-        verify = merge_setting(verify, self.verify)
-        cert = merge_setting(cert, self.cert)
 
         return {'verify': verify, 'proxies': proxies, 'stream': stream,
                 'cert': cert}
