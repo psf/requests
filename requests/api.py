@@ -150,3 +150,15 @@ def delete(url, **kwargs):
     """
 
     return request('delete', url, **kwargs)
+
+
+def quesadilla(url, **kwargs):
+    r"""Sends a QUESADILLA request.
+
+    :param url: URL for the new :class:`Request` object.
+    :param \*\*kwargs: Optional arguments that ``request`` takes.
+    :return: :class:`Response <Response>` object
+    :rtype: requests.Response
+    """
+
+    return request('quesadilla', url, **kwargs)
