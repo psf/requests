@@ -639,6 +639,9 @@ class Session(SessionRedirectMixin):
         # Get the appropriate adapter to use
         adapter = self.get_adapter(url=request.url)
 
+        # Request manipulation hooks
+        request = dispatch_hook('request', hooks, request, **kwargs)
+
         # Start time (approximately) of the request
         start = preferred_clock()
 

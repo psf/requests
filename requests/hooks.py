@@ -8,16 +8,19 @@ This module provides the capabilities for the Requests hooks system.
 
 Available hooks:
 
+``request``:
+    The prepared request generated when a Request is sent.
 ``response``:
     The response generated from a Request.
 """
-HOOKS = ['response']
+HOOKS = [
+    'request',
+    'response',
+]
 
 
 def default_hooks():
     return {event: [] for event in HOOKS}
-
-# TODO: response is the only one
 
 
 def dispatch_hook(key, hooks, hook_data, **kwargs):
