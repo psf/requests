@@ -1,4 +1,5 @@
 import argparse
+import os
 import re
 from . import api
 
@@ -6,11 +7,11 @@ def filename(request) :
 #   print(request.headers)
   try : 
     filedata   = request.headers.get("content-disposition")
-    filename = re.findall('filename=(.+)', filedata)
+    filename = os.pathsep.join(re.findall('filename=(.+)', filedata))
   except : 
-    filename = request.url.rsplit('/', 1)[1]
+    filename = os.pathsep.join(request.url.rsplit('/', 1)[1])
   finally :
-    return filename   
+    return filename
 
 def download(args) :
   # NOTE the stream=True parameter below
