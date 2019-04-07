@@ -24,7 +24,7 @@ Basic GET usage:
    >>> payload = dict(key1='value1', key2='value2')
    >>> r = requests.post('https://httpbin.org/post', data=payload)
    >>> r.json()
-   {'args': {}, 'data': '', 'files': {}, 'form': {'key1': 'value1', 'key2': 'value2'}, 'headers': {'Accept': '*/*', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'close', 'Content-Length': '23', 'Content-Type': 'application/x-www-form-urlencoded', 'Host': 'httpbin.org', 'User-Agent': 'python-requests/...'}, 'json': None, 'origin': '...', 'url': 'https://httpbin.org/post'}
+   {'args': {}, 'data': '', 'files': {}, 'form': {'key1': 'value1', 'key2': 'value2'}, 'headers': {'Accept': '*/*', 'Accept-Encoding': 'gzip, deflate', 'Content-Length': '23', 'Content-Type': 'application/x-www-form-urlencoded', 'Host': 'httpbin.org', 'User-Agent': 'python-requests/...'}, 'json': None, 'origin': '...', 'url': 'https://httpbin.org/post'}
 
 The other HTTP methods are supported - see `requests.api`. Full documentation
 is at <http://python-requests.org>.
