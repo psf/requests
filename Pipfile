@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
-pytest = ">=2.8.0,<4.1"
+pytest = ">=2.8.0"
 codecov = "*"
 pytest-httpbin = ">=0.0.7"
 pytest-mock = "*"
@@ -17,7 +17,6 @@ pysocks = "*"
 docutils = "*"
 "flake8" = "*"
 tox = "*"
-detox = "*"
 httpbin = ">=0.7.0"
 
 [packages]
