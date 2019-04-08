@@ -33,7 +33,8 @@ class TestSuperLen:
         'stream, value', (
             (StringIO.StringIO, 'Test'),
             (BytesIO, b'Test'),
-            pytest.mark.skipif('cStringIO is None')((cStringIO, 'Test')),
+            pytest.param(cStringIO, 'Test',
+                         marks=pytest.mark.skipif('cStringIO is None')),
         ))
     def test_io_streams(self, stream, value):
         """Ensures that we properly deal with different kinds of IO streams."""

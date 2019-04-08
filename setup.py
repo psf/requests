@@ -54,7 +54,7 @@ test_requirements = [
     'pytest-mock',
     'pytest-xdist',
     'PySocks>=1.5.6, !=1.5.7',
-    'pytest>=2.8.0'
+    'pytest>=3'
 ]
 
 about = {}
