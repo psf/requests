@@ -80,6 +80,12 @@ $ pipenv install requests
 ✨🍰✨
 ```
 
+To install all the dependencies for Requests manually, in case the [setup](setup.py) file has issues
+
+```{.sourceCode .bash}
+$ pip install -r requirements.txt
+```
+
 Satisfaction guaranteed.
 
 Documentation
