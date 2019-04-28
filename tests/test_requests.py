@@ -1683,7 +1683,7 @@ class TestRequests:
                 return 0
 
             def __iter__(self):
-                return
+                return iter(())
 
         data = BadFileObj('the data')
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
@@ -1706,7 +1706,7 @@ class TestRequests:
                 raise OSError()
 
             def __iter__(self):
-                return
+                return iter(())
 
         data = BadFileObj('the data')
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
@@ -1726,7 +1726,7 @@ class TestRequests:
                 raise OSError()
 
             def __iter__(self):
-                return
+                return iter(())
 
         data = BadFileObj('the data')
         prep = requests.Request('GET', 'http://example.com', data=data).prepare()
@@ -2421,12 +2421,12 @@ class TestPreparingURLs(object):
     def test_preparing_url(self, url, expected):
 
         def normalize_percent_encode(x):
-            # Helper function that normalizes equivalent 
+            # Helper function that normalizes equivalent
             # percent-encoded bytes before comparisons
             for c in re.findall(r'%[a-fA-F0-9]{2}', x):
                 x = x.replace(c, c.upper())
             return x
-        
+
         r = requests.Request('GET', url=url)
         p = r.prepare()
         assert normalize_percent_encode(p.url) == expected

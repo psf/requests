@@ -1,9 +1,4 @@
 # -*- encoding: utf-8
-
-import sys
-
-import pytest
-
 from requests.help import info
 
 

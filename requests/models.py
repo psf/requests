@@ -8,7 +8,6 @@ This module contains the primary objects that power Requests.
 """
 
 import datetime
-import sys
 
 # Import encoding now, to avoid implicit import later.
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
@@ -116,7 +115,7 @@ class RequestEncodingMixin(object):
         The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, contentype)
         or 4-tuples (filename, fileobj, contentype, custom_headers).
         """
-        if (not files):
+        if not files:
             raise ValueError("Files must be provided.")
         elif isinstance(data, basestring):
             raise ValueError("Data must not be a string.")
@@ -224,8 +223,8 @@ class Request(RequestHooksMixin):
     """
 
     def __init__(self,
-            method=None, url=None, headers=None, files=None, data=None,
-            params=None, auth=None, cookies=None, hooks=None, json=None):
+                 method=None, url=None, headers=None, files=None, data=None,
+                 params=None, auth=None, cookies=None, hooks=None, json=None):
 
         # Default empty dicts for dict params.
         data = [] if data is None else data
@@ -305,8 +304,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self._body_position = None
 
     def prepare(self,
-            method=None, url=None, headers=None, files=None, data=None,
-            params=None, auth=None, cookies=None, hooks=None, json=None):
+                method=None, url=None, headers=None, files=None, data=None,
+                params=None, auth=None, cookies=None, hooks=None, json=None):
         """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)
@@ -709,12 +708,13 @@ class Response(object):
         """True if this Response is a well-formed HTTP redirect that could have
         been processed automatically (by :meth:`Session.resolve_redirects`).
         """
-        return ('location' in self.headers and self.status_code in REDIRECT_STATI)
+        return 'location' in self.headers and self.status_code in REDIRECT_STATI
 
     @property
     def is_permanent_redirect(self):
         """True if this Response one of the permanent versions of redirect."""
-        return ('location' in self.headers and self.status_code in (codes.moved_permanently, codes.permanent_redirect))
+        return ('location' in self.headers and
+                self.status_code in (codes.moved_permanently, codes.permanent_redirect))
 
     @property
     def next(self):

@@ -54,11 +54,12 @@ if sys.platform == 'win32':
             return False
 
         try:
-            internetSettings = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+            internetSettings = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
                 r'Software\Microsoft\Windows\CurrentVersion\Internet Settings')
             # ProxyEnable could be REG_SZ or REG_DWORD, normalizing it
             proxyEnable = int(winreg.QueryValueEx(internetSettings,
-                                              'ProxyEnable')[0])
+                                                  'ProxyEnable')[0])
             # ProxyOverride is almost always a string
             proxyOverride = winreg.QueryValueEx(internetSettings,
                                                 'ProxyOverride')[0]

@@ -1,0 +1,18 @@
+version = 1
+
+test_patterns = [
+  'tests/*.py'
+]
+
+exclude_patterns = [
+  'requests/compat.py',
+  'tests/compat.py'
+]
+
+[[analyzers]]
+name = "python"
+enabled = true
+runtime_version = "3.x.x"
+
+  [analyzers.meta]
+  max_line_length = 100
