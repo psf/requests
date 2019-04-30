@@ -542,7 +542,6 @@ class Session(SessionRedirectMixin):
         :rtype: requests.Response
         """
 
-        kwargs.setdefault('allow_redirects', True)
         return self.request('GET', url, **kwargs)
 
     def options(self, url, **kwargs):
@@ -553,7 +552,6 @@ class Session(SessionRedirectMixin):
         :rtype: requests.Response
         """
 
-        kwargs.setdefault('allow_redirects', True)
         return self.request('OPTIONS', url, **kwargs)
 
     def head(self, url, **kwargs):
