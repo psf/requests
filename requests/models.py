@@ -939,7 +939,7 @@ class Response(object):
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)
         
-        return None
+        return self
 
     def close(self):
         """Releases the connection back to the pool. Once this method has been
