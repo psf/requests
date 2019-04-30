@@ -8,6 +8,27 @@
   <iframe src="https://ghbtns.com/github-btn.html?user=requests&repo=requests&type=watch&count=true&size=large"
     allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<style>
+.algolia-autocomplete{
+  width: 100%;
+  height: 1.5em
+}
+.algolia-autocomplete a{
+  border-bottom: none !important;
+}
+#doc_search{
+  width: 100%;
+  height: 100%;
+}
+</style>
+<input id="doc_search" placeholder="Search the doc" autofocus/>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js" onload="docsearch({
+  apiKey: 'f177061e2354c50a97bfc635e827ffab',
+  indexName: 'python-requests',
+  inputSelector: '#doc_search',
+  debug: false // Set debug to true if you want to inspect the dropdown
+})" async></script>
 
 <p>
   Requests is an elegant and simple HTTP library for Python, built for
@@ -30,6 +51,7 @@
 
 <p>More <a href="https://www.kennethreitz.org/">Kenneth Reitz</a> projects:</p>
 <ul>
+    <li><a href="http://open-dsm-5.org/">Open DSM-5M</a></li>
     <li><a href="https://html.python-requests.org/">Requests-HTML</a></li>
     <li><a href="http://howtopython.org/">howtopython.org</a></li>
     <li><a href="http://pipenv.org/">pipenv</a></li>
