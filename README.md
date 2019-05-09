@@ -89,17 +89,18 @@ Fantastic documentation is available at
 How to Contribute
 -----------------
 
-1.  Check for open issues or open a fresh issue to start a discussion
+1.  Become more familiar with the project by reading our [Contributor's Guide](http://docs.python-requests.org/en/latest/dev/contributing/) and our [development philosophy](http://docs.python-requests.org/en/latest/dev/philosophy/).
+2.  Check for open issues or open a fresh issue to start a discussion
     around a feature idea or a bug. There is a [Contributor
     Friendly](https://github.com/requests/requests/issues?direction=desc&labels=Contributor+Friendly&page=1&sort=updated&state=open)
     tag for issues that should be ideal for people who are not very
     familiar with the codebase yet.
-2.  Fork [the repository](https://github.com/requests/requests) on
+3.  Fork [the repository](https://github.com/requests/requests) on
     GitHub to start making your changes to the **master** branch (or
     branch off of it).
-3.  Write a test which shows that the bug was fixed or that the feature
+4.  Write a test which shows that the bug was fixed or that the feature
     works as expected.
-4.  Send a pull request and bug the maintainer until it gets merged and
+5.  Send a pull request and bug the maintainer until it gets merged and
     published. :) Make sure to add yourself to
     [AUTHORS](https://github.com/requests/requests/blob/master/AUTHORS.rst).
 
