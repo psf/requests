@@ -189,3 +189,4 @@ Patches and Suggestions
 - Darren Dormer (`@ddormer <https://github.com/ddormer>`_)
 - Rajiv Mayani (`@mayani <https://github.com/mayani>`_)
 - Antti Kaihola (`@akaihola <https://github.com/akaihola>`_)
+- Belavin Denis (`@luckydenis <https://github.com/luckydenis>`_)
