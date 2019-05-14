@@ -101,7 +101,7 @@ How to Contribute
     branch off of it).
 4.  Write a test which shows that the bug was fixed or that the feature
     works as expected.
-5.  Send a pull request and bug the maintainer until it gets merged and
+5.  Send a [pull request](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork) and bug the maintainer until it gets merged and
     published. :) Make sure to add yourself to
     [AUTHORS](https://github.com/requests/requests/blob/master/AUTHORS.rst).
 
