@@ -71,7 +71,7 @@ PyPy.
 Installation
 ------------
 
-To install Requests, simply use [pipenv](http://pipenv.org/) (or pip, of
+To install Requests, simply use [pipenv](https://github.com/pypa/pipenv) (or pip, of
 course):
 
 ``` {.sourceCode .bash}
