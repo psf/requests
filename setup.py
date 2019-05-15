@@ -44,7 +44,7 @@ packages = ['requests']
 requires = [
     'chardet>=3.0.2,<3.1.0',
     'idna>=2.5,<2.9',
-    'urllib3>=1.21.1,<1.25',
+    'urllib3>=1.21.1,<1.26,!=1.25.0,!=1.25.1',
     'certifi>=2017.4.17'
 
 ]
