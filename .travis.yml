@@ -12,8 +12,6 @@ jobs:
     - stage: test
       python: '2.7'
     - stage: test
-      python: '3.4'
-    - stage: test
       python: '3.5'
     - stage: test
       python: '3.6'
