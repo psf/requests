@@ -3,8 +3,7 @@ language: python
 install: "make"
 # command to run tests
 script:
-  - |
-    make test-readme
+  - make test-readme
   - make ci
 cache: pip
 jobs:
