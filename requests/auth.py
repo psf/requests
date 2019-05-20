@@ -50,7 +50,7 @@ def _basic_auth_str(username, password):
             "Non-string passwords will no longer be supported in Requests "
             "3.0.0. Please convert the object you've passed in ({!r}) to "
             "a string or bytes object in the near future to avoid "
-            "problems.".format(password),
+            "problems.".format(type(password)),
             category=DeprecationWarning,
         )
         password = str(password)
