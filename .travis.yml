@@ -4,7 +4,7 @@ install: "make"
 # command to run tests
 script:
   - |
-    if [[ "$TRAVIS_PYTHON_VERSION" != "2.6" ]] ; then make test-readme; fi
+    make test-readme
   - make ci
 cache: pip
 jobs:
@@ -14,11 +14,6 @@ jobs:
         - make test-readme
         - make ci
       python: '2.7'
-    - stage: test
-      script:
-        - make test-readme
-        - make ci
-      python: '3.4'
     - stage: test
       script:
         - make test-readme
