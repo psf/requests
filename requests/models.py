@@ -119,6 +119,9 @@ class RequestEncodingMixin:
         elif hasattr(data, "__iter__"):
             result = []
             for k, vs in to_key_val_list(data):
+                if isinstance(vs, Mapping):
+                    raise ValueError("Field type should not be '%s'" % type(vs).__name__)
+
                 if isinstance(vs, basestring) or not hasattr(vs, "__iter__"):
                     vs = [vs]
                 for v in vs:
@@ -153,6 +156,9 @@ class RequestEncodingMixin:
         files = to_key_val_list(files or {})
 
         for field, val in fields:
+            if isinstance(val, Mapping):
+                raise ValueError("Field type should not be '%s'" % type(val).__name__)
+
             if isinstance(val, basestring) or not hasattr(val, "__iter__"):
                 val = [val]
             for v in val:
