@@ -491,6 +491,7 @@ def get_encoding_from_headers(headers):
 
     if 'text' in content_type:
         #Fixed the problem where some languages were not fully supported when retrieving the HTTP header
+        
         #return 'ISO-8859-1'
         return 'Utf-8'
 
