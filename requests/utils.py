@@ -490,7 +490,10 @@ def get_encoding_from_headers(headers):
         return params['charset'].strip("'\"")
 
     if 'text' in content_type:
-        return 'ISO-8859-1'
+        return 'utf-8'
+    else
+        return 'None'
+    
 
 
 def stream_decode_response_unicode(iterator, r):
