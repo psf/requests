@@ -28,9 +28,7 @@ Release v\ |version|. (:ref:`Installation <install>`)
 **Requests** is the only *Non-GMO* HTTP library for Python, safe for human
 consumption.
 
-.. note:: **Requests 2.x** is officially in *maintinence-mode only*. This means we only respond to CVE-level tickets. All of our limited available attention / energy is being allocated towards the development of `Requests III <https://3.python-requests.org/>`_. Your involvement / support is appreciated!
-
-If you're on the job market, consider taking `this programming quiz <https://triplebyte.com/a/b1i2FB8/requests-docs-home>`_. A substantial donation will be made to this project, if you find a job through this platform.
+.. note:: **Requests 2.x** is officially in *maintenance-mode only*. This means we only respond to CVE-level tickets. All of our limited available attention / energy is being allocated towards the development of `Requests III <https://3.python-requests.org/>`_. Technical contributions are welcome!
 
 -------------------
 
