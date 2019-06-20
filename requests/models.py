@@ -699,7 +699,8 @@ class Response(object):
         is **not** a check to see if the response code is ``200 OK``.
         """
         try:
-            self.raise_for_status()
+            self.
+            _status()
         except HTTPError:
             return False
         return True
@@ -915,7 +916,8 @@ class Response(object):
         return l
 
     def raise_for_status(self):
-        """Raises stored :class:`HTTPError`, if one occurred."""
+        """Raises stored :class:`HTTPError`, if one occurred. If no one occurred then 
+        return Response"""
 
         http_error_msg = ''
         if isinstance(self.reason, bytes):
