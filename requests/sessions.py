@@ -113,6 +113,11 @@ class SessionRedirectMixin(object):
             if is_py3:
                 location = location.encode('latin1')
             return to_native_string(location, 'utf8')
+        # if resp.is_meta_redirect:
+        #    location = parse_meta_tag(resp.text)
+        #    if is_py3:
+        #        location = location.encode('latin1')
+        #    return to_native_string(location, 'utf8')
         return None
 
     def should_strip_auth(self, old_url, new_url):
