@@ -699,8 +699,7 @@ class Response(object):
         is **not** a check to see if the response code is ``200 OK``.
         """
         try:
-            self.
-            _status()
+            self.raise_for_status()
         except HTTPError:
             return False
         return True
