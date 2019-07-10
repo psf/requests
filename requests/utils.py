@@ -648,6 +648,8 @@ def is_ipv4_address(string_ip):
             int(octet)
         except ValueError:
             return False
+        if octet not in range(256):
+            return False
     return True
 
 
