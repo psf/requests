@@ -639,7 +639,7 @@ def is_ipv4_address(string_ip):
     :rtype: bool
     """
     ip_split = string_ip.split('.')
-    if len(ip_split) not 4:
+    if len(ip_split) != 4:
         return False
     for octet in ip_split:
         try:
