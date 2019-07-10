@@ -618,6 +618,7 @@ def address_in_network(ip, net):
     """
     if not is_ipv4_address(ip):
         return False
+    ipaddr = struct.unpack('=L', socket.inet_aton(ip))[0]
     netaddr, bits = net.split('/')
     netmask = struct.unpack('=L', socket.inet_aton(dotted_netmask(int(bits))))[0]
     network = struct.unpack('=L', socket.inet_aton(netaddr))[0] & netmask
