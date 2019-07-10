@@ -19,6 +19,7 @@ import sys
 import tempfile
 import warnings
 import zipfile
+import ipaddress
 
 from .__version__ import __version__
 from . import certs
@@ -640,17 +641,10 @@ def is_ipv4_address(string_ip):
     """
     :rtype: bool
     """
-    ip_split = string_ip.split('.')
-    if len(ip_split) != 4:
+    try:
+        ipaddress.IPv4Address(string_ip)
+    except ipaddress.AddressValueError:
         return False
-    for octet in ip_split:
-        try:
-            tmp = int(octet)
-            if tmp not in range(256):
-                return False
-        except ValueError:
-            return False
-
     return True
 
 
