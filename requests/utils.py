@@ -665,10 +665,9 @@ def is_valid_cidr(string_network):
         if mask < 1 or mask > 32:
             return False
 
-        try:
-            socket.inet_aton(string_network.split('/')[0])
-        except socket.error:
+        if not is_ipv4_address(string_network.split('/')[0]):
             return False
+
     else:
         return False
     return True
