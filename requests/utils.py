@@ -644,9 +644,16 @@ def is_ipv4_address(string_ip):
     if len(ip_split) != 4:
         return False
     for octet in ip_split:
+        octet_size = len(octet)
         try:
-            if len(octet) > 1 and int(octet[0]) == 0:
-                return False
+            if octet_size > 1 and int(octet[0]) == 0:
+                if octet_size == 2 and int(octet[1]) > 7:
+                    return False
+                if octet_size == 3:
+                    if int(octet[1]) == 0 and int(octet[2]) > 7:
+                        return False
+                    if int(octet[1]) > 0:
+                        return False
             tmp = int(octet)
             if tmp not in range(256):
                 return False
