@@ -638,14 +638,6 @@ def is_ipv4_address(string_ip):
     """
     :rtype: bool
     """
-    """Original requests code:
-    try:
-        socket.inet_aton(string_ip)
-    except socket.error:
-        return False
-    return True
-    """
-    #Workaround until socket is fixed
     ip_split = string_ip.split('.')
     for octet in ip_split:
         try:
