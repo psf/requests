@@ -1,0 +1,35 @@
+language: python
+# command to install dependencies
+install: "make"
+# command to run tests
+script:
+  - |
+    make test-readme
+  - make ci
+cache: pip
+jobs:
+  include:
+    - stage: test
+      script:
+        - make test-readme
+        - make ci
+      python: '2.7'
+    - stage: test
+      script:
+        - make test-readme
+        - make ci
+      python: '3.5'
+    - stage: test
+      script:
+        - make test-readme
+        - make ci
+      python: '3.6'
+    - stage: test
+      script:
+        - make test-readme
+        - make ci
+      python: '3.7'
+      dist: xenial   
+    - stage: coverage
+      python: '3.6'
+      script: codecov

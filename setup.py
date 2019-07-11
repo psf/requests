@@ -43,8 +43,8 @@ packages = ['requests']
 
 requires = [
     'chardet>=3.0.2,<3.1.0',
-    'idna>=2.5,<2.8',
-    'urllib3>=1.21.1,<1.25',
+    'idna>=2.5,<2.9',
+    'urllib3>=1.21.1,<1.26,!=1.25.0,!=1.25.1',
     'certifi>=2017.4.17'
 
 ]
@@ -79,7 +79,7 @@ setup(
     package_data={'': ['LICENSE', 'NOTICE'], 'requests': ['*.pem']},
     package_dir={'requests': 'requests'},
     include_package_data=True,
-    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
     install_requires=requires,
     license=about['__license__'],
     zip_safe=False,
@@ -92,7 +92,6 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',

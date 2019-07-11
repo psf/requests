@@ -1,0 +1,57 @@
+# AppVeyor.yml from https://github.com/ogrisel/python-appveyor-demo
+# License: CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/
+
+build: off
+
+environment:
+  matrix:
+    - PYTHON: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7.x"
+      PYTHON_ARCH: "64"
+      TOXENV: "py27"
+
+    - PYTHON: "C:\\Python34-x64"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "64"
+      TOXENV: "py34"
+
+    - PYTHON: "C:\\Python35-x64"
+      PYTHON_VERSION: "3.5.x"
+      PYTHON_ARCH: "64"
+      TOXENV: "py35"
+
+    - PYTHON: "C:\\Python36-x64"
+      PYTHON_VERSION: "3.6.x"
+      PYTHON_ARCH: "64"
+      TOXENV: "py36"
+
+    - PYTHON: "C:\\Python37-x64"
+      PYTHON_VERSION: "3.7.x"
+      PYTHON_ARCH: "64"
+      TOXENV: "py37"
+
+install:
+  # Install Python (from the official .msi of https://www.python.org/) and pip when
+  # not already installed.
+  - ps: if (-not(Test-Path($env:PYTHON))) { & _appveyor\install.ps1 }
+
+  # Prepend newly installed Python to the PATH of this build (this cannot be
+  # done from inside the powershell script as it would require to restart
+  # the parent CMD process).
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
+  # Check that we have the expected version and architecture for Python
+  - "python --version"
+  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+
+  # Upgrade to the latest version of pip to avoid it displaying warnings
+  # about it being out of date.
+  - "python -m pip install --upgrade pip wheel"
+  - "C:\\MinGW\\bin\\mingw32-make"
+  - "pipenv install -e .[socks] --skip-lock"
+
+test_script:
+  - "C:\\MinGW\\bin\\mingw32-make coverage"
+
+on_success:
+  - "pipenv run codecov -f coverage.xml"
