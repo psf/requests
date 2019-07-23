@@ -193,7 +193,7 @@ When you are using the prepared request flow, keep in mind that it does not take
 This can cause problems if you are using environment variables to change the behaviour of requests.
 For example: Self-signed SSL certificates specified in ``REQUESTS_CA_BUNDLE`` will not be taken into account.
 As a result an ``SSL: CERTIFICATE_VERIFY_FAILED`` is thrown.
-You can get around this behaviour by explicity merging the environment settings into your session::
+You can get around this behaviour by explicitly merging the environment settings into your session::
 
     from requests import Request, Session
 
