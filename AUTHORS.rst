@@ -190,3 +190,4 @@ Patches and Suggestions
 - Rajiv Mayani (`@mayani <https://github.com/mayani>`_)
 - Antti Kaihola (`@akaihola <https://github.com/akaihola>`_)
 - Belavin Denis (`@luckydenis <https://github.com/luckydenis>`_)
+- Dull Bananas <dull.bananas0@gmail.com> (`@dullbananas <https://github.com/dullbananas>`_)
