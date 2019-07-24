@@ -549,7 +549,7 @@ Or, even better:
 
 **Bugfixes**
 
--   For file-like objects that are not seeked to the very beginning, we
+-   For file-like objects that are not sought to the very beginning, we
     now send the content length for the number of bytes we will actually
     read, rather than the total size of the file, allowing partial file
     uploads.
