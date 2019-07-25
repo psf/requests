@@ -8,6 +8,18 @@ dev
 
 -   \[Short description of non-trivial change.\]
 
+2.22.0 (2019-05-15)
+-------------------
+
+**Dependencies**
+
+- Requests now supports urllib3 v1.25.2.
+  (note: 1.25.0 and 1.25.1 are incompatible)
+
+**Deprecations**
+
+- Requests has officially stopped support for Python 3.4.
+
 2.21.0 (2018-12-10)
 -------------------
 
@@ -537,7 +549,7 @@ Or, even better:
 
 **Bugfixes**
 
--   For file-like objects that are not seeked to the very beginning, we
+-   For file-like objects that are not sought to the very beginning, we
     now send the content length for the number of bytes we will actually
     read, rather than the total size of the file, allowing partial file
     uploads.

@@ -193,7 +193,7 @@ When you are using the prepared request flow, keep in mind that it does not take
 This can cause problems if you are using environment variables to change the behaviour of requests.
 For example: Self-signed SSL certificates specified in ``REQUESTS_CA_BUNDLE`` will not be taken into account.
 As a result an ``SSL: CERTIFICATE_VERIFY_FAILED`` is thrown.
-You can get around this behaviour by explicity merging the environment settings into your session::
+You can get around this behaviour by explicitly merging the environment settings into your session::
 
     from requests import Request, Session
 
@@ -976,11 +976,12 @@ response at a time. However, these calls will still block.
 
 If you are concerned about the use of blocking IO, there are lots of projects
 out there that combine Requests with one of Python's asynchronicity frameworks.
-Some excellent examples are `requests-threads`_, `grequests`_,  and `requests-futures`_.
+Some excellent examples are `requests-threads`_, `grequests`_, `requests-futures`_, and `requests-async`_.
 
 .. _`requests-threads`: https://github.com/requests/requests-threads
 .. _`grequests`: https://github.com/kennethreitz/grequests
 .. _`requests-futures`: https://github.com/ross/requests-futures
+.. _`requests-async`: https://github.com/encode/requests-async
 
 Header Ordering
 ---------------
