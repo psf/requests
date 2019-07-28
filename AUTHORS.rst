@@ -190,3 +190,4 @@ Patches and Suggestions
 - Rajiv Mayani (`@mayani <https://github.com/mayani>`_)
 - Antti Kaihola (`@akaihola <https://github.com/akaihola>`_)
 - "Dull Bananas" <dull.bananas0@gmail.com> (`@dullbananas <https://github.com/dullbananas>`_)
+- Kornel Szurek <myslak@protonmail.com> (`@myslak71 <https://github.com/myslak71>`_)
