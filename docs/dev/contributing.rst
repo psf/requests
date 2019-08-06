@@ -130,7 +130,14 @@ the Requests codebase::
     foo = long_function_name(var_one, var_two,
                              var_three, var_four)
 
-No. Just don't. Please.
+No. Just don't. Please. This is much better::
+
+    foo = long_function_name(
+        var_one,
+        var_two,
+        var_three,
+        var_four,
+    )
 
 Docstrings are to follow the following syntaxes::
 
