@@ -5,7 +5,7 @@ Requests: HTTP for Humans™
 [![image](https://img.shields.io/pypi/l/requests.svg)](https://pypi.org/project/requests/)
 [![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests/)
 [![codecov.io](https://codecov.io/github/psf/requests/coverage.svg?branch=master)](https://codecov.io/github/psf/requests)
-[![image](https://img.shields.io/github/contributors/requests/requests.svg)](https://github.com/requests/requests/graphs/contributors)
+[![image](https://img.shields.io/github/contributors/psf/requests.svg)](https://github.com/psf/requests/graphs/contributors)
 [![image](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/kennethreitz)
 
 Requests is the only *Non-GMO* HTTP library for Python, safe for human
@@ -32,7 +32,7 @@ u'{"type":"User"...'
 
 See [the similar code, sans Requests](https://gist.github.com/973705).
 
-[![image](https://raw.githubusercontent.com/requests/requests/master/docs/_static/requests-logo-small.png)](http://docs.python-requests.org/)
+[![image](https://raw.githubusercontent.com/psf/requests/master/docs/_static/requests-logo-small.png)](http://docs.python-requests.org/)
 
 Requests allows you to send *organic, grass-fed* HTTP/1.1 requests,
 without the need for manual labor. There's no need to manually add query
@@ -93,15 +93,15 @@ How to Contribute
 1.  Become more familiar with the project by reading our [Contributor's Guide](http://docs.python-requests.org/en/latest/dev/contributing/) and our [development philosophy](http://docs.python-requests.org/en/latest/dev/philosophy/).
 2.  Check for open issues or open a fresh issue to start a discussion
     around a feature idea or a bug. There is a [Contributor
-    Friendly](https://github.com/requests/requests/issues?direction=desc&labels=Contributor+Friendly&page=1&sort=updated&state=open)
+    Friendly](https://github.com/psf/requests/issues?direction=desc&labels=Contributor+Friendly&page=1&sort=updated&state=open)
     tag for issues that should be ideal for people who are not very
     familiar with the codebase yet.
-3.  Fork [the repository](https://github.com/requests/requests) on
+3.  Fork [the repository](https://github.com/psf/requests) on
     GitHub to start making your changes to the **master** branch (or
     branch off of it).
 4.  Write a test which shows that the bug was fixed or that the feature
     works as expected.
 5.  Send a [pull request](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork) and bug the maintainer until it gets merged and
     published. :) Make sure to add yourself to
-    [AUTHORS](https://github.com/requests/requests/blob/master/AUTHORS.rst).
+    [AUTHORS](https://github.com/psf/requests/blob/master/AUTHORS.rst).
 

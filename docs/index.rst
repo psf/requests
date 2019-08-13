@@ -17,8 +17,8 @@ Release v\ |version|. (:ref:`Installation <install>`)
 .. image:: https://img.shields.io/pypi/pyversions/requests.svg
     :target: https://pypi.org/project/requests/
 
-.. image:: https://codecov.io/github/requests/requests/coverage.svg?branch=master
-    :target: https://codecov.io/github/requests/requests
+.. image:: https://codecov.io/github/psf/requests/coverage.svg?branch=master
+    :target: https://codecov.io/github/psf/requests
     :alt: codecov.io
 
 .. image:: https://img.shields.io/badge/Say%20Thanks!-🦉-1EAEDB.svg
