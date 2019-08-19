@@ -466,7 +466,7 @@ class TestRequests:
     @pytest.mark.parametrize('key', ('User-agent', 'user-agent'))
     def test_user_agent_transfers(self, httpbin, key):
 
-        heads = {key: 'Mozilla/5.0 (github.com/requests/requests)'}
+        heads = {key: 'Mozilla/5.0 (github.com/psf/requests)'}
 
         r = requests.get(httpbin('user-agent'), headers=heads)
         assert heads[key] in r.text
@@ -2212,7 +2212,7 @@ class TestTimeout:
             pass
 
     def test_encoded_methods(self, httpbin):
-        """See: https://github.com/requests/requests/issues/2316"""
+        """See: https://github.com/psf/requests/issues/2316"""
         r = requests.request(b'GET', httpbin('get'))
         assert r.ok
 
