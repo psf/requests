@@ -354,7 +354,7 @@ class Session(SessionRedirectMixin):
     Or as a context manager::
 
       >>> with requests.Session() as s:
-      >>>     s.get('https://httpbin.org/get')
+      ...     s.get('https://httpbin.org/get')
       <Response [200]>
     """
 
