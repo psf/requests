@@ -873,6 +873,9 @@ class Response(object):
         # Fallback to auto-detected encoding.
         if self.encoding is None:
             encoding = self.apparent_encoding
+        # Forcefully remove BOM from UTF-8
+        elif self.encoding.lower() == 'utf-8':
+            encoding = 'utf-8-sig'
 
         # Decode unicode from given encoding.
         try:

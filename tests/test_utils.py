@@ -333,6 +333,7 @@ class TestGuessJSONUTF:
 
     @pytest.mark.parametrize(
         ('encoding', 'expected'), (
+            ('utf-8-sig', 'utf-8-sig'),
             ('utf-16-be', 'utf-16'),
             ('utf-16-le', 'utf-16'),
             ('utf-32-be', 'utf-32'),
