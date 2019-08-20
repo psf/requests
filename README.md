@@ -1,12 +1,13 @@
 Requests: HTTP for Humans™
 ==========================
 
+[![Downloads](https://pepy.tech/badge/requests)](https://pepy.tech/project/requests)
 [![image](https://img.shields.io/pypi/v/requests.svg)](https://pypi.org/project/requests/)
 [![image](https://img.shields.io/pypi/l/requests.svg)](https://pypi.org/project/requests/)
 [![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests/)
 [![codecov.io](https://codecov.io/github/psf/requests/coverage.svg?branch=master)](https://codecov.io/github/psf/requests)
 [![image](https://img.shields.io/github/contributors/psf/requests.svg)](https://github.com/psf/requests/graphs/contributors)
-[![Downloads](https://pepy.tech/badge/requests)](https://pepy.tech/project/requests)
+
 
 **Requests** is an elegant and simple HTTP library for Python, built for human beings.
 
