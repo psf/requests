@@ -29,7 +29,7 @@ File an Issue
 
 If you notice some unexpected behaviour in Requests, or want to see support
 for a new feature,
-`file an issue on GitHub <https://github.com/requests/requests/issues>`_.
+`file an issue on GitHub <https://github.com/psf/requests/issues>`_.
 
 
 E-mail

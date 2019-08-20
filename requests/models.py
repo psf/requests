@@ -12,7 +12,7 @@ import sys
 
 # Import encoding now, to avoid implicit import later.
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
-# such as in Embedded Python. See https://github.com/requests/requests/issues/3578.
+# such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
 import encodings.idna
 
 from urllib3.fields import RequestField
@@ -359,7 +359,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         #: We're unable to blindly call unicode/str functions
         #: as this will include the bytestring indicator (b'')
         #: on python 3.x.
-        #: https://github.com/requests/requests/pull/2238
+        #: https://github.com/psf/requests/pull/2238
         if isinstance(url, bytes):
             url = url.decode('utf8')
         else:
@@ -641,6 +641,10 @@ class Response(object):
         #: is a response.
         self.request = None
 
+        #: If there was an error in the processing of content,
+        #: then save the error that would return the same error when you re-appeal.
+        self._error = None
+
     def __enter__(self):
         return self
 
@@ -750,12 +754,21 @@ class Response(object):
                 try:
                     for chunk in self.raw.stream(chunk_size, decode_content=True):
                         yield chunk
+
                 except ProtocolError as e:
-                    raise ChunkedEncodingError(e)
+                    self._error = ChunkedEncodingError(e)
+
                 except DecodeError as e:
-                    raise ContentDecodingError(e)
+                    self._error = ContentDecodingError(e)
+
                 except ReadTimeoutError as e:
-                    raise ConnectionError(e)
+                    self._error = ConnectionError(e)
+
+                finally:
+                    # if we had an error - throw the saved error
+                    if self._error:
+                        raise self._error
+
             else:
                 # Standard file-like object.
                 while True:
@@ -827,6 +840,10 @@ class Response(object):
                 self._content = None
             else:
                 self._content = b''.join(self.iter_content(CONTENT_CHUNK_SIZE)) or b''
+
+        # if we had an error - throw the saved error
+        if self._error is not None:
+            raise self._error
 
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3

@@ -54,7 +54,7 @@ test_requirements = [
     'pytest-mock',
     'pytest-xdist',
     'PySocks>=1.5.6, !=1.5.7',
-    'pytest>=2.8.0'
+    'pytest>=3'
 ]
 
 about = {}
@@ -104,5 +104,9 @@ setup(
         'security': ['pyOpenSSL >= 0.14', 'cryptography>=1.3.4', 'idna>=2.0.0'],
         'socks': ['PySocks>=1.5.6, !=1.5.7'],
         'socks:sys_platform == "win32" and python_version == "2.7"': ['win_inet_pton'],
+    },
+    project_urls={
+        'Documentation': 'http://docs.python-requests.org',
+        'Source': 'https://github.com/kennethreitz/requests',
     },
 )
