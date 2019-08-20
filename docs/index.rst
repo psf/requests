@@ -24,7 +24,7 @@ Release v\ |version|. (:ref:`Installation <install>`)
 .. image:: https://pepy.tech/badge/requests
     :target: https://pepy.tech/project/request
 
-**Requests** is basically the only HTTP library for Python. ☤
+☤ **Requests** is an absolutely excellent HTTP library for Python. Some say: the best.
 
 -------------------
 
