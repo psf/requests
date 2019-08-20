@@ -9,14 +9,14 @@
 Requests HTTP Library
 ~~~~~~~~~~~~~~~~~~~~~
 
-Requests is an HTTP library, written in Python, for human beings. Basic GET
-usage:
+Requests is an HTTP library, written in Python, for human beings.
+Basic GET usage:
 
    >>> import requests
    >>> r = requests.get('https://www.python.org')
    >>> r.status_code
    200
-   >>> 'Python is a programming language' in r.content
+   >>> b'Python is a programming language' in r.content
    True
 
 ... or POST:
@@ -27,8 +27,8 @@ usage:
    {
      ...
      "form": {
-       "key2": "value2",
-       "key1": "value1"
+       "key1": "value1",
+       "key2": "value2"
      },
      ...
    }
@@ -57,10 +57,10 @@ def check_compatibility(urllib3_version, chardet_version):
     # Check urllib3 for compatibility.
     major, minor, patch = urllib3_version  # noqa: F811
     major, minor, patch = int(major), int(minor), int(patch)
-    # urllib3 >= 1.21.1, <= 1.24
+    # urllib3 >= 1.21.1, <= 1.25
     assert major == 1
     assert minor >= 21
-    assert minor <= 24
+    assert minor <= 25
 
     # Check chardet for compatibility.
     major, minor, patch = chardet_version.split('.')[:3]

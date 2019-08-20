@@ -19,6 +19,7 @@ import sys
 import tempfile
 import warnings
 import zipfile
+from collections import OrderedDict
 
 from .__version__ import __version__
 from . import certs
@@ -26,7 +27,7 @@ from . import certs
 from ._internal_utils import to_native_string
 from .compat import parse_http_list as _parse_list_header
 from .compat import (
-    quote, urlparse, bytes, str, OrderedDict, unquote, getproxies,
+    quote, urlparse, bytes, str, unquote, getproxies,
     proxy_bypass, urlunparse, basestring, integer_types, is_py3,
     proxy_bypass_environment, getproxies_environment, Mapping)
 from .cookies import cookiejar_from_dict
@@ -179,7 +180,7 @@ def get_netrc_auth(url, raise_errors=False):
             except KeyError:
                 # os.path.expanduser can fail when $HOME is undefined and
                 # getpwuid fails. See https://bugs.python.org/issue20164 &
-                # https://github.com/requests/requests/issues/1846
+                # https://github.com/psf/requests/issues/1846
                 return
 
             if os.path.exists(loc):
@@ -266,6 +267,8 @@ def from_key_val_list(value):
         >>> from_key_val_list([('key', 'val')])
         OrderedDict([('key', 'val')])
         >>> from_key_val_list('string')
+        Traceback (most recent call last):
+        ...
         ValueError: cannot encode objects that are not 2-tuples
         >>> from_key_val_list({'key': 'val'})
         OrderedDict([('key', 'val')])
@@ -292,7 +295,9 @@ def to_key_val_list(value):
         >>> to_key_val_list({'key': 'val'})
         [('key', 'val')]
         >>> to_key_val_list('string')
-        ValueError: cannot encode objects that are not 2-tuples.
+        Traceback (most recent call last):
+        ...
+        ValueError: cannot encode objects that are not 2-tuples
 
     :rtype: list
     """

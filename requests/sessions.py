@@ -11,9 +11,10 @@ import os
 import sys
 import time
 from datetime import timedelta
+from collections import OrderedDict
 
 from .auth import _basic_auth_str
-from .compat import cookielib, is_py3, OrderedDict, urljoin, urlparse, Mapping
+from .compat import cookielib, is_py3, urljoin, urlparse, Mapping
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
@@ -94,6 +95,10 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 class SessionRedirectMixin(object):
 
+    def __init__(self):
+        #: A list of domains that will be excluded from auth stripping
+        self.trusted_domains = []
+
     def get_redirect_target(self, resp):
         """Receives a Response. Returns a redirect URI or ``None``"""
         # Due to the nature of how requests processes redirects this method will
@@ -119,7 +124,8 @@ class SessionRedirectMixin(object):
         """Decide whether Authorization header should be removed when redirecting"""
         old_parsed = urlparse(old_url)
         new_parsed = urlparse(new_url)
-        if old_parsed.hostname != new_parsed.hostname:
+        if (old_parsed.hostname != new_parsed.hostname
+                and new_parsed.hostname not in self.trusted_domains):
             return True
         # Special case: allow http -> https redirect when using the standard
         # ports. This isn't specified by RFC 7235, but is kept to avoid
@@ -162,7 +168,7 @@ class SessionRedirectMixin(object):
                 resp.raw.read(decode_content=False)
 
             if len(resp.history) >= self.max_redirects:
-                raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects, response=resp)
+                raise TooManyRedirects('Exceeded {} redirects.'.format(self.max_redirects), response=resp)
 
             # Release the connection back into the pool.
             resp.close()
@@ -170,7 +176,7 @@ class SessionRedirectMixin(object):
             # Handle redirection without scheme (see: RFC 1808 Section 4)
             if url.startswith('//'):
                 parsed_rurl = urlparse(resp.url)
-                url = '%s:%s' % (to_native_string(parsed_rurl.scheme), url)
+                url = ':'.join([to_native_string(parsed_rurl.scheme), url])
 
             # Normalize url case and attach previous fragment if needed (RFC 7231 7.1.2)
             parsed = urlparse(url)
@@ -192,19 +198,16 @@ class SessionRedirectMixin(object):
 
             self.rebuild_method(prepared_request, resp)
 
-            # https://github.com/requests/requests/issues/1084
+            # https://github.com/psf/requests/issues/1084
             if resp.status_code not in (codes.temporary_redirect, codes.permanent_redirect):
-                # https://github.com/requests/requests/issues/3490
+                # https://github.com/psf/requests/issues/3490
                 purged_headers = ('Content-Length', 'Content-Type', 'Transfer-Encoding')
                 for header in purged_headers:
                     prepared_request.headers.pop(header, None)
                 prepared_request.body = None
 
             headers = prepared_request.headers
-            try:
-                del headers['Cookie']
-            except KeyError:
-                pass
+            headers.pop('Cookie', None)
 
             # Extract any cookies sent on the response to the cookiejar
             # in the new request. Because we've mutated our copied prepared
@@ -271,7 +274,6 @@ class SessionRedirectMixin(object):
         if new_auth is not None:
             prepared_request.prepare_auth(new_auth)
 
-        return
 
     def rebuild_proxies(self, prepared_request, proxies):
         """This method re-evaluates the proxy configuration by considering the
@@ -352,7 +354,7 @@ class Session(SessionRedirectMixin):
     Or as a context manager::
 
       >>> with requests.Session() as s:
-      >>>     s.get('https://httpbin.org/get')
+      ...     s.get('https://httpbin.org/get')
       <Response [200]>
     """
 
@@ -416,6 +418,8 @@ class Session(SessionRedirectMixin):
         self.adapters = OrderedDict()
         self.mount('https://', HTTPAdapter())
         self.mount('http://', HTTPAdapter())
+
+        super().__init__()
 
     def __enter__(self):
         return self
@@ -728,7 +732,7 @@ class Session(SessionRedirectMixin):
                 return adapter
 
         # Nothing matches :-/
-        raise InvalidSchema("No connection adapters were found for '%s'" % url)
+        raise InvalidSchema("No connection adapters were found for {!r}".format(url))
 
     def close(self):
         """Closes all adapters and as such the session"""
