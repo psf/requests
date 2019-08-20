@@ -189,4 +189,5 @@ Patches and Suggestions
 - Darren Dormer (`@ddormer <https://github.com/ddormer>`_)
 - Rajiv Mayani (`@mayani <https://github.com/mayani>`_)
 - Antti Kaihola (`@akaihola <https://github.com/akaihola>`_)
-- "Dull Bananas" <dull.bananas0@gmail.com> (`@dullbananas <https://github.com/dullbananas>`_)
+- Belavin Denis (`@luckydenis <https://github.com/luckydenis>`_)
+- Dull Bananas <dull.bananas0@gmail.com> (`@dullbananas <https://github.com/dullbananas>`_)

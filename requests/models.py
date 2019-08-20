@@ -640,6 +640,10 @@ class Response(object):
         #: is a response.
         self.request = None
 
+        #: If there was an error in the processing of content,
+        #: then save the error that would return the same error when you re-appeal.
+        self._error = None
+
     def __enter__(self):
         return self
 
@@ -749,12 +753,21 @@ class Response(object):
                 try:
                     for chunk in self.raw.stream(chunk_size, decode_content=True):
                         yield chunk
+
                 except ProtocolError as e:
-                    raise ChunkedEncodingError(e)
+                    self._error = ChunkedEncodingError(e)
+
                 except DecodeError as e:
-                    raise ContentDecodingError(e)
+                    self._error = ContentDecodingError(e)
+
                 except ReadTimeoutError as e:
-                    raise ConnectionError(e)
+                    self._error = ConnectionError(e)
+
+                finally:
+                    # if we had an error - throw the saved error
+                    if self._error:
+                        raise self._error
+
             else:
                 # Standard file-like object.
                 while True:
@@ -826,6 +839,10 @@ class Response(object):
                 self._content = None
             else:
                 self._content = b''.join(self.iter_content(CONTENT_CHUNK_SIZE)) or b''
+
+        # if we had an error - throw the saved error
+        if self._error is not None:
+            raise self._error
 
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3
