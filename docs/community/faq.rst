@@ -21,7 +21,8 @@ Custom User-Agents?
 -------------------
 
 Requests allows you to easily override User-Agent strings, along with
-any other HTTP Header.
+any other HTTP Header. See `documentation about headers <http://docs.python-requests.org/en/master/user/quickstart/#custom-headers>`_.
+
 
 
 Why not Httplib2?
