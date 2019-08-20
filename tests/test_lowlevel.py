@@ -3,6 +3,7 @@
 import pytest
 import threading
 import requests
+from requests.exceptions import ChunkedEncodingError
 
 from tests.testserver.server import Server, consume_socket_content
 
@@ -28,7 +29,7 @@ def test_digestauth_401_count_reset_on_redirect():
     """Ensure we correctly reset num_401_calls after a successful digest auth,
     followed by a 302 redirect to another digest auth prompt.
 
-    See https://github.com/requests/requests/issues/1979.
+    See https://github.com/psf/requests/issues/1979.
     """
     text_401 = (b'HTTP/1.1 401 UNAUTHORIZED\r\n'
                 b'Content-Length: 0\r\n'
@@ -138,7 +139,7 @@ def test_digestauth_401_only_sent_once():
 def test_digestauth_only_on_4xx():
     """Ensure we only send digestauth on 4xx challenges.
 
-    See https://github.com/requests/requests/issues/3772.
+    See https://github.com/psf/requests/issues/3772.
     """
     text_200_chal = (b'HTTP/1.1 200 OK\r\n'
                      b'Content-Length: 0\r\n'
@@ -307,3 +308,43 @@ def test_fragment_update_on_redirect():
         assert r.url == 'http://{}:{}/final-url/#relevant-section'.format(host, port)
 
         close_server.set()
+
+
+def test_response_content_retains_error():
+    """Verify that accessing response.content retains an error.
+
+    See https://github.com/kennethreitz/requests/issues/4965
+    """
+
+    data = "Some random stuff to read from remove server.\n"
+
+    def response_handler(sock):
+        req = consume_socket_content(sock, timeout=0.5)
+
+        # Send invalid chunked data (length mismatch)
+        sock.send(
+            b'HTTP/1.1 200 OK\r\n'
+            b'Transfer-Encoding: chunked\r\n'
+            b'\r\n2\r\n42\r\n8\r\n123\r\n'  # 5 bytes missing
+        )
+
+    close_server = threading.Event()
+    server = Server(response_handler, wait_to_close_event=close_server)
+
+    with server as (host, port):
+        url = 'http://{}:{}/path'.format(host, port)
+        r = requests.post(url, stream=True)
+        with pytest.raises(ChunkedEncodingError):
+            r.content
+
+    # Access the bad response data again, I would expect the same
+    # error again.
+
+    try:
+        content = r.content
+    except ChunkedEncodingError:
+        pass  # fine, same exception
+    else:
+        assert False, "error response has content: {0!r}".format(content)
+    close_server.set()
+

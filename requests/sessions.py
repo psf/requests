@@ -162,7 +162,7 @@ class SessionRedirectMixin(object):
                 resp.raw.read(decode_content=False)
 
             if len(resp.history) >= self.max_redirects:
-                raise TooManyRedirects('Exceeded %s redirects.' % self.max_redirects, response=resp)
+                raise TooManyRedirects('Exceeded {} redirects.'.format(self.max_redirects), response=resp)
 
             # Release the connection back into the pool.
             resp.close()
@@ -170,7 +170,7 @@ class SessionRedirectMixin(object):
             # Handle redirection without scheme (see: RFC 1808 Section 4)
             if url.startswith('//'):
                 parsed_rurl = urlparse(resp.url)
-                url = '%s:%s' % (to_native_string(parsed_rurl.scheme), url)
+                url = ':'.join([to_native_string(parsed_rurl.scheme), url])
 
             # Normalize url case and attach previous fragment if needed (RFC 7231 7.1.2)
             parsed = urlparse(url)
@@ -192,19 +192,16 @@ class SessionRedirectMixin(object):
 
             self.rebuild_method(prepared_request, resp)
 
-            # https://github.com/requests/requests/issues/1084
+            # https://github.com/psf/requests/issues/1084
             if resp.status_code not in (codes.temporary_redirect, codes.permanent_redirect):
-                # https://github.com/requests/requests/issues/3490
+                # https://github.com/psf/requests/issues/3490
                 purged_headers = ('Content-Length', 'Content-Type', 'Transfer-Encoding')
                 for header in purged_headers:
                     prepared_request.headers.pop(header, None)
                 prepared_request.body = None
 
             headers = prepared_request.headers
-            try:
-                del headers['Cookie']
-            except KeyError:
-                pass
+            headers.pop('Cookie', None)
 
             # Extract any cookies sent on the response to the cookiejar
             # in the new request. Because we've mutated our copied prepared
@@ -271,7 +268,6 @@ class SessionRedirectMixin(object):
         if new_auth is not None:
             prepared_request.prepare_auth(new_auth)
 
-        return
 
     def rebuild_proxies(self, prepared_request, proxies):
         """This method re-evaluates the proxy configuration by considering the
@@ -728,7 +724,7 @@ class Session(SessionRedirectMixin):
                 return adapter
 
         # Nothing matches :-/
-        raise InvalidSchema("No connection adapters were found for '%s'" % url)
+        raise InvalidSchema("No connection adapters were found for {!r}".format(url))
 
     def close(self):
         """Closes all adapters and as such the session"""

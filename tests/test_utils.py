@@ -33,7 +33,8 @@ class TestSuperLen:
         'stream, value', (
             (StringIO.StringIO, 'Test'),
             (BytesIO, b'Test'),
-            pytest.mark.skipif('cStringIO is None')((cStringIO, 'Test')),
+            pytest.param(cStringIO, 'Test',
+                         marks=pytest.mark.skipif('cStringIO is None')),
         ))
     def test_io_streams(self, stream, value):
         """Ensures that we properly deal with different kinds of IO streams."""
@@ -397,7 +398,7 @@ def test_get_auth_from_url(url, auth):
         ),
     ))
 def test_requote_uri_with_unquoted_percents(uri, expected):
-    """See: https://github.com/requests/requests/issues/2356"""
+    """See: https://github.com/psf/requests/issues/2356"""
     assert requote_uri(uri) == expected
 
 
