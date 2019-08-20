@@ -9,7 +9,7 @@ Requests: HTTP for Humans™
 [![Downloads](https://pepy.tech/badge/requests)](https://pepy.tech/project/requests)
 
 Requests is the one and only HTTP library for Python that is safe for human
-consumption. ;)
+consumption. It powers tools that you use every day, and you don't even know ;)
 
 ![image](https://farm5.staticflickr.com/4317/35198386374_1939af3de6_k_d.jpg)
 
