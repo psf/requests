@@ -8,8 +8,7 @@ Requests: HTTP for Humans™
 [![image](https://img.shields.io/github/contributors/psf/requests.svg)](https://github.com/psf/requests/graphs/contributors)
 [![Downloads](https://pepy.tech/badge/requests)](https://pepy.tech/project/requests)
 
-Requests is the one and only HTTP library for Python that is safe for human
-consumption. 
+**Requests** is an elegant and simple HTTP library for Python, built for human beings.
 
 ![image](https://farm5.staticflickr.com/4317/35198386374_1939af3de6_k_d.jpg)
 
