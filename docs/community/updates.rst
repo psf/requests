@@ -14,7 +14,7 @@ GitHub
 ------
 
 The best way to track the development of Requests is through
-`the GitHub repo <https://github.com/requests/requests>`_.
+`the GitHub repo <https://github.com/psf/requests>`_.
 
 Twitter
 -------

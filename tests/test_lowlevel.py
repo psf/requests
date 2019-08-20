@@ -28,7 +28,7 @@ def test_digestauth_401_count_reset_on_redirect():
     """Ensure we correctly reset num_401_calls after a successful digest auth,
     followed by a 302 redirect to another digest auth prompt.
 
-    See https://github.com/requests/requests/issues/1979.
+    See https://github.com/psf/requests/issues/1979.
     """
     text_401 = (b'HTTP/1.1 401 UNAUTHORIZED\r\n'
                 b'Content-Length: 0\r\n'
@@ -138,7 +138,7 @@ def test_digestauth_401_only_sent_once():
 def test_digestauth_only_on_4xx():
     """Ensure we only send digestauth on 4xx challenges.
 
-    See https://github.com/requests/requests/issues/3772.
+    See https://github.com/psf/requests/issues/3772.
     """
     text_200_chal = (b'HTTP/1.1 200 OK\r\n'
                      b'Content-Length: 0\r\n'
