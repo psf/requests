@@ -6,10 +6,10 @@ Requests: HTTP for Humans™
 [![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests/)
 [![codecov.io](https://codecov.io/github/psf/requests/coverage.svg?branch=master)](https://codecov.io/github/psf/requests)
 [![image](https://img.shields.io/github/contributors/psf/requests.svg)](https://github.com/psf/requests/graphs/contributors)
-[![image](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/kennethreitz)
+[![Downloads](https://pepy.tech/badge/requests)](https://pepy.tech/project/requests)
 
-Requests is the only *Non-GMO* HTTP library for Python, safe for human
-consumption.
+Requests is the one and only HTTP library for Python that is safe for human
+consumption. ;)
 
 ![image](https://farm5.staticflickr.com/4317/35198386374_1939af3de6_k_d.jpg)
 
@@ -65,7 +65,7 @@ Requests is ready for today's web.
 -   `.netrc` Support
 -   Chunked Requests
 
-Requests officially supports Python 2.7 & 3.4–3.7, and runs great on
+Requests officially supports Python 2.7 & 3.4–3.8, and runs great on
 PyPy.
 
 Installation
