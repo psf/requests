@@ -5,7 +5,6 @@ Requests: HTTP for Humans™
 [![image](https://img.shields.io/pypi/v/requests.svg)](https://pypi.org/project/requests/)
 [![image](https://img.shields.io/pypi/l/requests.svg)](https://pypi.org/project/requests/)
 [![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests/)
-[![codecov.io](https://codecov.io/github/psf/requests/coverage.svg?branch=master)](https://codecov.io/github/psf/requests)
 [![image](https://img.shields.io/github/contributors/psf/requests.svg)](https://github.com/psf/requests/graphs/contributors)
 
 
