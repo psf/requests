@@ -21,14 +21,10 @@ Release v\ |version|. (:ref:`Installation <install>`)
     :target: https://codecov.io/github/psf/requests
     :alt: codecov.io
 
-.. image:: https://img.shields.io/badge/Say%20Thanks!-🦉-1EAEDB.svg
-    :target: https://saythanks.io/to/kennethreitz
+.. image:: https://pepy.tech/badge/requests
+    :target: https://pepy.tech/project/request
 
-
-**Requests** is the only *Non-GMO* HTTP library for Python, safe for human
-consumption.
-
-.. note:: **Requests 2.x** is officially in *maintenance-mode only*. This means we only respond to CVE-level tickets. All of our limited available attention / energy is being allocated towards the development of `Requests III <https://3.python-requests.org/>`_. Technical contributions are welcome!
+**Requests** is basically the only HTTP library for Python. ☤
 
 -------------------
 
@@ -53,37 +49,6 @@ See `similar code, sans Requests <https://gist.github.com/973705>`_.
 need for manual labor. There's no need to manually add query strings to your
 URLs, or to form-encode your POST data. Keep-alive and HTTP connection pooling
 are 100% automatic, thanks to `urllib3 <https://github.com/shazow/urllib3>`_.
-
-User Testimonials
------------------
-
-Nike, Twitter, Spotify, Microsoft, Amazon, Lyft, BuzzFeed, Reddit, The NSA, Her Majesty's Government, Google, Twilio, Runscope, Mozilla, Heroku,
-PayPal, NPR, Obama for America, Transifex, Native Instruments, The Washington
-Post, SoundCloud, Kippt, Sony, and Federal U.S.
-Institutions that prefer to be unnamed claim to use Requests internally.
-
-**Armin Ronacher**, creator of Flask—
-    *Requests is the perfect example how beautiful an API can be with the
-    right level of abstraction.*
-
-**Matt DeBoard**—
-    *I'm going to get Kenneth Reitz's Python requests module tattooed
-    on my body, somehow. The whole thing.*
-
-**Daniel Greenfeld**—
-    *Nuked a 1200 LOC spaghetti code library with 10 lines of code thanks to
-    Kenneth Reitz's Requests library. Today has been AWESOME.*
-
-**Kenny Meyers**—
-    *Python HTTP: When in doubt, or when not in doubt, use Requests. Beautiful,
-    simple, Pythonic.*
-
-Requests is one of the most downloaded Python packages of all time, pulling in
-over 400,000 downloads **each day**. Join the party!
-
-If your organization uses Requests internally, consider `supporting the development of 3.0 <https://www.kennethreitz.org/requests3>`_. Your
-generosity will be greatly appreciated, and help drive the project forward
-into the future.
 
 Beloved Features
 ----------------
