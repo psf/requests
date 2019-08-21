@@ -9,6 +9,7 @@ import pickle
 import collections
 import contextlib
 import warnings
+import re
 
 import io
 import requests
@@ -17,7 +18,7 @@ from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urlparse,
-    builtin_str, OrderedDict)
+    builtin_str)
 from requests.cookies import (
     cookiejar_from_dict, morsel_to_cookie)
 from requests.exceptions import (
@@ -129,7 +130,7 @@ class TestRequests:
         assert request.url == expected
 
     def test_params_original_order_is_preserved_by_default(self):
-        param_ordered_dict = OrderedDict((('z', 1), ('a', 1), ('k', 1), ('d', 1)))
+        param_ordered_dict = collections.OrderedDict((('z', 1), ('a', 1), ('k', 1), ('d', 1)))
         session = requests.Session()
         request = requests.Request('GET', 'http://example.com/', params=param_ordered_dict)
         prep = session.prepare_request(request)
@@ -445,11 +446,11 @@ class TestRequests:
     def test_headers_preserve_order(self, httpbin):
         """Preserve order when headers provided as OrderedDict."""
         ses = requests.Session()
-        ses.headers = OrderedDict()
+        ses.headers = collections.OrderedDict()
         ses.headers['Accept-Encoding'] = 'identity'
         ses.headers['First'] = '1'
         ses.headers['Second'] = '2'
-        headers = OrderedDict([('Third', '3'), ('Fourth', '4')])
+        headers = collections.OrderedDict([('Third', '3'), ('Fourth', '4')])
         headers['Fifth'] = '5'
         headers['Second'] = '222'
         req = requests.Request('GET', httpbin('get'), headers=headers)
@@ -465,7 +466,7 @@ class TestRequests:
     @pytest.mark.parametrize('key', ('User-agent', 'user-agent'))
     def test_user_agent_transfers(self, httpbin, key):
 
-        heads = {key: 'Mozilla/5.0 (github.com/requests/requests)'}
+        heads = {key: 'Mozilla/5.0 (github.com/psf/requests)'}
 
         r = requests.get(httpbin('user-agent'), headers=heads)
         assert heads[key] in r.text
@@ -2211,7 +2212,7 @@ class TestTimeout:
             pass
 
     def test_encoded_methods(self, httpbin):
-        """See: https://github.com/requests/requests/issues/2316"""
+        """See: https://github.com/psf/requests/issues/2316"""
         r = requests.request(b'GET', httpbin('get'))
         assert r.ok
 
@@ -2418,9 +2419,17 @@ class TestPreparingURLs(object):
         )
     )
     def test_preparing_url(self, url, expected):
+
+        def normalize_percent_encode(x):
+            # Helper function that normalizes equivalent 
+            # percent-encoded bytes before comparisons
+            for c in re.findall(r'%[a-fA-F0-9]{2}', x):
+                x = x.replace(c, c.upper())
+            return x
+        
         r = requests.Request('GET', url=url)
         p = r.prepare()
-        assert p.url == expected
+        assert normalize_percent_encode(p.url) == expected
 
     @pytest.mark.parametrize(
         'url',

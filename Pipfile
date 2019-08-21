@@ -4,12 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
-pytest = ">=2.8.0"
+pytest = ">=2.8.0,<=3.10.1"
 codecov = "*"
-pytest-httpbin = ">=0.0.7"
+pytest-httpbin = ">=0.0.7,<1.0"
 pytest-mock = "*"
 pytest-cov = "*"
-pytest-xdist = "*"
+pytest-xdist = "<=1.25"
 alabaster = "*"
 readme-renderer = "*"
 sphinx = "<=1.5.5"

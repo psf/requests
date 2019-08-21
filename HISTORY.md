@@ -8,6 +8,18 @@ dev
 
 -   \[Short description of non-trivial change.\]
 
+2.22.0 (2019-05-15)
+-------------------
+
+**Dependencies**
+
+- Requests now supports urllib3 v1.25.2.
+  (note: 1.25.0 and 1.25.1 are incompatible)
+
+**Deprecations**
+
+- Requests has officially stopped support for Python 3.4.
+
 2.21.0 (2018-12-10)
 -------------------
 
@@ -537,7 +549,7 @@ Or, even better:
 
 **Bugfixes**
 
--   For file-like objects that are not seeked to the very beginning, we
+-   For file-like objects that are not sought to the very beginning, we
     now send the content length for the number of bytes we will actually
     read, rather than the total size of the file, allowing partial file
     uploads.
@@ -781,7 +793,7 @@ documentation](http://docs.python-requests.org/en/latest/community/release-proce
 -   Unicode URL improvements for Python 2.
 -   Re-order JSON param for backwards compat.
 -   Automatically defrag authentication schemes from host/pass URIs.
-    ([\#2249](https://github.com/requests/requests/issues/2249))
+    ([\#2249](https://github.com/psf/requests/issues/2249))
 
 2.4.2 (2014-10-05)
 ------------------
@@ -789,26 +801,26 @@ documentation](http://docs.python-requests.org/en/latest/community/release-proce
 **Improvements**
 
 -   FINALLY! Add json parameter for uploads!
-    ([\#2258](https://github.com/requests/requests/pull/2258))
+    ([\#2258](https://github.com/psf/requests/pull/2258))
 -   Support for bytestring URLs on Python 3.x
-    ([\#2238](https://github.com/requests/requests/pull/2238))
+    ([\#2238](https://github.com/psf/requests/pull/2238))
 
 **Bugfixes**
 
 -   Avoid getting stuck in a loop
-    ([\#2244](https://github.com/requests/requests/pull/2244))
+    ([\#2244](https://github.com/psf/requests/pull/2244))
 -   Multiple calls to iter\* fail with unhelpful error.
-    ([\#2240](https://github.com/requests/requests/issues/2240),
-    [\#2241](https://github.com/requests/requests/issues/2241))
+    ([\#2240](https://github.com/psf/requests/issues/2240),
+    [\#2241](https://github.com/psf/requests/issues/2241))
 
 **Documentation**
 
 -   Correct redirection introduction
-    ([\#2245](https://github.com/requests/requests/pull/2245/))
+    ([\#2245](https://github.com/psf/requests/pull/2245/))
 -   Added example of how to send multiple files in one request.
-    ([\#2227](https://github.com/requests/requests/pull/2227/))
+    ([\#2227](https://github.com/psf/requests/pull/2227/))
 -   Clarify how to pass a custom set of CAs
-    ([\#2248](https://github.com/requests/requests/pull/2248/))
+    ([\#2248](https://github.com/psf/requests/pull/2248/))
 
 2.4.1 (2014-09-09)
 ------------------
