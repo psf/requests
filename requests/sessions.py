@@ -545,7 +545,11 @@ class Session(SessionRedirectMixin):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
+<<<<<<< HEAD
         kwargs.setdefault('verify', self.verify)
+=======
+
+>>>>>>> parent of dc359333... Use default cacert
         kwargs.setdefault('allow_redirects', True)
         return self.request('GET', url, **kwargs)
 
