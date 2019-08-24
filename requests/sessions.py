@@ -715,7 +715,7 @@ class Session(SessionRedirectMixin):
             # with cURL.
             if verify is True or verify is None:
                 verify = (os.environ.get('REQUESTS_CA_BUNDLE') or
-                          os.environ.get('CURL_CA_BUNDLE'))
+                          os.environ.get('CURL_CA_BUNDLE')) or True
 
         return {'verify': verify, 'proxies': proxies, 'stream': stream,
                 'cert': cert}
