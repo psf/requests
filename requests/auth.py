@@ -122,7 +122,7 @@ class HTTPDigestAuth(AuthBase):
             self._thread_local.nonce_count = 0
             self._thread_local.chal = {}
             self._thread_local.pos = None
-            self._thread_local.num_401_calls = None
+            self._thread_local.num_401_calls = 0
 
     def build_digest_header(self, method, url):
         """
@@ -237,6 +237,9 @@ class HTTPDigestAuth(AuthBase):
 
         :rtype: requests.Response
         """
+
+        # Initialize per-thread state, if needed
+        self.init_per_thread_state()
 
         # If response is not 4xx, do not auth
         # See https://github.com/psf/requests/issues/3772
