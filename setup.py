@@ -30,6 +30,9 @@ class PyTest(TestCommand):
     def run_tests(self):
         import pytest
 
+        if isinstance(self.pytest_args, str):
+            self.pytest_args = [self.pytest_args]
+
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
