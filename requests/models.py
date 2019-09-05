@@ -97,6 +97,8 @@ class RequestEncodingMixin(object):
             for k, vs in to_key_val_list(data):
                 if isinstance(vs, basestring) or not hasattr(vs, '__iter__'):
                     vs = [vs]
+                elif isinstance(vs, Mapping):
+                    vs = [str(vs)]
                 for v in vs:
                     if v is not None:
                         result.append(
