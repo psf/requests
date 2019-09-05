@@ -419,7 +419,7 @@ class Session(SessionRedirectMixin):
         self.mount('https://', HTTPAdapter())
         self.mount('http://', HTTPAdapter())
 
-        super().__init__()
+        super(Session, self).__init__()
 
     def __enter__(self):
         return self
