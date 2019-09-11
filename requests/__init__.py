@@ -9,14 +9,14 @@
 Requests HTTP Library
 ~~~~~~~~~~~~~~~~~~~~~
 
-Requests is an HTTP library, written in Python, for human beings. Basic GET
-usage:
+Requests is an HTTP library, written in Python, for human beings.
+Basic GET usage:
 
    >>> import requests
    >>> r = requests.get('https://www.python.org')
    >>> r.status_code
    200
-   >>> 'Python is a programming language' in r.content
+   >>> b'Python is a programming language' in r.content
    True
 
 ... or POST:
@@ -27,8 +27,8 @@ usage:
    {
      ...
      "form": {
-       "key2": "value2",
-       "key1": "value1"
+       "key1": "value1",
+       "key2": "value2"
      },
      ...
    }

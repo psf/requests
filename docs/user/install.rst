@@ -25,15 +25,15 @@ Get the Source Code
 -------------------
 
 Requests is actively developed on GitHub, where the code is
-`always available <https://github.com/requests/requests>`_.
+`always available <https://github.com/psf/requests>`_.
 
 You can either clone the public repository::
 
-    $ git clone git://github.com/requests/requests.git
+    $ git clone git://github.com/psf/requests.git
 
-Or, download the `tarball <https://github.com/requests/requests/tarball/master>`_::
+Or, download the `tarball <https://github.com/psf/requests/tarball/master>`_::
 
-    $ curl -OL https://github.com/requests/requests/tarball/master
+    $ curl -OL https://github.com/psf/requests/tarball/master
     # optionally, zipball is also available (for Windows users).
 
 Once you have a copy of the source, you can embed it in your own Python

@@ -4,7 +4,7 @@ r"""
 The ``codes`` object defines a mapping from common names for HTTP statuses
 to their numerical codes, accessible either as attributes or as dictionary
 items.
-
+>>> import requests
 >>> requests.codes['temporary_redirect']
 307
 >>> requests.codes.teapot
