@@ -54,6 +54,8 @@ Requests allows you to send HTTP/1.1 requests extremely easily. There’s no nee
 
 Requests is one of the most downloaded Python packages of all time, pulling in around `14M downloads / week`— according to GitHub, Requests is currently [depended upon](https://github.com/psf/requests/network/dependents?package_id=UGFja2FnZS01NzA4OTExNg%3D%3D) by `367_296` repositories. You can trust this code.
 
+<p>&nbsp;</p>
+
 <h2 align="center">Supported Features & Best–Practices</h2>
 
 Requests is ready for the demands of building robust and reliable HTTP–speaking applications, on today's web (or your own infrastructure).
