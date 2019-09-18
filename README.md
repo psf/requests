@@ -1,8 +1,4 @@
-![vanity image](https://github.com/kennethreitz/bake/blob/master/ext/img.jpg?raw=true)
-
-
 <span align="center">
-     <em>Thoughtfully handcrafted, with ♥, for the Python community.</em>
 <pre>
     <div align="left">
     <code> Python 3.7.4 (default, Sep  7 2019, 18:27:02)</code>
