@@ -87,7 +87,6 @@ course):
 
 ``` {.sourceCode .bash}
 $ pipenv install requests
-✨ 🍰 ✨
 ```
 
 Satisfaction guaranteed.
@@ -98,3 +97,5 @@ Documentation
 Fantastic documentation is available at
 <http://docs.python-requests.org/>, for a limited time only.
 
+
+✨ 🍰 ✨
