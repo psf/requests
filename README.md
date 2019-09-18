@@ -1,3 +1,8 @@
+
+<p align="center">
+This project has been brought to you, with much joy, by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & The <a href="https://www.python.org/psf/">Python Software Foundation</a>.
+</p>
+
 <span align="center">
     
 <pre>
