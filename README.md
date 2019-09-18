@@ -98,21 +98,3 @@ Documentation
 Fantastic documentation is available at
 <http://docs.python-requests.org/>, for a limited time only.
 
-How to Contribute
------------------
-
-1.  Become more familiar with the project by reading our [Contributor's Guide](http://docs.python-requests.org/en/latest/dev/contributing/) and our [development philosophy](http://docs.python-requests.org/en/latest/dev/philosophy/).
-2.  Check for open issues or open a fresh issue to start a discussion
-    around a feature idea or a bug. There is a [Contributor
-    Friendly](https://github.com/psf/requests/issues?direction=desc&labels=Contributor+Friendly&page=1&sort=updated&state=open)
-    tag for issues that should be ideal for people who are not very
-    familiar with the codebase yet.
-3.  Fork [the repository](https://github.com/psf/requests) on
-    GitHub to start making your changes to the **master** branch (or
-    branch off of it).
-4.  Write a test which shows that the bug was fixed or that the feature
-    works as expected.
-5.  Send a [pull request](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork) and bug the maintainer until it gets merged and
-    published. :) Make sure to add yourself to
-    [AUTHORS](https://github.com/psf/requests/blob/master/AUTHORS.rst).
-
