@@ -3,7 +3,7 @@
 <span align="center">
     
 <pre>
-    <img src="https://raw.githubusercontent.com/psf/requests/master/ext/requests-logo.png" align="center" />
+    <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/requests-logo.png" align="center" /></a>
     <div align="left">
     <p></p>
     <code> Python 3.7.4 (default, Sep  7 2019, 18:27:02)</code>
@@ -13,7 +13,7 @@
     <code> 'A simple, yet elegant HTTP library. Handcrafted, with ♥, for the Python community.'</code>
     </div>
     
-<img src="https://github.com/psf/requests/blob/master/ext/flower-of-life.jpg?raw=true" />
+<a href="https://www.codecademy.com/articles/http-requests"><img src="https://github.com/psf/requests/blob/master/ext/flower-of-life.jpg?raw=true" /></a>
     
     <p align="center">
 This software has been designed for you, with much joy, 
@@ -80,7 +80,7 @@ Requests is ready for the demands of building robust and reliable HTTP–speakin
 Installation
 ------------
 
-To install **Requests**, simply use [**pipenv**](http://pipenv.org/) (or **pip**, of
+The recommended way to intall the `requests` module is to simply use [`pipenv`](http://pipenv.org/) (or `pip`, of
 course):
 
 ```console
@@ -106,7 +106,7 @@ PyPy.
 
 
 <p align="center">
-        <img src="https://raw.githubusercontent.com/psf/requests/master/ext/license.png" align="center" />
+        <a href="https://github.com/psf/requests/blob/master/LICENSE"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/license.png" align="center" /></a>
 </p>
 
 
