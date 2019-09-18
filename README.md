@@ -19,7 +19,9 @@
 This software has been designed for you, with much joy, 
 by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is secured by The <a href="https://www.python.org/psf/">Python Software Foundation</a>.  
    </p>
-   </pre>
+
+    <img src="https://raw.githubusercontent.com/psf/requests/master/ext/license.png" align="center" /
+</pre>
 
 </span>
 
