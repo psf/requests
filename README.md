@@ -66,6 +66,7 @@ downloads every month. You don't want to be left out!
 
 Requests is ready for the demands of building robust and reliable HTTP–speaking applications, on today's web (or your own infrastructure).
 
+|----------------------------------|---------------------------------|
 | International Domains and URLs   | Keep-Alive & Connection Pooling |
 | Sessions with Cookie Persistence | Browser-style SSL Verification  |
 | Basic & Digest Authentication    | Familiar `dict`–like Cookies    |
