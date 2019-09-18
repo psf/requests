@@ -78,6 +78,7 @@ Requests is ready for the demands of building robust and reliable HTTP–speakin
         ✨ 🍰 ✨
 </p>
 
+<p>&nbsp;</p>
 
 Requests Module Installation
 ----------------------------
