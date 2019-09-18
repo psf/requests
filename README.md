@@ -66,27 +66,24 @@ downloads every month. You don't want to be left out!
 
 Requests is ready for the demands of building robust and reliable HTTP–speaking applications, on today's web (or your own infrastructure).
 
-<style type="text/css">
-.tg  {border-collapse:collapse;border-spacing:0;}
-.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
-.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
-.tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
-</style>
-<table class="tg">
-  <tr>
-    <th class="tg-0pky">International Domains and URLs</th>
-    <th class="tg-0pky">Keep-Alive &amp; Connection Pooling</th>
-  </tr>
-  <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-  </tr>
-  <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-  </tr>
-</table>
-
+<div class="test">
+International Domains and URLs   
+Keep-Alive & Connection Pooling
+Sessions with Cookie Persistence 
+Browser-style SSL Verification 
+Basic & Digest Authentication    
+Familiar `dict`–like Cookies   
+Automatic Decompression          
+Automatic Content Decoding     
+Automatic Connection Pooling     
+Unicode Response Bodies (smart)
+Multi-part File Uploads          
+SOCKS Proxy Support            
+Connection Timeouts              
+Streaming Downloads            
+Automatic honoring of `.netrc`   
+Chunked HTTP Requests          
+</div>
 
 Requests officially supports Python 2.7 & 3.4–3.8, and runs great on
 PyPy.
