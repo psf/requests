@@ -95,7 +95,7 @@ PyPy.
 
 -------------------------------------
 
-## P.S. — Documentation is Available at [`://2.python-requests.org`](https://2.python-requests.org/).
+## P.S. — Documentation is Available at [`//2.python-requests.org`](https://2.python-requests.org/).
 
 <p align="center">
         <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/ss.png" align="center" /></a>
