@@ -72,21 +72,15 @@ Feature Support
 
 Requests is ready for today's web.
 
--   International Domains and URLs
--   Keep-Alive & Connection Pooling
--   Sessions with Cookie Persistence
--   Browser-style SSL Verification
--   Basic/Digest Authentication
--   Elegant Key/Value Cookies
--   Automatic Decompression
--   Automatic Content Decoding
--   Unicode Response Bodies
--   Multipart File Uploads
--   HTTP(S) Proxy Support
--   Connection Timeouts
--   Streaming Downloads
--   `.netrc` Support
--   Chunked Requests
+| International Domains and URLs   | Keep-Alive & Connection Pooling |
+| Sessions with Cookie Persistence | Browser-style SSL Verification  |
+| Basic & Digest Authentication    | Familiar `dict`–like Cookies    |
+| Automatic Decompression          | Automatic Content Decoding      |
+| Automatic Connection Pooling     | Unicode Response Bodies (smart) |
+| Multi-part File Uploads          | SOCKS Proxy Support             |
+| Connection Timeouts              | Streaming Downloads             |
+| Automatic honoring of `.netrc`   | Chunked HTTP Requests           |
+
 
 Requests officially supports Python 2.7 & 3.4–3.8, and runs great on
 PyPy.
@@ -94,7 +88,7 @@ PyPy.
 Installation
 ------------
 
-To install Requests, simply use [pipenv](http://pipenv.org/) (or pip, of
+To install **Requests**, simply use [**pipenv**](http://pipenv.org/) (or **pip**, of
 course):
 
 ```console
