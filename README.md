@@ -10,7 +10,7 @@
     <code> >>> <strong>import requests</strong></code>
     <code> >>> r = requests.get('https://api.github.com/repos/psf/requests')</code>
     <code> >>> r.json()["description"]</code>
-    <code> 'An elegant & simple HTTP library. Handcrafted, with ♥, for the Python community.'</code>
+    <code> 'A simple, yet elegant HTTP library. Handcrafted, with ♥, for the Python community.'</code>
     </div>
     
 <img src="https://github.com/psf/requests/blob/master/ext/flower-of-life.jpg?raw=true" />
@@ -19,12 +19,13 @@
 This software has been designed for you, with much joy, 
 by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is secured by The <a href="https://www.python.org/psf/">Python Software Foundation</a>.  
    </p>
-   </pre>
+<p>&nbsp;</p>
+<img src="https://github.com/psf/requests/blob/master/ext/flourish.png?raw=true" />
+</pre>
 
 </span>
 
----------------------
-
+<p>&nbsp;</p><p>&nbsp;</p>
 
 <p align="center"><strong>Requests</strong> is an elegant and simple HTTP library for Python, built with ♥</p>
 
@@ -99,5 +100,7 @@ Your satisfaction is guaranteed.
 ✨ 🍰 ✨
 
 <p align="center">
-    <img src="https://github.com/psf/requests/blob/master/ext/flourish.png?raw=true" />
+        <img src="https://raw.githubusercontent.com/psf/requests/master/ext/license.png" align="center" />
 </p>
+
+
