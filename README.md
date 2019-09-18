@@ -1,5 +1,16 @@
-Requests: HTTP for Humans™
-==========================
+![vanity image](https://github.com/kennethreitz/bake/blob/master/ext/img.jpg?raw=true)
+
+
+<span align="center">
+<pre>
+    <code> >>> <strong>import requests</strong></code><em></em>:
+    <em>☤</em>
+</pre>  
+</span>
+
+---------------------
+
+# ☤ Requests: HTTP for Humans, Machines, & You.
 
 [![Downloads](https://pepy.tech/badge/requests)](https://pepy.tech/project/requests)
 [![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests/)
