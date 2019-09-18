@@ -17,7 +17,7 @@
     
     <p align="center">
 This software has been designed for you, with much joy, 
-by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is protected by The <a href="https://www.python.org/psf/">Python Software Foundation</a>.  
+by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is secured by The <a href="https://www.python.org/psf/">Python Software Foundation</a>.  
    </p>
    </pre>
 
