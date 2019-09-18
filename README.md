@@ -3,7 +3,7 @@
 <span align="center">
     
 <pre>
-<img src="https://raw.githubusercontent.com/psf/requests/master/docs/_static/requests-logo-small.png" align="center" />
+    <img src="https://github.com/psf/requests/blob/master/ext/requests-logo.png?raw=true" align="center" />
     <div align="left">
     <p></p>
     <code> Python 3.7.4 (default, Sep  7 2019, 18:27:02)</code>
@@ -13,7 +13,7 @@
     <code> 'An elegant & simple HTTP library. Handcrafted, with ♥, for the Python community.'</code>
     </div>
     
-
+<img src="https://github.com/psf/requests/blob/master/ext/flower-of-life.jpg?raw=true" />
     
     <p align="center">
 This project has been brought to you, with much joy, 
