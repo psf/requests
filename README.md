@@ -92,6 +92,9 @@ Adding requests to Pipfile's [packages]…
 Requests officially supports Python 2.7 & 3.4–3.8, and runs great on
 PyPy.
 
+-------------------------------------
+
+## P.S. — Read the Docs!
 
 <p align="center">
         <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/ss.png" align="center" /></a>
