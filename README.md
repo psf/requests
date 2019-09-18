@@ -87,7 +87,7 @@ course):
 
 ``` {.sourceCode .bash}
 $ pipenv install requests
-✨🍰✨
+✨ 🍰 ✨
 ```
 
 Satisfaction guaranteed.
