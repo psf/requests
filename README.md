@@ -125,6 +125,6 @@ Requests officially supports Python 2.7 & 3.4–3.8.
 <p>&nbsp;</p>
 
 <p align="center">
-        <a href="https://github.com/psf/requests/blob/master/LICENSE"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/license.png" align="center" /></a>
+        <a href="https://www.python.org/psf/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/psf.png" align="center" /></a>
 </p>
 
