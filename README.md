@@ -13,7 +13,7 @@
     <code> 'An elegant & simple HTTP library. Handcrafted, with ♥, for the Python community.'</code>
     </div>
     
-    <img href="https://github.com/psf/requests/blob/master/ext/flourish.png?raw=true" />
+    <img src="https://github.com/psf/requests/blob/master/ext/flourish.png?raw=true" />
     
     <p align="center">
 This project has been brought to you, with much joy, 
