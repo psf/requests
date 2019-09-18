@@ -5,7 +5,7 @@
 <pre>
     <code> >>> <strong>import requests</strong></code>
     <p align="center">an elegant and simple HTTP library for Python</p>
-    <p>built just for you.</pt>
+    <p>Carefully handcrafted, with love, for the Python community.</pt>
 </pre>  
 </span>
 
