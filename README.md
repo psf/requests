@@ -20,7 +20,7 @@ This software has been designed for you, with much joy,
 by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is secured by The <a href="https://www.python.org/psf/">Python Software Foundation</a>.  
    </p>
 
-    <img src="https://raw.githubusercontent.com/psf/requests/master/ext/license.png" align="center" /
+<img src="https://github.com/psf/requests/blob/master/ext/flourish.png?raw=true" />
 </pre>
 
 </span>
@@ -101,5 +101,7 @@ Your satisfaction is guaranteed.
 ✨ 🍰 ✨
 
 <p align="center">
-    <img src="https://github.com/psf/requests/blob/master/ext/flourish.png?raw=true" />
+        <img src="https://raw.githubusercontent.com/psf/requests/master/ext/license.png" align="center" />
 </p>
+
+
