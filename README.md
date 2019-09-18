@@ -1,6 +1,7 @@
 <span align="center">
-    <img src="https://raw.githubusercontent.com/psf/requests/master/docs/_static/requests-logo-small.png" align="center" />
+    
 <pre>
+<img src="https://raw.githubusercontent.com/psf/requests/master/docs/_static/requests-logo-small.png" align="center" />
     <div align="left">
     <code> Python 3.7.4 (default, Sep  7 2019, 18:27:02)</code>
     <code> >>> <strong>import requests</strong></code>
