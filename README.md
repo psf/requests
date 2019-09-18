@@ -62,8 +62,7 @@ Besides, all the cool kids are doing it. Requests is one of the most
 downloaded Python packages of all time, pulling about 60,000,000
 downloads every month. You don't want to be left out!
 
-Feature Support
----------------
+<h2 align="center>Supported Features</h2>
 
 Requests is ready for the demands of building robust and reliable HTTP–speaking applications, on today's web (or your own infrastructure).
 
