@@ -3,10 +3,15 @@
 
 <span align="center">
 <pre>
+    <div align="left">
+    <code> Python 3.7.4 (default, Sep  7 2019, 18:27:02)</code>
     <code> >>> <strong>import requests</strong></code>
-    <code> >>> r = requests.get('test')</code>
-    <p align="center">an elegant and simple HTTP library for Python</p>
-    <p>Carefully handcrafted, with love, for the Python community.</pt>
+    <code> >>> r = requests.get('https://api.github.com/repos/psf/requests')</code>
+    <code> >>> r.json()["description"]</code>
+    <code> 'an elegant and simple HTTP library for Python'</code>
+    </div>
+
+    <p>Carefully handcrafted, with love, for the Python community.</p>
 </pre>  
 </span>
 
