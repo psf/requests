@@ -4,7 +4,7 @@
 <span align="center">
 <pre>
     <code> >>> <strong>import requests</strong></code><em></em>
-    <font size="+10">text</font>
+    <font size="+10">an elegant and simple HTTP library for Python, built for human beings.</font>
 </pre>  
 </span>
 
