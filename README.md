@@ -4,6 +4,7 @@
 <span align="center">
 <pre>
     <code> >>> <strong>import requests</strong></code>
+    <code> >>> r = requests.get('test')</code>
     <p align="center">an elegant and simple HTTP library for Python</p>
     <p>Carefully handcrafted, with love, for the Python community.</pt>
 </pre>  
