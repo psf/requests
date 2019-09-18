@@ -29,10 +29,7 @@ by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & The <a href="https://
 ---------------------
 
 
-**Requests** is an elegant and simple HTTP library for Python, built for human beings.
-
-
-Behold, the power of Requests:
+**Requests** is an elegant and simple HTTP library for Python, built with ♥ for the open source community.
 
 ```pycon
 >>> import requests
@@ -68,7 +65,7 @@ downloads every month. You don't want to be left out!
 Feature Support
 ---------------
 
-Requests is ready for today's web.
+Requests is ready for the demands of building robust and reliable HTTP–speaking applications, on today's web (or your own infrastructure).
 
 | International Domains and URLs   | Keep-Alive & Connection Pooling |
 | Sessions with Cookie Persistence | Browser-style SSL Verification  |
