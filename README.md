@@ -12,11 +12,12 @@
     <code> >>> r.json()["description"]</code>
     <code> 'An elegant & simple HTTP library. Handcrafted, with ♥, for the Python community.'</code>
     </div>
-</pre>  
-   
-<p align="center">
+    <p align="center">
 This project has been brought to you, with much joy, by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & The <a href="https://www.python.org/psf/">Python Software Foundation</a>.
 </p>
+</pre>  
+   
+
 
 </span>
 
