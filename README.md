@@ -38,7 +38,7 @@ by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & The <a href="https://
 
 Behold, the power of Requests:
 
-``` {.sourceCode .python}
+```pycon
 >>> import requests
 >>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
 >>> r.status_code
