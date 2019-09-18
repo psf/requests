@@ -77,8 +77,8 @@ Requests is ready for the demands of building robust and reliable HTTP–speakin
 </p>
 
 
-Python Module Installation
---------------------------
+Requests Module Installation
+----------------------------
 
 The recommended way to intall the `requests` module is to simply use [`pipenv`](http://pipenv.org/) (or `pip`, of
 course):
