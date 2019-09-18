@@ -100,7 +100,10 @@ PyPy.
         <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/ss.png" align="center" /></a>
 </p>
 
+<p align="center">
+        ✨ 🍰 ✨
+</p>
 
 
-✨ 🍰 ✨
+
 
