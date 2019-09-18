@@ -66,23 +66,20 @@ downloads every month. You don't want to be left out!
 
 Requests is ready for the demands of building robust and reliable HTTP–speaking applications, on today's web (or your own infrastructure).
 
-<div class="test">
-International Domains and URLs   
-Keep-Alive & Connection Pooling
-Sessions with Cookie Persistence 
-Browser-style SSL Verification 
-Basic & Digest Authentication    
-Familiar `dict`–like Cookies   
-Automatic Decompression          
-Automatic Content Decoding     
-Automatic Connection Pooling     
-Unicode Response Bodies (smart)
-Multi-part File Uploads          
-SOCKS Proxy Support            
-Connection Timeouts              
-Streaming Downloads            
-Automatic honoring of `.netrc`   
-Chunked HTTP Requests          
+<pre class="test">
+International Domains and URLs      Keep-Alive & Connection Pooling
+Sessions with Cookie Persistence    Browser-style SSL Verification 
+Basic & Digest Authentication       Familiar `dict`–like Cookies   
+Automatic Decompression of Content  Automatic Content Decoding     
+Automatic Connection Pooling        Unicode Response Bodies<super>*</super>
+Multi-part File Uploads             SOCKS Proxy Support            
+Connection Timeouts                 Streaming Downloads
+Automatic honoring of `.netrc`      Chunked HTTP Requests          
+              
+                 &, of course, rock–solid stability!
+</pre>
+
+
 </div>
 
 Requests officially supports Python 2.7 & 3.4–3.8, and runs great on
