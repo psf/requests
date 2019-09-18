@@ -52,9 +52,7 @@ u'{"type":"User"...'
 
 Requests allows you to send HTTP/1.1 requests extremely easily. There’s no need to manually add query strings to your URLs, or to form-encode your `PUT` & `POST` data — but nowadays, just use the `json` method!
 
-Besides, all the cool kids are doing it. Requests is one of the most
-downloaded Python packages of all time, pulling about 60,000,000
-downloads every month. You don't want to be left out!
+Requests is one of the most downloaded Python packages of all time, pulling in around `14M downloads / week`— according to GitHub, Requests is currently depended upon by `367_296` repositories. You can trust this code.
 
 <h2 align="center">Supported Features & Best–Practices</h2>
 
