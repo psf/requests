@@ -45,10 +45,10 @@ u'{"type":"User"...'
 >>> r.json()
 {u'disk_usage': 368627, u'private_gists': 484, ...}
 ```
-[![Downloads](https://pepy.tech/badge/requests)](https://pepy.tech/project/requests)
-[![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests/)
-[![image](https://img.shields.io/github/contributors/psf/requests.svg)](https://github.com/psf/requests/graphs/contributors)
 
+<p alignment="center"><a href="https://pepy.tech/project/requests" rel="nofollow"><img src="https://camo.githubusercontent.com/e1dedc9f5ce5cd6b6c699f33d2e812daadcf3645/68747470733a2f2f706570792e746563682f62616467652f7265717565737473" alt="Downloads" data-canonical-src="https://pepy.tech/badge/requests" style="max-width:100%;"></a>
+<a href="https://pypi.org/project/requests/" rel="nofollow"><img src="https://camo.githubusercontent.com/6d78aeec0a9a1cfe147ad064bfb99069e298e29b/68747470733a2f2f696d672e736869656c64732e696f2f707970692f707976657273696f6e732f72657175657374732e737667" alt="image" data-canonical-src="https://img.shields.io/pypi/pyversions/requests.svg" style="max-width:100%;"></a>
+<a href="https://github.com/psf/requests/graphs/contributors"><img src="https://camo.githubusercontent.com/a70ea15870b38bba9203b969f6a6b7e7845fbb8a/68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f636f6e7472696275746f72732f7073662f72657175657374732e737667" alt="image" data-canonical-src="https://img.shields.io/github/contributors/psf/requests.svg" style="max-width:100%;"></a></p>
 
 ---------------------------------------------------------------------
 
