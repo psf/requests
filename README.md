@@ -25,7 +25,7 @@ by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is secured by The <a 
 
 </span>
 
-<p></p>
+<p></p><p></p>
 
 <p align="center"><strong>Requests</strong> is an elegant and simple HTTP library for Python, built with ♥</p>
 
