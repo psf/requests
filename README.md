@@ -95,7 +95,7 @@ PyPy.
 
 -------------------------------------
 
-## P.S. — Read the Docs!
+## P.S. — Documentation is Available (*e.g.* read the manual)!
 
 <p align="center">
         <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/ss.png" align="center" /></a>
