@@ -29,6 +29,8 @@ by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is secured by The <a 
 
 <p align="center"><strong>Requests</strong> is an elegant and simple HTTP library for Python, built with ♥.</p>
 
+<p>&nbsp;</p>
+
 ```pycon
 >>> import requests
 >>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
