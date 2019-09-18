@@ -29,7 +29,7 @@ by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & The <a href="https://
 ---------------------
 
 
-<span align="center"><strong>Requests</strong> is an elegant and simple HTTP library for Python, built with ♥</span>
+<p align="center"><strong>Requests</strong> is an elegant and simple HTTP library for Python, built with ♥</p>
 
 ```pycon
 >>> import requests
