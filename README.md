@@ -38,7 +38,7 @@ HTTP connection pooling are 100% automatic, thanks to
 [urllib3](https://github.com/shazow/urllib3).
 
 Besides, all the cool kids are doing it. Requests is one of the most
-downloaded Python packages of all time, pulling in over 60,000,000
+downloaded Python packages of all time, pulling about 60,000,000
 downloads every month. You don't want to be left out!
 
 Feature Support
