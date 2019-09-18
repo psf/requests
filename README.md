@@ -116,8 +116,15 @@ Requests officially supports Python 2.7 & 3.4–3.8.
 ------------------
 
 
+<p>&nbsp;</p>
+
+<p align="center">
+        <a href="https://kennethreitz.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/kr.png" align="center" /></a>
+</p>
+
+<p>&nbsp;</p>
+
 <p align="center">
         <a href="https://github.com/psf/requests/blob/master/LICENSE"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/license.png" align="center" /></a>
 </p>
-
 
