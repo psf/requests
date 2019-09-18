@@ -78,12 +78,7 @@ Requests is ready for the demands of building robust and reliable HTTP–speakin
               
                             &, of course, rock–solid stability!
 </pre>
-
-
 </div>
-
-Requests officially supports Python 2.7 & 3.4–3.8, and runs great on
-PyPy.
 
 Installation
 ------------
@@ -98,7 +93,9 @@ Adding requests to Pipfile's [packages]…
 …
 ```
 
-Satisfaction guaranteed.
+Requests officially supports Python 2.7 & 3.4–3.8, and runs great on
+PyPy.
+
 
 Documentation
 -------------
@@ -106,5 +103,6 @@ Documentation
 Fantastic documentation is available at
 <http://docs.python-requests.org/>, for a limited time only.
 
+Your satisfaction is guaranteed.
 
 ✨ 🍰 ✨
