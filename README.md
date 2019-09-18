@@ -3,7 +3,7 @@
 
 <span align="center">
 <pre>
-    <code> >>> <strong>import requests</strong></code><em></em>:
+    <code> >>> <strong>import requests</strong></code><em></em>⏎
     <em>☤</em>
 </pre>  
 </span>
