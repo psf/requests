@@ -31,10 +31,6 @@ by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & The <a href="https://
 
 **Requests** is an elegant and simple HTTP library for Python, built for human beings.
 
-[![Downloads](https://pepy.tech/badge/requests)](https://pepy.tech/project/requests)
-[![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests/)
-[![image](https://img.shields.io/github/contributors/psf/requests.svg)](https://github.com/psf/requests/graphs/contributors)
-
 
 Behold, the power of Requests:
 
@@ -52,8 +48,10 @@ u'{"type":"User"...'
 >>> r.json()
 {u'disk_usage': 368627, u'private_gists': 484, ...}
 ```
+[![Downloads](https://pepy.tech/badge/requests)](https://pepy.tech/project/requests)
+[![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests/)
+[![image](https://img.shields.io/github/contributors/psf/requests.svg)](https://github.com/psf/requests/graphs/contributors)
 
-See [the similar code, sans Requests](https://gist.github.com/973705).
 
 ---------------------------------------------------------------------
 
