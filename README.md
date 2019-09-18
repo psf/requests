@@ -5,7 +5,7 @@
     <code> >>> <strong>import requests</strong></code>
     <code> >>> r = requests.get('https://api.github.com/repos/psf/requests')</code>
     <code> >>> r.json()["description"]</code>
-    <code> 'an elegant and simple HTTP library for Python'</code>
+    <code> 'An elegant & simple HTTP library.Handcrafted, with ♥, for the Python community.'</code>
     </div>
 </pre>  
    
