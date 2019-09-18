@@ -52,9 +52,7 @@ u'{"type":"User"...'
 
 Requests allows you to send *organic, grass-fed* HTTP/1.1 requests,
 without the need for manual labor. There's no need to manually add query
-strings to your URLs, or to form-encode your POST data. Keep-alive and
-HTTP connection pooling are 100% automatic, thanks to
-[urllib3](https://github.com/shazow/urllib3).
+strings to your URLs, or to form-encode your `PUT` & `POST` data — you can even send json!
 
 Besides, all the cool kids are doing it. Requests is one of the most
 downloaded Python packages of all time, pulling about 60,000,000
