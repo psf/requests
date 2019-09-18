@@ -4,7 +4,7 @@
 <span align="center">
 <pre>
     <code> >>> <strong>import requests</strong></code><em></em>
-    <span>☤<span>
+    <font size="+2">text</font>
 </pre>  
 </span>
 
