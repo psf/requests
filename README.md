@@ -50,9 +50,7 @@ u'{"type":"User"...'
 
 ---------------------------------------------------------------------
 
-Requests allows you to send *organic, grass-fed* HTTP/1.1 requests,
-without the need for manual labor. There's no need to manually add query
-strings to your URLs, or to form-encode your `PUT` & `POST` data — you can even send json!
+Requests allows you to send HTTP/1.1 requests extremely easily. There’s no need to manually add query strings to your URLs, or to form-encode your `PUT` & `POST` data — or just use the `json` method!
 
 Besides, all the cool kids are doing it. Requests is one of the most
 downloaded Python packages of all time, pulling about 60,000,000
