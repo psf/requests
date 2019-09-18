@@ -84,7 +84,7 @@ Requests is ready for the demands of building robust and reliable HTTP–speak a
 </div>
 
 <p align="center">
-        ✨ 🍰 ✨
+        ✨ 🍰 ✨&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </p>
 
 <p>&nbsp;</p>
