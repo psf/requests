@@ -97,8 +97,11 @@ Installation
 To install Requests, simply use [pipenv](http://pipenv.org/) (or pip, of
 course):
 
-``` {.sourceCode .bash}
+```console
 $ pipenv install requests
+Adding requests to Pipfile's [packages]…
+✔ Installation Succeeded
+…
 ```
 
 Satisfaction guaranteed.
