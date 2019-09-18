@@ -3,7 +3,7 @@
 <span align="center">
     
 <pre>
-<img src="https://github.com/psf/requests/blob/master/ext/requests-logo.png?raw=true" align="center" />
+    <img src="https://github.com/psf/requests/blob/master/ext/requests-logo.png?raw=true" align="center" />
     <div align="left">
     <p></p>
     <code> Python 3.7.4 (default, Sep  7 2019, 18:27:02)</code>
