@@ -10,9 +10,8 @@
     <code> >>> r.json()["description"]</code>
     <code> 'an elegant and simple HTTP library for Python'</code>
     </div>
-
-    <p>Carefully handcrafted, with love, for the Python community.</p>
 </pre>  
+    <p>Carefully handcrafted, with love, for the Python community.</p>
 </span>
 
 ---------------------
