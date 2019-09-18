@@ -71,8 +71,9 @@ Requests is ready for the demands of building robust and reliable HTTP–speakin
                             &, of course, rock–solid stability!
 </pre>
 </div>
+
 <p align="center">
-        <img src="https://raw.githubusercontent.com/psf/requests/master/ext/license.png" align="center" />
+        ✨ 🍰 ✨
 </p>
 
 
@@ -103,10 +104,9 @@ PyPy.
 
 ------------------
 
+
 <p align="center">
-        ✨ 🍰 ✨
+        <img src="https://raw.githubusercontent.com/psf/requests/master/ext/license.png" align="center" />
 </p>
-
-
 
 
