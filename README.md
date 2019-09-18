@@ -10,7 +10,7 @@
     <code> >>> <strong>import requests</strong></code>
     <code> >>> r = requests.get('https://api.github.com/repos/psf/requests')</code>
     <code> >>> r.json()["description"]</code>
-    <code> 'An elegant & simple HTTP library. Handcrafted, with ♥, for the Python community.'</code>
+    <code> 'A simple, yet elegant HTTP library. Handcrafted, with ♥, for the Python community.'</code>
     </div>
     
 <img src="https://github.com/psf/requests/blob/master/ext/flower-of-life.jpg?raw=true" />
