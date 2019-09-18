@@ -7,6 +7,7 @@
     <code> >>> r.json()["description"]</code>
     <code> 'An elegant & simple HTTP library. Handcrafted, with ♥, for the Python community.'</code>
     </div>
+    <img src="https://raw.githubusercontent.com/psf/requests/master/docs/_static/requests-logo-small.png" align="right" />
 </pre>  
    
 </span>
@@ -40,7 +41,7 @@ u'{"type":"User"...'
 
 See [the similar code, sans Requests](https://gist.github.com/973705).
 
-[![image](https://raw.githubusercontent.com/psf/requests/master/docs/_static/requests-logo-small.png)](http://docs.python-requests.org/)
+[![image]()](http://docs.python-requests.org/)
 
 Requests allows you to send *organic, grass-fed* HTTP/1.1 requests,
 without the need for manual labor. There's no need to manually add query
