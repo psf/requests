@@ -17,10 +17,7 @@
     
     <p align="center">
 This project has been brought to you, with much joy, 
-by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & The <a href="https://www.python.org/psf/">Python Software Foundation</a>.
-</p>
-    <img src="https://github.com/psf/requests/blob/master/ext/flourish.png?raw=true" />
-</pre>  
+by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & The <a href="https://www.python.org/psf/">Python Software Foundation</a>.  
    
 <p></p>
 
@@ -106,3 +103,7 @@ Fantastic documentation is available at
 Your satisfaction is guaranteed.
 
 ✨ 🍰 ✨
+
+<p align="center">
+    <img src="https://github.com/psf/requests/blob/master/ext/flourish.png?raw=true" />
+</p>
