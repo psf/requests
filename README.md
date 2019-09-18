@@ -66,7 +66,7 @@ Requests is one of the most downloaded Python packages of all time, pulling in a
 
 <h2 align="center">Supported Features & Best–Practices</h2>
 
-Requests is ready for the demands of building robust and reliable HTTP–speaking applications, on today's web (or your own infrastructure).
+Requests is ready for the demands of building robust and reliable HTTP–speak applications, for the needs of today.
 
 <pre class="test">
          + International Domains and URLs       + Keep-Alive & Connection Pooling
