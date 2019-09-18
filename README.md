@@ -2,6 +2,7 @@
 
 
 <span align="center">
+     <em>Thoughtfully handcrafted, with ♥, for the Python community.</em>
 <pre>
     <div align="left">
     <code> Python 3.7.4 (default, Sep  7 2019, 18:27:02)</code>
@@ -11,7 +12,7 @@
     <code> 'an elegant and simple HTTP library for Python'</code>
     </div>
 </pre>  
-    <p>Carefully handcrafted, with love, for the Python community.</p>
+   
 </span>
 
 ---------------------
