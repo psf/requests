@@ -4,21 +4,22 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
-pytest = ">=2.8.0,<=3.10.1"
+alabaster = "*"
 codecov = "*"
+docutils = "*"
+detox = "*"
+"flake8" = "*"
+httpbin = ">=0.7.0"
+more-itertools = "<6.0"
+pysocks = "*"
+pytest = ">=2.8.0,<=3.10.1"
 pytest-httpbin = ">=0.0.7,<1.0"
 pytest-mock = "*"
 pytest-cov = "*"
 pytest-xdist = "<=1.25"
-alabaster = "*"
 readme-renderer = "*"
 sphinx = "<=1.5.5"
-pysocks = "*"
-docutils = "*"
-"flake8" = "*"
 tox = "*"
-detox = "*"
-httpbin = ">=0.7.0"
 
 [packages]
-"e1839a8" = {path = ".", editable = true, extras = ["socks"]}
+"requests" = {path = ".", editable = true, extras = ["socks"]}
