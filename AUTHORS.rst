@@ -192,4 +192,3 @@ Patches and Suggestions
 - "Dull Bananas" <dull.bananas0@gmail.com> (`@dullbananas <https://github.com/dullbananas>`_)
 - Alessio Izzo (`@aless10 <https://github.com/aless10>`_)
 - Belavin Denis (`@luckydenis <https://github.com/luckydenis>`_)
-- Dull Bananas <dull.bananas0@gmail.com> (`@dullbananas <https://github.com/dullbananas>`_)
