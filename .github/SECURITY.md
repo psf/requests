@@ -1,5 +1,4 @@
-Vulnerability Disclosure
-========================
+# Vulnerability Disclosure
 
 ![](https://farm5.staticflickr.com/4211/34709353644_b041e9e1c2_k_d.jpg)
 
@@ -31,15 +30,14 @@ and can publish it in a release.
 We will respect your privacy and will only publicize your involvement if
 you grant us permission.
 
-Process
--------
+## Process
 
 This following information discusses the process the requests project
 follows in response to vulnerability disclosures. If you are disclosing
 a vulnerability, this section of the documentation lets you know how we
 will respond to your disclosure.
 
-Timeline \~\~\~\~\~\~\~\~
+### Timeline
 
 When you report an issue, one of the project members will respond to you
 within two days *at the outside*. In most cases responses will be
