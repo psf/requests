@@ -1943,6 +1943,35 @@ class TestRequests:
         assert not r.history[1].is_redirect
         assert r.url == urls_test[2]
 
+    def test_session_merge_environment_settings_verify(self):
+        """Test Session.merge_environment_settings override order for "verify".
+
+        Order should be most specific > less specific:
+        1. Session.request verify kwarg
+        2. Session verify property
+        3. Env vars
+        """
+
+        SOME_PEM = 'x.pem'
+        OTHER_PEM = 'y.pem'
+
+        session = requests.Session()
+        args = ['', {}, False, None, {}]
+        assert session.merge_environment_settings(*args)['verify'] == True
+        args[3] = False
+        assert session.merge_environment_settings(*args)['verify'] == False
+        session.verify = True
+        assert session.merge_environment_settings(*args)['verify'] == False
+
+        session.verify = SOME_PEM
+        args[3] = OTHER_PEM
+        assert session.merge_environment_settings(*args)['verify'] == OTHER_PEM
+
+        session.verify = OTHER_PEM
+        args[3] = None
+        with override_environ(REQUESTS_CA_BUNDLE=SOME_PEM):
+            assert session.merge_environment_settings(*args)['verify'] == OTHER_PEM
+
 
 class TestCaseInsensitiveDict:
 
