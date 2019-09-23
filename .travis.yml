@@ -16,7 +16,6 @@ jobs:
       python: '3.6'
     - stage: test
       python: '3.7'
-      dist: xenial   
     - stage: coverage
       python: '3.6'
       script: codecov
