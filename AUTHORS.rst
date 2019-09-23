@@ -1,16 +1,14 @@
-Requests is written and maintained by Kenneth Reitz and
-various contributors:
+Requests was lovingly created by Kenneth Reitz.
 
 Keepers of the Crystals
 ```````````````````````
 
-- Kenneth Reitz <me@kennethreitz.org> `@kennethreitz <https://github.com/kennethreitz>`_, Keeper of the Master Crystal.
 - Ian Cordasco <graffatcolmingov@gmail.com> `@sigmavirus24 <https://github.com/sigmavirus24>`_.
 - Nate Prewitt <nate.prewitt@gmail.com> `@nateprewitt <https://github.com/nateprewitt>`_.
 
 Previous Keepers of Crystals
 ````````````````````````````
-
+- Kenneth Reitz <me@kennethreitz.org> `@kennethreitz <https://github.com/kennethreitz>`_, reluctant Keeper of the Master Crystal.
 - Cory Benfield <cory@lukasa.co.uk> `@lukasa <https://github.com/lukasa>`_
 
 
