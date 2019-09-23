@@ -690,6 +690,7 @@ class Session(SessionRedirectMixin):
 
         :rtype: dict
         """
+
         # Gather clues from the surrounding environment.
         if self.trust_env:
             # Set environment's proxies.
@@ -700,6 +701,8 @@ class Session(SessionRedirectMixin):
 
             # Look for requests environment configuration and be compatible
             # with cURL.
+            if verify is None:
+                verify = self.verify
             if verify is True or verify is None:
                 verify = (os.environ.get('REQUESTS_CA_BUNDLE') or
                           os.environ.get('CURL_CA_BUNDLE'))
