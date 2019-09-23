@@ -3,7 +3,7 @@
 <span align="center">
 
 <pre>
-    <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/krequests-logo.png" align="center" /></a>
+    <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/requests-logo.png" align="center" /></a>
     <div align="left">
     <p></p>
     <code> Python 3.7.4 (default, Sep  7 2019, 18:27:02)</code>
@@ -12,8 +12,6 @@
     <code> >>> r.json()["description"]</code>
     <code> 'A simple, yet elegant HTTP library. Handcrafted, with ♥, for the Python community.'</code>
     </div>
-
-<a href="https://www.codecademy.com/articles/http-requests"><img src="https://github.com/psf/requests/blob/master/ext/flower-of-life.jpg?raw=true" /></a>
 
     <p align="center">
 This software has been designed for you, with much joy,
