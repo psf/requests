@@ -3,7 +3,7 @@
 <span align="center">
 
 <pre>
-    <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/deepmind-kr.jpg" align="center" /></a>
+    <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/kr.jpg" align="center" /></a>
     <div align="left">
     <p></p>
     <code> Python 3.7.4 (default, Sep  7 2019, 18:27:02)</code>
