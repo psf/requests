@@ -1,8 +1,7 @@
 Vulnerability Disclosure
 ========================
 
-.. image::
-https://farm5.staticflickr.com/4211/34709353644\_b041e9e1c2\_k\_d.jpg
+![](https://farm5.staticflickr.com/4211/34709353644_b041e9e1c2_k_d.jpg)
 
 If you think you have found a potential security vulnerability in
 requests, please email
