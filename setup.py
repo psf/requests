@@ -108,6 +108,6 @@ setup(
     },
     project_urls={
         'Documentation': 'http://docs.python-requests.org',
-        'Source': 'https://github.com/kennethreitz/requests',
+        'Source': 'https://github.com/psf/requests',
     },
 )
