@@ -29,7 +29,7 @@ class HTTPError(RequestException):
     """An HTTP error occurred."""
 
 
-class ConnectionError(RequestException):
+class ConnectionError(RequestException, ConnectionError):
     """A Connection error occurred."""
 
 
