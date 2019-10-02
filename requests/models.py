@@ -37,7 +37,7 @@ from .utils import (
     iter_slices, guess_json_utf, super_len, check_header_validity)
 from .compat import (
     Callable, Mapping,
-    cookielib, urlunparse, urlsplit, urlencode, str, bytes,
+    cookielib, urlparse, urlunparse, urlsplit, urlencode, str, bytes,
     is_py2, chardet, builtin_str, basestring)
 from .compat import json as complexjson
 from .status_codes import codes
@@ -951,11 +951,18 @@ class Response(object):
         else:
             reason = self.reason
 
+        # Strip any password from URL
+        parsed_url = urlparse(self.url)
+        if parsed_url.username is not None:
+            redacted_url = urlunparse(parsed_url._replace(netloc="%s:%s@%s" % (parsed_url.username, '***', parsed_url.hostname)))
+        else:
+            redacted_url = urlunparse(parsed_url)
+
         if 400 <= self.status_code < 500:
-            http_error_msg = u'%s Client Error: %s for url: %s' % (self.status_code, reason, self.url)
+            http_error_msg = u'%s Client Error: %s for url: %s' % (self.status_code, reason, redacted_url)
 
         elif 500 <= self.status_code < 600:
-            http_error_msg = u'%s Server Error: %s for url: %s' % (self.status_code, reason, self.url)
+            http_error_msg = u'%s Server Error: %s for url: %s' % (self.status_code, reason, redacted_url)
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)
