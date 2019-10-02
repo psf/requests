@@ -119,14 +119,13 @@ class HTTPAdapter(BaseAdapter):
             self.max_retries = Retry.from_int(max_retries)
         self.config = {}
         self.proxy_manager = {}
+        self.pool_manager = {}
 
         super(HTTPAdapter, self).__init__()
 
         self._pool_connections = pool_connections
         self._pool_maxsize = pool_maxsize
         self._pool_block = pool_block
-
-        self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
 
     def __getstate__(self):
         return {attr: getattr(self, attr, None) for attr in self.__attrs__}
@@ -135,83 +134,93 @@ class HTTPAdapter(BaseAdapter):
         # Can't handle by adding 'proxy_manager' to self.__attrs__ because
         # self.poolmanager uses a lambda function, which isn't pickleable.
         self.proxy_manager = {}
+        self.pool_manager = {}
         self.config = {}
 
         for attr, value in state.items():
             setattr(self, attr, value)
 
-        self.init_poolmanager(self._pool_connections, self._pool_maxsize,
-                              block=self._pool_block)
-
-    def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK, **pool_kwargs):
-        """Initializes a urllib3 PoolManager.
+    def pool_manager_for(self, **pool_kwargs):
+        """Return urllib3 PoolManager for the given parameters.
 
         This method should not be called from user code, and is only
         exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
-        :param connections: The number of urllib3 connection pools to cache.
-        :param maxsize: The maximum number of connections to save in the pool.
-        :param block: Block when no free connections are available.
-        :param pool_kwargs: Extra keyword arguments used to initialize the Pool Manager.
+        :param pool_kwargs: Extra keyword arguments used to configure the Pool Manager.
+        :returns: PoolManager
+        :rtype urllib3.PoolManager
         """
-        # save these values for pickling
-        self._pool_connections = connections
-        self._pool_maxsize = maxsize
-        self._pool_block = block
+        key = frozenset(pool_kwargs.items())
 
-        self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize,
-                                       block=block, strict=True, **pool_kwargs)
+        if key in self.pool_manager:
+            manager = self.pool_manager[key]
+        else:
+            manager = self.pool_manager[key] = PoolManager(
+                num_pools=self._pool_connections,
+                maxsize=self._pool_maxsize,
+                block=self._pool_block,
+                strict=True,
+                **pool_kwargs
+            )
 
-    def proxy_manager_for(self, proxy, **proxy_kwargs):
-        """Return urllib3 ProxyManager for the given proxy.
+        return manager
+
+    def proxy_manager_for(self, proxy, **pool_kwargs):
+        """Return urllib3 ProxyManager for the given proxy and parameters.
 
         This method should not be called from user code, and is only
         exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         :param proxy: The proxy to return a urllib3 ProxyManager for.
-        :param proxy_kwargs: Extra keyword arguments used to configure the Proxy Manager.
+        :param pool_kwargs: Extra keyword arguments used to configure the Proxy Manager.
         :returns: ProxyManager
         :rtype: urllib3.ProxyManager
         """
-        if proxy in self.proxy_manager:
-            manager = self.proxy_manager[proxy]
+        key = (proxy, frozenset(pool_kwargs.items()))
+
+        if key in self.proxy_manager:
+            manager = self.proxy_manager[key]
         elif proxy.lower().startswith('socks'):
             username, password = get_auth_from_url(proxy)
-            manager = self.proxy_manager[proxy] = SOCKSProxyManager(
+            manager = self.proxy_manager[key] = SOCKSProxyManager(
                 proxy,
                 username=username,
                 password=password,
                 num_pools=self._pool_connections,
                 maxsize=self._pool_maxsize,
                 block=self._pool_block,
-                **proxy_kwargs
+                **pool_kwargs
             )
         else:
             proxy_headers = self.proxy_headers(proxy)
-            manager = self.proxy_manager[proxy] = proxy_from_url(
+            manager = self.proxy_manager[key] = proxy_from_url(
                 proxy,
                 proxy_headers=proxy_headers,
                 num_pools=self._pool_connections,
                 maxsize=self._pool_maxsize,
                 block=self._pool_block,
-                **proxy_kwargs)
+                **pool_kwargs)
 
         return manager
 
-    def cert_verify(self, conn, url, verify, cert):
-        """Verify a SSL certificate. This method should not be called from user
-        code, and is only exposed for use when subclassing the
-        :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
+    def get_pool_args(self, url, verify, cert):
+        """Return connection pool parameters for verifying an SSL certificate.
+        This method should not be called from user code, and is only exposed for
+        use when subclassing the :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
-        :param conn: The urllib3 connection object associated with the cert.
         :param url: The requested URL.
         :param verify: Either a boolean, in which case it controls whether we verify
             the server's TLS certificate, or a string, in which case it must be a path
             to a CA bundle to use
         :param cert: The SSL certificate to verify.
+        :returns: Pool parameters.
+        :rtype: dict
         """
+
+        parameters = {}
+
         if url.lower().startswith('https') and verify:
 
             cert_loc = None
@@ -227,30 +236,32 @@ class HTTPAdapter(BaseAdapter):
                 raise IOError("Could not find a suitable TLS CA certificate bundle, "
                               "invalid path: {}".format(cert_loc))
 
-            conn.cert_reqs = 'CERT_REQUIRED'
+            parameters['cert_reqs'] = 'CERT_REQUIRED'
 
             if not os.path.isdir(cert_loc):
-                conn.ca_certs = cert_loc
+                parameters['ca_certs'] = cert_loc
             else:
-                conn.ca_cert_dir = cert_loc
+                parameters['.ca_cert_dir'] = cert_loc
         else:
-            conn.cert_reqs = 'CERT_NONE'
-            conn.ca_certs = None
-            conn.ca_cert_dir = None
+            parameters['cert_reqs'] = 'CERT_NONE'
+            parameters['ca_certs'] = None
+            parameters['ca_cert_dir'] = None
 
         if cert:
             if not isinstance(cert, basestring):
-                conn.cert_file = cert[0]
-                conn.key_file = cert[1]
+                parameters['cert_file'] = cert[0]
+                parameters['key_file'] = cert[1]
             else:
-                conn.cert_file = cert
-                conn.key_file = None
-            if conn.cert_file and not os.path.exists(conn.cert_file):
+                parameters['cert_file'] = cert
+                parameters['key_file'] = None
+            if parameters['cert_file'] and not os.path.exists(parameters['cert_file']):
                 raise IOError("Could not find the TLS certificate file, "
-                              "invalid path: {}".format(conn.cert_file))
-            if conn.key_file and not os.path.exists(conn.key_file):
+                              "invalid path: {}".format(parameters['cert_file']))
+            if parameters['key_file'] and not os.path.exists(parameters['key_file']):
                 raise IOError("Could not find the TLS key file, "
-                              "invalid path: {}".format(conn.key_file))
+                              "invalid path: {}".format(parameters['key_file']))
+
+        return parameters
 
     def build_response(self, req, resp):
         """Builds a :class:`Response <requests.Response>` object from a urllib3
@@ -289,13 +300,14 @@ class HTTPAdapter(BaseAdapter):
 
         return response
 
-    def get_connection(self, url, proxies=None):
+    def get_connection(self, url, proxies=None, **pool_kwargs):
         """Returns a urllib3 connection for the given URL. This should not be
         called from user code, and is only exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         :param url: The URL to connect to.
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
+        :param pool_kwargs: Parameters for connection pool to use.
         :rtype: urllib3.ConnectionPool
         """
         proxy = select_proxy(url, proxies)
@@ -306,13 +318,15 @@ class HTTPAdapter(BaseAdapter):
             if not proxy_url.host:
                 raise InvalidProxyURL("Please check proxy URL. It is malformed"
                                       " and could be missing the host.")
-            proxy_manager = self.proxy_manager_for(proxy)
+            proxy_manager = self.proxy_manager_for(proxy, **pool_kwargs)
             conn = proxy_manager.connection_from_url(url)
         else:
+            pool_manager = self.pool_manager_for(**pool_kwargs)
+
             # Only scheme should be lower case
             parsed = urlparse(url)
             url = parsed.geturl()
-            conn = self.poolmanager.connection_from_url(url)
+            conn = pool_manager.connection_from_url(url)
 
         return conn
 
@@ -322,7 +336,8 @@ class HTTPAdapter(BaseAdapter):
         Currently, this closes the PoolManager and any active ProxyManager,
         which closes any pooled connections.
         """
-        self.poolmanager.clear()
+        for pool in self.pool_manager.values():
+            pool.clear()
         for proxy in self.proxy_manager.values():
             proxy.clear()
 
@@ -408,12 +423,13 @@ class HTTPAdapter(BaseAdapter):
         :rtype: requests.Response
         """
 
+        pool_kwargs = self.get_pool_args(request.url, verify, cert)
+
         try:
-            conn = self.get_connection(request.url, proxies)
+            conn = self.get_connection(request.url, proxies, **pool_kwargs)
         except LocationValueError as e:
             raise InvalidURL(e, request=request)
 
-        self.cert_verify(conn, request.url, verify, cert)
         url = self.request_url(request, proxies)
         self.add_headers(request, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
 
