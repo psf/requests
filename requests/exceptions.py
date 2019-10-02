@@ -7,6 +7,7 @@ requests.exceptions
 This module contains the set of Requests' exceptions.
 """
 from urllib3.exceptions import HTTPError as BaseHTTPError
+from .compat import ConnectionError as BaseConnectionError
 
 
 class RequestException(IOError):
@@ -29,7 +30,7 @@ class HTTPError(RequestException):
     """An HTTP error occurred."""
 
 
-class ConnectionError(RequestException, ConnectionError):
+class ConnectionError(RequestException, BaseConnectionError):
     """A Connection error occurred."""
 
 
