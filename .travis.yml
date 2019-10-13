@@ -20,6 +20,8 @@ jobs:
     - stage: test
       python: 'pypy3'
       dist: xenial
+    - stage: test
+      python: '3.8-dev'
     - stage: coverage
       python: '3.6'
       script: codecov

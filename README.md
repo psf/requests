@@ -1,9 +1,10 @@
 
 
 <span align="center">
-    
+
 <pre>
-    <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/deepmind-kr.jpg" align="center" /></a>
+    <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/requests-logo.png" align="center" /></a>
+    
     <div align="left">
     <p></p>
     <code> Python 3.7.4 (default, Sep  7 2019, 18:27:02)</code>
@@ -12,15 +13,11 @@
     <code> >>> r.json()["description"]</code>
     <code> 'A simple, yet elegant HTTP library. Handcrafted, with ♥, for the Python community.'</code>
     </div>
-    
-<a href="https://www.codecademy.com/articles/http-requests"><img src="https://github.com/psf/requests/blob/master/ext/flower-of-life.jpg?raw=true" /></a>
-    
+
     <p align="center">
-This software has been designed for you, with much joy, 
-by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is secured by The <a href="https://www.python.org/psf/">Python Software Foundation</a>.  
+This software has been designed for you, with much joy,
+by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is protected by The <a href="https://www.python.org/psf/">Python Software Foundation</a>.
    </p>
-<p>&nbsp;</p>
-<img src="https://github.com/psf/requests/blob/master/ext/flourish.jpg?raw=true" />
 </pre>
 
 </span>
@@ -71,14 +68,14 @@ Requests is ready for the demands of building robust and reliable HTTP–speak a
 
 <pre class="test">
          + International Domains and URLs       + Keep-Alive & Connection Pooling
-         + Sessions with Cookie Persistence     + Browser-style SSL Verification 
-         + Basic & Digest Authentication        + Familiar `dict`–like Cookies   
-         + Automatic Decompression of Content   + Automatic Content Decoding     
+         + Sessions with Cookie Persistence     + Browser-style SSL Verification
+         + Basic & Digest Authentication        + Familiar `dict`–like Cookies
+         + Automatic Decompression of Content   + Automatic Content Decoding
          + Automatic Connection Pooling         + Unicode Response Bodies<super>*</super>
-         + Multi-part File Uploads              + SOCKS Proxy Support            
+         + Multi-part File Uploads              + SOCKS Proxy Support
          + Connection Timeouts                  + Streaming Downloads
-         + Automatic honoring of `.netrc`       + Chunked HTTP Requests          
-              
+         + Automatic honoring of `.netrc`       + Chunked HTTP Requests
+
                             &, of course, rock–solid stability!
 </pre>
 </div>
@@ -106,7 +103,7 @@ Requests officially supports Python 2.7 & 3.4–3.8.
 
 -------------------------------------
 
-## P.S. — Documentation is Available at [`//2.python-requests.org`](https://2.python-requests.org/).
+## P.S. — Documentation is Available at [`//requests.readthedocs.io`](https://requests.readthedocs.io/en/master/).
 
 <p align="center">
         <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/ss.png" align="center" /></a>
@@ -127,4 +124,3 @@ Requests officially supports Python 2.7 & 3.4–3.8.
 <p align="center">
         <a href="https://www.python.org/psf/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/psf.png" align="center" /></a>
 </p>
-
