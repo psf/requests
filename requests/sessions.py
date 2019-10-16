@@ -528,7 +528,7 @@ class Session(SessionRedirectMixin):
         # Send the request.
         send_kwargs = {
             'timeout': timeout or self.timeout,
-            'allow_redirects': allow_redirects or self.allow_redirects,
+            'allow_redirects': allow_redirects if allow_redirects is not None else self.allow_redirects,
         }
         send_kwargs.update(settings)
         resp = self.send(prep, **send_kwargs)
