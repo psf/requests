@@ -356,7 +356,7 @@ class Session(SessionRedirectMixin):
     __attrs__ = [
         'headers', 'cookies', 'auth', 'proxies', 'hooks', 'params', 'verify',
         'cert', 'prefetch', 'adapters', 'stream', 'trust_env',
-        'max_redirects',
+        'timeout', 'allow_redirects', 'max_redirects',
     ]
 
     def __init__(self):
@@ -408,6 +408,10 @@ class Session(SessionRedirectMixin):
         #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but
         #: may be any other ``cookielib.CookieJar`` compatible object.
         self.cookies = cookiejar_from_dict({})
+
+        # todo: document this
+        self.timeout = None
+        self.allow_redirects = True
 
         # Default connection adapters.
         self.adapters = OrderedDict()
@@ -462,7 +466,7 @@ class Session(SessionRedirectMixin):
 
     def request(self, method, url,
             params=None, data=None, headers=None, cookies=None, files=None,
-            auth=None, timeout=None, allow_redirects=True, proxies=None,
+            auth=None, timeout=None, allow_redirects=None, proxies=None,
             hooks=None, stream=None, verify=None, cert=None, json=None):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
@@ -523,8 +527,8 @@ class Session(SessionRedirectMixin):
 
         # Send the request.
         send_kwargs = {
-            'timeout': timeout,
-            'allow_redirects': allow_redirects,
+            'timeout': timeout or self.timeout,
+            'allow_redirects': allow_redirects or self.allow_redirects,
         }
         send_kwargs.update(settings)
         resp = self.send(prep, **send_kwargs)
@@ -538,8 +542,6 @@ class Session(SessionRedirectMixin):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-
-        kwargs.setdefault('allow_redirects', True)
         return self.request('GET', url, **kwargs)
 
     def options(self, url, **kwargs):
@@ -549,8 +551,6 @@ class Session(SessionRedirectMixin):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-
-        kwargs.setdefault('allow_redirects', True)
         return self.request('OPTIONS', url, **kwargs)
 
     def head(self, url, **kwargs):
