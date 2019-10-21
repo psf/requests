@@ -387,6 +387,7 @@ def unquote_header_value(value, is_filename=False):
     using for quoting.
 
     :param value: the header value to unquote.
+    :param is_filename: tells given path is either a file or a directory
     :rtype: str
     """
     if value and value[0] == value[-1] == '"':
