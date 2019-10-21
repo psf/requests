@@ -714,7 +714,7 @@ def should_bypass_proxies(url, no_proxy):
     parsed = urlparse(url)
 
     if parsed.hostname is None:
-        # URLs don't always have hostnames, e.g. file:/// urls.
+        # URLs don't always have hostname, e.g. file:/// urls.
         return True
 
     if no_proxy:
