@@ -17,7 +17,7 @@ jobs:
     - stage: test
       python: '3.7'
     - stage: test
-      python: '3.8-dev'
+      python: '3.8'
     - stage: coverage
       python: '3.6'
       script: codecov
