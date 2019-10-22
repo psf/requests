@@ -6,7 +6,9 @@ import sys
 
 from codecs import open
 
-from setuptools import setup
+from shutil import rmtree
+
+from setuptools import setup, Command
 from setuptools.command.test import test as TestCommand
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -57,8 +59,8 @@ class UploadCommand(Command):
         except OSError:
             pass
 
-        self.status('Building Source and Wheel (universal) distribution…')
-        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
+        self.status('Building Source and Wheel distribution…')
+        os.system('{0} setup.py sdist bdist_wheel'.format(sys.executable))
 
         self.status('Uploading the package to PyPI via Twine…')
         os.system('twine upload dist/*')
@@ -129,7 +131,10 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
     ],
-    cmdclass={'test': PyTest},
+    cmdclass={
+        'upload': UploadCommand,
+        'test': PyTest
+        },
     tests_require=test_requirements,
     extras_require={
         'security': ['pyOpenSSL >= 0.14', 'cryptography>=1.3.4', 'idna>=2.0.0'],
@@ -139,9 +144,5 @@ setup(
     project_urls={
         'Documentation': 'http://docs.python-requests.org',
         'Source': 'https://github.com/psf/requests',
-    },
-    # $ setup.py publish support.
-    cmdclass={
-        'upload': UploadCommand,
     },
 )
