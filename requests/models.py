@@ -935,8 +935,11 @@ class Response(object):
 
         return l
 
-    def raise_for_status(self):
-        """Raises stored :class:`HTTPError`, if one occurred."""
+    def raise_for_status(self, hide_url=False):
+        """Raises stored :class:`HTTPError`, if one occurred.
+
+        :param hide_url: Optional Hide url
+        """
 
         http_error_msg = ''
         if isinstance(self.reason, bytes):
@@ -951,11 +954,15 @@ class Response(object):
         else:
             reason = self.reason
 
+        redacted_url = self.url
+        if hide_url:
+            redacted_url = "******"
+
         if 400 <= self.status_code < 500:
-            http_error_msg = u'%s Client Error: %s for url: %s' % (self.status_code, reason, self.url)
+            http_error_msg = u'%s Client Error: %s for url: %s' % (self.status_code, reason, redacted_url)
 
         elif 500 <= self.status_code < 600:
-            http_error_msg = u'%s Server Error: %s for url: %s' % (self.status_code, reason, self.url)
+            http_error_msg = u'%s Server Error: %s for url: %s' % (self.status_code, reason, redacted_url)
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)
