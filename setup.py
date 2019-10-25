@@ -107,7 +107,7 @@ setup(
         'socks:sys_platform == "win32" and python_version == "2.7"': ['win_inet_pton'],
     },
     project_urls={
-        'Documentation': 'http://docs.python-requests.org',
+        'Documentation': 'https://requests.readthedocs.io',
         'Source': 'https://github.com/psf/requests',
     },
 )

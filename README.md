@@ -3,7 +3,7 @@
 <span align="center">
 
 <pre>
-    <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/requests-logo.png" align="center" /></a>
+    <a href="https://requests.readthedocs.io/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/requests-logo.png" align="center" /></a>
     
     <div align="left">
     <p></p>
@@ -103,10 +103,10 @@ Requests officially supports Python 2.7 & 3.4–3.8.
 
 -------------------------------------
 
-## P.S. — Documentation is Available at [`//requests.readthedocs.io`](https://requests.readthedocs.io/en/master/).
+## P.S. — Documentation is Available at [`//requests.readthedocs.io`](https://requests.readthedocs.io/en/latest/).
 
 <p align="center">
-        <a href="https://2.python-requests.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/ss.png" align="center" /></a>
+        <a href="https://requests.readthedocs.io/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/ss.png" align="center" /></a>
 </p>
 
 
