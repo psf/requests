@@ -789,6 +789,15 @@ class TestRequests:
         r = requests.get(httpbin('status', '500'))
         assert not r.ok
 
+    def test_status_raising_hides_password(self, httpbin):
+        host = urlparse(httpbin()).netloc
+
+        r = requests.get('http://user:pass@' + host + '/status/404')
+        with pytest.raises(requests.exceptions.HTTPError) as e:
+            r.raise_for_status()
+
+        assert 'pass' not in str(e)
+
     def test_decompress_gzip(self, httpbin):
         r = requests.get(httpbin('gzip'))
         r.content.decode('ascii')
