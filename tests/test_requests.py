@@ -796,7 +796,9 @@ class TestRequests:
         with pytest.raises(requests.exceptions.HTTPError) as e:
             r.raise_for_status()
 
-        assert 'pass' not in str(e)
+        host_without_port = host.split(':')[0]
+
+        assert str(e.value) == '404 Client Error: NOT FOUND for url: http://user:***@' + host_without_port + '/status/404'
 
     def test_decompress_gzip(self, httpbin):
         r = requests.get(httpbin('gzip'))
@@ -2430,12 +2432,12 @@ class TestPreparingURLs(object):
     def test_preparing_url(self, url, expected):
 
         def normalize_percent_encode(x):
-            # Helper function that normalizes equivalent 
+            # Helper function that normalizes equivalent
             # percent-encoded bytes before comparisons
             for c in re.findall(r'%[a-fA-F0-9]{2}', x):
                 x = x.replace(c, c.upper())
             return x
-        
+
         r = requests.Request('GET', url=url)
         p = r.prepare()
         assert normalize_percent_encode(p.url) == expected
