@@ -796,9 +796,16 @@ class TestRequests:
         with pytest.raises(requests.exceptions.HTTPError) as e:
             r.raise_for_status()
 
-        host_without_port = host.split(':')[0]
+        assert str(e.value) == '404 Client Error: NOT FOUND for url: http://user:***@' + host + '/status/404'
 
-        assert str(e.value) == '404 Client Error: NOT FOUND for url: http://user:***@' + host_without_port + '/status/404'
+    def test_status_raising_does_not_hide_users(self, httpbin):
+        host = urlparse(httpbin()).netloc
+
+        r = requests.get('http://user@' + host + '/status/404')
+        with pytest.raises(requests.exceptions.HTTPError) as e:
+            r.raise_for_status()
+
+        assert str(e.value) == '404 Client Error: NOT FOUND for url: http://user@' + host + '/status/404'
 
     def test_decompress_gzip(self, httpbin):
         r = requests.get(httpbin('gzip'))

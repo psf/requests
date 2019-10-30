@@ -953,8 +953,9 @@ class Response(object):
 
         # Strip any password from URL
         parsed_url = urlparse(self.url)
-        if parsed_url.username is not None:
-            redacted_url = urlunparse(parsed_url._replace(netloc="%s:%s@%s" % (parsed_url.username, '***', parsed_url.hostname)))
+        if parsed_url.password is not None:
+            hostname = parsed_url.netloc.split('@')[-1]
+            redacted_url = urlunparse(parsed_url._replace(netloc="%s:%s@%s" % (parsed_url.username, '***', hostname)))
         else:
             redacted_url = urlunparse(parsed_url)
 
