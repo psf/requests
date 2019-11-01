@@ -1692,7 +1692,7 @@ class TestRequests:
         with pytest.raises(UnrewindableBodyError) as e:
             requests.utils.rewind_body(prep)
 
-        assert 'Unable to rewind request body' in str(e)
+        assert 'Unable to rewind request body' in str(e.value)
 
     def test_rewind_body_failed_seek(self):
         class BadFileObj:
@@ -1715,7 +1715,7 @@ class TestRequests:
         with pytest.raises(UnrewindableBodyError) as e:
             requests.utils.rewind_body(prep)
 
-        assert 'error occurred when rewinding request body' in str(e)
+        assert 'error occurred when rewinding request body' in str(e.value)
 
     def test_rewind_body_failed_tell(self):
         class BadFileObj:
@@ -1735,7 +1735,7 @@ class TestRequests:
         with pytest.raises(UnrewindableBodyError) as e:
             requests.utils.rewind_body(prep)
 
-        assert 'Unable to rewind request body' in str(e)
+        assert 'Unable to rewind request body' in str(e.value)
 
     def _patch_adapter_gzipped_redirect(self, session, url):
         adapter = session.get_adapter(url=url)
@@ -2155,7 +2155,7 @@ class TestTimeout:
     def test_invalid_timeout(self, httpbin, timeout, error_text):
         with pytest.raises(ValueError) as e:
             requests.get(httpbin('get'), timeout=timeout)
-        assert error_text in str(e)
+        assert error_text in str(e.value)
 
     @pytest.mark.parametrize(
         'timeout', (
@@ -2374,7 +2374,9 @@ def test_urllib3_pool_connection_closed(httpbin):
     try:
         s.get(httpbin('status/200'))
     except ConnectionError as e:
-        assert u"Pool is closed." in str(e)
+        # pytest only sometimes wraps this exception
+        real_exception = e.value if hasattr(e, 'value') else e
+        assert u"Pool is closed." in str(real_exception)
 
 
 class TestPreparingURLs(object):
