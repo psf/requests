@@ -821,6 +821,8 @@ def parse_header_links(value):
 
     i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
 
+    See also RFC8288: https://tools.ietf.org/html/rfc8288
+
     :rtype: list
     """
 
@@ -839,6 +841,7 @@ def parse_header_links(value):
             url, params = val, ''
 
         link = {'url': url.strip('<> \'"')}
+        rels = []
 
         for param in params.split(';'):
             try:
@@ -846,9 +849,22 @@ def parse_header_links(value):
             except ValueError:
                 break
 
-            link[key.strip(replace_chars)] = value.strip(replace_chars)
+            key = key.strip(replace_chars)
+            value = value.strip(replace_chars)
+            if key == 'rel':
+                if rels:
+                    # only use first occurrence of "rel", drop others
+                    continue
+                for v in value.split():
+                    rels.append(v)
+            else:
+                link[key] = value
 
-        links.append(link)
+        if rels:
+            for rel in rels:
+                links.append(dict(link, rel=rel))
+        else:
+            links.append(link)
 
     return links
 

@@ -573,6 +573,17 @@ def test_iter_slices(value, length):
             ]
         ),
         (
+            '</foo?page=2>; rel=next; rel=prev',
+            [{'url': '/foo?page=2', 'rel': 'next'}]
+        ),
+        (
+            '<http:/.../front.jpeg>; rel="front http://example.net/foo"',
+            [
+                {'url': 'http:/.../front.jpeg', 'rel': 'front'},
+                {'url': 'http:/.../front.jpeg', 'rel': 'http://example.net/foo'}
+            ]
+        ),
+        (
             '',
             []
         ),
