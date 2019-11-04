@@ -12,7 +12,7 @@ import sys
 
 # Import encoding now, to avoid implicit import later.
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
-# such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
+# such as in Embedded Python. See https://github.com/requests/requests/issues/3578.
 import encodings.idna
 
 from urllib3.fields import RequestField
@@ -34,7 +34,7 @@ from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, check_header_validity)
+    iter_slices, guess_json_utf, super_len, check_header_validity, to_flat_dict)
 from .compat import (
     Callable, Mapping,
     cookielib, urlunparse, urlsplit, urlencode, str, bytes,
@@ -94,7 +94,7 @@ class RequestEncodingMixin(object):
             return data
         elif hasattr(data, '__iter__'):
             result = []
-            for k, vs in to_key_val_list(data):
+            for k, vs in to_key_val_list(to_flat_dict(data)):
                 if isinstance(vs, basestring) or not hasattr(vs, '__iter__'):
                     vs = [vs]
                 for v in vs:
@@ -280,7 +280,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
       >>> import requests
       >>> req = requests.Request('GET', 'https://httpbin.org/get')
       >>> r = req.prepare()
-      >>> r
       <PreparedRequest [GET]>
 
       >>> s = requests.Session()
@@ -359,7 +358,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         #: We're unable to blindly call unicode/str functions
         #: as this will include the bytestring indicator (b'')
         #: on python 3.x.
-        #: https://github.com/psf/requests/pull/2238
+        #: https://github.com/requests/requests/pull/2238
         if isinstance(url, bytes):
             url = url.decode('utf8')
         else:
@@ -609,7 +608,7 @@ class Response(object):
 
         #: File-like object representation of response (for advanced usage).
         #: Use of ``raw`` requires that ``stream=True`` be set on the request.
-        #: This requirement does not apply for use internally to Requests.
+        # This requirement does not apply for use internally to Requests.
         self.raw = None
 
         #: Final URL location of Response.
@@ -640,10 +639,6 @@ class Response(object):
         #: The :class:`PreparedRequest <PreparedRequest>` object to which this
         #: is a response.
         self.request = None
-
-        #: If there was an error in the processing of content,
-        #: then save the error that would return the same error when you re-appeal.
-        self._error = None
 
     def __enter__(self):
         return self
@@ -754,21 +749,12 @@ class Response(object):
                 try:
                     for chunk in self.raw.stream(chunk_size, decode_content=True):
                         yield chunk
-
                 except ProtocolError as e:
-                    self._error = ChunkedEncodingError(e)
-
+                    raise ChunkedEncodingError(e)
                 except DecodeError as e:
-                    self._error = ContentDecodingError(e)
-
+                    raise ContentDecodingError(e)
                 except ReadTimeoutError as e:
-                    self._error = ConnectionError(e)
-
-                finally:
-                    # if we had an error - throw the saved error
-                    if self._error:
-                        raise self._error
-
+                    raise ConnectionError(e)
             else:
                 # Standard file-like object.
                 while True:
@@ -841,10 +827,6 @@ class Response(object):
             else:
                 self._content = b''.join(self.iter_content(CONTENT_CHUNK_SIZE)) or b''
 
-        # if we had an error - throw the saved error
-        if self._error is not None:
-            raise self._error
-
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3
         # since we exhausted the data.
@@ -873,9 +855,6 @@ class Response(object):
         # Fallback to auto-detected encoding.
         if self.encoding is None:
             encoding = self.apparent_encoding
-        # Forcefully remove BOM from UTF-8
-        elif self.encoding.lower() == 'utf-8':
-            encoding = 'utf-8-sig'
 
         # Decode unicode from given encoding.
         try:
