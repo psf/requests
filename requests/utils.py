@@ -287,7 +287,7 @@ def from_key_val_list(value):
 def dict_paths(my_dict, path=None):
     """Recursive function that yield all paths associated with a final value from a Mapping instance
 
-    >>> dict_paths({'a': {'b': 0, 'c': 1}, 'd': 0, 'e': {'f': {'g': 8}}})
+    dict_paths({'a': {'b': 0, 'c': 1}, 'd': 0, 'e': {'f': {'g': 8}}})
     [(['a', 'b'], 0), (['a', 'c'], 1), (['d'], 0), (['e', 'f', 'g'], 8)]
 
     :rtype: collections.Iterable[list[str], Any]
@@ -311,7 +311,7 @@ def to_flat_dict(value):
     If value is not a dict then return as-is.
 
     >>> to_flat_dict({'json_data': { 'operation': 'get', 'h': { 't': 1 } }, 'auth': 'blabla'})
-    { 'json_data[operation]': 'get', 'json_data[h][t]': 1, 'auth': 'blabla' }
+    {'auth': 'blabla', 'json_data[operation]': 'get', 'json_data[h][t]': 1}
 
     :param dict value:
     """
