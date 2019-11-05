@@ -122,6 +122,8 @@ class TestToKeyValList:
             ([('key', 'val')], [('key', 'val')]),
             ((('key', 'val'), ), [('key', 'val')]),
             ({'key': 'val'}, [('key', 'val')]),
+            ({'key': {'key_depth_1': 'val'}}, [('key[key_depth_1]', 'val')]),
+            ({'key': {'key_depth_1': {'key_depth_2': 'val'}}}, [('key[key_depth_1][key_depth_2]', 'val')]),
             (None, None)
         ))
     def test_valid(self, value, expected):
