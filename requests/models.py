@@ -34,7 +34,7 @@ from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, check_header_validity)
+    iter_slices, guess_json_utf, super_len, check_header_validity, to_flat_dict)
 from .compat import (
     Callable, Mapping,
     cookielib, urlunparse, urlsplit, urlencode, str, bytes,
@@ -94,7 +94,7 @@ class RequestEncodingMixin(object):
             return data
         elif hasattr(data, '__iter__'):
             result = []
-            for k, vs in to_key_val_list(data):
+            for k, vs in to_key_val_list(to_flat_dict(data)):
                 if isinstance(vs, basestring) or not hasattr(vs, '__iter__'):
                     vs = [vs]
                 for v in vs:

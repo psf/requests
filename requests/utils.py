@@ -284,6 +284,57 @@ def from_key_val_list(value):
     return OrderedDict(value)
 
 
+def dict_paths(my_dict, path=None):
+    """Recursive function that yield all paths associated with a final value from a Mapping instance
+
+    dict_paths({'a': {'b': 0, 'c': 1}, 'd': 0, 'e': {'f': {'g': 8}}})
+    [(['a', 'b'], 0), (['a', 'c'], 1), (['d'], 0), (['e', 'f', 'g'], 8)]
+
+    :rtype: collections.Iterable[list[str], Any]
+    """
+    if path is None:
+        path = []
+
+    for k, v in my_dict.items():
+
+        newpath = path + [k]
+
+        if isinstance(v, Mapping):
+            for u in dict_paths(v, newpath):
+                yield u
+        else:
+            yield newpath, v
+
+
+def to_flat_dict(value):
+    """Remove extra depth from a Mapping instance so it could be properly url encoded
+    If value is not a dict then return as-is.
+
+    to_flat_dict({'json_data': { 'operation': 'get', 'h': { 't': 1 } }, 'auth': 'blabla'})
+    {'auth': 'blabla', 'json_data[operation]': 'get', 'json_data[h][t]': 1}
+
+    :param dict value:
+    """
+    if not isinstance(value, Mapping):
+        return value
+
+    tmp_dict = {}
+    to_remove = set()
+
+    for keys, final_value in dict_paths(value):
+        if len(keys) > 1:
+            root_key = keys[0]
+            tmp_dict[root_key + ''.join(['[{}]'.format(k) for k in keys[1:]])] = final_value
+            to_remove.add(root_key)
+
+    for k in to_remove:
+        del value[k]
+
+    value.update(tmp_dict)
+
+    return value
+
+
 def to_key_val_list(value):
     """Take an object and test to see if it can be represented as a
     dictionary. If it can be, return a list of tuples, e.g.,
