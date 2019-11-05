@@ -285,9 +285,11 @@ def from_key_val_list(value):
 
 
 def dict_paths(my_dict, path=None):
-    """Recursive function that yield all paths from a dict
-    :param dict my_dict:
-    :param list[str] path:
+    """Recursive function that yield all paths associated with a final value from a Mapping instance
+    ::
+        >>> dict_paths({'a': {'b': 0, 'c': 1}, 'd': 0, 'e': {'f': {'g': 8}}})
+        [(['a', 'b'], 0), (['a', 'c'], 1), (['d'], 0), (['e', 'f', 'g'], 8)]
+
     :rtype: collections.Iterable[list[str], Any]
     """
     if path is None:
@@ -305,46 +307,25 @@ def dict_paths(my_dict, path=None):
 
 
 def to_flat_dict(value):
-    """Remove extra deph from a dict so it could be properly url encoded
+    """Remove extra depth from a Mapping instance so it could be properly url encoded
     If value is not a dict then return as-is.
 
-    {
-        'json_data': {
-            'operation': 'get',
-            'class': 'ServiceChange',
-            'key': 'SELECT ServiceChange',
-            'output_fields': 'request_state',
-            'h': {
-                't': 1
-            }
-        },
-        'auth': 'blabla',
-    }
-
-    become
-
-    {'auth': 'blabla',
-     'json_data[class]': 'ServiceChange',
-     'json_data[h][t]': 1,
-     'json_data[key]': 'SELECT ServiceChange',
-     'json_data[operation]': 'get',
-     'json_data[output_fields]': 'request_state'}
+    ::
+        >>>> to_flat_dict( {'json_data': { 'operation': 'get', 'h': { 't': 1 } }, 'auth': 'blabla' })
+        { 'json_data[operation]': 'get', 'json_data[h][t]': 1, 'auth': 'blabla' }
 
     :param dict value:
     """
     if not isinstance(value, Mapping):
         return value
 
-    tmp_dict = dict()
+    tmp_dict = {}
     to_remove = set()
 
     for keys, final_value in dict_paths(value):
         if len(keys) > 1:
             root_key = keys[0]
-
-            new_k = root_key + ''.join(['[' + el + ']' for el in keys[1:]])
-            tmp_dict[new_k] = final_value
-
+            tmp_dict[root_key + ''.join(['[{}]'.format(k) for k in keys[1:]])] = final_value
             to_remove.add(root_key)
 
     for k in to_remove:
