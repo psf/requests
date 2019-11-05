@@ -19,7 +19,7 @@ from requests.utils import (
     is_valid_cidr, iter_slices, parse_dict_header,
     parse_header_links, prepend_scheme_if_needed,
     requote_uri, select_proxy, should_bypass_proxies, super_len,
-    to_key_val_list, to_native_string,
+    to_key_val_list, to_flat_dict, to_native_string,
     unquote_header_value, unquote_unreserved,
     urldefragauth, add_dict_to_cookiejar, set_environ)
 from requests._internal_utils import unicode_is_ascii
@@ -122,8 +122,6 @@ class TestToKeyValList:
             ([('key', 'val')], [('key', 'val')]),
             ((('key', 'val'), ), [('key', 'val')]),
             ({'key': 'val'}, [('key', 'val')]),
-            ({'key': {'key_depth_1': 'val'}}, [('key[key_depth_1]', 'val')]),
-            ({'key': {'key_depth_1': {'key_depth_2': 'val'}}}, [('key[key_depth_1][key_depth_2]', 'val')]),
             (None, None)
         ))
     def test_valid(self, value, expected):
@@ -132,6 +130,18 @@ class TestToKeyValList:
     def test_invalid(self):
         with pytest.raises(ValueError):
             to_key_val_list('string')
+
+
+class TestToFlatDict:
+
+    @pytest.mark.parametrize(
+        'value, expected', (
+                ({'key': {'key_depth_1': 'val'}}, [('key[key_depth_1]', 'val')]),
+                ({'key': {'key_depth_1': {'key_depth_2': 'val'}}}, [('key[key_depth_1][key_depth_2]', 'val')]),
+                (None, None)
+        ))
+    def test_valid(self, value, expected):
+        assert to_flat_dict(value) == expected
 
 
 class TestUnquoteHeaderValue:
