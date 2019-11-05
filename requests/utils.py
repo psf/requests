@@ -310,7 +310,7 @@ def to_flat_dict(value):
     """Remove extra depth from a Mapping instance so it could be properly url encoded
     If value is not a dict then return as-is.
 
-    >>>> to_flat_dict({'json_data': { 'operation': 'get', 'h': { 't': 1 } }, 'auth': 'blabla' })
+    >>> to_flat_dict({'json_data': { 'operation': 'get', 'h': { 't': 1 } }, 'auth': 'blabla'})
     { 'json_data[operation]': 'get', 'json_data[h][t]': 1, 'auth': 'blabla' }
 
     :param dict value:
