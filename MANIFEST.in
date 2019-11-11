@@ -2,3 +2,4 @@ include README.md LICENSE NOTICE HISTORY.md pytest.ini requirements.txt Pipfile 
 recursive-include tests *.py
 
 ok
+s
