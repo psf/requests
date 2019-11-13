@@ -20,6 +20,8 @@ env/
 .pytest_cache/
 .vscode/
 .eggs/
+.idea
+venv
 
 .workon
 

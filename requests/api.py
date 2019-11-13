@@ -52,6 +52,10 @@ def request(method, url, **kwargs):
       >>> req = requests.request('GET', 'https://httpbin.org/get')
       >>> req
       <Response [200]>
+      >>> import requests
+      >>> req = requests.request('GET', 'https://www.google.com/unknown/url/')
+      >>> req
+      <Response [404]>
     """
 
     # By using the 'with' statement we are sure the session is closed, thus we
