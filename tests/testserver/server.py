@@ -89,13 +89,14 @@ class Server(threading.Thread):
 
     def _handle_requests(self):
         for _ in range(self.requests_to_handle):
-            sock = self._accept_connection()
-            if not sock:
-                break
+            with self._accept_connection() as sock:
+                sock = self._accept_connection()
+                if not sock:
+                    break
 
-            handler_result = self.handler(sock)
+                handler_result = self.handler(sock)
 
-            self.handler_results.append(handler_result)
+                self.handler_results.append(handler_result)
 
     def _accept_connection(self):
         try:
