@@ -450,7 +450,7 @@ class HTTPAdapter(BaseAdapter):
             )
 
         except (ProtocolError, socket.error) as err:
-            raise ConnectionError(err, request=request)
+            raise ConnectTimeout(err, request=request)
 
         except MaxRetryError as e:
             if isinstance(e.reason, ConnectTimeoutError):
