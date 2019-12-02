@@ -46,49 +46,45 @@ import warnings
 from .exceptions import RequestsDependencyWarning
 
 
-def check_compatibility(urllib3_version, chardet_version):
-    urllib3_version = urllib3_version.split('.')
-    assert urllib3_version != ['dev']  # Verify urllib3 isn't installed from git.
+def _check_version_compatibility(package, min_version=None, max_version=None, exceptions=None,
+                                 closed_interval=(True, True), version_components=3):
+    """Check the version compatibility of external libraries.
 
-    # Sometimes, urllib3 only reports its version as 16.1.
-    if len(urllib3_version) == 2:
-        urllib3_version.append('0')
+    :param package: external library object.
+    :param min_version: a tuple of minimum version requirements.
+    :param max_version: a tuple of maximum version requirements.
+    :param exceptions: a list of versions that we need to exclude.
+    :param closed_interval: a tuple that allow you to decide open interval (False) and
+        closed interval (True) of minimum version and maximum version.
+    :param version_components: how many version components that we need to compare.
+    """
+    package_version = getattr(package, '__version__', None)
+    if not package_version:
+        return warnings.warn("{} doesn't has a version attribute!".format(package.__name__))
+    base_version = list(map(int, package_version.split('.')[:version_components]))
+    # fill out missing entries
+    missing_entries = [0] * (version_components - len(base_version))
+    version = tuple(base_version + missing_entries)
 
-    # Check urllib3 for compatibility.
-    major, minor, patch = urllib3_version  # noqa: F811
-    major, minor, patch = int(major), int(minor), int(patch)
-    # urllib3 >= 1.21.1, <= 1.25
-    assert major == 1
-    assert minor >= 21
-    assert minor <= 25
-
-    # Check chardet for compatibility.
-    major, minor, patch = chardet_version.split('.')[:3]
-    major, minor, patch = int(major), int(minor), int(patch)
-    # chardet >= 3.0.2, < 3.1.0
-    assert major == 3
-    assert minor < 1
-    assert patch >= 2
-
-
-def _check_cryptography(cryptography_version):
-    # cryptography < 1.3.4
     try:
-        cryptography_version = list(map(int, cryptography_version.split('.')))
-    except ValueError:
-        return
+        if min_version:
+            assert version >= min_version if closed_interval[0] else version > min_version
+        if max_version:
+            assert version <= max_version if closed_interval[1] else version < max_version
+        if exceptions:
+            assert version not in exceptions
+    except (AssertionError, ValueError):
+        warnings.warn("{} ({}) doesn't match a supported version!".format(
+            package.__name__, package.__version__))
 
-    if cryptography_version < [1, 3, 4]:
-        warning = 'Old version of cryptography ({}) may cause slowdown.'.format(cryptography_version)
-        warnings.warn(warning, RequestsDependencyWarning)
 
 # Check imported dependencies for compatibility.
-try:
-    check_compatibility(urllib3.__version__, chardet.__version__)
-except (AssertionError, ValueError):
-    warnings.warn("urllib3 ({}) or chardet ({}) doesn't match a supported "
-                  "version!".format(urllib3.__version__, chardet.__version__),
-                  RequestsDependencyWarning)
+# urllib3 >= 1.21.1, <1.26, !=1.25.0, !=1.25.1
+_check_version_compatibility(urllib3, min_version=(1, 21, 1), max_version=(1, 26, 0),
+                             exceptions=[(1, 25, 0), (1, 25, 1)], closed_interval=(True, False))
+# chardet >= 3.0.2, < 3.1.0
+_check_version_compatibility(chardet, min_version=(3, 0, 2), max_version=(3, 1, 0),
+                             closed_interval=(True, False))
 
 # Attempt to enable urllib3's SNI support, if possible
 try:
@@ -96,8 +92,9 @@ try:
     pyopenssl.inject_into_urllib3()
 
     # Check cryptography version
-    from cryptography import __version__ as cryptography_version
-    _check_cryptography(cryptography_version)
+    import cryptography
+    # cryptography >= 1.3.4
+    _check_version_compatibility(cryptography, min_version=(1, 3, 4))
 except ImportError:
     pass
 
