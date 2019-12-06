@@ -102,7 +102,10 @@ class RequestEncodingMixin(object):
                         result.append(
                             (k.encode('utf-8') if isinstance(k, str) else k,
                              v.encode('utf-8') if isinstance(v, str) else v))
-            return urlencode(result, doseq=True,quote_via=quote)
+            if is_py2:
+                return urlencode(result, doseq=True)
+            else:
+                return urlencode(result, doseq=True,quote_via=quote)
         else:
             return data
 
