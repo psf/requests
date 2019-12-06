@@ -704,8 +704,15 @@ class Session(SessionRedirectMixin):
                 verify = (os.environ.get('REQUESTS_CA_BUNDLE') or
                           os.environ.get('CURL_CA_BUNDLE'))
 
+        if 'no' in self.proxies:
+            if should_bypass_proxies(url, no_proxy=self.proxies['no']):
+                proxies = {'__bypass_proxies': True}
+
         # Merge all the kwargs.
-        proxies = merge_setting(proxies, self.proxies)
+        if '__bypass_proxies' in proxies: # from utils.py
+            proxies = {} # bypass proxies for this request
+        else:
+            proxies = merge_setting(proxies, self.proxies)
         stream = merge_setting(stream, self.stream)
         verify = merge_setting(verify, self.verify)
         cert = merge_setting(cert, self.cert)
