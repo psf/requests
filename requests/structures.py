@@ -75,8 +75,8 @@ class CaseInsensitiveDict(MutableMapping):
             other = CaseInsensitiveDict(other)
         else:
             return NotImplemented
-        # Compare insensitively
-        return dict(self.lower_items()) == dict(other.lower_items())
+        # If with same length, then Compare insensitively
+        return len(self) == len(other) and dict(self.lower_items()) == dict(other.lower_items())
 
     # Copy is required
     def copy(self):
