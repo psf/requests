@@ -764,7 +764,7 @@ def get_environ_proxies(url, no_proxy=None):
     :rtype: dict
     """
     if should_bypass_proxies(url, no_proxy=no_proxy):
-        return {}
+        return {'__bypass_proxies': True} # to session.py
     else:
         return getproxies()
 
