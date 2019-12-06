@@ -37,7 +37,7 @@ from .utils import (
     iter_slices, guess_json_utf, super_len, check_header_validity)
 from .compat import (
     Callable, Mapping,
-    cookielib, urlunparse, urlsplit, urlencode, str, bytes,
+    cookielib, urlunparse, urlsplit, urlencode,quote,str, bytes,
     is_py2, chardet, builtin_str, basestring)
 from .compat import json as complexjson
 from .status_codes import codes
@@ -102,7 +102,7 @@ class RequestEncodingMixin(object):
                         result.append(
                             (k.encode('utf-8') if isinstance(k, str) else k,
                              v.encode('utf-8') if isinstance(v, str) else v))
-            return urlencode(result, doseq=True)
+            return urlencode(result, doseq=True,quote_via=quote)
         else:
             return data
 
