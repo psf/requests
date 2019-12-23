@@ -867,13 +867,14 @@ class TestRequests:
 
         r = requests.get(httpbin('get'), params={'test': ['foo', 'baz']})
         assert r.status_code == 200
-        assert r.url == httpbin('get?test%5B%5D=foo&test%5B%5D=baz')
+        # py 3.5 behave differently on list order
+        assert r.url == httpbin('get?test%5B%5D=foo&test%5B%5D=baz') or r.url == httpbin('get?test%5B%5D=baz&test%5B%5D=foo')
 
     def test_form_encoded_post_query_multivalued_element(self, httpbin):
         r = requests.Request(method='POST', url=httpbin('post'),
                              data=dict(test=['foo', 'baz']))
         prep = r.prepare()
-        assert prep.body == 'test%5B%5D=foo&test%5B%5D=baz'
+        assert prep.body == 'test%5B%5D=foo&test%5B%5D=baz' or prep.body == 'test%5B%5D=baz&test%5B%5D=foo'
 
     def test_different_encodings_dont_break_post(self, httpbin):
         r = requests.post(httpbin('post'),
