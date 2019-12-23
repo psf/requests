@@ -290,7 +290,7 @@ def dict_paths(my_dict, path=None):
     dict_paths({'a': {'b': 0, 'c': 1}, 'd': 0, 'e': {'f': {'g': 8}}})
     [(['a', 'b'], 0), (['a', 'c'], 1), (['d'], 0), (['e', 'f', 'g'], 8)]
 
-    :rtype: collections.Iterable[list[str], Any]
+    :rtype: collections.Generator[list[str], Any]
     """
     if path is None:
         path = []
