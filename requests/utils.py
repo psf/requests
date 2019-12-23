@@ -319,12 +319,12 @@ def remove_extra_depth(value):
         [('key_a[key_b]', 'value')]
         >>> remove_extra_depth({'key': {'key': 'value'}})
         [('key[key]', 'value')]
-        >>> remove_extra_depth({'key': {'key': [0, 1, 2]}})
-        [('key[key][]', 0), ('key[key][]', 1), ('key[key][]', 2)]
+        >>> remove_extra_depth({'key': {'key': [0]}})
+        [('key[key][]', 0)]
         >>> remove_extra_depth({'key': 'value'})
         {'key': 'value'}
-        >>> remove_extra_depth({'key': [0, 1, 2]})
-        [('key[]', 0), ('key[]', 1), ('key[]', 2)]
+        >>> remove_extra_depth({'key': [0]})
+        [('key[]', 0)]
 
     :param dict value:
     """
