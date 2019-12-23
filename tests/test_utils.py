@@ -19,7 +19,7 @@ from requests.utils import (
     is_valid_cidr, iter_slices, parse_dict_header,
     parse_header_links, prepend_scheme_if_needed,
     requote_uri, select_proxy, should_bypass_proxies, super_len,
-    to_key_val_list, to_flat_dict, to_native_string,
+    to_key_val_list, remove_extra_depth, to_native_string,
     unquote_header_value, unquote_unreserved,
     urldefragauth, add_dict_to_cookiejar, set_environ)
 from requests._internal_utils import unicode_is_ascii
@@ -132,7 +132,7 @@ class TestToKeyValList:
             to_key_val_list('string')
 
 
-class TestToFlatDict:
+class TestRemoveExtraDepth:
 
     @pytest.mark.parametrize(
         'value, expected', (
@@ -141,7 +141,7 @@ class TestToFlatDict:
                 (None, None)
         ))
     def test_valid(self, value, expected):
-        assert to_flat_dict(value) == expected
+        assert remove_extra_depth(value) == expected
 
 
 class TestUnquoteHeaderValue:

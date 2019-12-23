@@ -306,7 +306,7 @@ def dict_paths(my_dict, path=None):
             yield newpath, v
 
 
-def to_flat_dict(value):
+def remove_extra_depth(value):
     """Remove extra depth from a Mapping instance so it could be properly url encoded
     If value is not a dict then return as-is.
 
