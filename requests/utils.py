@@ -297,13 +297,16 @@ def dict_paths(my_dict, path=None):
 
     for k, v in my_dict.items():
 
-        newpath = path + [k]
+        next_path = path + [k]
 
         if isinstance(v, Mapping):
-            for u in dict_paths(v, newpath):
+            for u in dict_paths(v, next_path):
+                yield u
+        elif isinstance(v, list):
+            for u in dict_paths({"\x00{index}".format(index=i): v[i] for i in range(0, len(v))}, next_path):
                 yield u
         else:
-            yield newpath, v
+            yield next_path, v
 
 
 def remove_extra_depth(value):
