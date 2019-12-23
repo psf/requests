@@ -311,31 +311,41 @@ def dict_paths(my_dict, path=None):
 
 def remove_extra_depth(value):
     """Remove extra depth from a Mapping instance so it could be properly url encoded
-    If value is not a dict then return as-is.
+    If value is not a dict or is not concerned by this then return as-is
 
-    to_flat_dict({'json_data': { 'operation': 'get', 'h': { 't': 1 } }, 'auth': 'blabla'})
-    {'auth': 'blabla', 'json_data[operation]': 'get', 'json_data[h][t]': 1}
+    ::
+
+        >>> remove_extra_depth({'key_a': {'key_b': 'value'}})
+        [('key_a[key_b]', 'value')]
+        >>> remove_extra_depth({'key': {'key': 'value'}})
+        [('key[key]', 'value')]
+        >>> remove_extra_depth({'key': {'key': [0, 1, 2]}})
+        [('key[key][]', 0), ('key[key][]', 1), ('key[key][]', 2)]
+        >>> remove_extra_depth({'key': 'value'})
+        {'key': 'value'}
+        >>> remove_extra_depth({'key': [0, 1, 2]})
+        [('key[]', 0), ('key[]', 1), ('key[]', 2)]
 
     :param dict value:
     """
     if not isinstance(value, Mapping):
         return value
 
-    tmp_dict = {}
-    to_remove = set()
+    if any([isinstance(value, Mapping) or isinstance(value, list) for key, value in value.items()]) is False:
+        return value
+
+    items = list()
 
     for keys, final_value in dict_paths(value):
-        if len(keys) > 1:
-            root_key = keys[0]
-            tmp_dict[root_key + ''.join(['[{}]'.format(k) for k in keys[1:]])] = final_value
-            to_remove.add(root_key)
 
-    for k in to_remove:
-        del value[k]
+        items.append(
+            (
+                keys[0] + ''.join(['[{key}]'.format(key=key if not key.startswith('\x00') else '') for key in keys[1:]]),
+                final_value
+            )
+        )
 
-    value.update(tmp_dict)
-
-    return value
+    return items
 
 
 def to_key_val_list(value):
