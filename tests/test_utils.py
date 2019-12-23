@@ -136,8 +136,11 @@ class TestRemoveExtraDepth:
 
     @pytest.mark.parametrize(
         'value, expected', (
-                ({'key': {'key_depth_1': 'val'}}, {'key[key_depth_1]': 'val'}),
-                ({'key': {'key_depth_1': {'key_depth_2': 'val'}}}, {'key[key_depth_1][key_depth_2]': 'val'}),
+                ({'key_a': {'key_b': 'value'}}, [('key_a[key_b]', 'value')]),
+                ({'key': {'key': 'value'}}, [('key[key]', 'value')]),
+                ({'key': {'key': [0, 1, 2]}}, [('key[key][]', 0), ('key[key][]', 1), ('key[key][]', 2)]),
+                ({'key': 'value'}, {'key': 'value'}),
+                ({'key': [0, 1, 2]}, [('key[]', 0), ('key[]', 1), ('key[]', 2)]),
                 (None, None)
         ))
     def test_valid(self, value, expected):
