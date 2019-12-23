@@ -331,7 +331,8 @@ def remove_extra_depth(value):
     if not isinstance(value, Mapping):
         return value
 
-    if any([isinstance(value_, Mapping) or isinstance(value_, list) for key, value_ in value.items()]) is False:
+    # We are checking if value has a nested dict or arrays in it, if not return as is
+    if any([isinstance(sub_value, Mapping) or isinstance(sub_value, list) for sub_key, sub_value in value.items()]) is False:
         return value
 
     items = list()
