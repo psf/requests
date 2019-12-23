@@ -19,9 +19,11 @@ def request(method, url, **kwargs):
     :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary, list of tuples or bytes to send
-        in the query string for the :class:`Request`.
+        in the query string for the :class:`Request`. When passing nested
+        dictionary, output would be proceed like jQuery `$.param` by default.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
-        object to send in the body of the :class:`Request`.
+        object to send in the body of the :class:`Request`. When passing nested
+        dictionary, output would be proceed like jQuery `$.param` by default.
     :param json: (optional) A JSON serializable Python object to send in the body of the :class:`Request`.
     :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
     :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
@@ -66,7 +68,8 @@ def get(url, params=None, **kwargs):
 
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary, list of tuples or bytes to send
-        in the query string for the :class:`Request`.
+        in the query string for the :class:`Request`. When passing nested
+        dictionary, output would be proceed like jQuery `$.param` by default.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
@@ -109,7 +112,8 @@ def post(url, data=None, json=None, **kwargs):
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
-        object to send in the body of the :class:`Request`.
+        object to send in the body of the :class:`Request`. When passing nested
+        dictionary, output would be proceed like jQuery `$.param` by default.
     :param json: (optional) json data to send in the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     :return: :class:`Response <Response>` object
@@ -124,7 +128,8 @@ def put(url, data=None, **kwargs):
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
-        object to send in the body of the :class:`Request`.
+        object to send in the body of the :class:`Request`. When passing nested
+        dictionary, output would be proceed like jQuery `$.param` by default.
     :param json: (optional) json data to send in the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     :return: :class:`Response <Response>` object
@@ -139,7 +144,8 @@ def patch(url, data=None, **kwargs):
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
-        object to send in the body of the :class:`Request`.
+        object to send in the body of the :class:`Request`. When passing nested
+        dictionary, output would be proceed like jQuery `$.param` by default.
     :param json: (optional) json data to send in the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     :return: :class:`Response <Response>` object
