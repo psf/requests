@@ -668,7 +668,7 @@ class Response(object):
         setattr(self, 'raw', None)
 
     def __repr__(self):
-        return '<Response [%s]>' % (self.status_code)
+        return self.text
 
     def __bool__(self):
         """Returns True if :attr:`status_code` is less than 400.
