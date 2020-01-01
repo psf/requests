@@ -64,6 +64,16 @@ supported:
 * Python 3.7
 * PyPy
 
+Python 2 Support?
+-----------------
+
+Yes! We do not have any concrete plans to `sunset
+<https://www.python.org/doc/sunset-python-2/>`_ our support for Python
+2.7. We understand that we have a large user base with varying needs,
+and intend to maintain Python 2.7 support within Requests until `pip
+stops supporting Python 2.7 (there's no estimated date on that yet)
+<https://pip.pypa.io/en/latest/development/release-process/#python-2-support>`_.
+
 What are "hostname doesn't match" errors?
 -----------------------------------------
 
