@@ -1,0 +1,18 @@
+specfile_path: python-requests.spec
+upstream_package_name: requests
+downstream_package_name: python-requests
+actions:
+  post-upstream-clone:
+    - wget -N https://src.fedoraproject.org/rpms/python-requests/raw/master/f/python-requests.spec
+    - wget -N https://src.fedoraproject.org/rpms/python-requests/raw/master/f/patch-requests-certs.py-to-use-the-system-CA-bundle.patch
+    - wget -N https://src.fedoraproject.org/rpms/python-requests/raw/master/f/Remove-tests-that-use-the-tarpit.patch
+    - wget -N https://src.fedoraproject.org/rpms/python-requests/raw/master/f/requests-2.12.4-tests_nonet.patch
+    - wget -N https://src.fedoraproject.org/rpms/python-requests/raw/master/f/Don-t-inject-pyopenssl-into-urllib3.patch
+    - wget -N https://src.fedoraproject.org/rpms/python-requests/raw/master/f/requests-2.20.0-no-py2-httpbin.patch
+    - wget -N https://src.fedoraproject.org/rpms/python-requests/raw/master/f/support-pytest-4.patch
+jobs:
+- job: copr_build
+  metadata:
+    targets:
+    - fedora-stable
+  trigger: pull_request
