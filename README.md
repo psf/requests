@@ -11,7 +11,7 @@
     <code> >>> <strong>import requests</strong></code>
     <code> >>> r = requests.get('https://api.github.com/repos/psf/requests')</code>
     <code> >>> r.json()["description"]</code>
-    <code> 'A simple, yet elegant HTTP library. Handcrafted, with ♥, for the Python community.'</code>
+    <code> 'A simple, yet elegant HTTP library.'</code>
     </div>
 
     <p align="center">
@@ -99,7 +99,7 @@ Adding requests to Pipfile's [packages]…
 …
 ```
 
-Requests officially supports Python 2.7 & 3.4–3.8.
+Requests officially supports Python 2.7 & 3.5+.
 
 -------------------------------------
 
