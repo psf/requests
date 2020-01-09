@@ -54,15 +54,7 @@ Chris Adams gave an excellent summary on
 Python 3 Support?
 -----------------
 
-Yes! Here's a list of Python platforms that are officially
-supported:
-
-* Python 2.7
-* Python 3.4
-* Python 3.5
-* Python 3.6
-* Python 3.7
-* PyPy
+Yes! Requests officially supports Python 2.7 & 3.5+ and PyPy.
 
 Python 2 Support?
 -----------------
