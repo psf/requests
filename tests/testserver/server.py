@@ -90,7 +90,6 @@ class Server(threading.Thread):
     def _handle_requests(self):
         for _ in range(self.requests_to_handle):
             with self._accept_connection() as sock:
-                sock = self._accept_connection()
                 if not sock:
                     break
 
