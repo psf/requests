@@ -89,13 +89,16 @@ class Server(threading.Thread):
 
     def _handle_requests(self):
         for _ in range(self.requests_to_handle):
-            with self._accept_connection() as sock:
-                if not sock:
-                    break
+            # TODO: After Python 2.7 support is dropped, replace this with a
+            #     context manager and remove call to close().
+            sock = self._accept_connection()
+            if not sock:
+                break
 
-                handler_result = self.handler(sock)
+            handler_result = self.handler(sock)
 
-                self.handler_results.append(handler_result)
+            self.handler_results.append(handler_result)
+            sock.close()
 
     def _accept_connection(self):
         try:
