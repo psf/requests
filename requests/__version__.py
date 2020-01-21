@@ -4,7 +4,7 @@
 
 __title__ = 'requests'
 __description__ = 'Python HTTP for Humans.'
-__url__ = 'http://python-requests.org'
+__url__ = 'https://requests.readthedocs.io'
 __version__ = '2.22.0'
 __build__ = 0x022200
 __author__ = 'Kenneth Reitz'
