@@ -3,7 +3,7 @@
 import pytest
 import threading
 import requests
-from requests.exceptions import ChunkedEncodingError
+from requests.exceptions import ContentDecodingError, ChunkedEncodingError
 
 from tests.testserver.server import Server, consume_socket_content
 
@@ -334,8 +334,9 @@ def test_response_content_retains_error():
     with server as (host, port):
         url = 'http://{}:{}/path'.format(host, port)
         r = requests.post(url, stream=True)
-        with pytest.raises(ChunkedEncodingError):
+        with pytest.raises(ChunkedEncodingError) as exc:
             r.content
+        assert exc.value.response is r
 
     # Access the bad response data again, I would expect the same
     # error again.
@@ -348,3 +349,28 @@ def test_response_content_retains_error():
         assert False, "error response has content: {0!r}".format(content)
     close_server.set()
 
+
+def test_response_content_decoding_error():
+    """Verify response and request attributes on ContentDecodingError"""
+    def response_handler(sock):
+        req = consume_socket_content(sock, timeout=0.5)
+        # Send invalid gzip data
+        sock.send(
+            b'HTTP/1.1 200 OK\r\n'
+            b'Content-Encoding: gzip\r\n'
+            b'\r\nbad gzip data'
+        )
+
+    close_server = threading.Event()
+    server = Server(response_handler, wait_to_close_event=close_server)
+
+    try:
+        with server as (host, port):
+            url = 'http://{}:{}/path'.format(host, port)
+            resp = requests.post(url, stream=True)
+            with pytest.raises(ContentDecodingError) as exc:
+                resp.content
+            err = exc.value
+            assert exc.value.response is resp
+    finally:
+        close_server.set()

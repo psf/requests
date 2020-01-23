@@ -756,13 +756,13 @@ class Response(object):
                         yield chunk
 
                 except ProtocolError as e:
-                    self._error = ChunkedEncodingError(e)
+                    self._error = ChunkedEncodingError(e, response=self)
 
                 except DecodeError as e:
-                    self._error = ContentDecodingError(e)
+                    self._error = ContentDecodingError(e, response=self)
 
                 except ReadTimeoutError as e:
-                    self._error = ConnectionError(e)
+                    self._error = ConnectionError(e, response=self)
 
                 finally:
                     # if we had an error - throw the saved error
@@ -780,7 +780,7 @@ class Response(object):
             self._content_consumed = True
 
         if self._content_consumed and isinstance(self._content, bool):
-            raise StreamConsumedError()
+            raise StreamConsumedError(response=self)
         elif chunk_size is not None and not isinstance(chunk_size, int):
             raise TypeError("chunk_size must be an int, it is instead a %s." % type(chunk_size))
         # simulate reading small chunks of the content
