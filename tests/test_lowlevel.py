@@ -336,7 +336,7 @@ def test_response_content_retains_error():
         r = requests.post(url, stream=True)
         with pytest.raises(ChunkedEncodingError) as exc:
             r.content
-        assert exc.value.response is r
+        assert exc.value.request is r.request
 
     # Access the bad response data again, I would expect the same
     # error again.
@@ -370,7 +370,6 @@ def test_response_content_decoding_error():
             resp = requests.post(url, stream=True)
             with pytest.raises(ContentDecodingError) as exc:
                 resp.content
-            err = exc.value
-            assert exc.value.response is resp
+            assert exc.value.request is resp.request
     finally:
         close_server.set()

@@ -756,13 +756,13 @@ class Response(object):
                         yield chunk
 
                 except ProtocolError as e:
-                    self._error = ChunkedEncodingError(e, response=self)
+                    self._error = ChunkedEncodingError(e, request=self.request)
 
                 except DecodeError as e:
-                    self._error = ContentDecodingError(e, response=self)
+                    self._error = ContentDecodingError(e, request=self.request)
 
                 except ReadTimeoutError as e:
-                    self._error = ConnectionError(e, response=self)
+                    self._error = ConnectionError(e, request=self.request)
 
                 finally:
                     # if we had an error - throw the saved error
