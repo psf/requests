@@ -105,7 +105,7 @@ class RequestEncodingMixin(object):
             if is_py2:
                 return urlencode(result, doseq=True)
             else:
-                return urlencode(result, doseq=True,quote_via=quote)
+                return urlencode(result, doseq=True, quote_via=quote)
         else:
             return data
 
