@@ -2264,6 +2264,25 @@ def test_json_encodes_as_bytes():
     assert isinstance(p.body, bytes)
 
 
+def test_params_encodes_quote():
+    # in python 3 params are encoded using quote in place of quote_plus (Spaces are encoded as %20 in place of '+')
+    params = {"key": "value1 value2"}
+    p = PreparedRequest()
+    p.prepare(
+        method='GET',
+        url='https://www.example.com/',
+        params=params
+    )
+    if is_py2:
+        #checking that there is no change in case of python 2
+        expected='https://www.example.com/?key=value1+value2
+        assert p.url= expected
+    else:
+        #checking that there is change in behaviour in case of python 3
+        expected='https://www.example.com/?key=value1%20value2
+        assert p.url= expected
+
+
 def test_requests_are_updated_each_time(httpbin):
     session = RedirectSession([303, 307])
     prep = requests.Request('POST', httpbin('post')).prepare()
