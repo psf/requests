@@ -18,7 +18,7 @@ from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urlparse,
-    builtin_str)
+    builtin_str, is_py2)
 from requests.cookies import (
     cookiejar_from_dict, morsel_to_cookie)
 from requests.exceptions import (
