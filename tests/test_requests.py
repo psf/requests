@@ -2266,7 +2266,7 @@ def test_json_encodes_as_bytes():
 
 def test_params_encodes_quote():
     # in python 3 params are encoded using quote in place of quote_plus (Spaces are encoded as %20 in place of '+')
-    param = {"sql": "project = 'foo' and name = 'bar'"}
+    params = {"sql": "project = 'foo' and name = 'bar'"}
     p = PreparedRequest()
     p.prepare(
         method='GET',
