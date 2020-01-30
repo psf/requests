@@ -2278,7 +2278,7 @@ def test_params_encodes_quote():
         expected='https://www.example.com/?sql=project+%3D+%27foo%27+and+name+%3D+%27bar%27'
         assert p.url == expected
     else:
-        #checking that there is change in behaviour in case of python 3
+        # checking that there is change in behaviour in case of python 3
         expected = 'https://www.example.com/?sql=project%20%3D%20%27foo%27%20and%20name%20%3D%20%27bar%27'
         assert p.url == expected
 
