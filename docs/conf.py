@@ -381,6 +381,6 @@ epub_exclude_files = ["search.html"]
 # epub_use_index = True
 
 intersphinx_mapping = {
-    "python": ("https://requests.readthedocs.io/en/master/", None),
+    "python": ("https://docs.python.org/3/", None),
     "urllib3": ("https://urllib3.readthedocs.io/en/latest", None),
 }
