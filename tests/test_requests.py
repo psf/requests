@@ -18,7 +18,7 @@ from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
     Morsel, cookielib, getproxies, str, urlparse,
-    builtin_str, is_py2)
+    builtin_str, quote, quote_plus)
 from requests.cookies import (
     cookiejar_from_dict, morsel_to_cookie)
 from requests.exceptions import (
@@ -2265,7 +2265,7 @@ def test_json_encodes_as_bytes():
 
 
 def test_params_encodes_quote():
-    # in python 3 params are encoded using quote in place of quote_plus (Spaces are encoded as %20 in place of '+')
+    #  checking option for user to encode url using quote in place of quote_plus (Spaces are encoded as %20 in place of '+')
     params = {"sql": "project = 'foo' and name = 'bar'"}
     p = PreparedRequest()
     p.prepare(
@@ -2273,14 +2273,18 @@ def test_params_encodes_quote():
         url='https://www.example.com/',
         params=params
     )
-    if is_py2:
-        # checking that there is no change in case of python 2
-        expected = 'https://www.example.com/?sql=project+%3D+%27foo%27+and+name+%3D+%27bar%27'
-        assert p.url == expected
-    else:
-        # checking that there is change in behaviour in case of python 3
-        expected = 'https://www.example.com/?sql=project%20%3D%20%27foo%27%20and%20name%20%3D%20%27bar%27'
-        assert p.url == expected
+    # checking that there is no change in default behaviour
+    expected = 'https://www.example.com/?sql=project+%3D+%27foo%27+and+name+%3D+%27bar%27'
+    assert p.url == expected
+    # checking that there is change in behaviour in case of quote_via parameter supplied
+    p.prepare(
+        method='GET',
+        url='https://www.example.com/',
+        params=params,
+        quote_via=quote
+    )
+    expected = 'https://www.example.com/?sql=project%20%3D%20%27foo%27%20and%20name%20%3D%20%27bar%27'
+    assert p.url == expected
 
 
 def test_requests_are_updated_each_time(httpbin):

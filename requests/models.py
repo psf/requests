@@ -37,7 +37,7 @@ from .utils import (
     iter_slices, guess_json_utf, super_len, check_header_validity)
 from .compat import (
     Callable, Mapping,
-    cookielib, urlunparse, urlsplit, urlencode, quote, str, bytes,
+    cookielib, urlunparse, urlsplit, urlencode, quote, quote_plus, str, bytes,
     is_py2, chardet, builtin_str, basestring)
 from .compat import json as complexjson
 from .status_codes import codes
@@ -80,7 +80,7 @@ class RequestEncodingMixin(object):
         return ''.join(url)
 
     @staticmethod
-    def _encode_params(data):
+    def _encode_params(data,quote_via=quote_plus):
         """Encode parameters in a piece of data.
 
         Will successfully encode parameters when passed as a dict or a list of
@@ -105,7 +105,7 @@ class RequestEncodingMixin(object):
             if is_py2:
                 return urlencode(result, doseq=True)
             else:
-                return urlencode(result, doseq=True, quote_via=quote)
+                return urlencode(result, doseq=True, quote_via=quote_via)
         else:
             return data
 
@@ -310,11 +310,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare(self,
             method=None, url=None, headers=None, files=None, data=None,
-            params=None, auth=None, cookies=None, hooks=None, json=None):
+            params=None, auth=None, cookies=None, hooks=None, json=None, quote_via= quote_plus):
         """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)
-        self.prepare_url(url, params)
+        self.prepare_url(url, params,quote_via)
         self.prepare_headers(headers)
         self.prepare_cookies(cookies)
         self.prepare_body(data, files, json)
@@ -356,7 +356,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             raise UnicodeError
         return host
 
-    def prepare_url(self, url, params):
+    def prepare_url(self, url, params,quote_via=quote_plus):
         """Prepares the given HTTP URL."""
         #: Accept objects that have string representations.
         #: We're unable to blindly call unicode/str functions
@@ -432,7 +432,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if isinstance(params, (str, bytes)):
             params = to_native_string(params)
 
-        enc_params = self._encode_params(params)
+        enc_params = self._encode_params(params,quote_via)
         if enc_params:
             if query:
                 query = '%s&%s' % (query, enc_params)
