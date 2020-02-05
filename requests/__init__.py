@@ -55,16 +55,14 @@ def check_compatibility(urllib3_version, chardet_version):
         urllib3_version.append('0')
 
     # Check urllib3 for compatibility.
-    major, minor, patch = urllib3_version  # noqa: F811
-    major, minor, patch = int(major), int(minor), int(patch)
+    major, minor, patch = map(int, urllib3_version)  # noqa: F811
     # urllib3 >= 1.21.1, <= 1.25
     assert major == 1
     assert minor >= 21
     assert minor <= 25
 
     # Check chardet for compatibility.
-    major, minor, patch = chardet_version.split('.')[:3]
-    major, minor, patch = int(major), int(minor), int(patch)
+    major, minor, patch = map(int, chardet_version.split('.')[:3])
     # chardet >= 3.0.2, < 3.1.0
     assert major == 3
     assert minor < 1
