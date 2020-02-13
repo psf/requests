@@ -95,6 +95,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
     ],
@@ -106,7 +107,7 @@ setup(
         'socks:sys_platform == "win32" and python_version == "2.7"': ['win_inet_pton'],
     },
     project_urls={
-        'Documentation': 'http://docs.python-requests.org',
-        'Source': 'https://github.com/kennethreitz/requests',
+        'Documentation': 'https://requests.readthedocs.io',
+        'Source': 'https://github.com/psf/requests',
     },
 )

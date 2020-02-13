@@ -609,7 +609,7 @@ class Response(object):
 
         #: File-like object representation of response (for advanced usage).
         #: Use of ``raw`` requires that ``stream=True`` be set on the request.
-        # This requirement does not apply for use internally to Requests.
+        #: This requirement does not apply for use internally to Requests.
         self.raw = None
 
         #: Final URL location of Response.
@@ -873,6 +873,9 @@ class Response(object):
         # Fallback to auto-detected encoding.
         if self.encoding is None:
             encoding = self.apparent_encoding
+        # Forcefully remove BOM from UTF-8
+        elif self.encoding.lower() == 'utf-8':
+            encoding = 'utf-8-sig'
 
         # Decode unicode from given encoding.
         try:

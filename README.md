@@ -1,21 +1,34 @@
-Requests: HTTP for Humans™
-==========================
 
-[![image](https://img.shields.io/pypi/v/requests.svg)](https://pypi.org/project/requests/)
-[![image](https://img.shields.io/pypi/l/requests.svg)](https://pypi.org/project/requests/)
-[![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests/)
-[![codecov.io](https://codecov.io/github/psf/requests/coverage.svg?branch=master)](https://codecov.io/github/psf/requests)
-[![image](https://img.shields.io/github/contributors/psf/requests.svg)](https://github.com/psf/requests/graphs/contributors)
-[![image](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/kennethreitz)
 
-Requests is the only *Non-GMO* HTTP library for Python, safe for human
-consumption.
+<span align="center">
 
-![image](https://farm5.staticflickr.com/4317/35198386374_1939af3de6_k_d.jpg)
+<pre>
+    <a href="https://requests.readthedocs.io/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/requests-logo.png" align="center" /></a>
+    
+    <div align="left">
+    <p></p>
+    <code> Python 3.7.4 (default, Sep  7 2019, 18:27:02)</code>
+    <code> >>> <strong>import requests</strong></code>
+    <code> >>> r = requests.get('https://api.github.com/repos/psf/requests')</code>
+    <code> >>> r.json()["description"]</code>
+    <code> 'A simple, yet elegant HTTP library.'</code>
+    </div>
 
-Behold, the power of Requests:
+    <p align="center">
+This software has been designed for you, with much joy,
+by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is protected by The <a href="https://www.python.org/psf/">Python Software Foundation</a>.
+   </p>
+</pre>
 
-``` {.sourceCode .python}
+</span>
+
+<p>&nbsp;</p><p>&nbsp;</p>
+
+<p align="center"><strong>Requests</strong> is an elegant and simple HTTP library for Python, built with ♥.</p>
+
+<p>&nbsp;</p>
+
+```pycon
 >>> import requests
 >>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
 >>> r.status_code
@@ -30,78 +43,84 @@ Behold, the power of Requests:
 {'disk_usage': 368627, 'private_gists': 484, ...}
 ```
 
-See [the similar code, sans Requests](https://gist.github.com/973705).
 
-[![image](https://raw.githubusercontent.com/psf/requests/master/docs/_static/requests-logo-small.png)](http://docs.python-requests.org/)
 
-Requests allows you to send *organic, grass-fed* HTTP/1.1 requests,
-without the need for manual labor. There's no need to manually add query
-strings to your URLs, or to form-encode your POST data. Keep-alive and
-HTTP connection pooling are 100% automatic, thanks to
-[urllib3](https://github.com/shazow/urllib3).
+---------------------------------------------------------------------
 
-Besides, all the cool kids are doing it. Requests is one of the most
-downloaded Python packages of all time, pulling in over 50,000,000
-downloads every month. You don't want to be left out!
+<p>&nbsp;</p>
 
-Feature Support
----------------
+Requests allows you to send HTTP/1.1 requests extremely easily. There’s no need to manually add query strings to your URLs, or to form-encode your `PUT` & `POST` data — but nowadays, just use the `json` method!
 
-Requests is ready for today's web.
 
--   International Domains and URLs
--   Keep-Alive & Connection Pooling
--   Sessions with Cookie Persistence
--   Browser-style SSL Verification
--   Basic/Digest Authentication
--   Elegant Key/Value Cookies
--   Automatic Decompression
--   Automatic Content Decoding
--   Unicode Response Bodies
--   Multipart File Uploads
--   HTTP(S) Proxy Support
--   Connection Timeouts
--   Streaming Downloads
--   `.netrc` Support
--   Chunked Requests
+Requests is **the most downloaded Python package today**, pulling in around `14M downloads / week`— according to GitHub, Requests is currently [depended upon](https://github.com/psf/requests/network/dependents?package_id=UGFja2FnZS01NzA4OTExNg%3D%3D) by `367_296` repositories. You may certainly put your trust in this code.
 
-Requests officially supports Python 2.7 & 3.4–3.7, and runs great on
-PyPy.
 
-Installation
-------------
+<p>&nbsp;</p>
+<p align="center"><a href="https://pepy.tech/project/requests" rel="nofollow"><img src="https://camo.githubusercontent.com/e1dedc9f5ce5cd6b6c699f33d2e812daadcf3645/68747470733a2f2f706570792e746563682f62616467652f7265717565737473" alt="Downloads" data-canonical-src="https://pepy.tech/badge/requests" style="max-width:100%;"></a>
+<a href="https://pypi.org/project/requests/" rel="nofollow"><img src="https://camo.githubusercontent.com/6d78aeec0a9a1cfe147ad064bfb99069e298e29b/68747470733a2f2f696d672e736869656c64732e696f2f707970692f707976657273696f6e732f72657175657374732e737667" alt="image" data-canonical-src="https://img.shields.io/pypi/pyversions/requests.svg" style="max-width:100%;"></a>
+<a href="https://github.com/psf/requests/graphs/contributors"><img src="https://camo.githubusercontent.com/a70ea15870b38bba9203b969f6a6b7e7845fbb8a/68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f636f6e7472696275746f72732f7073662f72657175657374732e737667" alt="image" data-canonical-src="https://img.shields.io/github/contributors/psf/requests.svg" style="max-width:100%;"></a></p>
 
-To install Requests, simply use [pipenv](http://pipenv.org/) (or pip, of
+<p>&nbsp;</p>
+
+<h2 align="center">Supported Features & Best–Practices</h2>
+
+Requests is ready for the demands of building robust and reliable HTTP–speak applications, for the needs of today.
+
+<pre class="test">
+         + International Domains and URLs       + Keep-Alive & Connection Pooling
+         + Sessions with Cookie Persistence     + Browser-style SSL Verification
+         + Basic & Digest Authentication        + Familiar `dict`–like Cookies
+         + Automatic Decompression of Content   + Automatic Content Decoding
+         + Automatic Connection Pooling         + Unicode Response Bodies<super>*</super>
+         + Multi-part File Uploads              + SOCKS Proxy Support
+         + Connection Timeouts                  + Streaming Downloads
+         + Automatic honoring of `.netrc`       + Chunked HTTP Requests
+
+                            &, of course, rock–solid stability!
+</pre>
+</div>
+
+<p align="center">
+        ✨ 🍰 ✨&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</p>
+
+<p>&nbsp;</p>
+
+Requests Module Installation
+----------------------------
+
+The recommended way to intall the `requests` module is to simply use [`pipenv`](http://pipenv.org/) (or `pip`, of
 course):
 
-``` {.sourceCode .bash}
+```console
 $ pipenv install requests
-✨🍰✨
+Adding requests to Pipfile's [packages]…
+✔ Installation Succeeded
+…
 ```
 
-Satisfaction guaranteed.
+Requests officially supports Python 2.7 & 3.5+.
 
-Documentation
--------------
+-------------------------------------
 
-Fantastic documentation is available at
-<http://docs.python-requests.org/>, for a limited time only.
+## P.S. — Documentation is Available at [`//requests.readthedocs.io`](https://requests.readthedocs.io/en/latest/).
 
-How to Contribute
------------------
+<p align="center">
+        <a href="https://requests.readthedocs.io/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/ss.png" align="center" /></a>
+</p>
 
-1.  Become more familiar with the project by reading our [Contributor's Guide](http://docs.python-requests.org/en/latest/dev/contributing/) and our [development philosophy](http://docs.python-requests.org/en/latest/dev/philosophy/).
-2.  Check for open issues or open a fresh issue to start a discussion
-    around a feature idea or a bug. There is a [Contributor
-    Friendly](https://github.com/psf/requests/issues?direction=desc&labels=Contributor+Friendly&page=1&sort=updated&state=open)
-    tag for issues that should be ideal for people who are not very
-    familiar with the codebase yet.
-3.  Fork [the repository](https://github.com/psf/requests) on
-    GitHub to start making your changes to the **master** branch (or
-    branch off of it).
-4.  Write a test which shows that the bug was fixed or that the feature
-    works as expected.
-5.  Send a [pull request](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork) and bug the maintainer until it gets merged and
-    published. :) Make sure to add yourself to
-    [AUTHORS](https://github.com/psf/requests/blob/master/AUTHORS.rst).
 
+------------------
+
+
+<p>&nbsp;</p>
+
+<p align="center">
+        <a href="https://kennethreitz.org/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/kr.png" align="center" /></a>
+</p>
+
+<p>&nbsp;</p>
+
+<p align="center">
+        <a href="https://www.python.org/psf/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/psf.png" align="center" /></a>
+</p>
