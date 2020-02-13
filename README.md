@@ -25,9 +25,9 @@ Behold, the power of Requests:
 >>> r.encoding
 'utf-8'
 >>> r.text
-u'{"type":"User"...'
+'{"type":"User"...'
 >>> r.json()
-{u'disk_usage': 368627, u'private_gists': 484, ...}
+{'disk_usage': 368627, 'private_gists': 484, ...}
 ```
 
 See [the similar code, sans Requests](https://gist.github.com/973705).
