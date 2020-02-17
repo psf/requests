@@ -17,7 +17,7 @@ To install Requests, simply run this simple command in your terminal of choice::
 
     $ pipenv install requests
 
-If you don't have `pipenv <http://pipenv.org/>`_ installed (tisk tisk!), head over to the Pipenv website for installation instructions. Or, if you prefer to just use pip and don't have it installed,
+If you don't have `pipenv <https://pipenv.kennethreitz.org>`_ installed (tisk tisk!), head over to the Pipenv website for installation instructions. Or, if you prefer to just use pip and don't have it installed,
 `this Python installation guide <https://docs.python-guide.org/starting/installation/>`_
 can guide you through the process.
 
