@@ -2199,6 +2199,16 @@ class TestTimeout:
             assert isinstance(e, ConnectionError)
             assert isinstance(e, Timeout)
 
+    def test_connect_timeout_session_attribute_default(self):
+        try:
+            s = requests.Session()
+            s.timeout = 0.1
+            s.get(TARPIT)
+            pytest.fail('The connect() request should time out.')
+        except ConnectTimeout as e:
+            assert isinstance(e, ConnectionError)
+            assert isinstance(e, Timeout)
+
     @pytest.mark.parametrize(
         'timeout', (
             (0.1, 0.1),
@@ -2421,12 +2431,12 @@ class TestPreparingURLs(object):
     def test_preparing_url(self, url, expected):
 
         def normalize_percent_encode(x):
-            # Helper function that normalizes equivalent 
+            # Helper function that normalizes equivalent
             # percent-encoded bytes before comparisons
             for c in re.findall(r'%[a-fA-F0-9]{2}', x):
                 x = x.replace(c, c.upper())
             return x
-        
+
         r = requests.Request('GET', url=url)
         p = r.prepare()
         assert normalize_percent_encode(p.url) == expected

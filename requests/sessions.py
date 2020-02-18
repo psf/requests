@@ -355,7 +355,7 @@ class Session(SessionRedirectMixin):
 
     __attrs__ = [
         'headers', 'cookies', 'auth', 'proxies', 'hooks', 'params', 'verify',
-        'cert', 'prefetch', 'adapters', 'stream', 'trust_env',
+        'timeout', 'cert', 'prefetch', 'adapters', 'stream', 'trust_env',
         'max_redirects',
     ]
 
@@ -369,6 +369,10 @@ class Session(SessionRedirectMixin):
         #: Default Authentication tuple or object to attach to
         #: :class:`Request <Request>`.
         self.auth = None
+
+        #: Default timeout tuple or int to attach to
+        #: :class:`Request <Request>`.
+        self.timeout = None
 
         #: Dictionary mapping protocol or protocol and host to the URL of the proxy
         #: (e.g. {'http': 'foo.bar:3128', 'http://host.name': 'foo.bar:4012'}) to
@@ -518,12 +522,11 @@ class Session(SessionRedirectMixin):
         proxies = proxies or {}
 
         settings = self.merge_environment_settings(
-            prep.url, proxies, stream, verify, cert
+            prep.url, proxies, stream, verify, cert, timeout
         )
 
         # Send the request.
         send_kwargs = {
-            'timeout': timeout,
             'allow_redirects': allow_redirects,
         }
         send_kwargs.update(settings)
@@ -622,6 +625,7 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault('verify', self.verify)
         kwargs.setdefault('cert', self.cert)
         kwargs.setdefault('proxies', self.proxies)
+        kwargs.setdefault('timeout', self.timeout)
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
@@ -684,7 +688,7 @@ class Session(SessionRedirectMixin):
 
         return r
 
-    def merge_environment_settings(self, url, proxies, stream, verify, cert):
+    def merge_environment_settings(self, url, proxies, stream, verify, cert, timeout):
         """
         Check the environment and merge it with some settings.
 
@@ -709,9 +713,10 @@ class Session(SessionRedirectMixin):
         stream = merge_setting(stream, self.stream)
         verify = merge_setting(verify, self.verify)
         cert = merge_setting(cert, self.cert)
+        timeout = merge_setting(timeout, self.timeout)
 
         return {'verify': verify, 'proxies': proxies, 'stream': stream,
-                'cert': cert}
+                'cert': cert, 'timeout': timeout}
 
     def get_adapter(self, url):
         """
