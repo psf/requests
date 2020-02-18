@@ -442,6 +442,13 @@ If a response contains some Cookies, you can quickly access them::
     >>> r.cookies['example_cookie_name']
     'example_cookie_value'
 
+If some URLs that return a cookie involve a redirect (status code 302), you should specify an option for getting the cookie.
+
+    >>> url = 'http://httpbin.org/cookies/set/requests-is/awesome'
+    >>> r = requests.get(url, allow_redirects=False)
+    >>> r.cookies['requests-is']
+    'awesome'
+
 To send your own cookies to the server, you can use the ``cookies``
 parameter::
 
