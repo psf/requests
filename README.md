@@ -89,7 +89,7 @@ Requests is ready for the demands of building robust and reliable HTTP–speak a
 Requests Module Installation
 ----------------------------
 
-The recommended way to intall the `requests` module is to simply use [`pipenv`](http://pipenv.org/) (or `pip`, of
+The recommended way to intall the `requests` module is to simply use [`pipenv`](https://pipenv.kennethreitz.org) (or `pip`, of
 course):
 
 ```console
