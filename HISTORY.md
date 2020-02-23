@@ -8,6 +8,22 @@ dev
 
 -   \[Short description of non-trivial change.\]
 
+2.23.0 (2020-02-19)
+-------------------
+
+**Improvements**
+
+- Remove defunct reference to `prefetch` in Session `__attrs__` (#5110)
+
+**Bugfixes**
+
+- Requests no longer outputs password in basic auth usage warning. (#5099)
+
+**Dependencies**
+
+- Pinning for `chardet` and `idna` now uses major version instead of minor.
+  This hopefully reduces the need for releases everytime a dependency is updated.
+
 2.22.0 (2019-05-15)
 -------------------
 
