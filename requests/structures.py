@@ -65,14 +65,14 @@ class CaseInsensitiveDict(MutableMapping):
     def lower_items(self):
         """Like iteritems(), but with all lowercase keys."""
         return (
-            (lowerkey, keyval[1])
-            for (lowerkey, keyval)
+            (lowerkey, value)
+            for (lowerkey, (original_key, value))
             in self._store.items()
         )
 
     def __eq__(self, other):
         if isinstance(other, Mapping):
-            other = CaseInsensitiveDict(other)
+            other = type(self)(other)
         else:
             return NotImplemented
         # Compare insensitively
@@ -80,7 +80,7 @@ class CaseInsensitiveDict(MutableMapping):
 
     # Copy is required
     def copy(self):
-        return CaseInsensitiveDict(self._store.values())
+        return type(self)(self._store.values())
 
     def __repr__(self):
         return str(dict(self.items()))
