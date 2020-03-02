@@ -10,6 +10,7 @@ requests (cookies, auth, proxies).
 import os
 import sys
 import time
+import warnings
 from datetime import timedelta
 from collections import OrderedDict
 
@@ -22,7 +23,9 @@ from .hooks import default_hooks, dispatch_hook
 from ._internal_utils import to_native_string
 from .utils import to_key_val_list, default_headers, DEFAULT_PORTS
 from .exceptions import (
-    TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError)
+    TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError,
+    RequestsWarning
+)
 
 from .structures import CaseInsensitiveDict
 from .adapters import HTTPAdapter
@@ -263,6 +266,11 @@ class SessionRedirectMixin(object):
             # If we get redirected to a new host, we should strip out any
             # authentication headers.
             del headers['Authorization']
+            warnings.warn(
+                "The request has been redirected, requests has stripped authentication "
+                "to avoid leaking credentials. Credentials from .netrc might be used instead.",
+                category=RequestsWarning
+            )
 
         # .netrc might have more auth for us on our new host.
         new_auth = get_netrc_auth(url) if self.trust_env else None
