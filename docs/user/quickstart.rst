@@ -148,7 +148,7 @@ There's also a builtin JSON decoder, in case you're dealing with JSON data::
 
     >>> r = requests.get('https://api.github.com/events')
     >>> r.json()
-    [{'repository': {'open_issues': 0, u'url': 'https://github.com/...
+    [{'repository': {'open_issues': 0, 'url': 'https://github.com/...
 
 In case the JSON decoding fails, ``r.json()`` raises an exception. For example, if
 the response gets a 204 (No Content), or if the response contains invalid JSON,
