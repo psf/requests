@@ -138,7 +138,7 @@ class RequestEncodingMixin(object):
                         (field.decode('utf-8') if isinstance(field, bytes) else field,
                          v.encode('utf-8') if isinstance(v, str) else v))
 
-        for (k, v) in files:
+        for k, v in files:
             # support for explicit filename
             ft = None
             fh = None
@@ -235,7 +235,7 @@ class Request(RequestHooksMixin):
         hooks = {} if hooks is None else hooks
 
         self.hooks = default_hooks()
-        for (k, v) in hooks.items():
+        for k, v in hooks.items():
             self.register_hook(event=k, hook=v)
 
         self.method = method
