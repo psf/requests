@@ -228,14 +228,14 @@ class Request(RequestHooksMixin):
             params=None, auth=None, cookies=None, hooks=None, json=None):
 
         # Default empty dicts for dict params.
-        data = [] if data is None else data
-        files = [] if files is None else files
-        headers = {} if headers is None else headers
-        params = {} if params is None else params
-        hooks = {} if hooks is None else hooks
+        data = data or []
+        files = files or []
+        headers = headers or {}
+        params = params or {}
+        hooks = hooks or {}
 
         self.hooks = default_hooks()
-        for (k, v) in list(hooks.items()):
+        for k, v in hooks.items():
             self.register_hook(event=k, hook=v)
 
         self.method = method
