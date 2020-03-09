@@ -9,11 +9,14 @@ This module implements the Requests API.
 :copyright: (c) 2012 by Kenneth Reitz.
 :license: Apache2, see LICENSE for more details.
 """
+from typing import Dict, Any, Union, List, Tuple, ByteString
+
+from typing.io import IO
 
 from . import sessions
 
 
-def request(method, url, **kwargs):
+def request(method: str, url: str, **kwargs: Dict[str, Any]):
     """Constructs and sends a :class:`Request <Request>`.
 
     :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
@@ -61,7 +64,7 @@ def request(method, url, **kwargs):
         return session.request(method=method, url=url, **kwargs)
 
 
-def get(url, params=None, **kwargs):
+def get(url: str, params: Union[Dict[str, Any], List[Tuple], ByteString] = None, **kwargs: Dict[str, Any]):
     r"""Sends a GET request.
 
     :param url: URL for the new :class:`Request` object.
@@ -76,7 +79,7 @@ def get(url, params=None, **kwargs):
     return request('get', url, params=params, **kwargs)
 
 
-def options(url, **kwargs):
+def options(url: str, **kwargs: Dict[str, Any]):
     r"""Sends an OPTIONS request.
 
     :param url: URL for the new :class:`Request` object.
@@ -89,7 +92,7 @@ def options(url, **kwargs):
     return request('options', url, **kwargs)
 
 
-def head(url, **kwargs):
+def head(url: str, **kwargs: Dict[str, Any]):
     r"""Sends a HEAD request.
 
     :param url: URL for the new :class:`Request` object.
@@ -104,7 +107,10 @@ def head(url, **kwargs):
     return request('head', url, **kwargs)
 
 
-def post(url, data=None, json=None, **kwargs):
+def post(
+        url: str, data: Union[Dict[str, Any], List[Tuple], ByteString, IO] = None, json: Dict[str, Any] = None,
+        **kwargs: Dict[str, Any]
+):
     r"""Sends a POST request.
 
     :param url: URL for the new :class:`Request` object.
@@ -119,7 +125,7 @@ def post(url, data=None, json=None, **kwargs):
     return request('post', url, data=data, json=json, **kwargs)
 
 
-def put(url, data=None, **kwargs):
+def put(url: str, data: Union[Dict[str, Any], List[Tuple], ByteString, IO] = None, **kwargs: Dict[str, Any]):
     r"""Sends a PUT request.
 
     :param url: URL for the new :class:`Request` object.
@@ -134,7 +140,7 @@ def put(url, data=None, **kwargs):
     return request('put', url, data=data, **kwargs)
 
 
-def patch(url, data=None, **kwargs):
+def patch(url: str, data: Union[Dict[str, Any], List[Tuple], ByteString, IO] = None, **kwargs: Dict[str, Any]):
     r"""Sends a PATCH request.
 
     :param url: URL for the new :class:`Request` object.
@@ -149,7 +155,7 @@ def patch(url, data=None, **kwargs):
     return request('patch', url, data=data, **kwargs)
 
 
-def delete(url, **kwargs):
+def delete(url: str, **kwargs: Dict[str, Any]):
     r"""Sends a DELETE request.
 
     :param url: URL for the new :class:`Request` object.
