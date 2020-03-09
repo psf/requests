@@ -15,7 +15,10 @@ jobs:
     - stage: test
       python: '3.6'
     - stage: test
-      python: '3.7'
+      python: '3.7' 
+    - stage: test
+      python: 'pypy3'
+      dist: xenial
     - stage: test
       python: '3.8'
     - stage: coverage

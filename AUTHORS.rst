@@ -3,13 +3,14 @@ Requests was lovingly created by Kenneth Reitz.
 Keepers of the Crystals
 ```````````````````````
 
-- Ian Cordasco <graffatcolmingov@gmail.com> `@sigmavirus24 <https://github.com/sigmavirus24>`_.
-- Nate Prewitt <nate.prewitt@gmail.com> `@nateprewitt <https://github.com/nateprewitt>`_.
+- Nate Prewitt `@nateprewitt <https://github.com/nateprewitt>`_.
+- Seth M. Larson `@sethmlarson <https://github.com/sethmlarson>`_.
 
 Previous Keepers of Crystals
 ````````````````````````````
 - Kenneth Reitz <me@kennethreitz.org> `@kennethreitz <https://github.com/kennethreitz>`_, reluctant Keeper of the Master Crystal.
 - Cory Benfield <cory@lukasa.co.uk> `@lukasa <https://github.com/lukasa>`_
+- Ian Cordasco <graffatcolmingov@gmail.com> `@sigmavirus24 <https://github.com/sigmavirus24>`_.
 
 
 Patches and Suggestions
@@ -189,4 +190,3 @@ Patches and Suggestions
 - Antti Kaihola (`@akaihola <https://github.com/akaihola>`_)
 - "Dull Bananas" <dull.bananas0@gmail.com> (`@dullbananas <https://github.com/dullbananas>`_)
 - Alessio Izzo (`@aless10 <https://github.com/aless10>`_)
-- Belavin Denis (`@luckydenis <https://github.com/luckydenis>`_)
