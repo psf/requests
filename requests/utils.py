@@ -494,9 +494,6 @@ def get_encoding_from_headers(headers):
     if 'charset' in params:
         return params['charset'].strip("'\"")
 
-    if 'text' in content_type:
-        return 'ISO-8859-1'
-
 
 def stream_decode_response_unicode(iterator, r):
     """Stream decodes a iterator."""
