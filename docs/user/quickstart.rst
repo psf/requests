@@ -93,7 +93,7 @@ again::
 
     >>> r = requests.get('https://api.github.com/events')
     >>> r.text
-    u'[{"repository":{"open_issues":0,"url":"https://github.com/...
+    '[{"repository":{"open_issues":0,"url":"https://github.com/...
 
 Requests will automatically decode content from the server. Most unicode
 charsets are seamlessly decoded.
@@ -148,7 +148,7 @@ There's also a builtin JSON decoder, in case you're dealing with JSON data::
 
     >>> r = requests.get('https://api.github.com/events')
     >>> r.json()
-    [{u'repository': {u'open_issues': 0, u'url': 'https://github.com/...
+    [{'repository': {'open_issues': 0, 'url': 'https://github.com/...
 
 In case the JSON decoding fails, ``r.json()`` raises an exception. For example, if
 the response gets a 204 (No Content), or if the response contains invalid JSON,

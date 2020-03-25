@@ -38,9 +38,9 @@ by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is protected by The <
 >>> r.encoding
 'utf-8'
 >>> r.text
-u'{"type":"User"...'
+'{"type":"User"...'
 >>> r.json()
-{u'disk_usage': 368627, u'private_gists': 484, ...}
+{'disk_usage': 368627, 'private_gists': 484, ...}
 ```
 
 
