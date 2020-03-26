@@ -52,6 +52,65 @@ DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
 
 
+def _build_conn_kwargs(url, verify, cert):
+    """Extract the arguments needed to create an appropriate connection.
+
+    This method should not be called from user code, and is only
+    exposed for use when subclassing the
+    :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
+
+    :param url: The requested URL.
+    :param verify: Either a boolean, in which case it controls whether we verify
+        the server's TLS certificate, or a string, in which case it must be a path
+        to a CA bundle to use
+    :param cert: The SSL certificate to verify.
+    :returns: optional kwargs for building connection, relating to SSL verification
+    :rtype: dict
+    """
+    conn_kwargs = {}
+
+    if url.lower().startswith('https') and verify:
+
+        cert_loc = None
+
+        # Allow self-specified cert location.
+        if verify is not True:
+            cert_loc = verify
+
+        if not cert_loc:
+            cert_loc = extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH)
+
+        if not cert_loc or not os.path.exists(cert_loc):
+            raise IOError("Could not find a suitable TLS CA certificate bundle, "
+                          "invalid path: {}".format(cert_loc))
+
+        conn_kwargs['cert_reqs'] = 'CERT_REQUIRED'
+
+        if not os.path.isdir(cert_loc):
+            conn_kwargs['ca_certs'] = cert_loc
+        else:
+            conn_kwargs['ca_cert_dir'] = cert_loc
+    else:
+        conn_kwargs['cert_reqs'] = 'CERT_NONE'
+        conn_kwargs['ca_certs'] = None
+        conn_kwargs['ca_cert_dir'] = None
+
+    if cert:
+        if not isinstance(cert, basestring):
+            conn_kwargs['cert_file'] = cert[0]
+            conn_kwargs['key_file'] = cert[1]
+        else:
+            conn_kwargs['cert_file'] = cert
+            conn_kwargs['key_file'] = None
+        if conn_kwargs['cert_file'] and not os.path.exists(conn_kwargs['cert_file']):
+            raise IOError("Could not find the TLS certificate file, "
+                          "invalid path: {}".format(conn_kwargs['cert_file']))
+        if conn_kwargs['key_file'] and not os.path.exists(conn_kwargs['key_file']):
+            raise IOError("Could not find the TLS key file, "
+                          "invalid path: {}".format(conn_kwargs['key_file']))
+    return conn_kwargs
+
+
 class BaseAdapter(object):
     """The Base Transport Adapter"""
 
@@ -204,7 +263,6 @@ class HTTPAdapter(BaseAdapter):
         """Verify a SSL certificate. This method should not be called from user
         code, and is only exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
-
         :param conn: The urllib3 connection object associated with the cert.
         :param url: The requested URL.
         :param verify: Either a boolean, in which case it controls whether we verify
@@ -289,7 +347,7 @@ class HTTPAdapter(BaseAdapter):
 
         return response
 
-    def get_connection(self, url, proxies=None):
+    def get_connection(self, url, proxies=None, verify=None, cert=None):
         """Returns a urllib3 connection for the given URL. This should not be
         called from user code, and is only exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
@@ -298,6 +356,7 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
         :rtype: urllib3.ConnectionPool
         """
+        conn_kwargs = _build_conn_kwargs(url, verify, cert)
         proxy = select_proxy(url, proxies)
 
         if proxy:
@@ -307,12 +366,12 @@ class HTTPAdapter(BaseAdapter):
                 raise InvalidProxyURL("Please check proxy URL. It is malformed"
                                       " and could be missing the host.")
             proxy_manager = self.proxy_manager_for(proxy)
-            conn = proxy_manager.connection_from_url(url)
+            conn = proxy_manager.connection_from_url(url, conn_kwargs)
         else:
             # Only scheme should be lower case
             parsed = urlparse(url)
             url = parsed.geturl()
-            conn = self.poolmanager.connection_from_url(url)
+            conn = self.poolmanager.connection_from_url(url, conn_kwargs)
 
         return conn
 
@@ -409,7 +468,7 @@ class HTTPAdapter(BaseAdapter):
         """
 
         try:
-            conn = self.get_connection(request.url, proxies)
+            conn = self.get_connection(request.url, proxies, verify, cert)
         except LocationValueError as e:
             raise InvalidURL(e, request=request)
 
