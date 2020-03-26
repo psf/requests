@@ -38,13 +38,19 @@ from .status_codes import codes
 from .models import REDIRECT_STATI
 
 # Preferred clock, based on which one is more accurate on a given system.
-if sys.platform == 'win32':
-    try:  # Python 3.4+
+if sys.version_info[0] >= 3:
+    try:
         preferred_clock = time.perf_counter
-    except AttributeError:  # Earlier than Python 3.
+    except AttributeError:
+        try:
+            preferred_clock = time.monotonic
+        except AttributeError:
+            preferred_clock = time.time
+else:  # Python 2
+    try:
         preferred_clock = time.clock
-else:
-    preferred_clock = time.time
+    except AttributeError:
+        preferred_clock = time.time
 
 
 def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
