@@ -103,7 +103,7 @@ Requests officially supports Python 2.7 & 3.5+.
 
 -------------------------------------
 
-## P.S. — Documentation is Available at [`//requests.readthedocs.io`](https://requests.readthedocs.io/en/latest/).
+## P.S. — Documentation is available at [`requests.readthedocs.io`](https://requests.readthedocs.io/en/latest/).
 
 <p align="center">
         <a href="https://requests.readthedocs.io/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/ss.png" align="center" /></a>
