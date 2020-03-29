@@ -47,7 +47,7 @@ OPTIONS? These are all just as simple::
     >>> r = requests.put('https://httpbin.org/put', data = {'key':'value'})
     >>> r = requests.delete('https://httpbin.org/delete')
     >>> r = requests.head('https://httpbin.org/get')
-    >>> r = requests.options('https://httpbin.org/get')
+    >>> r = requests.options('https://httpbin.org/options')
 
 That's all well and good, but it's also only the start of what Requests can
 do.
