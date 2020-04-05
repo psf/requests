@@ -870,6 +870,15 @@ class Response(object):
             content = str(self.content, errors='replace')
 
         return content
+    
+    @property
+    def text_with_headers(self):
+        """Returns the raw HTTP response as a string."""
+        head = f'HTTP/1.1 {self.status_code} {self.raw.reason}\r\n'
+        for header_name, header_value in self.headers.items():
+            head += f'{header_name}: {header_value}\r\n'
+        return head + '\r\n' + self.text
+
 
     def json(self, **kwargs):
         r"""Returns the json-encoded content of a response, if any.
