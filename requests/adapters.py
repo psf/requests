@@ -260,9 +260,12 @@ class HTTPAdapter(BaseAdapter):
         return manager
 
     def cert_verify(self, conn, url, verify, cert):
-        """Verify a SSL certificate. This method should not be called from user
-        code, and is only exposed for use when subclassing the
+        """Verify a SSL certificate [DEPRECATED].
+
+        This method should not be called from user code, and is only
+        exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
+
         :param conn: The urllib3 connection object associated with the cert.
         :param url: The requested URL.
         :param verify: Either a boolean, in which case it controls whether we verify
