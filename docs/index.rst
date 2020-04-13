@@ -35,9 +35,9 @@ Release v\ |version|. (:ref:`Installation <install>`)
     >>> r.encoding
     'utf-8'
     >>> r.text
-    u'{"type":"User"...'
+    '{"type":"User"...'
     >>> r.json()
-    {u'private_gists': 419, u'total_private_repos': 77, ...}
+    {'private_gists': 419, 'total_private_repos': 77, ...}
 
 See `similar code, sans Requests <https://gist.github.com/973705>`_.
 

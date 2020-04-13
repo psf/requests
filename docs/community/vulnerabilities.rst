@@ -8,9 +8,9 @@ please email `Nate <mailto:nate.prewitt@gmail.com>`_ and `Seth <mailto:@sethmich
 
 Our PGP Key fingerprints are:
 
-- 8722 7E29 AD9C FF5C FAC3  EA6A 44D3 FF97 B80D C864 (`@nateprewitt <https://keybase.io/nateprewitt`_)
+- 8722 7E29 AD9C FF5C FAC3  EA6A 44D3 FF97 B80D C864 (`@nateprewitt <https://keybase.io/nateprewitt>`_)
 
-- EDD5 6765 A9D8 4653 CBC8  A134 51B0 6736 1740 F5FC (`@sethmlarson <https://keybase.io/sethmlarson`_)
+- EDD5 6765 A9D8 4653 CBC8  A134 51B0 6736 1740 F5FC (`@sethmlarson <https://keybase.io/sethmlarson>`_)
 
 You can also contact us on `Keybase <https://keybase.io/>`_ with the
 profiles above if desired.
