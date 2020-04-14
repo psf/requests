@@ -11,7 +11,7 @@
     <code> >>> <strong>import requests</strong></code>
     <code> >>> r = requests.get('https://api.github.com/repos/psf/requests')</code>
     <code> >>> r.json()["description"]</code>
-    <code> 'A simple, yet elegant HTTP library. Handcrafted, with ♥, for the Python community.'</code>
+    <code> 'A simple, yet elegant HTTP library.'</code>
     </div>
 
     <p align="center">
@@ -38,9 +38,9 @@ by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is protected by The <
 >>> r.encoding
 'utf-8'
 >>> r.text
-u'{"type":"User"...'
+'{"type":"User"...'
 >>> r.json()
-{u'disk_usage': 368627, u'private_gists': 484, ...}
+{'disk_usage': 368627, 'private_gists': 484, ...}
 ```
 
 
@@ -89,7 +89,7 @@ Requests is ready for the demands of building robust and reliable HTTP–speak a
 Requests Module Installation
 ----------------------------
 
-The recommended way to intall the `requests` module is to simply use [`pipenv`](http://pipenv.org/) (or `pip`, of
+The recommended way to intall the `requests` module is to simply use [`pipenv`](https://pipenv.kennethreitz.org) (or `pip`, of
 course):
 
 ```console
@@ -99,11 +99,11 @@ Adding requests to Pipfile's [packages]…
 …
 ```
 
-Requests officially supports Python 2.7 & 3.4–3.8.
+Requests officially supports Python 2.7 & 3.5+.
 
 -------------------------------------
 
-## P.S. — Documentation is Available at [`//requests.readthedocs.io`](https://requests.readthedocs.io/en/latest/).
+## P.S. — Documentation is available at [`requests.readthedocs.io`](https://requests.readthedocs.io/en/latest/).
 
 <p align="center">
         <a href="https://requests.readthedocs.io/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/ss.png" align="center" /></a>

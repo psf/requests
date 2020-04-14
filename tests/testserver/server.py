@@ -96,6 +96,7 @@ class Server(threading.Thread):
             handler_result = self.handler(sock)
 
             self.handler_results.append(handler_result)
+            sock.close()
 
     def _accept_connection(self):
         try:
