@@ -212,7 +212,10 @@ class HTTPAdapter(BaseAdapter):
             to a CA bundle to use
         :param cert: The SSL certificate to verify.
         """
-        if url.lower().startswith('https') and verify:
+        if url.lower().startswith('https') and verify == 'SYSTEM':
+          conn.cert_reqs = 'CERT_REQUIRED'
+
+        elif url.lower().startswith('https') and verify:
 
             cert_loc = None
 
