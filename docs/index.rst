@@ -39,7 +39,7 @@ Release v\ |version|. (:ref:`Installation <install>`)
     >>> r.json()
     {'private_gists': 419, 'total_private_repos': 77, ...}
 
-See `similar code, sans Requests <https://gist.github.com/973705>`_.
+See `similar code, without Requests <https://gist.github.com/973705>`_.
 
 
 **Requests** allows you to send HTTP/1.1 requests extremely easily. 
