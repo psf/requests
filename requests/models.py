@@ -932,7 +932,7 @@ class Response(object):
             reason = self.reason
 
         if 400 <= self.status_code < 500:
-            http_error_msg = u'%s Client Error: %s for url: %s' % (self.status_code, reason, self.url)
+            http_error_msg = u'%s Client Error: %s for url: %s, Server Response: %s' % (self.status_code, reason, self.url, self.content)
 
         elif 500 <= self.status_code < 600:
             http_error_msg = u'%s Server Error: %s for url: %s' % (self.status_code, reason, self.url)
