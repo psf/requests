@@ -358,6 +358,9 @@ class Session(SessionRedirectMixin):
         'cert', 'adapters', 'stream', 'trust_env',
         'max_redirects',
     ]
+    
+    # whether the user has been warned about making requests without packet timeouts
+    __timeout_warned = False
 
     def __init__(self):
 
@@ -413,7 +416,7 @@ class Session(SessionRedirectMixin):
         self.adapters = OrderedDict()
         self.mount('https://', HTTPAdapter())
         self.mount('http://', HTTPAdapter())
-
+        
     def __enter__(self):
         return self
 
@@ -628,6 +631,11 @@ class Session(SessionRedirectMixin):
         if isinstance(request, Request):
             raise ValueError('You can only send PreparedRequests.')
 
+        if "timeout" not in kwargs:
+            if not Session.__timeout_warned:
+                print("WARNING: timeout missing from requests call, can hang forever")
+                Session.__timeout_warned = True
+                
         # Set up variables needed for resolve_redirects and dispatching of hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
         stream = kwargs.get('stream')
