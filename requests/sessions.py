@@ -10,6 +10,7 @@ requests (cookies, auth, proxies).
 import os
 import sys
 import time
+import warnings
 from datetime import timedelta
 from collections import OrderedDict
 
@@ -22,7 +23,8 @@ from .hooks import default_hooks, dispatch_hook
 from ._internal_utils import to_native_string
 from .utils import to_key_val_list, default_headers, DEFAULT_PORTS
 from .exceptions import (
-    TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError)
+    TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError,
+    RequestsWarning)
 
 from .structures import CaseInsensitiveDict
 from .adapters import HTTPAdapter
@@ -633,7 +635,8 @@ class Session(SessionRedirectMixin):
 
         if "timeout" not in kwargs:
             if not Session.__timeout_warned:
-                print("WARNING: timeout missing from requests call, can hang forever")
+                warnings.warn("Timeout missing from requests call, can hang forever", 
+                              RequestsWarning)
                 Session.__timeout_warned = True
                 
         # Set up variables needed for resolve_redirects and dispatching of hooks
