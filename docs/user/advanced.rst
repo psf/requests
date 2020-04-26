@@ -247,7 +247,8 @@ Requests can also ignore verifying the SSL certificate if you set ``verify`` to 
 Note that when ``verify`` is set to ``False``, requests will accept any TLS
 certificate presented by the server, and will ignore hostname mismatches
 and/or expired certificates, which will make your application vulnerable to
-man-in-the-middle (MitM) attacks. Only set this to ``False`` for testing.
+man-in-the-middle (MitM) attacks. Setting verify to ``False`` may be useful
+during local development or testing.
 
 By default, ``verify`` is set to True. Option ``verify`` only applies to host certs.
 
