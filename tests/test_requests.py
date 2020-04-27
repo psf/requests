@@ -2286,6 +2286,25 @@ def test_requests_are_updated_each_time(httpbin):
 
 
 @pytest.mark.parametrize("var,url,proxy", [
+    ('http_proxy', 'http://example.com', '"https://proxy.com:9876"'),
+    ('https_proxy', 'https://example.com', '"http://proxy.com:9876"'),
+    ('all_proxy', 'http://example.com', '"https://proxy.com:9876"'),
+])
+def test_proxy_url_strips_quotes(var, url, proxy):
+    session = requests.Session()
+    prep = PreparedRequest()
+    prep.prepare(method='GET', url=url)
+
+    kwargs = {
+        var: proxy
+    }
+    scheme = urlparse(url).scheme
+    with override_environ(**kwargs):
+        proxies = session.rebuild_proxies(prep, {})
+        assert scheme in proxies
+        assert proxies[scheme] == proxy[1:-1]   # with quotes stripped
+
+@pytest.mark.parametrize("var,url,proxy", [
     ('http_proxy', 'http://example.com', 'socks5://proxy.com:9876'),
     ('https_proxy', 'https://example.com', 'socks5://proxy.com:9876'),
     ('all_proxy', 'http://example.com', 'socks5://proxy.com:9876'),
