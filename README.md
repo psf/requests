@@ -38,9 +38,9 @@ by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is protected by The <
 >>> r.encoding
 'utf-8'
 >>> r.text
-u'{"type":"User"...'
+'{"type":"User"...'
 >>> r.json()
-{u'disk_usage': 368627, u'private_gists': 484, ...}
+{'disk_usage': 368627, 'private_gists': 484, ...}
 ```
 
 
@@ -103,7 +103,7 @@ Requests officially supports Python 2.7 & 3.5+.
 
 -------------------------------------
 
-## P.S. — Documentation is Available at [`//requests.readthedocs.io`](https://requests.readthedocs.io/en/latest/).
+## P.S. — Documentation is available at [`requests.readthedocs.io`](https://requests.readthedocs.io/en/latest/).
 
 <p align="center">
         <a href="https://requests.readthedocs.io/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/ss.png" align="center" /></a>
