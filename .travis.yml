@@ -4,13 +4,6 @@ os: linux
 
 dist: xenial
 
-# command to install dependencies
-install: "make"
-# command to run tests
-script:
-  - make test-readme
-  - make ci
-cache: pip
 jobs:
   include:
     - stage: test
@@ -29,3 +22,13 @@ jobs:
     - stage: coverage
       python: '3.6'
       script: codecov
+
+# command to install dependencies
+install: "make"
+
+# command to run tests
+script:
+  - make test-readme
+  - make ci
+  
+cache: pip
