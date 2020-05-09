@@ -916,7 +916,7 @@ class Response(object):
         return l
 
     def raise_for_status(self):
-        """Raises stored :class:`HTTPError`, if one occurred."""
+        """Raises :class:`HTTPError`, if one occurred."""
 
         http_error_msg = ''
         if isinstance(self.reason, bytes):
