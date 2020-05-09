@@ -395,8 +395,8 @@ To do that, just set files to a list of tuples of ``(form_field_name, file_info)
 
     >>> url = 'https://httpbin.org/post'
     >>> multiple_files = [
-            ('images', ('foo.png', open('foo.png', 'rb'), 'image/png')),
-            ('images', ('bar.png', open('bar.png', 'rb'), 'image/png'))]
+    ...     ('images', ('foo.png', open('foo.png', 'rb'), 'image/png')),
+    ...     ('images', ('bar.png', open('bar.png', 'rb'), 'image/png'))]
     >>> r = requests.post(url, files=multiple_files)
     >>> r.text
     {
@@ -698,12 +698,12 @@ So, GitHub returns JSON. That's great, we can use the :meth:`r.json
     >>> commit_data = r.json()
 
     >>> print(commit_data.keys())
-    [u'committer', u'author', u'url', u'tree', u'sha', u'parents', u'message']
+    ['committer', 'author', 'url', 'tree', 'sha', 'parents', 'message']
 
-    >>> print(commit_data[u'committer'])
-    {u'date': u'2012-05-10T11:10:50-07:00', u'email': u'me@kennethreitz.com', u'name': u'Kenneth Reitz'}
+    >>> print(commit_data['committer'])
+    {'date': '2012-05-10T11:10:50-07:00', 'email': 'me@kennethreitz.com', 'name': 'Kenneth Reitz'}
 
-    >>> print(commit_data[u'message'])
+    >>> print(commit_data['message'])
     makin' history
 
 So far, so simple. Well, let's investigate the GitHub API a little bit. Now,
@@ -746,26 +746,26 @@ this issue already exists, we will use it as an example. Let's start by getting 
 
     >>> issue = json.loads(r.text)
 
-    >>> print(issue[u'title'])
+    >>> print(issue['title'])
     Feature any http verb in docs
 
-    >>> print(issue[u'comments'])
+    >>> print(issue['comments'])
     3
 
 Cool, we have three comments. Let's take a look at the last of them.
 
 ::
 
-    >>> r = requests.get(r.url + u'/comments')
+    >>> r = requests.get(r.url + '/comments')
     >>> r.status_code
     200
 
     >>> comments = r.json()
 
     >>> print(comments[0].keys())
-    [u'body', u'url', u'created_at', u'updated_at', u'user', u'id']
+    ['body', 'url', 'created_at', 'updated_at', 'user', 'id']
 
-    >>> print(comments[2][u'body'])
+    >>> print(comments[2]['body'])
     Probably in the "advanced" section
 
 Well, that seems like a silly place. Let's post a comment telling the poster
@@ -773,7 +773,7 @@ that he's silly. Who is the poster, anyway?
 
 ::
 
-    >>> print(comments[2][u'user'][u'login'])
+    >>> print(comments[2]['user']['login'])
     kennethreitz
 
 OK, so let's tell this Kenneth guy that we think this example should go in the
@@ -803,7 +803,7 @@ the very common Basic Auth.
     201
 
     >>> content = r.json()
-    >>> print(content[u'body'])
+    >>> print(content['body'])
     Sounds great! I'll get right on it.
 
 Brilliant. Oh, wait, no! I meant to add that it would take me a while, because

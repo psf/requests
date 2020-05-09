@@ -42,8 +42,8 @@ if sys.argv[-1] == 'publish':
 packages = ['requests']
 
 requires = [
-    'chardet>=3.0.2,<3.1.0',
-    'idna>=2.5,<2.9',
+    'chardet>=3.0.2,<4',
+    'idna>=2.5,<3',
     'urllib3>=1.21.1,<1.26,!=1.25.0,!=1.25.1',
     'certifi>=2017.4.17'
 
@@ -102,7 +102,7 @@ setup(
     cmdclass={'test': PyTest},
     tests_require=test_requirements,
     extras_require={
-        'security': ['pyOpenSSL >= 0.14', 'cryptography>=1.3.4', 'idna>=2.0.0'],
+        'security': ['pyOpenSSL >= 0.14', 'cryptography>=1.3.4'],
         'socks': ['PySocks>=1.5.6, !=1.5.7'],
         'socks:sys_platform == "win32" and python_version == "2.7"': ['win_inet_pton'],
     },

@@ -4,9 +4,30 @@ Release History
 dev
 ---
 
+**Improvements**
+
+- pyOpenSSL TLS implementation is now only used if Python
+  either doesn't have an `ssl` module or doesn't support
+  SNI. Previously pyOpenSSL was unconditionally used if available.
+  This applies even if pyOpenSSL is installed via the
+  `requests[security]` extra (#5443)
+
+
+2.23.0 (2020-02-19)
+-------------------
+
+**Improvements**
+
+- Remove defunct reference to `prefetch` in Session `__attrs__` (#5110)
+
 **Bugfixes**
 
--   \[Short description of non-trivial change.\]
+- Requests no longer outputs password in basic auth usage warning. (#5099)
+
+**Dependencies**
+
+- Pinning for `chardet` and `idna` now uses major version instead of minor.
+  This hopefully reduces the need for releases everytime a dependency is updated.
 
 2.22.0 (2019-05-15)
 -------------------

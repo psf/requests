@@ -1,20 +1,18 @@
-Vulnerability Disclosure
-========================
-
-.. image::
-https://farm5.staticflickr.com/4211/34709353644\_b041e9e1c2\_k\_d.jpg
+# Vulnerability Disclosure
 
 If you think you have found a potential security vulnerability in
-requests, please email
-`sigmavirus24 <mailto:graffatcolmingov@gmail.com>`\_ and
-`Nate <mailto:nate.prewitt@gmail.com>`\_ directly. **Do not file a
-public issue.**
+requests, please email [Nate](mailto:nate.prewitt@gmail.com)
+and [Seth](mailto:sethmichaellarson@gmail.com) directly.
+**Do not file a public issue.**
 
 Our PGP Key fingerprints are:
 
--   0161 BB7E B208 B5E0 4FDC 9F81 D9DA 0A04 9113 F853 (@sigmavirus24)
+- 8722 7E29 AD9C FF5C FAC3  EA6A 44D3 FF97 B80D C864 ([@nateprewitt](https://keybase.io/nateprewitt))
 
--   8722 7E29 AD9C FF5C FAC3 EA6A 44D3 FF97 B80D C864 (@nateprewitt)
+- EDD5 6765 A9D8 4653 CBC8  A134 51B0 6736 1740 F5FC ([@sethmlarson](https://keybase.io/sethmlarson))
+
+You can also contact us on [Keybase](https://keybase.io) with the
+profiles above if desired.
 
 If English is not your first language, please try to describe the
 problem and its impact to the best of your ability. For greater detail,
@@ -32,15 +30,14 @@ and can publish it in a release.
 We will respect your privacy and will only publicize your involvement if
 you grant us permission.
 
-Process
--------
+## Process
 
 This following information discusses the process the requests project
 follows in response to vulnerability disclosures. If you are disclosing
 a vulnerability, this section of the documentation lets you know how we
 will respond to your disclosure.
 
-Timeline \~\~\~\~\~\~\~\~
+### Timeline
 
 When you report an issue, one of the project members will respond to you
 within two days *at the outside*. In most cases responses will be
