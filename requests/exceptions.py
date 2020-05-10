@@ -102,7 +102,7 @@ class StreamConsumedError(RequestException, TypeError):
 
 
 class RetryError(RequestException):
-    """Custom retries logic failed"""
+    """Custom retries logic failed."""
 
 
 class UnrewindableBodyError(RequestException):
