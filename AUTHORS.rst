@@ -60,7 +60,7 @@ Patches and Suggestions
 - Juergen Brendel
 - Juan Riaza
 - Ryan Kelly
-- Rolando Espinoza La fuente
+- Rolando (Max) Espinoza La fuente (`@rmax <https://github.com/rmax>`_)
 - Robert Gieseke
 - Idan Gazit
 - Ed Summers
