@@ -7,20 +7,20 @@ dist: xenial
 jobs:
   include:
     - stage: test
-      python: '2.7'
+      python: '2.7.18'
     - stage: test
-      python: '3.5'
+      python: '3.5.9'
     - stage: test
-      python: '3.6'
+      python: '3.6.10'
     - stage: test
-      python: '3.7' 
+      python: '3.7.7' 
     - stage: test
       python: 'pypy3'
       dist: xenial
     - stage: test
-      python: '3.8'
+      python: '3.8.2'
     - stage: coverage
-      python: '3.6'
+      python: '3.6.10'
       script: codecov
 
 # command to install dependencies
@@ -31,4 +31,6 @@ script:
   - make test-readme
   - make ci
   
-cache: pip
+cache: 
+  pip: true
+  apt: true
