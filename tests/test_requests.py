@@ -345,11 +345,6 @@ class TestRequests:
         )
         assert 'foo' not in s.cookies
 
-    def test_cookie_quote_wrapped(self, httpbin):
-        s = requests.session()
-        s.get(httpbin('cookies/set?foo="bar:baz"'))
-        assert s.cookies['foo'] == '"bar:baz"'
-
     def test_cookie_persists_via_api(self, httpbin):
         s = requests.session()
         r = s.get(httpbin('redirect/1'), cookies={'foo': 'bar'})

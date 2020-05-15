@@ -129,7 +129,6 @@ Patches and Suggestions
 - Dave Shawley <daveshawley@gmail.com>
 - James Clarke (`@jam <https://github.com/jam>`_)
 - Kevin Burke <kev@inburke.com>
-- Flavio Curella
 - David Pursehouse <david.pursehouse@gmail.com> (`@dpursehouse <https://github.com/dpursehouse>`_)
 - Jon Parise (`@jparise <https://github.com/jparise>`_)
 - Alexander Karpinsky (`@homm86 <https://twitter.com/homm86>`_)
