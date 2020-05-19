@@ -557,7 +557,7 @@ def test_iter_slices(value, length):
             [{'url': 'http:/.../front.jpeg', 'rel': 'front', 'type': 'image/jpeg'}]
         ),
         (
-            '<https:/.../front.jpeg?a=b;id=123>; rel="original"',
+            '<http:/.../front.jpeg?a=b;id=123>; rel="original"',
             [{'url': 'http:/.../front.jpeg?a=b;id=123', 'rel': 'original'}]
         ),
         (
