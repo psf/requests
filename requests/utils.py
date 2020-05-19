@@ -826,9 +826,9 @@ def parse_header_links(value):
 
     links = []
 
-    replace_chars = ' \'";'
+    strip_chars = ' \'";'
 
-    value = value.strip(replace_chars)
+    value = value.strip(strip_chars)
     if not value:
         return links
 
@@ -837,13 +837,13 @@ def parse_header_links(value):
 
         link = {'url': url.strip('<> \'"')}
 
-        for param in params.strip(replace_chars).split(';'):
+        for param in params.strip(strip_chars).split(';'):
             try:
                 key, value = param.split('=')
             except ValueError:
                 break
 
-            link[key.strip(replace_chars)] = value.strip(replace_chars)
+            link[key.strip(strip_chars)] = value.strip(strip_chars)
 
         links.append(link)
 
