@@ -697,7 +697,7 @@ def test_should_bypass_proxies_no_proxy(
     """Tests for function should_bypass_proxies to check if proxy
     can be bypassed or not using the 'no_proxy' argument
     """
-    no_proxy = '192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1'
+    no_proxy = '192.168.0.0/24,127.0.0.1 localhost.localdomain 172.16.1.1'
     # Test 'no_proxy' argument
     assert should_bypass_proxies(url, no_proxy=no_proxy) == expected
 

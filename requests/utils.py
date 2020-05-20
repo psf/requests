@@ -721,7 +721,7 @@ def should_bypass_proxies(url, no_proxy):
         # We need to check whether we match here. We need to see if we match
         # the end of the hostname, both with and without the port.
         no_proxy = (
-            host for host in no_proxy.replace(' ', '').split(',') if host
+            host for host in re.split('[, ]', no_proxy) if host
         )
 
         if is_ipv4_address(parsed.hostname):
