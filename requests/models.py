@@ -617,6 +617,7 @@ class Response(object):
 
         #: Encoding to decode with when accessing r.text.
         self.encoding = None
+        self.tried_auto_detect_encoding = False
 
         #: A list of :class:`Response <Response>` objects from
         #: the history of the Request. Any redirect responses will end
@@ -854,8 +855,9 @@ class Response(object):
             return str('')
 
         # Fallback to auto-detected encoding.
-        if self.encoding is None:
+        if self.encoding is None and not self.tried_auto_detect_encoding:
             encoding = self.apparent_encoding
+            self.tried_auto_detect_encoding = True
 
         # Decode unicode from given encoding.
         try:

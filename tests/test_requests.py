@@ -2379,6 +2379,13 @@ def test_urllib3_pool_connection_closed(httpbin):
         assert u"Pool is closed." in str(e)
 
 
+def test_chardet_encoding_auto_detect_accessed_once(mocker):
+    chardet_mock = mocker.patch('requests.compat.chardet.detect')
+    r = requests.request('GET', url='https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf')
+    _ = r.text
+    _ = r.text
+    chardet_mock.assert_called_once()
+
 class TestPreparingURLs(object):
     @pytest.mark.parametrize(
         'url,expected',
