@@ -2384,7 +2384,7 @@ def test_chardet_encoding_auto_detect_accessed_once(mocker):
     r = requests.request('GET', url='https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf')
     _ = r.text
     _ = r.text
-    chardet_mock.assert_called_once()
+    assert chardet_mock.call_count == 1
 
 class TestPreparingURLs(object):
     @pytest.mark.parametrize(
