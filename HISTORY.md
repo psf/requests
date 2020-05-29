@@ -4,14 +4,10 @@ Release History
 dev
 ---
 
-**Improvements**
+**Deprecations**
 
-- pyOpenSSL TLS implementation is now only used if Python
-  either doesn't have an `ssl` module or doesn't support
-  SNI. Previously pyOpenSSL was unconditionally used if available.
-  This applies even if pyOpenSSL is installed via the
-  `requests[security]` extra (#5443)
-
+- pyOpenSSL TLS is no longer patched to add extra SNI support. Python 2.7.9 or
+  later is now required for SNI support.
 
 2.23.0 (2020-02-19)
 -------------------
