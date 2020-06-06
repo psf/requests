@@ -918,7 +918,7 @@ class Response(object):
     def raise_for_status(self):
         """Raises :class:`HTTPError`, if one occurred."""
 
-        http_error_msg = ''
+        http_error_msg, reason = '', ''
         if isinstance(self.reason, bytes):
             # We attempt to decode utf-8 first because some servers
             # choose to localize their reason strings. If the string
@@ -931,10 +931,9 @@ class Response(object):
         else:
             reason = self.reason
 
-        if 400 <= self.status_code < 500:
+        if self.status_code in range(400, 500):
             http_error_msg = u'%s Client Error: %s for url: %s' % (self.status_code, reason, self.url)
-
-        elif 500 <= self.status_code < 600:
+        elif self.status_code in range(500, 600):
             http_error_msg = u'%s Server Error: %s for url: %s' % (self.status_code, reason, self.url)
 
         if http_error_msg:
