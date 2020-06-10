@@ -880,7 +880,7 @@ def guess_json_utf(data):
             return 'utf-16-be'
         if sample[1:2] == _null:  # 2nd is null
             return 'utf-16-le'
-        # Did not detect 2 valid UTF-16 ascii-range characters
+        # Did not detect a valid UTF-16 ascii-range character
     if nullcount == 3:
         if sample[:3] == _null3:
             return 'utf-32-be'
