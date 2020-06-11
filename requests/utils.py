@@ -876,9 +876,9 @@ def guess_json_utf(data):
     if nullcount == 0:
         return 'utf-8'
     if nullcount < 3:
-        if sample[:1] == _null:   # 1st is null
+        if sample[:1] == _null and sample[1:2] != _null:   # 1st is null
             return 'utf-16-be'
-        if sample[1:2] == _null:  # 2nd is null
+        if sample[:1] != _null and sample[1:2] == _null:  # 2nd is null
             return 'utf-16-le'
         # Did not detect a valid UTF-16 ascii-range character
     if nullcount == 3:
