@@ -99,6 +99,7 @@ class HTTPAdapter(BaseAdapter):
         which we retry a request, import urllib3's ``Retry`` class and pass
         that instead.
     :param pool_block: Whether the connection pool should block for connections.
+    :param pool_kwargs: Extra keyword arguments used to initialize the urllib3 Pool Manager.
 
     Usage::
 
@@ -112,7 +113,7 @@ class HTTPAdapter(BaseAdapter):
 
     def __init__(self, pool_connections=DEFAULT_POOLSIZE,
                  pool_maxsize=DEFAULT_POOLSIZE, max_retries=DEFAULT_RETRIES,
-                 pool_block=DEFAULT_POOLBLOCK):
+                 pool_block=DEFAULT_POOLBLOCK, **pool_kwargs):
         if max_retries == DEFAULT_RETRIES:
             self.max_retries = Retry(0, read=False)
         else:
@@ -126,7 +127,7 @@ class HTTPAdapter(BaseAdapter):
         self._pool_maxsize = pool_maxsize
         self._pool_block = pool_block
 
-        self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
+        self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block, **pool_kwargs)
 
     def __getstate__(self):
         return {attr: getattr(self, attr, None) for attr in self.__attrs__}
