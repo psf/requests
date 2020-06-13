@@ -24,6 +24,36 @@ def test_chunked_upload():
     assert r.request.headers['Transfer-Encoding'] == 'chunked'
 
 
+def test_chunked_upload_with_content_length():
+    """can safely send generators"""
+
+    close_server = threading.Event()
+    server = Server.basic_response_server(wait_to_close_event=close_server)
+    data = iter([b'a', b'bbb', b'c'])
+
+    with server as (host, port):
+        url = 'http://{}:{}/'.format(host, port)
+        r = requests.post(url, data=data, stream=True, headers={
+            'Content-Length': '42',
+        })
+        close_server.set()  # release server block
+
+    assert r.status_code == 200
+    assert r.request.headers['Transfer-Encoding'] == 'chunked'
+    assert r.request.headers['Content-Length'] == '42'
+
+    body_separator = b"\r\n\r\n"
+    body_start = server.handler_results[0].index(body_separator) + len(body_separator)
+    body = server.handler_results[0][body_start:]
+    assert body == (
+        b'1\r\na\r\n'           # chunk #1
+        b'3\r\nbbb\r\n'         # chunk #2
+        b'1\r\nc\r\n'           # chunk #3
+        b'0\r\n'                # last-chunk
+        b'\r\n'                 # end-of-stream
+    )
+
+
 def test_digestauth_401_count_reset_on_redirect():
     """Ensure we correctly reset num_401_calls after a successful digest auth,
     followed by a 302 redirect to another digest auth prompt.

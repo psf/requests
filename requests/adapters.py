@@ -417,7 +417,7 @@ class HTTPAdapter(BaseAdapter):
         url = self.request_url(request, proxies)
         self.add_headers(request, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
 
-        chunked = not (request.body is None or 'Content-Length' in request.headers)
+        chunked = request.body is not None and request.headers.get('Transfer-Encoding') == 'chunked'
 
         if isinstance(timeout, tuple):
             try:
