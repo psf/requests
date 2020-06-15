@@ -28,7 +28,7 @@ by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is protected by The <
 
 <p>&nbsp;</p>
 
-```python3
+```pycon
 >>> import requests
 >>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
 >>> r.status_code
