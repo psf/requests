@@ -4,6 +4,11 @@ Release History
 dev
 ---
 
+-   \[Short description of non-trivial change.\]
+
+2.24.0 (2020-06-17)
+-------------------
+
 **Improvements**
 
 - pyOpenSSL TLS implementation is now only used if Python
@@ -12,6 +17,11 @@ dev
   This applies even if pyOpenSSL is installed via the
   `requests[security]` extra (#5443)
 
+- Redirect resolution should now only occur when
+  `allow_redirects` is True. (#5492)
+
+- No longer perform unnecessary Content-Length calculation for
+  requests that won't use it. (#5496)
 
 2.23.0 (2020-02-19)
 -------------------
