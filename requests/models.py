@@ -473,12 +473,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             not isinstance(data, (basestring, list, tuple, Mapping))
         ])
 
-        try:
-            length = super_len(data)
-        except (TypeError, AttributeError, UnsupportedOperation):
-            length = None
-
         if is_stream:
+            try:
+                length = super_len(data)
+            except (TypeError, AttributeError, UnsupportedOperation):
+                length = None
+
             body = data
 
             if getattr(body, 'tell', None) is not None:
