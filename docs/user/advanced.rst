@@ -237,7 +237,7 @@ or persistent::
 .. note:: If ``verify`` is set to a path to a directory, the directory must have been processed using
   the c_rehash utility supplied with OpenSSL.
 
-This list of trusted CAs can also be specified through the ``REQUESTS_CA_BUNDLE`` environment variable.
+This list of trusted CAs can also be specified through the ``REQUESTS_CA_BUNDLE`` or ``CURL_CA_BUNDLE`` environment variables.
 
 Requests can also ignore verifying the SSL certificate if you set ``verify`` to False::
 
