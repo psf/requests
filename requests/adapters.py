@@ -309,9 +309,7 @@ class HTTPAdapter(BaseAdapter):
             proxy_manager = self.proxy_manager_for(proxy)
             conn = proxy_manager.connection_from_url(url)
         else:
-            # Only scheme should be lower case
-            parsed = urlparse(url)
-            url = parsed.geturl()
+            # connection_from_url handles case conversions.
             conn = self.poolmanager.connection_from_url(url)
 
         return conn
