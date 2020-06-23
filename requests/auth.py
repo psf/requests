@@ -124,7 +124,7 @@ class HTTPDigestAuth(AuthBase):
             self._thread_local.pos = None
             self._thread_local.num_401_calls = None
 
-    def build_digest_header(self, method, url):
+    def build_digest_header(self, method, url, entity_body=None):
         """
         :rtype: str
         """
@@ -180,7 +180,10 @@ class HTTPDigestAuth(AuthBase):
             path += '?' + p_parsed.query
 
         A1 = '%s:%s:%s' % (self.username, realm, self.password)
-        A2 = '%s:%s' % (method, path)
+        if qop == 'auth-int':
+            A2 = '%s:%s:%s' % (method, path, hash_utf8(entity_body))
+        else:
+            A2 = '%s:%s' % (method, path)
 
         HA1 = hash_utf8(A1)
         HA2 = hash_utf8(A2)
@@ -201,13 +204,13 @@ class HTTPDigestAuth(AuthBase):
 
         if not qop:
             respdig = KD(HA1, "%s:%s" % (nonce, HA2))
-        elif qop == 'auth' or 'auth' in qop.split(','):
+        elif qop == 'auth-int' or qop == 'auth' or 'auth' in qop.split(','):
             noncebit = "%s:%s:%s:%s:%s" % (
-                nonce, ncvalue, cnonce, 'auth', HA2
+                nonce, ncvalue, cnonce, qop, HA2
             )
             respdig = KD(HA1, noncebit)
         else:
-            # XXX handle auth-int.
+            # XXX handle other qop.
             return None
 
         self._thread_local.last_nonce = nonce
@@ -222,7 +225,7 @@ class HTTPDigestAuth(AuthBase):
         if entdig:
             base += ', digest="%s"' % entdig
         if qop:
-            base += ', qop="auth", nc=%s, cnonce="%s"' % (ncvalue, cnonce)
+            base += ', qop="%s", nc=%s, cnonce="%s"' % (qop, ncvalue, cnonce)
 
         return 'Digest %s' % (base)
 
@@ -265,7 +268,7 @@ class HTTPDigestAuth(AuthBase):
             prep.prepare_cookies(prep._cookies)
 
             prep.headers['Authorization'] = self.build_digest_header(
-                prep.method, prep.url)
+                prep.method, prep.url, prep.body)
             _r = r.connection.send(prep, **kwargs)
             _r.history.append(r)
             _r.request = prep
