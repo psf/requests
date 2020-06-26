@@ -3,8 +3,6 @@
 Advanced Usage
 ==============
 
-.. image:: https://farm5.staticflickr.com/4263/35163665790_d182d84f5e_k_d.jpg
-
 This document covers some of Requests more advanced features.
 
 .. _session-objects:
