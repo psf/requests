@@ -498,6 +498,26 @@ def get_encoding_from_headers(headers):
         return 'ISO-8859-1'
 
 
+def get_multipart_boundary_from_headers(headers):
+    """Returns multipart/form-data boundary from given HTTP Header Dict.
+
+    :param headers: dictionary to extract encoding from.
+    :rtype: str
+    """
+
+    content_type = headers.get('content-type')
+
+    if not content_type:
+        return None
+
+    content_type, params = _parse_content_type_header(content_type)
+
+    if 'boundary' in params:
+        return params['boundary']
+
+    return None
+
+
 def stream_decode_response_unicode(iterator, r):
     """Stream decodes a iterator."""
 

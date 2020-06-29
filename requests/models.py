@@ -34,7 +34,8 @@ from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, check_header_validity)
+    iter_slices, guess_json_utf, super_len, check_header_validity,
+    get_multipart_boundary_from_headers)
 from .compat import (
     Callable, Mapping,
     cookielib, urlunparse, urlsplit, urlencode, str, bytes,
@@ -107,7 +108,7 @@ class RequestEncodingMixin(object):
             return data
 
     @staticmethod
-    def _encode_files(files, data):
+    def _encode_files(files, data, multipart_form_boundary=None):
         """Build the body for a multipart/form-data request.
 
         Will successfully encode files when passed as a dict or a list of
@@ -150,7 +151,7 @@ class RequestEncodingMixin(object):
                 else:
                     fn, fp, ft, fh = v
             else:
-                fn = guess_filename(v) or k
+                fn = guess_filename(v) or None
                 fp = v
 
             if isinstance(fp, (str, bytes, bytearray)):
@@ -166,7 +167,7 @@ class RequestEncodingMixin(object):
             rf.make_multipart(content_type=ft)
             new_fields.append(rf)
 
-        body, content_type = encode_multipart_formdata(new_fields)
+        body, content_type = encode_multipart_formdata(new_fields, multipart_form_boundary)
 
         return body, content_type
 
@@ -228,8 +229,8 @@ class Request(RequestHooksMixin):
             params=None, auth=None, cookies=None, hooks=None, json=None):
 
         # Default empty dicts for dict params.
-        data = [] if data is None else data
-        files = [] if files is None else files
+        data = {} if data is None else data
+        files = {} if files is None else files
         headers = {} if headers is None else headers
         params = {} if params is None else params
         hooks = {} if hooks is None else hooks
@@ -504,7 +505,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         else:
             # Multi-part file uploads.
             if files:
-                (body, content_type) = self._encode_files(files, data)
+                boundary = get_multipart_boundary_from_headers(self.headers)
+                (body, content_type) = self._encode_files(files, data, boundary)
             else:
                 if data:
                     body = self._encode_params(data)
