@@ -658,11 +658,13 @@ class Session(SessionRedirectMixin):
 
         extract_cookies_to_jar(self.cookies, request, r.raw)
 
-        # Redirect resolving generator.
-        gen = self.resolve_redirects(r, request, **kwargs)
-
         # Resolve redirects if allowed.
-        history = [resp for resp in gen] if allow_redirects else []
+        if allow_redirects:
+            # Redirect resolving generator.
+            gen = self.resolve_redirects(r, request, **kwargs)
+            history = [resp for resp in gen]
+        else:
+            history = []
 
         # Shuffle things around if there's history.
         if history:
