@@ -7,7 +7,7 @@
     
     <div align="left">
     <p></p>
-    <code> Python 3.7.4 (default, Sep  7 2019, 18:27:02)</code>
+    <code> Python 3.8.4 (default, Jul 13 2020, 16:46:45)</code>
     <code> >>> <strong>import requests</strong></code>
     <code> >>> r = requests.get('https://api.github.com/repos/psf/requests')</code>
     <code> >>> r.json()["description"]</code>
