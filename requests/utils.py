@@ -212,7 +212,7 @@ def get_netrc_auth(url, raise_errors=False):
             if raise_errors:
                 raise
 
-    # AppEngine hackiness.
+    # App Engine hackiness.
     except (ImportError, AttributeError):
         pass
 
