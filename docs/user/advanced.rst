@@ -782,7 +782,7 @@ is to POST to the thread. Let's do it.
 ::
 
     >>> body = json.dumps({u"body": u"Sounds great! I'll get right on it!"})
-    >>> url = u"https://api.github.com/repos/psf/requests/issues/482/comments"
+    >>> url = u'https://api.github.com/repos/psf/requests/issues/482/comments'
 
     >>> r = requests.post(url=url, data=body)
     >>> r.status_code
@@ -812,11 +812,11 @@ that.
 
 ::
 
-    >>> print(content[u"id"])
+    >>> print(content[u'id'])
     5804413
 
     >>> body = json.dumps({u"body": u"Sounds great! I'll get right on it once I feed my cat."})
-    >>> url = u"https://api.github.com/repos/psf/requests/issues/comments/5804413"
+    >>> url = u'https://api.github.com/repos/psf/requests/issues/comments/5804413'
 
     >>> r = requests.patch(url=url, data=body, auth=auth)
     >>> r.status_code
@@ -888,10 +888,10 @@ in their API, for example::
 
 Requests will automatically parse these link headers and make them easily consumable::
 
-    >>> r.links["next"]
+    >>> r.links['next']
     {'url': 'https://api.github.com/users/kennethreitz/repos?page=2&per_page=10', 'rel': 'next'}
 
-    >>> r.links["last"]
+    >>> r.links['last']
     {'url': 'https://api.github.com/users/kennethreitz/repos?page=7&per_page=10', 'rel': 'last'}
 
 .. _transport-adapters:
