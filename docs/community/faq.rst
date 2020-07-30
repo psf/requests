@@ -10,7 +10,7 @@ This part of the documentation answers common questions about Requests.
 Encoded Data?
 -------------
 
-Requests automatically decompresses gzip-encoded responses, and does
+Requests automatically decompresses gzip-, deflate- and brotli-encoded[#]_ responses, and does
 its best to decode response content to unicode when possible.
 
 You can get direct access to the raw response (and even the socket),
@@ -91,3 +91,6 @@ For information on using SNI with Requests on Python < 2.7.9 refer to this
 .. _`Server-Name-Indication`: https://en.wikipedia.org/wiki/Server_Name_Indication
 .. _`virtual hosting`: https://en.wikipedia.org/wiki/Virtual_hosting
 .. _`Stack Overflow answer`: https://stackoverflow.com/questions/18578439/using-requests-with-tls-doesnt-give-sni-support/18579484#18579484
+
+
+  [#] for Brotli support you need to have `urllib3` >= 1.25.1 and `brotli` packages installed

@@ -31,6 +31,7 @@ from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
 from requests.compat import MutableMapping
+from requests.utils import brotli_supported
 
 from .compat import StringIO, u
 from .utils import override_environ
@@ -2527,3 +2528,23 @@ class TestPreparingURLs(object):
         r = requests.Request('GET', url=input, params=params)
         p = r.prepare()
         assert p.url == expected
+
+
+    @pytest.mark.skipif(not brotli_supported(), reason='run only if Brotli is supported')
+    def test_brotli_default_accept_encoding(self, httpbin):
+        """Verify that Requests with Brotli support by default sends Accept-Encoding with 'br',
+        as the first accepted encoding as the most effecient
+        """
+        r = requests.request('GET', httpbin('get'))
+
+        assert 'br' in r.request.headers['Accept-Encoding']
+        assert r.request.headers['Accept-Encoding'].startswith('br')
+
+
+    @pytest.mark.skipif(brotli_supported(), reason='run only if Brotli is NOT supported')
+    def test_no_brotli_default_accept_encoding(self, httpbin):
+        """Verify that Requests without Brotli support by default sends Accept-Encoding without 'br'
+        """
+        r = requests.request('GET', httpbin('get'))
+
+        assert 'br' not in r.request.headers['Accept-Encoding']

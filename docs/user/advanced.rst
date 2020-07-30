@@ -113,8 +113,8 @@ However, if we want to get the headers we sent the server, we simply access the
 request, and then the request's headers::
 
     >>> r.request.headers
-    {'Accept-Encoding': 'identity, deflate, compress, gzip',
-    'Accept': '*/*', 'User-Agent': 'python-requests/1.2.0'}
+    {'Accept-Encoding': 'br, gzip, deflate',
+    'Accept': '*/*', 'User-Agent': 'python-requests/2.25.0'}
 
 .. _prepared-requests:
 

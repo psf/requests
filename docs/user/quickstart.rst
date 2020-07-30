@@ -128,7 +128,7 @@ You can also access the response body as bytes, for non-text requests::
     >>> r.content
     b'[{"repository":{"open_issues":0,"url":"https://github.com/...
 
-The ``gzip`` and ``deflate`` transfer-encodings are automatically decoded for you.
+The ``gzip``, ``deflate`` and ``brotli``[#]_ transfer-encodings are automatically decoded for you.
 
 For example, to create an image from binary data returned by a request, you can
 use the following code::
@@ -559,7 +559,8 @@ All exceptions that Requests explicitly raises inherit from
 
 -----------------------
 
-Ready for more? Check out the :ref:`advanced <advanced>` section.
+  [#] for Brotli support you need to have `urllib3` >= 1.25.1 and `brotli` packages installed
 
+Ready for more? Check out the :ref:`advanced <advanced>` section.
 
 If you're on the job market, consider taking `this programming quiz <https://triplebyte.com/a/b1i2FB8/requests-docs-1>`_. A substantial donation will be made to this project, if you find a job through this platform.

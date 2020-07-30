@@ -3,7 +3,9 @@
 import pytest
 import threading
 import requests
+import brotli
 
+from requests.utils import brotli_supported
 from tests.testserver.server import Server, consume_socket_content
 
 from .utils import override_environ
@@ -305,5 +307,40 @@ def test_fragment_update_on_redirect():
         assert r.history[1].request.url == 'http://{}:{}/get#relevant-section'.format(host, port)
         # Verify previous fragment is used and not the original.
         assert r.url == 'http://{}:{}/final-url/#relevant-section'.format(host, port)
+
+        close_server.set()
+
+@pytest.mark.skipif(not brotli_supported(), reason='run only if Brotli is supported')
+def test_brotli():
+    """Verify that if Requests supports Brotli, then a request to a server serving
+    content in Brotli will result with a response with the content correctly decompressed.
+    """
+
+    some_text = '<html><html><html>'
+    br_compressed_text = brotli.compress(some_text.encode('utf-8'))
+
+    assert len(some_text) != len(br_compressed_text)
+    assert some_text != br_compressed_text
+
+    def response_handler(sock):
+        consume_socket_content(sock, timeout=0.5)
+
+        sock.send(
+            b'HTTP/1.1 200 OK\r\n'
+            b'Content-Length: ' + bytes(len(br_compressed_text)) + b'\r\n'
+            b'Content-Encoding: br\r\n'
+            b'\r\n' +
+            br_compressed_text
+        )
+
+    close_server = threading.Event()
+    server = Server(response_handler, wait_to_close_event=close_server)
+
+    with server as (host, port):
+        url = 'http://{}:{}/'.format(host, port)
+        r = requests.get(url)
+
+        assert len(r.text) == len(some_text)
+        assert r.text == some_text
 
         close_server.set()

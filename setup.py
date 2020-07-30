@@ -54,7 +54,8 @@ test_requirements = [
     'pytest-mock',
     'pytest-xdist',
     'PySocks>=1.5.6, !=1.5.7',
-    'pytest>=3'
+    'brotli',
+    'pytest<4.7'
 ]
 
 about = {}
@@ -105,6 +106,7 @@ setup(
         'security': ['pyOpenSSL >= 0.14', 'cryptography>=1.3.4'],
         'socks': ['PySocks>=1.5.6, !=1.5.7'],
         'socks:sys_platform == "win32" and python_version == "2.7"': ['win_inet_pton'],
+        'brotli': ['urllib3 >= 1.25.1', 'brotli'],
     },
     project_urls={
         'Documentation': 'https://requests.readthedocs.io',

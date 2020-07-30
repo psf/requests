@@ -12,9 +12,9 @@ detox = "*"
 httpbin = ">=0.7.0"
 more-itertools = "<6.0"
 pysocks = "*"
-pytest = ">=2.8.0,<=3.10.1"
+pytest = "<4.7"
 pytest-httpbin = ">=0.0.7,<1.0"
-pytest-mock = "*"
+pytest-mock = "<3"
 pytest-cov = "*"
 pytest-xdist = "<=1.25"
 readme-renderer = "*"
@@ -22,4 +22,4 @@ sphinx = "<=1.5.5"
 tox = "*"
 
 [packages]
-"requests" = {path = ".", editable = true, extras = ["socks"]}
+"requests" = {path = ".", editable = true, extras = ["socks", "brotli"]}

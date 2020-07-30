@@ -9,18 +9,29 @@ cache: pip
 jobs:
   include:
     - stage: test
+      python: 'pypy3'
+      dist: xenial
+      before_script:
+        - pipenv install importlib_metadata
+    - stage: test
       python: '2.7'
+      before_script:
+        - pipenv install importlib_metadata
     - stage: test
       python: '3.5'
+      before_script:
+        - pipenv install importlib_metadata
     - stage: test
       python: '3.6'
     - stage: test
-      python: '3.7' 
-    - stage: test
-      python: 'pypy3'
-      dist: xenial
+      python: '3.7'
     - stage: test
       python: '3.8'
+    - stage: test
+      python: '3.8'
+      name: 'Python: 3.8 without Brotli'
+      before_script:
+        - pipenv uninstall brotli
     - stage: coverage
       python: '3.6'
       script: codecov

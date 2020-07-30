@@ -20,6 +20,7 @@ import tempfile
 import warnings
 import zipfile
 from collections import OrderedDict
+import urllib3
 
 from .__version__ import __version__
 from . import certs
@@ -804,13 +805,44 @@ def default_user_agent(name="python-requests"):
     return '%s/%s' % (name, __version__)
 
 
+def brotli_supported():
+    """
+    Returns whether Brotli compression is supported
+
+    :rtype: bool
+    """
+
+    # urllib >= 1.25.1 includes brotli support
+    major, minor, patch = urllib3.__version__.split('.')  # noqa: F811
+    major, minor, patch = int(major), int(minor), int(patch)
+    urllib3_with_brotli = (major == 1 and ((minor == 25 and patch >= 1) or (minor >= 26))) \
+        or major >= 2
+
+    # pybrotli is an extra package required by urllib3 for brotli support
+    try:
+        import brotli
+    except ImportError:
+        brotli = None
+
+    return urllib3_with_brotli and brotli
+
+
+BROTLI_SUPPORTED = brotli_supported()
+
+
 def default_headers():
     """
     :rtype: requests.structures.CaseInsensitiveDict
     """
+
+    if BROTLI_SUPPORTED:
+        accepted_encodings = ('br', 'gzip', 'deflate')
+    else:
+        accepted_encodings = ('gzip', 'deflate')
+
     return CaseInsensitiveDict({
         'User-Agent': default_user_agent(),
-        'Accept-Encoding': ', '.join(('gzip', 'deflate')),
+        'Accept-Encoding': ', '.join(accepted_encodings),
         'Accept': '*/*',
         'Connection': 'keep-alive',
     })
