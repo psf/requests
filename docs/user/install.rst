@@ -3,9 +3,6 @@
 Installation of Requests
 ========================
 
-.. image:: https://farm5.staticflickr.com/4230/35550376215_da1bf77a8c_k_d.jpg
-
-
 This part of the documentation covers the installation of Requests.
 The first step to using any software package is getting it properly installed.
 

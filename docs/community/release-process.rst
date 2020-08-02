@@ -1,8 +1,6 @@
 Release Process and Rules
 =========================
 
-.. image:: https://farm5.staticflickr.com/4215/34450901614_b74ae720db_k_d.jpg
-
 .. versionadded:: v2.6.2
 
 Starting with the version to be released after ``v2.6.2``, the following rules
