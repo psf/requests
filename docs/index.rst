@@ -81,7 +81,6 @@ instructions for getting the most out of Requests.
 .. toctree::
    :maxdepth: 2
 
-   user/intro
    user/install
    user/quickstart
    user/advanced
@@ -127,8 +126,6 @@ you.
    :maxdepth: 3
 
    dev/contributing
-   dev/philosophy
-   dev/todo
    dev/authors
 
 There are no more guides. You are now guideless.

@@ -7,16 +7,12 @@ This part of the documentation covers the installation of Requests.
 The first step to using any software package is getting it properly installed.
 
 
-$ pipenv install requests
--------------------------
+$ python -m pip install requests
+--------------------------------
 
 To install Requests, simply run this simple command in your terminal of choice::
 
-    $ pipenv install requests
-
-If you don't have `pipenv <https://pipenv.kennethreitz.org>`_ installed (tisk tisk!), head over to the Pipenv website for installation instructions. Or, if you prefer to just use pip and don't have it installed,
-`this Python installation guide <https://docs.python-guide.org/starting/installation/>`_
-can guide you through the process.
+    $ python -m pip install requests
 
 Get the Source Code
 -------------------
@@ -37,4 +33,4 @@ Once you have a copy of the source, you can embed it in your own Python
 package, or install it into your site-packages easily::
 
     $ cd requests
-    $ pip install .
+    $ python -m pip install .
