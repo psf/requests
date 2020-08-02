@@ -3,8 +3,6 @@
 Recommended Packages and Extensions
 ===================================
 
-.. image:: https://farm5.staticflickr.com/4218/35224319272_cfc0e621fb_k_d.jpg
-
 Requests has a great variety of powerful and useful third-party extensions.
 This page provides an overview of some of the best of them.
 

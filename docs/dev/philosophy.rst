@@ -1,8 +1,6 @@
 Development Philosophy
 ======================
 
-.. image:: https://farm5.staticflickr.com/4231/34484831073_636008a23d_k_d.jpg
-
 Requests is an open but opinionated library, created by an open but opinionated developer.
 
 
