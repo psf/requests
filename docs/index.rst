@@ -101,8 +101,12 @@ Requests ecosystem and community.
    community/out-there
    community/support
    community/vulnerabilities
-   community/updates
    community/release-process
+
+.. toctree::
+   :maxdepth: 1
+
+   community/updates
 
 The API Documentation / Guide
 -----------------------------
