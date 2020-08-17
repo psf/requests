@@ -3,8 +3,6 @@
 Advanced Usage
 ==============
 
-.. image:: https://farm5.staticflickr.com/4263/35163665790_d182d84f5e_k_d.jpg
-
 This document covers some of Requests more advanced features.
 
 .. _session-objects:
@@ -238,6 +236,7 @@ or persistent::
   the c_rehash utility supplied with OpenSSL.
 
 This list of trusted CAs can also be specified through the ``REQUESTS_CA_BUNDLE`` environment variable.
+If ``REQUESTS_CA_BUNDLE`` is not set, ``CURL_CA_BUNDLE`` will be used as fallback.
 
 Requests can also ignore verifying the SSL certificate if you set ``verify`` to False::
 

@@ -28,7 +28,7 @@ by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is protected by The <
 
 <p>&nbsp;</p>
 
-```pycon
+```python
 >>> import requests
 >>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
 >>> r.status_code
@@ -52,7 +52,7 @@ by <a href="https://kennethreitz.org/">Kenneth Reitz</a> & is protected by The <
 Requests allows you to send HTTP/1.1 requests extremely easily. There’s no need to manually add query strings to your URLs, or to form-encode your `PUT` & `POST` data — but nowadays, just use the `json` method!
 
 
-Requests is **the most downloaded Python package today**, pulling in around `14M downloads / week`— according to GitHub, Requests is currently [depended upon](https://github.com/psf/requests/network/dependents?package_id=UGFja2FnZS01NzA4OTExNg%3D%3D) by `367_296` repositories. You may certainly put your trust in this code.
+Requests is one of the most downloaded Python package today, pulling in around `14M downloads / week`— according to GitHub, Requests is currently [depended upon](https://github.com/psf/requests/network/dependents?package_id=UGFja2FnZS01NzA4OTExNg%3D%3D) by `500,000+` repositories. You may certainly put your trust in this code.
 
 
 <p>&nbsp;</p>
@@ -89,7 +89,7 @@ Requests is ready for the demands of building robust and reliable HTTP–speak a
 Requests Module Installation
 ----------------------------
 
-The recommended way to intall the `requests` module is to simply use [`pipenv`](https://pipenv.kennethreitz.org) (or `pip`, of
+The recommended way to install the `requests` module is to simply use [`pipenv`](https://pipenv.kennethreitz.org) (or `pip`, of
 course):
 
 ```console
