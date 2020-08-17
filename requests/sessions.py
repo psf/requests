@@ -387,6 +387,13 @@ class Session(SessionRedirectMixin):
         self.stream = False
 
         #: SSL Verification default.
+        #: Defaults to `True`, requiring requests to verify the TLS certificate at the
+        #: remote end.
+        #: If verify is set to `False`, requests will accept any TLS certificate
+        #: presented by the server, and will ignore hostname mismatches and/or
+        #: expired certificates, which will make your application vulnerable to
+        #: man-in-the-middle (MitM) attacks.
+        #: Only set this to `False` for testing.
         self.verify = True
 
         #: SSL client certificate default, if String, path to ssl client
@@ -495,7 +502,12 @@ class Session(SessionRedirectMixin):
             content. Defaults to ``False``.
         :param verify: (optional) Either a boolean, in which case it controls whether we verify
             the server's TLS certificate, or a string, in which case it must be a path
-            to a CA bundle to use. Defaults to ``True``.
+            to a CA bundle to use. Defaults to ``True``. When set to
+            ``False``, requests will accept any TLS certificate presented by
+            the server, and will ignore hostname mismatches and/or expired
+            certificates, which will make your application vulnerable to
+            man-in-the-middle (MitM) attacks. Setting verify to ``False`` 
+            may be useful during local development or testing.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
         :rtype: requests.Response
