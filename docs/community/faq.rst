@@ -64,7 +64,8 @@ and intend to maintain Python 2.7 support within Requests until `pip
 stops supporting Python 2.7 (there's no estimated date on that yet)
 <https://pip.pypa.io/en/latest/development/release-process/#python-2-support>`_.
 
-That said, it is *highly* recommended users migrate to Python 3.5+ since Python 2.7 will no longer be receiving bug fixes or security updates after January 1, 2020.
+That said, it is *highly* recommended users migrate to Python 3.6+ since Python
+2.7 is no longer receiving bug fixes or security updates as of January 1, 2020.
 
 What are "hostname doesn't match" errors?
 -----------------------------------------
