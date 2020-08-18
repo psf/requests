@@ -45,7 +45,7 @@ See `similar code, sans Requests <https://gist.github.com/973705>`_.
 **Requests** allows you to send HTTP/1.1 requests extremely easily. 
 There's no need to manually add query strings to your
 URLs, or to form-encode your POST data. Keep-alive and HTTP connection pooling
-are 100% automatic, thanks to `urllib3 <https://github.com/shazow/urllib3>`_.
+are 100% automatic, thanks to `urllib3 <https://github.com/urllib3/urllib3>`_.
 
 Beloved Features
 ----------------
