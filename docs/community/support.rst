@@ -3,26 +3,16 @@
 Support
 =======
 
-.. image:: https://farm5.staticflickr.com/4198/34080352913_5c13ffb336_k_d.jpg
-
 If you have questions or issues about Requests, there are several options:
 
 Stack Overflow
--------------
+--------------
 
 If your question does not contain sensitive (possibly proprietary)
 information or can be properly anonymized, please ask a question on
 `Stack Overflow <https://stackoverflow.com/questions/tagged/python-requests>`_
 and use the tag ``python-requests``.
 
-Send a Tweet
-------------
-
-If your question is less than 280 characters, feel free to send a tweet to
-`@kennethreitz <https://twitter.com/kennethreitz>`_,
-`@sigmavirus24 <https://twitter.com/sigmavirus24>`_,
-`@lukasaoz <https://twitter.com/lukasaoz>`_, or
-`@nateprewitt <https://twitter.com/nateprewitt>`_.
 
 File an Issue
 -------------
@@ -32,23 +22,10 @@ for a new feature,
 `file an issue on GitHub <https://github.com/psf/requests/issues>`_.
 
 
-E-mail
-------
+Send a Tweet
+------------
 
-I'm more than happy to answer any personal or in-depth questions about
-Requests. Feel free to email
-`requests@kennethreitz.com <mailto:requests@kennethreitz.com>`_.
-
-
-IRC
----
-
-The official Freenode channel for Requests is
-`#python-requests <irc://irc.freenode.net/python-requests>`_
-
-The core developers of requests are on IRC throughout the day.
-You can find them in ``#python-requests`` as:
-
-- kennethreitz
-- lukasa
-- sigmavirus24
+If your question is less than 280 characters, feel free to send a tweet to
+`@nateprewitt <https://twitter.com/nateprewitt>`_,
+`@sethmlarson <https://twitter.com/sethmlarson>`_, or
+`@sigmavirus24 <https://twitter.com/sigmavirus24>`_.

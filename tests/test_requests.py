@@ -774,8 +774,10 @@ class TestRequests:
     def test_conflicting_post_params(self, httpbin):
         url = httpbin('post')
         with open('Pipfile') as f:
-            pytest.raises(ValueError, "requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})")
-            pytest.raises(ValueError, "requests.post(url, data=u('[{\"some\": \"data\"}]'), files={'some': f})")
+            with pytest.raises(ValueError):
+                requests.post(url, data='[{"some": "data"}]', files={'some': f})
+            with pytest.raises(ValueError):
+                requests.post(url, data=u('[{"some": "data"}]'), files={'some': f})
 
     def test_request_ok_set(self, httpbin):
         r = requests.get(httpbin('status', '404'))

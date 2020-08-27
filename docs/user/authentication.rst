@@ -3,8 +3,6 @@
 Authentication
 ==============
 
-.. image:: https://farm5.staticflickr.com/4258/35550409215_3b08d49d22_k_d.jpg
-
 This document discusses using various kinds of authentication with Requests.
 
 Many web services require authentication, and there are many different types.

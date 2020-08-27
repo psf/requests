@@ -94,11 +94,11 @@ class ChunkedEncodingError(RequestException):
 
 
 class ContentDecodingError(RequestException, BaseHTTPError):
-    """Failed to decode response content"""
+    """Failed to decode response content."""
 
 
 class StreamConsumedError(RequestException, TypeError):
-    """The content for this response was already consumed"""
+    """The content for this response was already consumed."""
 
 
 class RetryError(RequestException):
@@ -106,21 +106,18 @@ class RetryError(RequestException):
 
 
 class UnrewindableBodyError(RequestException):
-    """Requests encountered an error when trying to rewind a body"""
+    """Requests encountered an error when trying to rewind a body."""
 
 # Warnings
 
 
 class RequestsWarning(Warning):
     """Base warning for Requests."""
-    pass
 
 
 class FileModeWarning(RequestsWarning, DeprecationWarning):
     """A file was opened in text mode, but Requests determined its binary length."""
-    pass
 
 
 class RequestsDependencyWarning(RequestsWarning):
     """An imported dependency doesn't match the expected version range."""
-    pass
