@@ -721,19 +721,19 @@ class Session(SessionRedirectMixin):
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)
 
-            # Check for no_proxy and no since they could be loaded from environment
-            no_proxy = proxies.get('no_proxy') if proxies is not None else None
-            no = proxies.get('no') if proxies is not None else None
-            if any([no_proxy,no]):
-                no_proxy = ','.join(filter(None, (no_proxy, no)))
-            if should_bypass_proxies(url, no_proxy):
-              bypass_proxies = True
-
             # Look for requests environment configuration and be compatible
             # with cURL.
             if verify is True or verify is None:
                 verify = (os.environ.get('REQUESTS_CA_BUNDLE') or
                           os.environ.get('CURL_CA_BUNDLE'))
+
+        # Check for no_proxy and no since they could be loaded from environment
+        no_proxy = proxies.get('no_proxy') if proxies is not None else None
+        no = proxies.get('no') if proxies is not None else None
+        if any([no_proxy, no]):
+            no_proxy = ','.join(filter(None, (no_proxy, no)))
+        if should_bypass_proxies(url, no_proxy):
+            bypass_proxy = True
 
         # Merge all the kwargs.
         if bypass_proxies:
