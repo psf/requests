@@ -713,7 +713,6 @@ class Session(SessionRedirectMixin):
         :rtype: dict
         """
         # Gather clues from the surrounding environment.
-        bypass_proxies = False
         if self.trust_env:
             # Set environment's proxies.
             no_proxy = proxies.get('no_proxy') if proxies is not None else None
@@ -732,11 +731,9 @@ class Session(SessionRedirectMixin):
         no = proxies.get('no') if proxies is not None else None
         if any([no_proxy, no]):
             no_proxy = ','.join(filter(None, (no_proxy, no)))
-        if should_bypass_proxies(url, no_proxy):
-            bypass_proxy = True
 
         # Merge all the kwargs.
-        if bypass_proxies:
+        if should_bypass_proxies(url, no_proxy):
             proxies = {}
         else:
             proxies = merge_setting(proxies, self.proxies)
