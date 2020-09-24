@@ -713,7 +713,7 @@ class Session(SessionRedirectMixin):
         :rtype: dict
         """
         # Gather clues from the surrounding environment.
-        bypass_proxy = False
+        bypass_proxies = False
         if self.trust_env:
             # Set environment's proxies.
             no_proxy = proxies.get('no_proxy') if proxies is not None else None
@@ -727,7 +727,7 @@ class Session(SessionRedirectMixin):
             if any([no_proxy,no]):
                 no_proxy = ','.join(filter(None, (no_proxy, no)))
             if should_bypass_proxies(url, no_proxy):
-              bypass_proxy = True
+              bypass_proxies = True
 
             # Look for requests environment configuration and be compatible
             # with cURL.
@@ -736,7 +736,7 @@ class Session(SessionRedirectMixin):
                           os.environ.get('CURL_CA_BUNDLE'))
 
         # Merge all the kwargs.
-        if bypass_proxy:
+        if bypass_proxies:
             proxies = {}
         else:
             proxies = merge_setting(proxies, self.proxies)
