@@ -30,6 +30,11 @@ environment:
       PYTHON_ARCH: "64"
       TOXENV: "py37"
 
+    - PYTHON: "C:\\Python38-x64"
+      PYTHON_VERSION: "3.8.x"
+      PYTHON_ARCH: "64"
+      TOXENV: "py38"
+
 install:
   # Install Python (from the official .msi of https://www.python.org/) and pip when
   # not already installed.
