@@ -62,8 +62,6 @@ with open(os.path.join(here, 'requests', '__version__.py'), 'r', 'utf-8') as f:
 
 with open('README.md', 'r', 'utf-8') as f:
     readme = f.read()
-with open('HISTORY.md', 'r', 'utf-8') as f:
-    history = f.read()
 
 setup(
     name=about['__title__'],
