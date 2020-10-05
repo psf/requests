@@ -487,7 +487,7 @@ they are added.
 Custom Authentication
 ---------------------
 
-Requests allows you to use specify your own authentication mechanism.
+Requests allows you to specify your own authentication mechanism.
 
 Any callable which is passed as the ``auth`` argument to a request method will
 have the opportunity to modify the request before it is dispatched.
