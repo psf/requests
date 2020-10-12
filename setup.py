@@ -46,8 +46,8 @@ requires = [
     'idna>=2.5,<3',
     'urllib3>=1.21.1,<1.26,!=1.25.0,!=1.25.1',
     'certifi>=2017.4.17'
-
 ]
+
 test_requirements = [
     'pytest-httpbin==0.0.7',
     'pytest-cov',
