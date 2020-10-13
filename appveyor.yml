@@ -35,6 +35,11 @@ environment:
       PYTHON_ARCH: "64"
       TOXENV: "py38"
 
+    - PYTHON: "C:\\Python39-x64"
+      PYTHON_VERSION: "3.9.x"
+      PYTHON_ARCH: "64"
+      TOXENV: "py39"
+
 install:
   # Install Python (from the official .msi of https://www.python.org/) and pip when
   # not already installed.
