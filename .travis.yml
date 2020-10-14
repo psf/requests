@@ -21,8 +21,8 @@ jobs:
       dist: xenial
     - stage: test
       python: '3.8'
+    - stage: test
+      python: '3.9'
     - stage: coverage
       python: '3.6'
       script: codecov
-    - stage: test
-      python: '3.9'
