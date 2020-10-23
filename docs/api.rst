@@ -41,7 +41,7 @@ Exceptions
 Request Sessions
 ----------------
 
-.. _sessionapi:
+.. _sessionapi: 
 
 .. autoclass:: Session
    :inherited-members:
@@ -116,7 +116,7 @@ Migrating to 1.x
 ----------------
 
 This section details the main differences between 0.x and 1.x and is meant
-to ease the pain of upgrading.
+to make upgrading easier.
 
 
 API Changes
