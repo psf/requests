@@ -394,7 +394,7 @@
                 "sha256:d97b0661e1aead761f0ded3b769044bb00ed5d33e1ec865e891a8b128bf7c656",
                 "sha256:e538b8dae561080b542b0f5af64d47ef859f22517f7eca617bb314e0e03fd7ef"
             ],
-            "version": "==0.4.15"
+            "version": "==0.4.17"
         },
         "httpbin": {
             "hashes": [
