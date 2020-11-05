@@ -344,6 +344,11 @@ Note that connections are only released back to the pool for reuse once all body
 data has been read; be sure to either set ``stream`` to ``False`` or read the
 ``content`` property of the ``Response`` object.
 
+To turn off Keep-Alive, set ``Connection`` header to ``close``::
+
+    s = requests.Session()
+    s.headers['Connection'] = 'close'
+
 .. _streaming-uploads:
 
 Streaming Uploads
