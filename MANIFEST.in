@@ -1,2 +1,2 @@
-include README.md LICENSE NOTICE HISTORY.md pytest.ini requirements.txt Pipfile Pipfile.lock
+include README.md LICENSE NOTICE HISTORY.md pytest.ini requirements-dev.txt
 recursive-include tests *.py
