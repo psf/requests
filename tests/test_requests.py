@@ -668,7 +668,7 @@ class TestRequests:
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
 
-        with open('Pipfile') as f:
+        with open('requirements-dev.txt') as f:
             post2 = requests.post(url, files={'some': f})
         assert post2.status_code == 200
 
@@ -736,7 +736,7 @@ class TestRequests:
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
 
-        with open('Pipfile') as f:
+        with open('requirements-dev.txt') as f:
             post2 = requests.post(url, data={'some': 'data'}, files={'some': f})
         assert post2.status_code == 200
 
@@ -773,7 +773,7 @@ class TestRequests:
 
     def test_conflicting_post_params(self, httpbin):
         url = httpbin('post')
-        with open('Pipfile') as f:
+        with open('requirements-dev.txt') as f:
             with pytest.raises(ValueError):
                 requests.post(url, data='[{"some": "data"}]', files={'some': f})
             with pytest.raises(ValueError):
