@@ -498,8 +498,9 @@ class Session(SessionRedirectMixin):
         :type allow_redirects: bool
         :param proxies: (optional) Dictionary mapping protocol or protocol and
             hostname to the URL of the proxy.
-        :param stream: (optional) whether to immediately download the response
-            content. Defaults to ``False``.
+        :param stream: (optional) Whether to defer downloading the response
+            body until you access the :meth:`Response.content` attribute.
+            Defaults to ``False``.
         :param verify: (optional) Either a boolean, in which case it controls whether we verify
             the server's TLS certificate, or a string, in which case it must be a path
             to a CA bundle to use. Defaults to ``True``. When set to
