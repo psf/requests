@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # Learn more: https://github.com/kennethreitz/setup.py
 import os
-import re
 import sys
 
 from codecs import open
@@ -10,6 +9,7 @@ from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
 here = os.path.abspath(os.path.dirname(__file__))
+
 
 class PyTest(TestCommand):
     user_options = [('pytest-args=', 'a', "Arguments to pass into py.test")]
@@ -32,6 +32,7 @@ class PyTest(TestCommand):
 
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
+
 
 # 'setup.py publish' shortcut.
 if sys.argv[-1] == 'publish':
@@ -77,7 +78,7 @@ setup(
     package_data={'': ['LICENSE', 'NOTICE']},
     package_dir={'requests': 'requests'},
     include_package_data=True,
-    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*",
     install_requires=requires,
     license=about['__license__'],
     zip_safe=False,
@@ -90,7 +91,6 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
