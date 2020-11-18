@@ -470,7 +470,8 @@ class Session(SessionRedirectMixin):
     def request(self, method, url,
             params=None, data=None, headers=None, cookies=None, files=None,
             auth=None, timeout=None, allow_redirects=True, proxies=None,
-            hooks=None, stream=None, verify=None, cert=None, json=None):
+                proxies_kwargs=None, hooks=None, stream=None, verify=None,
+                cert=None, json=None):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -498,6 +499,7 @@ class Session(SessionRedirectMixin):
         :type allow_redirects: bool
         :param proxies: (optional) Dictionary mapping protocol or protocol and
             hostname to the URL of the proxy.
+        :param proxies_kwargs: (optional) Dictionary with additional proxy kwargs.
         :param stream: (optional) whether to immediately download the response
             content. Defaults to ``False``.
         :param verify: (optional) Either a boolean, in which case it controls whether we verify
@@ -537,6 +539,7 @@ class Session(SessionRedirectMixin):
         send_kwargs = {
             'timeout': timeout,
             'allow_redirects': allow_redirects,
+            'proxies_kwargs': proxies_kwargs,
         }
         send_kwargs.update(settings)
         resp = self.send(prep, **send_kwargs)

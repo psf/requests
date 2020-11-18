@@ -59,7 +59,7 @@ class BaseAdapter(object):
         super(BaseAdapter, self).__init__()
 
     def send(self, request, stream=False, timeout=None, verify=True,
-             cert=None, proxies=None):
+             cert=None, proxies=None, proxies_kwargs=None):
         """Sends PreparedRequest object. Returns Response object.
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
@@ -73,6 +73,7 @@ class BaseAdapter(object):
             to a CA bundle to use
         :param cert: (optional) Any user-provided SSL certificate to be trusted.
         :param proxies: (optional) The proxies dictionary to apply to the request.
+        :param proxies_kwargs: (optional) Additional arguments to pass to urllib3 for proxies.
         """
         raise NotImplementedError
 
@@ -289,7 +290,7 @@ class HTTPAdapter(BaseAdapter):
 
         return response
 
-    def get_connection(self, url, proxies=None):
+    def get_connection(self, url, proxies=None, proxies_kwargs=None):
         """Returns a urllib3 connection for the given URL. This should not be
         called from user code, and is only exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
@@ -300,13 +301,16 @@ class HTTPAdapter(BaseAdapter):
         """
         proxy = select_proxy(url, proxies)
 
+        if not proxies_kwargs:
+            proxies_kwargs = {}
+
         if proxy:
             proxy = prepend_scheme_if_needed(proxy, 'http')
             proxy_url = parse_url(proxy)
             if not proxy_url.host:
                 raise InvalidProxyURL("Please check proxy URL. It is malformed"
                                       " and could be missing the host.")
-            proxy_manager = self.proxy_manager_for(proxy)
+            proxy_manager = self.proxy_manager_for(proxy, **proxies_kwargs)
             conn = proxy_manager.connection_from_url(url)
         else:
             # Only scheme should be lower case
@@ -326,7 +330,7 @@ class HTTPAdapter(BaseAdapter):
         for proxy in self.proxy_manager.values():
             proxy.clear()
 
-    def request_url(self, request, proxies):
+    def request_url(self, request, proxies, proxies_kwargs=None):
         """Obtain the url to use when making the final request.
 
         If the message is being sent through a HTTP proxy, the full URL has to
@@ -344,13 +348,20 @@ class HTTPAdapter(BaseAdapter):
         scheme = urlparse(request.url).scheme
 
         is_proxied_http_request = (proxy and scheme != 'https')
+        is_using_https_forwarding = (
+            proxies_kwargs and proxies_kwargs.get('use_forwarding_for_https', False)
+        )
+
+        is_using_https_proxy = False
         using_socks_proxy = False
         if proxy:
             proxy_scheme = urlparse(proxy).scheme.lower()
             using_socks_proxy = proxy_scheme.startswith('socks')
+            is_using_https_proxy = proxy_scheme.startswith('https')
 
         url = request.path_url
-        if is_proxied_http_request and not using_socks_proxy:
+        if (is_proxied_http_request and not using_socks_proxy or
+                (is_using_https_proxy and is_using_https_forwarding)):
             url = urldefragauth(request.url)
 
         return url
@@ -391,7 +402,8 @@ class HTTPAdapter(BaseAdapter):
 
         return headers
 
-    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
+    def send(self, request, stream=False, timeout=None, verify=True, cert=None,
+             proxies=None, proxies_kwargs=None):
         """Sends PreparedRequest object. Returns Response object.
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
@@ -405,16 +417,17 @@ class HTTPAdapter(BaseAdapter):
             must be a path to a CA bundle to use
         :param cert: (optional) Any user-provided SSL certificate to be trusted.
         :param proxies: (optional) The proxies dictionary to apply to the request.
+        :param proxies_kwargs: (optional) Dictionary with additional proxy kwargs.
         :rtype: requests.Response
         """
 
         try:
-            conn = self.get_connection(request.url, proxies)
+            conn = self.get_connection(request.url, proxies, proxies_kwargs)
         except LocationValueError as e:
             raise InvalidURL(e, request=request)
 
         self.cert_verify(conn, request.url, verify, cert)
-        url = self.request_url(request, proxies)
+        url = self.request_url(request, proxies, proxies_kwargs)
         self.add_headers(request, stream=stream, timeout=timeout, verify=verify, cert=cert, proxies=proxies)
 
         chunked = not (request.body is None or 'Content-Length' in request.headers)

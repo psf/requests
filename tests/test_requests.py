@@ -1846,6 +1846,51 @@ class TestRequests:
         headers = adapter.proxy_headers("http://user:@httpbin.org")
         assert headers == {'Proxy-Authorization': 'Basic dXNlcjo='}
 
+
+    @pytest.mark.parametrize(
+        'proxy_scheme, url_scheme, expected_value', (
+            ('socks', 'http', '/'),
+            ('socks', 'https', '/'),
+            ('http', 'http', 'http://example.com/'),
+            ('http', 'https', '/'),
+            ('https', 'http', 'http://example.com/'),
+            ('https', 'https', '/'),
+        ))
+    def test_proxy_scheme(self, proxy_scheme, url_scheme, expected_value):
+        proxy_url = '{}://proxy'.format(proxy_scheme)
+        url = '{}://example.com'.format(url_scheme)
+        proxies = {'http': proxy_url, 'https': proxy_url}
+        p = PreparedRequest()
+        p.prepare(
+            method='GET',
+            url=url
+        )
+        adapter = HTTPAdapter()
+        assert expected_value == adapter.request_url(p, proxies)
+
+    def test_proxy_scheme_https_forwarding(self):
+        proxy_url = 'https://proxy.com'
+        url = 'https://example.com/'
+        proxies = {'http': proxy_url, 'https': proxy_url}
+        p = PreparedRequest()
+        p.prepare(
+            method='GET',
+            url=url
+        )
+        adapter = HTTPAdapter()
+
+        proxies_kwargs = {}
+        expected_value = '/'
+        assert expected_value == adapter.request_url(p, proxies, proxies_kwargs)
+
+        proxies_kwargs = {'use_forwarding_for_https': True}
+        expected_value = url
+        assert expected_value == adapter.request_url(p, proxies, proxies_kwargs)
+
+        proxies_kwargs = {'use_forwarding_for_https': False}
+        expected_value = '/'
+        assert expected_value == adapter.request_url(p, proxies, proxies_kwargs)
+
     def test_response_json_when_content_is_None(self, httpbin):
         r = requests.get(httpbin('/status/204'))
         # Make sure r.content is None
