@@ -151,41 +151,6 @@ class TestRequests:
         request = requests.Request('GET', ' http://example.com').prepare()
         assert request.url == 'http://example.com/'
 
-    def test_proxies_shortcut(self):
-        """Test that the set_http_proxy helper function works correctly"""
-        s = requests.Session()
-
-        # nominal
-        s.set_http_proxy(http_scheme='socks5', http_host='acme.com', http_port=999)
-        assert s.proxies == {'http': 'socks5://acme.com:999'}
-        s.set_http_proxy(https_scheme='socks5h', https_host='acme.org', https_port=80)
-        assert s.proxies == {'http': 'socks5://acme.com:999', 'https': 'socks5h://acme.org:80'}
-
-        # one can not specify a scheme or a port without passing a host
-        with pytest.raises(ValueError):
-            s.set_http_proxy(http_scheme='socks5')
-        with pytest.raises(ValueError):
-            s.set_http_proxy(https_scheme='socks5')
-        with pytest.raises(ValueError):
-            s.set_http_proxy(http_port=999)
-        with pytest.raises(ValueError):
-            s.set_http_proxy(https_port=999)
-
-        # use_http_proxy_for_https_requests requires http related information to be present
-        with pytest.raises(ValueError):
-            s.set_http_proxy(use_http_proxy_for_https_requests=True)
-
-        # reuse http info for https
-        s.set_http_proxy(http_url='http://10.10.10.10:80', use_http_proxy_for_https_requests=True)
-        assert s.proxies == {'http': 'http://10.10.10.10:80', 'https': 'http://10.10.10.10:80'}
-
-        # replace instead of update
-        s.set_http_proxy(https_url='http://10.10.10.20:80', replace=True)
-        assert s.proxies == {'https': 'http://10.10.10.20:80'}
-
-        # https url
-        s.set_http_proxy(https_url='http://10.10.10.20:80', replace=True)
-
     @pytest.mark.parametrize('scheme', ('http://', 'HTTP://', 'hTTp://', 'HttP://'))
     def test_mixed_case_scheme_acceptable(self, httpbin, scheme):
         s = requests.Session()
