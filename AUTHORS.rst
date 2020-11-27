@@ -190,3 +190,4 @@ Patches and Suggestions
 - Antti Kaihola (`@akaihola <https://github.com/akaihola>`_)
 - "Dull Bananas" <dull.bananas0@gmail.com> (`@dullbananas <https://github.com/dullbananas>`_)
 - Alessio Izzo (`@aless10 <https://github.com/aless10>`_)
+- Sylvain Marié (`@smarie <https://github.com/smarie>`_)

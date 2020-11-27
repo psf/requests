@@ -589,8 +589,31 @@ If you need to use a proxy, you can configure individual requests with the
 
     requests.get('http://example.org', proxies=proxies)
 
+Alternatively you can configure it once for an entire
+:class:`Session <requests.Session>`, either manually::
+
+    import requests
+
+    proxies = {
+      'http': 'http://10.10.1.10:3128',
+      'https': 'http://10.10.1.10:1080',
+    }
+    session = request.Session()
+    session.proxies.update(proxies)
+
+    session.get('http://example.org')
+
+or with the helper method :func:`set_http_proxy <requests.Session.set_http_proxy>`::
+
+    import requests
+
+    session = request.Session()
+    session.set_http_proxy(http_url='http://10.10.1.10:3128', https_url='http://10.10.1.10:1080')
+
+    session.get('http://example.org')
+
 You can also configure proxies by setting the environment variables
-``HTTP_PROXY`` and ``HTTPS_PROXY``.
+``HTTP_PROXY``, ``HTTPS_PROXY``, ``NO_PROXY`` and ``CURL_CA_BUNDLE``.
 
 ::
 
@@ -614,6 +637,16 @@ any request to the given scheme and exact hostname.
     proxies = {'http://10.20.1.128': 'http://10.10.1.10:5323'}
 
 Note that proxy URLs must include the scheme.
+
+Finally, note that using a proxy for https connections typically requires your local machine to trust the
+proxy's root certificate. By default the list of certificates trusted by Requests can be found with::
+
+    from requests.utils import DEFAULT_CA_BUNDLE_PATH
+    print(DEFAULT_CA_BUNDLE_PATH)
+
+You override this default certificate bundle by setting the standard ``CURL_CA_BUNDLE`` environment variable
+to another file path.
+
 
 SOCKS
 ^^^^^
