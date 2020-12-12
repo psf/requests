@@ -47,7 +47,9 @@ else:
     preferred_clock = time.time
 
 
-def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
+def merge_setting(
+    request_setting, session_setting, dict_class=OrderedDict, delete_none=True
+):
     """Determines appropriate setting for a given request, taking into account
     the explicit setting on that request, and the setting in the session. If a
     setting is a dictionary, they will be merged together using `dict_class`
@@ -69,11 +71,12 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
     merged_setting = dict_class(to_key_val_list(session_setting))
     merged_setting.update(to_key_val_list(request_setting))
 
-    # Remove keys that are set to None. Extract keys first to avoid altering
-    # the dictionary during iteration.
-    none_keys = [k for (k, v) in merged_setting.items() if v is None]
-    for key in none_keys:
-        del merged_setting[key]
+    if delete_none:
+        # Remove keys that are set to None. Extract keys first to avoid altering
+        # the dictionary during iteration.
+        none_keys = [k for (k, v) in merged_setting.items() if v is None]
+        for key in none_keys:
+            del merged_setting[key]
 
     return merged_setting
 
@@ -459,7 +462,12 @@ class Session(SessionRedirectMixin):
             files=request.files,
             data=request.data,
             json=request.json,
-            headers=merge_setting(request.headers, self.headers, dict_class=CaseInsensitiveDict),
+            headers=merge_setting(
+                request.headers,
+                self.headers,
+                dict_class=CaseInsensitiveDict,
+                delete_none=False,
+            ),
             params=merge_setting(request.params, self.params),
             auth=merge_setting(auth, self.auth),
             cookies=merged_cookies,

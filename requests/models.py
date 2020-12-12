@@ -15,6 +15,7 @@ import sys
 # such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
 import encodings.idna
 
+import urllib3
 from urllib3.fields import RequestField
 from urllib3.filepost import encode_multipart_formdata
 from urllib3.util import parse_url
@@ -36,9 +37,21 @@ from .utils import (
     stream_decode_response_unicode, to_key_val_list, parse_header_links,
     iter_slices, guess_json_utf, super_len, check_header_validity)
 from .compat import (
-    Callable, Mapping,
-    cookielib, urlunparse, urlsplit, urlencode, str, bytes,
-    is_py2, chardet, builtin_str, basestring)
+    SKIP_HEADER,
+    SKIPPABLE_HEADERS,
+    Callable,
+    Mapping,
+    cookielib,
+    urlunparse,
+    urlsplit,
+    urlencode,
+    str,
+    bytes,
+    is_py2,
+    chardet,
+    builtin_str,
+    basestring,
+)
 from .compat import json as complexjson
 from .status_codes import codes
 
@@ -447,9 +460,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.headers = CaseInsensitiveDict()
         if headers:
             for header in headers.items():
+                name, value = header
+                if value is None:
+                    if name.lower() in SKIPPABLE_HEADERS:
+                        value = SKIP_HEADER
+                    else:
+                        continue
                 # Raise exception on invalid header value.
                 check_header_validity(header)
-                name, value = header
                 self.headers[to_native_string(name)] = value
 
     def prepare_body(self, data, files, json=None):

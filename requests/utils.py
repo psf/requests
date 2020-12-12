@@ -947,6 +947,8 @@ def check_header_validity(header):
     :param header: tuple, in the format (name, value).
     """
     name, value = header
+    if value is None:
+        return
 
     if isinstance(value, bytes):
         pat = _CLEAN_HEADER_REGEX_BYTE

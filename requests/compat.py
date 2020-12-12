@@ -30,6 +30,16 @@ try:
 except ImportError:
     import json
 
+
+import urllib3
+
+try:
+    SKIP_HEADER = urllib3.util.SKIP_HEADER
+    SKIPPABLE_HEADERS = urllib3.util.SKIPPABLE_HEADERS
+except AttributeError:
+    SKIP_HEADER = None
+    SKIPPABLE_HEADERS = frozenset([])
+
 # ---------
 # Specifics
 # ---------
