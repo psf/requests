@@ -6,6 +6,17 @@ dev
 
 -   \[Short description of non-trivial change.\]
 
+2.25.1 (2020-12-16)
+-------------------
+
+**Bugfixes**
+
+- Requests now treats `application/json` as `utf8` by default. Resolving
+  inconsistencies between `r.text` and `r.json` output. (#5673)
+
+**Dependencies**
+
+- Requests now supports chardet v4.x.
 
 2.25.0 (2020-11-11)
 ------------------
