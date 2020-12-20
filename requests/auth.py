@@ -35,6 +35,13 @@ def _basic_auth_str(username, password):
     #
     # These are here solely to maintain backwards compatibility
     # for things like ints. This will be removed in 3.0.0.
+    if username is None and password is None:
+        return None
+    elif username is None:
+        username = ''
+    elif password is None:
+        password = ''
+
     if not isinstance(username, basestring):
         warnings.warn(
             "Non-string usernames will no longer be supported in Requests "
