@@ -35,6 +35,11 @@ def _basic_auth_str(username, password):
     #
     # These are here solely to maintain backwards compatibility
     # for things like ints. This will be removed in 3.0.0.
+    if username is None:
+        username = ''
+    if password is None:
+        password = ''
+
     if not isinstance(username, basestring):
         warnings.warn(
             "Non-string usernames will no longer be supported in Requests "
@@ -80,11 +85,8 @@ class HTTPBasicAuth(AuthBase):
     """Attaches HTTP Basic Authentication to the given Request object."""
 
     def __init__(self, username, password):
-        self.auth = True
-        self.username = '' if username is None else username
-        self.password = '' if password is None else password
-        if username is None and password is None:
-            self.auth = False
+        self.username = username
+        self.password = password
 
     def __eq__(self, other):
         return all([
@@ -96,7 +98,7 @@ class HTTPBasicAuth(AuthBase):
         return not self == other
 
     def __call__(self, r):
-        if self.auth:
+        if self.username is not None or self.password is not None:
             r.headers['Authorization'] = _basic_auth_str(self.username, self.password)
             return r
 
@@ -105,8 +107,9 @@ class HTTPProxyAuth(HTTPBasicAuth):
     """Attaches HTTP Proxy Authentication to a given Request object."""
 
     def __call__(self, r):
-        r.headers['Proxy-Authorization'] = _basic_auth_str(self.username, self.password)
-        return r
+        if self.username is not None or self.password is not None:
+            r.headers['Proxy-Authorization'] = _basic_auth_str(self.username, self.password)
+            return r
 
 
 class HTTPDigestAuth(AuthBase):
@@ -283,7 +286,7 @@ class HTTPDigestAuth(AuthBase):
         # Initialize per-thread state, if needed
         self.init_per_thread_state()
         # If we have a saved nonce, skip the 401
-        if self._thread_local.last_nonce:
+        if self._thread_local.last_nonce and (self.username is not None or self.password is not None):
             r.headers['Authorization'] = self.build_digest_header(r.method, r.url)
         try:
             self._thread_local.pos = r.body.tell()
