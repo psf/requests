@@ -98,6 +98,7 @@ class HTTPBasicAuth(AuthBase):
         return not self == other
 
     def __call__(self, r):
+        # Only perform authentication if username or password was provided, or both
         if self.username is not None or self.password is not None:
             r.headers['Authorization'] = _basic_auth_str(self.username, self.password)
             return r
@@ -107,6 +108,7 @@ class HTTPProxyAuth(HTTPBasicAuth):
     """Attaches HTTP Proxy Authentication to a given Request object."""
 
     def __call__(self, r):
+        # Only perform authentication if username or password was provided, or both
         if self.username is not None or self.password is not None:
             r.headers['Proxy-Authorization'] = _basic_auth_str(self.username, self.password)
             return r
@@ -283,10 +285,13 @@ class HTTPDigestAuth(AuthBase):
         return r
 
     def __call__(self, r):
+        # If no credential was provided, ignore
+        if self.username is None and self.password is None:
+            return
         # Initialize per-thread state, if needed
         self.init_per_thread_state()
-        # If we have a saved nonce, skip the 401
-        if self._thread_local.last_nonce and (self.username is not None or self.password is not None):
+        # If we had a saved nonce, skip the 401
+        if self._thread_local.last_nonce:
             r.headers['Authorization'] = self.build_digest_header(r.method, r.url)
         try:
             self._thread_local.pos = r.body.tell()
