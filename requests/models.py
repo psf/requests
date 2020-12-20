@@ -72,7 +72,8 @@ class RequestEncodingMixin(object):
 
         query = p.query
         if query:
-            url.extend(['?', query])
+            url.append('?')
+            url.append(query)
 
         return ''.join(url)
 
