@@ -80,8 +80,11 @@ class HTTPBasicAuth(AuthBase):
     """Attaches HTTP Basic Authentication to the given Request object."""
 
     def __init__(self, username, password):
-        self.username = username
-        self.password = password
+        self.auth = True
+        self.username = '' if username is None else username
+        self.password = '' if password is None else password
+        if username is None and password is None:
+            self.auth = False
 
     def __eq__(self, other):
         return all([
@@ -93,8 +96,9 @@ class HTTPBasicAuth(AuthBase):
         return not self == other
 
     def __call__(self, r):
-        r.headers['Authorization'] = _basic_auth_str(self.username, self.password)
-        return r
+        if self.auth:
+            r.headers['Authorization'] = _basic_auth_str(self.username, self.password)
+            return r
 
 
 class HTTPProxyAuth(HTTPBasicAuth):
