@@ -101,7 +101,7 @@ class HTTPBasicAuth(AuthBase):
         # Only perform authentication if username or password was provided, or both
         if self.username is not None or self.password is not None:
             r.headers['Authorization'] = _basic_auth_str(self.username, self.password)
-            return r
+        return r
 
 
 class HTTPProxyAuth(HTTPBasicAuth):
@@ -111,7 +111,7 @@ class HTTPProxyAuth(HTTPBasicAuth):
         # Only perform authentication if username or password was provided, or both
         if self.username is not None or self.password is not None:
             r.headers['Proxy-Authorization'] = _basic_auth_str(self.username, self.password)
-            return r
+        return r
 
 
 class HTTPDigestAuth(AuthBase):
@@ -287,7 +287,7 @@ class HTTPDigestAuth(AuthBase):
     def __call__(self, r):
         # If no credential was provided, ignore
         if self.username is None and self.password is None:
-            return
+            return r
         # Initialize per-thread state, if needed
         self.init_per_thread_state()
         # If we had a saved nonce, skip the 401
