@@ -66,16 +66,13 @@ class RequestEncodingMixin(object):
 
         p = urlsplit(self.url)
 
-        path = p.path
-        if not path:
-            path = '/'
+        path = p.path or '/'
 
         url.append(path)
 
         query = p.query
         if query:
-            url.append('?')
-            url.append(query)
+            url.extend(['?', query])
 
         return ''.join(url)
 
@@ -373,7 +370,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Don't do any URL preparation for non-HTTP schemes like `mailto`,
         # `data` etc to work around exceptions from `url_parse`, which
         # handles RFC 3986 only.
-        if ':' in url and not url.lower().startswith('http'):
+        if ':' in url and url.lower().split(':')[0] not in ['http', 'https']:
             self.url = url
             return
 
