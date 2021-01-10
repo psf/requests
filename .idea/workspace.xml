@@ -32,6 +32,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ceff3954-ba5d-45e2-bbce-cfacca5c90b0" name="Default Changelist" comment=" &#10;testes">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AUTHORS.rst" beforeDir="false" afterPath="$PROJECT_DIR$/AUTHORS.rst" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -93,7 +94,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610235451699</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary=" &#10;testes">
+      <created>1610236266633</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1610236266633</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -106,15 +114,25 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="raul fez um teste" />
-    <option name="LAST_COMMIT_MESSAGE" value="raul fez um teste" />
+    <MESSAGE value=" &#10;testes" />
+    <option name="LAST_COMMIT_MESSAGE" value=" &#10;testes" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="1149" y="118" key="#docutils_task_in_AUTHORS.rst" timestamp="1610235919680">
+    <state x="1120" y="254" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1610236797539">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="1149" y="118" key="#docutils_task_in_AUTHORS.rst/0.0.1920.1040@0.0.1920.1040" timestamp="1610235919680" />
+    <state x="1120" y="254" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1610236797539" />
+    <state x="1149" y="118" key="#docutils_task_in_AUTHORS.rst" timestamp="1610236082028">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="1149" y="118" key="#docutils_task_in_AUTHORS.rst/0.0.1920.1040@0.0.1920.1040" timestamp="1610236082028" />
+    <state x="1103" y="229" key="search.everywhere.popup" timestamp="1610236639656">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="1103" y="229" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1610236639656" />
   </component>
 </project>
