@@ -54,6 +54,17 @@ def request(method, url, **kwargs):
       <Response [200]>
     """
 
+    # Use the default headers
+    try:
+        if headers is None:
+            headers = {
+                'User-Agent':
+                'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
+                }
+    except NameError:
+        pass
+
+
     # By using the 'with' statement we are sure the session is closed, thus we
     # avoid leaving sockets open which can trigger a ResourceWarning in some
     # cases, and look like a memory leak in others.
@@ -73,6 +84,18 @@ def get(url, params=None, **kwargs):
     """
 
     kwargs.setdefault('allow_redirects', True)
+
+    # Use the default headers
+    try:
+        if headers is None:
+            headers = {
+                'User-Agent':
+                'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
+                }
+    except NameError:
+        pass
+
+
     return request('get', url, params=params, **kwargs)
 
 
