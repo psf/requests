@@ -527,18 +527,16 @@ class Session(SessionRedirectMixin):
         )
         prep = self.prepare_request(req)
 
-        proxies = proxies or {}
-
-        settings = self.merge_environment_settings(
-            prep.url, proxies, stream, verify, cert
-        )
-
-        # Send the request.
         send_kwargs = {
             'timeout': timeout,
             'allow_redirects': allow_redirects,
+            'verify': verify,
+            'proxies': proxies,
+            'stream': stream,
+            'cert': cert,
         }
-        send_kwargs.update(settings)
+        
+        # Send the request.
         resp = self.send(prep, **send_kwargs)
 
         return resp
@@ -628,22 +626,27 @@ class Session(SessionRedirectMixin):
 
         :rtype: requests.Response
         """
-        # Set defaults that the hooks can utilize to ensure they always have
-        # the correct parameters to reproduce the previous request.
-        kwargs.setdefault('stream', self.stream)
-        kwargs.setdefault('verify', self.verify)
-        kwargs.setdefault('cert', self.cert)
-        kwargs.setdefault('proxies', self.rebuild_proxies(request, self.proxies))
-
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
         if isinstance(request, Request):
             raise ValueError('You can only send PreparedRequests.')
 
+        # Set defaults that the hooks can utilize to ensure they always have
+        # the correct parameters to reproduce the previous request.
+        stream = kwargs.get('stream')
+        verify = kwargs.get('verify')
+        cert = kwargs.get('cert')
+        proxies = kwargs.get('proxies')
+
         # Set up variables needed for resolve_redirects and dispatching of hooks
         allow_redirects = kwargs.pop('allow_redirects', True)
-        stream = kwargs.get('stream')
         hooks = request.hooks
+
+        # Merge with environment variables
+        settings = self.merge_environment_settings(
+            request.url, proxies, stream, verify, cert
+        )
+        kwargs.update(settings)
 
         # Get the appropriate adapter to use
         adapter = self.get_adapter(url=request.url)
@@ -704,6 +707,9 @@ class Session(SessionRedirectMixin):
 
         :rtype: dict
         """
+
+        proxies = proxies or {}
+        
         # Gather clues from the surrounding environment.
         if self.trust_env:
             # Set environment's proxies.
