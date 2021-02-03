@@ -46,8 +46,13 @@ requires = [
     'idna>=2.5,<3',
     'urllib3>=1.21.1,<1.27',
     'certifi>=2017.4.17'
-
 ]
+
+if sys.version_info < (3, ):
+    install_requires.append('idna>=2.5,<3')
+else:
+    install_requires.append('idna>=2.5,<4')
+
 test_requirements = [
     'pytest-httpbin==0.0.7',
     'pytest-cov',
