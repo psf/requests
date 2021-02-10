@@ -18,6 +18,7 @@ import encodings.idna
 from urllib3.fields import RequestField
 from urllib3.filepost import encode_multipart_formdata
 from urllib3.util import parse_url
+from urllib3.util.url import SCHEME_RE
 from urllib3.exceptions import (
     DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
 
@@ -375,7 +376,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Don't do any URL preparation for non-HTTP schemes like `mailto`,
         # `data` etc to work around exceptions from `url_parse`, which
         # handles RFC 3986 only.
-        if ':' in url and not url.lower().startswith('http'):
+        if SCHEME_RE.match(url) and not url.lower().startswith('http'):
             self.url = url
             return
 

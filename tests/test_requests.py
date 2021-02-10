@@ -77,9 +77,14 @@ class TestRequests:
     @pytest.mark.parametrize(
         'exception, url', (
             (MissingSchema, 'hiwpefhipowhefopw'),
+            (MissingSchema, 'localhost.localdomain:3128/'),
+            (MissingSchema, '10.122.1.1:3128/'),
+            (MissingSchema, '0.0.0.0:3128'),
+            (InvalidSchema, 'httpp://localhost:3128'),
+            (InvalidSchema, 'htps://localhost.localdomain:3128/'),
+            (InvalidSchema, 'htp://10.122.1.1:3128/'),
             (InvalidSchema, 'localhost:3128'),
-            (InvalidSchema, 'localhost.localdomain:3128/'),
-            (InvalidSchema, '10.122.1.1:3128/'),
+            (InvalidURL, 'http:://10.122.1.1:3128/'),
             (InvalidURL, 'http://'),
         ))
     def test_invalid_url(self, exception, url):
