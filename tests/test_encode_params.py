@@ -25,4 +25,17 @@ def test_util_unfold_complex_data_key():
 
     result = []
     unfold_complex_data_key(None, data, result)
-    assert result.__str__() == "[('count', 0), ('properties[profile][0]', 'Zondy'), ('properties[profile][1]', 'ZTESoft'), ('properties[profile][2]', 'YunWen'), ('properties[profile][3]', 'Ci123'), ('properties[city]', 'New Edythstad'), ('properties[age]', 24), ('properties[name]', 'Rich Hintz'), ('properties[gender]', 'male'), ('id', '857-37-9333'), ('label', u'\u5468')]"
+    expert_result = [
+        (b'id', b'857-37-9333'),
+        (b'label', b'\xe5\x91\xa8'),
+        (b'count', 0),
+        (b'properties[name]', b'Rich Hintz'),
+        (b'properties[city]', b'New Edythstad'),
+        (b'properties[gender]', b'male'),
+        (b'properties[age]', 24),
+        (b'properties[profile][0]', b'Zondy'),
+        (b'properties[profile][1]', b'ZTESoft'),
+        (b'properties[profile][2]', b'YunWen'),
+        (b'properties[profile][3]', b'Ci123')
+    ]
+    assert result == expert_result
