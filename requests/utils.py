@@ -319,7 +319,7 @@ def to_key_val_list(value):
     return list(value)
 
 
-def unfold_complex_data_key(key, data: dict, result):
+def unfold_complex_data_key(key, data, result):
     """
     unfold complex dict which has deep level key or list to simple list(tuple)
     data = {
