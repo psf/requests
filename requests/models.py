@@ -8,43 +8,46 @@ This module contains the primary objects that power Requests.
 """
 
 import datetime
-from io import UnsupportedOperation
+import sys
 
-from urllib3.exceptions import (
-    DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
+# Import encoding now, to avoid implicit import later.
+# Implicit import within threads may cause LookupError when standard library is in a ZIP,
+# such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
+import encodings.idna
+
 from urllib3.fields import RequestField
 from urllib3.filepost import encode_multipart_formdata
 from urllib3.util import parse_url
+from urllib3.exceptions import (
+    DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
 
-from ._internal_utils import to_native_string, unicode_is_ascii
+from io import UnsupportedOperation
+from .hooks import default_hooks
+from .structures import CaseInsensitiveDict
+
 from .auth import HTTPBasicAuth
+from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
+from .exceptions import (
+    HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
+    ContentDecodingError, ConnectionError, StreamConsumedError)
+from ._internal_utils import to_native_string, unicode_is_ascii
+from .utils import (
+    guess_filename, get_auth_from_url, requote_uri,
+    stream_decode_response_unicode, to_key_val_list, parse_header_links,
+    iter_slices, guess_json_utf, super_len, check_header_validity, unfold_complex_data_key)
 from .compat import (
     Callable, Mapping,
     cookielib, urlunparse, urlsplit, urlencode, str, bytes,
     is_py2, chardet, builtin_str, basestring)
 from .compat import json as complexjson
-from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
-from .exceptions import (
-    HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
-    ContentDecodingError, ConnectionError, StreamConsumedError)
-from .hooks import default_hooks
 from .status_codes import codes
-from .structures import CaseInsensitiveDict
-from .utils import (
-    guess_filename, get_auth_from_url, requote_uri,
-    stream_decode_response_unicode, to_key_val_list, parse_header_links,
-    iter_slices, guess_json_utf, super_len, check_header_validity, unfold_complex_data_key)
-
-# Import encoding now, to avoid implicit import later.
-# Implicit import within threads may cause LookupError when standard library is in a ZIP,
-# such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
 
 #: The set of HTTP status codes that indicate an automatically
 #: processable redirect.
 REDIRECT_STATI = (
-    codes.moved,  # 301
-    codes.found,  # 302
-    codes.other,  # 303
+    codes.moved,               # 301
+    codes.found,               # 302
+    codes.other,               # 303
     codes.temporary_redirect,  # 307
     codes.permanent_redirect,  # 308
 )
@@ -224,8 +227,9 @@ class Request(RequestHooksMixin):
     """
 
     def __init__(self,
-                 method=None, url=None, headers=None, files=None, data=None,
-                 params=None, auth=None, cookies=None, hooks=None, json=None):
+            method=None, url=None, headers=None, files=None, data=None,
+            params=None, auth=None, cookies=None, hooks=None, json=None):
+
         # Default empty dicts for dict params.
         data = [] if data is None else data
         files = [] if files is None else files
@@ -307,8 +311,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self._body_position = None
 
     def prepare(self,
-                method=None, url=None, headers=None, files=None, data=None,
-                params=None, auth=None, cookies=None, hooks=None, json=None):
+            method=None, url=None, headers=None, files=None, data=None,
+            params=None, auth=None, cookies=None, hooks=None, json=None):
         """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)
