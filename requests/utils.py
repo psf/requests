@@ -21,26 +21,24 @@ import warnings
 import zipfile
 from collections import OrderedDict
 
-from .__version__ import __version__
 from . import certs
+from .__version__ import __version__
 # to_native_string is unused here, but imported here for backwards compatibility
-from ._internal_utils import to_native_string
 from .compat import parse_http_list as _parse_list_header
 from .compat import (
     quote, urlparse, bytes, str, unquote, getproxies,
     proxy_bypass, urlunparse, basestring, integer_types, is_py3,
     proxy_bypass_environment, getproxies_environment, Mapping)
 from .cookies import cookiejar_from_dict
-from .structures import CaseInsensitiveDict
 from .exceptions import (
     InvalidURL, InvalidHeader, FileModeWarning, UnrewindableBodyError)
+from .structures import CaseInsensitiveDict
 
 NETRC_FILES = ('.netrc', '_netrc')
 
 DEFAULT_CA_BUNDLE_PATH = certs.where()
 
 DEFAULT_PORTS = {'http': 80, 'https': 443}
-
 
 if sys.platform == 'win32':
     # provide a proxy_bypass version on Windows without DNS lookups
@@ -56,10 +54,10 @@ if sys.platform == 'win32':
 
         try:
             internetSettings = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                r'Software\Microsoft\Windows\CurrentVersion\Internet Settings')
+                                              r'Software\Microsoft\Windows\CurrentVersion\Internet Settings')
             # ProxyEnable could be REG_SZ or REG_DWORD, normalizing it
             proxyEnable = int(winreg.QueryValueEx(internetSettings,
-                                              'ProxyEnable')[0])
+                                                  'ProxyEnable')[0])
             # ProxyOverride is almost always a string
             proxyOverride = winreg.QueryValueEx(internetSettings,
                                                 'ProxyOverride')[0]
@@ -77,12 +75,13 @@ if sys.platform == 'win32':
             if test == '<local>':
                 if '.' not in host:
                     return True
-            test = test.replace(".", r"\.")     # mask dots
-            test = test.replace("*", r".*")     # change glob sequence
-            test = test.replace("?", r".")      # change glob char
+            test = test.replace(".", r"\.")  # mask dots
+            test = test.replace("*", r".*")  # change glob sequence
+            test = test.replace("?", r".")  # change glob char
             if re.match(test, host, re.I):
                 return True
         return False
+
 
     def proxy_bypass(host):  # noqa
         """Return True, if the host should be bypassed.
@@ -317,6 +316,71 @@ def to_key_val_list(value):
         value = value.items()
 
     return list(value)
+
+
+def unfold_complex_data_key(key, data: dict, result):
+    """
+    unfold complex dict which has deep level key or list to simple list(tuple)
+    data = {
+           "id": "857-37-9333",
+           "label": "User",
+           "count": 0,
+           "properties": {
+               "name": "Rich Hintz",
+               "city": "New Edythstad",
+               "gender": "male",
+               "age": 24,
+               "profile": [
+                   "Zondy",
+                   "ZTESoft",
+                   "YunWen",
+                   "Ci123"
+               ]
+           }
+       }
+    >>>unfold_complex_data_key(data)
+    [
+        ('id','857-37-9333'),
+        ('label','User'),
+        ('count',0),
+        ('properties[name]','Rich Hintz'),
+        ('properties[city]','New Edythstad')
+        ('properties[gender]','male'),
+        ('properties[age]',24),
+        ('properties[profile][0]','Zondy'),
+        ('properties[profile][1]','ZTESoft'),
+        ('properties[profile][2]','YunWen'),
+        ('properties[profile][3]','Ci123'),
+    ]
+
+    :param key: init key, option
+    :param data: dict or list or tuple or str
+    :param result: list,need a empty list for first call
+    :return:
+    """
+    if not data or not isinstance(data, (list, tuple, dict)):
+        if not key:
+            return
+        else:
+            result.append((key.encode('utf-8') if isinstance(key, str) else key,
+                           data.encode('utf-8') if isinstance(data, str) else data))
+            return
+
+    if isinstance(data, (list, tuple)):
+        iter_data = enumerate(data)
+    else:
+        iter_data = data.items()
+
+    for idx, v in iter_data:
+        if not key:
+            new_key = idx
+        else:
+            new_key = '{}[{}]'.format(key, idx)
+        if not isinstance(v, (str, int, float)):
+            unfold_complex_data_key(new_key, v, result)
+        else:
+            result.append((new_key.encode('utf-8') if isinstance(new_key, str) else new_key,
+                           v.encode('utf-8') if isinstance(v, str) else v))
 
 
 # From mitsuhiko/werkzeug (used with permission).
@@ -878,16 +942,16 @@ def guess_json_utf(data):
     # determine the encoding. Also detect a BOM, if present.
     sample = data[:4]
     if sample in (codecs.BOM_UTF32_LE, codecs.BOM_UTF32_BE):
-        return 'utf-32'     # BOM included
+        return 'utf-32'  # BOM included
     if sample[:3] == codecs.BOM_UTF8:
         return 'utf-8-sig'  # BOM included, MS style (discouraged)
     if sample[:2] in (codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE):
-        return 'utf-16'     # BOM included
+        return 'utf-16'  # BOM included
     nullcount = sample.count(_null)
     if nullcount == 0:
         return 'utf-8'
     if nullcount == 2:
-        if sample[::2] == _null2:   # 1st and 3rd are null
+        if sample[::2] == _null2:  # 1st and 3rd are null
             return 'utf-16-be'
         if sample[1::2] == _null2:  # 2nd and 4th are null
             return 'utf-16-le'
