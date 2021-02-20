@@ -27,6 +27,7 @@ from urllib3.exceptions import ReadTimeoutError
 from urllib3.exceptions import SSLError as _SSLError
 from urllib3.exceptions import ResponseError
 from urllib3.exceptions import LocationValueError
+from urllib3.exceptions import LocationParseError
 
 from .models import Response
 from .compat import urlparse, basestring
@@ -436,18 +437,21 @@ class HTTPAdapter(BaseAdapter):
 
         try:
             if not chunked:
-                resp = conn.urlopen(
-                    method=request.method,
-                    url=url,
-                    body=request.body,
-                    headers=request.headers,
-                    redirect=False,
-                    assert_same_host=False,
-                    preload_content=False,
-                    decode_content=False,
-                    retries=self.max_retries,
-                    timeout=timeout
-                )
+                try:
+                    resp = conn.urlopen(
+                        method=request.method,
+                        url=url,
+                        body=request.body,
+                        headers=request.headers,
+                        redirect=False,
+                        assert_same_host=False,
+                        preload_content=False,
+                        decode_content=False,
+                        retries=self.max_retries,
+                        timeout=timeout
+                    )
+                except LocationParseError as e:
+                    raise InvalidURL(e, request=request)
 
             # Send the request.
             else:
