@@ -531,8 +531,7 @@ class TestRequests:
             ('http://localhost:1', ConnectionError),
             # Inputing a URL that cannot be parsed should raise an InvalidURL error
             ('http://fe80::5054:ff:fe5a:fc0', InvalidURL),
-            # Inputing a URL that cannot be parsed by urllib3 should raise a ConnectionError, as it closes pool
-            ('http://1234567890123456789012345678901234567890123456789012345678901234.com', ConnectionError)
+            ('http://1234567890123456789012345678901234567890123456789012345678901234.com', InvalidURL)
         ))
     def test_errors(self, url, exception):
         with pytest.raises(exception):

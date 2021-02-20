@@ -451,7 +451,7 @@ class HTTPAdapter(BaseAdapter):
                         timeout=timeout
                     )
                 except LocationParseError as e:
-                    raise InvalidURL(e, request=request)
+                    raise InvalidURL(*e.args, request=request)
 
             # Send the request.
             else:
@@ -497,6 +497,9 @@ class HTTPAdapter(BaseAdapter):
                     # Then, reraise so that we can handle the actual exception.
                     low_conn.close()
                     raise
+
+        except InvalidURL:
+            raise
 
         except (ProtocolError, socket.error) as err:
             raise ConnectionError(err, request=request)
