@@ -626,7 +626,7 @@ syntax in any of the above configuration entries::
     >>> proxies = {'http': 'http://user:pass@10.10.1.10:3128/'}
 
 .. warning:: Storing sensitive username and password information in an
-   environment variable or a version-controled file is a security risk and is
+   environment variable or a version-controlled file is a security risk and is
    highly discouraged.
 
 To give a proxy for a specific scheme and host, use the
