@@ -707,9 +707,15 @@ class Session(SessionRedirectMixin):
 
         :rtype: dict
         """
+        
+        # Merge all the kwargs.
+        proxies = merge_setting(proxies, self.proxies)
+        stream = merge_setting(stream, self.stream)
+        verify = merge_setting(verify, self.verify)
+        cert = merge_setting(cert, self.cert)
 
         proxies = proxies or {}
-        
+
         # Gather clues from the surrounding environment.
         if self.trust_env:
             # Set environment's proxies.
@@ -722,13 +728,7 @@ class Session(SessionRedirectMixin):
             # with cURL.
             if verify is True or verify is None:
                 verify = (os.environ.get('REQUESTS_CA_BUNDLE') or
-                          os.environ.get('CURL_CA_BUNDLE'))
-
-        # Merge all the kwargs.
-        proxies = merge_setting(proxies, self.proxies)
-        stream = merge_setting(stream, self.stream)
-        verify = merge_setting(verify, self.verify)
-        cert = merge_setting(cert, self.cert)
+                    os.environ.get('CURL_CA_BUNDLE') or verify)
 
         return {'verify': verify, 'proxies': proxies, 'stream': stream,
                 'cert': cert}

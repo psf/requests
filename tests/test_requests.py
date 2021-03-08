@@ -590,6 +590,33 @@ class TestRequests:
                 session = requests.Session()
                 session.request(method='GET', url=httpbin())
 
+    def test_merge_environment_settings_precedence(self):
+        session = requests.Session()
+        merge_settings_args = {
+            'url':'http://localhost:1',
+            'proxies':{
+                'http': 'http://argument'
+            },
+            'stream':None,
+            'verify':None,
+            'cert':None,
+        }
+        with override_environ(http_proxy='http://environment'):
+            session.proxies.update(http='http://attribute')
+            settings = session.merge_environment_settings(**merge_settings_args)
+            assert settings['proxies']['http'] == 'http://argument'
+
+            merge_settings_args['proxies'] = None
+            settings = session.merge_environment_settings(**merge_settings_args)
+            assert settings['proxies']['http'] == 'http://attribute'
+
+            session.proxies = None
+            settings = session.merge_environment_settings(**merge_settings_args)
+            assert settings['proxies']['http'] == 'http://environment'
+
+        settings = session.merge_environment_settings(**merge_settings_args)
+        assert settings['proxies'] == {}
+
     def test_basicauth_with_netrc(self, httpbin):
         auth = ('user', 'pass')
         wrong_auth = ('wronguser', 'wrongpass')
