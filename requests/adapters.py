@@ -15,6 +15,7 @@ from urllib3.poolmanager import PoolManager, proxy_from_url
 from urllib3.response import HTTPResponse
 from urllib3.util import parse_url
 from urllib3.util import Timeout as TimeoutSauce
+from urllib3.util.timeout import _Default
 from urllib3.util.retry import Retry
 from urllib3.exceptions import ClosedPoolError
 from urllib3.exceptions import ConnectTimeoutError
@@ -50,6 +51,13 @@ DEFAULT_POOLBLOCK = False
 DEFAULT_POOLSIZE = 10
 DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
+
+
+class TimeoutSauce(TimeoutSauce):
+    def __init__(self, total=None, connect=_Default, read=_Default):
+        # The connect timeout time is twice the specified time
+        connect /= 2
+        super().__init__(total=total, connect=connect, read=read)
 
 
 class BaseAdapter(object):
