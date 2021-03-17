@@ -1077,4 +1077,5 @@ coffee.
 
 .. _`connect()`: https://linux.die.net/man/2/connect
 
-When the client has IPv6 support and the server has an IPv6 DNS record (AAAA), if the IPv4 connection fails the underlying (`urllib3`_) will automatically retry using IPv6, which may lead to an effective connection timeout of twice the specified time, so take that into account when setting the connection timeout. You can see a `Stackoverflow answer <https://stackoverflow.com/questions/33046733/force-requests-to-use-ipv4-ipv6/46972341#46972341>`_ to get around the problem.
+If the client supports IPv6 (AAAA record) and the specified domain has multiple IP addresses, `urllib3`_ will continue to try another IP addresses (such as IPv6) if they reach the specified connection timeout.
+This phenomenon can actually wait for a larger or multiplied time, ignoring the connection timeout. You may consider an extreme solution, such as ensuring that the domain name you specify returns one IP Address (which prevents it from returning IPv6). However, it can cause new issues.
