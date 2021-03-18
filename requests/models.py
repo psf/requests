@@ -877,7 +877,12 @@ class Response(object):
         r"""Returns the json-encoded content of a response, if any.
 
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
-        :raises ValueError: If the response body does not contain valid json.
+        :raises simplejson.JSONDecodeError: If the response body does not
+            contain valid json and simplejson is installed.
+        :raises json.JSONDecodeError: If the response body does not contain
+            valid json and simplejson is not installed on Python 3.
+        :raises ValueError: If the response body does not contain valid
+            json and simplejson is not installed on Python 2.        
         """
 
         if not self.encoding and self.content and len(self.content) > 3:
