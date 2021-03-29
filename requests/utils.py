@@ -20,6 +20,7 @@ import tempfile
 import warnings
 import zipfile
 from collections import OrderedDict
+from urllib3.util import make_headers
 
 from .__version__ import __version__
 from . import certs
@@ -820,7 +821,7 @@ def default_headers():
     """
     return CaseInsensitiveDict({
         'User-Agent': default_user_agent(),
-        'Accept-Encoding': ', '.join(('gzip', 'deflate')),
+        'Accept-Encoding': make_headers(accept_encoding=True)["accept-encoding"],
         'Accept': '*/*',
         'Connection': 'keep-alive',
     })

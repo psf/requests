@@ -5,6 +5,8 @@ dev
 ---
 
 -   \[Short description of non-trivial change.\]
+- Requests Brotli compression, if either the `brotli` or `brotlicffi` package
+  is installed.
 
 2.25.1 (2020-12-16)
 -------------------

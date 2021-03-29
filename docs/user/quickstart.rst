@@ -128,6 +128,9 @@ You can also access the response body as bytes, for non-text requests::
 
 The ``gzip`` and ``deflate`` transfer-encodings are automatically decoded for you.
 
+The ``br``  transfer-encoding is automatically decoded, if either the brotli or
+brotlicffi package is installed.
+
 For example, to create an image from binary data returned by a request, you can
 use the following code::
 
