@@ -925,6 +925,10 @@ class Response(object):
     def raise_for_status(self):
         """Raises :class:`HTTPError`, if one occurred."""
 
+        # short-circuit if not an error status
+        if self.status_code < 400:
+            return
+
         http_error_msg = ''
         if isinstance(self.reason, bytes):
             # We attempt to decode utf-8 first because some servers
