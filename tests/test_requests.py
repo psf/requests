@@ -2566,3 +2566,14 @@ class TestPreparingURLs(object):
         r = requests.Request('GET', url=input, params=params)
         p = r.prepare()
         assert p.url == expected
+
+    def test_default_to_session_settings(self, mocker):
+        send = mocker.patch.object(requests.adapters.HTTPAdapter, "send")
+        s = requests.session()
+        s.verify = "/some/cert"
+        try:
+            s.request("GET", "http://example.com")
+        except Exception:
+            pass
+        _, kwargs = send.call_args
+        assert kwargs["verify"] == "/some/cert"
