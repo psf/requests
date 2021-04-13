@@ -1079,10 +1079,10 @@ coffee.
 
 **You need to be careful when using the timeout argument.**
 
-The specified domain has multiple IP addresses, `urllib3`_ will continue to try another IP addresses if they reach the specified connection timeout.
-Requests are affected by this because it is using urllib3.
-**This phenomenon can actually wait for a larger or multiplied time, ignoring the connection timeout.**
-You may consider an extreme solution, such as ensuring that the domain name you specify returns one IP Address.
-For example, if the specified domain returns both IPv4 DNS record (A) and IPv6 DNS record (AAAA), you patch it so that it does not return IPv6.
-However, it can cause new issues.
-**You should use timeout argument for reference purposes only.**
+If the specified domain has multiple IP addresses, `urllib3`_ will continue to try another IP address when the specified connection timeout is reached. Also, the connection timeout is applied for each attempt.
+Requests are affected by this because you are using `urllib3`_.
+This phenomenon can wait longer than you expect. Maybe it's the time that doubled the connection timeout.
+Of course there may be more.
+You can also consider extreme solutions, such as having the specified domain name return only one IP address.
+For example, if DNS returns both IPv4 DNS records (A) and IPv6 DNS records (AAAA), patch it so that it does not return IPv6.
+However, new issues may arise.
