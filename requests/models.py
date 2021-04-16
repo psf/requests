@@ -483,7 +483,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
             body = data
 
-            if getattr(body, 'tell', None) is not None:
+            if hasattr(body, 'tell'):
                 # Record the current file position before reading.
                 # This will allow us to rewind a file in the event
                 # of a redirect.
