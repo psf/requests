@@ -6,6 +6,11 @@ dev
 
 -   \[Short description of non-trivial change.\]
 
+**Dependencies**
+
+- Switch chardet for the MIT-licensed charset_normalizer to remove license
+  ambiguity for projects bundling requests.
+
 2.25.1 (2020-12-16)
 -------------------
 
