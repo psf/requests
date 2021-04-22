@@ -41,7 +41,8 @@ if sys.argv[-1] == 'publish':
 packages = ['requests']
 
 requires = [
-    'charset_normalizer>=1.3.5,<2',
+    'charset_normalizer>=1.3.5,<2; python_version >= "3"',
+    'chardet>=3.0.2,<5; python_version < "3"',
     'idna>=2.5,<3',
     'urllib3>=1.21.1,<1.27',
     'certifi>=2017.4.17'

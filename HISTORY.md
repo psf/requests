@@ -8,8 +8,9 @@ dev
 
 **Dependencies**
 
-- Switch chardet for the MIT-licensed charset_normalizer to remove license
-  ambiguity for projects bundling requests.
+- Switch chardet for the MIT-licensed charset_normalizer for Python3 to remove license
+  ambiguity for projects bundling requests. Python2 still depends upon the
+  LGPL'd module.
 
 2.25.1 (2020-12-16)
 -------------------
