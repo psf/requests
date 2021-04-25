@@ -39,6 +39,7 @@ Patches and Suggestions
 - Peter Manser
 - Jeremy Selier
 - Jens Diemer
+- Jeffrey Tse (`@jeffreytse <https://github.com/jeffreytse>`_)
 - Alex (`@alopatin <https://github.com/alopatin>`_)
 - Tom Hogans <tomhsx@gmail.com>
 - Armin Ronacher
