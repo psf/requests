@@ -12,6 +12,9 @@ import warnings
 import re
 
 import io
+
+from urllib3 import Retry
+
 import requests
 import pytest
 from requests.adapters import HTTPAdapter
@@ -138,6 +141,14 @@ class TestRequests:
         request = requests.Request('GET', 'http://example.com/', params=param_ordered_dict)
         prep = session.prepare_request(request)
         assert prep.url == 'http://example.com/?z=1&a=1&k=1&d=1'
+
+    def test_init_http_adapter(self):
+        retry = Retry(3, backoff_factor=1.)
+        http_adapter = requests.adapters.HTTPAdapter(pool_connections=1, max_retries=retry)
+        session = requests.Session(http_adapter=http_adapter)
+
+        for adapter_key in ("http://", "https://",):
+            assert session.adapters[adapter_key] == http_adapter
 
     def test_params_bytes_are_encoded(self):
         request = requests.Request('GET', 'http://example.com',
