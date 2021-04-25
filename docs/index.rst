@@ -11,7 +11,7 @@ Release v\ |version|. (:ref:`Installation <install>`)
 
 .. image:: https://pepy.tech/badge/requests
     :target: https://pepy.tech/project/requests
-    
+
 .. image:: https://img.shields.io/pypi/l/requests.svg
     :target: https://pypi.org/project/requests/
 
