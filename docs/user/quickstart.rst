@@ -39,10 +39,11 @@ example, this is how you make an HTTP POST request::
 
     >>> r = requests.post('https://httpbin.org/post', data = {'key':'value'})
 
-Nice, right? What about the other HTTP request types: PUT, DELETE, HEAD and
-OPTIONS? These are all just as simple::
+Nice, right? What about the other HTTP request types: PUT, PATCH, DELETE, HEAD
+and OPTIONS? These are all just as simple::
 
     >>> r = requests.put('https://httpbin.org/put', data = {'key':'value'})
+    >>> r = requests.patch('https://httpbin.org/patch', data = {'key':'value'})
     >>> r = requests.delete('https://httpbin.org/delete')
     >>> r = requests.head('https://httpbin.org/get')
     >>> r = requests.options('https://httpbin.org/get')
