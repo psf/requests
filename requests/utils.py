@@ -512,8 +512,7 @@ def stream_decode_response_unicode(iterator, r):
     """Stream decodes a iterator."""
 
     if r.encoding is None:
-        for item in iterator:
-            yield item
+        yield from iterator
         return
 
     decoder = codecs.getincrementaldecoder(r.encoding)(errors='replace')

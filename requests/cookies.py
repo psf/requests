@@ -221,8 +221,7 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
 
         .. seealso:: itervalues() and iteritems().
         """
-        for cookie in iter(self):
-            yield cookie.name
+        yield from map(lambda cookie: cookie.name, iter(self))
 
     def keys(self):
         """Dict-like keys() that returns a list of names of cookies from the
@@ -238,8 +237,7 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
 
         .. seealso:: iterkeys() and iteritems().
         """
-        for cookie in iter(self):
-            yield cookie.value
+        yield from map(lambda cookie: cookie.value, iter(self))
 
     def values(self):
         """Dict-like values() that returns a list of values of cookies from the
@@ -255,8 +253,7 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
 
         .. seealso:: iterkeys() and itervalues().
         """
-        for cookie in iter(self):
-            yield cookie.name, cookie.value
+        yield from map(lambda cookie: (cookie.name, cookie.value), iter(self))
 
     def items(self):
         """Dict-like items() that returns a list of name-value tuples from the
