@@ -2566,3 +2566,9 @@ class TestPreparingURLs(object):
         r = requests.Request('GET', url=input, params=params)
         p = r.prepare()
         assert p.url == expected
+
+    def test_post_json_nan(self, httpbin):
+        data = {"foo": float("nan")}
+        with pytest.raises(ValueError) as e:
+          r = requests.post(httpbin('post'), json=data)
+        assert str(e.value) == 'Out of range float values are not JSON compliant'
