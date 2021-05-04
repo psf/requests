@@ -466,7 +466,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             # urllib3 requires a bytes-like body. Python 2's json.dumps
             # provides this natively, but Python 3 gives a Unicode string.
             content_type = 'application/json'
-            body = complexjson.dumps(json)
+            body = complexjson.dumps(json, allow_nan=False)
             if not isinstance(body, bytes):
                 body = body.encode('utf-8')
 
