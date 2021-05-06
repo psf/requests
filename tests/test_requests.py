@@ -24,7 +24,7 @@ from requests.cookies import (
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
     MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError, InvalidHeader, UnrewindableBodyError, SSLError, InvalidProxyURL)
+    ProxyError, InvalidHeader, UnrewindableBodyError, SSLError, InvalidProxyURL, InvalidJSONError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -2566,3 +2566,8 @@ class TestPreparingURLs(object):
         r = requests.Request('GET', url=input, params=params)
         p = r.prepare()
         assert p.url == expected
+
+    def test_post_json_nan(self, httpbin):
+        data = {"foo": float("nan")}
+        with pytest.raises(requests.exceptions.InvalidJSONError):
+          r = requests.post(httpbin('post'), json=data)
