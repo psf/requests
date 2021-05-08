@@ -169,14 +169,20 @@ def super_len(o):
 def get_netrc_auth(url, raise_errors=False):
     """Returns the Requests tuple auth for a given url from netrc."""
 
+    netrc_file = os.environ.get('NETRC')
+    if netrc_file is not None:
+        netrc_locations = (netrc_file,)
+    else:
+        netrc_locations = ('~/{}'.format(f) for f in NETRC_FILES)
+
     try:
         from netrc import netrc, NetrcParseError
 
         netrc_path = None
 
-        for f in NETRC_FILES:
+        for f in netrc_locations:
             try:
-                loc = os.path.expanduser('~/{}'.format(f))
+                loc = os.path.expanduser(f)
             except KeyError:
                 # os.path.expanduser can fail when $HOME is undefined and
                 # getpwuid fails. See https://bugs.python.org/issue20164 &
@@ -496,6 +502,10 @@ def get_encoding_from_headers(headers):
 
     if 'text' in content_type:
         return 'ISO-8859-1'
+
+    if 'application/json' in content_type:
+        # Assume UTF-8 based on RFC 4627: https://www.ietf.org/rfc/rfc4627.txt since the charset was unset
+        return 'utf-8'
 
 
 def stream_decode_response_unicode(iterator, r):

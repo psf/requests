@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
-requests.session
-~~~~~~~~~~~~~~~~
+requests.sessions
+~~~~~~~~~~~~~~~~~
 
 This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
@@ -641,7 +641,7 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault('stream', self.stream)
         kwargs.setdefault('verify', self.verify)
         kwargs.setdefault('cert', self.cert)
-        kwargs.setdefault('proxies', self.proxies)
+        kwargs.setdefault('proxies', self.rebuild_proxies(request, self.proxies))
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.

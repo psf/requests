@@ -25,6 +25,10 @@ class RequestException(IOError):
         super(RequestException, self).__init__(*args, **kwargs)
 
 
+class InvalidJSONError(RequestException):
+    """A JSON error occurred."""
+
+
 class HTTPError(RequestException):
     """An HTTP error occurred."""
 

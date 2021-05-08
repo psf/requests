@@ -1,6 +1,6 @@
 # Requests
 
-**Requests** is a simple, yet elegant HTTP library.
+**Requests** is a simple, yet elegant, HTTP library.
 
 ```python
 >>> import requests
@@ -56,6 +56,22 @@ Requests is ready for the demands of building robust and reliable HTTP–speakin
 ## API Reference and User Guide available on [Read the Docs](https://requests.readthedocs.io)
 
 [![Read the Docs](https://raw.githubusercontent.com/psf/requests/master/ext/ss.png)](https://requests.readthedocs.io)
+
+## Cloning the repository
+
+When cloning the Requests repository, you may need to add the `-c
+fetch.fsck.badTimezone=ignore` flag to avoid an error about a bad commit (see
+[this issue](https://github.com/psf/requests/issues/2690) for more background):
+
+```shell
+git clone -c fetch.fsck.badTimezone=ignore https://github.com/psf/requests.git
+```
+
+You can also apply this setting to your global Git config:
+
+```shell
+git config --global fetch.fsck.badTimezone ignore
+```
 
 ---
 

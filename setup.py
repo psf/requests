@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # Learn more: https://github.com/kennethreitz/setup.py
 import os
-import re
 import sys
 
 from codecs import open
@@ -42,9 +41,9 @@ if sys.argv[-1] == 'publish':
 packages = ['requests']
 
 requires = [
-    'chardet>=3.0.2,<4',
+    'chardet>=3.0.2,<5',
     'idna>=2.5,<3',
-    'urllib3>=1.21.1,<1.26,!=1.25.0,!=1.25.1',
+    'urllib3>=1.21.1,<1.27',
     'certifi>=2017.4.17'
 
 ]
@@ -63,8 +62,6 @@ with open(os.path.join(here, 'requests', '__version__.py'), 'r', 'utf-8') as f:
 
 with open('README.md', 'r', 'utf-8') as f:
     readme = f.read()
-with open('HISTORY.md', 'r', 'utf-8') as f:
-    history = f.read()
 
 setup(
     name=about['__title__'],
@@ -76,7 +73,7 @@ setup(
     author_email=about['__author_email__'],
     url=about['__url__'],
     packages=packages,
-    package_data={'': ['LICENSE', 'NOTICE'], 'requests': ['*.pem']},
+    package_data={'': ['LICENSE', 'NOTICE']},
     package_dir={'requests': 'requests'},
     include_package_data=True,
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
@@ -96,6 +93,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
     ],

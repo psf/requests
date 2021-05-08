@@ -150,7 +150,9 @@ There's also a builtin JSON decoder, in case you're dealing with JSON data::
 
 In case the JSON decoding fails, ``r.json()`` raises an exception. For example, if
 the response gets a 204 (No Content), or if the response contains invalid JSON,
-attempting ``r.json()`` raises ``ValueError: No JSON object could be decoded``.
+attempting ``r.json()`` raises ``simplejson.JSONDecodeError`` if simplejson is
+installed or raises ``ValueError: No JSON object could be decoded`` on Python 2 or
+``json.JSONDecodeError`` on Python 3.
 
 It should be noted that the success of the call to ``r.json()`` does **not**
 indicate the success of the response. Some servers may return a JSON object in a
@@ -213,7 +215,8 @@ Note: Custom headers are given less precedence than more specific sources of inf
 
 * Authorization headers set with `headers=` will be overridden if credentials
   are specified in ``.netrc``, which in turn will be overridden by the  ``auth=``
-  parameter.
+  parameter. Requests will search for the netrc file at `~/.netrc`, `~/_netrc`,
+  or at the path specified by the `NETRC` environment variable.
 * Authorization headers will be removed if you get redirected off-host.
 * Proxy-Authorization headers will be overridden by proxy credentials provided in the URL.
 * Content-Length headers will be overridden when we can determine the length of the content.

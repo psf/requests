@@ -1,10 +1,7 @@
 # Contribution Guidelines
 
-Before opening any issues or proposing any pull requests, please do the
-following:
-
-1. Read our [Contributor's Guide](https://requests.readthedocs.io/en/latest/dev/contributing/).
-2. Understand our [development philosophy](https://requests.readthedocs.io/en/latest/dev/philosophy/).
+Before opening any issues or proposing any pull requests, please read
+our [Contributor's Guide](https://requests.readthedocs.io/en/latest/dev/contributing/).
 
 To get the greatest chance of helpful responses, please also observe the
 following additional notes.

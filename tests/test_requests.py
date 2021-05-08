@@ -24,7 +24,7 @@ from requests.cookies import (
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
     MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
-    ProxyError, InvalidHeader, UnrewindableBodyError, SSLError, InvalidProxyURL)
+    ProxyError, InvalidHeader, UnrewindableBodyError, SSLError, InvalidProxyURL, InvalidJSONError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -39,6 +39,9 @@ from urllib3.util import Timeout as Urllib3Timeout
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
 TARPIT = 'http://10.255.255.1'
+
+# This is to avoid waiting the timeout of using TARPIT
+INVALID_PROXY='http://localhost:1'
 
 try:
     from ssl import SSLContext
@@ -551,6 +554,42 @@ class TestRequests:
         with pytest.raises(InvalidProxyURL):
             requests.get(httpbin(), proxies={'http': 'http:///example.com:8080'})
 
+    def test_respect_proxy_env_on_send_self_prepared_request(self, httpbin):
+        with override_environ(http_proxy=INVALID_PROXY):
+            with pytest.raises(ProxyError):
+                session = requests.Session()
+                request = requests.Request('GET', httpbin())
+                session.send(request.prepare())
+
+    def test_respect_proxy_env_on_send_session_prepared_request(self, httpbin):
+        with override_environ(http_proxy=INVALID_PROXY):
+            with pytest.raises(ProxyError):
+                session = requests.Session()
+                request = requests.Request('GET', httpbin())
+                prepared = session.prepare_request(request)
+                session.send(prepared)
+
+    def test_respect_proxy_env_on_send_with_redirects(self, httpbin):
+        with override_environ(http_proxy=INVALID_PROXY):
+            with pytest.raises(ProxyError):
+                session = requests.Session()
+                url = httpbin('redirect/1')
+                print(url)
+                request = requests.Request('GET', url)
+                session.send(request.prepare())
+
+    def test_respect_proxy_env_on_get(self, httpbin):
+        with override_environ(http_proxy=INVALID_PROXY):
+            with pytest.raises(ProxyError):
+                session = requests.Session()
+                session.get(httpbin())
+
+    def test_respect_proxy_env_on_request(self, httpbin):
+        with override_environ(http_proxy=INVALID_PROXY):
+            with pytest.raises(ProxyError):
+                session = requests.Session()
+                session.request(method='GET', url=httpbin())
+
     def test_basicauth_with_netrc(self, httpbin):
         auth = ('user', 'pass')
         wrong_auth = ('wronguser', 'wrongpass')
@@ -668,7 +707,7 @@ class TestRequests:
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
 
-        with open('Pipfile') as f:
+        with open('requirements-dev.txt') as f:
             post2 = requests.post(url, files={'some': f})
         assert post2.status_code == 200
 
@@ -736,7 +775,7 @@ class TestRequests:
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
 
-        with open('Pipfile') as f:
+        with open('requirements-dev.txt') as f:
             post2 = requests.post(url, data={'some': 'data'}, files={'some': f})
         assert post2.status_code == 200
 
@@ -773,7 +812,7 @@ class TestRequests:
 
     def test_conflicting_post_params(self, httpbin):
         url = httpbin('post')
-        with open('Pipfile') as f:
+        with open('requirements-dev.txt') as f:
             with pytest.raises(ValueError):
                 requests.post(url, data='[{"some": "data"}]', files={'some': f})
             with pytest.raises(ValueError):
@@ -2527,3 +2566,8 @@ class TestPreparingURLs(object):
         r = requests.Request('GET', url=input, params=params)
         p = r.prepare()
         assert p.url == expected
+
+    def test_post_json_nan(self, httpbin):
+        data = {"foo": float("nan")}
+        with pytest.raises(requests.exceptions.InvalidJSONError):
+          r = requests.post(httpbin('post'), json=data)

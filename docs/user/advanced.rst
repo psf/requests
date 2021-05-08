@@ -233,7 +233,7 @@ or persistent::
     s.verify = '/path/to/certfile'
 
 .. note:: If ``verify`` is set to a path to a directory, the directory must have been processed using
-  the c_rehash utility supplied with OpenSSL.
+  the ``c_rehash`` utility supplied with OpenSSL.
 
 This list of trusted CAs can also be specified through the ``REQUESTS_CA_BUNDLE`` environment variable.
 If ``REQUESTS_CA_BUNDLE`` is not set, ``CURL_CA_BUNDLE`` will be used as fallback.
@@ -487,7 +487,7 @@ they are added.
 Custom Authentication
 ---------------------
 
-Requests allows you to use specify your own authentication mechanism.
+Requests allows you to specify your own authentication mechanism.
 
 Any callable which is passed as the ``auth`` argument to a request method will
 have the opportunity to modify the request before it is dispatched.
@@ -589,10 +589,26 @@ If you need to use a proxy, you can configure individual requests with the
 
     requests.get('http://example.org', proxies=proxies)
 
-You can also configure proxies by setting the environment variables
-``HTTP_PROXY`` and ``HTTPS_PROXY``.
+Alternatively you can configure it once for an entire
+:class:`Session <requests.Session>`::
 
-::
+    import requests
+
+    proxies = {
+      'http': 'http://10.10.1.10:3128',
+      'https': 'http://10.10.1.10:1080',
+    }
+    session = requests.Session()
+    session.proxies.update(proxies)
+
+    session.get('http://example.org')
+
+When the proxies configuration is not overridden in python as shown above,
+by default Requests relies on the proxy configuration defined by standard
+environment variables ``http_proxy``, ``https_proxy``, ``no_proxy`` and
+``curl_ca_bundle``. Uppercase variants of these variables are also supported.
+You can therefore set them to configure Requests (only set the ones relevant
+to your needs)::
 
     $ export HTTP_PROXY="http://10.10.1.10:3128"
     $ export HTTPS_PROXY="http://10.10.1.10:1080"
@@ -601,9 +617,17 @@ You can also configure proxies by setting the environment variables
     >>> import requests
     >>> requests.get('http://example.org')
 
-To use HTTP Basic Auth with your proxy, use the `http://user:password@host/` syntax::
+To use HTTP Basic Auth with your proxy, use the `http://user:password@host/`
+syntax in any of the above configuration entries::
 
-    proxies = {'http': 'http://user:pass@10.10.1.10:3128/'}
+    $ export HTTPS_PROXY="http://user:pass@10.10.1.10:1080"
+
+    $ python
+    >>> proxies = {'http': 'http://user:pass@10.10.1.10:3128/'}
+
+.. warning:: Storing sensitive username and password information in an
+   environment variable or a version-controlled file is a security risk and is
+   highly discouraged.
 
 To give a proxy for a specific scheme and host, use the
 `scheme://hostname` form for the key.  This will match for
@@ -614,6 +638,23 @@ any request to the given scheme and exact hostname.
     proxies = {'http://10.20.1.128': 'http://10.10.1.10:5323'}
 
 Note that proxy URLs must include the scheme.
+
+Finally, note that using a proxy for https connections typically requires your
+local machine to trust the proxy's root certificate. By default the list of
+certificates trusted by Requests can be found with::
+
+    from requests.utils import DEFAULT_CA_BUNDLE_PATH
+    print(DEFAULT_CA_BUNDLE_PATH)
+
+You override this default certificate bundle by setting the standard
+``curl_ca_bundle`` environment variable to another file path::
+
+    $ export curl_ca_bundle="/usr/local/myproxy_info/cacert.pem"
+    $ export https_proxy="http://10.10.1.10:1080"
+
+    $ python
+    >>> import requests
+    >>> requests.get('https://example.org')
 
 SOCKS
 ^^^^^
@@ -981,12 +1022,12 @@ response at a time. However, these calls will still block.
 
 If you are concerned about the use of blocking IO, there are lots of projects
 out there that combine Requests with one of Python's asynchronicity frameworks.
-Some excellent examples are `requests-threads`_, `grequests`_, `requests-futures`_, and `requests-async`_.
+Some excellent examples are `requests-threads`_, `grequests`_, `requests-futures`_, and `httpx`_.
 
 .. _`requests-threads`: https://github.com/requests/requests-threads
 .. _`grequests`: https://github.com/kennethreitz/grequests
 .. _`requests-futures`: https://github.com/ross/requests-futures
-.. _`requests-async`: https://github.com/encode/requests-async
+.. _`httpx`: https://github.com/encode/httpx
 
 Header Ordering
 ---------------
