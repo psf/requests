@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Requests test package initialisation."""
+"""Requests test package initialization."""
 
 import warnings
 
