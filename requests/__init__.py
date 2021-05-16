@@ -76,12 +76,13 @@ def check_compatibility(urllib3_version, chardet_version, charset_normalizer_ver
         major, minor, patch = int(major), int(minor), int(patch)
         # chardet_version >= 3.0.2, < 5.0.0
         assert (3, 0, 2) <= (major, minor, patch) < (5, 0, 0)
-    else:
+    elif charset_normalizer_version:
         major, minor, patch = charset_normalizer_version.split('.')[:3]
         major, minor, patch = int(major), int(minor), int(patch)
-        # charset_normalizer >= 1.3.5, < 2.0.0
-        assert (1, 3, 5) <= (major, minor, patch) < (2, 0, 0)
-
+        # charset_normalizer >= 1.3.9, < 2.0.0
+        assert (1, 3, 9) <= (major, minor, patch) < (2, 0, 0)
+    else:
+        raise Exception("You need either charset_normalizer or chardet installed")
 
 def _check_cryptography(cryptography_version):
     # cryptography < 1.3.4
