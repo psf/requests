@@ -446,7 +446,7 @@ argument.
     def print_url(r, *args, **kwargs):
         print(r.url)
 
-If an error occurs while executing your callback, a warning is given.
+If an error occurs while executing your callback, an exception is going to bubble up.
 
 If the callback function returns a value, it is assumed that it is to
 replace the data that was passed in. If the function doesn't return
