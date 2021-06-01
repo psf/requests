@@ -890,11 +890,11 @@ class Response(object):
             json and simplejson is not installed on Python 2.        
         """
 
-        if not self.encoding and self.content and len(self.content) > 3:
-            # No encoding set. JSON RFC 4627 section 3 states we should expect
-            # UTF-8, -16 or -32. Detect which one to use; If the detection or
-            # decoding fails, fall back to `self.text` (using chardet to make
-            # a best guess).
+        if not self.encoding and self.content and len(self.content) > 1:
+            # No encoding set. JSON RFC 4627 section 3 and RFC 7158 section 8.1
+            # state we should expect UTF-8, -16 or -32. Detect which one to
+            # use; If the detection or decoding fails, fall back to `self.text`
+            # (using chardet to make a best guess).
             encoding = guess_json_utf(self.content)
             if encoding is not None:
                 try:

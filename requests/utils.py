@@ -865,7 +865,6 @@ def parse_header_links(value):
 
 # Null bytes; no need to recreate these on each call to guess_json_utf
 _null = '\x00'.encode('ascii')  # encoding to ASCII for Python 3
-_null2 = _null * 2
 _null3 = _null * 3
 
 
@@ -873,7 +872,7 @@ def guess_json_utf(data):
     """
     :rtype: str
     """
-    # JSON always starts with two ASCII characters, so detection is as
+    # JSON always starts with an ASCII character, so detection is as
     # easy as counting the nulls and from their location and count
     # determine the encoding. Also detect a BOM, if present.
     sample = data[:4]
@@ -886,12 +885,12 @@ def guess_json_utf(data):
     nullcount = sample.count(_null)
     if nullcount == 0:
         return 'utf-8'
-    if nullcount == 2:
-        if sample[::2] == _null2:   # 1st and 3rd are null
+    if nullcount < 3:
+        if sample[:1] == _null and sample[1:2] != _null:   # 1st is null
             return 'utf-16-be'
-        if sample[1::2] == _null2:  # 2nd and 4th are null
+        if sample[:1] != _null and sample[1:2] == _null:  # 2nd is null
             return 'utf-16-le'
-        # Did not detect 2 valid UTF-16 ascii-range characters
+        # Did not detect a valid UTF-16 ascii-range character
     if nullcount == 3:
         if sample[:3] == _null3:
             return 'utf-32-be'

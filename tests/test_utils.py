@@ -328,6 +328,24 @@ class TestGuessJSONUTF:
         data = '{}'.encode(encoding)
         assert guess_json_utf(data) == encoding
 
+    @pytest.mark.parametrize(
+        'encoding', (
+            'utf-32', 'utf-8-sig', 'utf-16', 'utf-8', 'utf-16-be', 'utf-16-le',
+            'utf-32-be', 'utf-32-le'
+        ))
+    def test_encoded_number(self, encoding):
+        data = '0'.encode(encoding)
+        assert guess_json_utf(data) == encoding
+
+    @pytest.mark.parametrize(
+        'encoding', (
+            'utf-32', 'utf-8-sig', 'utf-16', 'utf-8', 'utf-16-be', 'utf-16-le',
+            'utf-32-be', 'utf-32-le'
+        ))
+    def test_encoded_euro_sign(self, encoding):
+        data = '"\u20AC"'.encode(encoding)
+        assert guess_json_utf(data) == encoding
+
     def test_bad_utf_like_encoding(self):
         assert guess_json_utf(b'\x00\x00\x00\x00') is None
 
