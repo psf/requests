@@ -1006,7 +1006,7 @@ library to use SSLv3::
                 block=block, ssl_version=ssl.PROTOCOL_SSLv3)
 
 .. _`described here`: https://www.kennethreitz.org/essays/the-future-of-python-http
-.. _`urllib3`: https://github.com/shazow/urllib3
+.. _`urllib3`: https://github.com/urllib3/urllib3
 
 .. _blocking-or-nonblocking:
 
@@ -1025,7 +1025,7 @@ out there that combine Requests with one of Python's asynchronicity frameworks.
 Some excellent examples are `requests-threads`_, `grequests`_, `requests-futures`_, and `httpx`_.
 
 .. _`requests-threads`: https://github.com/requests/requests-threads
-.. _`grequests`: https://github.com/kennethreitz/grequests
+.. _`grequests`: https://github.com/spyoungtech/grequests
 .. _`requests-futures`: https://github.com/ross/requests-futures
 .. _`httpx`: https://github.com/encode/httpx
 
