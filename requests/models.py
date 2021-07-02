@@ -915,7 +915,7 @@ class Response(object):
         try:
             return json.loads(self.text, **kwargs)
         except json.JSONDecodeError as e:
-            # Catch all errors and raise as requests.JSONDecodeError
+            # Catch JSON-related errors and raise as requests.JSONDecodeError
             # This aliases json.JSONDecodeError and simplejson.JSONDecodeError
             raise JSONDecodeError(e.msg, e.doc, e.pos)
 
