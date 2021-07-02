@@ -29,7 +29,8 @@ from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
 from .exceptions import (
     HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
-    ContentDecodingError, ConnectionError, StreamConsumedError, InvalidJSONError)
+    ContentDecodingError, ConnectionError, StreamConsumedError,
+    InvalidJSONError, JSONDecodeError)
 from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -39,7 +40,7 @@ from .compat import (
     Callable, Mapping,
     cookielib, urlunparse, urlsplit, urlencode, str, bytes,
     is_py2, chardet, builtin_str, basestring)
-from .compat import json as complexjson
+from .compat import json
 from .status_codes import codes
 
 #: The set of HTTP status codes that indicate an automatically
@@ -176,12 +177,14 @@ class RequestHooksMixin(object):
         """Properly register a hook."""
 
         if event not in self.hooks:
-            raise ValueError('Unsupported event specified, with event name "%s"' % (event))
+            raise ValueError(
+                'Unsupported event specified, with event name "%s"' % (event))
 
         if isinstance(hook, Callable):
             self.hooks[event].append(hook)
         elif hasattr(hook, '__iter__'):
-            self.hooks[event].extend(h for h in hook if isinstance(h, Callable))
+            self.hooks[event].extend(
+                h for h in hook if isinstance(h, Callable))
 
     def deregister_hook(self, event, hook):
         """Deregister a previously registered hook.
@@ -224,8 +227,8 @@ class Request(RequestHooksMixin):
     """
 
     def __init__(self,
-            method=None, url=None, headers=None, files=None, data=None,
-            params=None, auth=None, cookies=None, hooks=None, json=None):
+                 method=None, url=None, headers=None, files=None, data=None,
+                 params=None, auth=None, cookies=None, hooks=None, json=None):
 
         # Default empty dicts for dict params.
         data = [] if data is None else data
@@ -308,8 +311,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self._body_position = None
 
     def prepare(self,
-            method=None, url=None, headers=None, files=None, data=None,
-            params=None, auth=None, cookies=None, hooks=None, json=None):
+                method=None, url=None, headers=None, files=None, data=None,
+                params=None, auth=None, cookies=None, hooks=None, json=None):
         """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)
@@ -384,7 +387,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             raise InvalidURL(*e.args)
 
         if not scheme:
-            error = ("Invalid URL {0!r}: No schema supplied. Perhaps you meant http://{0}?")
+            error = (
+                "Invalid URL {0!r}: No schema supplied. Perhaps you meant http://{0}?")
             error = error.format(to_native_string(url, 'utf8'))
 
             raise MissingSchema(error)
@@ -438,7 +442,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 query = enc_params
 
-        url = requote_uri(urlunparse([scheme, netloc, path, None, query, fragment]))
+        url = requote_uri(urlunparse(
+            [scheme, netloc, path, None, query, fragment]))
         self.url = url
 
     def prepare_headers(self, headers):
@@ -468,9 +473,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             content_type = 'application/json'
 
             try:
-              body = complexjson.dumps(json, allow_nan=False)
+                body = json.dumps(json, allow_nan=False)
             except ValueError as ve:
-              raise InvalidJSONError(ve, request=self)
+                raise InvalidJSONError(ve, request=self)
 
             if not isinstance(body, bytes):
                 body = body.encode('utf-8')
@@ -500,7 +505,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                     self._body_position = object()
 
             if files:
-                raise NotImplementedError('Streamed bodies and files are mutually exclusive.')
+                raise NotImplementedError(
+                    'Streamed bodies and files are mutually exclusive.')
 
             if length:
                 self.headers['Content-Length'] = builtin_str(length)
@@ -776,7 +782,8 @@ class Response(object):
         if self._content_consumed and isinstance(self._content, bool):
             raise StreamConsumedError()
         elif chunk_size is not None and not isinstance(chunk_size, int):
-            raise TypeError("chunk_size must be an int, it is instead a %s." % type(chunk_size))
+            raise TypeError(
+                "chunk_size must be an int, it is instead a %s." % type(chunk_size))
         # simulate reading small chunks of the content
         reused_chunks = iter_slices(self._content, chunk_size)
 
@@ -833,7 +840,8 @@ class Response(object):
             if self.status_code == 0 or self.raw is None:
                 self._content = None
             else:
-                self._content = b''.join(self.iter_content(CONTENT_CHUNK_SIZE)) or b''
+                self._content = b''.join(
+                    self.iter_content(CONTENT_CHUNK_SIZE)) or b''
 
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3
@@ -882,12 +890,8 @@ class Response(object):
         r"""Returns the json-encoded content of a response, if any.
 
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
-        :raises simplejson.JSONDecodeError: If the response body does not
-            contain valid json and simplejson is installed.
-        :raises json.JSONDecodeError: If the response body does not contain
-            valid json and simplejson is not installed on Python 3.
-        :raises ValueError: If the response body does not contain valid
-            json and simplejson is not installed on Python 2.        
+        :raises requests.JSONDecodeError: If the response body does not
+            contain valid json.
         """
 
         if not self.encoding and self.content and len(self.content) > 3:
@@ -898,7 +902,7 @@ class Response(object):
             encoding = guess_json_utf(self.content)
             if encoding is not None:
                 try:
-                    return complexjson.loads(
+                    return json.loads(
                         self.content.decode(encoding), **kwargs
                     )
                 except UnicodeDecodeError:
@@ -907,7 +911,13 @@ class Response(object):
                     # and the server didn't bother to tell us what codec *was*
                     # used.
                     pass
-        return complexjson.loads(self.text, **kwargs)
+
+        try:
+            return json.loads(self.text, **kwargs)
+        except json.JSONDecodeError as e:
+            # Catch all errors and raise as requests.JSONDecodeError
+            # This aliases json.JSONDecodeError and simplejson.JSONDecodeError
+            raise JSONDecodeError(e.msg, e.doc, e.pos)
 
     @property
     def links(self):
@@ -944,10 +954,12 @@ class Response(object):
             reason = self.reason
 
         if 400 <= self.status_code < 500:
-            http_error_msg = u'%s Client Error: %s for url: %s' % (self.status_code, reason, self.url)
+            http_error_msg = u'%s Client Error: %s for url: %s' % (
+                self.status_code, reason, self.url)
 
         elif 500 <= self.status_code < 600:
-            http_error_msg = u'%s Server Error: %s for url: %s' % (self.status_code, reason, self.url)
+            http_error_msg = u'%s Server Error: %s for url: %s' % (
+                self.status_code, reason, self.url)
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)

@@ -8,6 +8,7 @@ This module handles import compatibility issues between Python 2 and
 Python 3.
 """
 
+import json
 import chardet
 
 import sys
@@ -25,10 +26,6 @@ is_py2 = (_ver[0] == 2)
 #: Python 3.x?
 is_py3 = (_ver[0] == 3)
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
 
 # ---------
 # Specifics
@@ -45,7 +42,6 @@ if is_py2:
     from StringIO import StringIO
     # Keep OrderedDict for backwards compatibility.
     from collections import Callable, Mapping, MutableMapping, OrderedDict
-
 
     builtin_str = str
     bytes = str
