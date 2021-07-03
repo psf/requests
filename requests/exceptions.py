@@ -10,9 +10,9 @@ from urllib3.exceptions import HTTPError as BaseHTTPError
 from json import JSONDecodeError as StandardJSONDecodeError  # to reduce confusion
 
 try:
-    from simplejson import JSONDecodeError as SimpleJsonDecodeError
+    from simplejson import JSONDecodeError as SimpleJSONDecodeError
 except ImportError:
-    SimpleJsonDecodeError = Exception
+    SimpleJSONDecodeError = Exception
 
 
 class RequestException(IOError):
@@ -31,7 +31,7 @@ class RequestException(IOError):
         super(RequestException, self).__init__(*args, **kwargs)
 
 
-class JSONDecodeError(StandardJSONDecodeError, SimpleJsonDecodeError):
+class JSONDecodeError(StandardJSONDecodeError, SimpleJSONDecodeError):
     """Couldn't decode the text into json"""
 
 
