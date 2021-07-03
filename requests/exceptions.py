@@ -7,7 +7,7 @@ requests.exceptions
 This module contains the set of Requests' exceptions.
 """
 from urllib3.exceptions import HTTPError as BaseHTTPError
-from json import StandardJSONDecodeError
+from json import JSONDecodeError as StandardJSONDecodeError  # to reduce confusion
 
 try:
     from simplejson import JSONDecodeError as SimpleJsonDecodeError
