@@ -7,8 +7,12 @@ requests.exceptions
 This module contains the set of Requests' exceptions.
 """
 from urllib3.exceptions import HTTPError as BaseHTTPError
-import json
-import simplejson
+from json import StandardJSONDecodeError
+
+try:
+    from simplejson import JSONDecodeError as SimpleJsonDecodeError
+except ImportError:
+    SimpleJsonDecodeError = Exception
 
 
 class RequestException(IOError):
@@ -27,7 +31,7 @@ class RequestException(IOError):
         super(RequestException, self).__init__(*args, **kwargs)
 
 
-class JSONDecodeError(json.JSONDecodeError, simplejson.JSONDecodeError):
+class JSONDecodeError(StandardJSONDecodeError, SimpleJsonDecodeError):
     """Couldn't decode the text into json"""
 
 
