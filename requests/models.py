@@ -883,7 +883,7 @@ class Response(object):
         r"""Returns the json-encoded content of a response, if any.
 
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
-        :raises requests.JSONDecodeError: If the response body does not
+        :raises requests.exceptions.JSONDecodeError: If the response body does not
             contain valid json.
         """
 
