@@ -4,7 +4,9 @@ Release History
 dev
 ---
 
--   \[Short description of non-trivial change.\]
+- Added a `requests.exceptions.JSONDecodeError` to decrease inconsistencies
+  in the library. This gets raised in the `response.json()` method, and is
+  backwards compatible as it inherits from previously thrown exceptions.
 
 2.25.1 (2020-12-16)
 -------------------
