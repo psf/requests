@@ -150,7 +150,9 @@ There's also a builtin JSON decoder, in case you're dealing with JSON data::
 
 In case the JSON decoding fails, ``r.json()`` raises an exception. For example, if
 the response gets a 204 (No Content), or if the response contains invalid JSON,
-attempting ``r.json()`` raises ``requests.JSONDecodeError``.
+attempting ``r.json()`` raises ``requests.JSONDecodeError``. This is new for the
+current latest veresion of Requests, and is backwards compatible, as it inherits
+from exceptions that were previously thrown.
 
 It should be noted that the success of the call to ``r.json()`` does **not**
 indicate the success of the response. Some servers may return a JSON object in a
