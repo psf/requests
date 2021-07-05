@@ -409,7 +409,7 @@ class HTTPAdapter(BaseAdapter):
         """
 
         try:
-            conn = self.get_connection(request.url, proxies)
+            conn = self.get_connection(request.url, proxies=proxies)
         except LocationValueError as e:
             raise InvalidURL(e, request=request)
 
