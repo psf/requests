@@ -895,7 +895,7 @@ class Response(object):
             encoding = guess_json_utf(self.content)
             if encoding is not None:
                 try:
-                    return json.loads(
+                    return complexjson.loads(
                         self.content.decode(encoding), **kwargs
                     )
                 except UnicodeDecodeError:
