@@ -42,6 +42,8 @@ DEFAULT_CA_BUNDLE_PATH = certs.where()
 
 DEFAULT_PORTS = {'http': 80, 'https': 443}
 
+DEFAULT_ACCEPT_ENCODING = make_headers(accept_encoding=True)["accept-encoding"]
+
 
 if sys.platform == 'win32':
     # provide a proxy_bypass version on Windows without DNS lookups
@@ -821,7 +823,7 @@ def default_headers():
     """
     return CaseInsensitiveDict({
         'User-Agent': default_user_agent(),
-        'Accept-Encoding': make_headers(accept_encoding=True)["accept-encoding"],
+        'Accept-Encoding': DEFAULT_ACCEPT_ENCODING,
         'Accept': '*/*',
         'Connection': 'keep-alive',
     })
