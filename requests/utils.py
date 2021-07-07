@@ -20,6 +20,7 @@ import tempfile
 import warnings
 import zipfile
 from collections import OrderedDict
+from urllib3.util import make_headers
 
 from .__version__ import __version__
 from . import certs
@@ -40,6 +41,11 @@ NETRC_FILES = ('.netrc', '_netrc')
 DEFAULT_CA_BUNDLE_PATH = certs.where()
 
 DEFAULT_PORTS = {'http': 80, 'https': 443}
+
+# Ensure that ', ' is used to preserve previous delimiter behavior.
+DEFAULT_ACCEPT_ENCODING = ", ".join(
+    re.split(r",\s*", make_headers(accept_encoding=True)["accept-encoding"])
+)
 
 
 if sys.platform == 'win32':
@@ -256,11 +262,26 @@ def extract_zipped_paths(path):
 
     # we have a valid zip archive and a valid member of that archive
     tmp = tempfile.gettempdir()
-    extracted_path = os.path.join(tmp, *member.split('/'))
+    extracted_path = os.path.join(tmp, member.split('/')[-1])
     if not os.path.exists(extracted_path):
-        extracted_path = zip_file.extract(member, path=tmp)
-
+        # use read + write to avoid the creating nested folders, we only want the file, avoids mkdir racing condition
+        with atomic_open(extracted_path) as file_handler:
+            file_handler.write(zip_file.read(member))
     return extracted_path
+
+
+@contextlib.contextmanager
+def atomic_open(filename):
+    """Write a file to the disk in an atomic fashion"""
+    replacer = os.rename if sys.version_info[0] == 2 else os.replace
+    tmp_descriptor, tmp_name = tempfile.mkstemp(dir=os.path.dirname(filename))
+    try:
+        with os.fdopen(tmp_descriptor, 'wb') as tmp_handler:
+            yield tmp_handler
+        replacer(tmp_name, filename)
+    except BaseException:
+        os.remove(tmp_name)
+        raise
 
 
 def from_key_val_list(value):
@@ -820,7 +841,7 @@ def default_headers():
     """
     return CaseInsensitiveDict({
         'User-Agent': default_user_agent(),
-        'Accept-Encoding': ', '.join(('gzip', 'deflate')),
+        'Accept-Encoding': DEFAULT_ACCEPT_ENCODING,
         'Accept': '*/*',
         'Connection': 'keep-alive',
     })
