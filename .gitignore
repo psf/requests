@@ -23,6 +23,12 @@ env/
 
 .workon
 
+# in case you work with IntelliJ/PyCharm
+.idea
+*.iml
+.python-version
+
+
 t.py
 
 t2.py

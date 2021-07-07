@@ -4,9 +4,29 @@ Release History
 dev
 ---
 
+**Improvements**
+
 - Added a `requests.exceptions.JSONDecodeError` to decrease inconsistencies
   in the library. This gets raised in the `response.json()` method, and is
   backwards compatible as it inherits from previously thrown exceptions.
+- Requests Brotli compression, if either the `brotli` or `brotlicffi` package
+  is installed.
+
+**Dependencies**
+
+- Instead of `chardet`, use the MIT-licensed `charset_normalizer` for Python3
+  to remove license ambiguity for projects bundling requests. If `chardet`
+  is already installed on your machine it will be used instead of `charset_normalizer`
+  to keep backwards compatibility.
+
+  You can also install `chardet` while installing requests by
+  specifying `[use_chardet_on_py3]` extra as follows:
+
+    ```shell
+    pip install "requests[use_chardet_on_py3]"
+    ```
+
+  Python2 still depends upon the `chardet` module.
 
 2.25.1 (2020-12-16)
 -------------------
@@ -1709,4 +1729,3 @@ This is not a backwards compatible change.
 
 -   Frustration
 -   Conception
-
