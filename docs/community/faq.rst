@@ -11,6 +11,9 @@ Encoded Data?
 Requests automatically decompresses gzip-encoded responses, and does
 its best to decode response content to unicode when possible.
 
+When either the `brotli <https://pypi.org/project/Brotli/>`_ or `brotlicffi <https://pypi.org/project/brotlicffi/>`_
+package is installed, requests also decodes Brotli-encoded responses.
+
 You can get direct access to the raw response (and even the socket),
 if needed as well.
 
