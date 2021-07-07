@@ -42,7 +42,10 @@ DEFAULT_CA_BUNDLE_PATH = certs.where()
 
 DEFAULT_PORTS = {'http': 80, 'https': 443}
 
-DEFAULT_ACCEPT_ENCODING = make_headers(accept_encoding=True)["accept-encoding"]
+# Ensure that ', ' is used to preserve previous delimiter behavior.
+DEFAULT_ACCEPT_ENCODING = ", ".join(
+    re.split(r",\s*", make_headers(accept_encoding=True)["accept-encoding"])
+)
 
 
 if sys.platform == 'win32':
