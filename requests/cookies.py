@@ -462,8 +462,8 @@ def create_cookie(name, value, **kwargs):
 
     badargs = set(kwargs) - set(result)
     if badargs:
-        err = 'create_cookie() got unexpected keyword arguments: %s'
-        raise TypeError(err % list(badargs))
+        err = f"create_cookie() got unexpected keyword arguments: {badargs}"
+        raise TypeError(err)
 
     result.update(kwargs)
     result['port_specified'] = bool(result['port'])
