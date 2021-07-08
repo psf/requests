@@ -611,7 +611,7 @@ def unquote_unreserved(uri):
             try:
                 c = chr(int(h, 16))
             except ValueError:
-                raise InvalidURL("Invalid percent-escape sequence: '%s'" % h)
+                raise InvalidURL(f"Invalid percent-escape sequence: '{h}'")
 
             if c in UNRESERVED_SET:
                 parts[i] = c + parts[i][2:]
@@ -832,7 +832,7 @@ def default_user_agent(name="python-requests"):
 
     :rtype: str
     """
-    return '%s/%s' % (name, __version__)
+    return f"{name}/{__version__}"
 
 
 def default_headers():
@@ -975,7 +975,7 @@ def check_header_validity(header):
         pat = _CLEAN_HEADER_REGEX_STR
     try:
         if not pat.match(value):
-            raise InvalidHeader("Invalid return character or leading space in header: %s" % name)
+            raise InvalidHeader(f"Invalid return character or leading space in header: {name}")
     except TypeError:
         raise InvalidHeader("Value for header {%s: %s} must be of type str or "
                             "bytes, not %s" % (name, value, type(value)))
