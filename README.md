@@ -16,6 +16,27 @@
 >>> r.json()
 {'disk_usage': 368627, 'private_gists': 484, ...}
 ```
+##### Or Run In A Python File
+```python
+import requests
+
+r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
+
+status = r.status_code
+header = r.headers['content-type']
+encoding = r.encoding
+text = r.text
+json = r.json()
+
+print(
+    f"STATUS: ${status}\n",
+    f"HEADER: ${header}\n",
+    f"ENCODE: ${encoding}\n",
+    f"TEXT: ${text}\n",
+    f"JSON: ${json}"
+)
+
+```
 
 Requests allows you to send HTTP/1.1 requests extremely easily. There’s no need to manually add query strings to your URLs, or to form-encode your `PUT` & `POST` data — but nowadays, just use the `json` method!
 
