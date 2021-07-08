@@ -176,7 +176,7 @@ class RequestHooksMixin(object):
         """Properly register a hook."""
 
         if event not in self.hooks:
-            raise ValueError('Unsupported event specified, with event name "%s"' % (event))
+            raise ValueError(f'Unsupported event specified, with event name "{event}"')
 
         if isinstance(hook, Callable):
             self.hooks[event].append(hook)
@@ -434,7 +434,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         enc_params = self._encode_params(params)
         if enc_params:
             if query:
-                query = '%s&%s' % (query, enc_params)
+                query = f'{query}&{enc_params}'
             else:
                 query = enc_params
 
@@ -776,7 +776,7 @@ class Response(object):
         if self._content_consumed and isinstance(self._content, bool):
             raise StreamConsumedError()
         elif chunk_size is not None and not isinstance(chunk_size, int):
-            raise TypeError("chunk_size must be an int, it is instead a %s." % type(chunk_size))
+            raise TypeError(f"chunk_size must be an int, it is instead a {type(chunk_size)}.")
         # simulate reading small chunks of the content
         reused_chunks = iter_slices(self._content, chunk_size)
 
