@@ -55,7 +55,7 @@ Chris Adams gave an excellent summary on
 Python 3 Support?
 -----------------
 
-Yes! Requests officially supports Python 2.7 & 3.5+ and PyPy.
+Yes! Requests officially supports Python 2.7 & 3.6+ and PyPy.
 
 Python 2 Support?
 -----------------
