@@ -24,6 +24,13 @@ dev
 
   Python2 still depends upon the `chardet` module.
 
+**Deprecations**
+
+- The `requests[security]` extra has been converted to a no-op install.
+  PyOpenSSL is no longer the recommended secure option for Requests.
+
+- Requests has officially dropped support for Python 3.5.
+
 2.25.1 (2020-12-16)
 -------------------
 
