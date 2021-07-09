@@ -9,6 +9,7 @@ dev
 - Added a `requests.exceptions.JSONDecodeError` to decrease inconsistencies
   in the library. This gets raised in the `response.json()` method, and is
   backwards compatible as it inherits from previously thrown exceptions.
+  Can be caught from `requests.exceptions.RequestException` as well.
 - Requests Brotli compression, if either the `brotli` or `brotlicffi` package
   is installed.
 

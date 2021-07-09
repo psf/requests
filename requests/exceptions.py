@@ -35,7 +35,7 @@ class RequestException(IOError):
         super(RequestException, self).__init__(*args, **kwargs)
 
 
-class JSONDecodeError(StandardJSONDecodeError, SimpleJSONDecodeError):
+class JSONDecodeError(StandardJSONDecodeError, SimpleJSONDecodeError, RequestException):
     """Couldn't decode the text into json"""
 
 
