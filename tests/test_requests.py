@@ -874,8 +874,9 @@ class TestRequests:
         r = requests.get(httpbin(), cert='.')
         assert r.status_code == 200
 
-    def test_https_warnings(self, httpbin_secure, httpbin_ca_bundle):
+    def test_https_warnings(self, nosan_server):
         """warnings are emitted with requests.get"""
+        host, port, ca_bundle = nosan_server
         if HAS_MODERN_SSL or HAS_PYOPENSSL:
             warnings_expected = ('SubjectAltNameWarning', )
         else:
@@ -885,8 +886,7 @@ class TestRequests:
 
         with pytest.warns(None) as warning_records:
             warnings.simplefilter('always')
-            requests.get(httpbin_secure('status', '200'),
-                         verify=httpbin_ca_bundle)
+            requests.get("https://localhost:{}/".format(port), verify=ca_bundle)
 
         warning_records = [item for item in warning_records
                            if item.category.__name__ != 'ResourceWarning']
