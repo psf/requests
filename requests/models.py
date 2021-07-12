@@ -30,7 +30,8 @@ from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
 from .exceptions import (
     HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
     ContentDecodingError, ConnectionError, StreamConsumedError,
-    InvalidJSONError, JSONDecodeError)
+    InvalidJSONError)
+from .exceptions import JSONDecodeError as RequestsJSONDecodeError
 from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -39,7 +40,7 @@ from .utils import (
 from .compat import (
     Callable, Mapping,
     cookielib, urlunparse, urlsplit, urlencode, str, bytes,
-    is_py2, chardet, builtin_str, basestring)
+    is_py2, chardet, builtin_str, basestring, JSONDecodeError)
 from .compat import json as complexjson
 from .status_codes import codes
 
@@ -907,10 +908,10 @@ class Response(object):
 
         try:
             return complexjson.loads(self.text, **kwargs)
-        except complexjson.JSONDecodeError as e:
+        except JSONDecodeError as e:
             # Catch JSON-related errors and raise as requests.JSONDecodeError
             # This aliases json.JSONDecodeError and simplejson.JSONDecodeError
-            raise JSONDecodeError(e.msg, e.doc, e.pos)
+            raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
 
     @property
     def links(self):
