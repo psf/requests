@@ -911,7 +911,10 @@ class Response(object):
         except JSONDecodeError as e:
             # Catch JSON-related errors and raise as requests.JSONDecodeError
             # This aliases json.JSONDecodeError and simplejson.JSONDecodeError
-            raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+            if is_py2: # e is a ValueError
+                raise RequestsJSONDecodeError()
+            else:
+                raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
 
     @property
     def links(self):
