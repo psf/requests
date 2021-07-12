@@ -153,7 +153,7 @@ There's also a builtin JSON decoder, in case you're dealing with JSON data::
 
 In case the JSON decoding fails, ``r.json()`` raises an exception. For example, if
 the response gets a 204 (No Content), or if the response contains invalid JSON,
-attempting ``r.json()`` raises ``requests.JSONDecodeError``. This wrapper exception
+attempting ``r.json()`` raises ``requests.exceptions.JSONDecodeError``. This wrapper exception
 provides interoperability for multiple exceptions that may be thrown by different
 python versions and json serialization libraries.
 
