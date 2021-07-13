@@ -4,21 +4,33 @@ Release History
 dev
 ---
 
+2.26.0 (2021-07-13)
+-------------------
+
 **Improvements**
 
 - Added a `requests.exceptions.JSONDecodeError` to decrease inconsistencies
   in the library. This gets raised in the `response.json()` method, and is
   backwards compatible as it inherits from previously thrown exceptions.
   Can be caught from `requests.exceptions.RequestException` as well.
-- Requests Brotli compression, if either the `brotli` or `brotlicffi` package
-  is installed.
+
+- Requests now supports Brotli compression, if either the `brotli` or
+  `brotlicffi` package is installed. (#5783)
+
+- `Session.send` now correctly resolves proxy configurations from both
+  the Session and Request. Behavior now matches `Session.request`. (#5681)
+
+**Bugfixes**
+
+- Fixed a race condition in zip extraction when using Requests in parallel
+  from zip archive. (#5707)
 
 **Dependencies**
 
 - Instead of `chardet`, use the MIT-licensed `charset_normalizer` for Python3
   to remove license ambiguity for projects bundling requests. If `chardet`
   is already installed on your machine it will be used instead of `charset_normalizer`
-  to keep backwards compatibility.
+  to keep backwards compatibility. (#5797)
 
   You can also install `chardet` while installing requests by
   specifying `[use_chardet_on_py3]` extra as follows:
@@ -28,6 +40,16 @@ dev
     ```
 
   Python2 still depends upon the `chardet` module.
+
+- Requests now supports `idna` 3.x on Python 3. `idna` 2.x will continue to
+  be used on Python 2 installations. (#5711)
+
+**Deprecations**
+
+- The `requests[security]` extra has been converted to a no-op install.
+  PyOpenSSL is no longer the recommended secure option for Requests. (#5867)
+
+- Requests has officially dropped support for Python 3.5. (#5867)
 
 2.25.1 (2020-12-16)
 -------------------

@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9]
+        python-version: [2.7, 3.6, 3.7, 3.8, 3.9]
         os: [ubuntu-18.04, macOS-latest, windows-latest]
         include:
           # pypy3 on Mac OS currently fails trying to compile
