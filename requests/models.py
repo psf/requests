@@ -912,7 +912,7 @@ class Response(object):
             # Catch JSON-related errors and raise as requests.JSONDecodeError
             # This aliases json.JSONDecodeError and simplejson.JSONDecodeError
             if is_py2: # e is a ValueError
-                raise RequestsJSONDecodeError()
+                raise RequestsJSONDecodeError(e.message)
             else:
                 raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
 
