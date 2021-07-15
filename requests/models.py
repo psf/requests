@@ -732,7 +732,17 @@ class Response(object):
     @property
     def apparent_encoding(self):
         """The apparent encoding, provided by the charset_normalizer or chardet libraries."""
-        return chardet.detect(self.content)['encoding']
+        # If chardet/charset_normalizer is available, use it.
+        if chardet:
+            return chardet.detect(self.content)['encoding']
+        # Fall back to trying simpler, dumber means.
+        for encoding in ("ascii", "utf-8"):
+            try:
+                self.content.decode(encoding, "strict")
+                return encoding
+            except UnicodeDecodeError:
+                pass
+        raise ContentDecodingError("Unable to detect response encoding")
 
     def iter_content(self, chunk_size=1, decode_unicode=False):
         """Iterates over the response data.  When stream=True is set on the
@@ -862,7 +872,15 @@ class Response(object):
 
         # Fallback to auto-detected encoding.
         if self.encoding is None:
-            encoding = self.apparent_encoding
+            try:
+                encoding = self.apparent_encoding
+            except ContentDecodingError:
+                raise ContentDecodingError(
+                    "Unable to automatically detect the response's encoding. "
+                    "If you know the response's encoding, you can set it manually (`.encoding`), or "
+                    "install either the `chardet` or `charset_normalizer` library to make automatic "
+                    "detection smarter."
+                )
 
         # Decode unicode from given encoding.
         try:

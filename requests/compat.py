@@ -11,10 +11,13 @@ Python 3.
 try:
     import chardet
 except ImportError:
-    import charset_normalizer as chardet
-    import warnings
+    try:
+        import charset_normalizer as chardet
+        import warnings
 
-    warnings.filterwarnings('ignore', 'Trying to detect', module='charset_normalizer')
+        warnings.filterwarnings('ignore', 'Trying to detect', module='charset_normalizer')
+    except ImportError:
+        chardet = None
 
 
 import sys

@@ -54,7 +54,33 @@ class TestTestServer:
 
             assert r.status_code == 200
             assert r.text == u'roflol'
+            assert not r.encoding
+            assert r.apparent_encoding == 'ascii'
             assert r.headers['Content-Length'] == '6'
+
+    def test_text_response_utf_8(self, mocker):
+        """
+        test `.apparent_encoding` is able to infer UTF-8
+        """
+        mocker.patch('requests.models.chardet', new=None)
+        response_unicode = u"Törkylempijävongahdus"
+        response_length = len(response_unicode.encode("utf-8"))
+        # `text_response_server` takes care of encoding to UTF-8 internally
+        server = Server.text_response_server((
+            u"HTTP/1.1 200 OK\r\n"
+            "Content-Length: {}\r\n"
+            "\r\n"
+            "{}"
+        ).format(response_length, response_unicode))
+
+        with server as (host, port):
+            r = requests.get('http://{}:{}'.format(host, port))
+
+            assert r.status_code == 200
+            assert r.text == response_unicode
+            assert not r.encoding
+            assert r.apparent_encoding == 'utf-8'
+            assert r.headers['Content-Length'] == str(response_length)
 
     def test_basic_response(self):
         """the basic response server returns an empty http response"""
