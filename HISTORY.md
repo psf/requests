@@ -4,15 +4,17 @@ Release History
 dev
 ---
 
-2.26.0 (2021-07-13)
--------------------
-
-**Improvements**
+- \[Short description of non-trivial change.\]
 
 - Added a `requests.exceptions.JSONDecodeError` to decrease inconsistencies
   in the library. This gets raised in the `response.json()` method, and is
   backwards compatible as it inherits from previously thrown exceptions.
   Can be caught from `requests.exceptions.RequestException` as well.
+
+2.26.0 (2021-07-13)
+-------------------
+
+**Improvements**
 
 - Requests now supports Brotli compression, if either the `brotli` or
   `brotlicffi` package is installed. (#5783)
