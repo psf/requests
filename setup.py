@@ -41,8 +41,6 @@ if sys.argv[-1] == 'publish':
 packages = ['requests']
 
 requires = [
-    'charset_normalizer~=2.0.0; python_version >= "3"',
-    'chardet>=3.0.2,<5; python_version < "3"',
     'idna>=2.5,<3; python_version < "3"',
     'idna>=2.5,<4; python_version >= "3"',
     'urllib3>=1.21.1,<1.27',
@@ -104,7 +102,8 @@ setup(
         'security': [],
         'socks': ['PySocks>=1.5.6, !=1.5.7'],
         'socks:sys_platform == "win32" and python_version == "2.7"': ['win_inet_pton'],
-        'use_chardet_on_py3': ['chardet>=3.0.2,<5']
+        'chardet': ['chardet>=3.0.2,<5'],
+        'charset_normalizer': ['charset_normalizer~=2.0.0; python_version >= "3"'],
     },
     project_urls={
         'Documentation': 'https://requests.readthedocs.io',
