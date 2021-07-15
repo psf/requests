@@ -1,12 +1,6 @@
 import sys
 
-try:
-    import chardet
-except ImportError:
-    import charset_normalizer as chardet
-    import warnings
-
-    warnings.filterwarnings('ignore', 'Trying to detect', module='charset_normalizer')
+from requests.compat import chardet
 
 # This code exists for backwards compatibility reasons.
 # I don't like it either. Just look the other way. :)
@@ -19,8 +13,9 @@ for package in ('urllib3', 'idna'):
         if mod == package or mod.startswith(package + '.'):
             sys.modules['requests.packages.' + mod] = sys.modules[mod]
 
-target = chardet.__name__
-for mod in list(sys.modules):
-    if mod == target or mod.startswith(target + '.'):
-        sys.modules['requests.packages.' + target.replace(target, 'chardet')] = sys.modules[mod]
+if chardet:
+    target = chardet.__name__
+    for mod in list(sys.modules):
+        if mod == target or mod.startswith(target + '.'):
+            sys.modules['requests.packages.' + target.replace(target, 'chardet')] = sys.modules[mod]
 # Kinda cool, though, right?
