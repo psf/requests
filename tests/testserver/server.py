@@ -42,15 +42,22 @@ class Server(threading.Thread):
         self.stop_event = threading.Event()
 
     @classmethod
-    def text_response_server(cls, text, request_timeout=0.5, **kwargs):
-        def text_response_handler(sock):
+    def response_server(cls, response, request_timeout=0.5, **kwargs):
+        def response_handler(sock):
             request_content = consume_socket_content(sock, timeout=request_timeout)
-            sock.send(text.encode('utf-8'))
+            sock.send(response)
 
             return request_content
 
+        return Server(response_handler, **kwargs)
 
-        return Server(text_response_handler, **kwargs)
+    @classmethod
+    def text_response_server(cls, text, request_timeout=0.5, **kwargs):
+        return cls.response_server(
+            response=text.encode('utf-8'),
+            request_timeout=request_timeout,
+            **kwargs
+        )
 
     @classmethod
     def basic_response_server(cls, **kwargs):

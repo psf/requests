@@ -82,6 +82,49 @@ class TestTestServer:
             assert r.apparent_encoding == 'utf-8'
             assert r.headers['Content-Length'] == str(response_length)
 
+    @pytest.mark.parametrize('text, encoding', [
+        (u"Törkylempijävongahdus", 'utf_16_le'),
+        (u"Törkylempijävongahdus", 'utf_16_be'),
+        (u"Törkylempijävongahdus", 'latin1'),
+        (u"В чащах юга жил бы цитрус? Да, но фальшивый экземпляр!", 'koi8_r'),
+        (u"テストテキスト", 'shift_jis'),
+    ])
+    @pytest.mark.parametrize('with_chardet', (False, True))
+    def test_text_response_esoteric(self, mocker, encoding, text, with_chardet):
+        """
+        test `.apparent_encoding` croaks on a more esoteric encoding when chardet is not available
+        """
+        if not with_chardet:
+            mocker.patch('requests.models.chardet', new=None)
+        else:
+            from requests.compat import chardet
+            if not chardet:
+                pytest.skip("chardet not available")
+        response_bytes = text.encode(encoding)
+        response_length = len(response_bytes)
+        response_header = (
+            "HTTP/1.1 200 OK\r\n"
+            "Content-Length: {}\r\n"
+            "\r\n"
+        ).format(response_length).encode()
+        server = Server.response_server(response_header + response_bytes)
+
+        with server as (host, port):
+            r = requests.get('http://{}:{}'.format(host, port))
+            assert r.status_code == 200
+            assert r.headers['Content-Length'] == str(response_length)
+            assert not r.encoding
+            if with_chardet:
+                assert r.apparent_encoding
+                assert r.text
+                # We can't assert that `r.text == text`, because it simply might not be
+                # correctly decoded by either chardet library.
+            else:
+                with pytest.raises(requests.exceptions.ContentDecodingError):
+                    assert r.text
+                with pytest.raises(requests.exceptions.ContentDecodingError):
+                    assert r.apparent_encoding
+
     def test_basic_response(self):
         """the basic response server returns an empty http response"""
         with Server.basic_response_server() as (host, port):
