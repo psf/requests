@@ -551,7 +551,7 @@ class Session(SessionRedirectMixin):
 
         return resp
 
-    def get(self, url, **kwargs):
+    def get(self, url, params=None, **kwargs):
         r"""Sends a GET request.
 
         :param url: URL for the new :class:`Request` object.
