@@ -524,7 +524,7 @@ def get_encoding_from_headers(headers):
     if 'text' in content_type:
         return 'ISO-8859-1'
 
-    if 'application/json' in content_type:
+    if 'application/json' in content_type or content_type.endswith('+json'):
         # Assume UTF-8 based on RFC 4627: https://www.ietf.org/rfc/rfc4627.txt since the charset was unset
         return 'utf-8'
 
