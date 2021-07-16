@@ -15,7 +15,6 @@ from . import sessions
 
 def request(method, url, **kwargs):
     """Constructs a :class:`Request <Request>`, prepares it and sends it. 
-    Returns :class:`Response <Response>` object.
 
     :param method: method for the new :class:`Request` object.
     :param url: URL for the new :class:`Request` object.
@@ -54,6 +53,8 @@ def request(method, url, **kwargs):
         development or testing.
     :param cert: (optional) if String, path to ssl client cert file (.pem).
         If Tuple, ('cert', 'key') pair.
+    :return: :class:`Response <Response>` object
+    :rtype: requests.Response
 
     Usage::
 
@@ -71,7 +72,7 @@ def request(method, url, **kwargs):
 
 
 def get(url, params=None, **kwargs):
-    r"""Sends a GET request. Returns :class:`Response` object.
+    r"""Sends a GET request.
 
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary or bytes to be sent in the query 
@@ -85,7 +86,7 @@ def get(url, params=None, **kwargs):
 
 
 def options(url, **kwargs):
-    r"""Sends a OPTIONS request. Returns :class:`Response` object.
+    r"""Sends a OPTIONS request.
 
     :param url: URL for the new :class:`Request` object.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
@@ -97,7 +98,7 @@ def options(url, **kwargs):
 
 
 def head(url, **kwargs):
-    r"""Sends a HEAD request. Returns :class:`Response` object.
+    r"""Sends a HEAD request.
 
     :param url: URL for the new :class:`Request` object.
     :param \*\*kwargs: Optional arguments that ``request`` takes. If
@@ -112,7 +113,7 @@ def head(url, **kwargs):
 
 
 def post(url, data=None, json=None, **kwargs):
-    r"""Sends a POST request. Returns :class:`Response` object.
+    r"""Sends a POST request.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
@@ -128,7 +129,7 @@ def post(url, data=None, json=None, **kwargs):
 
 
 def put(url, data=None, **kwargs):
-    r"""Sends a PUT request. Returns :class:`Response` object.
+    r"""Sends a PUT request.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
@@ -142,7 +143,7 @@ def put(url, data=None, **kwargs):
 
 
 def patch(url, data=None, **kwargs):
-    r"""Sends a PATCH request. Returns :class:`Response` object.
+    r"""Sends a PATCH request.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
@@ -156,7 +157,7 @@ def patch(url, data=None, **kwargs):
 
 
 def delete(url, **kwargs):
-    r"""Sends a DELETE request. Returns :class:`Response` object.
+    r"""Sends a DELETE request.
 
     :param url: URL for the new :class:`Request` object.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
