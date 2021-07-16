@@ -14,37 +14,46 @@ from . import sessions
 
 
 def request(method, url, **kwargs):
-    """Constructs and sends a :class:`Request <Request>`.
+    """Constructs a :class:`Request <Request>`, prepares it and sends it. 
+    Returns :class:`Response <Response>` object.
 
-    :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
+    :param method: method for the new :class:`Request` object.
     :param url: URL for the new :class:`Request` object.
-    :param params: (optional) Dictionary, list of tuples or bytes to send
-        in the query string for the :class:`Request`.
+    :param params: (optional) Dictionary or bytes to be sent in the query 
+        string for the :class:`Request`.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
         object to send in the body of the :class:`Request`.
-    :param json: (optional) A JSON serializable Python object to send in the body of the :class:`Request`.
-    :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
-    :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
-    :param files: (optional) Dictionary of ``'name': file-like-objects`` (or ``{'name': file-tuple}``) for multipart encoding upload.
-        ``file-tuple`` can be a 2-tuple ``('filename', fileobj)``, 3-tuple ``('filename', fileobj, 'content_type')``
-        or a 4-tuple ``('filename', fileobj, 'content_type', custom_headers)``, where ``'content-type'`` is a string
-        defining the content type of the given file and ``custom_headers`` a dict-like object containing additional headers
-        to add for the file.
-    :param auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.
-    :param timeout: (optional) How many seconds to wait for the server to send data
-        before giving up, as a float, or a :ref:`(connect timeout, read
-        timeout) <timeouts>` tuple.
+    :param json: (optional) A JSON serializable Python object to send in
+        the body of the :class:`Request`.
+    :param headers: (optional) Dictionary of HTTP Headers to send with the
+        :class:`Request`.
+    :param cookies: (optional) Dict or CookieJar object to send with the
+        :class:`Request`.
+    :param files: (optional) Dictionary of ``'filename': file-like-objects``
+        for multipart encoding upload.
+    :param auth: (optional) Auth tuple or callable to enable
+        Basic/Digest/Custom HTTP Auth.
+    :param timeout: (optional) How long to wait for the server to send
+        data before giving up, as a float, or a :ref:`(connect timeout,
+        read timeout) <timeouts>` tuple.
     :type timeout: float or tuple
-    :param allow_redirects: (optional) Boolean. Enable/disable GET/OPTIONS/POST/PUT/PATCH/DELETE/HEAD redirection. Defaults to ``True``.
+    :param allow_redirects: (optional) Set to True by default.
     :type allow_redirects: bool
-    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
-    :param verify: (optional) Either a boolean, in which case it controls whether we verify
-            the server's TLS certificate, or a string, in which case it must be a path
-            to a CA bundle to use. Defaults to ``True``.
-    :param stream: (optional) if ``False``, the response content will be immediately downloaded.
-    :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
-    :return: :class:`Response <Response>` object
-    :rtype: requests.Response
+    :param proxies: (optional) Dictionary mapping protocol or protocol and
+        hostname to the URL of the proxy.
+    :param stream: (optional) whether to immediately download the response
+        content. Defaults to ``False``.
+    :param verify: (optional) Either a boolean, in which case it controls
+        whether we verify the server's TLS certificate, or a string, in
+        which case it must be a path to a CA bundle to use. Defaults to
+        ``True``. When set to ``False``, requests will accept any TLS
+        certificate presented by the server, and will ignore hostname
+        mismatches and/or expired certificates, which will make your
+        application vulnerable to man-in-the-middle (MitM) attacks.
+        Setting verify to ``False``  may be useful during local
+        development or testing.
+    :param cert: (optional) if String, path to ssl client cert file (.pem).
+        If Tuple, ('cert', 'key') pair.
 
     Usage::
 
@@ -62,11 +71,11 @@ def request(method, url, **kwargs):
 
 
 def get(url, params=None, **kwargs):
-    r"""Sends a GET request.
+    r"""Sends a GET request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
-    :param params: (optional) Dictionary, list of tuples or bytes to send
-        in the query string for the :class:`Request`.
+    :param params: (optional) Dictionary or bytes to be sent in the query 
+        string for the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
@@ -76,7 +85,7 @@ def get(url, params=None, **kwargs):
 
 
 def options(url, **kwargs):
-    r"""Sends an OPTIONS request.
+    r"""Sends a OPTIONS request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
@@ -88,7 +97,7 @@ def options(url, **kwargs):
 
 
 def head(url, **kwargs):
-    r"""Sends a HEAD request.
+    r"""Sends a HEAD request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param \*\*kwargs: Optional arguments that ``request`` takes. If
@@ -103,12 +112,13 @@ def head(url, **kwargs):
 
 
 def post(url, data=None, json=None, **kwargs):
-    r"""Sends a POST request.
+    r"""Sends a POST request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
         object to send in the body of the :class:`Request`.
-    :param json: (optional) json data to send in the body of the :class:`Request`.
+    :param json: (optional) A JSON serializable Python object to send in
+        the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
@@ -118,12 +128,11 @@ def post(url, data=None, json=None, **kwargs):
 
 
 def put(url, data=None, **kwargs):
-    r"""Sends a PUT request.
+    r"""Sends a PUT request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
         object to send in the body of the :class:`Request`.
-    :param json: (optional) json data to send in the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
@@ -133,12 +142,11 @@ def put(url, data=None, **kwargs):
 
 
 def patch(url, data=None, **kwargs):
-    r"""Sends a PATCH request.
+    r"""Sends a PATCH request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
         object to send in the body of the :class:`Request`.
-    :param json: (optional) json data to send in the body of the :class:`Request`.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
@@ -148,7 +156,7 @@ def patch(url, data=None, **kwargs):
 
 
 def delete(url, **kwargs):
-    r"""Sends a DELETE request.
+    r"""Sends a DELETE request. Returns :class:`Response` object.
 
     :param url: URL for the new :class:`Request` object.
     :param \*\*kwargs: Optional arguments that ``request`` takes.

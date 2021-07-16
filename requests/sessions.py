@@ -471,17 +471,17 @@ class Session(SessionRedirectMixin):
             params=None, data=None, headers=None, cookies=None, files=None,
             auth=None, timeout=None, allow_redirects=True, proxies=None,
             hooks=None, stream=None, verify=None, cert=None, json=None):
-        """Constructs a :class:`Request <Request>`, prepares it and sends it.
+        """Constructs a :class:`Request <Request>`, prepares it and sends it. 
         Returns :class:`Response <Response>` object.
 
         :param method: method for the new :class:`Request` object.
         :param url: URL for the new :class:`Request` object.
-        :param params: (optional) Dictionary or bytes to be sent in the query
+        :param params: (optional) Dictionary or bytes to be sent in the query 
             string for the :class:`Request`.
         :param data: (optional) Dictionary, list of tuples, bytes, or file-like
             object to send in the body of the :class:`Request`.
-        :param json: (optional) json to send in the body of the
-            :class:`Request`.
+        :param json: (optional) A JSON serializable Python object to send in
+            the body of the :class:`Request`.
         :param headers: (optional) Dictionary of HTTP Headers to send with the
             :class:`Request`.
         :param cookies: (optional) Dict or CookieJar object to send with the
@@ -500,14 +500,15 @@ class Session(SessionRedirectMixin):
             hostname to the URL of the proxy.
         :param stream: (optional) whether to immediately download the response
             content. Defaults to ``False``.
-        :param verify: (optional) Either a boolean, in which case it controls whether we verify
-            the server's TLS certificate, or a string, in which case it must be a path
-            to a CA bundle to use. Defaults to ``True``. When set to
-            ``False``, requests will accept any TLS certificate presented by
-            the server, and will ignore hostname mismatches and/or expired
-            certificates, which will make your application vulnerable to
-            man-in-the-middle (MitM) attacks. Setting verify to ``False`` 
-            may be useful during local development or testing.
+        :param verify: (optional) Either a boolean, in which case it controls
+            whether we verify the server's TLS certificate, or a string, in
+            which case it must be a path to a CA bundle to use. Defaults to
+            ``True``. When set to ``False``, requests will accept any TLS
+            certificate presented by the server, and will ignore hostname
+            mismatches and/or expired certificates, which will make your
+            application vulnerable to man-in-the-middle (MitM) attacks.
+            Setting verify to ``False``  may be useful during local
+            development or testing.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
         :rtype: requests.Response
@@ -547,11 +548,13 @@ class Session(SessionRedirectMixin):
         r"""Sends a GET request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
+        :param params: (optional) Dictionary or bytes to be sent in the query 
+            string for the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
 
-        kwargs.setdefault('allow_redirects', True)
         return self.request('GET', url, **kwargs)
 
     def options(self, url, **kwargs):
@@ -559,17 +562,20 @@ class Session(SessionRedirectMixin):
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
 
-        kwargs.setdefault('allow_redirects', True)
         return self.request('OPTIONS', url, **kwargs)
 
     def head(self, url, **kwargs):
         r"""Sends a HEAD request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
-        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :param \*\*kwargs: Optional arguments that ``request`` takes. If
+            `allow_redirects` is not provided, it will be set to `False` (as
+            opposed to the default :meth:`request` behavior).
+        :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
 
@@ -582,8 +588,10 @@ class Session(SessionRedirectMixin):
         :param url: URL for the new :class:`Request` object.
         :param data: (optional) Dictionary, list of tuples, bytes, or file-like
             object to send in the body of the :class:`Request`.
-        :param json: (optional) json to send in the body of the :class:`Request`.
+        :param json: (optional) A JSON serializable Python object to send in
+            the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
 
@@ -596,6 +604,7 @@ class Session(SessionRedirectMixin):
         :param data: (optional) Dictionary, list of tuples, bytes, or file-like
             object to send in the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
 
@@ -608,6 +617,7 @@ class Session(SessionRedirectMixin):
         :param data: (optional) Dictionary, list of tuples, bytes, or file-like
             object to send in the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
 
@@ -618,6 +628,7 @@ class Session(SessionRedirectMixin):
 
         :param url: URL for the new :class:`Request` object.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
 
