@@ -830,6 +830,24 @@ class TestRequests:
         r = requests.get(httpbin('status', '500'))
         assert not r.ok
 
+    def test_status_raising_hides_password(self, httpbin):
+        host = urlparse(httpbin()).netloc
+
+        r = requests.get('http://user:pass@' + host + '/status/404')
+        with pytest.raises(requests.exceptions.HTTPError) as e:
+            r.raise_for_status()
+
+        assert str(e.value) == '404 Client Error: NOT FOUND for url: http://user:***@' + host + '/status/404'
+
+    def test_status_raising_does_not_hide_users(self, httpbin):
+        host = urlparse(httpbin()).netloc
+
+        r = requests.get('http://user@' + host + '/status/404')
+        with pytest.raises(requests.exceptions.HTTPError) as e:
+            r.raise_for_status()
+
+        assert str(e.value) == '404 Client Error: NOT FOUND for url: http://user@' + host + '/status/404'
+
     def test_decompress_gzip(self, httpbin):
         r = requests.get(httpbin('gzip'))
         r.content.decode('ascii')
@@ -2462,12 +2480,12 @@ class TestPreparingURLs(object):
     def test_preparing_url(self, url, expected):
 
         def normalize_percent_encode(x):
-            # Helper function that normalizes equivalent 
+            # Helper function that normalizes equivalent
             # percent-encoded bytes before comparisons
             for c in re.findall(r'%[a-fA-F0-9]{2}', x):
                 x = x.replace(c, c.upper())
             return x
-        
+
         r = requests.Request('GET', url=url)
         p = r.prepare()
         assert normalize_percent_encode(p.url) == expected
