@@ -303,14 +303,14 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
 
         :rtype: dict
         """
-        dictionary = {}
-        for cookie in iter(self):
+        return {
+            cookie.name: cookie.value
+            for cookie in iter(self)
             if (
-                (domain is None or cookie.domain == domain) and
-                (path is None or cookie.path == path)
-            ):
-                dictionary[cookie.name] = cookie.value
-        return dictionary
+                (domain is None or cookie.domain == domain)
+                and (path is None or cookie.path == path)
+            )
+        }
 
     def __contains__(self, name):
         try:

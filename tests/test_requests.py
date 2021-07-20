@@ -418,9 +418,7 @@ class TestRequests:
         assert isinstance(resp.request._cookies, cookielib.CookieJar)
         assert not isinstance(resp.request._cookies, requests.cookies.RequestsCookieJar)
 
-        cookies = {}
-        for c in resp.request._cookies:
-            cookies[c.name] = c.value
+        cookies = {c.name: c.value for c in resp.request._cookies}
         assert cookies['foo'] == 'bar'
         assert cookies['cookie'] == 'tasty'
 
