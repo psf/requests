@@ -8,15 +8,7 @@ This module contains the set of Requests' exceptions.
 """
 from urllib3.exceptions import HTTPError as BaseHTTPError
 
-try:
-    from json import JSONDecodeError as StandardJSONDecodeError
-except ImportError:  # Python 2, ValueError is raised
-    StandardJSONDecodeError = ValueError
-
-try:
-    from simplejson import JSONDecodeError as SimpleJSONDecodeError
-except ImportError:
-    SimpleJSONDecodeError = Exception
+from .compat import JSONDecodeError as CompatJSONDecodeError
 
 
 class RequestException(IOError):
@@ -39,7 +31,7 @@ class InvalidJSONError(RequestException):
     """A JSON error occurred."""
 
 
-class JSONDecodeError(InvalidJSONError, StandardJSONDecodeError, SimpleJSONDecodeError):
+class JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):
     """Couldn't decode the text into json"""
 
 
