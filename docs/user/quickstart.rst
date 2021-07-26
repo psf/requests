@@ -153,9 +153,9 @@ There's also a builtin JSON decoder, in case you're dealing with JSON data::
 
 In case the JSON decoding fails, ``r.json()`` raises an exception. For example, if
 the response gets a 204 (No Content), or if the response contains invalid JSON,
-attempting ``r.json()`` raises ``simplejson.JSONDecodeError`` if simplejson is
-installed or raises ``ValueError: No JSON object could be decoded`` on Python 2 or
-``json.JSONDecodeError`` on Python 3.
+attempting ``r.json()`` raises ``requests.exceptions.JSONDecodeError``. This wrapper exception
+provides interoperability for multiple exceptions that may be thrown by different
+python versions and json serialization libraries.
 
 It should be noted that the success of the call to ``r.json()`` does **not**
 indicate the success of the response. Some servers may return a JSON object in a

@@ -139,7 +139,7 @@ from .status_codes import codes
 from .exceptions import (
     RequestException, Timeout, URLRequired,
     TooManyRedirects, HTTPError, ConnectionError,
-    FileModeWarning, ConnectTimeout, ReadTimeout
+    FileModeWarning, ConnectTimeout, ReadTimeout, JSONDecodeError
 )
 
 # Set default logging handler to avoid "No handler found" warnings.
