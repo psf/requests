@@ -213,7 +213,7 @@ class SessionRedirectMixin(object):
 
             # Rebuild auth and proxy information.
             proxies = self.rebuild_proxies(prepared_request, proxies)
-            self.rebuild_auth(prepared_request, resp)
+            self.rebuild_auth(prepared_request, resp, proxies)
 
             # A failed tell() sets `_body_position` to `object()`. This non-None
             # value ensures `rewindable` will be True, allowing us to raise an
@@ -251,13 +251,25 @@ class SessionRedirectMixin(object):
                 url = self.get_redirect_target(resp)
                 yield resp
 
-    def rebuild_auth(self, prepared_request, response):
+    def rebuild_auth(self, prepared_request, response, proxies):
         """When being redirected we may want to strip authentication from the
         request to avoid leaking credentials. This method intelligently removes
         and reapplies authentication where possible to avoid credential loss.
         """
         headers = prepared_request.headers
         url = prepared_request.url
+        scheme = urlparse(url).scheme
+
+        if 'Proxy-Authorization' in headers:
+            del headers['Proxy-Authorization']
+
+        try:
+            username, password = get_auth_from_url(proxies[scheme])
+        except KeyError:
+            username, password = None, None
+
+        if username and password:
+            headers['Proxy-Authorization'] = _basic_auth_str(username, password)
 
         if 'Authorization' in headers and self.should_strip_auth(response.request.url, url):
             # If we get redirected to a new host, we should strip out any
@@ -283,32 +295,21 @@ class SessionRedirectMixin(object):
         :rtype: dict
         """
         proxies = proxies if proxies is not None else {}
-        headers = prepared_request.headers
+        new_proxies = proxies.copy()
         url = prepared_request.url
         scheme = urlparse(url).scheme
-        new_proxies = proxies.copy()
+        if scheme in proxies:
+            return new_proxies
+
         no_proxy = proxies.get('no_proxy')
 
-        bypass_proxy = should_bypass_proxies(url, no_proxy=no_proxy)
-        if self.trust_env and not bypass_proxy:
-            environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
+        environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
+        proxy = environ_proxies.get(scheme, environ_proxies.get('all'))
+        if proxy:
+            bypass_proxy = should_bypass_proxies(url, no_proxy=no_proxy)
 
-            proxy = environ_proxies.get(scheme, environ_proxies.get('all'))
-
-            if proxy:
+            if self.trust_env and not bypass_proxy:
                 new_proxies.setdefault(scheme, proxy)
-
-        if 'Proxy-Authorization' in headers:
-            del headers['Proxy-Authorization']
-
-        try:
-            username, password = get_auth_from_url(new_proxies[scheme])
-        except KeyError:
-            username, password = None, None
-
-        if username and password:
-            headers['Proxy-Authorization'] = _basic_auth_str(username, password)
-
         return new_proxies
 
     def rebuild_method(self, prepared_request, response):
@@ -633,7 +634,8 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault('stream', self.stream)
         kwargs.setdefault('verify', self.verify)
         kwargs.setdefault('cert', self.cert)
-        kwargs.setdefault('proxies', self.rebuild_proxies(request, self.proxies))
+        if 'proxies' not in kwargs:
+            kwargs['proxies'] = self.rebuild_proxies(request, self.proxies)
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
