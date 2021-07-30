@@ -22,14 +22,16 @@ the names are allowed. For example, ``codes.ok``, ``codes.OK``, and
 
 from .structures import LookupDict
 
-_codes = {
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+_official = {
 
     # Informational.
     100: ('continue',),
     101: ('switching_protocols',),
-    102: ('processing',),
     103: ('checkpoint',),
-    122: ('uri_too_long', 'request_uri_too_long'),
+    122: ('uri_too_long', 'request_uri_too_long'),  # Unable to find, and looks like an error?
+
+    # Success.
     200: ('ok', 'okay', 'all_ok', 'all_okay', 'all_good', '\\o/', '✓'),
     201: ('created',),
     202: ('accepted',),
@@ -37,8 +39,6 @@ _codes = {
     204: ('no_content',),
     205: ('reset_content', 'reset'),
     206: ('partial_content', 'partial'),
-    207: ('multi_status', 'multiple_status', 'multi_stati', 'multiple_stati'),
-    208: ('already_reported',),
     226: ('im_used',),
 
     # Redirection.
@@ -67,26 +67,19 @@ _codes = {
     410: ('gone',),
     411: ('length_required',),
     412: ('precondition_failed', 'precondition'),
-    413: ('request_entity_too_large',),
-    414: ('request_uri_too_large',),
+    413: ('payload_too_large', 'request_entity_too_large'),
+    414: ('uri_too_long', 'request_uri_too_large'),
     415: ('unsupported_media_type', 'unsupported_media', 'media_type'),
     416: ('requested_range_not_satisfiable', 'requested_range', 'range_not_satisfiable'),
     417: ('expectation_failed',),
     418: ('im_a_teapot', 'teapot', 'i_am_a_teapot'),
     421: ('misdirected_request',),
-    422: ('unprocessable_entity', 'unprocessable'),
-    423: ('locked',),
-    424: ('failed_dependency', 'dependency'),
     425: ('unordered_collection', 'unordered'),
     426: ('upgrade_required', 'upgrade'),
     428: ('precondition_required', 'precondition'),
     429: ('too_many_requests', 'too_many'),
     431: ('header_fields_too_large', 'fields_too_large'),
-    444: ('no_response', 'none'),
-    449: ('retry_with', 'retry'),
-    450: ('blocked_by_windows_parental_controls', 'parental_controls'),
-    451: ('unavailable_for_legal_reasons', 'legal_reasons'),
-    499: ('client_closed_request',),
+    451: ('unavailable_for_legal_reasons', 'legal_reasons'),  # IIS: Redirect
 
     # Server Error.
     500: ('internal_server_error', 'server_error', '/o\\', '✗'),
@@ -96,11 +89,54 @@ _codes = {
     504: ('gateway_timeout',),
     505: ('http_version_not_supported', 'http_version'),
     506: ('variant_also_negotiates',),
-    507: ('insufficient_storage',),
     509: ('bandwidth_limit_exceeded', 'bandwidth'),
     510: ('not_extended',),
     511: ('network_authentication_required', 'network_auth', 'network_authentication'),
 }
+
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+_webdav = {
+    # Informational.
+    102: ('processing',),
+
+    # Success.
+    207: ('multi_status', 'multiple_status', 'multi_stati', 'multiple_stati'),
+    208: ('already_reported',),
+
+    # Client Error.
+    422: ('unprocessable_entity', 'unprocessable'),
+    423: ('locked',),
+    424: ('failed_dependency', 'dependency'),
+
+    # Server Error.
+    507: ('insufficient_storage',),
+    508: ('loop_detected',),
+}
+
+# https://www.nginx.com/resources/wiki/extending/api/http/
+# TODO Complete list.
+_nginx = {
+    444: ('no_response', 'none'),
+    499: ('client_closed_request',),
+}
+
+# https://docs.microsoft.com/en-us/troubleshoot/iis/http-status-code
+# TODO Complete list.
+_iis = {
+    449: ('retry_with', 'retry'),  # Not officially listed, but on Wikipedia.
+}
+
+# Unable to find documentation.
+_microsoft = {
+    450: ('blocked_by_windows_parental_controls', 'parental_controls'),
+}
+
+_codes = {}
+_codes.update(_official)
+_codes.update(_webdav)
+_codes.update(_nginx)
+_codes.update(_iis)
+_codes.update(_microsoft)
 
 codes = LookupDict(name='status_codes')
 
