@@ -245,6 +245,10 @@ def extract_zipped_paths(path):
     archive, member = os.path.split(path)
     while archive and not os.path.exists(archive):
         archive, prefix = os.path.split(archive)
+        if not prefix:
+            # If we don't check for an empty prefix after the split (in other words, archive remains unchanged after the split),
+            # we _can_ end up in an infinite loop on a rare corner case affecting a small number of users
+            break
         member = '/'.join([prefix, member])
 
     if not zipfile.is_zipfile(archive):
