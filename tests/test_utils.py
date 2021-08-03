@@ -285,6 +285,10 @@ class TestExtractZippedPaths:
         assert os.path.exists(extracted_path)
         assert filecmp.cmp(extracted_path, __file__)
 
+    def test_invalid_unc_path(self):
+        path = r"\\localhost\invalid\location"
+        assert extract_zipped_paths(path) == path
+
 
 class TestContentEncodingDetection:
 
