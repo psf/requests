@@ -26,15 +26,9 @@ class WerkzeugServer(object):
 
         # Werkzeug will not automatically pick a valid port for us.
         if not self.port:
-            sock = socket.socket()
-            sock.bind((self.host, self.port))
-            self.port = sock.getsockname()[1]
-
-            # Try to close the socket.  Ignore errors.
-            try:
-                sock.close()
-            except IOError:
-                pass
+            with closing(socket.socket()) as sock:
+                sock.bind((self.host, self.port))
+                self.port = sock.getsockname()[1]
 
         self.process = multiprocessing.Process(
             target=run_simple,
