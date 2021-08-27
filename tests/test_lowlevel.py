@@ -24,6 +24,54 @@ def test_chunked_upload():
     assert r.request.headers['Transfer-Encoding'] == 'chunked'
 
 
+def test_chunked_encoding_error():
+    """get a ChunkedEncodingError if the server returns a bad response"""
+
+    def incomplete_chunked_response_handler(sock):
+        request_content = consume_socket_content(sock, timeout=0.5)
+
+        # The server never ends the request and doesn't provide any valid chunks
+        sock.send(b"HTTP/1.1 200 OK\r\n" +
+                  b"Transfer-Encoding: chunked\r\n")
+
+        return request_content
+
+    close_server = threading.Event()
+    server = Server(incomplete_chunked_response_handler)
+
+    with server as (host, port):
+        url = 'http://{}:{}/'.format(host, port)
+        with pytest.raises(requests.exceptions.ChunkedEncodingError):
+            r = requests.get(url)
+        close_server.set()  # release server block
+
+
+def test_conflicting_content_lengths():
+    """Ensure we correctly throw an InvalidHeader error if multiple
+    conflicting Content-Length headers are returned.
+    """
+
+    def multiple_content_length_response_handler(sock):
+        request_content = consume_socket_content(sock, timeout=0.5)
+
+        sock.send(b"HTTP/1.1 200 OK\r\n" +
+                  b"Content-Type: text/plain\r\n" +
+                  b"Content-Length: 16\r\n" +
+                  b"Content-Length: 32\r\n\r\n" +
+                  b"-- Bad Actor -- Original Content\r\n")
+
+        return request_content
+
+    close_server = threading.Event()
+    server = Server(multiple_content_length_response_handler)
+
+    with server as (host, port):
+        url = 'http://{}:{}/'.format(host, port)
+        with pytest.raises(requests.exceptions.InvalidHeader):
+            r = requests.get(url)
+        close_server.set()
+
+
 def test_digestauth_401_count_reset_on_redirect():
     """Ensure we correctly reset num_401_calls after a successful digest auth,
     followed by a 302 redirect to another digest auth prompt.
