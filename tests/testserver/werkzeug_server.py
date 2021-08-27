@@ -16,7 +16,7 @@ def echo_application(request):
 
 class WerkzeugServer(object):
     """Realistic WSGI server for unit testing."""
-    SOCKET_CONNECT_TIMEOUT = 5
+    SOCKET_CONNECT_TIMEOUT = 2
 
     def __init__(self, application, host='localhost', port=0):
         super(WerkzeugServer, self).__init__()
@@ -40,7 +40,7 @@ class WerkzeugServer(object):
 
     def _socket_is_ready(self):
         with closing(socket.socket()) as sock:
-            sock.settimeout(2)
+            sock.settimeout(self.SOCKET_CONNECT_TIMEOUT)
             if sock.connect_ex((self.host, self.port)) == 0:
                 return True
             else:
