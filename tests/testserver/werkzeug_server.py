@@ -26,7 +26,7 @@ class WerkzeugServer(object):
             except IOError:
                 pass
 
-        def run_app() -> None:
+        def run_app():
             run_simple(self.host, self.port, application)         
 
         self.process = multiprocessing.Process(
@@ -35,9 +35,9 @@ class WerkzeugServer(object):
     @classmethod
     def echo_server(cls):
         @Request.application
-        def echo_application(request: Request) -> Response:
+        def echo_application(request):
             return Response(
-                request.get_data(),\
+                request.get_data(),
                 200,
                 content_type=request.content_type)
 
