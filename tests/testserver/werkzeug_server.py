@@ -26,11 +26,9 @@ class WerkzeugServer(object):
             except IOError:
                 pass
 
-        def run_app():
-            run_simple(self.host, self.port, application)         
-
         self.process = multiprocessing.Process(
-            target=run_app)
+            target=run_simple,
+            args=(self.host, self.port, application))
 
     @classmethod
     def echo_server(cls):
