@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import multiprocessing
 import socket
-import time
 
 from werkzeug import Request, Response, run_simple
 
@@ -45,7 +44,17 @@ class WerkzeugServer(object):
 
     def __enter__(self):
         self.process.start()
-        time.sleep(15)
+
+        # Confirm that we can actually connect to the socket before we return.
+        # This protects from flaky tests should the process come up too late.
+        sock = socket.socket()
+        while sock.connect_ex((self.host, self.port)):
+            pass
+        try:
+            sock.close()
+        except IOError:
+            pass
+
         return self.host, self.port
 
     def __exit__(self, exc_type, exc_value, traceback):
