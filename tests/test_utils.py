@@ -601,6 +601,7 @@ def test_parse_header_links(value, expected):
     'value, expected', (
         ('example.com/path', 'http://example.com/path'),
         ('//example.com/path', 'http://example.com/path'),
+        ('example.com:80', 'http://example.com:80'),
     ))
 def test_prepend_scheme_if_needed(value, expected):
     assert prepend_scheme_if_needed(value, 'http') == expected
