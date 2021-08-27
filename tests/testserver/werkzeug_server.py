@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import multiprocessing
 import socket
+import time
 
 from werkzeug import Request, Response, run_simple
 
@@ -44,6 +45,7 @@ class WerkzeugServer(object):
 
     def __enter__(self):
         self.process.start()
+        time.sleep(15)
         return self.host, self.port
 
     def __exit__(self, exc_type, exc_value, traceback):
