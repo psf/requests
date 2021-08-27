@@ -5,6 +5,14 @@ import socket
 from werkzeug import Request, Response, run_simple
 
 
+@Request.application
+def echo_application(request):
+    return Response(
+        request.get_data(),
+        200,
+        content_type=request.content_type)
+
+
 class WerkzeugServer(object):
     """Realistic WSGI server for unit testing."""
 
@@ -32,13 +40,6 @@ class WerkzeugServer(object):
 
     @classmethod
     def echo_server(cls):
-        @Request.application
-        def echo_application(request):
-            return Response(
-                request.get_data(),
-                200,
-                content_type=request.content_type)
-
         return WerkzeugServer(echo_application)
 
     def __enter__(self):
