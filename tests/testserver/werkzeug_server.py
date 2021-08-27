@@ -2,6 +2,7 @@
 import multiprocessing
 import socket
 
+from contextlib import closing
 from werkzeug import Request, Response, run_simple
 
 
@@ -43,18 +44,20 @@ class WerkzeugServer(object):
     def echo_server(cls):
         return WerkzeugServer(echo_application)
 
+    def _socket_is_ready(self):
+        with closing(socket.socket()) as sock:
+            sock.settimeout(2)
+            if sock.connect_ex((self.host, self.port)) == 0:
+                return True
+            else:
+                return False
+
     def __enter__(self):
         self.process.start()
 
         # Confirm that we can actually connect to the socket before we return.
         # This protects from flaky tests should the process come up too late.
-        sock = socket.socket()
-        sock.settimeout(5)
-        while sock.connect_ex((self.host, self.port)):
-            pass
-        try:
-            sock.close()
-        except IOError:
+        while not self._socket_is_ready(): 
             pass
 
         return self.host, self.port
