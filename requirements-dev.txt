@@ -5,4 +5,4 @@ pytest-mock==2.0.0
 httpbin==0.7.0
 Flask>=1.0,<2.0
 trustme
-wheel
+Werkzeug
