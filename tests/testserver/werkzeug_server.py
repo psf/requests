@@ -41,10 +41,7 @@ class WerkzeugServer(object):
     def _socket_is_ready(self):
         with closing(socket.socket()) as sock:
             sock.settimeout(self.SOCKET_CONNECT_TIMEOUT)
-            if sock.connect_ex((self.host, self.port)) == 0:
-                return True
-            else:
-                return False
+            return sock.connect_ex((self.host, self.port)) == 0
 
     def __enter__(self):
         self.process.start()
