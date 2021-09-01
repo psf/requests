@@ -860,6 +860,18 @@ class TestRequests:
             requests.get(httpbin_secure(), verify=INVALID_PATH)
         assert str(e.value) == 'Could not find a suitable TLS CA certificate bundle, invalid path: {}'.format(INVALID_PATH)
 
+    def test_invalid_ca_certificate_path_w_verif_false(self, httpbin_secure):
+        INVALID_PATH = '/garbage'
+        with override_environ(requests_ca_bundle=INVALID_PATH):
+            requests.get(httpbin_secure(), verify=False)
+
+    def test_invalid_ca_certificate_path_w_session_verif_false(self, httpbin_secure):
+        INVALID_PATH = '/garbage'
+        with override_environ(requests_ca_bundle=INVALID_PATH):
+            session = requests.Session()
+            session.verify = False
+            session.get(httpbin_secure())
+
     def test_invalid_ssl_certificate_files(self, httpbin_secure):
         INVALID_PATH = '/garbage'
         with pytest.raises(IOError) as e:
