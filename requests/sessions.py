@@ -29,7 +29,7 @@ from .adapters import HTTPAdapter
 
 from .utils import (
     requote_uri, get_environ_proxies, get_netrc_auth, should_bypass_proxies,
-    get_auth_from_url, rewind_body
+    get_auth_from_url, rewind_body, resolve_proxies
 )
 
 from .status_codes import codes
@@ -269,7 +269,6 @@ class SessionRedirectMixin(object):
         if new_auth is not None:
             prepared_request.prepare_auth(new_auth)
 
-
     def rebuild_proxies(self, prepared_request, proxies):
         """This method re-evaluates the proxy configuration by considering the
         environment variables. If we are redirected to a URL covered by
@@ -282,21 +281,9 @@ class SessionRedirectMixin(object):
 
         :rtype: dict
         """
-        proxies = proxies if proxies is not None else {}
         headers = prepared_request.headers
-        url = prepared_request.url
-        scheme = urlparse(url).scheme
-        new_proxies = proxies.copy()
-        no_proxy = proxies.get('no_proxy')
-
-        bypass_proxy = should_bypass_proxies(url, no_proxy=no_proxy)
-        if self.trust_env and not bypass_proxy:
-            environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
-
-            proxy = environ_proxies.get(scheme, environ_proxies.get('all'))
-
-            if proxy:
-                new_proxies.setdefault(scheme, proxy)
+        scheme = urlparse(prepared_request.url).scheme
+        new_proxies = resolve_proxies(prepared_request, proxies, self.trust_env)
 
         if 'Proxy-Authorization' in headers:
             del headers['Proxy-Authorization']
@@ -633,7 +620,10 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault('stream', self.stream)
         kwargs.setdefault('verify', self.verify)
         kwargs.setdefault('cert', self.cert)
-        kwargs.setdefault('proxies', self.rebuild_proxies(request, self.proxies))
+        if 'proxies' not in kwargs:
+            kwargs['proxies'] = resolve_proxies(
+                request, self.proxies, self.trust_env
+            )
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
