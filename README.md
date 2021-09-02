@@ -1,5 +1,8 @@
 # Requests
 
+<!-- This logo staying visible was @kennethreitz’ only condition for transferring ownership. Please respect this agreement. -->
+<a href="https://requests.readthedocs.io/"><img src="https://raw.githubusercontent.com/psf/requests/master/ext/requests-logo.png" align="right" height="290px" /></a>
+
 **Requests** is a simple, yet elegant, HTTP library.
 
 ```python
