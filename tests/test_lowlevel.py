@@ -9,6 +9,18 @@ from tests.testserver.server import Server, consume_socket_content
 from .utils import override_environ
 
 
+def echo_response_handler(sock):
+    """Simple handler that will take request and echo it back to requester."""
+    request_content = consume_socket_content(sock, timeout=0.5)
+
+    text_200 = (
+        b'HTTP/1.1 200 OK\r\n'
+        b'Content-Length: %d\r\n\r\n'
+        b'%s'
+    ) % (len(request_content), request_content)
+    sock.send(text_200)
+
+
 def test_chunked_upload():
     """can safely send generators"""
     close_server = threading.Event()
@@ -48,29 +60,38 @@ def test_chunked_encoding_error():
 
 def test_chunked_upload_uses_only_specified_host_header():
     """Ensure we use only the specified Host header for chunked requests."""
-    text_200 = (b'HTTP/1.1 200 OK\r\n'
-                b'Content-Length: 0\r\n\r\n')
-    wanted_host = 'sample-host'
-    expected_header = 'Host: {}'.format(wanted_host).encode('utf-8')
-    def single_host_resp_handler(sock):
-        request_content = consume_socket_content(sock, timeout=0.5)
-        assert expected_header in request_content
-        assert request_content.count(b'Host: ') == 1
-        sock.send(text_200)
-
-        return request_content
-
     close_server = threading.Event()
+    server = Server(echo_response_handler, wait_to_close_event=close_server)
 
-    server = Server(single_host_resp_handler, wait_to_close_event=close_server)
     data = iter([b'a', b'b', b'c'])
+    custom_host = 'sample-host'
 
     with server as (host, port):
         url = 'http://{}:{}/'.format(host, port)
-        r = requests.post(url, data=data, headers={'Host': wanted_host}, stream=True)
+        r = requests.post(url, data=data, headers={'Host': custom_host}, stream=True)
         close_server.set()  # release server block
 
-    assert r.status_code == 200
+    expected_header = b'Host: %s\r\n' % custom_host.encode('utf-8')
+    assert expected_header in r.content
+    assert r.content.count(b'Host: ') == 1
+
+
+def test_chunked_upload_doesnt_skip_host_header():
+    """Ensure we don't omit all Host headers with chunked requests."""
+    close_server = threading.Event()
+    server = Server(echo_response_handler, wait_to_close_event=close_server)
+
+    data = iter([b'a', b'b', b'c'])
+
+    with server as (host, port):
+        expected_host = '{}:{}'.format(host, port)
+        url = 'http://{}:{}/'.format(host, port)
+        r = requests.post(url, data=data, stream=True)
+        close_server.set()  # release server block
+
+    expected_header = b'Host: %s\r\n' % expected_host.encode('utf-8')
+    assert expected_header in r.content
+    assert r.content.count(b'Host: ') == 1
 
 
 def test_conflicting_content_lengths():
