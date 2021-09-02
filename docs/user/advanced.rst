@@ -305,7 +305,7 @@ immediately. You can override this behaviour and defer downloading the response
 body until you access the :attr:`Response.content <requests.Response.content>`
 attribute with the ``stream`` parameter::
 
-    tarball_url = 'https://github.com/psf/requests/tarball/master'
+    tarball_url = 'https://github.com/psf/requests/tarball/main'
     r = requests.get(tarball_url, stream=True)
 
 At this point only the response headers have been downloaded and the connection

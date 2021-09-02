@@ -66,7 +66,7 @@ dev
 - Requests now supports chardet v4.x.
 
 2.25.0 (2020-11-11)
-------------------
+-------------------
 
 **Improvements**
 
