@@ -7,7 +7,6 @@ div.document {width: 1008px;}
 div.highlight pre {padding: 11px 14px;}
 
 @media screen and (max-width: 1008px) {
-  div.sphinxsidebar {display: none;}
   div.document {width: 100%!important;}
   div.highlight pre {margin-right: -30px;}
 }
