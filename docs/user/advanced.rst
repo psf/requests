@@ -446,7 +446,7 @@ argument.
     def print_url(r, *args, **kwargs):
         print(r.url)
 
-Your callback function must handle its own exceptions. Any unhandled exception wont be pass silently and thus should be handled by the code calling Requests.
+Your callback function must handle its own exceptions. Any unhandled exception won't be passed silently and thus should be handled by the code calling Requests.
 
 If the callback function returns a value, it is assumed that it is to
 replace the data that was passed in. If the function doesn't return

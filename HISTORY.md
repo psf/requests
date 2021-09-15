@@ -113,7 +113,7 @@ dev
 **Dependencies**
 
 - Pinning for `chardet` and `idna` now uses major version instead of minor.
-  This hopefully reduces the need for releases everytime a dependency is updated.
+  This hopefully reduces the need for releases every time a dependency is updated.
 
 2.22.0 (2019-05-15)
 -------------------
@@ -468,7 +468,7 @@ Or, even better:
 
 -   Fixed regression from 2.12.2 where non-string types were rejected in
     the basic auth parameters. While support for this behaviour has been
-    readded, the behaviour is deprecated and will be removed in the
+    re-added, the behaviour is deprecated and will be removed in the
     future.
 
 2.12.3 (2016-12-01)
@@ -1707,7 +1707,7 @@ This is not a backwards compatible change.
     New Authentication Manager System
 
     :   -   Simpler Basic HTTP System
-        -   Supports all build-in urllib2 Auths
+        -   Supports all built-in urllib2 Auths
         -   Allows for custom Auth Handlers
 
 0.2.4 (2011-02-19)
