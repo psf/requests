@@ -1,6 +1,15 @@
 name: Tests
 
-on: [push, pull_request]
+on: 
+  push:
+    paths-ignore:
+      - docs/**
+      - ext/**
+  pull_request:
+    paths-ignore:
+      - docs/**
+      - ext/**
+      
 
 jobs:
   build:
