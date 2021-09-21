@@ -63,9 +63,8 @@ Python 2 Support?
 Yes! We do not have immediate plans to `sunset
 <https://www.python.org/doc/sunset-python-2/>`_ our support for Python
 2.7. We understand that we have a large user base with varying needs,
-and intend to maintain Python 2.7 support within Requests until `pip
-stops supporting Python 2.7 (there's no estimated date on that yet)
-<https://pip.pypa.io/en/latest/development/release-process/#python-2-support>`_.
+and intend to maintain Python 2.7 support within Requests until `urllib3 2.0
+is released <https://urllib3.readthedocs.io/en/latest/v2-roadmap.html>`_.
 
 That said, it is *highly* recommended users migrate to Python 3.6+ since Python
 2.7 is no longer receiving bug fixes or security updates as of January 1, 2020.
