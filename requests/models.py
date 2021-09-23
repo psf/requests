@@ -697,7 +697,7 @@ class Response(object):
 
     def __iter__(self):
         """Allows you to use a response as an iterator."""
-        return self.iter_content(128)
+        return self.iter_content(chunk_size=128)
 
     @property
     def ok(self):
@@ -835,7 +835,7 @@ class Response(object):
             if self.status_code == 0 or self.raw is None:
                 self._content = None
             else:
-                self._content = b''.join(self.iter_content(CONTENT_CHUNK_SIZE)) or b''
+                self._content = b''.join(self.iter_content(chunk_size=CONTENT_CHUNK_SIZE)) or b''
 
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3
