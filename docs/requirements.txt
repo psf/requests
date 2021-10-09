@@ -1,0 +1,3 @@
+# Pinning to avoid unexpected breakages.
+# Used by RTD to generate docs.
+Sphinx==4.2.0
