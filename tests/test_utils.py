@@ -254,10 +254,11 @@ class TestGuessFilename:
             (b'value'.decode('utf-8'), compat.str)
         ))
     def test_guess_filename_valid(self, value, expected_type):
-        obj = type('Fake', (object,), {'name': value})()
-        result = guess_filename(obj)
-        assert result == value
-        assert isinstance(result, expected_type)
+        for attribute_name in ('name', 'filename'):
+            obj = type('Fake', (object,), {attribute_name: value})()
+            result = guess_filename(obj)
+            assert result == value
+            assert isinstance(result, expected_type)
 
 
 class TestExtractZippedPaths:
