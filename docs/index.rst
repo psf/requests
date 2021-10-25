@@ -45,6 +45,8 @@ Release v\ |version|. (:ref:`Installation <install>`)
 
 See `similar code, sans Requests <https://gist.github.com/973705>`_.
 
+<iframe frameborder="0" width="100%" height="500px" src="REPL_URL?QUERY_PARAMETERS"></iframe>
+
 
 **Requests** allows you to send HTTP/1.1 requests extremely easily. 
 There's no need to manually add query strings to your
