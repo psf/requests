@@ -45,7 +45,7 @@ Release v\ |version|. (:ref:`Installation <install>`)
 
 See `similar code, sans Requests <https://gist.github.com/973705>`_.
 
-<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@pearsoda/CS464A2#main.py?embed=true"></iframe>
+<iframe frameborder="0" width="100%" height="500px" src="https://replit.com/@pearsoda/CS464A2?embed=true"></iframe>
 
 
 **Requests** allows you to send HTTP/1.1 requests extremely easily. 
