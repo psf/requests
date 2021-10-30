@@ -28,6 +28,7 @@ from urllib3.exceptions import ReadTimeoutError
 from urllib3.exceptions import SSLError as _SSLError
 from urllib3.exceptions import ResponseError
 from urllib3.exceptions import LocationValueError
+from urllib3.util.ssl_ import create_urllib3_context
 
 from .models import Response
 from .compat import urlparse, basestring
@@ -113,7 +114,7 @@ class HTTPAdapter(BaseAdapter):
 
     def __init__(self, pool_connections=DEFAULT_POOLSIZE,
                  pool_maxsize=DEFAULT_POOLSIZE, max_retries=DEFAULT_RETRIES,
-                 pool_block=DEFAULT_POOLBLOCK):
+                 pool_block=DEFAULT_POOLBLOCK, context=create_urllib3_context()):
         if max_retries == DEFAULT_RETRIES:
             self.max_retries = Retry(0, read=False)
         else:
@@ -126,8 +127,9 @@ class HTTPAdapter(BaseAdapter):
         self._pool_connections = pool_connections
         self._pool_maxsize = pool_maxsize
         self._pool_block = pool_block
+        self._context = context
 
-        self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
+        self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block, ssl_context=context)
 
     def __getstate__(self):
         return {attr: getattr(self, attr, None) for attr in self.__attrs__}
@@ -160,6 +162,7 @@ class HTTPAdapter(BaseAdapter):
         self._pool_connections = connections
         self._pool_maxsize = maxsize
         self._pool_block = block
+
 
         self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize,
                                        block=block, strict=True, **pool_kwargs)
