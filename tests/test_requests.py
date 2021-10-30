@@ -2576,3 +2576,53 @@ class TestPreparingURLs(object):
         r = requests.get(httpbin('bytes/20'))
         with pytest.raises(requests.exceptions.JSONDecodeError):
             r.json()
+
+def test_no_ssl_context_http():
+    """Assert adapter does not create SSLContext for HTTP request"""
+    adapter = requests.adapters.HTTPAdapter()
+    conn = adapter.get_connection('http://example.com')
+    assert 'ssl_context' not in conn.conn_kw
+
+def get_connection_context(adapter):
+    """Easily get SSLContext for new connection pool"""
+    return adapter.get_connection('https://example.com').conn_kw['ssl_context']
+
+def test_ssl_context_reused():
+    """Assert adapter reuses SSLContext for same verify and cert"""
+    adapter = requests.adapters.HTTPAdapter()
+    ctx1 = get_connection_context(adapter, True)
+    ctx2 = get_connection_context(adapter, True)
+    assert ctx1 is ctx2
+
+def test_ssl_context_unique_by_settings():
+    """Assert adapter creates new SSLContext for different verify or cert"""
+    adapter = requests.adapters.HTTPAdapter()
+    ctx1 = get_connection_context(adapter, True)
+
+    ca_file = pytest_httpbin.certs.where()
+    ctx2 = get_connection_context(adapter, ca_file)
+    assert ctx1 is not ctx2
+
+    cert = os.path.join(os.path.dirname(ca_file), 'cert.pem')
+    key = os.path.join(os.path.dirname(ca_file), 'key.pem')
+    ctx3 = get_connection_context(adapter, True, (cert, key))
+    assert ctx1 is not ctx2
+
+def test_ssl_context_unique_by_absolute_paths():
+    """Assert adapter reuses SSLContext when verify and cert parameters result in
+    connection using same cert files"""
+    adapter = requests.adapters.HTTPAdapter()
+    ctx1 = get_connection_context(adapter, True)
+    ctx2 = get_connection_context(adapter, DEFAULT_CA_BUNDLE_PATH)
+    # different verify values leading to same ca_cert_dir value
+    assert ctx1 is ctx2
+
+    ca_dir = os.path.dirname(pytest_httpbin.certs.where())
+    cert = os.path.join(ca_dir, 'cert.pem')
+    key = os.path.join(ca_dir, 'key.pem')
+    rel_cert = os.path.relpath(cert)
+    rel_key = os.path.relpath(key)
+    ctx3 = get_connection_context(adapter, True, (cert, key))
+    ctx4 = get_connection_context(adapter, True, (rel_cert, rel_key))
+    # relative path and absolute path to same files
+    assert ctx3 is ctx4
