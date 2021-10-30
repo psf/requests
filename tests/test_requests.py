@@ -14,6 +14,7 @@ import re
 import io
 import requests
 import pytest
+import pytest_httpbin
 from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
@@ -31,6 +32,7 @@ from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
 from requests.compat import MutableMapping
+from requests.utils import DEFAULT_CA_BUNDLE_PATH
 
 from .compat import StringIO, u
 from .utils import override_environ
