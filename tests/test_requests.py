@@ -37,6 +37,7 @@ from requests.utils import DEFAULT_CA_BUNDLE_PATH
 from .compat import StringIO, u
 from .utils import override_environ
 from urllib3.util import Timeout as Urllib3Timeout
+from urllib3.util.ssl_ import create_urllib3_context
 
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
@@ -2589,32 +2590,30 @@ def get_connection_context(adapter):
     """Easily get SSLContext for new connection pool"""
     return adapter.get_connection('https://example.com').conn_kw['ssl_context']
 
+def get_different_connection_context(adapter):
+    """Easily get SSLContext for new connection pool"""
+    return adapter.get_connection('https://google.com').conn_kw['ssl_context']
+
 def test_ssl_context_reused():
     """Assert adapter reuses SSLContext for same verify and cert"""
     adapter = requests.adapters.HTTPAdapter()
-    ctx1 = get_connection_context(adapter, True)
-    ctx2 = get_connection_context(adapter, True)
+    ctx1 = get_connection_context(adapter)
+    ctx2 = get_connection_context(adapter)
     assert ctx1 is ctx2
 
 def test_ssl_context_unique_by_settings():
     """Assert adapter creates new SSLContext for different verify or cert"""
-    adapter = requests.adapters.HTTPAdapter()
-    ctx1 = get_connection_context(adapter, True)
-
-    ca_file = pytest_httpbin.certs.where()
-    ctx2 = get_connection_context(adapter, ca_file)
-    assert ctx1 is not ctx2
-
-    cert = os.path.join(os.path.dirname(ca_file), 'cert.pem')
-    key = os.path.join(os.path.dirname(ca_file), 'key.pem')
-    ctx3 = get_connection_context(adapter, True, (cert, key))
+    adapter = requests.adapters.HTTPAdapter(context = create_urllib3_context())
+    ctx1 = get_connection_context(adapter)
+    adapter2 = requests.adapters.HTTPAdapter()
+    ctx2 = get_different_connection_context(adapter2)
     assert ctx1 is not ctx2
 
 def test_ssl_context_unique_by_absolute_paths():
     """Assert adapter reuses SSLContext when verify and cert parameters result in
     connection using same cert files"""
     adapter = requests.adapters.HTTPAdapter()
-    ctx1 = get_connection_context(adapter, True)
+    ctx1 = get_connection_context(adapter)
     ctx2 = get_connection_context(adapter, DEFAULT_CA_BUNDLE_PATH)
     # different verify values leading to same ca_cert_dir value
     assert ctx1 is ctx2
