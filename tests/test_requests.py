@@ -32,7 +32,6 @@ from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
 from requests.compat import MutableMapping
-from requests.utils import DEFAULT_CA_BUNDLE_PATH
 
 from .compat import StringIO, u
 from .utils import override_environ
@@ -2590,10 +2589,6 @@ def get_connection_context(adapter):
     """Easily get SSLContext for new connection pool"""
     return adapter.get_connection('https://example.com').conn_kw['ssl_context']
 
-def get_different_connection_context(adapter):
-    """Easily get SSLContext for new connection pool"""
-    return adapter.get_connection('https://google.com').conn_kw['ssl_context']
-
 def test_ssl_context_reused():
     """Assert adapter reuses SSLContext for same verify and cert"""
     adapter = requests.adapters.HTTPAdapter()
@@ -2601,29 +2596,14 @@ def test_ssl_context_reused():
     ctx2 = get_connection_context(adapter)
     assert ctx1 is ctx2
 
-def test_ssl_context_unique_by_settings():
+def test_ssl_context_unique_by_new_adapter():
     """Assert adapter creates new SSLContext for different verify or cert"""
     adapter = requests.adapters.HTTPAdapter(context = create_urllib3_context())
     ctx1 = get_connection_context(adapter)
     adapter2 = requests.adapters.HTTPAdapter()
-    ctx2 = get_different_connection_context(adapter2)
+    ctx2 = get_connection_context(adapter2)
     assert ctx1 is not ctx2
 
-def test_ssl_context_unique_by_absolute_paths():
-    """Assert adapter reuses SSLContext when verify and cert parameters result in
-    connection using same cert files"""
-    adapter = requests.adapters.HTTPAdapter()
-    ctx1 = get_connection_context(adapter)
-    ctx2 = get_connection_context(adapter, DEFAULT_CA_BUNDLE_PATH)
-    # different verify values leading to same ca_cert_dir value
-    assert ctx1 is ctx2
-
-    ca_dir = os.path.dirname(pytest_httpbin.certs.where())
-    cert = os.path.join(ca_dir, 'cert.pem')
-    key = os.path.join(ca_dir, 'key.pem')
-    rel_cert = os.path.relpath(cert)
-    rel_key = os.path.relpath(key)
-    ctx3 = get_connection_context(adapter, True, (cert, key))
-    ctx4 = get_connection_context(adapter, True, (rel_cert, rel_key))
-    # relative path and absolute path to same files
-    assert ctx3 is ctx4
+    adapter3 = requests.adapters.HTTPAdapter(context = create_urllib3_context(ssl_version=2))
+    ctx3 = get_connection_context(adapter3)
+    assert ctx2 is not ctx3
