@@ -44,7 +44,8 @@ def _implementation():
     to work out the correct shape of the code for those platforms.
     """
     implementation = platform.python_implementation()
-
+    
+    """ logic here """
     if implementation == 'CPython':
         implementation_version = platform.python_version()
     elif implementation == 'PyPy':
