@@ -52,6 +52,7 @@ DEFAULT_POOLBLOCK = False
 DEFAULT_POOLSIZE = 10
 DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
+DEFAULT_SSL_CONTEXT = create_urllib3_context()
 
 
 class BaseAdapter(object):
@@ -114,7 +115,7 @@ class HTTPAdapter(BaseAdapter):
 
     def __init__(self, pool_connections=DEFAULT_POOLSIZE,
                  pool_maxsize=DEFAULT_POOLSIZE, max_retries=DEFAULT_RETRIES,
-                 pool_block=DEFAULT_POOLBLOCK, context=create_urllib3_context()):
+                 pool_block=DEFAULT_POOLBLOCK, context=DEFAULT_SSL_CONTEXT):
         if max_retries == DEFAULT_RETRIES:
             self.max_retries = Retry(0, read=False)
         else:
