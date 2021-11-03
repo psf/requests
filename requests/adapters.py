@@ -164,7 +164,6 @@ class HTTPAdapter(BaseAdapter):
         self._pool_maxsize = maxsize
         self._pool_block = block
 
-
         self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize,
                                        block=block, strict=True, **pool_kwargs)
 

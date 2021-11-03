@@ -14,7 +14,6 @@ import re
 import io
 import requests
 import pytest
-import pytest_httpbin
 from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
@@ -2597,13 +2596,12 @@ def test_ssl_context_reused():
     assert ctx1 is ctx2
 
 def test_ssl_context_unique_by_new_adapter():
-    """Assert adapter creates new SSLContext for different verify or cert"""
+    """Assert adapter creates new SSLContext with different context"""
     adapter = requests.adapters.HTTPAdapter(context = create_urllib3_context())
     ctx1 = get_connection_context(adapter)
     adapter2 = requests.adapters.HTTPAdapter()
     ctx2 = get_connection_context(adapter2)
     assert ctx1 is not ctx2
-
     adapter3 = requests.adapters.HTTPAdapter(context = create_urllib3_context(ssl_version=2))
     ctx3 = get_connection_context(adapter3)
     assert ctx2 is not ctx3
