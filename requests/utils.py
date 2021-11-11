@@ -1015,3 +1015,10 @@ def rewind_body(prepared_request):
                                         "body for redirect.")
     else:
         raise UnrewindableBodyError("Unable to rewind request body for redirect.")
+
+
+def set_headers(request, headers):
+    assert isinstance(headers, Mapping)
+    for header, value in headers.items():
+        request.setRequestHeader(header, value)
+    return request

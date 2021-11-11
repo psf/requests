@@ -603,22 +603,17 @@ class Response(object):
         'encoding', 'reason', 'cookies', 'elapsed', 'request'
     ]
 
-    def __init__(self):
+    def __init__(self, request):
+        if request.responseType == 'blob':
+            self.raw = bytes(request.response.arrayBuffer().result().to_py())
+        else:
+            self.text = str(request.response)
+            self.raw = str(request.response)
+        self.status_code = request.status
+        self.headers = CaseInsensitiveDict(Parser().parsestr(request.getAllResponseHeaders(), headersonly=True))
         self._content = False
         self._content_consumed = False
         self._next = None
-
-        #: Integer Code of responded HTTP Status, e.g. 404 or 200.
-        self.status_code = None
-
-        #: Case-insensitive Dictionary of Response Headers.
-        #: For example, ``headers['content-encoding']`` will return the
-        #: value of a ``'Content-Encoding'`` response header.
-        self.headers = CaseInsensitiveDict()
-
-        #: File-like object representation of response (for advanced usage).
-        #: Use of ``raw`` requires that ``stream=True`` be set on the request.
-        #: This requirement does not apply for use internally to Requests.
         self.raw = None
 
         #: Final URL location of Response.
@@ -649,6 +644,7 @@ class Response(object):
         #: The :class:`PreparedRequest <PreparedRequest>` object to which this
         #: is a response.
         self.request = None
+
 
     def __enter__(self):
         return self
@@ -737,59 +733,7 @@ class Response(object):
         return chardet.detect(self.content)['encoding']
 
     def iter_content(self, chunk_size=1, decode_unicode=False):
-        """Iterates over the response data.  When stream=True is set on the
-        request, this avoids reading the content at once into memory for
-        large responses.  The chunk size is the number of bytes it should
-        read into memory.  This is not necessarily the length of each item
-        returned as decoding can take place.
-
-        chunk_size must be of type int or None. A value of None will
-        function differently depending on the value of `stream`.
-        stream=True will read data as it arrives in whatever size the
-        chunks are received. If stream=False, data is returned as
-        a single chunk.
-
-        If decode_unicode is True, content will be decoded using the best
-        available encoding based on the response.
-        """
-
-        def generate():
-            # Special case for urllib3.
-            if hasattr(self.raw, 'stream'):
-                try:
-                    for chunk in self.raw.stream(chunk_size, decode_content=True):
-                        yield chunk
-                except ProtocolError as e:
-                    raise ChunkedEncodingError(e)
-                except DecodeError as e:
-                    raise ContentDecodingError(e)
-                except ReadTimeoutError as e:
-                    raise ConnectionError(e)
-            else:
-                # Standard file-like object.
-                while True:
-                    chunk = self.raw.read(chunk_size)
-                    if not chunk:
-                        break
-                    yield chunk
-
-            self._content_consumed = True
-
-        if self._content_consumed and isinstance(self._content, bool):
-            raise StreamConsumedError()
-        elif chunk_size is not None and not isinstance(chunk_size, int):
-            raise TypeError("chunk_size must be an int, it is instead a %s." % type(chunk_size))
-        # simulate reading small chunks of the content
-        reused_chunks = iter_slices(self._content, chunk_size)
-
-        stream_chunks = generate()
-
-        chunks = reused_chunks if self._content_consumed else stream_chunks
-
-        if decode_unicode:
-            chunks = stream_decode_response_unicode(chunks, self)
-
-        return chunks
+        yield self.raw
 
     def iter_lines(self, chunk_size=ITER_CHUNK_SIZE, decode_unicode=False, delimiter=None):
         """Iterates over the response data, one line at a time.  When
@@ -887,34 +831,7 @@ class Response(object):
         :raises requests.exceptions.JSONDecodeError: If the response body does not
             contain valid json.
         """
-
-        if not self.encoding and self.content and len(self.content) > 3:
-            # No encoding set. JSON RFC 4627 section 3 states we should expect
-            # UTF-8, -16 or -32. Detect which one to use; If the detection or
-            # decoding fails, fall back to `self.text` (using charset_normalizer to make
-            # a best guess).
-            encoding = guess_json_utf(self.content)
-            if encoding is not None:
-                try:
-                    return complexjson.loads(
-                        self.content.decode(encoding), **kwargs
-                    )
-                except UnicodeDecodeError:
-                    # Wrong UTF codec detected; usually because it's not UTF-8
-                    # but some other 8-bit codec.  This is an RFC violation,
-                    # and the server didn't bother to tell us what codec *was*
-                    # used.
-                    pass
-
-        try:
-            return complexjson.loads(self.text, **kwargs)
-        except JSONDecodeError as e:
-            # Catch JSON-related errors and raise as requests.JSONDecodeError
-            # This aliases json.JSONDecodeError and simplejson.JSONDecodeError
-            if is_py2: # e is a ValueError
-                raise RequestsJSONDecodeError(e.message)
-            else:
-                raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+        return complexjson.loads(self.text)
 
     @property
     def links(self):

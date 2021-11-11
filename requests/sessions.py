@@ -7,35 +7,34 @@ requests.sessions
 This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
 """
+import json as json_module
 import os
 import sys
 import time
-from datetime import timedelta
 from collections import OrderedDict
+from datetime import timedelta
+from urllib.parse import urlencode
 
-from .auth import _basic_auth_str
-from .compat import cookielib, is_py3, urljoin, urlparse, Mapping
-from .cookies import (
-    cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
-from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
-from .hooks import default_hooks, dispatch_hook
+from js import Blob, XMLHttpRequest
+
 from ._internal_utils import to_native_string
-from .utils import to_key_val_list, default_headers, DEFAULT_PORTS
+from .auth import _basic_auth_str
+from .compat import is_py3, urljoin, urlparse, Mapping
+from .cookies import (
+    extract_cookies_to_jar, merge_cookies)
 from .exceptions import (
     TooManyRedirects, InvalidSchema, ChunkedEncodingError, ContentDecodingError)
-
+from .hooks import default_hooks, dispatch_hook
+from .models import Request, DEFAULT_REDIRECT_LIMIT, Response
+from .status_codes import codes
 from .structures import CaseInsensitiveDict
-from .adapters import HTTPAdapter
-
 from .utils import (
     requote_uri, get_environ_proxies, get_netrc_auth, should_bypass_proxies,
     get_auth_from_url, rewind_body
 )
-
-from .status_codes import codes
+from .utils import to_key_val_list, DEFAULT_PORTS, set_headers
 
 # formerly defined here, reexposed here for backward compatibility
-from .models import REDIRECT_STATI
 
 # Preferred clock, based on which one is more accurate on a given system.
 if sys.platform == 'win32':
@@ -334,138 +333,40 @@ class SessionRedirectMixin(object):
         prepared_request.method = method
 
 
-class Session(SessionRedirectMixin):
-    """A Requests session.
-
-    Provides cookie persistence, connection-pooling, and configuration.
-
-    Basic Usage::
-
-      >>> import requests
-      >>> s = requests.Session()
-      >>> s.get('https://httpbin.org/get')
-      <Response [200]>
-
-    Or as a context manager::
-
-      >>> with requests.Session() as s:
-      ...     s.get('https://httpbin.org/get')
-      <Response [200]>
+class Session:
     """
+    No-op context manager for packages that rely on requests.Session.
 
+    It has been made entirely no-op because the browser will handle cookies, headers etc., unless explicitly set by
+    the user of this requests version.
+
+    """
     __attrs__ = [
         'headers', 'cookies', 'auth', 'proxies', 'hooks', 'params', 'verify',
-        'cert', 'adapters', 'stream', 'trust_env',
+        'cert', 'prefetch', 'adapters', 'stream', 'trust_env',
         'max_redirects',
     ]
 
     def __init__(self):
 
-        #: A case-insensitive dictionary of headers to be sent on each
-        #: :class:`Request <Request>` sent from this
-        #: :class:`Session <Session>`.
-        self.headers = default_headers()
-
-        #: Default Authentication tuple or object to attach to
-        #: :class:`Request <Request>`.
+        self.headers = CaseInsensitiveDict({})
         self.auth = None
-
-        #: Dictionary mapping protocol or protocol and host to the URL of the proxy
-        #: (e.g. {'http': 'foo.bar:3128', 'http://host.name': 'foo.bar:4012'}) to
-        #: be used on each :class:`Request <Request>`.
         self.proxies = {}
-
-        #: Event-handling hooks.
         self.hooks = default_hooks()
-
-        #: Dictionary of querystring data to attach to each
-        #: :class:`Request <Request>`. The dictionary values may be lists for
-        #: representing multivalued query parameters.
         self.params = {}
-
-        #: Stream response content default.
         self.stream = False
-
-        #: SSL Verification default.
-        #: Defaults to `True`, requiring requests to verify the TLS certificate at the
-        #: remote end.
-        #: If verify is set to `False`, requests will accept any TLS certificate
-        #: presented by the server, and will ignore hostname mismatches and/or
-        #: expired certificates, which will make your application vulnerable to
-        #: man-in-the-middle (MitM) attacks.
-        #: Only set this to `False` for testing.
         self.verify = True
-
-        #: SSL client certificate default, if String, path to ssl client
-        #: cert file (.pem). If Tuple, ('cert', 'key') pair.
         self.cert = None
-
-        #: Maximum number of redirects allowed. If the request exceeds this
-        #: limit, a :class:`TooManyRedirects` exception is raised.
-        #: This defaults to requests.models.DEFAULT_REDIRECT_LIMIT, which is
-        #: 30.
         self.max_redirects = DEFAULT_REDIRECT_LIMIT
-
-        #: Trust environment settings for proxy configuration, default
-        #: authentication and similar.
         self.trust_env = True
-
-        #: A CookieJar containing all currently outstanding cookies set on this
-        #: session. By default it is a
-        #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but
-        #: may be any other ``cookielib.CookieJar`` compatible object.
-        self.cookies = cookiejar_from_dict({})
-
-        # Default connection adapters.
-        self.adapters = OrderedDict()
-        self.mount('https://', HTTPAdapter())
-        self.mount('http://', HTTPAdapter())
+        self.cookies = {}
+        self.adapters = {}
 
     def __enter__(self):
         return self
 
     def __exit__(self, *args):
-        self.close()
-
-    def prepare_request(self, request):
-        """Constructs a :class:`PreparedRequest <PreparedRequest>` for
-        transmission and returns it. The :class:`PreparedRequest` has settings
-        merged from the :class:`Request <Request>` instance and those of the
-        :class:`Session`.
-
-        :param request: :class:`Request` instance to prepare with this
-            session's settings.
-        :rtype: requests.PreparedRequest
-        """
-        cookies = request.cookies or {}
-
-        # Bootstrap CookieJar.
-        if not isinstance(cookies, cookielib.CookieJar):
-            cookies = cookiejar_from_dict(cookies)
-
-        # Merge with session cookies
-        merged_cookies = merge_cookies(
-            merge_cookies(RequestsCookieJar(), self.cookies), cookies)
-
-        # Set environment's basic authentication if not explicitly set.
-        auth = request.auth
-        if self.trust_env and not auth and not self.auth:
-            auth = get_netrc_auth(request.url)
-
-        p = PreparedRequest()
-        p.prepare(
-            method=request.method.upper(),
-            url=request.url,
-            files=request.files,
-            data=request.data,
-            json=request.json,
-            headers=merge_setting(request.headers, self.headers, dict_class=CaseInsensitiveDict),
-            params=merge_setting(request.params, self.params),
-            auth=merge_setting(auth, self.auth),
-            cookies=merged_cookies,
-            hooks=merge_hooks(request.hooks, self.hooks),
-        )
-        return p
+        ...
 
     def request(self, method, url,
             params=None, data=None, headers=None, cookies=None, files=None,
@@ -513,35 +414,38 @@ class Session(SessionRedirectMixin):
         :rtype: requests.Response
         """
         # Create the Request.
-        req = Request(
-            method=method.upper(),
-            url=url,
-            headers=headers,
-            files=files,
-            data=data or {},
-            json=json,
-            params=params or {},
-            auth=auth,
-            cookies=cookies,
-            hooks=hooks,
-        )
-        prep = self.prepare_request(req)
-
-        proxies = proxies or {}
-
-        settings = self.merge_environment_settings(
-            prep.url, proxies, stream, verify, cert
-        )
-
-        # Send the request.
-        send_kwargs = {
-            'timeout': timeout,
-            'allow_redirects': allow_redirects,
-        }
-        send_kwargs.update(settings)
-        resp = self.send(prep, **send_kwargs)
-
-        return resp
+        request = XMLHttpRequest.new()
+        request.open(method.upper(), url, False)
+        if params:
+            if isinstance(params, Mapping):
+                url = url + '?' + urlencode(params)
+        if headers:
+            set_headers(request, headers)
+        if cookies:
+            ...  # TODO set the cookie in the browser, otherwise we rely on the cookies the browser decides to send
+        if stream:
+            request.responseType = "blob"
+        if data:
+            if isinstance(data, Mapping):
+                data = Blob.new([json_module.dumps(data)], {
+                    'type': 'application/json',
+                })
+                request.setRequestHeader('Content-Type', 'application/json')
+                request.send(data)
+            else:
+                ...
+        if json:
+            if isinstance(json, Mapping):
+                data = Blob.new([json_module.dumps(json)], {
+                    'type': 'application/json',
+                })
+                request.setRequestHeader('Content-Type', 'application/json')
+                request.send(data)
+            else:
+                ...
+        else:
+            request.send()
+        return Response(request)
 
     def get(self, url, **kwargs):
         r"""Sends a GET request. Returns :class:`Response` object.
