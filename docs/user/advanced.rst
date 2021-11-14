@@ -605,13 +605,13 @@ Alternatively you can configure it once for an entire
 
 When the proxies configuration is not overridden in python as shown above,
 by default Requests relies on the proxy configuration defined by standard
-environment variables ``http_proxy``, ``https_proxy``, ``no_proxy`` and
-``curl_ca_bundle``. Uppercase variants of these variables are also supported.
-You can therefore set them to configure Requests (only set the ones relevant
-to your needs)::
+environment variables ``http_proxy``, ``https_proxy``, ``no_proxy``, 
+``curl_ca_bundle``, and ``all_proxy``. Uppercase variants of these variables are also supported.
+You can therefore set them to configure Requests (you only need to export one)::
 
     $ export HTTP_PROXY="http://10.10.1.10:3128"
     $ export HTTPS_PROXY="http://10.10.1.10:1080"
+    $ export ALL_PROXY="socks5://10.10.1.10:3434"
 
     $ python
     >>> import requests
