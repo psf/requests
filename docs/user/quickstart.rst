@@ -80,6 +80,16 @@ You can also pass a list of items as a value::
     >>> r = requests.get('https://httpbin.org/get', params=payload)
     >>> print(r.url)
     https://httpbin.org/get?key1=value1&key2=value2&key2=value3
+  
+**NOTE:** A lot of servers out there expect keys with an array as their value
+to be suffixed with a ``[]``. This is not compulsory, however it could save you
+from unexpected responses returned by third party servers.
+
+    >>> payload = {'key1': 'value1', 'key2[]': ['value2', 'value3']}
+
+    >>> r = requests.get('https://httpbin.org/get', params=payload)
+    >>> print(r.url)
+    https://httpbin.org/get?key1=value1&key2%5B%5D=value2&key2%5B%5D=value3
 
 Response Content
 ----------------
