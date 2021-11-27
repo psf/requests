@@ -13,7 +13,6 @@ import threading
 
 import pytest
 from requests.compat import urljoin
-import trustme
 
 
 def prepare_url(value):
@@ -38,6 +37,10 @@ def httpbin_secure(httpbin_secure):
 
 @pytest.fixture
 def nosan_server(tmp_path_factory):
+    # delay importing until the fixture in order to make it possible
+    # to deselect the test via command-line when trustme is not available
+    import trustme
+
     tmpdir = tmp_path_factory.mktemp("certs")
     ca = trustme.CA()
     # only commonName, no subjectAltName
