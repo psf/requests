@@ -11,6 +11,9 @@ dev
   backwards compatible as it inherits from previously thrown exceptions.
   Can be caught from `requests.exceptions.RequestException` as well.
 
+- Catch `AttributeError` when calculating length of files obtained by
+  `Tarfile.extractfile()`
+
 2.26.0 (2021-07-13)
 -------------------
 
@@ -1702,7 +1705,7 @@ This is not a backwards compatible change.
 -   Automatic Authentication API Change
 -   Smarter Query URL Parameterization
 -   Allow file uploads and POST data together
--   
+-
 
     New Authentication Manager System
 
@@ -1721,7 +1724,7 @@ This is not a backwards compatible change.
 0.2.3 (2011-02-15)
 ------------------
 
--   
+-
 
     New HTTPHandling Methods
 
