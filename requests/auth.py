@@ -303,3 +303,21 @@ class HTTPDigestAuth(AuthBase):
 
     def __ne__(self, other):
         return not self == other
+
+class AccessTokenAuth(AuthBase):
+    """Attaches Access Token Authentication to the given Request object."""
+    
+    def __init__(self, access_token):
+        self.access_token = access_token
+
+    def __eq__(self, other):
+        return all([
+            self.access_token == getattr(other, 'access_token', None),
+        ])
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __call__(self, r):
+        r.headers['Authorization'] = 'Bearer ' + self.access_token
+        return r
