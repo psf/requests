@@ -590,6 +590,15 @@ class TestRequests:
                 session = requests.Session()
                 session.request(method='GET', url=httpbin())
 
+    def test_proxy_authorization_preserved_on_request(self, httpbin):
+        proxy_auth_value = "Bearer XXX"
+        session = requests.Session()
+        session.headers.update({"Proxy-Authorization": proxy_auth_value})
+        resp = session.request(method='GET', url=httpbin('get'))
+        sent_headers = resp.json().get('headers', {})
+
+        assert sent_headers.get("Proxy-Authorization") == proxy_auth_value
+
     def test_basicauth_with_netrc(self, httpbin):
         auth = ('user', 'pass')
         wrong_auth = ('wronguser', 'wrongpass')

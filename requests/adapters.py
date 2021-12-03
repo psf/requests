@@ -458,9 +458,11 @@ class HTTPAdapter(BaseAdapter):
                 low_conn = conn._get_conn(timeout=DEFAULT_POOL_TIMEOUT)
 
                 try:
+                    skip_host = 'Host' in request.headers
                     low_conn.putrequest(request.method,
                                         url,
-                                        skip_accept_encoding=True)
+                                        skip_accept_encoding=True,
+                                        skip_host=skip_host)
 
                     for header, value in request.headers.items():
                         low_conn.putheader(header, value)
