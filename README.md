@@ -27,7 +27,7 @@ Requests is one of the most downloaded Python packages today, pulling in around 
 
 ## Installing Requests and Supported Versions
 
-Requests are available on PyPI:
+Requests is available on PyPI:
 
 ```console
 $ python -m pip install requests
