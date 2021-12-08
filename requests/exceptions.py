@@ -8,6 +8,8 @@ This module contains the set of Requests' exceptions.
 """
 from urllib3.exceptions import HTTPError as BaseHTTPError
 
+from .compat import JSONDecodeError as CompatJSONDecodeError
+
 
 class RequestException(IOError):
     """There was an ambiguous exception that occurred while handling your
@@ -27,6 +29,10 @@ class RequestException(IOError):
 
 class InvalidJSONError(RequestException):
     """A JSON error occurred."""
+
+
+class JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):
+    """Couldn't decode the text into json"""
 
 
 class HTTPError(RequestException):

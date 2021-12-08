@@ -37,12 +37,12 @@ get all the information we need from this object.
 Requests' simple API means that all forms of HTTP request are as obvious. For
 example, this is how you make an HTTP POST request::
 
-    >>> r = requests.post('https://httpbin.org/post', data = {'key':'value'})
+    >>> r = requests.post('https://httpbin.org/post', data={'key': 'value'})
 
 Nice, right? What about the other HTTP request types: PUT, DELETE, HEAD and
 OPTIONS? These are all just as simple::
 
-    >>> r = requests.put('https://httpbin.org/put', data = {'key':'value'})
+    >>> r = requests.put('https://httpbin.org/put', data={'key': 'value'})
     >>> r = requests.delete('https://httpbin.org/delete')
     >>> r = requests.head('https://httpbin.org/get')
     >>> r = requests.options('https://httpbin.org/get')
@@ -153,9 +153,9 @@ There's also a builtin JSON decoder, in case you're dealing with JSON data::
 
 In case the JSON decoding fails, ``r.json()`` raises an exception. For example, if
 the response gets a 204 (No Content), or if the response contains invalid JSON,
-attempting ``r.json()`` raises ``simplejson.JSONDecodeError`` if simplejson is
-installed or raises ``ValueError: No JSON object could be decoded`` on Python 2 or
-``json.JSONDecodeError`` on Python 3.
+attempting ``r.json()`` raises ``requests.exceptions.JSONDecodeError``. This wrapper exception
+provides interoperability for multiple exceptions that may be thrown by different
+python versions and json serialization libraries.
 
 It should be noted that the success of the call to ``r.json()`` does **not**
 indicate the success of the response. Some servers may return a JSON object in a

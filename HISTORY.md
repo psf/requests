@@ -4,7 +4,15 @@ Release History
 dev
 ---
 
--   \[Short description of non-trivial change.\]
+- \[Short description of non-trivial change.\]
+
+- Added a `requests.exceptions.JSONDecodeError` to decrease inconsistencies
+  in the library. This gets raised in the `response.json()` method, and is
+  backwards compatible as it inherits from previously thrown exceptions.
+  Can be caught from `requests.exceptions.RequestException` as well.
+
+- Catch `AttributeError` when calculating length of files obtained by
+  `Tarfile.extractfile()`
 
 2.26.0 (2021-07-13)
 -------------------
@@ -61,7 +69,7 @@ dev
 - Requests now supports chardet v4.x.
 
 2.25.0 (2020-11-11)
-------------------
+-------------------
 
 **Improvements**
 
@@ -108,7 +116,7 @@ dev
 **Dependencies**
 
 - Pinning for `chardet` and `idna` now uses major version instead of minor.
-  This hopefully reduces the need for releases everytime a dependency is updated.
+  This hopefully reduces the need for releases every time a dependency is updated.
 
 2.22.0 (2019-05-15)
 -------------------
@@ -463,7 +471,7 @@ Or, even better:
 
 -   Fixed regression from 2.12.2 where non-string types were rejected in
     the basic auth parameters. While support for this behaviour has been
-    readded, the behaviour is deprecated and will be removed in the
+    re-added, the behaviour is deprecated and will be removed in the
     future.
 
 2.12.3 (2016-12-01)
@@ -1697,12 +1705,12 @@ This is not a backwards compatible change.
 -   Automatic Authentication API Change
 -   Smarter Query URL Parameterization
 -   Allow file uploads and POST data together
--   
+-
 
     New Authentication Manager System
 
     :   -   Simpler Basic HTTP System
-        -   Supports all build-in urllib2 Auths
+        -   Supports all built-in urllib2 Auths
         -   Allows for custom Auth Handlers
 
 0.2.4 (2011-02-19)
@@ -1716,7 +1724,7 @@ This is not a backwards compatible change.
 0.2.3 (2011-02-15)
 ------------------
 
--   
+-
 
     New HTTPHandling Methods
 

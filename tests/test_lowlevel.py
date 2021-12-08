@@ -9,6 +9,18 @@ from tests.testserver.server import Server, consume_socket_content
 from .utils import override_environ
 
 
+def echo_response_handler(sock):
+    """Simple handler that will take request and echo it back to requester."""
+    request_content = consume_socket_content(sock, timeout=0.5)
+
+    text_200 = (
+        b'HTTP/1.1 200 OK\r\n'
+        b'Content-Length: %d\r\n\r\n'
+        b'%s'
+    ) % (len(request_content), request_content)
+    sock.send(text_200)
+
+
 def test_chunked_upload():
     """can safely send generators"""
     close_server = threading.Event()
@@ -22,6 +34,90 @@ def test_chunked_upload():
 
     assert r.status_code == 200
     assert r.request.headers['Transfer-Encoding'] == 'chunked'
+
+
+def test_chunked_encoding_error():
+    """get a ChunkedEncodingError if the server returns a bad response"""
+
+    def incomplete_chunked_response_handler(sock):
+        request_content = consume_socket_content(sock, timeout=0.5)
+
+        # The server never ends the request and doesn't provide any valid chunks
+        sock.send(b"HTTP/1.1 200 OK\r\n" +
+                  b"Transfer-Encoding: chunked\r\n")
+
+        return request_content
+
+    close_server = threading.Event()
+    server = Server(incomplete_chunked_response_handler)
+
+    with server as (host, port):
+        url = 'http://{}:{}/'.format(host, port)
+        with pytest.raises(requests.exceptions.ChunkedEncodingError):
+            r = requests.get(url)
+        close_server.set()  # release server block
+
+
+def test_chunked_upload_uses_only_specified_host_header():
+    """Ensure we use only the specified Host header for chunked requests."""
+    close_server = threading.Event()
+    server = Server(echo_response_handler, wait_to_close_event=close_server)
+
+    data = iter([b'a', b'b', b'c'])
+    custom_host = 'sample-host'
+
+    with server as (host, port):
+        url = 'http://{}:{}/'.format(host, port)
+        r = requests.post(url, data=data, headers={'Host': custom_host}, stream=True)
+        close_server.set()  # release server block
+
+    expected_header = b'Host: %s\r\n' % custom_host.encode('utf-8')
+    assert expected_header in r.content
+    assert r.content.count(b'Host: ') == 1
+
+
+def test_chunked_upload_doesnt_skip_host_header():
+    """Ensure we don't omit all Host headers with chunked requests."""
+    close_server = threading.Event()
+    server = Server(echo_response_handler, wait_to_close_event=close_server)
+
+    data = iter([b'a', b'b', b'c'])
+
+    with server as (host, port):
+        expected_host = '{}:{}'.format(host, port)
+        url = 'http://{}:{}/'.format(host, port)
+        r = requests.post(url, data=data, stream=True)
+        close_server.set()  # release server block
+
+    expected_header = b'Host: %s\r\n' % expected_host.encode('utf-8')
+    assert expected_header in r.content
+    assert r.content.count(b'Host: ') == 1
+
+
+def test_conflicting_content_lengths():
+    """Ensure we correctly throw an InvalidHeader error if multiple
+    conflicting Content-Length headers are returned.
+    """
+
+    def multiple_content_length_response_handler(sock):
+        request_content = consume_socket_content(sock, timeout=0.5)
+
+        sock.send(b"HTTP/1.1 200 OK\r\n" +
+                  b"Content-Type: text/plain\r\n" +
+                  b"Content-Length: 16\r\n" +
+                  b"Content-Length: 32\r\n\r\n" +
+                  b"-- Bad Actor -- Original Content\r\n")
+
+        return request_content
+
+    close_server = threading.Event()
+    server = Server(multiple_content_length_response_handler)
+
+    with server as (host, port):
+        url = 'http://{}:{}/'.format(host, port)
+        with pytest.raises(requests.exceptions.InvalidHeader):
+            r = requests.get(url)
+        close_server.set()
 
 
 def test_digestauth_401_count_reset_on_redirect():

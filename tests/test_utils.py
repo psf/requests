@@ -4,6 +4,7 @@ import os
 import copy
 import filecmp
 from io import BytesIO
+import tarfile
 import zipfile
 from collections import deque
 
@@ -85,6 +86,18 @@ class TestSuperLen:
         with file_obj.open(mode) as fd:
             assert super_len(fd) == 4
         assert len(recwarn) == warnings_num
+
+    def test_tarfile_member(self, tmpdir):
+        file_obj = tmpdir.join('test.txt')
+        file_obj.write('Test')
+
+        tar_obj = str(tmpdir.join('test.tar'))
+        with tarfile.open(tar_obj, 'w') as tar:
+            tar.add(str(file_obj), arcname='test.txt')
+
+        with tarfile.open(tar_obj) as tar:
+            member = tar.extractfile('test.txt')
+            assert super_len(member) == 4
 
     def test_super_len_with__len__(self):
         foo = [1,2,3,4]
@@ -284,6 +297,10 @@ class TestExtractZippedPaths:
         assert extracted_path != zipped_path
         assert os.path.exists(extracted_path)
         assert filecmp.cmp(extracted_path, __file__)
+
+    def test_invalid_unc_path(self):
+        path = r"\\localhost\invalid\location"
+        assert extract_zipped_paths(path) == path
 
 
 class TestContentEncodingDetection:

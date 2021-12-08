@@ -305,7 +305,7 @@ immediately. You can override this behaviour and defer downloading the response
 body until you access the :attr:`Response.content <requests.Response.content>`
 attribute with the ``stream`` parameter::
 
-    tarball_url = 'https://github.com/psf/requests/tarball/master'
+    tarball_url = 'https://github.com/psf/requests/tarball/main'
     r = requests.get(tarball_url, stream=True)
 
 At this point only the response headers have been downloaded and the connection
@@ -446,7 +446,7 @@ argument.
     def print_url(r, *args, **kwargs):
         print(r.url)
 
-If an error occurs while executing your callback, a warning is given.
+Your callback function must handle its own exceptions. Any unhandled exception won't be passed silently and thus should be handled by the code calling Requests.
 
 If the callback function returns a value, it is assumed that it is to
 replace the data that was passed in. If the function doesn't return
@@ -1017,7 +1017,7 @@ library to use SSLv3::
                 num_pools=connections, maxsize=maxsize,
                 block=block, ssl_version=ssl.PROTOCOL_SSLv3)
 
-.. _`described here`: https://www.kennethreitz.org/essays/the-future-of-python-http
+.. _`described here`: https://kenreitz.org/essays/2012/06/14/the-future-of-python-http
 .. _`urllib3`: https://github.com/urllib3/urllib3
 
 .. _blocking-or-nonblocking:

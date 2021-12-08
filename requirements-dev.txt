@@ -1,4 +1,4 @@
-pytest>=2.8.0,<=3.10.1
+pytest>=2.8.0,<=6.2.5
 pytest-cov
 pytest-httpbin==1.0.0
 pytest-mock==2.0.0

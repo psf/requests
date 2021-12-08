@@ -124,7 +124,10 @@ def super_len(o):
     elif hasattr(o, 'fileno'):
         try:
             fileno = o.fileno()
-        except io.UnsupportedOperation:
+        except (io.UnsupportedOperation, AttributeError):
+            # AttributeError is a surprising exception, seeing as how we've just checked
+            # that `hasattr(o, 'fileno')`.  It happens for objects obtained via
+            # `Tarfile.extractfile()`, per issue 5229.
             pass
         else:
             total_length = os.fstat(fileno).st_size
@@ -154,7 +157,7 @@ def super_len(o):
                 current_position = total_length
         else:
             if hasattr(o, 'seek') and total_length is None:
-                # StringIO and BytesIO have seek but no useable fileno
+                # StringIO and BytesIO have seek but no usable fileno
                 try:
                     # seek to end of file
                     o.seek(0, 2)
@@ -251,6 +254,10 @@ def extract_zipped_paths(path):
     archive, member = os.path.split(path)
     while archive and not os.path.exists(archive):
         archive, prefix = os.path.split(archive)
+        if not prefix:
+            # If we don't check for an empty prefix after the split (in other words, archive remains unchanged after the split),
+            # we _can_ end up in an infinite loop on a rare corner case affecting a small number of users
+            break
         member = '/'.join([prefix, member])
 
     if not zipfile.is_zipfile(archive):
@@ -824,6 +831,34 @@ def select_proxy(url, proxies):
             break
 
     return proxy
+
+
+def resolve_proxies(request, proxies, trust_env=True):
+    """This method takes proxy information from a request and configuration
+    input to resolve a mapping of target proxies. This will consider settings
+    such a NO_PROXY to strip proxy configurations.
+
+    :param request: Request or PreparedRequest
+    :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs
+    :param trust_env: Boolean declaring whether to trust environment configs
+
+    :rtype: dict
+    """
+    proxies = proxies if proxies is not None else {}
+    url = request.url
+    scheme = urlparse(url).scheme
+    no_proxy = proxies.get('no_proxy')
+    new_proxies = proxies.copy()
+
+    bypass_proxy = should_bypass_proxies(url, no_proxy=no_proxy)
+    if trust_env and not bypass_proxy:
+        environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
+
+        proxy = environ_proxies.get(scheme, environ_proxies.get('all'))
+
+        if proxy:
+            new_proxies.setdefault(scheme, proxy)
+    return new_proxies
 
 
 def default_user_agent(name="python-requests"):
