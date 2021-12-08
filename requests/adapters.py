@@ -234,6 +234,9 @@ class HTTPAdapter(BaseAdapter):
                 conn.ca_certs = cert_loc
             else:
                 conn.ca_cert_dir = cert_loc
+        elif not url.lower().startswith('https') and verify:
+            raise SSLError("Unable to verify SSL certificate, ",
+                           "unverified url: {}".format(url))
         else:
             conn.cert_reqs = 'CERT_NONE'
             conn.ca_certs = None

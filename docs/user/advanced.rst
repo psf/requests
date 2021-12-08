@@ -212,7 +212,7 @@ SSL Cert Verification
 ---------------------
 
 Requests verifies SSL certificates for HTTPS requests, just like a web browser.
-By default, SSL verification is enabled, and Requests will throw a SSLError if
+By default, SSL verification is enabled, and Requests will throw an SSLError if
 it's unable to verify the certificate::
 
     >>> requests.get('https://requestb.in')
