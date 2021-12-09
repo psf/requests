@@ -883,6 +883,12 @@ class TestRequests:
         r = requests.get(httpbin(), cert='.')
         assert r.status_code == 200
 
+    def test_http_with_invalid_certificate(self):
+        unverified_url = 'http://example.com/'
+        with pytest.raises(SSLError) as e:
+            requests.get(unverified_url)
+        assert str(e.value) == 'Unable to verify SSL certificate, unverified url: {}'.format(unverified_url)
+
     def test_https_warnings(self, nosan_server):
         """warnings are emitted with requests.get"""
         host, port, ca_bundle = nosan_server
