@@ -933,6 +933,11 @@ class Response(object):
                 l[key] = link
 
         return l
+    
+    @property
+    def success(self):
+        """Returns True if :attr:`status_code` is in between 200 and 299, False if not."""
+        return self.status_code in range(200, 300)
 
     def raise_for_status(self):
         """Raises :class:`HTTPError`, if one occurred."""
