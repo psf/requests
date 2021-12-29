@@ -850,8 +850,7 @@ def resolve_proxies(request, proxies, trust_env=True):
     no_proxy = proxies.get('no_proxy')
     new_proxies = proxies.copy()
 
-    bypass_proxy = should_bypass_proxies(url, no_proxy=no_proxy)
-    if trust_env and not bypass_proxy:
+    if trust_env and not should_bypass_proxies(url, no_proxy=no_proxy):
         environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
 
         proxy = environ_proxies.get(scheme, environ_proxies.get('all'))
