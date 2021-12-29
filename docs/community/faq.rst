@@ -60,11 +60,11 @@ Yes! Requests officially supports Python 2.7 & 3.6+ and PyPy.
 Python 2 Support?
 -----------------
 
-Yes! We do not have immediate plans to `sunset
-<https://www.python.org/doc/sunset-python-2/>`_ our support for Python
-2.7. We understand that we have a large user base with varying needs.
+Yes! We understand that we have a large user base with varying needs. Through
+**at least** Requests 2.27.x, we will be providing continued support for Python
+2.7. However, this support is likely to end some time in 2022.
 
-That said, it is *highly* recommended users migrate to Python 3.6+ since Python
+It is *highly* recommended users migrate to Python 3.7+ now since Python
 2.7 is no longer receiving bug fixes or security updates as of January 1, 2020.
 
 What are "hostname doesn't match" errors?
