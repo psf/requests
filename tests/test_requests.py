@@ -81,6 +81,8 @@ class TestRequests:
             (InvalidSchema, 'localhost.localdomain:3128/'),
             (InvalidSchema, '10.122.1.1:3128/'),
             (InvalidURL, 'http://'),
+            (InvalidURL, 'http://*example.com'),
+            (InvalidURL, 'http://.example.com'),
         ))
     def test_invalid_url(self, exception, url):
         with pytest.raises(exception):
