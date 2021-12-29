@@ -6,13 +6,53 @@ dev
 
 - \[Short description of non-trivial change.\]
 
-- Added a `requests.exceptions.JSONDecodeError` to decrease inconsistencies
-  in the library. This gets raised in the `response.json()` method, and is
-  backwards compatible as it inherits from previously thrown exceptions.
-  Can be caught from `requests.exceptions.RequestException` as well.
+2.27.0 (2022-01-03)
+-------------------
 
-- Catch `AttributeError` when calculating length of files obtained by
-  `Tarfile.extractfile()`
+**Improvements**
+
+- Officially added support for Python 3.10. (#5928)
+
+- Added a `requests.exceptions.JSONDecodeError` to unify JSON exceptions between
+  Python 2 and 3. This gets raised in the `response.json()` method, and is
+  backwards compatible as it inherits from previously thrown exceptions.
+  Can be caught from `requests.exceptions.RequestException` as well. (#5856)
+
+- Improved error text for misnamed `InvalidSchema` and `MissingSchema`
+  exceptions. This is a temporary fix until exceptions can be renamed
+  (Schema->Scheme). (#6017)
+
+- Improved proxy parsing for proxy URLs missing a scheme. This will address
+  recent changes to `urlparse` in Python 3.9+. (#5917)
+
+**Bugfixes**
+
+- Fixed defect in `extract_zipped_paths` which could result in an infinite loop
+  for some paths. (#5851)
+
+- Fixed handling for `AttributeError` when calculating length of files obtained
+  by `Tarfile.extractfile()`. (#5239)
+
+- Fixed urllib3 exception leak, wrapping `urllib3.exceptions.InvalidHeader` with
+  `requests.exceptions.InvalidHeader`. (#5914)
+
+- Fixed bug where two Host headers were sent for chunked requests. (#5391)
+
+- Fixed regression in Requests 2.26.0 where `Proxy-Authorization` was
+  incorrectly stripped from all requests sent with `Session.send`. (#5924)
+
+- Fixed performance regression in 2.26.0 for hosts with a large number of
+  proxies available in the environment. (#5924)
+
+- Fixed idna exception leak, wrapping `UnicodeError` with
+  `requests.exceptions.InvalidURL` for URLs with a leading dot (.) in the
+  domain. (#5414)
+
+**Deprecations**
+
+- Requests support for Python 2.7 and 3.6 will be ending in 2022. While we
+  don't have exact dates, Requests 2.27.x is likely to be the last release
+  series providing support.
 
 2.26.0 (2021-07-13)
 -------------------
