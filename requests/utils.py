@@ -21,6 +21,7 @@ import warnings
 import zipfile
 from collections import OrderedDict
 from urllib3.util import make_headers
+from urllib3.util import parse_url
 
 from .__version__ import __version__
 from . import certs
@@ -963,15 +964,23 @@ def prepend_scheme_if_needed(url, new_scheme):
 
     :rtype: str
     """
-    scheme, netloc, path, params, query, fragment = urlparse(url, new_scheme)
+    parsed = parse_url(url)
+    scheme, auth, host, port, path, query, fragment = parsed
 
-    # urlparse is a finicky beast, and sometimes decides that there isn't a
-    # netloc present. Assume that it's being over-cautious, and switch netloc
-    # and path if urlparse decided there was no netloc.
+    # A defect in urlparse determines that there isn't a netloc present in some
+    # urls. We previously assumed parsing was overly cautious, and swapped the
+    # netloc and path. Due to a lack of tests on the original defect, this is
+    # maintained with parse_url for backwards compatibility.
+    netloc = parsed.netloc
     if not netloc:
         netloc, path = path, netloc
 
-    return urlunparse((scheme, netloc, path, params, query, fragment))
+    if scheme is None:
+        scheme = new_scheme
+    if path is None:
+        path = ''
+
+    return urlunparse((scheme, netloc, path, '', query, fragment))
 
 
 def get_auth_from_url(url):
