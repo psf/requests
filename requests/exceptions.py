@@ -80,11 +80,11 @@ class TooManyRedirects(RequestException):
 
 
 class MissingSchema(RequestException, ValueError):
-    """The URL schema (e.g. http or https) is missing."""
+    """The URL scheme (e.g. http or https) is missing."""
 
 
 class InvalidSchema(RequestException, ValueError):
-    """See defaults.py for valid schemas."""
+    """The URL scheme provided is either invalid or unsupported."""
 
 
 class InvalidURL(RequestException, ValueError):
