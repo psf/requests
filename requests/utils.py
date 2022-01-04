@@ -974,6 +974,10 @@ def prepend_scheme_if_needed(url, new_scheme):
     if not netloc:
         netloc, path = path, netloc
 
+    if auth:
+        # parse_url doesn't provide the netloc with auth
+        # so we'll add it ourselves.
+        netloc = '@'.join([auth, netloc])
     if scheme is None:
         scheme = new_scheme
     if path is None:
