@@ -6,6 +6,14 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.27.1 (2022-01-05)
+-------------------
+
+**Bugfixes**
+
+- Fixed parsing issue that resulted in the `auth` component being
+  dropped from proxy URLs. (#6028)
+
 2.27.0 (2022-01-03)
 -------------------
 
