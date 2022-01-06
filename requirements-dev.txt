@@ -6,3 +6,5 @@ httpbin==0.7.0
 Flask>=1.0,<2.0
 trustme
 wheel
+Pygments
+PySocks
