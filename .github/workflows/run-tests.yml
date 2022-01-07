@@ -16,8 +16,13 @@ jobs:
           # brotlipy. Moving pypy3 to only test linux.
           - python-version: pypy3
             os: ubuntu-latest
+            experimental: false
           - python-version: pypy-3.7
             os: ubuntu-latest
+            experimental: false
+          - python-version: 3.11-dev
+            os: ubuntu-latest
+            experimental: true
 
     steps:
     - uses: actions/checkout@v2
