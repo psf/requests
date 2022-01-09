@@ -110,7 +110,9 @@ class HTTPAdapter(BaseAdapter):
     """
     __attrs__ = ['max_retries', 'config', '_pool_connections', '_pool_maxsize',
                  '_pool_block']
-
+    
+    _clsHTTPResponse = HTTPResponse
+    
     def __init__(self, pool_connections=DEFAULT_POOLSIZE,
                  pool_maxsize=DEFAULT_POOLSIZE, max_retries=DEFAULT_RETRIES,
                  pool_block=DEFAULT_POOLBLOCK):
@@ -484,7 +486,7 @@ class HTTPAdapter(BaseAdapter):
                         # For compatibility with Python 3.3+
                         r = low_conn.getresponse()
 
-                    resp = HTTPResponse.from_httplib(
+                    resp = _clsHTTPResponse.from_httplib(
                         r,
                         pool=conn,
                         connection=low_conn,
