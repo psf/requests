@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   action:
+    if: github.repository_owner == 'psf'
     runs-on: ubuntu-latest
     steps:
       - uses: dessant/lock-threads@v2
