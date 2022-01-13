@@ -23,14 +23,14 @@ from requests.cookies import (
     cookiejar_from_dict, morsel_to_cookie)
 from requests.exceptions import (
     ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
-    MissingSchema, ReadTimeout, Timeout, RetryError, TooManyRedirects,
+    MissingSchema, ReadTimeout, Timeout, RetryError, RequestException, TooManyRedirects,
     ProxyError, InvalidHeader, UnrewindableBodyError, SSLError, InvalidProxyURL, InvalidJSONError)
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
-from requests.compat import MutableMapping
+from requests.compat import JSONDecodeError, is_py3, MutableMapping
 
 from .compat import StringIO, u
 from .utils import override_environ
@@ -2585,5 +2585,15 @@ class TestPreparingURLs(object):
 
     def test_json_decode_compatibility(self, httpbin):
         r = requests.get(httpbin('bytes/20'))
-        with pytest.raises(requests.exceptions.JSONDecodeError):
+        with pytest.raises(requests.exceptions.JSONDecodeError) as excinfo:
             r.json()
+        assert isinstance(excinfo.value, RequestException)
+        assert isinstance(excinfo.value, JSONDecodeError)
+        assert r.text not in str(excinfo.value)
+
+    @pytest.mark.skipif(not is_py3, reason="doc attribute is only present on py3")
+    def test_json_decode_persists_doc_attr(self, httpbin):
+        r = requests.get(httpbin('bytes/20'))
+        with pytest.raises(requests.exceptions.JSONDecodeError) as excinfo:
+            r.json()
+        assert excinfo.value.doc == r.text
