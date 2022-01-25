@@ -102,8 +102,8 @@ class RequestEncodingMixin(object):
                 for v in vs:
                     if v is not None:
                         result.append(
-                            (k.encode('utf-8') if isinstance(k, str) else k,
-                             v.encode('utf-8') if isinstance(v, str) else v))
+                            (k.encode('utf-8', 'surrogatepass') if isinstance(k, str) else k,
+                             v.encode('utf-8', 'surrogatepass') if isinstance(v, str) else v))
             return urlencode(result, doseq=True)
         else:
             return data
