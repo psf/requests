@@ -525,6 +525,24 @@ class TestRequests:
 
         assert p.headers['Authorization'] == 'Basic xa9zZXJuYW1lOnRlc3TGtg=='
 
+    def test_post_encodes_surrogate_dict(self):
+        """Ensure that a POST request with a dict containing a utf-8 string with
+        surrogates in its payload is correctly sent in Python 3.
+        """
+        data = {'name': 'test\udced\udcb3\udc83.pdf'}
+        r = requests.post('https://example.com/', data=data)
+
+        assert r.status_code == 200
+
+    def test_post_encodes_surrogate_string(self):
+        """Ensure that a POST request with a dict containing a utf-8 string with
+        surrogates in its payload is correctly sent in Python 3.
+        """
+        payload = 'test\udced\udcb3\udc83.pdf'
+        r = requests.post('https://example.com/', payload)
+
+        assert r.status_code == 200
+
     @pytest.mark.parametrize(
         'url, exception', (
             # Connecting to an unknown domain should raise a ConnectionError
