@@ -993,7 +993,22 @@ class TestRequests:
         assert r.status_code == 200
         assert b"text/py-content-type" in r.request.body
 
-    def test_hook_receives_request_arguments(self, httpbin):
+    def test_hook_prepared_receives_preparedrequest_obj(self, httpbin):
+        def hook(preparedrequest, **kwargs):
+            assert preparedrequest is not None
+
+        s = requests.Session()
+        r = requests.Request('GET', httpbin(), hooks={'prepared': hook})
+        s.prepare_request(r)
+
+    def test_hook_request_receives_request_obj(self, httpbin):
+        def hook(request, **kwargs):
+            assert request is not None
+
+        s = requests.Session()
+        s.request('GET', httpbin(), hooks={'request': hook})
+
+    def test_hook_response_receives_request_arguments(self, httpbin):
         def hook(resp, **kwargs):
             assert resp is not None
             assert kwargs != {}
@@ -1023,18 +1038,63 @@ class TestRequests:
         assert prep.hooks['response'] == [hook1]
 
     def test_prepared_request_hook(self, httpbin):
-        def hook(resp, **kwargs):
-            resp.hook_working = True
+        def hook_prepared(prepared_request):
+            prepared_request.hook_prepared_working = True
+            return prepared_request
+
+        def hook_request(request):
+            request.hook_request_working = True
+            return request
+
+        def hook_response(resp, **kwargs):
+            resp.hook_response_working = True
             return resp
 
-        req = requests.Request('GET', httpbin(), hooks={'response': hook})
-        prep = req.prepare()
+        req = requests.Request(
+            'GET',
+            httpbin(),
+            hooks={
+                'prepared': hook_prepared,
+                'response': hook_response,
+                'response': hook_response,
+            },
+        )
 
+        prep = req.prepare()
         s = requests.Session()
         s.proxies = getproxies()
         resp = s.send(prep)
 
-        assert hasattr(resp, 'hook_working')
+        assert not hasattr(prep, 'hook_prepared_working')
+        assert not hasattr(req, 'hook_request_working')
+        assert hasattr(resp, 'hook_response_working')
+
+    def test_session_full_hooks(self, httpbin):
+        result = {
+            'prepared': False,
+            'request': False,
+            'response': False,
+        }
+
+        def hook_prepared(prepared_request):
+            result['prepared'] = True
+
+        def hook_request(request):
+            result['request'] = True
+
+        def hook_response(resp, **kwargs):
+            result['response'] = True
+
+        session = requests.Session()
+        session.hooks = {
+            'prepared': hook_prepared,
+            'request': hook_request,
+            'response': hook_response,
+        }
+
+        session.request('GET', httpbin())
+
+        assert all(result.values())
 
     def test_prepared_from_session(self, httpbin):
         class DummyAuth(requests.auth.AuthBase):

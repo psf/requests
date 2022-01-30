@@ -84,9 +84,24 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
     This is necessary because when request_hooks == {'response': []}, the
     merge breaks Session hooks entirely.
     """
+
+    def _remove_empty_hooks(hook_dict):
+        """Returns a new dict without empty hooks, returns None if the
+        dict is empty
+        """
+        _hook_dict_cp = hook_dict.copy()
+        for key, value in hook_dict.items():
+            if value == []:
+                _hook_dict_cp.pop(key)
+        if _hook_dict_cp == {}:
+            return None
+        return _hook_dict_cp
+
+    session_hooks = _remove_empty_hooks(session_hooks)
     if session_hooks is None or session_hooks.get('response') == []:
         return request_hooks
 
+    request_hooks = _remove_empty_hooks(request_hooks)
     if request_hooks is None or request_hooks.get('response') == []:
         return session_hooks
 
@@ -439,6 +454,8 @@ class Session(SessionRedirectMixin):
         if self.trust_env and not auth and not self.auth:
             auth = get_netrc_auth(request.url)
 
+        hooks = merge_hooks(request.hooks, self.hooks)
+
         p = PreparedRequest()
         p.prepare(
             method=request.method.upper(),
@@ -450,8 +467,12 @@ class Session(SessionRedirectMixin):
             params=merge_setting(request.params, self.params),
             auth=merge_setting(auth, self.auth),
             cookies=merged_cookies,
-            hooks=merge_hooks(request.hooks, self.hooks),
+            hooks=hooks,
         )
+
+        # PreparedRequest manipulation hooks
+        p = dispatch_hook('prepared', hooks, p)
+
         return p
 
     def request(self, method, url,
@@ -512,6 +533,13 @@ class Session(SessionRedirectMixin):
             cookies=cookies,
             hooks=hooks,
         )
+        # Request manimulation hooks
+        req = dispatch_hook(
+            'request',
+            merge_hooks(hooks or {}, self.hooks),
+            req,
+        )
+
         prep = self.prepare_request(req)
 
         proxies = proxies or {}
