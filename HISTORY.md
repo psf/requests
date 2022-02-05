@@ -6,6 +6,11 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+**Bugfixes**
+
+- Fixed urllib3 exception leak, wrapping `urllib3.exceptions.SSLError` with
+  `requests.exceptions.SSLError` for `content` and `iter_content`.
+
 2.27.1 (2022-01-05)
 -------------------
 

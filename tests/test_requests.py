@@ -14,6 +14,7 @@ import re
 import io
 import requests
 import pytest
+import urllib3
 from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
@@ -22,9 +23,25 @@ from requests.compat import (
 from requests.cookies import (
     cookiejar_from_dict, morsel_to_cookie)
 from requests.exceptions import (
-    ConnectionError, ConnectTimeout, InvalidSchema, InvalidURL,
-    MissingSchema, ReadTimeout, Timeout, RetryError, RequestException, TooManyRedirects,
-    ProxyError, InvalidHeader, UnrewindableBodyError, SSLError, InvalidProxyURL, InvalidJSONError)
+    ChunkedEncodingError,
+    ConnectionError,
+    ConnectTimeout,
+    ContentDecodingError,
+    InvalidHeader,
+    InvalidJSONError,
+    InvalidProxyURL,
+    InvalidSchema,
+    InvalidURL,
+    MissingSchema,
+    ProxyError,
+    ReadTimeout,
+    RequestException,
+    RetryError,
+    Timeout,
+    TooManyRedirects,
+    UnrewindableBodyError,
+)
+from requests.exceptions import SSLError as RequestsSSLError
 from requests.models import PreparedRequest
 from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
@@ -910,7 +927,7 @@ class TestRequests:
         """
         When underlying SSL problems occur, an SSLError is raised.
         """
-        with pytest.raises(SSLError):
+        with pytest.raises(RequestsSSLError):
             # Our local httpbin does not have a trusted CA, so this call will
             # fail if we use our default trust bundle.
             requests.get(httpbin_secure('status', '200'))
@@ -1319,6 +1336,26 @@ class TestRequests:
         r.raw = io.BytesIO(b'the content')
         with pytest.raises(TypeError):
             chunks = r.iter_content("1024")
+
+    @pytest.mark.parametrize(
+        'exception, args, expected', (
+            (urllib3.exceptions.ProtocolError, tuple(), ChunkedEncodingError),
+            (urllib3.exceptions.DecodeError, tuple(), ContentDecodingError),
+            (urllib3.exceptions.ReadTimeoutError, (None, '', ''), ConnectionError),
+            (urllib3.exceptions.SSLError, tuple(), RequestsSSLError),
+        )
+    )
+    def test_iter_content_wraps_exceptions(
+        self, httpbin, mocker, exception, args, expected
+    ):
+        r = requests.Response()
+        r.raw = mocker.Mock()
+        # ReadTimeoutError can't be initialized by mock
+        # so we'll manually create the instance with args
+        r.raw.stream.side_effect = exception(*args)
+
+        with pytest.raises(expected):
+            next(r.iter_content(1024))
 
     def test_request_and_response_are_pickleable(self, httpbin):
         r = requests.get(httpbin('get'))

@@ -19,7 +19,12 @@ from urllib3.fields import RequestField
 from urllib3.filepost import encode_multipart_formdata
 from urllib3.util import parse_url
 from urllib3.exceptions import (
-    DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
+    DecodeError,
+    LocationParseError,
+    ProtocolError,
+    ReadTimeoutError,
+    SSLError,
+)
 
 from io import UnsupportedOperation
 from .hooks import default_hooks
@@ -32,6 +37,7 @@ from .exceptions import (
     ContentDecodingError, ConnectionError, StreamConsumedError,
     InvalidJSONError)
 from .exceptions import JSONDecodeError as RequestsJSONDecodeError
+from .exceptions import SSLError as RequestsSSLError
 from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -765,6 +771,8 @@ class Response(object):
                     raise ContentDecodingError(e)
                 except ReadTimeoutError as e:
                     raise ConnectionError(e)
+                except SSLError as e:
+                    raise RequestsSSLError(e)
             else:
                 # Standard file-like object.
                 while True:
