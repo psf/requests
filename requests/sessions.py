@@ -514,7 +514,7 @@ class Session(SessionRedirectMixin):
         )
         prep = self.prepare_request(req)
 
-        proxies = proxies or {}
+        proxies = proxies or self.proxies or {}
 
         settings = self.merge_environment_settings(
             prep.url, proxies, stream, verify, cert
