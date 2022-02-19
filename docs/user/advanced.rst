@@ -603,10 +603,19 @@ Alternatively you can configure it once for an entire
 
     session.get('http://example.org')
 
-When the proxies configuration is not overridden in python as shown above,
-by default Requests relies on the proxy configuration defined by standard
-environment variables ``http_proxy``, ``https_proxy``, ``no_proxy``, 
-``curl_ca_bundle``, and ``all_proxy``. Uppercase variants of these variables are also supported.
+.. warning::  Setting ``session.proxies`` may behave differently than expected.
+    Values provided will be overwritten by environmental proxies
+    (those returned by `urllib.request.getproxies <https://docs.python.org/3/library/urllib.request.html#urllib.request.getproxies>`_).
+    To ensure the use of proxies in the presence of environmental proxies,
+    explicitly specify the ``proxies`` argument on all individual requests as
+    initially explained above.
+
+    See `#2018 <https://github.com/psf/requests/issues/2018>`_ for details.
+
+When the proxies configuration is not overridden per request as shown above,
+Requests relies on the proxy configuration defined by standard
+environment variables ``http_proxy``, ``https_proxy``, ``no_proxy``,
+and ``all_proxy``. Uppercase variants of these variables are also supported.
 You can therefore set them to configure Requests (only set the ones relevant
 to your needs)::
 
