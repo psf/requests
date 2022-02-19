@@ -4,6 +4,9 @@ pytest-cov
 pytest-httpbin==1.0.0
 pytest-mock==2.0.0
 httpbin==0.7.0
-Flask>=1.0,<2.0
 trustme
 wheel
+
+# Flask Stack
+Flask>1.0,<2.0
+markupsafe<2.1
