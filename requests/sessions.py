@@ -702,11 +702,14 @@ class Session(SessionRedirectMixin):
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)
 
-            # Look for requests environment configuration and be compatible
-            # with cURL.
+            # Look for requests environment configuration
+            # and be compatible with cURL.
             if verify is True or verify is None:
-                verify = (os.environ.get('REQUESTS_CA_BUNDLE') or
-                          os.environ.get('CURL_CA_BUNDLE'))
+                verify = (
+                    os.environ.get('REQUESTS_CA_BUNDLE')
+                    or os.environ.get('CURL_CA_BUNDLE')
+                    or verify
+                )
 
         # Merge all the kwargs.
         proxies = merge_setting(proxies, self.proxies)
@@ -714,8 +717,12 @@ class Session(SessionRedirectMixin):
         verify = merge_setting(verify, self.verify)
         cert = merge_setting(cert, self.cert)
 
-        return {'verify': verify, 'proxies': proxies, 'stream': stream,
-                'cert': cert}
+        return {
+            'proxies': proxies,
+            'stream': stream,
+            'verify': verify,
+            'cert': cert
+        }
 
     def get_adapter(self, url):
         """

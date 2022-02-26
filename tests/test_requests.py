@@ -898,6 +898,42 @@ class TestRequests:
             requests.get(httpbin_secure(), cert=('.', INVALID_PATH))
         assert str(e.value) == 'Could not find the TLS key file, invalid path: {}'.format(INVALID_PATH)
 
+    @pytest.mark.parametrize(
+        'env, expected', (
+            ({}, True),
+            ({'REQUESTS_CA_BUNDLE': '/some/path'}, '/some/path'),
+            ({'REQUESTS_CA_BUNDLE': ''}, True),
+            ({'CURL_CA_BUNDLE': '/some/path'}, '/some/path'),
+            ({'CURL_CA_BUNDLE': ''}, True),
+            ({'REQUESTS_CA_BUNDLE': '', 'CURL_CA_BUNDLE': ''}, True),
+            (
+                {
+                    'REQUESTS_CA_BUNDLE': '/some/path',
+                    'CURL_CA_BUNDLE': '/curl/path',
+                },
+                '/some/path',
+            ),
+            (
+                {
+                    'REQUESTS_CA_BUNDLE': '',
+                    'CURL_CA_BUNDLE': '/curl/path',
+                },
+                '/curl/path',
+            ),
+        )
+    )
+    def test_env_cert_bundles(self, httpbin, mocker, env, expected):
+        s = requests.Session()
+        mocker.patch('os.environ', env)
+        settings = s.merge_environment_settings(
+            url=httpbin('get'),
+            proxies={},
+            stream=False,
+            verify=True,
+            cert=None
+        )
+        assert settings['verify'] == expected
+
     def test_http_with_certificate(self, httpbin):
         r = requests.get(httpbin(), cert='.')
         assert r.status_code == 200
