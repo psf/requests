@@ -301,7 +301,7 @@ def test_use_proxy_from_environment(httpbin, var, scheme):
         assert len(fake_proxy.handler_results[0]) > 0
 
 
-def test_redirect_rfc1808_to_non_ascii_location():
+def test_redirect_rfc1808_to_utf8_location():
     path = u'š'
     expected_path = b'%C5%A1'
     redirect_request = []  # stores the second request to the server
@@ -401,5 +401,36 @@ def test_fragment_update_on_redirect():
         assert r.history[1].request.url == 'http://{}:{}/get#relevant-section'.format(host, port)
         # Verify previous fragment is used and not the original.
         assert r.url == 'http://{}:{}/final-url/#relevant-section'.format(host, port)
+
+        close_server.set()
+
+def test_redirect_rfc1808_to_latin1_location():
+    path = u'å'
+    expected_path = b'%C3%A5'
+    redirect_request = []  # stores the second request to the server
+
+    def redirect_resp_handler(sock):
+        consume_socket_content(sock, timeout=0.5)
+        location = u'//{0}:{1}/{2}'.format(host, port, path)
+        sock.send(
+            b'HTTP/1.1 301 Moved Permanently\r\n'
+            b'Content-Length: 0\r\n'
+            b'Location: ' + location.encode('latin-1') + b'\r\n'
+            b'\r\n'
+        )
+        redirect_request.append(consume_socket_content(sock, timeout=0.5))
+        sock.send(b'HTTP/1.1 200 OK\r\n\r\n')
+
+    close_server = threading.Event()
+    server = Server(redirect_resp_handler, wait_to_close_event=close_server)
+
+    with server as (host, port):
+        url = u'http://{0}:{1}'.format(host, port)
+        r = requests.get(url=url, allow_redirects=True)
+        assert r.status_code == 200
+        assert len(r.history) == 1
+        assert r.history[0].status_code == 301
+        assert redirect_request[0].startswith(b'GET /' + expected_path + b' HTTP/1.1')
+        assert r.url == u'{0}/{1}'.format(url, expected_path.decode('ascii'))
 
         close_server.set()
