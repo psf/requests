@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import pytest
 import threading
-import requests
 
+import pytest
+
+import requests
 from tests.testserver.server import Server, consume_socket_content
 
 from .utils import override_environ
@@ -13,11 +14,10 @@ def echo_response_handler(sock):
     """Simple handler that will take request and echo it back to requester."""
     request_content = consume_socket_content(sock, timeout=0.5)
 
-    text_200 = (
-        b'HTTP/1.1 200 OK\r\n'
-        b'Content-Length: %d\r\n\r\n'
-        b'%s'
-    ) % (len(request_content), request_content)
+    text_200 = (b"HTTP/1.1 200 OK\r\n" b"Content-Length: %d\r\n\r\n" b"%s") % (
+        len(request_content),
+        request_content,
+    )
     sock.send(text_200)
 
 
@@ -25,15 +25,15 @@ def test_chunked_upload():
     """can safely send generators"""
     close_server = threading.Event()
     server = Server.basic_response_server(wait_to_close_event=close_server)
-    data = iter([b'a', b'b', b'c'])
+    data = iter([b"a", b"b", b"c"])
 
     with server as (host, port):
-        url = 'http://{}:{}/'.format(host, port)
+        url = "http://{}:{}/".format(host, port)
         r = requests.post(url, data=data, stream=True)
         close_server.set()  # release server block
 
     assert r.status_code == 200
-    assert r.request.headers['Transfer-Encoding'] == 'chunked'
+    assert r.request.headers["Transfer-Encoding"] == "chunked"
 
 
 def test_chunked_encoding_error():
@@ -43,8 +43,7 @@ def test_chunked_encoding_error():
         request_content = consume_socket_content(sock, timeout=0.5)
 
         # The server never ends the request and doesn't provide any valid chunks
-        sock.send(b"HTTP/1.1 200 OK\r\n" +
-                  b"Transfer-Encoding: chunked\r\n")
+        sock.send(b"HTTP/1.1 200 OK\r\n" + b"Transfer-Encoding: chunked\r\n")
 
         return request_content
 
@@ -52,7 +51,7 @@ def test_chunked_encoding_error():
     server = Server(incomplete_chunked_response_handler)
 
     with server as (host, port):
-        url = 'http://{}:{}/'.format(host, port)
+        url = "http://{}:{}/".format(host, port)
         with pytest.raises(requests.exceptions.ChunkedEncodingError):
             r = requests.get(url)
         close_server.set()  # release server block
@@ -63,17 +62,17 @@ def test_chunked_upload_uses_only_specified_host_header():
     close_server = threading.Event()
     server = Server(echo_response_handler, wait_to_close_event=close_server)
 
-    data = iter([b'a', b'b', b'c'])
-    custom_host = 'sample-host'
+    data = iter([b"a", b"b", b"c"])
+    custom_host = "sample-host"
 
     with server as (host, port):
-        url = 'http://{}:{}/'.format(host, port)
-        r = requests.post(url, data=data, headers={'Host': custom_host}, stream=True)
+        url = "http://{}:{}/".format(host, port)
+        r = requests.post(url, data=data, headers={"Host": custom_host}, stream=True)
         close_server.set()  # release server block
 
-    expected_header = b'Host: %s\r\n' % custom_host.encode('utf-8')
+    expected_header = b"Host: %s\r\n" % custom_host.encode("utf-8")
     assert expected_header in r.content
-    assert r.content.count(b'Host: ') == 1
+    assert r.content.count(b"Host: ") == 1
 
 
 def test_chunked_upload_doesnt_skip_host_header():
@@ -81,17 +80,17 @@ def test_chunked_upload_doesnt_skip_host_header():
     close_server = threading.Event()
     server = Server(echo_response_handler, wait_to_close_event=close_server)
 
-    data = iter([b'a', b'b', b'c'])
+    data = iter([b"a", b"b", b"c"])
 
     with server as (host, port):
-        expected_host = '{}:{}'.format(host, port)
-        url = 'http://{}:{}/'.format(host, port)
+        expected_host = "{}:{}".format(host, port)
+        url = "http://{}:{}/".format(host, port)
         r = requests.post(url, data=data, stream=True)
         close_server.set()  # release server block
 
-    expected_header = b'Host: %s\r\n' % expected_host.encode('utf-8')
+    expected_header = b"Host: %s\r\n" % expected_host.encode("utf-8")
     assert expected_header in r.content
-    assert r.content.count(b'Host: ') == 1
+    assert r.content.count(b"Host: ") == 1
 
 
 def test_conflicting_content_lengths():
@@ -114,7 +113,7 @@ def test_conflicting_content_lengths():
     server = Server(multiple_content_length_response_handler)
 
     with server as (host, port):
-        url = 'http://{}:{}/'.format(host, port)
+        url = "http://{}:{}/".format(host, port)
         with pytest.raises(requests.exceptions.InvalidHeader):
             r = requests.get(url)
         close_server.set()
