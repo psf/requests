@@ -1096,7 +1096,7 @@ class TestRequests:
     def test_custom_content_type(self, httpbin):
         with open(__file__, "rb") as f1:
             with open(__file__, "rb") as f2:
-                data={"stuff": json.dumps({"a": 123})}
+                data = {"stuff": json.dumps({"a": 123})}
                 files = {
                     "file1": ("test_requests.py", f1),
                     "file2": ("test_requests", f2, "text/py-content-type"),
@@ -1682,68 +1682,70 @@ class TestRequests:
 
     def test_header_validation(self, httpbin):
         """Ensure prepare_headers regex isn't flagging valid header contents."""
-        headers_ok = {
+        valid_headers = {
             "foo": "bar baz qux",
             "bar": b"fbbq",
             "baz": "",
             "qux": "1",
         }
-        r = requests.get(httpbin("get"), headers=headers_ok)
-        assert r.request.headers["foo"] == headers_ok["foo"]
+        r = requests.get(httpbin("get"), headers=valid_headers)
+        for key in valid_headers.keys():
+            valid_headers[key] == r.request.headers[key]
 
-    def test_header_value_not_str(self, httpbin):
+    @pytest.mark.parametrize(
+        "invalid_header, key",
+        (
+            ({"foo": 3}, "foo"),
+            ({"bar": {"foo": "bar"}}, "bar"),
+            ({"baz": ["foo", "bar"]}, "baz"),
+        ),
+    )
+    def test_header_value_not_str(self, httpbin, invalid_header, key):
         """Ensure the header value is of type string or bytes as
         per discussion in GH issue #3386
         """
-        headers_int = {"foo": 3}
-        headers_dict = {"bar": {"foo": "bar"}}
-        headers_list = {"baz": ["foo", "bar"]}
+        with pytest.raises(InvalidHeader) as excinfo:
+            requests.get(httpbin("get"), headers=invalid_header)
+        assert key in str(excinfo.value)
 
-        # Test for int
-        with pytest.raises(InvalidHeader) as excinfo:
-            requests.get(httpbin("get"), headers=headers_int)
-        assert "foo" in str(excinfo.value)
-        # Test for dict
-        with pytest.raises(InvalidHeader) as excinfo:
-            requests.get(httpbin("get"), headers=headers_dict)
-        assert "bar" in str(excinfo.value)
-        # Test for list
-        with pytest.raises(InvalidHeader) as excinfo:
-            requests.get(httpbin("get"), headers=headers_list)
-        assert "baz" in str(excinfo.value)
-
-    def test_header_no_return_chars(self, httpbin):
+    @pytest.mark.parametrize(
+        "invalid_header",
+        (
+            {"foo": "bar\r\nbaz: qux"},
+            {"foo": "bar\n\rbaz: qux"},
+            {"foo": "bar\nbaz: qux"},
+            {"foo": "bar\rbaz: qux"},
+            {"fo\ro": "bar"},
+            {"fo\r\no": "bar"},
+            {"fo\n\ro": "bar"},
+            {"fo\no": "bar"},
+        ),
+    )
+    def test_header_no_return_chars(self, httpbin, invalid_header):
         """Ensure that a header containing return character sequences raise an
         exception. Otherwise, multiple headers are created from single string.
         """
-        headers_ret = {"foo": "bar\r\nbaz: qux"}
-        headers_lf = {"foo": "bar\nbaz: qux"}
-        headers_cr = {"foo": "bar\rbaz: qux"}
+        with pytest.raises(InvalidHeader):
+            requests.get(httpbin("get"), headers=invalid_header)
 
-        # Test for newline
-        with pytest.raises(InvalidHeader):
-            requests.get(httpbin("get"), headers=headers_ret)
-        # Test for line feed
-        with pytest.raises(InvalidHeader):
-            requests.get(httpbin("get"), headers=headers_lf)
-        # Test for carriage return
-        with pytest.raises(InvalidHeader):
-            requests.get(httpbin("get"), headers=headers_cr)
-
-    def test_header_no_leading_space(self, httpbin):
+    @pytest.mark.parametrize(
+        "invalid_header",
+        (
+            {" foo": "bar"},
+            {"\tfoo": "bar"},
+            {"    foo": "bar"},
+            {"foo": " bar"},
+            {"foo": "    bar"},
+            {"foo": "\tbar"},
+            {" ": "bar"},
+        ),
+    )
+    def test_header_no_leading_space(self, httpbin, invalid_header):
         """Ensure headers containing leading whitespace raise
         InvalidHeader Error before sending.
         """
-        headers_space = {"foo": " bar"}
-        headers_tab = {"foo": "   bar"}
-
-        # Test for whitespace
         with pytest.raises(InvalidHeader):
-            requests.get(httpbin("get"), headers=headers_space)
-
-        # Test for tab
-        with pytest.raises(InvalidHeader):
-            requests.get(httpbin("get"), headers=headers_tab)
+            requests.get(httpbin("get"), headers=invalid_header)
 
     @pytest.mark.parametrize("files", ("foo", b"foo", bytearray(b"foo")))
     def test_can_send_objects_with_files(self, httpbin, files):

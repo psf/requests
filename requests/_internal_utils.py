@@ -5,8 +5,19 @@ requests._internal_utils
 Provides utility functions that are consumed internally by Requests
 which depend on extremely few external helpers (such as compat)
 """
+import re
 
 from .compat import builtin_str
+
+_VALID_HEADER_NAME_RE_BYTE = re.compile(rb"^[^:\s][^:\r\n]*$")
+_VALID_HEADER_NAME_RE_STR = re.compile(r"^[^:\s][^:\r\n]*$")
+_VALID_HEADER_VALUE_RE_BYTE = re.compile(rb"^\S[^\r\n]*$|^$")
+_VALID_HEADER_VALUE_RE_STR = re.compile(r"^\S[^\r\n]*$|^$")
+
+HEADER_VALIDATORS = {
+    bytes: (_VALID_HEADER_NAME_RE_BYTE, _VALID_HEADER_VALUE_RE_BYTE),
+    str: (_VALID_HEADER_NAME_RE_STR, _VALID_HEADER_VALUE_RE_STR),
+}
 
 
 def to_native_string(string, encoding="ascii"):
