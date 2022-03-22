@@ -11,6 +11,11 @@ dev
 - Fixed urllib3 exception leak, wrapping `urllib3.exceptions.SSLError` with
   `requests.exceptions.SSLError` for `content` and `iter_content`.
 
+**Deprecations**
+
+- ⚠️ Requests has officially dropped support for Python 2.7. ⚠️
+- Requests has officially dropped support for Python 3.6 (including pypy3).
+
 2.27.1 (2022-01-05)
 -------------------
 

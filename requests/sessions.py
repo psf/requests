@@ -14,7 +14,7 @@ from datetime import timedelta
 from collections import OrderedDict
 
 from .auth import _basic_auth_str
-from .compat import cookielib, is_py3, urljoin, urlparse, Mapping
+from .compat import cookielib, urljoin, urlparse, Mapping
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
@@ -39,10 +39,7 @@ from .models import REDIRECT_STATI
 
 # Preferred clock, based on which one is more accurate on a given system.
 if sys.platform == 'win32':
-    try:  # Python 3.4+
-        preferred_clock = time.perf_counter
-    except AttributeError:  # Earlier than Python 3.
-        preferred_clock = time.clock
+    preferred_clock = time.perf_counter
 else:
     preferred_clock = time.time
 
@@ -111,8 +108,7 @@ class SessionRedirectMixin(object):
             # It is more likely to get UTF8 header rather than latin1.
             # This causes incorrect handling of UTF8 encoded location headers.
             # To solve this, we re-encode the location in latin1.
-            if is_py3:
-                location = location.encode('latin1')
+            location = location.encode('latin1')
             return to_native_string(location, 'utf8')
         return None
 

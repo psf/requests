@@ -78,9 +78,7 @@ class Server(threading.Thread):
     def _create_socket_and_bind(self):
         sock = socket.socket()
         sock.bind((self.host, self.port))
-        # NB: when Python 2.7 is no longer supported, the argument
-        # can be removed to use a default backlog size
-        sock.listen(5)
+        sock.listen()
         return sock
 
     def _close_server_sock_ignore_errors(self):

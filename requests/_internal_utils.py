@@ -8,7 +8,7 @@ Provides utility functions that are consumed internally by Requests
 which depend on extremely few external helpers (such as compat)
 """
 
-from .compat import is_py2, builtin_str, str
+from .compat import builtin_str
 
 
 def to_native_string(string, encoding='ascii'):
@@ -19,10 +19,7 @@ def to_native_string(string, encoding='ascii'):
     if isinstance(string, builtin_str):
         out = string
     else:
-        if is_py2:
-            out = string.encode(encoding)
-        else:
-            out = string.decode(encoding)
+        out = string.decode(encoding)
 
     return out
 

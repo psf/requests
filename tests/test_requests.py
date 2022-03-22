@@ -2,7 +2,6 @@
 
 """Tests for Requests."""
 
-from __future__ import division
 import json
 import os
 import pickle
@@ -18,7 +17,7 @@ import urllib3
 from requests.adapters import HTTPAdapter
 from requests.auth import HTTPDigestAuth, _basic_auth_str
 from requests.compat import (
-    Morsel, cookielib, getproxies, str, urlparse,
+    Morsel, cookielib, getproxies, urlparse,
     builtin_str)
 from requests.cookies import (
     cookiejar_from_dict, morsel_to_cookie)
@@ -47,9 +46,9 @@ from requests.structures import CaseInsensitiveDict
 from requests.sessions import SessionRedirectMixin
 from requests.models import urlencode
 from requests.hooks import default_hooks
-from requests.compat import JSONDecodeError, is_py3, MutableMapping
+from requests.compat import JSONDecodeError, MutableMapping
 
-from .compat import StringIO, u
+from .compat import StringIO
 from .utils import override_environ
 from urllib3.util import Timeout as Urllib3Timeout
 
@@ -519,7 +518,7 @@ class TestRequests:
     @pytest.mark.parametrize(
         'username, password', (
             ('user', 'pass'),
-            (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8')),
+            ('имя'.encode('utf-8'), 'пароль'.encode('utf-8')),
             (42, 42),
             (None, None),
         ))
@@ -843,8 +842,6 @@ class TestRequests:
         with open('requirements-dev.txt') as f:
             with pytest.raises(ValueError):
                 requests.post(url, data='[{"some": "data"}]', files={'some': f})
-            with pytest.raises(ValueError):
-                requests.post(url, data=u('[{"some": "data"}]'), files={'some': f})
 
     def test_request_ok_set(self, httpbin):
         r = requests.get(httpbin('status', '404'))
@@ -989,8 +986,8 @@ class TestRequests:
 
     @pytest.mark.parametrize(
         'data', (
-            {'stuff': u('ëlïxr')},
-            {'stuff': u('ëlïxr').encode('utf-8')},
+            {'stuff': 'ëlïxr'},
+            {'stuff': 'ëlïxr'.encode('utf-8')},
             {'stuff': 'elixr'},
             {'stuff': 'elixr'.encode('utf-8')},
         ))
@@ -1013,13 +1010,13 @@ class TestRequests:
     def test_unicode_method_name(self, httpbin):
         files = {'file': open(__file__, 'rb')}
         r = requests.request(
-            method=u('POST'), url=httpbin('post'), files=files)
+            method='POST', url=httpbin('post'), files=files)
         assert r.status_code == 200
 
     def test_unicode_method_name_with_request_object(self, httpbin):
         files = {'file': open(__file__, 'rb')}
         s = requests.Session()
-        req = requests.Request(u('POST'), httpbin('post'), files=files)
+        req = requests.Request('POST', httpbin('post'), files=files)
         prep = s.prepare_request(req)
         assert isinstance(prep.method, builtin_str)
         assert prep.method == 'POST'
@@ -1029,7 +1026,7 @@ class TestRequests:
 
     def test_non_prepared_request_error(self):
         s = requests.Session()
-        req = requests.Request(u('POST'), '/')
+        req = requests.Request('POST', '/')
 
         with pytest.raises(ValueError) as e:
             s.send(req)
@@ -1336,8 +1333,8 @@ class TestRequests:
     def test_response_reason_unicode(self):
         # check for unicode HTTP status
         r = requests.Response()
-        r.url = u'unicode URL'
-        r.reason = u'Komponenttia ei löydy'.encode('utf-8')
+        r.url = 'unicode URL'
+        r.reason = 'Komponenttia ei löydy'.encode('utf-8')
         r.status_code = 404
         r.encoding = None
         assert not r.ok  # old behaviour - crashes here
@@ -1346,7 +1343,7 @@ class TestRequests:
         # check raise_status falls back to ISO-8859-1
         r = requests.Response()
         r.url = 'some url'
-        reason = u'Komponenttia ei löydy'
+        reason = 'Komponenttia ei löydy'
         r.reason = reason.encode('latin-1')
         r.status_code = 500
         r.encoding = None
@@ -1593,7 +1590,7 @@ class TestRequests:
         assert r.url == url
 
     def test_header_keys_are_native(self, httpbin):
-        headers = {u('unicode'): 'blah', 'byte'.encode('ascii'): 'blah'}
+        headers = {'unicode': 'blah', 'byte'.encode('ascii'): 'blah'}
         r = requests.Request('GET', httpbin('get'), headers=headers)
         p = r.prepare()
 
@@ -1605,7 +1602,7 @@ class TestRequests:
     def test_header_validation(self, httpbin):
         """Ensure prepare_headers regex isn't flagging valid header contents."""
         headers_ok = {'foo': 'bar baz qux',
-                      'bar': u'fbbq'.encode('utf8'),
+                      'bar': 'fbbq'.encode('utf8'),
                       'baz': '',
                       'qux': '1'}
         r = requests.get(httpbin('get'), headers=headers_ok)
@@ -1885,7 +1882,7 @@ class TestRequests:
     @pytest.mark.parametrize(
         'username, password, auth_str', (
             ('test', 'test', 'Basic dGVzdDp0ZXN0'),
-            (u'имя'.encode('utf-8'), u'пароль'.encode('utf-8'), 'Basic 0LjQvNGPOtC/0LDRgNC+0LvRjA=='),
+            ('имя'.encode('utf-8'), 'пароль'.encode('utf-8'), 'Basic 0LjQvNGPOtC/0LDRgNC+0LvRjA=='),
         ))
     def test_basic_auth_str_is_always_native(self, username, password, auth_str):
         s = _basic_auth_str(username, password)
@@ -2469,7 +2466,7 @@ def test_data_argument_accepts_tuples(data):
         },
         {
             'method': 'GET',
-            'url': u('http://www.example.com/üniçø∂é')
+            'url': 'http://www.example.com/üniçø∂é'
         },
     ))
 def test_prepared_copy(kwargs):
@@ -2507,39 +2504,39 @@ class TestPreparingURLs(object):
         'url,expected',
         (
             ('http://google.com', 'http://google.com/'),
-            (u'http://ジェーピーニック.jp', u'http://xn--hckqz9bzb1cyrb.jp/'),
-            (u'http://xn--n3h.net/', u'http://xn--n3h.net/'),
+            ('http://ジェーピーニック.jp', 'http://xn--hckqz9bzb1cyrb.jp/'),
+            ('http://xn--n3h.net/', 'http://xn--n3h.net/'),
             (
-                u'http://ジェーピーニック.jp'.encode('utf-8'),
-                u'http://xn--hckqz9bzb1cyrb.jp/'
+                'http://ジェーピーニック.jp'.encode('utf-8'),
+                'http://xn--hckqz9bzb1cyrb.jp/'
             ),
             (
-                u'http://straße.de/straße',
-                u'http://xn--strae-oqa.de/stra%C3%9Fe'
+                'http://straße.de/straße',
+                'http://xn--strae-oqa.de/stra%C3%9Fe'
             ),
             (
-                u'http://straße.de/straße'.encode('utf-8'),
-                u'http://xn--strae-oqa.de/stra%C3%9Fe'
+                'http://straße.de/straße'.encode('utf-8'),
+                'http://xn--strae-oqa.de/stra%C3%9Fe'
             ),
             (
-                u'http://Königsgäßchen.de/straße',
-                u'http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe'
+                'http://Königsgäßchen.de/straße',
+                'http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe'
             ),
             (
-                u'http://Königsgäßchen.de/straße'.encode('utf-8'),
-                u'http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe'
+                'http://Königsgäßchen.de/straße'.encode('utf-8'),
+                'http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe'
             ),
             (
                 b'http://xn--n3h.net/',
-                u'http://xn--n3h.net/'
+                'http://xn--n3h.net/'
             ),
             (
                 b'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/',
-                u'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/'
+                'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/'
             ),
             (
-                u'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/',
-                u'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/'
+                'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/',
+                'http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/'
             )
         )
     )
@@ -2664,7 +2661,6 @@ class TestPreparingURLs(object):
         assert isinstance(excinfo.value, JSONDecodeError)
         assert r.text not in str(excinfo.value)
 
-    @pytest.mark.skipif(not is_py3, reason="doc attribute is only present on py3")
     def test_json_decode_persists_doc_attr(self, httpbin):
         r = requests.get(httpbin('bytes/20'))
         with pytest.raises(requests.exceptions.JSONDecodeError) as excinfo:
