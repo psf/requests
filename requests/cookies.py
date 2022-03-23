@@ -404,7 +404,7 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
                             toReturn is not None
                         ):  # if there are multiple cookies that meet passed in criteria
                             raise CookieConflictError(
-                                "There are multiple cookies with name, %r" % (name)
+                                f"There are multiple cookies with name, {name!r}"
                             )
                         toReturn = (
                             cookie.value
@@ -498,7 +498,7 @@ def morsel_to_cookie(morsel):
         try:
             expires = int(time.time() + int(morsel["max-age"]))
         except ValueError:
-            raise TypeError("max-age: %s must be integer" % morsel["max-age"])
+            raise TypeError(f"max-age: {morsel['max-age']} must be integer")
     elif morsel["expires"]:
         time_template = "%a, %d-%b-%Y %H:%M:%S GMT"
         expires = calendar.timegm(time.strptime(morsel["expires"], time_template))

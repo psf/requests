@@ -114,7 +114,7 @@ def _init():
                 setattr(codes, title.upper(), code)
 
     def doc(code):
-        names = ", ".join("``%s``" % n for n in _codes[code])
+        names = ", ".join(f"``{n}``" for n in _codes[code])
         return "* %d: %s" % (code, names)
 
     global __doc__

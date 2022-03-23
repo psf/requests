@@ -196,7 +196,7 @@ class HTTPDigestAuth(AuthBase):
             self._thread_local.nonce_count += 1
         else:
             self._thread_local.nonce_count = 1
-        ncvalue = "%08x" % self._thread_local.nonce_count
+        ncvalue = f"{self._thread_local.nonce_count:08x}"
         s = str(self._thread_local.nonce_count).encode("utf-8")
         s += nonce.encode("utf-8")
         s += time.ctime().encode("utf-8")
@@ -226,15 +226,15 @@ class HTTPDigestAuth(AuthBase):
             respdig,
         )
         if opaque:
-            base += ', opaque="%s"' % opaque
+            base += f', opaque="{opaque}"'
         if algorithm:
-            base += ', algorithm="%s"' % algorithm
+            base += f', algorithm="{algorithm}"'
         if entdig:
-            base += ', digest="%s"' % entdig
+            base += f', digest="{entdig}"'
         if qop:
             base += f', qop="auth", nc={ncvalue}, cnonce="{cnonce}"'
 
-        return "Digest %s" % (base)
+        return f"Digest {base}"
 
     def handle_redirect(self, r, **kwargs):
         """Reset num_401_calls counter on redirects."""

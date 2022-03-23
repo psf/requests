@@ -88,7 +88,7 @@ class LookupDict(dict):
         super().__init__()
 
     def __repr__(self):
-        return "<lookup '%s'>" % (self.name)
+        return f"<lookup '{self.name}'>"
 
     def __getitem__(self, key):
         # We allow fall-through here, so values default to None

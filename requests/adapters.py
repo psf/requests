@@ -195,7 +195,7 @@ class HTTPAdapter(BaseAdapter):
             maxsize=maxsize,
             block=block,
             strict=True,
-            **pool_kwargs
+            **pool_kwargs,
         )
 
     def proxy_manager_for(self, proxy, **proxy_kwargs):
@@ -221,7 +221,7 @@ class HTTPAdapter(BaseAdapter):
                 num_pools=self._pool_connections,
                 maxsize=self._pool_maxsize,
                 block=self._pool_block,
-                **proxy_kwargs
+                **proxy_kwargs,
             )
         else:
             proxy_headers = self.proxy_headers(proxy)
@@ -231,7 +231,7 @@ class HTTPAdapter(BaseAdapter):
                 num_pools=self._pool_connections,
                 maxsize=self._pool_maxsize,
                 block=self._pool_block,
-                **proxy_kwargs
+                **proxy_kwargs,
             )
 
         return manager
@@ -290,8 +290,7 @@ class HTTPAdapter(BaseAdapter):
                 )
             if conn.key_file and not os.path.exists(conn.key_file):
                 raise IOError(
-                    "Could not find the TLS key file, "
-                    "invalid path: {}".format(conn.key_file)
+                    f"Could not find the TLS key file, invalid path: {conn.key_file}"
                 )
 
     def build_response(self, req, resp):
