@@ -934,9 +934,10 @@ class TestRequests:
 
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), cert=(".", INVALID_PATH))
-        assert str(
-            e.value
-        ) == f"Could not find the TLS key file, invalid path: {INVALID_PATH}"
+        assert (
+            str(e.value)
+            == f"Could not find the TLS key file, invalid path: {INVALID_PATH}"
+        )
 
     @pytest.mark.parametrize(
         "env, expected",

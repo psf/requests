@@ -161,7 +161,7 @@ class SessionRedirectMixin:
         cert=None,
         proxies=None,
         yield_requests=False,
-        **adapter_kwargs
+        **adapter_kwargs,
     ):
         """Receives a Response. Returns a generator of Responses or Requests."""
 
@@ -266,7 +266,7 @@ class SessionRedirectMixin:
                     cert=cert,
                     proxies=proxies,
                     allow_redirects=False,
-                    **adapter_kwargs
+                    **adapter_kwargs,
                 )
 
                 extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
