@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 requests.auth
 ~~~~~~~~~~~~~
@@ -68,7 +66,7 @@ def _basic_auth_str(username, password):
     return authstr
 
 
-class AuthBase(object):
+class AuthBase:
     """Base class that all auth implementations derive from"""
 
     def __call__(self, r):
@@ -175,7 +173,7 @@ class HTTPDigestAuth(AuthBase):
 
             hash_utf8 = sha512_utf8
 
-        KD = lambda s, d: hash_utf8("%s:%s" % (s, d))
+        KD = lambda s, d: hash_utf8(f"{s}:{d}")
 
         if hash_utf8 is None:
             return None
@@ -188,8 +186,8 @@ class HTTPDigestAuth(AuthBase):
         if p_parsed.query:
             path += "?" + p_parsed.query
 
-        A1 = "%s:%s:%s" % (self.username, realm, self.password)
-        A2 = "%s:%s" % (method, path)
+        A1 = f"{self.username}:{realm}:{self.password}"
+        A2 = f"{method}:{path}"
 
         HA1 = hash_utf8(A1)
         HA2 = hash_utf8(A2)
@@ -206,12 +204,12 @@ class HTTPDigestAuth(AuthBase):
 
         cnonce = hashlib.sha1(s).hexdigest()[:16]
         if _algorithm == "MD5-SESS":
-            HA1 = hash_utf8("%s:%s:%s" % (HA1, nonce, cnonce))
+            HA1 = hash_utf8(f"{HA1}:{nonce}:{cnonce}")
 
         if not qop:
-            respdig = KD(HA1, "%s:%s" % (nonce, HA2))
+            respdig = KD(HA1, f"{nonce}:{HA2}")
         elif qop == "auth" or "auth" in qop.split(","):
-            noncebit = "%s:%s:%s:%s:%s" % (nonce, ncvalue, cnonce, "auth", HA2)
+            noncebit = f"{nonce}:{ncvalue}:{cnonce}:auth:{HA2}"
             respdig = KD(HA1, noncebit)
         else:
             # XXX handle auth-int.
@@ -234,7 +232,7 @@ class HTTPDigestAuth(AuthBase):
         if entdig:
             base += ', digest="%s"' % entdig
         if qop:
-            base += ', qop="auth", nc=%s, cnonce="%s"' % (ncvalue, cnonce)
+            base += f', qop="auth", nc={ncvalue}, cnonce="{cnonce}"'
 
         return "Digest %s" % (base)
 

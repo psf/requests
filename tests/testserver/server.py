@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import select
 import socket
 import threading
@@ -36,7 +34,7 @@ class Server(threading.Thread):
         requests_to_handle=1,
         wait_to_close_event=None,
     ):
-        super(Server, self).__init__()
+        super().__init__()
 
         self.handler = handler or consume_socket_content
         self.handler_results = []

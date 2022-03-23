@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 try:
     from http.server import HTTPServer, SimpleHTTPRequestHandler
 except ImportError:

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 requests.utils
 ~~~~~~~~~~~~~~
@@ -200,7 +198,7 @@ def get_netrc_auth(url, raise_errors=False):
     if netrc_file is not None:
         netrc_locations = (netrc_file,)
     else:
-        netrc_locations = ("~/{}".format(f) for f in NETRC_FILES)
+        netrc_locations = (f"~/{f}" for f in NETRC_FILES)
 
     try:
         from netrc import NetrcParseError, netrc
@@ -561,8 +559,7 @@ def stream_decode_response_unicode(iterator, r):
     """Stream decodes a iterator."""
 
     if r.encoding is None:
-        for item in iterator:
-            yield item
+        yield from iterator
         return
 
     decoder = codecs.getincrementaldecoder(r.encoding)(errors="replace")
@@ -797,7 +794,7 @@ def should_bypass_proxies(url, no_proxy):
         else:
             host_with_port = parsed.hostname
             if parsed.port:
-                host_with_port += ":{}".format(parsed.port)
+                host_with_port += f":{parsed.port}"
 
             for host in no_proxy:
                 if parsed.hostname.endswith(host) or host_with_port.endswith(host):
@@ -889,7 +886,7 @@ def default_user_agent(name="python-requests"):
 
     :rtype: str
     """
-    return "%s/%s" % (name, __version__)
+    return f"{name}/{__version__}"
 
 
 def default_headers():

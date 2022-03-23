@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import pytest
 
 from requests.structures import CaseInsensitiveDict, LookupDict

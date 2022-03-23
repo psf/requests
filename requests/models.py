@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 requests.models
 ~~~~~~~~~~~~~~~
@@ -83,7 +81,7 @@ CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
 
 
-class RequestEncodingMixin(object):
+class RequestEncodingMixin:
     @property
     def path_url(self):
         """Build the path URL to use."""
@@ -205,7 +203,7 @@ class RequestEncodingMixin(object):
         return body, content_type
 
 
-class RequestHooksMixin(object):
+class RequestHooksMixin:
     def register_hook(self, event, hook):
         """Properly register a hook."""
 
@@ -480,7 +478,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         enc_params = self._encode_params(params)
         if enc_params:
             if query:
-                query = "%s&%s" % (query, enc_params)
+                query = f"{query}&{enc_params}"
             else:
                 query = enc_params
 
@@ -644,7 +642,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             self.register_hook(event, hooks[event])
 
 
-class Response(object):
+class Response:
     """The :class:`Response <Response>` object, which contains a
     server's response to an HTTP request.
     """
@@ -886,8 +884,7 @@ class Response(object):
             else:
                 pending = None
 
-            for line in lines:
-                yield line
+            yield from lines
 
         if pending is not None:
             yield pending
@@ -929,7 +926,7 @@ class Response(object):
         encoding = self.encoding
 
         if not self.content:
-            return str("")
+            return ""
 
         # Fallback to auto-detected encoding.
         if self.encoding is None:
@@ -1015,14 +1012,14 @@ class Response(object):
             reason = self.reason
 
         if 400 <= self.status_code < 500:
-            http_error_msg = "%s Client Error: %s for url: %s" % (
+            http_error_msg = "{} Client Error: {} for url: {}".format(
                 self.status_code,
                 reason,
                 self.url,
             )
 
         elif 500 <= self.status_code < 600:
-            http_error_msg = "%s Server Error: %s for url: %s" % (
+            http_error_msg = "{} Server Error: {} for url: {}".format(
                 self.status_code,
                 reason,
                 self.url,

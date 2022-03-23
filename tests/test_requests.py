@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Tests for Requests."""
 
 import collections
@@ -180,7 +178,7 @@ class TestRequests:
 
     def test_binary_put(self):
         request = requests.Request(
-            "PUT", "http://example.com", data="ööö".encode("utf-8")
+            "PUT", "http://example.com", data="ööö".encode()
         ).prepare()
         assert isinstance(request.body, bytes)
 
@@ -197,7 +195,7 @@ class TestRequests:
         url = scheme + parts.netloc + parts.path
         r = requests.Request("GET", url)
         r = s.send(r.prepare())
-        assert r.status_code == 200, "failed for scheme {}".format(scheme)
+        assert r.status_code == 200, f"failed for scheme {scheme}"
 
     def test_HTTP_200_OK_GET_ALTERNATIVE(self, httpbin):
         r = requests.Request("GET", httpbin("get"))
@@ -545,7 +543,7 @@ class TestRequests:
         "username, password",
         (
             ("user", "pass"),
-            ("имя".encode("utf-8"), "пароль".encode("utf-8")),
+            ("имя".encode(), "пароль".encode()),
             (42, 42),
             (None, None),
         ),
@@ -786,7 +784,7 @@ class TestRequests:
         assert b'name="random-file-2"' in post.request.body
 
     def test_POSTBIN_SEEKED_OBJECT_WITH_NO_ITER(self, httpbin):
-        class TestStream(object):
+        class TestStream:
             def __init__(self, data):
                 self.data = data.encode()
                 self.length = len(self.data)
@@ -907,7 +905,7 @@ class TestRequests:
     def test_unicode_header_name(self, httpbin):
         requests.put(
             httpbin("put"),
-            headers={str("Content-Type"): "application/octet-stream"},
+            headers={"Content-Type": "application/octet-stream"},
             data="\xff",
         )  # compat.str is unicode.
 
@@ -938,7 +936,7 @@ class TestRequests:
             requests.get(httpbin_secure(), cert=(".", INVALID_PATH))
         assert str(
             e.value
-        ) == "Could not find the TLS key file, invalid path: {}".format(INVALID_PATH)
+        ) == f"Could not find the TLS key file, invalid path: {INVALID_PATH}"
 
     @pytest.mark.parametrize(
         "env, expected",
@@ -991,7 +989,7 @@ class TestRequests:
 
         with pytest.warns(None) as warning_records:
             warnings.simplefilter("always")
-            requests.get("https://localhost:{}/".format(port), verify=ca_bundle)
+            requests.get(f"https://localhost:{port}/", verify=ca_bundle)
 
         warning_records = [
             item
@@ -1037,9 +1035,9 @@ class TestRequests:
         "data",
         (
             {"stuff": "ëlïxr"},
-            {"stuff": "ëlïxr".encode("utf-8")},
+            {"stuff": "ëlïxr".encode()},
             {"stuff": "elixr"},
-            {"stuff": "elixr".encode("utf-8")},
+            {"stuff": b"elixr"},
         ),
     )
     def test_unicode_multipart_post(self, httpbin, data):
@@ -1055,7 +1053,7 @@ class TestRequests:
         r = requests.Request(
             method="POST",
             url=httpbin("post"),
-            data={"stuff".encode("utf-8"): "elixr"},
+            data={b"stuff": "elixr"},
             files={"file": ("test_requests.py", open(filename, "rb"))},
         )
         prep = r.prepare()
@@ -1397,7 +1395,7 @@ class TestRequests:
         # check for unicode HTTP status
         r = requests.Response()
         r.url = "unicode URL"
-        r.reason = "Komponenttia ei löydy".encode("utf-8")
+        r.reason = "Komponenttia ei löydy".encode()
         r.status_code = 404
         r.encoding = None
         assert not r.ok  # old behaviour - crashes here
@@ -1662,7 +1660,7 @@ class TestRequests:
         assert r.url == url
 
     def test_header_keys_are_native(self, httpbin):
-        headers = {"unicode": "blah", "byte".encode("ascii"): "blah"}
+        headers = {"unicode": "blah", b"byte": "blah"}
         r = requests.Request("GET", httpbin("get"), headers=headers)
         p = r.prepare()
 
@@ -1675,7 +1673,7 @@ class TestRequests:
         """Ensure prepare_headers regex isn't flagging valid header contents."""
         headers_ok = {
             "foo": "bar baz qux",
-            "bar": "fbbq".encode("utf8"),
+            "bar": b"fbbq",
             "baz": "",
             "qux": "1",
         }
@@ -1976,8 +1974,8 @@ class TestRequests:
         (
             ("test", "test", "Basic dGVzdDp0ZXN0"),
             (
-                "имя".encode("utf-8"),
-                "пароль".encode("utf-8"),
+                "имя".encode(),
+                "пароль".encode(),
                 "Basic 0LjQvNGPOtC/0LDRgNC+0LvRjA==",
             ),
         ),
@@ -2594,17 +2592,17 @@ def test_urllib3_pool_connection_closed(httpbin):
         assert "Pool is closed." in str(e)
 
 
-class TestPreparingURLs(object):
+class TestPreparingURLs:
     @pytest.mark.parametrize(
         "url,expected",
         (
             ("http://google.com", "http://google.com/"),
             ("http://ジェーピーニック.jp", "http://xn--hckqz9bzb1cyrb.jp/"),
             ("http://xn--n3h.net/", "http://xn--n3h.net/"),
-            ("http://ジェーピーニック.jp".encode("utf-8"), "http://xn--hckqz9bzb1cyrb.jp/"),
+            ("http://ジェーピーニック.jp".encode(), "http://xn--hckqz9bzb1cyrb.jp/"),
             ("http://straße.de/straße", "http://xn--strae-oqa.de/stra%C3%9Fe"),
             (
-                "http://straße.de/straße".encode("utf-8"),
+                "http://straße.de/straße".encode(),
                 "http://xn--strae-oqa.de/stra%C3%9Fe",
             ),
             (
@@ -2612,7 +2610,7 @@ class TestPreparingURLs(object):
                 "http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe",
             ),
             (
-                "http://Königsgäßchen.de/straße".encode("utf-8"),
+                "http://Königsgäßchen.de/straße".encode(),
                 "http://xn--knigsgchen-b4a3dun.de/stra%C3%9Fe",
             ),
             (b"http://xn--n3h.net/", "http://xn--n3h.net/"),

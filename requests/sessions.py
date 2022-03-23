@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 requests.sessions
 ~~~~~~~~~~~~~~~~~
@@ -100,7 +98,7 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
     return merge_setting(request_hooks, session_hooks, dict_class)
 
 
-class SessionRedirectMixin(object):
+class SessionRedirectMixin:
     def get_redirect_target(self, resp):
         """Receives a Response. Returns a redirect URI or ``None``"""
         # Due to the nature of how requests processes redirects this method will
@@ -186,7 +184,7 @@ class SessionRedirectMixin(object):
 
             if len(resp.history) >= self.max_redirects:
                 raise TooManyRedirects(
-                    "Exceeded {} redirects.".format(self.max_redirects), response=resp
+                    f"Exceeded {self.max_redirects} redirects.", response=resp
                 )
 
             # Release the connection back into the pool.
@@ -786,7 +784,7 @@ class Session(SessionRedirectMixin):
                 return adapter
 
         # Nothing matches :-/
-        raise InvalidSchema("No connection adapters were found for {!r}".format(url))
+        raise InvalidSchema(f"No connection adapters were found for {url!r}")
 
     def close(self):
         """Closes all adapters and as such the session"""

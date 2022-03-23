@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import socket
 import threading
 import time
@@ -48,7 +46,7 @@ class TestTestServer:
         )
 
         with server as (host, port):
-            r = requests.get("http://{}:{}".format(host, port))
+            r = requests.get(f"http://{host}:{port}")
 
             assert r.status_code == 200
             assert r.text == "roflol"
@@ -57,7 +55,7 @@ class TestTestServer:
     def test_basic_response(self):
         """the basic response server returns an empty http response"""
         with Server.basic_response_server() as (host, port):
-            r = requests.get("http://{}:{}".format(host, port))
+            r = requests.get(f"http://{host}:{port}")
             assert r.status_code == 200
             assert r.text == ""
             assert r.headers["Content-Length"] == "0"
@@ -84,7 +82,7 @@ class TestTestServer:
         server = Server.basic_response_server(requests_to_handle=requests_to_handle)
 
         with server as (host, port):
-            server_url = "http://{}:{}".format(host, port)
+            server_url = f"http://{host}:{port}"
             for _ in range(requests_to_handle):
                 r = requests.get(server_url)
                 assert r.status_code == 200

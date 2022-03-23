@@ -1,5 +1,3 @@
-# -*- encoding: utf-8
-
 import sys
 
 import pytest
@@ -12,7 +10,7 @@ def test_system_ssl():
     assert info()["system_ssl"]["version"] != ""
 
 
-class VersionedPackage(object):
+class VersionedPackage:
     def __init__(self, version):
         self.__version__ = version
 
