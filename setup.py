@@ -17,17 +17,13 @@ if CURRENT_PYTHON < REQUIRED_PYTHON:
 ==========================
 Unsupported Python version
 ==========================
-This version of Requests requires Python {}.{}, but you're trying to
-install it on Python {}.{}.
-This may be because you are using a version of pip that doesn't
-understand the python_requires classifier. Make sure you
-have pip >= 9.0 and setuptools >= 24.2, then try again:
-    $ python -m pip install --upgrade pip setuptools
-    $ python -m pip install requests
-This will install the latest version of Requests which works on your
-version of Python. If you can't upgrade your pip (or Python), request
-an older version of Requests:
-    $ python -m pip install "requests<2.28"
+This version of Requests requires at least Python {}.{}, but
+you're trying to install it on Python {}.{}. To resolve this,
+consider upgrading to a supported Python version.
+
+If you can't upgrade your Python version, you'll need to
+pin to an older version of Requests:
+    python -m pip install "requests<2.28"
 """.format(
             *(REQUIRED_PYTHON + CURRENT_PYTHON)
         )
