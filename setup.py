@@ -22,8 +22,7 @@ you're trying to install it on Python {}.{}. To resolve this,
 consider upgrading to a supported Python version.
 
 If you can't upgrade your Python version, you'll need to
-pin to an older version of Requests:
-    python -m pip install "requests<2.28"
+pin to an older version of Requests (<2.28).
 """.format(
             *(REQUIRED_PYTHON + CURRENT_PYTHON)
         )
