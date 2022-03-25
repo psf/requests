@@ -25,7 +25,7 @@ CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
 
 
-def _basic_auth_str(username, password):
+def _basic_auth_str(username, password, encoding="latin1"):
     """Returns a Basic Auth string."""
 
     # "I want us to put a big-ol' comment on top of it that
@@ -57,10 +57,10 @@ def _basic_auth_str(username, password):
     # -- End Removal --
 
     if isinstance(username, str):
-        username = username.encode('latin1')
+        username = username.encode(encoding)
 
     if isinstance(password, str):
-        password = password.encode('latin1')
+        password = password.encode(encoding)
 
     authstr = 'Basic ' + to_native_string(
         b64encode(b':'.join((username, password))).strip()
@@ -79,9 +79,10 @@ class AuthBase(object):
 class HTTPBasicAuth(AuthBase):
     """Attaches HTTP Basic Authentication to the given Request object."""
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, encoding="latin1"):
         self.username = username
         self.password = password
+        self.encoding = encoding
 
     def __eq__(self, other):
         return all([
@@ -93,7 +94,9 @@ class HTTPBasicAuth(AuthBase):
         return not self == other
 
     def __call__(self, r):
-        r.headers['Authorization'] = _basic_auth_str(self.username, self.password)
+        r.headers['Authorization'] = _basic_auth_str(
+            self.username, self.password, self.encoding
+        )
         return r
 
 
@@ -101,7 +104,9 @@ class HTTPProxyAuth(HTTPBasicAuth):
     """Attaches HTTP Proxy Authentication to a given Request object."""
 
     def __call__(self, r):
-        r.headers['Proxy-Authorization'] = _basic_auth_str(self.username, self.password)
+        r.headers['Proxy-Authorization'] = _basic_auth_str(
+            self.username, self.password, self.encoding
+        )
         return r
 
 
