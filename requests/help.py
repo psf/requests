@@ -36,8 +36,8 @@ def _implementation():
     """Return a dict with the Python implementation and version.
 
     Provide both the name and the version of the Python implementation
-    currently running. For example, on CPython 2.7.5 it will return
-    {'name': 'CPython', 'version': '2.7.5'}.
+    currently running. For example, on CPython 3.10.3 it will return
+    {'name': 'CPython', 'version': '3.10.3'}.
 
     This function works best on CPython and PyPy: in particular, it probably
     doesn't work for Jython or IronPython. Future investigation should be done
