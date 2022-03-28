@@ -900,6 +900,8 @@ class Response(object):
                     # and the server didn't bother to tell us what codec *was*
                     # used.
                     pass
+                except JSONDecodeError as e:
+                    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
 
         try:
             return complexjson.loads(self.text, **kwargs)

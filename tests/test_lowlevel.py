@@ -6,6 +6,7 @@ import requests
 
 from tests.testserver.server import Server, consume_socket_content
 
+from requests.compat import JSONDecodeError
 from .utils import override_environ
 
 
@@ -403,3 +404,26 @@ def test_fragment_update_on_redirect():
         assert r.url == 'http://{}:{}/final-url/#relevant-section'.format(host, port)
 
         close_server.set()
+
+def test_json_decode_compatibility_for_alt_utf_encodings():
+
+    def response_handler(sock):
+        consume_socket_content(sock, timeout=0.5)
+        sock.send(
+            b'HTTP/1.1 200 OK\r\n'
+            b'Content-Length: 18\r\n\r\n'
+            b'\xff\xfe{\x00"\x00K0"\x00=\x00"\x00\xab0"\x00\r\n'
+        )
+
+    close_server = threading.Event()
+    server = Server(response_handler, wait_to_close_event=close_server)
+
+    with server as (host, port):
+        url = 'http://{}:{}/'.format(host, port)
+        r = requests.get(url)
+    r.encoding = None
+    with pytest.raises(requests.exceptions.JSONDecodeError) as excinfo:
+        r.json()
+    assert isinstance(excinfo.value, requests.exceptions.RequestException)
+    assert isinstance(excinfo.value, JSONDecodeError)
+    assert r.text not in str(excinfo.value)
