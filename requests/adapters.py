@@ -435,12 +435,19 @@ class HTTPAdapter(BaseAdapter):
         else:
             timeout = TimeoutSauce(connect=timeout, read=timeout)
 
+
+        try:
+            body = request.body.encode(
+                'utf-8', 'surrogatepass') if isinstance(request.body, str) else request.body
+        except:
+            body = request.body
+
         try:
             if not chunked:
                 resp = conn.urlopen(
                     method=request.method,
                     url=url,
-                    body=request.body,
+                    body=body,
                     headers=request.headers,
                     redirect=False,
                     assert_same_host=False,
