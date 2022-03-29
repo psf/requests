@@ -452,7 +452,7 @@ class Session(SessionRedirectMixin):
 
     def request(self, method, url,
             params=None, data=None, headers=None, cookies=None, files=None,
-            auth=None, timeout=None, allow_redirects=True, proxies=None,
+            auth=None, timeout=(131, None), allow_redirects=True, proxies=None,
             hooks=None, stream=None, verify=None, cert=None, json=None):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
