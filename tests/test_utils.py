@@ -297,7 +297,10 @@ class TestGuessFilename:
 
     @pytest.mark.parametrize(
         "value, expected_type",
-        ((b"value", compat.bytes), (b"value".decode("utf-8"), compat.str)),
+        (
+            (b"value", compat.bytes),
+            (b"value".decode("utf-8"), compat.str),
+        ),
     )
     def test_guess_filename_valid(self, value, expected_type):
         obj = type("Fake", (object,), {"name": value})()
@@ -413,12 +416,7 @@ ENCODED_PASSWORD = compat.quote(PASSWORD, "")
     "url, auth",
     (
         (
-            "http://"
-            + ENCODED_USER
-            + ":"
-            + ENCODED_PASSWORD
-            + "@"
-            + "request.com/url.html#test",
+            f"http://{ENCODED_USER}:{ENCODED_PASSWORD}@request.com/url.html#test",
             (USER, PASSWORD),
         ),
         ("http://user:pass@complex.url.com/path?query=yes", ("user", "pass")),
@@ -763,7 +761,10 @@ def test_should_bypass_proxies_pass_only_hostname(url, expected, mocker):
 
 
 @pytest.mark.parametrize(
-    "cookiejar", (compat.cookielib.CookieJar(), RequestsCookieJar())
+    "cookiejar", (
+        compat.cookielib.CookieJar(),
+        RequestsCookieJar(),
+    )
 )
 def test_add_dict_to_cookiejar(cookiejar):
     """Ensure add_dict_to_cookiejar works for

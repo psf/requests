@@ -261,8 +261,8 @@ class HTTPAdapter(BaseAdapter):
 
             if not cert_loc or not os.path.exists(cert_loc):
                 raise IOError(
-                    "Could not find a suitable TLS CA certificate bundle, "
-                    "invalid path: {}".format(cert_loc)
+                    f"Could not find a suitable TLS CA certificate bundle, "
+                    f"invalid path: {cert_loc}"
                 )
 
             conn.cert_reqs = "CERT_REQUIRED"
@@ -285,8 +285,8 @@ class HTTPAdapter(BaseAdapter):
                 conn.key_file = None
             if conn.cert_file and not os.path.exists(conn.cert_file):
                 raise IOError(
-                    "Could not find the TLS certificate file, "
-                    "invalid path: {}".format(conn.cert_file)
+                    f"Could not find the TLS certificate file, "
+                    f"invalid path: {conn.cert_file}"
                 )
             if conn.key_file and not os.path.exists(conn.key_file):
                 raise IOError(
@@ -474,14 +474,11 @@ class HTTPAdapter(BaseAdapter):
             try:
                 connect, read = timeout
                 timeout = TimeoutSauce(connect=connect, read=read)
-            except ValueError as e:
-                # this may raise a string formatting error.
-                err = (
-                    "Invalid timeout {}. Pass a (connect, read) "
-                    "timeout tuple, or a single float to set "
-                    "both timeouts to the same value".format(timeout)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
                 )
-                raise ValueError(err)
         elif isinstance(timeout, TimeoutSauce):
             pass
         else:

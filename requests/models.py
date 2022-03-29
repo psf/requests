@@ -436,12 +436,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             raise InvalidURL(*e.args)
 
         if not scheme:
-            error = (
-                "Invalid URL {0!r}: No scheme supplied. Perhaps you meant http://{0}?"
+            raise MissingSchema(
+                f"Invalid URL {url!r}: No scheme supplied. "
+                f"Perhaps you meant http://{url}?"
             )
-            error = error.format(to_native_string(url, "utf8"))
-
-            raise MissingSchema(error)
 
         if not host:
             raise InvalidURL(f"Invalid URL {url!r}: No host supplied")
@@ -464,7 +462,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             netloc += "@"
         netloc += host
         if port:
-            netloc += ":" + str(port)
+            netloc += f":{port}"
 
         # Bare domains aren't valid URLs.
         if not path:
@@ -1010,17 +1008,13 @@ class Response:
             reason = self.reason
 
         if 400 <= self.status_code < 500:
-            http_error_msg = "{} Client Error: {} for url: {}".format(
-                self.status_code,
-                reason,
-                self.url,
+            http_error_msg = (
+                f"{self.status_code} Client Error: {reason} for url: {self.url}"
             )
 
         elif 500 <= self.status_code < 600:
-            http_error_msg = "{} Server Error: {} for url: {}".format(
-                self.status_code,
-                reason,
-                self.url,
+            http_error_msg = (
+                f"{self.status_code} Server Error: {reason} for url: {self.url}"
             )
 
         if http_error_msg:

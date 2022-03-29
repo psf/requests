@@ -645,9 +645,9 @@ def unquote_unreserved(uri):
             if c in UNRESERVED_SET:
                 parts[i] = c + parts[i][2:]
             else:
-                parts[i] = "%" + parts[i]
+                parts[i] = f"%{parts[i]}"
         else:
-            parts[i] = "%" + parts[i]
+            parts[i] = f"%{parts[i]}"
     return "".join(parts)
 
 
@@ -1048,8 +1048,8 @@ def check_header_validity(header):
             )
     except TypeError:
         raise InvalidHeader(
-            "Value for header {%s: %s} must be of type str or "
-            "bytes, not %s" % (name, value, type(value))
+            f"Value for header {{{name}: {value}}} must be of type "
+            f"str or bytes, not {type(value)}"
         )
 
 
@@ -1082,7 +1082,7 @@ def rewind_body(prepared_request):
             body_seek(prepared_request._body_position)
         except (IOError, OSError):
             raise UnrewindableBodyError(
-                "An error occurred when rewinding request " "body for redirect."
+                "An error occurred when rewinding request body for redirect."
             )
     else:
         raise UnrewindableBodyError("Unable to rewind request body for redirect.")

@@ -50,7 +50,7 @@ _codes = {
         "permanent_redirect",
         "resume_incomplete",
         "resume",
-    ),  # These 2 to be removed in 3.0
+    ),  # "resume" and "resume_incomplete" to be removed in 3.0
     # Client Error.
     400: ("bad_request", "bad"),
     401: ("unauthorized",),

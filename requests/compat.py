@@ -41,7 +41,6 @@ if has_simplejson:
 else:
     from json import JSONDecodeError
 
-# ---------
 # Keep OrderedDict for backwards compatibility.
 from collections import OrderedDict
 from collections.abc import Callable, Mapping, MutableMapping
@@ -49,8 +48,9 @@ from http import cookiejar as cookielib
 from http.cookies import Morsel
 from io import StringIO
 
+# --------------
 # Legacy Imports
-# ---------
+# --------------
 from urllib.parse import (
     quote,
     quote_plus,

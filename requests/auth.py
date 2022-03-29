@@ -184,7 +184,7 @@ class HTTPDigestAuth(AuthBase):
         #: path is request-uri defined in RFC 2616 which should not be empty
         path = p_parsed.path or "/"
         if p_parsed.query:
-            path += "?" + p_parsed.query
+            path += f"?{p_parsed.query}"
 
         A1 = f"{self.username}:{realm}:{self.password}"
         A2 = f"{method}:{path}"
@@ -218,12 +218,9 @@ class HTTPDigestAuth(AuthBase):
         self._thread_local.last_nonce = nonce
 
         # XXX should the partial digests be encoded too?
-        base = 'username="%s", realm="%s", nonce="%s", uri="%s", ' 'response="%s"' % (
-            self.username,
-            realm,
-            nonce,
-            path,
-            respdig,
+        base = (
+            f'username="{self.username}", realm="{realm}", nonce="{nonce}", '
+            f'uri="{path}", response="{respdig}"'
         )
         if opaque:
             base += f', opaque="{opaque}"'

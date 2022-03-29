@@ -41,7 +41,11 @@ class TestCaseInsensitiveDict:
 
     @pytest.mark.parametrize(
         "other, result",
-        (({"AccePT": "application/json"}, True), ({}, False), (None, False)),
+        (
+            ({"AccePT": "application/json"}, True),
+            ({}, False),
+            (None, False),
+        ),
     )
     def test_instance_equality(self, other, result):
         assert (self.case_insensitive_dict == other) is result
@@ -58,7 +62,11 @@ class TestLookupDict:
         assert repr(self.lookup_dict) == "<lookup 'test'>"
 
     get_item_parameters = pytest.mark.parametrize(
-        "key, value", (("bad_gateway", 502), ("not_a_key", None))
+        "key, value",
+        (
+            ("bad_gateway", 502),
+            ("not_a_key", None),
+        ),
     )
 
     @get_item_parameters

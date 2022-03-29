@@ -400,15 +400,13 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
             if cookie.name == name:
                 if domain is None or cookie.domain == domain:
                     if path is None or cookie.path == path:
-                        if (
-                            toReturn is not None
-                        ):  # if there are multiple cookies that meet passed in criteria
+                        if toReturn is not None:
+                            # if there are multiple cookies that meet passed in criteria
                             raise CookieConflictError(
                                 f"There are multiple cookies with name, {name!r}"
                             )
-                        toReturn = (
-                            cookie.value
-                        )  # we will eventually return this as long as no cookie conflict
+                        # we will eventually return this as long as no cookie conflict
+                        toReturn = cookie.value
 
         if toReturn:
             return toReturn
