@@ -87,7 +87,7 @@ class Server(threading.Thread):
     def _close_server_sock_ignore_errors(self):
         try:
             self.server_sock.close()
-        except IOError:
+        except OSError:
             pass
 
     def _handle_requests(self):
@@ -110,7 +110,7 @@ class Server(threading.Thread):
                 return None
 
             return self.server_sock.accept()[0]
-        except (select.error, socket.error):
+        except OSError:
             return None
 
     def __enter__(self):

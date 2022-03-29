@@ -164,7 +164,7 @@ def super_len(o):
     if hasattr(o, "tell"):
         try:
             current_position = o.tell()
-        except (OSError, IOError):
+        except OSError:
             # This can happen in some weird situations, such as when the file
             # is actually a special file descriptor like stdin. In this
             # instance, we don't know what the length is, so set it to zero and
@@ -182,7 +182,7 @@ def super_len(o):
                     # seek back to current position to support
                     # partially read file-like objects
                     o.seek(current_position or 0)
-                except (OSError, IOError):
+                except OSError:
                     total_length = 0
 
     if total_length is None:
@@ -237,7 +237,7 @@ def get_netrc_auth(url, raise_errors=False):
                 # Return with login / password
                 login_i = 0 if _netrc[0] else 1
                 return (_netrc[login_i], _netrc[2])
-        except (NetrcParseError, IOError):
+        except (NetrcParseError, OSError):
             # If there was a parsing error or a permissions issue reading the file,
             # we'll just skip netrc auth unless explicitly asked to raise errors.
             if raise_errors:
@@ -705,7 +705,7 @@ def is_ipv4_address(string_ip):
     """
     try:
         socket.inet_aton(string_ip)
-    except socket.error:
+    except OSError:
         return False
     return True
 
@@ -727,7 +727,7 @@ def is_valid_cidr(string_network):
 
         try:
             socket.inet_aton(string_network.split("/")[0])
-        except socket.error:
+        except OSError:
             return False
     else:
         return False
@@ -1080,7 +1080,7 @@ def rewind_body(prepared_request):
     ):
         try:
             body_seek(prepared_request._body_position)
-        except (IOError, OSError):
+        except OSError:
             raise UnrewindableBodyError(
                 "An error occurred when rewinding request body for redirect."
             )

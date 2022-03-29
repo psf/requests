@@ -73,7 +73,7 @@ def info():
             "system": platform.system(),
             "release": platform.release(),
         }
-    except IOError:
+    except OSError:
         platform_info = {
             "system": "Unknown",
             "release": "Unknown",

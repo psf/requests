@@ -536,7 +536,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 # of a redirect.
                 try:
                     self._body_position = body.tell()
-                except (IOError, OSError):
+                except OSError:
                     # This differentiates from None, allowing us to catch
                     # a failed `tell()` later when trying to rewind the body
                     self._body_position = object()

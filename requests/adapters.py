@@ -260,7 +260,7 @@ class HTTPAdapter(BaseAdapter):
                 cert_loc = extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH)
 
             if not cert_loc or not os.path.exists(cert_loc):
-                raise IOError(
+                raise OSError(
                     f"Could not find a suitable TLS CA certificate bundle, "
                     f"invalid path: {cert_loc}"
                 )
@@ -284,12 +284,12 @@ class HTTPAdapter(BaseAdapter):
                 conn.cert_file = cert
                 conn.key_file = None
             if conn.cert_file and not os.path.exists(conn.cert_file):
-                raise IOError(
+                raise OSError(
                     f"Could not find the TLS certificate file, "
                     f"invalid path: {conn.cert_file}"
                 )
             if conn.key_file and not os.path.exists(conn.key_file):
-                raise IOError(
+                raise OSError(
                     f"Could not find the TLS key file, invalid path: {conn.key_file}"
                 )
 
@@ -543,7 +543,7 @@ class HTTPAdapter(BaseAdapter):
                     low_conn.close()
                     raise
 
-        except (ProtocolError, socket.error) as err:
+        except (ProtocolError, OSError) as err:
             raise ConnectionError(err, request=request)
 
         except MaxRetryError as e:
