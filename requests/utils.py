@@ -608,7 +608,15 @@ def unquote_unreserved(uri):
 
     :rtype: str
     """
-    parts = uri.split('%')
+    delim = len(uri)
+    start = uri.find("//")+2
+    for c in '/?#':
+        wdelim = uri.find(c, start)
+        if wdelim >= 0:
+            delim = min(delim, wdelim)
+    # IPv6 link local may have %zone_index. Safely ignore it.
+    # Ex: http://[fe80::726f:8a26:222a:2bf3%eth0]:8080/a%20b/index.html
+    parts = uri[delim:].split('%')
     for i in range(1, len(parts)):
         h = parts[i][0:2]
         if len(h) == 2 and h.isalnum():
@@ -623,7 +631,7 @@ def unquote_unreserved(uri):
                 parts[i] = '%' + parts[i]
         else:
             parts[i] = '%' + parts[i]
-    return ''.join(parts)
+    return uri[:delim] + ''.join(parts)
 
 
 def requote_uri(uri):
