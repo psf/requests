@@ -69,7 +69,7 @@ def _basic_auth_str(username, password):
     return authstr
 
 
-class AuthBase(object):
+class AuthBase:
     """Base class that all auth implementations derive from"""
 
     def __call__(self, r):

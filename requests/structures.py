@@ -91,7 +91,7 @@ class LookupDict(dict):
 
     def __init__(self, name=None):
         self.name = name
-        super(LookupDict, self).__init__()
+        super().__init__()
 
     def __repr__(self):
         return '<lookup \'%s\'>' % (self.name)

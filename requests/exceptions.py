@@ -24,7 +24,7 @@ class RequestException(IOError):
         if (response is not None and not self.request and
                 hasattr(response, 'request')):
             self.request = self.response.request
-        super(RequestException, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class InvalidJSONError(RequestException):

@@ -64,7 +64,7 @@ CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
 
 
-class RequestEncodingMixin(object):
+class RequestEncodingMixin:
     @property
     def path_url(self):
         """Build the path URL to use."""
@@ -178,7 +178,7 @@ class RequestEncodingMixin(object):
         return body, content_type
 
 
-class RequestHooksMixin(object):
+class RequestHooksMixin:
     def register_hook(self, event, hook):
         """Properly register a hook."""
 
@@ -586,7 +586,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             self.register_hook(event, hooks[event])
 
 
-class Response(object):
+class Response:
     """The :class:`Response <Response>` object, which contains a
     server's response to an HTTP request.
     """

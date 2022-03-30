@@ -53,11 +53,11 @@ DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
 
 
-class BaseAdapter(object):
+class BaseAdapter:
     """The Base Transport Adapter"""
 
     def __init__(self):
-        super(BaseAdapter, self).__init__()
+        super().__init__()
 
     def send(self, request, stream=False, timeout=None, verify=True,
              cert=None, proxies=None):
@@ -121,7 +121,7 @@ class HTTPAdapter(BaseAdapter):
         self.config = {}
         self.proxy_manager = {}
 
-        super(HTTPAdapter, self).__init__()
+        super().__init__()
 
         self._pool_connections = pool_connections
         self._pool_maxsize = pool_maxsize

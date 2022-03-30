@@ -754,7 +754,7 @@ class TestRequests:
 
     def test_POSTBIN_SEEKED_OBJECT_WITH_NO_ITER(self, httpbin):
 
-        class TestStream(object):
+        class TestStream:
             def __init__(self, data):
                 self.data = data.encode()
                 self.length = len(self.data)
@@ -2499,7 +2499,7 @@ def test_urllib3_pool_connection_closed(httpbin):
         assert u"Pool is closed." in str(e)
 
 
-class TestPreparingURLs(object):
+class TestPreparingURLs:
     @pytest.mark.parametrize(
         'url,expected',
         (
