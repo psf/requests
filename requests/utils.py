@@ -648,6 +648,19 @@ def requote_uri(uri):
         return quote(uri, safe=safe_without_percent)
 
 
+def strip_double_quotes_from_url(url):
+    """Remove the double quotes around url if any are presents.
+
+    '"http://www.myproxy.com"' -> 'http://www.myproxy.com'
+    'http://www.otherproxy.com' -> 'http://www.otherproxy.com'
+
+    :param url:
+    :rtype: str
+    """
+    if url and len(url) >= 2 and url[0] == '"' and url[-1] =='"':
+        url = url[1:-1]
+    return url
+
 def address_in_network(ip, net):
     """This function allows you to check if an IP belongs to a network subnet
 
@@ -801,7 +814,10 @@ def get_environ_proxies(url, no_proxy=None):
     if should_bypass_proxies(url, no_proxy=no_proxy):
         return {}
     else:
-        return getproxies()
+        # strip the double-quotes for overquoted proxies (see end of issue #4613)
+        # Typical case on Windows is created by: set http_proxy="http://www.myproxy.com"
+        # -> proxy value is set to '"http://www.myproxy.com"'
+        return { var: strip_double_quotes_from_url(url) for (var,url) in getproxies().items() }
 
 
 def select_proxy(url, proxies):
