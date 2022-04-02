@@ -774,6 +774,8 @@ class Response(object):
             raise StreamConsumedError()
         elif chunk_size is not None and not isinstance(chunk_size, int):
             raise TypeError("chunk_size must be an int, it is instead a %s." % type(chunk_size))
+        elif chunk_size is not None and chunk_size < 1:
+            raise ValueError("chunk_size must be a positive integer, got "+str(chunk_size))
         # simulate reading small chunks of the content
         reused_chunks = iter_slices(self._content, chunk_size)
 
