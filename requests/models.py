@@ -377,18 +377,19 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Remove leading whitespaces from url
         url = url.lstrip()
 
-        # Don't do any URL preparation for non-HTTP schemes like `mailto`,
-        # `data` etc to work around exceptions from `url_parse`, which
-        # handles RFC 3986 only.
-        if ':' in url and not url.lower().startswith('http'):
-            self.url = url
-            return
 
         # Support for unicode domain names and paths.
         try:
             scheme, auth, host, port, path, query, fragment = parse_url(url)
         except LocationParseError as e:
             raise InvalidURL(*e.args)
+
+        # Don't do any URL preparation for non-HTTP schemes like `mailto`,
+        # `data` etc to work around exceptions from `url_parse`, which
+        # handles RFC 3986 only.
+        if scheme is not None and not scheme.startswith('http'):
+            self.url = url
+            return
 
         if not scheme:
             error = ("Invalid URL {0!r}: No scheme supplied. Perhaps you meant http://{0}?")
