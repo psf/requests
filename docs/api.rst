@@ -127,7 +127,7 @@ API Changes
   ::
 
       import requests
-      r = requests.get('https://github.com/timeline.json')
+      r = requests.get('https://api.github.com/events')
       r.json()   # This *call* raises an exception if JSON decoding fails
 
 * The ``Session`` API has changed. Sessions objects no longer take parameters.
@@ -156,7 +156,7 @@ API Changes
   ::
 
       # in 0.x, passing prefetch=False would accomplish the same thing
-      r = requests.get('https://github.com/timeline.json', stream=True)
+      r = requests.get('https://api.github.com/events', stream=True)
       for chunk in r.iter_content(8192):
           ...
 

@@ -20,6 +20,8 @@ import tempfile
 import warnings
 import zipfile
 from collections import OrderedDict
+from urllib3.util import make_headers
+from urllib3.util import parse_url
 
 from .__version__ import __version__
 from . import certs
@@ -28,7 +30,7 @@ from ._internal_utils import to_native_string
 from .compat import parse_http_list as _parse_list_header
 from .compat import (
     quote, urlparse, bytes, str, unquote, getproxies,
-    proxy_bypass, urlunparse, basestring, integer_types, is_py3,
+    proxy_bypass, urlunparse, basestring, integer_types,
     proxy_bypass_environment, getproxies_environment, Mapping)
 from .cookies import cookiejar_from_dict
 from .structures import CaseInsensitiveDict
@@ -41,16 +43,18 @@ DEFAULT_CA_BUNDLE_PATH = certs.where()
 
 DEFAULT_PORTS = {'http': 80, 'https': 443}
 
+# Ensure that ', ' is used to preserve previous delimiter behavior.
+DEFAULT_ACCEPT_ENCODING = ", ".join(
+    re.split(r",\s*", make_headers(accept_encoding=True)["accept-encoding"])
+)
+
 
 if sys.platform == 'win32':
     # provide a proxy_bypass version on Windows without DNS lookups
 
     def proxy_bypass_registry(host):
         try:
-            if is_py3:
-                import winreg
-            else:
-                import _winreg as winreg
+            import winreg
         except ImportError:
             return False
 
@@ -118,7 +122,10 @@ def super_len(o):
     elif hasattr(o, 'fileno'):
         try:
             fileno = o.fileno()
-        except io.UnsupportedOperation:
+        except (io.UnsupportedOperation, AttributeError):
+            # AttributeError is a surprising exception, seeing as how we've just checked
+            # that `hasattr(o, 'fileno')`.  It happens for objects obtained via
+            # `Tarfile.extractfile()`, per issue 5229.
             pass
         else:
             total_length = os.fstat(fileno).st_size
@@ -148,7 +155,7 @@ def super_len(o):
                 current_position = total_length
         else:
             if hasattr(o, 'seek') and total_length is None:
-                # StringIO and BytesIO have seek but no useable fileno
+                # StringIO and BytesIO have seek but no usable fileno
                 try:
                     # seek to end of file
                     o.seek(0, 2)
@@ -245,6 +252,10 @@ def extract_zipped_paths(path):
     archive, member = os.path.split(path)
     while archive and not os.path.exists(archive):
         archive, prefix = os.path.split(archive)
+        if not prefix:
+            # If we don't check for an empty prefix after the split (in other words, archive remains unchanged after the split),
+            # we _can_ end up in an infinite loop on a rare corner case affecting a small number of users
+            break
         member = '/'.join([prefix, member])
 
     if not zipfile.is_zipfile(archive):
@@ -256,11 +267,25 @@ def extract_zipped_paths(path):
 
     # we have a valid zip archive and a valid member of that archive
     tmp = tempfile.gettempdir()
-    extracted_path = os.path.join(tmp, *member.split('/'))
+    extracted_path = os.path.join(tmp, member.split('/')[-1])
     if not os.path.exists(extracted_path):
-        extracted_path = zip_file.extract(member, path=tmp)
-
+        # use read + write to avoid the creating nested folders, we only want the file, avoids mkdir racing condition
+        with atomic_open(extracted_path) as file_handler:
+            file_handler.write(zip_file.read(member))
     return extracted_path
+
+
+@contextlib.contextmanager
+def atomic_open(filename):
+    """Write a file to the disk in an atomic fashion"""
+    tmp_descriptor, tmp_name = tempfile.mkstemp(dir=os.path.dirname(filename))
+    try:
+        with os.fdopen(tmp_descriptor, 'wb') as tmp_handler:
+            yield tmp_handler
+        os.replace(tmp_name, filename)
+    except BaseException:
+        os.remove(tmp_name)
+        raise
 
 
 def from_key_val_list(value):
@@ -805,6 +830,33 @@ def select_proxy(url, proxies):
     return proxy
 
 
+def resolve_proxies(request, proxies, trust_env=True):
+    """This method takes proxy information from a request and configuration
+    input to resolve a mapping of target proxies. This will consider settings
+    such a NO_PROXY to strip proxy configurations.
+
+    :param request: Request or PreparedRequest
+    :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs
+    :param trust_env: Boolean declaring whether to trust environment configs
+
+    :rtype: dict
+    """
+    proxies = proxies if proxies is not None else {}
+    url = request.url
+    scheme = urlparse(url).scheme
+    no_proxy = proxies.get('no_proxy')
+    new_proxies = proxies.copy()
+
+    if trust_env and not should_bypass_proxies(url, no_proxy=no_proxy):
+        environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
+
+        proxy = environ_proxies.get(scheme, environ_proxies.get('all'))
+
+        if proxy:
+            new_proxies.setdefault(scheme, proxy)
+    return new_proxies
+
+
 def default_user_agent(name="python-requests"):
     """
     Return a string representing the default user agent.
@@ -820,7 +872,7 @@ def default_headers():
     """
     return CaseInsensitiveDict({
         'User-Agent': default_user_agent(),
-        'Accept-Encoding': ', '.join(('gzip', 'deflate')),
+        'Accept-Encoding': DEFAULT_ACCEPT_ENCODING,
         'Accept': '*/*',
         'Connection': 'keep-alive',
     })
@@ -907,15 +959,27 @@ def prepend_scheme_if_needed(url, new_scheme):
 
     :rtype: str
     """
-    scheme, netloc, path, params, query, fragment = urlparse(url, new_scheme)
+    parsed = parse_url(url)
+    scheme, auth, host, port, path, query, fragment = parsed
 
-    # urlparse is a finicky beast, and sometimes decides that there isn't a
-    # netloc present. Assume that it's being over-cautious, and switch netloc
-    # and path if urlparse decided there was no netloc.
+    # A defect in urlparse determines that there isn't a netloc present in some
+    # urls. We previously assumed parsing was overly cautious, and swapped the
+    # netloc and path. Due to a lack of tests on the original defect, this is
+    # maintained with parse_url for backwards compatibility.
+    netloc = parsed.netloc
     if not netloc:
         netloc, path = path, netloc
 
-    return urlunparse((scheme, netloc, path, params, query, fragment))
+    if auth:
+        # parse_url doesn't provide the netloc with auth
+        # so we'll add it ourselves.
+        netloc = '@'.join([auth, netloc])
+    if scheme is None:
+        scheme = new_scheme
+    if path is None:
+        path = ''
+
+    return urlunparse((scheme, netloc, path, '', query, fragment))
 
 
 def get_auth_from_url(url):

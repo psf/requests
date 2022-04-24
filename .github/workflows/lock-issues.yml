@@ -1,0 +1,19 @@
+name: 'Lock Threads'
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  action:
+    if: github.repository_owner == 'psf'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dessant/lock-threads@v2
+        with:
+            issue-lock-inactive-days: 90
+            pr-lock-inactive-days: 90

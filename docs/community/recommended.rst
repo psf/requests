@@ -59,4 +59,4 @@ Betamax
 `Betamax`_ records your HTTP interactions so the NSA does not have to.
 A VCR imitation designed only for Python-Requests.
 
-.. _betamax: https://github.com/sigmavirus24/betamax
+.. _betamax: https://github.com/betamaxpy/betamax

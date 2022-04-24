@@ -4,6 +4,7 @@ import os
 import copy
 import filecmp
 from io import BytesIO
+import tarfile
 import zipfile
 from collections import deque
 
@@ -85,6 +86,18 @@ class TestSuperLen:
         with file_obj.open(mode) as fd:
             assert super_len(fd) == 4
         assert len(recwarn) == warnings_num
+
+    def test_tarfile_member(self, tmpdir):
+        file_obj = tmpdir.join('test.txt')
+        file_obj.write('Test')
+
+        tar_obj = str(tmpdir.join('test.tar'))
+        with tarfile.open(tar_obj, 'w') as tar:
+            tar.add(str(file_obj), arcname='test.txt')
+
+        with tarfile.open(tar_obj) as tar:
+            member = tar.extractfile('test.txt')
+            assert super_len(member) == 4
 
     def test_super_len_with__len__(self):
         foo = [1,2,3,4]
@@ -284,6 +297,10 @@ class TestExtractZippedPaths:
         assert extracted_path != zipped_path
         assert os.path.exists(extracted_path)
         assert filecmp.cmp(extracted_path, __file__)
+
+    def test_invalid_unc_path(self):
+        path = r"\\localhost\invalid\location"
+        assert extract_zipped_paths(path) == path
 
 
 class TestContentEncodingDetection:
@@ -584,6 +601,15 @@ def test_parse_header_links(value, expected):
     'value, expected', (
         ('example.com/path', 'http://example.com/path'),
         ('//example.com/path', 'http://example.com/path'),
+        ('example.com:80', 'http://example.com:80'),
+        (
+            'http://user:pass@example.com/path?query',
+            'http://user:pass@example.com/path?query'
+        ),
+        (
+            'http://user@example.com/path?query',
+            'http://user@example.com/path?query'
+        )
     ))
 def test_prepend_scheme_if_needed(value, expected):
     assert prepend_scheme_if_needed(value, 'http') == expected
@@ -723,10 +749,7 @@ def test_should_bypass_proxies_win_registry(url, expected, override,
     """
     if override is None:
         override = '192.168.*;127.0.0.1;localhost.localdomain;172.16.1.1'
-    if compat.is_py3:
-        import winreg
-    else:
-        import _winreg as winreg
+    import winreg
 
     class RegHandle:
         def Close(self):

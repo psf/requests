@@ -14,7 +14,7 @@ from datetime import timedelta
 from collections import OrderedDict
 
 from .auth import _basic_auth_str
-from .compat import cookielib, is_py3, urljoin, urlparse, Mapping
+from .compat import cookielib, urljoin, urlparse, Mapping
 from .cookies import (
     cookiejar_from_dict, extract_cookies_to_jar, RequestsCookieJar, merge_cookies)
 from .models import Request, PreparedRequest, DEFAULT_REDIRECT_LIMIT
@@ -29,7 +29,7 @@ from .adapters import HTTPAdapter
 
 from .utils import (
     requote_uri, get_environ_proxies, get_netrc_auth, should_bypass_proxies,
-    get_auth_from_url, rewind_body
+    get_auth_from_url, rewind_body, resolve_proxies
 )
 
 from .status_codes import codes
@@ -39,10 +39,7 @@ from .models import REDIRECT_STATI
 
 # Preferred clock, based on which one is more accurate on a given system.
 if sys.platform == 'win32':
-    try:  # Python 3.4+
-        preferred_clock = time.perf_counter
-    except AttributeError:  # Earlier than Python 3.
-        preferred_clock = time.clock
+    preferred_clock = time.perf_counter
 else:
     preferred_clock = time.time
 
@@ -111,8 +108,7 @@ class SessionRedirectMixin(object):
             # It is more likely to get UTF8 header rather than latin1.
             # This causes incorrect handling of UTF8 encoded location headers.
             # To solve this, we re-encode the location in latin1.
-            if is_py3:
-                location = location.encode('latin1')
+            location = location.encode('latin1')
             return to_native_string(location, 'utf8')
         return None
 
@@ -269,7 +265,6 @@ class SessionRedirectMixin(object):
         if new_auth is not None:
             prepared_request.prepare_auth(new_auth)
 
-
     def rebuild_proxies(self, prepared_request, proxies):
         """This method re-evaluates the proxy configuration by considering the
         environment variables. If we are redirected to a URL covered by
@@ -282,21 +277,9 @@ class SessionRedirectMixin(object):
 
         :rtype: dict
         """
-        proxies = proxies if proxies is not None else {}
         headers = prepared_request.headers
-        url = prepared_request.url
-        scheme = urlparse(url).scheme
-        new_proxies = proxies.copy()
-        no_proxy = proxies.get('no_proxy')
-
-        bypass_proxy = should_bypass_proxies(url, no_proxy=no_proxy)
-        if self.trust_env and not bypass_proxy:
-            environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
-
-            proxy = environ_proxies.get(scheme, environ_proxies.get('all'))
-
-            if proxy:
-                new_proxies.setdefault(scheme, proxy)
+        scheme = urlparse(prepared_request.url).scheme
+        new_proxies = resolve_proxies(prepared_request, proxies, self.trust_env)
 
         if 'Proxy-Authorization' in headers:
             del headers['Proxy-Authorization']
@@ -641,7 +624,10 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault('stream', self.stream)
         kwargs.setdefault('verify', self.verify)
         kwargs.setdefault('cert', self.cert)
-        kwargs.setdefault('proxies', self.rebuild_proxies(request, self.proxies))
+        if 'proxies' not in kwargs:
+            kwargs['proxies'] = resolve_proxies(
+                request, self.proxies, self.trust_env
+            )
 
         # It's possible that users might accidentally send a Request object.
         # Guard against that specific failure case.
@@ -720,11 +706,14 @@ class Session(SessionRedirectMixin):
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)
 
-            # Look for requests environment configuration and be compatible
-            # with cURL.
+            # Look for requests environment configuration
+            # and be compatible with cURL.
             if verify is True or verify is None:
-                verify = (os.environ.get('REQUESTS_CA_BUNDLE') or
-                          os.environ.get('CURL_CA_BUNDLE'))
+                verify = (
+                    os.environ.get('REQUESTS_CA_BUNDLE')
+                    or os.environ.get('CURL_CA_BUNDLE')
+                    or verify
+                )
 
         # Check for no_proxy and no since they could be loaded from environment
         no_proxy = proxies.get('no_proxy') if proxies is not None else None
@@ -741,8 +730,12 @@ class Session(SessionRedirectMixin):
         verify = merge_setting(verify, self.verify)
         cert = merge_setting(cert, self.cert)
 
-        return {'verify': verify, 'proxies': proxies, 'stream': stream,
-                'cert': cert}
+        return {
+            'proxies': proxies,
+            'stream': stream,
+            'verify': verify,
+            'cert': cert
+        }
 
     def get_adapter(self, url):
         """

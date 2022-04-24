@@ -78,7 +78,7 @@ class Server(threading.Thread):
     def _create_socket_and_bind(self):
         sock = socket.socket()
         sock.bind((self.host, self.port))
-        sock.listen(0)
+        sock.listen()
         return sock
 
     def _close_server_sock_ignore_errors(self):

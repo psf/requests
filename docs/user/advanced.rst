@@ -305,7 +305,7 @@ immediately. You can override this behaviour and defer downloading the response
 body until you access the :attr:`Response.content <requests.Response.content>`
 attribute with the ``stream`` parameter::
 
-    tarball_url = 'https://github.com/psf/requests/tarball/master'
+    tarball_url = 'https://github.com/psf/requests/tarball/main'
     r = requests.get(tarball_url, stream=True)
 
 At this point only the response headers have been downloaded and the connection
@@ -446,7 +446,7 @@ argument.
     def print_url(r, *args, **kwargs):
         print(r.url)
 
-If an error occurs while executing your callback, a warning is given.
+Your callback function must handle its own exceptions. Any unhandled exception won't be passed silently and thus should be handled by the code calling Requests.
 
 If the callback function returns a value, it is assumed that it is to
 replace the data that was passed in. If the function doesn't return
@@ -603,15 +603,25 @@ Alternatively you can configure it once for an entire
 
     session.get('http://example.org')
 
-When the proxies configuration is not overridden in python as shown above,
-by default Requests relies on the proxy configuration defined by standard
-environment variables ``http_proxy``, ``https_proxy``, ``no_proxy`` and
-``curl_ca_bundle``. Uppercase variants of these variables are also supported.
+.. warning::  Setting ``session.proxies`` may behave differently than expected.
+    Values provided will be overwritten by environmental proxies
+    (those returned by `urllib.request.getproxies <https://docs.python.org/3/library/urllib.request.html#urllib.request.getproxies>`_).
+    To ensure the use of proxies in the presence of environmental proxies,
+    explicitly specify the ``proxies`` argument on all individual requests as
+    initially explained above.
+
+    See `#2018 <https://github.com/psf/requests/issues/2018>`_ for details.
+
+When the proxies configuration is not overridden per request as shown above,
+Requests relies on the proxy configuration defined by standard
+environment variables ``http_proxy``, ``https_proxy``, ``no_proxy``,
+and ``all_proxy``. Uppercase variants of these variables are also supported.
 You can therefore set them to configure Requests (only set the ones relevant
 to your needs)::
 
     $ export HTTP_PROXY="http://10.10.1.10:3128"
     $ export HTTPS_PROXY="http://10.10.1.10:1080"
+    $ export ALL_PROXY="socks5://10.10.1.10:3434"
 
     $ python
     >>> import requests
@@ -697,10 +707,22 @@ Encodings
 When you receive a response, Requests makes a guess at the encoding to
 use for decoding the response when you access the :attr:`Response.text
 <requests.Response.text>` attribute. Requests will first check for an
-encoding in the HTTP header, and if none is present, will use `chardet
-<https://pypi.org/project/chardet/>`_ to attempt to guess the encoding.
+encoding in the HTTP header, and if none is present, will use
+`charset_normalizer <https://pypi.org/project/charset_normalizer/>`_
+or `chardet <https://github.com/chardet/chardet>`_ to attempt to
+guess the encoding.
 
-The only time Requests will not do this is if no explicit charset
+If ``chardet`` is installed, ``requests`` uses it, however for python3
+``chardet`` is no longer a mandatory dependency. The ``chardet``
+library is an LGPL-licenced dependency and some users of requests
+cannot depend on mandatory LGPL-licensed dependencies.
+
+When you install ``request`` without specifying ``[use_chardet_on_py3]]`` extra,
+and ``chardet`` is not already installed, ``requests`` uses ``charset-normalizer``
+(MIT-licensed) to guess the encoding. For Python 2, ``requests`` uses only
+``chardet`` and is a mandatory dependency there.
+
+The only time Requests will not guess the encoding is if no explicit charset
 is present in the HTTP headers **and** the ``Content-Type``
 header contains ``text``. In this situation, `RFC 2616
 <https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7.1>`_ specifies
@@ -1005,8 +1027,8 @@ library to use SSLv3::
                 num_pools=connections, maxsize=maxsize,
                 block=block, ssl_version=ssl.PROTOCOL_SSLv3)
 
-.. _`described here`: https://www.kennethreitz.org/essays/the-future-of-python-http
-.. _`urllib3`: https://github.com/shazow/urllib3
+.. _`described here`: https://kenreitz.org/essays/2012/06/14/the-future-of-python-http
+.. _`urllib3`: https://github.com/urllib3/urllib3
 
 .. _blocking-or-nonblocking:
 
@@ -1025,7 +1047,7 @@ out there that combine Requests with one of Python's asynchronicity frameworks.
 Some excellent examples are `requests-threads`_, `grequests`_, `requests-futures`_, and `httpx`_.
 
 .. _`requests-threads`: https://github.com/requests/requests-threads
-.. _`grequests`: https://github.com/kennethreitz/grequests
+.. _`grequests`: https://github.com/spyoungtech/grequests
 .. _`requests-futures`: https://github.com/ross/requests-futures
 .. _`httpx`: https://github.com/encode/httpx
 

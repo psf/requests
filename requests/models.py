@@ -8,7 +8,6 @@ This module contains the primary objects that power Requests.
 """
 
 import datetime
-import sys
 
 # Import encoding now, to avoid implicit import later.
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
@@ -19,7 +18,12 @@ from urllib3.fields import RequestField
 from urllib3.filepost import encode_multipart_formdata
 from urllib3.util import parse_url
 from urllib3.exceptions import (
-    DecodeError, ReadTimeoutError, ProtocolError, LocationParseError)
+    DecodeError,
+    LocationParseError,
+    ProtocolError,
+    ReadTimeoutError,
+    SSLError,
+)
 
 from io import UnsupportedOperation
 from .hooks import default_hooks
@@ -29,7 +33,10 @@ from .auth import HTTPBasicAuth
 from .cookies import cookiejar_from_dict, get_cookie_header, _copy_cookie_jar
 from .exceptions import (
     HTTPError, MissingSchema, InvalidURL, ChunkedEncodingError,
-    ContentDecodingError, ConnectionError, StreamConsumedError, InvalidJSONError)
+    ContentDecodingError, ConnectionError, StreamConsumedError,
+    InvalidJSONError)
+from .exceptions import JSONDecodeError as RequestsJSONDecodeError
+from .exceptions import SSLError as RequestsSSLError
 from ._internal_utils import to_native_string, unicode_is_ascii
 from .utils import (
     guess_filename, get_auth_from_url, requote_uri,
@@ -37,8 +44,8 @@ from .utils import (
     iter_slices, guess_json_utf, super_len, check_header_validity)
 from .compat import (
     Callable, Mapping,
-    cookielib, urlunparse, urlsplit, urlencode, str, bytes,
-    is_py2, chardet, builtin_str, basestring)
+    cookielib, urlunparse, urlsplit, urlencode,
+    chardet, builtin_str, basestring, JSONDecodeError)
 from .compat import json as complexjson
 from .status_codes import codes
 
@@ -365,7 +372,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if isinstance(url, bytes):
             url = url.decode('utf8')
         else:
-            url = unicode(url) if is_py2 else str(url)
+            url = str(url)
 
         # Remove leading whitespaces from url
         url = url.lstrip()
@@ -384,7 +391,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             raise InvalidURL(*e.args)
 
         if not scheme:
-            error = ("Invalid URL {0!r}: No schema supplied. Perhaps you meant http://{0}?")
+            error = ("Invalid URL {0!r}: No scheme supplied. Perhaps you meant http://{0}?")
             error = error.format(to_native_string(url, 'utf8'))
 
             raise MissingSchema(error)
@@ -401,7 +408,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 host = self._get_idna_encoded_host(host)
             except UnicodeError:
                 raise InvalidURL('URL has an invalid label.')
-        elif host.startswith(u'*'):
+        elif host.startswith((u'*', u'.')):
             raise InvalidURL('URL has an invalid label.')
 
         # Carefully reconstruct the network location
@@ -415,18 +422,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Bare domains aren't valid URLs.
         if not path:
             path = '/'
-
-        if is_py2:
-            if isinstance(scheme, str):
-                scheme = scheme.encode('utf-8')
-            if isinstance(netloc, str):
-                netloc = netloc.encode('utf-8')
-            if isinstance(path, str):
-                path = path.encode('utf-8')
-            if isinstance(query, str):
-                query = query.encode('utf-8')
-            if isinstance(fragment, str):
-                fragment = fragment.encode('utf-8')
 
         if isinstance(params, (str, bytes)):
             params = to_native_string(params)
@@ -468,9 +463,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             content_type = 'application/json'
 
             try:
-              body = complexjson.dumps(json, allow_nan=False)
+                body = complexjson.dumps(json, allow_nan=False)
             except ValueError as ve:
-              raise InvalidJSONError(ve, request=self)
+                raise InvalidJSONError(ve, request=self)
 
             if not isinstance(body, bytes):
                 body = body.encode('utf-8')
@@ -731,7 +726,7 @@ class Response(object):
 
     @property
     def apparent_encoding(self):
-        """The apparent encoding, provided by the chardet library."""
+        """The apparent encoding, provided by the charset_normalizer or chardet libraries."""
         return chardet.detect(self.content)['encoding']
 
     def iter_content(self, chunk_size=1, decode_unicode=False):
@@ -763,6 +758,8 @@ class Response(object):
                     raise ContentDecodingError(e)
                 except ReadTimeoutError as e:
                     raise ConnectionError(e)
+                except SSLError as e:
+                    raise RequestsSSLError(e)
             else:
                 # Standard file-like object.
                 while True:
@@ -845,7 +842,7 @@ class Response(object):
         """Content of the response, in unicode.
 
         If Response.encoding is None, encoding will be guessed using
-        ``chardet``.
+        ``charset_normalizer`` or ``chardet``.
 
         The encoding of the response content is determined based solely on HTTP
         headers, following RFC 2616 to the letter. If you can take advantage of
@@ -882,18 +879,14 @@ class Response(object):
         r"""Returns the json-encoded content of a response, if any.
 
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
-        :raises simplejson.JSONDecodeError: If the response body does not
-            contain valid json and simplejson is installed.
-        :raises json.JSONDecodeError: If the response body does not contain
-            valid json and simplejson is not installed on Python 3.
-        :raises ValueError: If the response body does not contain valid
-            json and simplejson is not installed on Python 2.        
+        :raises requests.exceptions.JSONDecodeError: If the response body does not
+            contain valid json.
         """
 
         if not self.encoding and self.content and len(self.content) > 3:
             # No encoding set. JSON RFC 4627 section 3 states we should expect
             # UTF-8, -16 or -32. Detect which one to use; If the detection or
-            # decoding fails, fall back to `self.text` (using chardet to make
+            # decoding fails, fall back to `self.text` (using charset_normalizer to make
             # a best guess).
             encoding = guess_json_utf(self.content)
             if encoding is not None:
@@ -907,7 +900,15 @@ class Response(object):
                     # and the server didn't bother to tell us what codec *was*
                     # used.
                     pass
-        return complexjson.loads(self.text, **kwargs)
+                except JSONDecodeError as e:
+                    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+
+        try:
+            return complexjson.loads(self.text, **kwargs)
+        except JSONDecodeError as e:
+            # Catch JSON-related errors and raise as requests.JSONDecodeError
+            # This aliases json.JSONDecodeError and simplejson.JSONDecodeError
+            raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
 
     @property
     def links(self):

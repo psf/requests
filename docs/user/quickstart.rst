@@ -37,12 +37,12 @@ get all the information we need from this object.
 Requests' simple API means that all forms of HTTP request are as obvious. For
 example, this is how you make an HTTP POST request::
 
-    >>> r = requests.post('https://httpbin.org/post', data = {'key':'value'})
+    >>> r = requests.post('https://httpbin.org/post', data={'key': 'value'})
 
 Nice, right? What about the other HTTP request types: PUT, DELETE, HEAD and
 OPTIONS? These are all just as simple::
 
-    >>> r = requests.put('https://httpbin.org/put', data = {'key':'value'})
+    >>> r = requests.put('https://httpbin.org/put', data={'key': 'value'})
     >>> r = requests.delete('https://httpbin.org/delete')
     >>> r = requests.head('https://httpbin.org/get')
     >>> r = requests.options('https://httpbin.org/get')
@@ -128,6 +128,9 @@ You can also access the response body as bytes, for non-text requests::
 
 The ``gzip`` and ``deflate`` transfer-encodings are automatically decoded for you.
 
+The ``br``  transfer-encoding is automatically decoded for you if a Brotli library
+like `brotli <https://pypi.org/project/brotli>`_ or `brotlicffi <https://pypi.org/project/brotlicffi>`_ is installed.
+
 For example, to create an image from binary data returned by a request, you can
 use the following code::
 
@@ -150,9 +153,9 @@ There's also a builtin JSON decoder, in case you're dealing with JSON data::
 
 In case the JSON decoding fails, ``r.json()`` raises an exception. For example, if
 the response gets a 204 (No Content), or if the response contains invalid JSON,
-attempting ``r.json()`` raises ``simplejson.JSONDecodeError`` if simplejson is
-installed or raises ``ValueError: No JSON object could be decoded`` on Python 2 or
-``json.JSONDecodeError`` on Python 3.
+attempting ``r.json()`` raises ``requests.exceptions.JSONDecodeError``. This wrapper exception
+provides interoperability for multiple exceptions that may be thrown by different
+python versions and json serialization libraries.
 
 It should be noted that the success of the call to ``r.json()`` does **not**
 indicate the success of the response. Some servers may return a JSON object in a
@@ -280,8 +283,12 @@ For example, the GitHub API v3 accepts JSON-Encoded POST/PATCH data::
 
     >>> r = requests.post(url, data=json.dumps(payload))
 
-Instead of encoding the ``dict`` yourself, you can also pass it directly using
-the ``json`` parameter (added in version 2.4.2) and it will be encoded automatically::
+Please note that the above code will NOT add the ``Content-Type`` header
+(so in particular it will NOT set it to ``application/json``).
+
+If you need that header set and you don't want to encode the ``dict`` yourself,
+you can also pass it directly using the ``json`` parameter (added in version 2.4.2)
+and it will be encoded automatically:
 
     >>> url = 'https://api.github.com/some/endpoint'
     >>> payload = {'some': 'data'}
@@ -289,8 +296,6 @@ the ``json`` parameter (added in version 2.4.2) and it will be encoded automatic
     >>> r = requests.post(url, json=payload)
 
 Note, the ``json`` parameter is ignored if either ``data`` or ``files`` is passed.
-
-Using the ``json`` parameter in the request will change the ``Content-Type`` in the header to ``application/json``.
 
 POST a Multipart-Encoded File
 -----------------------------

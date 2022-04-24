@@ -8,9 +8,18 @@ import ssl
 
 import idna
 import urllib3
-import chardet
 
 from . import __version__ as requests_version
+
+try:
+    import charset_normalizer
+except ImportError:
+    charset_normalizer = None
+
+try:
+    import chardet
+except ImportError:
+    chardet = None
 
 try:
     from urllib3.contrib import pyopenssl
@@ -27,8 +36,8 @@ def _implementation():
     """Return a dict with the Python implementation and version.
 
     Provide both the name and the version of the Python implementation
-    currently running. For example, on CPython 2.7.5 it will return
-    {'name': 'CPython', 'version': '2.7.5'}.
+    currently running. For example, on CPython 3.10.3 it will return
+    {'name': 'CPython', 'version': '3.10.3'}.
 
     This function works best on CPython and PyPy: in particular, it probably
     doesn't work for Jython or IronPython. Future investigation should be done
@@ -71,7 +80,12 @@ def info():
 
     implementation_info = _implementation()
     urllib3_info = {'version': urllib3.__version__}
-    chardet_info = {'version': chardet.__version__}
+    charset_normalizer_info = {'version': None}
+    chardet_info = {'version': None}
+    if charset_normalizer:
+        charset_normalizer_info = {'version': charset_normalizer.__version__}
+    if chardet:
+        chardet_info = {'version': chardet.__version__}
 
     pyopenssl_info = {
         'version': None,
@@ -99,9 +113,11 @@ def info():
         'implementation': implementation_info,
         'system_ssl': system_ssl_info,
         'using_pyopenssl': pyopenssl is not None,
+        'using_charset_normalizer': chardet is None,
         'pyOpenSSL': pyopenssl_info,
         'urllib3': urllib3_info,
         'chardet': chardet_info,
+        'charset_normalizer': charset_normalizer_info,
         'cryptography': cryptography_info,
         'idna': idna_info,
         'requests': {
