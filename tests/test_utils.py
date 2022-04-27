@@ -761,10 +761,11 @@ def test_should_bypass_proxies_pass_only_hostname(url, expected, mocker):
 
 
 @pytest.mark.parametrize(
-    "cookiejar", (
+    "cookiejar",
+    (
         compat.cookielib.CookieJar(),
         RequestsCookieJar(),
-    )
+    ),
 )
 def test_add_dict_to_cookiejar(cookiejar):
     """Ensure add_dict_to_cookiejar works for

@@ -13,7 +13,7 @@ repos:
   hooks:
     - id: isort
 - repo: https://github.com/psf/black
-  rev: 22.1.0
+  rev: 22.3.0
   hooks:
   - id: black
     exclude: tests/test_lowlevel.py
