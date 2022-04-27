@@ -2,7 +2,6 @@
 
 import warnings
 
-import urllib3
 from urllib3.exceptions import SNIMissingWarning
 
 # urllib3 sets SNIMissingWarning to only go off once,

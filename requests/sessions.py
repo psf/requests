@@ -30,10 +30,15 @@ from .exceptions import (
 from .hooks import default_hooks, dispatch_hook
 
 # formerly defined here, reexposed here for backward compatibility
-from .models import DEFAULT_REDIRECT_LIMIT, REDIRECT_STATI, PreparedRequest, Request
+from .models import (  # noqa: F401
+    DEFAULT_REDIRECT_LIMIT,
+    REDIRECT_STATI,
+    PreparedRequest,
+    Request,
+)
 from .status_codes import codes
 from .structures import CaseInsensitiveDict
-from .utils import (
+from .utils import (  # noqa: F401
     DEFAULT_PORTS,
     default_headers,
     get_auth_from_url,

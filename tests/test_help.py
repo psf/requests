@@ -1,7 +1,3 @@
-import sys
-
-import pytest
-
 from requests.help import info
 
 

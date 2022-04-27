@@ -7,7 +7,7 @@ and maintain connections.
 """
 
 import os.path
-import socket
+import socket  # noqa: F401
 
 from urllib3.exceptions import ClosedPoolError, ConnectTimeoutError
 from urllib3.exceptions import HTTPError as _HTTPError
@@ -537,9 +537,9 @@ class HTTPAdapter(BaseAdapter):
                         preload_content=False,
                         decode_content=False,
                     )
-                except:
+                except Exception:
                     # If we hit any problems here, clean up the connection.
-                    # Then, reraise so that we can handle the actual exception.
+                    # Then, raise so that we can handle the actual exception.
                     low_conn.close()
                     raise
 

@@ -5,7 +5,6 @@ except ImportError:
     from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 import ssl
-import tempfile
 import threading
 
 import pytest

@@ -32,7 +32,6 @@ from requests.exceptions import (
     ConnectTimeout,
     ContentDecodingError,
     InvalidHeader,
-    InvalidJSONError,
     InvalidProxyURL,
     InvalidSchema,
     InvalidURL,
@@ -89,7 +88,7 @@ class TestRequests:
         requests.patch
         requests.post
         # Not really an entry point, but people rely on it.
-        from requests.packages.urllib3.poolmanager import PoolManager
+        from requests.packages.urllib3.poolmanager import PoolManager  # noqa:F401
 
     @pytest.mark.parametrize(
         "exception, url",
@@ -934,9 +933,8 @@ class TestRequests:
 
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), cert=(".", INVALID_PATH))
-        assert (
-            str(e.value)
-            == f"Could not find the TLS key file, invalid path: {INVALID_PATH}"
+        assert str(e.value) == (
+            f"Could not find the TLS key file, invalid path: {INVALID_PATH}"
         )
 
     @pytest.mark.parametrize(
@@ -1112,7 +1110,9 @@ class TestRequests:
         s.send(prep)
 
     def test_session_hooks_are_used_with_no_request_hooks(self, httpbin):
-        hook = lambda x, *args, **kwargs: x
+        def hook(*args, **kwargs):
+            pass
+
         s = requests.Session()
         s.hooks["response"].append(hook)
         r = requests.Request("GET", httpbin())
@@ -1121,8 +1121,12 @@ class TestRequests:
         assert prep.hooks["response"] == [hook]
 
     def test_session_hooks_are_overridden_by_request_hooks(self, httpbin):
-        hook1 = lambda x, *args, **kwargs: x
-        hook2 = lambda x, *args, **kwargs: x
+        def hook1(*args, **kwargs):
+            pass
+
+        def hook2(*args, **kwargs):
+            pass
+
         assert hook1 is not hook2
         s = requests.Session()
         s.hooks["response"].append(hook2)
@@ -1691,15 +1695,15 @@ class TestRequests:
 
         # Test for int
         with pytest.raises(InvalidHeader) as excinfo:
-            r = requests.get(httpbin("get"), headers=headers_int)
+            requests.get(httpbin("get"), headers=headers_int)
         assert "foo" in str(excinfo.value)
         # Test for dict
         with pytest.raises(InvalidHeader) as excinfo:
-            r = requests.get(httpbin("get"), headers=headers_dict)
+            requests.get(httpbin("get"), headers=headers_dict)
         assert "bar" in str(excinfo.value)
         # Test for list
         with pytest.raises(InvalidHeader) as excinfo:
-            r = requests.get(httpbin("get"), headers=headers_list)
+            requests.get(httpbin("get"), headers=headers_list)
         assert "baz" in str(excinfo.value)
 
     def test_header_no_return_chars(self, httpbin):
@@ -1712,13 +1716,13 @@ class TestRequests:
 
         # Test for newline
         with pytest.raises(InvalidHeader):
-            r = requests.get(httpbin("get"), headers=headers_ret)
+            requests.get(httpbin("get"), headers=headers_ret)
         # Test for line feed
         with pytest.raises(InvalidHeader):
-            r = requests.get(httpbin("get"), headers=headers_lf)
+            requests.get(httpbin("get"), headers=headers_lf)
         # Test for carriage return
         with pytest.raises(InvalidHeader):
-            r = requests.get(httpbin("get"), headers=headers_cr)
+            requests.get(httpbin("get"), headers=headers_cr)
 
     def test_header_no_leading_space(self, httpbin):
         """Ensure headers containing leading whitespace raise
@@ -1729,10 +1733,11 @@ class TestRequests:
 
         # Test for whitespace
         with pytest.raises(InvalidHeader):
-            r = requests.get(httpbin("get"), headers=headers_space)
+            requests.get(httpbin("get"), headers=headers_space)
+
         # Test for tab
         with pytest.raises(InvalidHeader):
-            r = requests.get(httpbin("get"), headers=headers_tab)
+            requests.get(httpbin("get"), headers=headers_tab)
 
     @pytest.mark.parametrize("files", ("foo", b"foo", bytearray(b"foo")))
     def test_can_send_objects_with_files(self, httpbin, files):
@@ -2655,7 +2660,7 @@ class TestPreparingURLs:
     @pytest.mark.parametrize("url, exception", (("http://localhost:-1", InvalidURL),))
     def test_redirecting_to_bad_url(self, httpbin, url, exception):
         with pytest.raises(exception):
-            r = requests.get(httpbin("redirect-to"), params={"url": url})
+            requests.get(httpbin("redirect-to"), params={"url": url})
 
     @pytest.mark.parametrize(
         "input, expected",
@@ -2730,7 +2735,7 @@ class TestPreparingURLs:
     def test_post_json_nan(self, httpbin):
         data = {"foo": float("nan")}
         with pytest.raises(requests.exceptions.InvalidJSONError):
-            r = requests.post(httpbin("post"), json=data)
+            requests.post(httpbin("post"), json=data)
 
     def test_json_decode_compatibility(self, httpbin):
         r = requests.get(httpbin("bytes/20"))

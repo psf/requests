@@ -173,7 +173,7 @@ class HTTPDigestAuth(AuthBase):
 
             hash_utf8 = sha512_utf8
 
-        KD = lambda s, d: hash_utf8(f"{s}:{d}")
+        KD = lambda s, d: hash_utf8(f"{s}:{d}")  # noqa:E731
 
         if hash_utf8 is None:
             return None

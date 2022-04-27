@@ -25,7 +25,7 @@ from . import certs
 from .__version__ import __version__
 
 # to_native_string is unused here, but imported here for backwards compatibility
-from ._internal_utils import to_native_string
+from ._internal_utils import to_native_string  # noqa: F401
 from .compat import (
     Mapping,
     basestring,
@@ -764,7 +764,8 @@ def should_bypass_proxies(url, no_proxy):
     """
     # Prioritize lowercase environment variables over uppercase
     # to keep a consistent behaviour with other http projects (curl, wget).
-    get_proxy = lambda k: os.environ.get(k) or os.environ.get(k.upper())
+    def get_proxy(key):
+        return os.environ.get(key) or os.environ.get(key.upper())
 
     # First check whether no_proxy is defined. If it is, check that the URL
     # we're getting isn't in the no_proxy list.

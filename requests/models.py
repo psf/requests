@@ -10,7 +10,7 @@ import datetime
 # Import encoding now, to avoid implicit import later.
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
 # such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
-import encodings.idna
+import encodings.idna  # noqa: F401
 from io import UnsupportedOperation
 
 from urllib3.exceptions import (
@@ -965,6 +965,8 @@ class Response:
                     # and the server didn't bother to tell us what codec *was*
                     # used.
                     pass
+                except JSONDecodeError as e:
+                    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
 
         try:
             return complexjson.loads(self.text, **kwargs)
@@ -979,17 +981,16 @@ class Response:
 
         header = self.headers.get("link")
 
-        # l = MultiDict()
-        l = {}
+        resolved_links = {}
 
         if header:
             links = parse_header_links(header)
 
             for link in links:
                 key = link.get("rel") or link.get("url")
-                l[key] = link
+                resolved_links[key] = link
 
-        return l
+        return resolved_links
 
     def raise_for_status(self):
         """Raises :class:`HTTPError`, if one occurred."""
