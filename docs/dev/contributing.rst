@@ -93,6 +93,21 @@ event that you object to the code review feedback, you should make your case
 clearly and calmly. If, after doing so, the feedback is judged to still apply,
 you must either apply the feedback or withdraw your contribution.
 
+Code Style
+~~~~~~~~~~
+
+Requests uses a collection of tools to ensure the code base has a consistent
+style as it grows. We have these orchestrated using a tool called
+`pre-commit`_. This can be installed locally and run over your changes prior
+to opening a PR, and will also be run as part of the CI approval process
+before a change is merged.
+
+You can find the full list of formatting requirements specified in the
+`.pre-commit-config.yaml`_ at the top level directory of Requests.
+
+.. _pre-commit: https://pre-commit.com/
+.. _.pre-commit-config.yaml: https://github.com/psf/requests/blob/main/.pre-commit-config.yaml
+
 New Contributors
 ~~~~~~~~~~~~~~~~
 
@@ -103,62 +118,6 @@ asking for help.
 
 Please also check the :ref:`early-feedback` section.
 
-Kenneth Reitz's Code Style™
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The Requests codebase uses the `PEP 8`_ code style.
-
-In addition to the standards outlined in PEP 8, we have a few guidelines:
-
-- Line-length can exceed 79 characters, to 100, when convenient.
-- Line-length can exceed 100 characters, when doing otherwise would be *terribly* inconvenient.
-- Always use single-quoted strings (e.g. ``'#flatearth'``), unless a single-quote occurs within the string.
-
-Additionally, one of the styles that PEP8 recommends for `line continuations`_
-completely lacks all sense of taste, and is not to be permitted within
-the Requests codebase::
-
-    # Aligned with opening delimiter.
-    foo = long_function_name(var_one, var_two,
-                             var_three, var_four)
-
-No. Just don't. Please. This is much better::
-
-    foo = long_function_name(
-        var_one,
-        var_two,
-        var_three,
-        var_four,
-    )
-
-Docstrings are to follow the following syntaxes::
-
-    def the_earth_is_flat():
-        """NASA divided up the seas into thirty-three degrees."""
-        pass
-
-::
-
-    def fibonacci_spiral_tool():
-        """With my feet upon the ground I lose myself / between the sounds
-        and open wide to suck it in. / I feel it move across my skin. / I'm
-        reaching up and reaching out. / I'm reaching for the random or
-        whatever will bewilder me. / Whatever will bewilder me. / And
-        following our will and wind we may just go where no one's been. /
-        We'll ride the spiral to the end and may just go where no one's
-        been.
-
-        Spiral out. Keep going...
-        """
-        pass
-
-All functions, methods, and classes are to contain docstrings. Object data
-model methods (e.g. ``__repr__``) are typically the exception to this rule.
-
-Thanks for helping to make the world a better place!
-
-.. _PEP 8: https://pep8.org/
-.. _line continuations: https://www.python.org/dev/peps/pep-0008/#indentation
 
 Documentation Contributions
 ---------------------------
