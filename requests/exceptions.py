@@ -4,7 +4,7 @@ requests.exceptions
 
 This module contains the set of Requests' exceptions.
 """
-from urllib3.exceptions import HTTPError as BaseHTTPError
+from urllib3.exceptions import HTTPError as BaseHTTPError, LocationParseError
 
 from .compat import JSONDecodeError as CompatJSONDecodeError
 
@@ -96,6 +96,10 @@ class InvalidSchema(RequestException, ValueError):
 
 class InvalidURL(RequestException, ValueError):
     """The URL provided was somehow invalid."""
+
+
+class InvalidRedirectURL(InvalidURL, InvalidSchema, LocationParseError):
+    """The redirect URL was somehow invalid."""
 
 
 class InvalidHeader(RequestException, ValueError):

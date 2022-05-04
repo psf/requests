@@ -10,6 +10,7 @@ import sys
 import time
 from collections import OrderedDict
 from datetime import timedelta
+from urllib3.exceptions import LocationParseError
 
 from ._internal_utils import to_native_string
 from .adapters import HTTPAdapter
@@ -25,6 +26,8 @@ from .exceptions import (
     ChunkedEncodingError,
     ContentDecodingError,
     InvalidSchema,
+    InvalidURL,
+    InvalidRedirectURL,
     TooManyRedirects,
 )
 from .hooks import default_hooks, dispatch_hook
@@ -195,6 +198,8 @@ class SessionRedirectMixin:
             # Release the connection back into the pool.
             resp.close()
 
+            original_redirect_url = url
+
             # Handle redirection without scheme (see: RFC 1808 Section 4)
             if url.startswith("//"):
                 parsed_rurl = urlparse(resp.url)
@@ -262,17 +267,19 @@ class SessionRedirectMixin:
             if yield_requests:
                 yield req
             else:
-
-                resp = self.send(
-                    req,
-                    stream=stream,
-                    timeout=timeout,
-                    verify=verify,
-                    cert=cert,
-                    proxies=proxies,
-                    allow_redirects=False,
-                    **adapter_kwargs,
-                )
+                try:
+                    resp = self.send(
+                        req,
+                        stream=stream,
+                        timeout=timeout,
+                        verify=verify,
+                        cert=cert,
+                        proxies=proxies,
+                        allow_redirects=False,
+                        **adapter_kwargs,
+                    )
+                except (InvalidURL, InvalidSchema, LocationParseError) as exc:
+                    raise InvalidRedirectURL(original_redirect_url) from exc
 
                 extract_cookies_to_jar(self.cookies, prepared_request, resp.raw)
 

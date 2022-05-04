@@ -35,6 +35,7 @@ from requests.exceptions import (
     InvalidProxyURL,
     InvalidSchema,
     InvalidURL,
+    InvalidRedirectURL,
     MissingSchema,
     ProxyError,
     ReadTimeout,
@@ -2657,9 +2658,19 @@ class TestPreparingURLs:
         with pytest.raises(requests.exceptions.InvalidURL):
             r.prepare()
 
-    @pytest.mark.parametrize("url, exception", (("http://localhost:-1", InvalidURL),))
-    def test_redirecting_to_bad_url(self, httpbin, url, exception):
-        with pytest.raises(exception):
+    @pytest.mark.parametrize(
+        "url",
+        (
+            ("localhost.localdomain:3128/",),
+            ("10.122.1.1:3128/",),
+            ("http://.example.com",),
+            ("http://☃.net/",),
+            ("http://localhost:-1",),
+            ("http://example.org:non_int_port/",),
+        ),
+    )
+    def test_redirecting_to_bad_url(self, httpbin, url):
+        with pytest.raises(InvalidRedirectURL):
             requests.get(httpbin("redirect-to"), params={"url": url})
 
     @pytest.mark.parametrize(
