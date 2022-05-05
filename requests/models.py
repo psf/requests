@@ -507,8 +507,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 (body, content_type) = self._encode_files(files, data)
             else:
                 if data:
-                    body = self._encode_params(data)
-                    if isinstance(data, basestring) or hasattr(data, 'read'):
+                    body = self._encode_params(data) or None
+                    if isinstance(data, basestring) or hasattr(data, "read"):
                         content_type = None
                     else:
                         content_type = 'application/x-www-form-urlencoded'
