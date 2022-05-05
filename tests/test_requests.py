@@ -2669,7 +2669,8 @@ class TestPreparingURLs:
             ("http://example.org:non_int_port/",),
         ),
     )
-    def test_redirecting_to_bad_url(self, httpbin, url):
+    def test_redirecting_to_bad_url(self, httpbin, mocker, url):
+        mocker.patch('requests.utils.proxy_bypass', return_value=False)
         with pytest.raises(InvalidRedirectURL):
             requests.get(httpbin("redirect-to"), params={"url": url})
 
