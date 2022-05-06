@@ -1,0 +1,28 @@
+exclude: 'docs/|ext/'
+
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.0.1
+  hooks:
+  - id: check-yaml
+  - id: debug-statements
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
+- repo: https://github.com/PyCQA/isort
+  rev: 5.10.1
+  hooks:
+    - id: isort
+- repo: https://github.com/psf/black
+  rev: 22.3.0
+  hooks:
+    - id: black
+      exclude: tests/test_lowlevel.py
+- repo: https://github.com/asottile/pyupgrade
+  rev: v2.31.1
+  hooks:
+    - id: pyupgrade
+      args: [--py37-plus]
+- repo: https://gitlab.com/pycqa/flake8
+  rev: 4.0.1
+  hooks:
+    - id: flake8

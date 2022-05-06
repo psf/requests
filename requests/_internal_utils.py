@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 requests._internal_utils
 ~~~~~~~~~~~~~~
@@ -11,7 +9,7 @@ which depend on extremely few external helpers (such as compat)
 from .compat import builtin_str
 
 
-def to_native_string(string, encoding='ascii'):
+def to_native_string(string, encoding="ascii"):
     """Given a string object, regardless of type, returns a representation of
     that string in the native string type, encoding and decoding where
     necessary. This assumes ASCII unless told otherwise.
@@ -33,7 +31,7 @@ def unicode_is_ascii(u_string):
     """
     assert isinstance(u_string, str)
     try:
-        u_string.encode('ascii')
+        u_string.encode("ascii")
         return True
     except UnicodeEncodeError:
         return False
