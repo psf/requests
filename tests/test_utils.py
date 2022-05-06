@@ -610,15 +610,15 @@ def test__parse_content_type_header(value, expected):
 @pytest.mark.parametrize(
     "value, expected",
     (
-        (CaseInsensitiveDict(), None),
-        (
-            CaseInsensitiveDict({"content-type": "application/json; charset=utf-8"}),
-            "utf-8",
-        ),
-        (CaseInsensitiveDict({"content-type": "text/plain"}), "ISO-8859-1"),
+        ({}, None),
+        ({"content-type": "application/json; charset=ISO-8859-1"},"ISO-8859-1",), # Check overriding the charset
+        ({"content-type": "application/json"},"utf-8",), # application/json default
+        ({"content-type": "text/plain"}, "ISO-8859-1"), # text default
+        ({"content-type": "some/type;charset"}, None), # Ignore an invalid charset
     ),
 )
 def test_get_encoding_from_headers(value, expected):
+    value = CaseInsensitiveDict(value)
     assert get_encoding_from_headers(value) == expected
 
 
