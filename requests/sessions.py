@@ -397,7 +397,7 @@ class Session(SessionRedirectMixin):
         #: :class:`Request <Request>`.
         self.auth = None
 
-        #: Dictionary mapping protocol or protocol and host to the URL of the proxy
+        #: Dictionary mapping protocol or protocol and host to the URL of the proxy or a single proxy string (e.g 'http://127.0.0.1:7777')
         #: (e.g. {'http': 'foo.bar:3128', 'http://host.name': 'foo.bar:4012'}) to
         #: be used on each :class:`Request <Request>`.
         self.proxies = {}
@@ -572,12 +572,15 @@ class Session(SessionRedirectMixin):
         )
         prep = self.prepare_request(req)
 
-        proxies = proxies or {}
-
         settings = self.merge_environment_settings(
             prep.url, proxies, stream, verify, cert
         )
-
+        
+        settings['proxies'] = {
+            'http': settings['proxies'].strip(),
+            'https': settings['proxies'].strip()
+        } if isinstance(settings['proxies'], str) else settings['proxies']
+        
         # Send the request.
         send_kwargs = {
             "timeout": timeout,
@@ -755,7 +758,7 @@ class Session(SessionRedirectMixin):
         # Gather clues from the surrounding environment.
         if self.trust_env:
             # Set environment's proxies.
-            no_proxy = proxies.get("no_proxy") if proxies is not None else None
+            no_proxy = proxies.get("no_proxy") if hasattr(proxies,'get') else None
             env_proxies = get_environ_proxies(url, no_proxy=no_proxy)
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)
