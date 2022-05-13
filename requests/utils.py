@@ -556,7 +556,7 @@ def get_encoding_from_headers(headers):
 
 
 def stream_decode_response_unicode(iterator, r):
-    """Stream decodes a iterator."""
+    """Stream decodes an iterator."""
 
     if r.encoding is None:
         yield from iterator
