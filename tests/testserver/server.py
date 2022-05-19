@@ -115,7 +115,8 @@ class Server(threading.Thread):
 
     def __enter__(self):
         self.start()
-        self.ready_event.wait(self.WAIT_EVENT_TIMEOUT)
+        if not self.ready_event.wait(self.WAIT_EVENT_TIMEOUT):
+            raise RuntimeError("Timeout waiting for server to be ready.")
         return self.host, self.port
 
     def __exit__(self, exc_type, exc_value, traceback):
