@@ -83,7 +83,7 @@ if sys.platform == "win32":
             proxyEnable = int(winreg.QueryValueEx(internetSettings, "ProxyEnable")[0])
             # ProxyOverride is almost always a string
             proxyOverride = winreg.QueryValueEx(internetSettings, "ProxyOverride")[0]
-        except OSError:
+        except (OSError, ValueError):
             return False
         if not proxyEnable or not proxyOverride:
             return False
