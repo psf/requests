@@ -35,7 +35,7 @@ The other HTTP methods are supported - see `requests.api`. Full documentation
 is at <https://requests.readthedocs.io>.
 
 :copyright: (c) 2017 by Kenneth Reitz.
-:license: Apache 2.0, see LICENSE for more details.
+:license: Apache-2.0, see LICENSE for more details.
 """
 
 import warnings
