@@ -864,6 +864,39 @@ def test_should_bypass_proxies_win_registry(url, expected, override, monkeypatch
     assert should_bypass_proxies(url, None) == expected
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Test only on Windows")
+def test_should_bypass_proxies_win_registry_bad_values(monkeypatch):
+    """Tests for function should_bypass_proxies to check if proxy
+    can be bypassed or not with Windows invalid registry settings.
+    """
+    import winreg
+
+    class RegHandle:
+        def Close(self):
+            pass
+
+    ie_settings = RegHandle()
+
+    def OpenKey(key, subkey):
+        return ie_settings
+
+    def QueryValueEx(key, value_name):
+        if key is ie_settings:
+            if value_name == "ProxyEnable":
+                # Invalid response; Should be an int or int-y value
+                return [""]
+            elif value_name == "ProxyOverride":
+                return ["192.168.*;127.0.0.1;localhost.localdomain;172.16.1.1"]
+
+    monkeypatch.setenv("http_proxy", "")
+    monkeypatch.setenv("https_proxy", "")
+    monkeypatch.setenv("no_proxy", "")
+    monkeypatch.setenv("NO_PROXY", "")
+    monkeypatch.setattr(winreg, "OpenKey", OpenKey)
+    monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
+    assert should_bypass_proxies("http://172.16.1.1/", None) is False
+
+
 @pytest.mark.parametrize(
     "env_name, value",
     (
