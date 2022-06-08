@@ -25,7 +25,7 @@ from . import certs
 from .__version__ import __version__
 
 # to_native_string is unused here, but imported here for backwards compatibility
-from ._internal_utils import to_native_string  # noqa: F401
+from ._internal_utils import HEADER_VALIDATORS, to_native_string  # noqa: F401
 from .compat import (
     Mapping,
     basestring,
@@ -1024,33 +1024,30 @@ def get_auth_from_url(url):
     return auth
 
 
-# Moved outside of function to avoid recompile every call
-_CLEAN_HEADER_REGEX_BYTE = re.compile(b"^\\S[^\\r\\n]*$|^$")
-_CLEAN_HEADER_REGEX_STR = re.compile(r"^\S[^\r\n]*$|^$")
-
-
 def check_header_validity(header):
-    """Verifies that header value is a string which doesn't contain
-    leading whitespace or return characters. This prevents unintended
-    header injection.
+    """Verifies that header parts don't contain leading whitespace
+    reserved characters, or return characters.
 
     :param header: tuple, in the format (name, value).
     """
     name, value = header
 
-    if isinstance(value, bytes):
-        pat = _CLEAN_HEADER_REGEX_BYTE
-    else:
-        pat = _CLEAN_HEADER_REGEX_STR
-    try:
-        if not pat.match(value):
+    for part in header:
+        if type(part) not in HEADER_VALIDATORS:
             raise InvalidHeader(
-                f"Invalid return character or leading space in header: {name}"
+                f"Header part ({part!r}) from {{{name!r}: {value!r}}} must be "
+                f"of type str or bytes, not {type(part)}"
             )
-    except TypeError:
+
+    _validate_header_part(name, "name", HEADER_VALIDATORS[type(name)][0])
+    _validate_header_part(value, "value", HEADER_VALIDATORS[type(value)][1])
+
+
+def _validate_header_part(header_part, header_kind, validator):
+    if not validator.match(header_part):
         raise InvalidHeader(
-            f"Value for header {{{name}: {value}}} must be of type "
-            f"str or bytes, not {type(value)}"
+            f"Invalid leading whitespace, reserved character(s), or return"
+            f"character(s) in header {header_kind}: {header_part!r}"
         )
 
 
