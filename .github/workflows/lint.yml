@@ -9,10 +9,8 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v2
-      with:
-        python-version: "3.10"
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
     - name: Run pre-commit
-      uses: pre-commit/action@v2.0.0
+      uses: pre-commit/action@v3.0.0
