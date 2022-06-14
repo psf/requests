@@ -27,17 +27,17 @@ Requests is one of the most downloaded Python packages today, pulling in around 
 
 ## Installing Requests and Supported Versions
 
-Requests is available on PyPI:
+Requests is available on PyPI, so you can run this in your terminal for installation of Requests:
 
 ```console
 $ python -m pip install requests
 ```
 
-Requests officially supports Python 3.7+.
+Requests officially supports Python 3.7 and up.
 
 ## Supported Features & Best–Practices
 
-Requests is ready for the demands of building robust and reliable HTTP–speaking applications, for the needs of today.
+Requests is ready for the demands of building robust and reliable HTTP–speaking applications, for the needs of today. Here are some of the features Requests support:
 
 - Keep-Alive & Connection Pooling
 - International Domains and URLs
@@ -53,7 +53,7 @@ Requests is ready for the demands of building robust and reliable HTTP–speakin
 - Automatic honoring of `.netrc`
 - Chunked HTTP Requests
 
-## API Reference and User Guide available on [Read the Docs](https://requests.readthedocs.io)
+## API Reference and User Guide is available on [Read the Docs](https://requests.readthedocs.io)
 
 [![Read the Docs](https://raw.githubusercontent.com/psf/requests/main/ext/ss.png)](https://requests.readthedocs.io)
 
