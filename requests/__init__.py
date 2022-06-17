@@ -38,8 +38,8 @@ is at <https://requests.readthedocs.io>.
 :license: Apache 2.0, see LICENSE for more details.
 """
 
-import warnings
 import contextlib
+import warnings
 
 import urllib3
 
