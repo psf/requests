@@ -233,7 +233,8 @@ def get_netrc_auth(url, raise_errors=False):
         host = ri.netloc.split(splitstr)[0]
 
         try:
-            if _netrc := netrc(netrc_path).authenticators(host):
+            _netrc = netrc(netrc_path).authenticators(host)
+            if _netrc:
                 # Return with login / password
                 login_i = 0 if _netrc[0] else 1
                 return (_netrc[login_i], _netrc[2])
