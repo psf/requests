@@ -479,9 +479,7 @@ class HTTPAdapter(BaseAdapter):
                     f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
                     f"or a single float to set both timeouts to the same value."
                 )
-        elif isinstance(timeout, TimeoutSauce):
-            pass
-        else:
+        elif not isinstance(timeout, TimeoutSauce):
             timeout = TimeoutSauce(connect=timeout, read=timeout)
 
         try:

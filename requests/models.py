@@ -554,13 +554,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             # Multi-part file uploads.
             if files:
                 (body, content_type) = self._encode_files(files, data)
-            else:
-                if data:
-                    body = self._encode_params(data)
-                    if isinstance(data, basestring) or hasattr(data, "read"):
-                        content_type = None
-                    else:
-                        content_type = "application/x-www-form-urlencoded"
+            elif data:
+                body = self._encode_params(data)
+                if isinstance(data, basestring) or hasattr(data, "read"):
+                    content_type = None
+                else:
+                    content_type = "application/x-www-form-urlencoded"
 
             self.prepare_content_length(body)
 
@@ -813,8 +812,7 @@ class Response:
             # Special case for urllib3.
             if hasattr(self.raw, "stream"):
                 try:
-                    for chunk in self.raw.stream(chunk_size, decode_content=True):
-                        yield chunk
+                    yield from self.raw.stream(chunk_size, decode_content=True)
                 except ProtocolError as e:
                     raise ChunkedEncodingError(e)
                 except DecodeError as e:

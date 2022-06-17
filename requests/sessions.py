@@ -5,6 +5,8 @@ requests.sessions
 This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
 """
+
+import contextlib
 import os
 import sys
 import time
@@ -720,7 +722,7 @@ class Session(SessionRedirectMixin):
         if allow_redirects:
             # Redirect resolving generator.
             gen = self.resolve_redirects(r, request, **kwargs)
-            history = [resp for resp in gen]
+            history = list(gen)
         else:
             history = []
 
@@ -734,13 +736,10 @@ class Session(SessionRedirectMixin):
 
         # If redirects aren't being followed, store the response on the Request for Response.next().
         if not allow_redirects:
-            try:
+            with contextlib.suppress(StopIteration):
                 r._next = next(
                     self.resolve_redirects(r, request, yield_requests=True, **kwargs)
                 )
-            except StopIteration:
-                pass
-
         if not stream:
             r.content
 

@@ -200,7 +200,8 @@ def get_netrc_auth(url, raise_errors=False):
     else:
         netrc_locations = (f"~/{f}" for f in NETRC_FILES)
 
-    try:
+    # suppressed for App Engine
+    with contextlib.suppress(ImportError, AttributeError):
         from netrc import NetrcParseError, netrc
 
         netrc_path = None
@@ -232,8 +233,7 @@ def get_netrc_auth(url, raise_errors=False):
         host = ri.netloc.split(splitstr)[0]
 
         try:
-            _netrc = netrc(netrc_path).authenticators(host)
-            if _netrc:
+            if _netrc := netrc(netrc_path).authenticators(host):
                 # Return with login / password
                 login_i = 0 if _netrc[0] else 1
                 return (_netrc[login_i], _netrc[2])
@@ -242,10 +242,6 @@ def get_netrc_auth(url, raise_errors=False):
             # we'll just skip netrc auth unless explicitly asked to raise errors.
             if raise_errors:
                 raise
-
-    # App Engine hackiness.
-    except (ImportError, AttributeError):
-        pass
 
 
 def guess_filename(obj):
@@ -840,16 +836,15 @@ def select_proxy(url, proxies):
         return proxies.get(urlparts.scheme, proxies.get("all"))
 
     proxy_keys = [
-        urlparts.scheme + "://" + urlparts.hostname,
+        f"{urlparts.scheme}://{urlparts.hostname}",
         urlparts.scheme,
-        "all://" + urlparts.hostname,
+        f"all://{urlparts.hostname}",
         "all",
     ]
-    proxy = None
-    for proxy_key in proxy_keys:
-        if proxy_key in proxies:
-            proxy = proxies[proxy_key]
-            break
+
+    proxy = next(
+        (proxies[proxy_key] for proxy_key in proxy_keys if proxy_key in proxies), None
+    )
 
     return proxy
 

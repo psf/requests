@@ -39,6 +39,7 @@ is at <https://requests.readthedocs.io>.
 """
 
 import warnings
+import contextlib
 
 import urllib3
 
@@ -94,9 +95,10 @@ def _check_cryptography(cryptography_version):
         return
 
     if cryptography_version < [1, 3, 4]:
-        warning = "Old version of cryptography ({}) may cause slowdown.".format(
-            cryptography_version
+        warning = (
+            f"Old version of cryptography ({cryptography_version}) may cause slowdown."
         )
+
         warnings.warn(warning, RequestsDependencyWarning)
 
 
@@ -107,17 +109,19 @@ try:
     )
 except (AssertionError, ValueError):
     warnings.warn(
-        "urllib3 ({}) or chardet ({})/charset_normalizer ({}) doesn't match a supported "
-        "version!".format(
-            urllib3.__version__, chardet_version, charset_normalizer_version
+        (
+            f"urllib3 ({urllib3.__version__}) or "
+            + f" chardet ({chardet_version})/charset_normalizer "
+            + f"({charset_normalizer_version}) doesn't match a supported version!"
         ),
         RequestsDependencyWarning,
     )
 
+
 # Attempt to enable urllib3's fallback for SNI support
 # if the standard library doesn't support SNI or the
 # 'ssl' library isn't available.
-try:
+with contextlib.suppress(ImportError):
     try:
         import ssl
     except ImportError:
@@ -132,8 +136,6 @@ try:
         from cryptography import __version__ as cryptography_version
 
         _check_cryptography(cryptography_version)
-except ImportError:
-    pass
 
 # urllib3's DependencyWarnings should be silenced.
 from urllib3.exceptions import DependencyWarning
