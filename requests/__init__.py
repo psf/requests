@@ -111,7 +111,7 @@ except (AssertionError, ValueError):
     warnings.warn(
         (
             f"urllib3 ({urllib3.__version__}) or "
-            + f" chardet ({chardet_version})/charset_normalizer "
+            + f"chardet ({chardet_version})/charset_normalizer "
             + f"({charset_normalizer_version}) doesn't match a supported version!"
         ),
         RequestsDependencyWarning,
