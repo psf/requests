@@ -61,24 +61,25 @@ class CaseInsensitiveDict(MutableMapping):
         return len(self._store)
 
     def __or__(self, other):
-        if not isinstance(other, Mapping):
+        if isinstance(other, Mapping):
+            new = CaseInsensitiveDict(self)
+        else:
             return NotImplemented
 
-        new = self.copy()
         new.update(other)
         return new
 
     def __ror__(self, other):
-        if not isinstance(other, Mapping):
+        if isinstance(other, Mapping):
+            new = CaseInsensitiveDict(other)
+        else:
             return NotImplemented
 
-        new = CaseInsensitiveDict(other)
         new.update(self)
         return new
 
     def __ior__(self, other):
         self.update(other)
-
         return self
 
     def lower_items(self):
