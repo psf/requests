@@ -1,0 +1,16 @@
+name: Lint code
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+    - name: Run pre-commit
+      uses: pre-commit/action@v3.0.0

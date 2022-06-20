@@ -19,13 +19,14 @@ the simplest kind, and Requests supports it straight out of the box.
 Making requests with HTTP Basic Auth is very simple::
 
     >>> from requests.auth import HTTPBasicAuth
-    >>> requests.get('https://api.github.com/user', auth=HTTPBasicAuth('user', 'pass'))
+    >>> basic = HTTPBasicAuth('user', 'pass')
+    >>> requests.get('https://httpbin.org/basic-auth/user/pass', auth=basic)
     <Response [200]>
 
 In fact, HTTP Basic Auth is so common that Requests provides a handy shorthand
 for using it::
 
-    >>> requests.get('https://api.github.com/user', auth=('user', 'pass'))
+    >>> requests.get('https://httpbin.org/basic-auth/user/pass', auth=('user', 'pass'))
     <Response [200]>
 
 Providing the credentials in a tuple like this is exactly the same as the

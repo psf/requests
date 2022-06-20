@@ -1,16 +1,14 @@
-# -*- coding: utf-8 -*-
-
-import threading
 import socket
+import threading
 import time
 
 import pytest
-import requests
 from tests.testserver.server import Server
+
+import requests
 
 
 class TestTestServer:
-
     def test_basic(self):
         """messages are sent and received properly"""
         question = b"success?"
@@ -44,36 +42,37 @@ class TestTestServer:
     def test_text_response(self):
         """the text_response_server sends the given text"""
         server = Server.text_response_server(
-            "HTTP/1.1 200 OK\r\n" +
-            "Content-Length: 6\r\n" +
-            "\r\nroflol"
+            "HTTP/1.1 200 OK\r\n" "Content-Length: 6\r\n" "\r\nroflol"
         )
 
         with server as (host, port):
-            r = requests.get('http://{}:{}'.format(host, port))
+            r = requests.get(f"http://{host}:{port}")
 
             assert r.status_code == 200
-            assert r.text == u'roflol'
-            assert r.headers['Content-Length'] == '6'
+            assert r.text == "roflol"
+            assert r.headers["Content-Length"] == "6"
 
     def test_basic_response(self):
         """the basic response server returns an empty http response"""
         with Server.basic_response_server() as (host, port):
-            r = requests.get('http://{}:{}'.format(host, port))
+            r = requests.get(f"http://{host}:{port}")
             assert r.status_code == 200
-            assert r.text == u''
-            assert r.headers['Content-Length'] == '0'
+            assert r.text == ""
+            assert r.headers["Content-Length"] == "0"
 
     def test_basic_waiting_server(self):
         """the server waits for the block_server event to be set before closing"""
         block_server = threading.Event()
 
-        with Server.basic_response_server(wait_to_close_event=block_server) as (host, port):
+        with Server.basic_response_server(wait_to_close_event=block_server) as (
+            host,
+            port,
+        ):
             sock = socket.socket()
             sock.connect((host, port))
-            sock.sendall(b'send something')
+            sock.sendall(b"send something")
             time.sleep(2.5)
-            sock.sendall(b'still alive')
+            sock.sendall(b"still alive")
             block_server.set()  # release server block
 
     def test_multiple_requests(self):
@@ -83,7 +82,7 @@ class TestTestServer:
         server = Server.basic_response_server(requests_to_handle=requests_to_handle)
 
         with server as (host, port):
-            server_url = 'http://{}:{}'.format(host, port)
+            server_url = f"http://{host}:{port}"
             for _ in range(requests_to_handle):
                 r = requests.get(server_url)
                 assert r.status_code == 200
@@ -97,8 +96,8 @@ class TestTestServer:
         """can check the requests content"""
         # TODO: figure out why this sometimes fails when using pytest-xdist.
         server = Server.basic_response_server(requests_to_handle=2)
-        first_request = b'put your hands up in the air'
-        second_request = b'put your hand down in the floor'
+        first_request = b"put your hands up in the air"
+        second_request = b"put your hand down in the floor"
 
         with server as address:
             sock1 = socket.socket()
@@ -123,15 +122,15 @@ class TestTestServer:
             sock = socket.socket()
             sock.connect(address)
             time.sleep(1.5)
-            sock.sendall(b'hehehe, not received')
+            sock.sendall(b"hehehe, not received")
             sock.close()
 
-        assert server.handler_results[0] == b''
+        assert server.handler_results[0] == b""
 
     def test_request_recovery_with_bigger_timeout(self):
         """a biggest timeout can be specified"""
         server = Server.basic_response_server(request_timeout=3)
-        data = b'bananadine'
+        data = b"bananadine"
 
         with server as address:
             sock = socket.socket()

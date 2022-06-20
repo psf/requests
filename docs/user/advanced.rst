@@ -305,7 +305,7 @@ immediately. You can override this behaviour and defer downloading the response
 body until you access the :attr:`Response.content <requests.Response.content>`
 attribute with the ``stream`` parameter::
 
-    tarball_url = 'https://github.com/psf/requests/tarball/master'
+    tarball_url = 'https://github.com/psf/requests/tarball/main'
     r = requests.get(tarball_url, stream=True)
 
 At this point only the response headers have been downloaded and the connection
@@ -446,7 +446,7 @@ argument.
     def print_url(r, *args, **kwargs):
         print(r.url)
 
-Your callback function must handle its own exceptions. Any unhandled exception wont be pass silently and thus should be handled by the code calling Requests.
+Your callback function must handle its own exceptions. Any unhandled exception won't be passed silently and thus should be handled by the code calling Requests.
 
 If the callback function returns a value, it is assumed that it is to
 replace the data that was passed in. If the function doesn't return
@@ -603,15 +603,25 @@ Alternatively you can configure it once for an entire
 
     session.get('http://example.org')
 
-When the proxies configuration is not overridden in python as shown above,
-by default Requests relies on the proxy configuration defined by standard
-environment variables ``http_proxy``, ``https_proxy``, ``no_proxy`` and
-``curl_ca_bundle``. Uppercase variants of these variables are also supported.
+.. warning::  Setting ``session.proxies`` may behave differently than expected.
+    Values provided will be overwritten by environmental proxies
+    (those returned by `urllib.request.getproxies <https://docs.python.org/3/library/urllib.request.html#urllib.request.getproxies>`_).
+    To ensure the use of proxies in the presence of environmental proxies,
+    explicitly specify the ``proxies`` argument on all individual requests as
+    initially explained above.
+
+    See `#2018 <https://github.com/psf/requests/issues/2018>`_ for details.
+
+When the proxies configuration is not overridden per request as shown above,
+Requests relies on the proxy configuration defined by standard
+environment variables ``http_proxy``, ``https_proxy``, ``no_proxy``,
+and ``all_proxy``. Uppercase variants of these variables are also supported.
 You can therefore set them to configure Requests (only set the ones relevant
 to your needs)::
 
     $ export HTTP_PROXY="http://10.10.1.10:3128"
     $ export HTTPS_PROXY="http://10.10.1.10:1080"
+    $ export ALL_PROXY="socks5://10.10.1.10:3434"
 
     $ python
     >>> import requests

@@ -1,27 +1,23 @@
-# -*- coding: utf-8 -*-
-
 try:
-    from http.server import HTTPServer
-    from http.server import SimpleHTTPRequestHandler
+    from http.server import HTTPServer, SimpleHTTPRequestHandler
 except ImportError:
     from BaseHTTPServer import HTTPServer
-    from SimpleHTTPServer import SimpleHTTPRequestHandler 
+    from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 import ssl
-import tempfile
 import threading
 
 import pytest
+
 from requests.compat import urljoin
-import trustme
 
 
 def prepare_url(value):
     # Issue #1483: Make sure the URL always has a trailing slash
-    httpbin_url = value.url.rstrip('/') + '/'
+    httpbin_url = value.url.rstrip("/") + "/"
 
     def inner(*suffix):
-        return urljoin(httpbin_url, '/'.join(suffix))
+        return urljoin(httpbin_url, "/".join(suffix))
 
     return inner
 
@@ -38,10 +34,14 @@ def httpbin_secure(httpbin_secure):
 
 @pytest.fixture
 def nosan_server(tmp_path_factory):
+    # delay importing until the fixture in order to make it possible
+    # to deselect the test via command-line when trustme is not available
+    import trustme
+
     tmpdir = tmp_path_factory.mktemp("certs")
     ca = trustme.CA()
     # only commonName, no subjectAltName
-    server_cert = ca.issue_cert(common_name=u"localhost")
+    server_cert = ca.issue_cert(common_name="localhost")
     ca_bundle = str(tmpdir / "ca.pem")
     ca.cert_pem.write_to_path(ca_bundle)
 
