@@ -8,6 +8,7 @@ requests (cookies, auth, proxies).
 import os
 import sys
 import time
+import copy
 from collections import OrderedDict
 from datetime import timedelta
 
@@ -752,6 +753,13 @@ class Session(SessionRedirectMixin):
 
         :rtype: dict
         """
+        # Performing a deep copy on input args to avoid mutation
+        url = copy.deepcopy(url)
+        proxies = copy.deepcopy(proxies)
+        stream = copy.deepcopy(stream)
+        verify = copy.deepcopy(verify)
+        cert = copy.deepcopy(cert)
+
         # Gather clues from the surrounding environment.
         if self.trust_env:
             # Set environment's proxies.
