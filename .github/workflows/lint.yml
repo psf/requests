@@ -11,6 +11,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v4.0.0
     - name: Run pre-commit
       uses: pre-commit/action@v3.0.0
