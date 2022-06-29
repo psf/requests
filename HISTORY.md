@@ -7,6 +7,18 @@ dev
 - \[Short description of non-trivial change.\]
 
 
+2.28.1 (2022-06-29)
+-------------------
+
+**Improvements**
+
+- Speed optimization in `iter_content` with transition to `yield from`. (#6170)
+
+**Dependencies**
+
+- Added support for chardet 5.0.0 (#6179)
+- Added support for charset-normalizer 2.1.0 (#6169)
+
 2.28.0 (2022-06-09)
 -------------------
 
