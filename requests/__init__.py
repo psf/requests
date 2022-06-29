@@ -38,6 +38,7 @@ is at <https://requests.readthedocs.io>.
 :license: Apache 2.0, see LICENSE for more details.
 """
 
+import contextlib
 import warnings
 
 import urllib3
@@ -117,7 +118,7 @@ except (AssertionError, ValueError):
 # Attempt to enable urllib3's fallback for SNI support
 # if the standard library doesn't support SNI or the
 # 'ssl' library isn't available.
-try:
+with contextlib.suppress(ImportError):
     try:
         import ssl
     except ImportError:
@@ -132,8 +133,6 @@ try:
         from cryptography import __version__ as cryptography_version
 
         _check_cryptography(cryptography_version)
-except ImportError:
-    pass
 
 # urllib3's DependencyWarnings should be silenced.
 from urllib3.exceptions import DependencyWarning
