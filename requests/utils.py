@@ -840,9 +840,9 @@ def select_proxy(url, proxies):
         return proxies.get(urlparts.scheme, proxies.get("all"))
 
     proxy_keys = [
-        urlparts.scheme + "://" + urlparts.hostname,
+        f"{urlparts.scheme}://{urlparts.hostname}",
         urlparts.scheme,
-        "all://" + urlparts.hostname,
+        f"all://{urlparts.hostname}",
         "all",
     ]
     proxy = None

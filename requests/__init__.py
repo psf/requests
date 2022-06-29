@@ -94,9 +94,10 @@ def _check_cryptography(cryptography_version):
         return
 
     if cryptography_version < [1, 3, 4]:
-        warning = "Old version of cryptography ({}) may cause slowdown.".format(
-            cryptography_version
+        warning = (
+            f"Old version of cryptography ({cryptography_version}) may cause slowdown."
         )
+
         warnings.warn(warning, RequestsDependencyWarning)
 
 
