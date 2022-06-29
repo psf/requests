@@ -59,7 +59,7 @@ if sys.argv[-1] == "publish":
     sys.exit()
 
 requires = [
-    "charset_normalizer~=2.0.0",
+    "charset_normalizer>=2,<3",
     "idna>=2.5,<4",
     "urllib3>=1.21.1,<1.27",
     "certifi>=2017.4.17",
@@ -123,7 +123,7 @@ setup(
     extras_require={
         "security": [],
         "socks": ["PySocks>=1.5.6, !=1.5.7"],
-        "use_chardet_on_py3": ["chardet>=3.0.2,<5"],
+        "use_chardet_on_py3": ["chardet>=3.0.2,<6"],
     },
     project_urls={
         "Documentation": "https://requests.readthedocs.io",
