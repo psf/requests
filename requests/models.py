@@ -438,7 +438,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if not scheme:
             raise MissingSchema(
                 f"Invalid URL {url!r}: No scheme supplied. "
-                f"Perhaps you meant http://{url}?"
+                f"Perhaps you meant https://{url}?"
             )
 
         if not host:
@@ -813,8 +813,7 @@ class Response:
             # Special case for urllib3.
             if hasattr(self.raw, "stream"):
                 try:
-                    for chunk in self.raw.stream(chunk_size, decode_content=True):
-                        yield chunk
+                    yield from self.raw.stream(chunk_size, decode_content=True)
                 except ProtocolError as e:
                     raise ChunkedEncodingError(e)
                 except DecodeError as e:
