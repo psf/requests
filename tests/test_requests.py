@@ -1350,6 +1350,16 @@ class TestRequests:
         with pytest.raises(requests.cookies.CookieConflictError):
             jar.get(key)
 
+    def test_cookies_popitem(self):
+        jar = requests.cookies.RequestsCookieJar()
+        with pytest.raises(KeyError):
+            jar.popitem()
+
+        jar.set("1st_key", "1st_value")
+        jar.set("2nd_key", "2nd_value")
+        cookie = next(iter(jar))
+        assert jar.popitem() == (cookie, cookie.value)
+
     def test_cookie_policy_copy(self):
         class MyCookiePolicy(cookielib.DefaultCookiePolicy):
             pass

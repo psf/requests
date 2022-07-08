@@ -10,6 +10,7 @@ requests.utils imports from here, so be careful with imports.
 import calendar
 import copy
 import time
+from http.cookiejar import Cookie
 
 from ._internal_utils import to_native_string
 from .compat import Morsel, MutableMapping, cookielib, urlparse, urlunparse
@@ -324,14 +325,16 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
         except CookieConflictError:
             return True
 
-    def __getitem__(self, name):
+    def __getitem__(self, key):
         """Dict-like __getitem__() for compatibility with client code. Throws
         exception if there are more than one cookie with name. In that case,
         use the more explicit get() method instead.
 
         .. warning:: operation is O(n), not O(1).
         """
-        return self._find_no_duplicates(name)
+        if isinstance(key, Cookie):
+            key = key.name
+        return self._find_no_duplicates(key)
 
     def __setitem__(self, name, value):
         """Dict-like __setitem__ for compatibility with client code. Throws
