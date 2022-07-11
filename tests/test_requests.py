@@ -15,7 +15,7 @@ from urllib3.util import Timeout as Urllib3Timeout
 
 import requests
 from requests.adapters import HTTPAdapter
-from requests.auth import HTTPDigestAuth, _basic_auth_str
+from requests.auth import HTTPDigestAuth, _basic_auth_str, _bearer_token_auth_str
 from requests.compat import (
     JSONDecodeError,
     Morsel,
@@ -1999,6 +1999,21 @@ class TestRequests:
         assert isinstance(s, builtin_str)
         assert s == auth_str
 
+      @pytest.mark.parametrize(
+        "token, auth_str",
+        (
+            ("test", "Bearer dGVzdA=="),
+            (
+                "dGVzdDp0ZXN0".encode(),
+                "Bearer ZEdWemREcDBaWE4w",
+            ),
+        ),
+    )
+    def test_bearer_token_auth_str(self, token, auth_str):
+        s = _bearer_token_auth_str(token)
+        assert isinstance(s, builtin_str)
+        assert s == auth_str      
+        
     def test_requests_history_is_saved(self, httpbin):
         r = requests.get(httpbin("redirect/5"))
         total = r.history[-1].history
