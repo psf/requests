@@ -66,6 +66,30 @@ def _basic_auth_str(username, password):
     return authstr
 
 
+def _bearer_token_auth_str(token):
+    """Returns a Bearer Token Auth string"""
+
+    if not isinstance(token, basestring):
+        warnings.warn(
+            "Non-string tokens are not supported in Requests. "
+            "Please convert the object you've passed in ({!r}) to "
+            "a string or bytes object in the near future to avoid "
+            "problems.".format(type(token)),
+            category=DeprecationWarning,
+        )
+        token = str(token)
+    # -- End Removal --
+
+    if isinstance(token, str):
+        token = token.encode("latin1")
+
+    authstr = "Bearer " + to_native_string(
+        b64encode(token.strip())
+    )
+
+    return authstr
+
+
 class AuthBase:
     """Base class that all auth implementations derive from"""
 
@@ -96,6 +120,27 @@ class HTTPBasicAuth(AuthBase):
         return r
 
 
+class HTTPBearerTokenAuth(AuthBase):
+    """Attaches HTTP Bearer Token Authentication to the given Request object."""
+
+    def _init_(self, token):
+        self.token = token
+
+    def _eq_(self, other):
+        return all(
+            [
+                self.token == getattr(other, "token", None),
+            ]
+        )
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __call__(self, r):
+        r.headers["Authorization"] = _bearer_token_auth_str(self.token)
+        return r
+    
+    
 class HTTPProxyAuth(HTTPBasicAuth):
     """Attaches HTTP Proxy Authentication to a given Request object."""
 
