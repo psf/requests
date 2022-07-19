@@ -2752,6 +2752,8 @@ class TestPreparingURLs:
         assert isinstance(excinfo.value, RequestException)
         assert isinstance(excinfo.value, JSONDecodeError)
         assert r.text not in str(excinfo.value)
+        assert excinfo.value.__cause__ is None
+        assert excinfo.value.__suppress_context__
 
     def test_json_decode_persists_doc_attr(self, httpbin):
         r = requests.get(httpbin("bytes/20"))

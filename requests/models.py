@@ -965,14 +965,14 @@ class Response:
                     # used.
                     pass
                 except JSONDecodeError as e:
-                    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+                    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos) from None
 
         try:
             return complexjson.loads(self.text, **kwargs)
         except JSONDecodeError as e:
             # Catch JSON-related errors and raise as requests.JSONDecodeError
             # This aliases json.JSONDecodeError and simplejson.JSONDecodeError
-            raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+            raise RequestsJSONDecodeError(e.msg, e.doc, e.pos) from None
 
     @property
     def links(self):
