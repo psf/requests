@@ -1027,7 +1027,7 @@ library to use SSLv3::
                 num_pools=connections, maxsize=maxsize,
                 block=block, ssl_version=ssl.PROTOCOL_SSLv3)
 
-.. _`described here`: https://kenreitz.org/essays/2012/06/14/the-future-of-python-http
+.. _`described here`: https://web.archive.org/web/20220204220709/https://kennethreitz.org/essays/2012/06/14/the-future-of-python-http
 .. _`urllib3`: https://github.com/urllib3/urllib3
 
 .. _blocking-or-nonblocking:
