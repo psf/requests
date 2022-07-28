@@ -24,17 +24,16 @@ def echo_response_handler(sock):
 
 def test_chunked_upload():
     """can safely send generators"""
-    close_server = threading.Event()
-    server = Server.basic_response_server(wait_to_close_event=close_server)
-    data = iter([b"a", b"b", b"c"])
+    server = WerkzeugServer.echo_server()
+    data = iter([b'a', b'b', b'c'])
 
     with server as (host, port):
-        url = f"http://{host}:{port}/"
+        url = 'http://{}:{}/'.format(host, port)
         r = requests.post(url, data=data, stream=True)
 
     assert r.content == b'abc'
     assert r.status_code == 200
-    assert r.request.headers["Transfer-Encoding"] == "chunked"
+    assert r.request.headers['Transfer-Encoding'] == 'chunked'
 
 
 def test_chunked_encoding_error():
