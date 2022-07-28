@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import multiprocessing
 import socket
 from contextlib import closing
