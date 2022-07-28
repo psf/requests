@@ -28,7 +28,7 @@ def test_chunked_upload():
     data = iter([b'a', b'b', b'c'])
 
     with server as (host, port):
-        url = 'http://{}:{}/'.format(host, port)
+        url = f'http://{host}:{port}/'
         r = requests.post(url, data=data, stream=True)
 
     assert r.content == b'abc'
