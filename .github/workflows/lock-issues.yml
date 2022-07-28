@@ -10,9 +10,10 @@ permissions:
 
 jobs:
   action:
+    if: github.repository_owner == 'psf'
     runs-on: ubuntu-latest
     steps:
-      - uses: dessant/lock-threads@v2
+      - uses: dessant/lock-threads@v3
         with:
             issue-lock-inactive-days: 90
             pr-lock-inactive-days: 90

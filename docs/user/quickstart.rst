@@ -129,7 +129,7 @@ You can also access the response body as bytes, for non-text requests::
 The ``gzip`` and ``deflate`` transfer-encodings are automatically decoded for you.
 
 The ``br``  transfer-encoding is automatically decoded for you if a Brotli library
-like `brotli <https://pypi.org/project/brotli>`_ or `brotlicffi <https://pypi.org/project/brotli>`_ is installed.
+like `brotli <https://pypi.org/project/brotli>`_ or `brotlicffi <https://pypi.org/project/brotlicffi>`_ is installed.
 
 For example, to create an image from binary data returned by a request, you can
 use the following code::
@@ -283,8 +283,12 @@ For example, the GitHub API v3 accepts JSON-Encoded POST/PATCH data::
 
     >>> r = requests.post(url, data=json.dumps(payload))
 
-Instead of encoding the ``dict`` yourself, you can also pass it directly using
-the ``json`` parameter (added in version 2.4.2) and it will be encoded automatically::
+Please note that the above code will NOT add the ``Content-Type`` header
+(so in particular it will NOT set it to ``application/json``).
+
+If you need that header set and you don't want to encode the ``dict`` yourself,
+you can also pass it directly using the ``json`` parameter (added in version 2.4.2)
+and it will be encoded automatically:
 
     >>> url = 'https://api.github.com/some/endpoint'
     >>> payload = {'some': 'data'}
@@ -292,8 +296,6 @@ the ``json`` parameter (added in version 2.4.2) and it will be encoded automatic
     >>> r = requests.post(url, json=payload)
 
 Note, the ``json`` parameter is ignored if either ``data`` or ``files`` is passed.
-
-Using the ``json`` parameter in the request will change the ``Content-Type`` in the header to ``application/json``.
 
 POST a Multipart-Encoded File
 -----------------------------

@@ -24,9 +24,9 @@ You can either clone the public repository::
 
     $ git clone git://github.com/psf/requests.git
 
-Or, download the `tarball <https://github.com/psf/requests/tarball/master>`_::
+Or, download the `tarball <https://github.com/psf/requests/tarball/main>`_::
 
-    $ curl -OL https://github.com/psf/requests/tarball/master
+    $ curl -OL https://github.com/psf/requests/tarball/main
     # optionally, zipball is also available (for Windows users).
 
 Once you have a copy of the source, you can embed it in your own Python

@@ -1,0 +1,13 @@
+[tool.isort]
+profile = "black"
+src_paths = ["requests", "test"]
+honor_noqa = true
+
+[tool.pytest.ini_options]
+addopts = "-p no:warnings --doctest-modules"
+doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
+minversion = "6.2"
+testpaths = [
+    "requests",
+    "tests",
+]

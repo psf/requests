@@ -9,17 +9,21 @@ Requests: HTTP for Humans™
 Release v\ |version|. (:ref:`Installation <install>`)
 
 
-.. image:: https://pepy.tech/badge/requests
+.. image:: https://pepy.tech/badge/requests/month
     :target: https://pepy.tech/project/requests
+    :alt: Requests Downloads Per Month Badge
     
 .. image:: https://img.shields.io/pypi/l/requests.svg
     :target: https://pypi.org/project/requests/
+    :alt: License Badge
 
 .. image:: https://img.shields.io/pypi/wheel/requests.svg
     :target: https://pypi.org/project/requests/
+    :alt: Wheel Support Badge
 
 .. image:: https://img.shields.io/pypi/pyversions/requests.svg
     :target: https://pypi.org/project/requests/
+    :alt: Python Version Support Badge
 
 **Requests** is an elegant and simple HTTP library for Python, built for human beings.
 
@@ -68,7 +72,7 @@ Requests is ready for today's web.
 - Chunked Requests
 - ``.netrc`` Support
 
-Requests officially supports Python 2.7 & 3.6+, and runs great on PyPy.
+Requests officially supports Python 3.7+, and runs great on PyPy.
 
 
 The User Guide
