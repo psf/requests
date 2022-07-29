@@ -6,12 +6,13 @@ This module contains the primary objects that power Requests.
 """
 
 import datetime
+from http.server import BaseHTTPRequestHandler
 
 # Import encoding now, to avoid implicit import later.
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
 # such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
 import encodings.idna  # noqa: F401
-from io import UnsupportedOperation
+from io import UnsupportedOperation, BytesIO
 
 from urllib3.exceptions import (
     DecodeError,
@@ -45,6 +46,7 @@ from .exceptions import (
     HTTPError,
     InvalidJSONError,
     InvalidURL,
+    RequestException,
 )
 from .exceptions import JSONDecodeError as RequestsJSONDecodeError
 from .exceptions import MissingSchema
@@ -637,6 +639,56 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         for event in hooks:
             self.register_hook(event, hooks[event])
 
+    @classmethod
+    def from_raw(cls, raw, use_https):
+        """Parse a raw HTTP request and return a PreparedRequest object.
+        :param raw: raw http request to be parsed.
+        :param use_https: if the request were to be made using https or not.
+
+        the parsing is done using python's builtin BaseHTTPRequestHandler class
+
+        Usage::
+
+          >>> from requests import PreparedRequest, Session
+          >>> prep = PreparedRequest.from_raw('GET / HTTP/1.1\r\nHost: example.com\r\n\r\n', use_https=False)
+          >>> Session().send(prep)
+          <Response [200]>
+        """
+        class HTTPRequest(BaseHTTPRequestHandler):
+            def __init__(self, req_txt):
+                self.rfile = BytesIO(req_txt)
+                self.raw_requestline = self.rfile.readline()
+                self.err_msg = None
+                self.parse_request()
+
+            def send_error(self, code, msg, extras=None):
+                if extras:
+                    self.err_msg = f'{msg} ({extras})'
+                else:
+                    self.err_msg = msg
+
+        if isinstance(raw, str):
+            raw = raw.encode('iso-8859-1')
+        parsed_rq = HTTPRequest(raw)
+
+        if parsed_rq.err_msg is not None:
+            raise RequestException(parsed_rq.err_msg)
+
+        method = parsed_rq.command.casefold()
+        proto = 'https' if use_https else 'http'
+        host = parsed_rq.headers['host']
+        path = parsed_rq.path
+        url = f'{proto}://{host}{path}'
+        headers = {k: v for k, v in parsed_rq.headers.items()}
+
+        p = cls()
+        p.prepare(
+            method=method,
+            url=url,
+            headers=headers,
+        )
+        p.body = parsed_rq.rfile.read()
+        return p
 
 class Response:
     """The :class:`Response <Response>` object, which contains a
