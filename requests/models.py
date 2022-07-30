@@ -738,16 +738,6 @@ class Response:
         """
         return self.ok
 
-    def __nonzero__(self):
-        """Returns True if :attr:`status_code` is less than 400.
-
-        This attribute checks if the status code of the response is between
-        400 and 600 to see if there was a client error or a server error. If
-        the status code, is between 200 and 400, this will return True. This
-        is **not** a check to see if the response code is ``200 OK``.
-        """
-        return self.ok
-
     def __iter__(self):
         """Allows you to use a response as an iterator."""
         return self.iter_content(128)
