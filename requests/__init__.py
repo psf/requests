@@ -157,7 +157,7 @@ from .__version__ import (
     __url__,
     __version__,
 )
-from .api import delete, get, head, options, patch, post, put, request
+from .api import delete, get, head, options, patch, post, put, trace, request
 from .exceptions import (
     ConnectionError,
     ConnectTimeout,

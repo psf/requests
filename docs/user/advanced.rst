@@ -736,7 +736,7 @@ HTTP Verbs
 ----------
 
 Requests provides access to almost the full range of HTTP verbs: GET, OPTIONS,
-HEAD, POST, PUT, PATCH and DELETE. The following provides detailed examples of
+HEAD, POST, PUT, PATCH, DELETE and TRACE. The following provides detailed examples of
 using these various verbs in Requests, using the GitHub API.
 
 We will begin with the verb most commonly used: GET. HTTP GET is an idempotent
