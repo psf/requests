@@ -202,7 +202,7 @@ class HTTPDigestAuth(AuthBase):
         s += time.ctime().encode("utf-8")
         s += os.urandom(8)
 
-        cnonce = hashlib.sha1(s).hexdigest()[:16]
+        cnonce = hashlib.sha256(s).hexdigest()[:16]
         if _algorithm == "MD5-SESS":
             HA1 = hash_utf8(f"{HA1}:{nonce}:{cnonce}")
 
