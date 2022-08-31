@@ -972,8 +972,8 @@ class TestRequests:
 
         s1 = requests.Session()
         s1.verify = "/session/specific/path"
-        settings = s.merge_environment_settings(
-            url=httpbin("get"), proxies={}, stream=False, verify=True, cert=None
+        settings = s1.merge_environment_settings(
+            url=httpbin("get"), proxies={}, stream=False, verify=None, cert=None
         )
         assert settings["verify"] == s1.verify
 
