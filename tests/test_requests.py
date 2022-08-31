@@ -970,6 +970,13 @@ class TestRequests:
         )
         assert settings["verify"] == expected
 
+        s1 = requests.Session()
+        s1.verify = "/session/specific/path"
+        settings = s.merge_environment_settings(
+            url=httpbin("get"), proxies={}, stream=False, verify=True, cert=None
+        )
+        assert settings["verify"] == s1.verify
+
     def test_http_with_certificate(self, httpbin):
         r = requests.get(httpbin(), cert=".")
         assert r.status_code == 200
