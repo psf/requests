@@ -22,7 +22,6 @@ from urllib3.exceptions import ProxyError as _ProxyError
 from urllib3.exceptions import ReadTimeoutError, ResponseError
 from urllib3.exceptions import SSLError as _SSLError
 from urllib3.poolmanager import PoolManager, proxy_from_url
-from urllib3.response import HTTPResponse
 from urllib3.util import Timeout as TimeoutSauce
 from urllib3.util import parse_url
 from urllib3.util.retry import Retry
