@@ -1032,15 +1032,17 @@ def check_header_validity(header):
     """
     name, value = header
 
-    for part in header:
-        if type(part) not in HEADER_VALIDATORS:
-            raise InvalidHeader(
-                f"Header part ({part!r}) from {{{name!r}: {value!r}}} must be "
-                f"of type str or bytes, not {type(part)}"
-            )
+    def _get_header_part_validator(part, validator):
+        for valid_type, validators in HEADER_VALIDATORS.items():
+            if isinstance(part, valid_type):
+                return validators[validator]
+        raise InvalidHeader(
+            f"Header part ({part!r}) from {{{name!r}: {value!r}}} must be "
+            f"of type str or bytes, not {type(part)}"
+        )
 
-    _validate_header_part(name, "name", HEADER_VALIDATORS[type(name)][0])
-    _validate_header_part(value, "value", HEADER_VALIDATORS[type(value)][1])
+    _validate_header_part(name, "name", _get_header_part_validator(name, 0))
+    _validate_header_part(value, "value", _get_header_part_validator(value, 1))
 
 
 def _validate_header_part(header_part, header_kind, validator):

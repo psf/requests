@@ -1682,11 +1682,16 @@ class TestRequests:
 
     def test_header_validation(self, httpbin):
         """Ensure prepare_headers regex isn't flagging valid header contents."""
+        class StringSubClass(str):
+            def __repr__(self):
+                return "Secret"
+
         valid_headers = {
             "foo": "bar baz qux",
             "bar": b"fbbq",
             "baz": "",
             "qux": "1",
+            "sub": StringSubClass("VerySecret")
         }
         r = requests.get(httpbin("get"), headers=valid_headers)
         for key in valid_headers.keys():
