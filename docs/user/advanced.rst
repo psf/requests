@@ -656,10 +656,10 @@ certificates trusted by Requests can be found with::
     from requests.utils import DEFAULT_CA_BUNDLE_PATH
     print(DEFAULT_CA_BUNDLE_PATH)
 
-You override this default certificate bundle by setting the standard
-``curl_ca_bundle`` environment variable to another file path::
+You override this default certificate bundle by setting the ``REQUESTS_CA_BUNDLE``
+(or ``CURL_CA_BUNDLE``) environment variable to another file path::
 
-    $ export curl_ca_bundle="/usr/local/myproxy_info/cacert.pem"
+    $ export REQUESTS_CA_BUNDLE="/usr/local/myproxy_info/cacert.pem"
     $ export https_proxy="http://10.10.1.10:1080"
 
     $ python
