@@ -4,7 +4,6 @@ Developer Interface
 ===================
 
 .. module:: requests
-
 This part of the documentation covers all the interfaces of Requests. For
 parts where Requests depends on external libraries, we document the most
 important right here and provide links to the canonical documentation.
@@ -17,7 +16,6 @@ All of Requests' functionality can be accessed by these 7 methods.
 They all return an instance of the :class:`Response <Response>` object.
 
 .. autofunction:: request
-
 .. autofunction:: head
 .. autofunction:: get
 .. autofunction:: post
@@ -27,15 +25,67 @@ They all return an instance of the :class:`Response <Response>` object.
 
 Exceptions
 ----------
+This list contains some of the most commonly encountered exceptions and their descriptions.
+This list is not exhaustive. More types of niche exceptions and the error message
+that will accompany them can be found at requests-exceptions_. Errors may be thrown
+automatically through API functions such as the ``requests.HTTPError`` or thrown
+manually through user-specified conditions such as in the ``requests.ReadTimeout``.
+Descriptions for both aforementioned exceptions are below.
+
+.. _requests-exceptions: https://github.com/psf/requests/blob/main/requests/exceptions.py
 
 .. autoexception:: requests.RequestException
+Serves as a generic exception to catch any errors thrown by the Requests library. 
+Useful for preventing uncatched exceptions due to sending HTTP requests.
+Can be used in tandem with Python's ``type()`` to check the specific
+exception and respond accordingly.
+
 .. autoexception:: requests.ConnectionError
+Serves as a generic exception to catch any errors related to establishing a
+connection between the client and the server. Is inherited by the
+``requests.ConnectTimeout`` exception and could be the result of an
+unstable connection from either the client or the server. Requests that
+result in this exception are known to be safe to try again.
+Multiple requests that result in this error could mean either the
+client lacks an internet connection or the server is offline.
+
 .. autoexception:: requests.HTTPError
+Comes from the urllib3_ library and is a generic exception to catch errors
+related to HTTP warnings, invalid SSL certificates, or proxy server errors. 
+Errors of this type are usually on the server's side or invalid use of the server's API.
+
+.. _urllib3: https://github.com/urllib3/urllib3/blob/main/src/urllib3/exceptions.py#L16
+
 .. autoexception:: requests.URLRequired
+A derived exception from the ``requests.RequestException`` class. Check the spelling
+on the URL and try again. Could also arise due to a domain becoming
+inactive and needing to be renewed.
+
 .. autoexception:: requests.TooManyRedirects
+A derived exception from the ``requests.RequestException`` class. Happens when the
+page requested redirects to another page too many times. Usually happens when
+two or more pages redirect to each other in an infinite loop. If this is not the case,
+consider requesting a page further down the request pipeline to prevent this error.
+
 .. autoexception:: requests.ConnectTimeout
+A derived exception from the ``requests.ConnectionError`` class. Happens when
+the request takes too long to establish a connection to the server.
+This exception could be the result of unstable internet and this type of
+request is safe to try again.
+
 .. autoexception:: requests.ReadTimeout
+An exception that occurs when a connection is established with the server,
+but the server does not send any data in a given amount of time. The time
+for this excpetion can be set by the user and thrown manually using
+Python's Time-Library_.
+
+.. _Time-Library: https://docs.python.org/3/library/time.html
+
 .. autoexception:: requests.Timeout
+Serves as a generic exception to catch any errors related to timeouts.
+Catching this exception will be able to catch both ``requests.ConnectTimeout``
+and ``requests.ReadTimeout`` errors. The ``type()`` of the error
+can then be checked and responded to accordingly.
 
 
 Request Sessions
