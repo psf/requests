@@ -8,15 +8,15 @@ Available hooks:
 
 ``response``:
     The response generated from a Request.
+``prepared``:
+    The PreparedResponse object.
 """
-HOOKS = ["response"]
+HOOKS = ["response", "prepared"]
 
 
 def default_hooks():
     return {event: [] for event in HOOKS}
 
-
-# TODO: response is the only one
 
 
 def dispatch_hook(key, hooks, hook_data, **kwargs):

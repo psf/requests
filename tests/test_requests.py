@@ -1105,6 +1105,14 @@ class TestRequests:
         assert r.status_code == 200
         assert b"text/py-content-type" in r.request.body
 
+    def test_hook_prepared_receives_prepared_request_obj(self, httpbin):
+        def hook(prepared_request, **kwargs):
+            assert isinstance(prepared_request, PreparedRequest)
+
+        s = requests.Session()
+        r = requests.Request('GET', httpbin(), hooks={'prepared': hook})
+        s.prepare_request(r)
+
     def test_hook_receives_request_arguments(self, httpbin):
         def hook(resp, **kwargs):
             assert resp is not None

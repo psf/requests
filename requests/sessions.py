@@ -480,6 +480,8 @@ class Session(SessionRedirectMixin):
         if self.trust_env and not auth and not self.auth:
             auth = get_netrc_auth(request.url)
 
+        hooks = merge_hooks(request.hooks, self.hooks)
+
         p = PreparedRequest()
         p.prepare(
             method=request.method.upper(),
@@ -493,8 +495,12 @@ class Session(SessionRedirectMixin):
             params=merge_setting(request.params, self.params),
             auth=merge_setting(auth, self.auth),
             cookies=merged_cookies,
-            hooks=merge_hooks(request.hooks, self.hooks),
+            hooks=hooks,
         )
+
+        # PreparedRequest manipulation hooks
+        p = dispatch_hook("prepared", hooks, p)
+
         return p
 
     def request(
