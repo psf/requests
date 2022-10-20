@@ -80,8 +80,8 @@ def check_compatibility(urllib3_version, chardet_version, charset_normalizer_ver
     elif charset_normalizer_version:
         major, minor, patch = charset_normalizer_version.split(".")[:3]
         major, minor, patch = int(major), int(minor), int(patch)
-        # charset_normalizer >= 2.0.0 < 3.0.0
-        assert (2, 0, 0) <= (major, minor, patch) < (3, 0, 0)
+        # charset_normalizer >= 2.0.0 < 4.0.0
+        assert (2, 0, 0) <= (major, minor, patch) < (4, 0, 0)
     else:
         raise Exception("You need either charset_normalizer or chardet installed")
 
