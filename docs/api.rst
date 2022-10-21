@@ -36,6 +36,7 @@ Exceptions
 .. autoexception:: requests.ConnectTimeout
 .. autoexception:: requests.ReadTimeout
 .. autoexception:: requests.Timeout
+.. autoexception:: requests.JSONDecodeError
 
 
 Request Sessions
