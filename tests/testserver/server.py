@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
-
-import threading
-import socket
 import select
+import socket
+import threading
 
 
 def consume_socket_content(sock, timeout=0.5):
     chunks = 65536
-    content = b''
+    content = b""
 
     while True:
         more_to_read = select.select([sock], [], [], timeout)[0]
@@ -25,10 +23,18 @@ def consume_socket_content(sock, timeout=0.5):
 
 class Server(threading.Thread):
     """Dummy server using for unit testing"""
+
     WAIT_EVENT_TIMEOUT = 5
 
-    def __init__(self, handler=None, host='localhost', port=0, requests_to_handle=1, wait_to_close_event=None):
-        super(Server, self).__init__()
+    def __init__(
+        self,
+        handler=None,
+        host="localhost",
+        port=0,
+        requests_to_handle=1,
+        wait_to_close_event=None,
+    ):
+        super().__init__()
 
         self.handler = handler or consume_socket_content
         self.handler_results = []
@@ -45,19 +51,16 @@ class Server(threading.Thread):
     def text_response_server(cls, text, request_timeout=0.5, **kwargs):
         def text_response_handler(sock):
             request_content = consume_socket_content(sock, timeout=request_timeout)
-            sock.send(text.encode('utf-8'))
+            sock.send(text.encode("utf-8"))
 
             return request_content
-
 
         return Server(text_response_handler, **kwargs)
 
     @classmethod
     def basic_response_server(cls, **kwargs):
         return cls.text_response_server(
-            "HTTP/1.1 200 OK\r\n" +
-            "Content-Length: 0\r\n\r\n",
-            **kwargs
+            "HTTP/1.1 200 OK\r\n" + "Content-Length: 0\r\n\r\n", **kwargs
         )
 
     def run(self):
@@ -71,7 +74,7 @@ class Server(threading.Thread):
             if self.wait_to_close_event:
                 self.wait_to_close_event.wait(self.WAIT_EVENT_TIMEOUT)
         finally:
-            self.ready_event.set() # just in case of exception
+            self.ready_event.set()  # just in case of exception
             self._close_server_sock_ignore_errors()
             self.stop_event.set()
 
@@ -84,7 +87,7 @@ class Server(threading.Thread):
     def _close_server_sock_ignore_errors(self):
         try:
             self.server_sock.close()
-        except IOError:
+        except OSError:
             pass
 
     def _handle_requests(self):
@@ -100,17 +103,20 @@ class Server(threading.Thread):
 
     def _accept_connection(self):
         try:
-            ready, _, _ = select.select([self.server_sock], [], [], self.WAIT_EVENT_TIMEOUT)
+            ready, _, _ = select.select(
+                [self.server_sock], [], [], self.WAIT_EVENT_TIMEOUT
+            )
             if not ready:
                 return None
 
             return self.server_sock.accept()[0]
-        except (select.error, socket.error):
+        except OSError:
             return None
 
     def __enter__(self):
         self.start()
-        self.ready_event.wait(self.WAIT_EVENT_TIMEOUT)
+        if not self.ready_event.wait(self.WAIT_EVENT_TIMEOUT):
+            raise RuntimeError("Timeout waiting for server to be ready.")
         return self.host, self.port
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -125,4 +131,4 @@ class Server(threading.Thread):
         # ensure server thread doesn't get stuck waiting for connections
         self._close_server_sock_ignore_errors()
         self.join()
-        return False # allow exceptions to propagate
+        return False  # allow exceptions to propagate

@@ -2,7 +2,7 @@
 init:
 	pip install -r requirements-dev.txt
 test:
-	# This runs all of the tests, on both Python 2 and Python 3.
+	# This runs all of the tests on all supported Python versions.
 	tox -p
 ci:
 	pytest tests --junitxml=report.xml

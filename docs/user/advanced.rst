@@ -656,10 +656,10 @@ certificates trusted by Requests can be found with::
     from requests.utils import DEFAULT_CA_BUNDLE_PATH
     print(DEFAULT_CA_BUNDLE_PATH)
 
-You override this default certificate bundle by setting the standard
-``curl_ca_bundle`` environment variable to another file path::
+You override this default certificate bundle by setting the ``REQUESTS_CA_BUNDLE``
+(or ``CURL_CA_BUNDLE``) environment variable to another file path::
 
-    $ export curl_ca_bundle="/usr/local/myproxy_info/cacert.pem"
+    $ export REQUESTS_CA_BUNDLE="/usr/local/myproxy_info/cacert.pem"
     $ export https_proxy="http://10.10.1.10:1080"
 
     $ python
@@ -717,10 +717,9 @@ If ``chardet`` is installed, ``requests`` uses it, however for python3
 library is an LGPL-licenced dependency and some users of requests
 cannot depend on mandatory LGPL-licensed dependencies.
 
-When you install ``request`` without specifying ``[use_chardet_on_py3]]`` extra,
+When you install ``requests`` without specifying ``[use_chardet_on_py3]`` extra,
 and ``chardet`` is not already installed, ``requests`` uses ``charset-normalizer``
-(MIT-licensed) to guess the encoding. For Python 2, ``requests`` uses only
-``chardet`` and is a mandatory dependency there.
+(MIT-licensed) to guess the encoding.
 
 The only time Requests will not guess the encoding is if no explicit charset
 is present in the HTTP headers **and** the ``Content-Type``
