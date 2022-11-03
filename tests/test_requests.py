@@ -1108,7 +1108,7 @@ class TestRequests:
     def test_hook_receives_request_arguments(self, httpbin):
         def hook(resp, **kwargs):
             assert resp is not None
-            assert kwargs != {}
+            assert kwargs
 
         s = requests.Session()
         r = requests.Request("GET", httpbin(), hooks={"response": hook})
@@ -1689,7 +1689,7 @@ class TestRequests:
             "qux": "1",
         }
         r = requests.get(httpbin("get"), headers=valid_headers)
-        for key in valid_headers.keys():
+        for key in valid_headers:
             valid_headers[key] == r.request.headers[key]
 
     @pytest.mark.parametrize(

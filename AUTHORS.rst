@@ -23,6 +23,7 @@ Patches and Suggestions
 - Justin Murphy
 - Rob Madole
 - Aram Dulyan
+- Mark Mayo
 - Johannes Gorset
 - 村山めがね (Megane Murayama)
 - James Rowe
