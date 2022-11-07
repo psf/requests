@@ -32,7 +32,6 @@ from .hooks import default_hooks, dispatch_hook
 # formerly defined here, reexposed here for backward compatibility
 from .models import (  # noqa: F401
     DEFAULT_REDIRECT_LIMIT,
-    REDIRECT_STATI,
     PreparedRequest,
     Request,
 )
@@ -47,7 +46,6 @@ from .utils import (  # noqa: F401
     requote_uri,
     resolve_proxies,
     rewind_body,
-    should_bypass_proxies,
     to_key_val_list,
 )
 
