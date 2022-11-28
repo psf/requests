@@ -503,17 +503,16 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         content_type = None
 
         if not data and json is not None:
-            # urllib3 requires a bytes-like body. Python 2's json.dumps
-            # provides this natively, but Python 3 gives a Unicode string.
             content_type = "application/json"
 
             try:
-                body = complexjson.dumps(json, allow_nan=False)
+                body = complexjson.dumps(json, allow_nan=False, separators=(',', ':'))
             except ValueError as ve:
                 raise InvalidJSONError(ve, request=self)
 
-            if not isinstance(body, bytes):
-                body = body.encode("utf-8")
+            # urllib3 requires a bytes-like body but Python 3's json.dumps
+            # returns a string.
+            body = body.encode("utf-8")
 
         is_stream = all(
             [
