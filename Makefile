@@ -1,9 +1,10 @@
-.PHONY: docs
 init:
 	pip install -r requirements-dev.txt
+
 test:
 	# This runs all of the tests on all supported Python versions.
 	tox -p
+
 ci:
 	pytest tests --junitxml=report.xml
 
@@ -25,3 +26,13 @@ publish:
 docs:
 	cd docs && make html
 	@echo "\033[95m\n\nBuild successful! View the docs homepage at docs/_build/html/index.html.\n\033[0m"
+
+.PHONY: \
+	init \
+	test \
+	ci \
+	test-readme \
+	flake8 \
+	coverage \
+	publish \
+	docs
