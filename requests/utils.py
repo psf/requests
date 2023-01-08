@@ -639,8 +639,9 @@ def unquote_unreserved(uri):
         if len(h) == 2 and h.isalnum():
             try:
                 c = chr(int(h, 16))
-            except ValueError:
-                raise InvalidURL(f"Invalid percent-escape sequence: '{h}'")
+            except ValueError as e:
+                raise InvalidURL(f"Invalid percent-escape sequence: "
+                                 f"'{h}'") from e
 
             if c in UNRESERVED_SET:
                 parts[i] = c + parts[i][2:]
@@ -1078,9 +1079,9 @@ def rewind_body(prepared_request):
     ):
         try:
             body_seek(prepared_request._body_position)
-        except OSError:
+        except OSError as e:
             raise UnrewindableBodyError(
                 "An error occurred when rewinding request body for redirect."
-            )
+            ) from e
     else:
         raise UnrewindableBodyError("Unable to rewind request body for redirect.")
