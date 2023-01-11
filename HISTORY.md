@@ -7,6 +7,17 @@ dev
 - \[Short description of non-trivial change.\]
 
 
+2.28.2 (2023-01-12)
+-------------------
+
+**Dependencies**
+
+- Requests now supports charset\_normalizer 3.x. (#6261)
+
+**Bugfixes**
+
+- Updated MissingSchema exception to suggest https scheme rather than http. (#6188)
+
 2.28.1 (2022-06-29)
 -------------------
 
