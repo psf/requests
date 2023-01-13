@@ -31,7 +31,6 @@ class RequestException(IOError):
           # => Response: None
       finally:
           s.close()  # Close the `Session`
-    
     """
 
     def __init__(self, *args, **kwargs):
