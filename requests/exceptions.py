@@ -13,8 +13,7 @@ class RequestException(IOError):
     """There was an ambiguous exception that occurred while handling your
     request.
 
-    Usage::
-    
+    Usage:: 
       import requests
       s = requests.Session()
 
