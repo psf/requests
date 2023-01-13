@@ -13,18 +13,24 @@ class RequestException(IOError):
     """There was an ambiguous exception that occurred while handling your
     request.
 
-    Exception Handling::
+    Usage::
     
       import requests
       s = requests.Session()
+
       try:
           req = s.get('https://httpbin.org/get')
-      except RequestException as e:
-          print("Error: ", e)
-          print("Request: ", e.request)
-          print("Response: ", e.response)
+      except requests.RequestException as e:
+          print("Error:", e)
+          # => Error: HTTPSConnectionPool(host='httpbin.org', port=443): ...
+
+          print("Request:", e.request)
+          # => Request: <PreparedRequest [GET]>
+
+          print("Response:", e.response)
+          # => Response: None
       finally:
-          s.close()
+          s.close()  # Close the `Session`
     
     """
 
