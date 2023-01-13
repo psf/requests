@@ -14,6 +14,7 @@ class RequestException(IOError):
     request.
 
     Usage:: 
+
       import requests
       s = requests.Session()
 
