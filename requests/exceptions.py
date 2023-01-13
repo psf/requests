@@ -12,13 +12,35 @@ from .compat import JSONDecodeError as CompatJSONDecodeError
 class RequestException(IOError):
     """There was an ambiguous exception that occurred while handling your
     request.
+
+    Exception Handling::
+    
+      import requests
+      s = requests.Session()
+      try:
+          req = s.get('https://httpbin.org/get')
+      except RequestException as e:
+          print("Error: ", e)
+          print("Request: ", e.request)
+          print("Response: ", e.response)
+      finally:
+          s.close()
+    
     """
 
     def __init__(self, *args, **kwargs):
         """Initialize RequestException with `request` and `response` objects."""
         response = kwargs.pop("response", None)
+
+        #: `response` object included as an argument to the `RequestException`.
+        #: `None` by default.
         self.response = response
+
+        #: `request` object included as an argument to the `RequestException`.
+        #: If `request` is `None`, `response.request` is used instead.
+        #: Otherwise `None`.
         self.request = kwargs.pop("request", None)
+
         if response is not None and not self.request and hasattr(response, "request"):
             self.request = self.response.request
         super().__init__(*args, **kwargs)
