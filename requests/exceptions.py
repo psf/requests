@@ -21,13 +21,13 @@ class RequestException(IOError):
       try:
           req = s.get('https://httpbin.org/get')
       except requests.RequestException as e:
-          print("Error:", e)
+          print('Error:', e)
           # => Error: HTTPSConnectionPool(host='httpbin.org', port=443): ...
 
-          print("Request:", e.request)
+          print('Request:', e.request)
           # => Request: <PreparedRequest [GET]>
 
-          print("Response:", e.response)
+          print('Response:', e.response)
           # => Response: None
       finally:
           s.close()  # Close the `Session`
