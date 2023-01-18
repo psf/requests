@@ -94,7 +94,7 @@ setup(
     package_data={"": ["LICENSE", "NOTICE"]},
     package_dir={"requests": "requests"},
     include_package_data=True,
-    python_requires=">=3.7, <4",
+    python_requires=">=3.7",
     install_requires=requires,
     license=about["__license__"],
     zip_safe=False,
