@@ -791,7 +791,23 @@ class Response:
     def apparent_encoding(self):
         """The apparent encoding, provided by the charset_normalizer or chardet libraries."""
         return chardet.detect(self.content)["encoding"]
-
+    
+    @property
+    def mime_type(self):
+        """The mime type as declaired in the response header. 
+        
+        Note that sometimes websites don't accurately declair these
+        (ex. A html webpage may have the type of text/plain instead of test/html)
+        """
+        if "content-type" in self.headers:
+            mime = self.headers['content-type']
+            sc_index = mime.find(";")
+            if sc_index > -1:
+                mime = mime[:sc_index]
+            return mime
+        else:
+            return None
+    
     def iter_content(self, chunk_size=1, decode_unicode=False):
         """Iterates over the response data.  When stream=True is set on the
         request, this avoids reading the content at once into memory for
