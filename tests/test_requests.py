@@ -50,6 +50,7 @@ from requests.structures import CaseInsensitiveDict
 
 from .compat import StringIO
 from .utils import override_environ
+from tests import SNIMissingWarning
 
 # Requests to this URL should always fail with a connection timeout (nothing
 # listening on that port)
@@ -974,6 +975,7 @@ class TestRequests:
         r = requests.get(httpbin(), cert=".")
         assert r.status_code == 200
 
+    @pytest.mark.skipif(SNIMissingWarning is None, reason="urllib3 2.0 removed that warning and errors out instead")
     def test_https_warnings(self, nosan_server):
         """warnings are emitted with requests.get"""
         host, port, ca_bundle = nosan_server
