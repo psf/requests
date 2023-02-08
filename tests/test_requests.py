@@ -926,10 +926,9 @@ class TestRequests:
         INVALID_PATH = "/garbage"
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), cert=INVALID_PATH)
-        assert str(
-            e.value
-        ) == "Could not find the TLS certificate file, invalid path: {}".format(
-            INVALID_PATH
+        assert (
+            str(e.value)
+            == f"Could not find the TLS certificate file, invalid path: {INVALID_PATH}"
         )
 
         with pytest.raises(IOError) as e:
@@ -2151,9 +2150,9 @@ class TestRequests:
         """
         url_final = httpbin("html")
         querystring_malformed = urlencode({"location": url_final})
-        url_redirect_malformed = httpbin("response-headers?%s" % querystring_malformed)
+        url_redirect_malformed = httpbin(f"response-headers?{querystring_malformed}")
         querystring_redirect = urlencode({"url": url_redirect_malformed})
-        url_redirect = httpbin("redirect-to?%s" % querystring_redirect)
+        url_redirect = httpbin(f"redirect-to?{querystring_redirect}")
         urls_test = [
             url_redirect,
             url_redirect_malformed,
