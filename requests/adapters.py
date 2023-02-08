@@ -574,11 +574,10 @@ class HTTPAdapter(BaseAdapter):
             if isinstance(e, _SSLError):
                 # This branch is for urllib3 versions earlier than v1.22
                 raise SSLError(e, request=request)
-            elif isinstance(e, ReadTimeoutError):
+            if isinstance(e, ReadTimeoutError):
                 raise ReadTimeout(e, request=request)
-            elif isinstance(e, _InvalidHeader):
+            if isinstance(e, _InvalidHeader):
                 raise InvalidHeader(e, request=request)
-            else:
-                raise
+            raise
 
         return self.build_response(request, resp)

@@ -112,8 +112,7 @@ if sys.platform == "win32":
         """
         if getproxies_environment():
             return proxy_bypass_environment(host)
-        else:
-            return proxy_bypass_registry(host)
+        return proxy_bypass_registry(host)
 
 
 def dict_to_sequence(d):
@@ -824,8 +823,7 @@ def get_environ_proxies(url, no_proxy=None):
     """
     if should_bypass_proxies(url, no_proxy=no_proxy):
         return {}
-    else:
-        return getproxies()
+    return getproxies()
 
 
 def select_proxy(url, proxies):

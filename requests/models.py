@@ -114,9 +114,9 @@ class RequestEncodingMixin:
 
         if isinstance(data, (str, bytes)):
             return data
-        elif hasattr(data, "read"):
+        if hasattr(data, "read"):
             return data
-        elif hasattr(data, "__iter__"):
+        if hasattr(data, "__iter__"):
             result = []
             for k, vs in to_key_val_list(data):
                 if isinstance(vs, basestring) or not hasattr(vs, "__iter__"):
@@ -130,8 +130,7 @@ class RequestEncodingMixin:
                             )
                         )
             return urlencode(result, doseq=True)
-        else:
-            return data
+        return data
 
     @staticmethod
     def _encode_files(files, data):
@@ -145,7 +144,7 @@ class RequestEncodingMixin:
         """
         if not files:
             raise ValueError("Files must be provided.")
-        elif isinstance(data, basestring):
+        if isinstance(data, basestring):
             raise ValueError("Data must not be a string.")
 
         new_fields = []
@@ -834,7 +833,7 @@ class Response:
 
         if self._content_consumed and isinstance(self._content, bool):
             raise StreamConsumedError()
-        elif chunk_size is not None and not isinstance(chunk_size, int):
+        if chunk_size is not None and not isinstance(chunk_size, int):
             raise TypeError(
                 f"chunk_size must be an int, it is instead a {type(chunk_size)}."
             )
