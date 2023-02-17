@@ -15,7 +15,7 @@ from . import sessions
 logger = logging.getLogger(__name__)
 
 
-def request(method, url, **kwargs):
+def request(method, url, timeout=30, **kwargs):
     """Constructs and sends a :class:`Request <Request>`.
 
     :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
@@ -60,7 +60,7 @@ def request(method, url, **kwargs):
     # avoid leaving sockets open which can trigger a ResourceWarning in some
     # cases, and look like a memory leak in others.
     with sessions.Session() as session:
-        return session.request(method=method, url=url, **kwargs)
+        return session.request(method=method, url=url, timeout=timeout, **kwargs)
 
 
 def get(url, timeout=30, params=None, **kwargs):
@@ -77,8 +77,9 @@ def get(url, timeout=30, params=None, **kwargs):
     try:
         response = request("get", url, timeout=timeout, params=params, **kwargs)
         logger.info(f"[External Request] GET request successful for {url}")
-    except TimeoutError:
+    except TimeoutError as e:
         logger.warning(f"[External Request] GET request timed-out for {url}")
+        raise e
 
     return response
 
