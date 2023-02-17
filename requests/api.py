@@ -9,6 +9,7 @@ This module implements the Requests API.
 """
 
 import logging
+import time
 
 from . import sessions
 
@@ -73,12 +74,18 @@ def get(url, timeout=30, params=None, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
+    start_time = time.time()
     try:
         response = request("get", url, timeout=timeout, params=params, **kwargs)
-        logger.info(f"[External Request] GET request successful for {url}")
+        end_time = time.time()
+        logger.info("[External Request] GET request successful for {}, duration: {:.3f}s".format(
+            url, end_time - start_time
+        ))
     except Exception as e:
-        logger.warning(f"[External Request] GET request timed-out for {url}")
+        end_time = time.time()
+        logger.warning("[External Request] GET request failed for {}, duration: {:.3f}s".format(
+            url, end_time - start_time
+        ))
         raise e
 
     return response
