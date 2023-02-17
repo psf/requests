@@ -8,7 +8,11 @@ This module implements the Requests API.
 :license: Apache2, see LICENSE for more details.
 """
 
+import logging
+
 from . import sessions
+
+logger = logging.getLogger(__name__)
 
 
 def request(method, url, **kwargs):
@@ -70,10 +74,16 @@ def get(url, timeout=30, params=None, **kwargs):
     :rtype: requests.Response
     """
 
-    return request("get", url, timeout=timeout, params=params, **kwargs)
+    try:
+        respone = request("get", url, timeout=timeout, params=params, **kwargs)
+        logger.info(f"GET Request successful for {url} with")
+    except TimeoutError:
+        logger.warn(f"Request Timeout for {url} with {params}")
+
+    return respone
 
 
-def options(url, **kwargs):
+def options(url, timeout=30, **kwargs):
     r"""Sends an OPTIONS request.
 
     :param url: URL for the new :class:`Request` object.
@@ -82,10 +92,10 @@ def options(url, **kwargs):
     :rtype: requests.Response
     """
 
-    return request("options", url, **kwargs)
+    return request("options", url, timeout=timeout, **kwargs)
 
 
-def head(url, **kwargs):
+def head(url, timeout=30, **kwargs):
     r"""Sends a HEAD request.
 
     :param url: URL for the new :class:`Request` object.
@@ -97,7 +107,7 @@ def head(url, **kwargs):
     """
 
     kwargs.setdefault("allow_redirects", False)
-    return request("head", url, **kwargs)
+    return request("head", url, timeout=timeout, **kwargs)
 
 
 def post(url, timeout=30, data=None, json=None, **kwargs):
