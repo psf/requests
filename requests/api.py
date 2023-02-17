@@ -77,7 +77,7 @@ def get(url, timeout=30, params=None, **kwargs):
     try:
         response = request("get", url, timeout=timeout, params=params, **kwargs)
         logger.info(f"[External Request] GET request successful for {url}")
-    except TimeoutError as e:
+    except Exception as e:
         logger.warning(f"[External Request] GET request timed-out for {url}")
         raise e
 
