@@ -1752,6 +1752,31 @@ class TestRequests:
         with pytest.raises(InvalidHeader):
             requests.get(httpbin("get"), headers=invalid_header)
 
+    def test_header_with_subclass_types(self, httpbin):
+        """If the subclasses does not behave *exactly* like
+        the base bytes/str classes, this is not supported.
+        This test is for backwards compatibility.
+        """
+
+        class MyString(str):
+            pass
+
+        class MyBytes(bytes):
+            pass
+
+        r_str = requests.get(httpbin("get"), headers={MyString("x-custom"): "myheader"})
+        assert r_str.request.headers["x-custom"] == "myheader"
+
+        r_bytes = requests.get(
+            httpbin("get"), headers={MyBytes(b"x-custom"): b"myheader"}
+        )
+        assert r_bytes.request.headers["x-custom"] == b"myheader"
+
+        r_mixed = requests.get(
+            httpbin("get"), headers={MyString("x-custom"): MyBytes(b"myheader")}
+        )
+        assert r_mixed.request.headers["x-custom"] == b"myheader"
+
     @pytest.mark.parametrize("files", ("foo", b"foo", bytearray(b"foo")))
     def test_can_send_objects_with_files(self, httpbin, files):
         data = {"a": "this is a string"}
