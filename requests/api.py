@@ -83,8 +83,8 @@ def get(url, timeout=30, params=None, **kwargs):
         ))
     except Exception as e:
         end_time = time.time()
-        logger.warning("[External Request] GET request failed for {}, duration: {:.3f}s".format(
-            url, end_time - start_time
+        logger.warning("[External Request] GET request failed for {}, error: {}, duration: {:.3f}s".format(
+            url, str(e), end_time - start_time
         ))
         raise e
 
