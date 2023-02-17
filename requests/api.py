@@ -59,7 +59,7 @@ def request(method, url, **kwargs):
         return session.request(method=method, url=url, **kwargs)
 
 
-def get(url, params=None, **kwargs):
+def get(url, timeout=30, params=None, **kwargs):
     r"""Sends a GET request.
 
     :param url: URL for the new :class:`Request` object.
@@ -70,7 +70,7 @@ def get(url, params=None, **kwargs):
     :rtype: requests.Response
     """
 
-    return request("get", url, params=params, **kwargs)
+    return request("get", url, timeout=timeout, params=params, **kwargs)
 
 
 def options(url, **kwargs):
@@ -100,7 +100,7 @@ def head(url, **kwargs):
     return request("head", url, **kwargs)
 
 
-def post(url, data=None, json=None, **kwargs):
+def post(url, timeout=30, data=None, json=None, **kwargs):
     r"""Sends a POST request.
 
     :param url: URL for the new :class:`Request` object.
@@ -112,10 +112,10 @@ def post(url, data=None, json=None, **kwargs):
     :rtype: requests.Response
     """
 
-    return request("post", url, data=data, json=json, **kwargs)
+    return request("post", url, timeout=timeout, data=data, json=json, **kwargs)
 
 
-def put(url, data=None, **kwargs):
+def put(url, timeout=30, data=None, **kwargs):
     r"""Sends a PUT request.
 
     :param url: URL for the new :class:`Request` object.
@@ -127,10 +127,10 @@ def put(url, data=None, **kwargs):
     :rtype: requests.Response
     """
 
-    return request("put", url, data=data, **kwargs)
+    return request("put", url, timeout=timeout, data=data, **kwargs)
 
 
-def patch(url, data=None, **kwargs):
+def patch(url, timeout=30, data=None, **kwargs):
     r"""Sends a PATCH request.
 
     :param url: URL for the new :class:`Request` object.
@@ -142,10 +142,10 @@ def patch(url, data=None, **kwargs):
     :rtype: requests.Response
     """
 
-    return request("patch", url, data=data, **kwargs)
+    return request("patch", url, timeout=timeout, data=data, **kwargs)
 
 
-def delete(url, **kwargs):
+def delete(url, timeout=30, **kwargs):
     r"""Sends a DELETE request.
 
     :param url: URL for the new :class:`Request` object.
@@ -154,4 +154,4 @@ def delete(url, **kwargs):
     :rtype: requests.Response
     """
 
-    return request("delete", url, **kwargs)
+    return request("delete", timeout=timeout, url=url, **kwargs)
