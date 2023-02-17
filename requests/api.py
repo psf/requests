@@ -75,12 +75,12 @@ def get(url, timeout=30, params=None, **kwargs):
     """
 
     try:
-        respone = request("get", url, timeout=timeout, params=params, **kwargs)
+        response = request("get", url, timeout=timeout, params=params, **kwargs)
         logger.info(f"GET Request successful for {url} with")
     except TimeoutError:
-        logger.warn(f"Request Timeout for {url} with {params}")
+        logger.warn(f"Request Timeout for {url} with  {params}")
 
-    return respone
+    return response
 
 
 def options(url, timeout=30, **kwargs):
