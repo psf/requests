@@ -43,11 +43,11 @@ from .utils import (  # noqa: F401
     default_headers,
     get_auth_from_url,
     get_environ_proxies,
+    proxy_config_cache,
     get_netrc_auth,
     requote_uri,
     resolve_proxies,
     rewind_body,
-    should_bypass_proxies,
     to_key_val_list,
 )
 
@@ -448,6 +448,9 @@ class Session(SessionRedirectMixin):
         self.mount("https://", HTTPAdapter())
         self.mount("http://", HTTPAdapter())
 
+        # cache heavy calls to OS APIs to get proxy config, see func:`proxy_config_cache`
+        self.proxy_config_cache = proxy_config_cache()
+
     def __enter__(self):
         return self
 
@@ -756,7 +759,7 @@ class Session(SessionRedirectMixin):
         if self.trust_env:
             # Set environment's proxies.
             no_proxy = proxies.get("no_proxy") if proxies is not None else None
-            env_proxies = get_environ_proxies(url, no_proxy=no_proxy)
+            env_proxies = get_environ_proxies(url, no_proxy=no_proxy, config_cache=self.proxy_config_cache)
             for (k, v) in env_proxies.items():
                 proxies.setdefault(k, v)
 

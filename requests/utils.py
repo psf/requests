@@ -8,6 +8,7 @@ that are also useful for external consumption.
 
 import codecs
 import contextlib
+import functools
 import io
 import os
 import re
@@ -756,10 +757,11 @@ def set_environ(env_name, value):
                 os.environ[env_name] = old_value
 
 
-def should_bypass_proxies(url, no_proxy):
+def should_bypass_proxies(url, no_proxy, config_cache=None):
     """
     Returns whether we should bypass proxies or not.
 
+    :param config_cache: see func:`proxy_config_cache`
     :rtype: bool
     """
     # Prioritize lowercase environment variables over uppercase
@@ -806,7 +808,7 @@ def should_bypass_proxies(url, no_proxy):
     with set_environ("no_proxy", no_proxy_arg):
         # parsed.hostname can be `None` in cases such as a file URI.
         try:
-            bypass = proxy_bypass(parsed.hostname)
+            bypass = (config_cache or proxy_bypass)(parsed.hostname)
         except (TypeError, socket.gaierror):
             bypass = False
 
@@ -816,16 +818,27 @@ def should_bypass_proxies(url, no_proxy):
     return False
 
 
-def get_environ_proxies(url, no_proxy=None):
+def get_environ_proxies(url, no_proxy=None, config_cache=None):
     """
     Return a dict of environment proxies.
 
+    :param config_cache: see func:`proxy_config_cache`
     :rtype: dict
     """
-    if should_bypass_proxies(url, no_proxy=no_proxy):
+    if should_bypass_proxies(url, no_proxy=no_proxy, config_cache=config_cache):
         return {}
     else:
         return getproxies()
+
+
+def proxy_config_cache():
+    """
+    If you build a `proxy_config_cache` and pass it in calls to func:`get_environ_proxies` or func:`should_bypass_proxies`,
+    it will cache calls to the potentially heavy func:`proxy_bypass`
+
+    :rtype: lru_cache
+    """
+    return functools.lru_cache(maxsize=16)(proxy_bypass)
 
 
 def select_proxy(url, proxies):

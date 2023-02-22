@@ -22,6 +22,7 @@ from requests.utils import (
     get_encoding_from_headers,
     get_encodings_from_content,
     get_environ_proxies,
+    proxy_config_cache,
     guess_filename,
     guess_json_utf,
     is_ipv4_address,
@@ -198,6 +199,10 @@ class TestGetEnvironProxies:
             request.param, "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1"
         )
 
+    @pytest.fixture(autouse=True, params=[None, proxy_config_cache()])
+    def config_cache(self, request):
+        request.param
+
     @pytest.mark.parametrize(
         "url",
         (
@@ -208,8 +213,8 @@ class TestGetEnvironProxies:
             "http://localhost.localdomain:5000/v1.0/",
         ),
     )
-    def test_bypass(self, url):
-        assert get_environ_proxies(url, no_proxy=None) == {}
+    def test_bypass(self, url, config_cache):
+        assert get_environ_proxies(url, no_proxy=None, config_cache=config_cache) == {}
 
     @pytest.mark.parametrize(
         "url",
@@ -219,8 +224,8 @@ class TestGetEnvironProxies:
             "http://www.requests.com/",
         ),
     )
-    def test_not_bypass(self, url):
-        assert get_environ_proxies(url, no_proxy=None) != {}
+    def test_not_bypass(self, url, config_cache):
+        assert get_environ_proxies(url, no_proxy=None, config_cache=config_cache) != {}
 
     @pytest.mark.parametrize(
         "url",
@@ -230,9 +235,9 @@ class TestGetEnvironProxies:
             "http://www.requests.com/",
         ),
     )
-    def test_bypass_no_proxy_keyword(self, url):
+    def test_bypass_no_proxy_keyword(self, url, config_cache):
         no_proxy = "192.168.1.1,requests.com"
-        assert get_environ_proxies(url, no_proxy=no_proxy) == {}
+        assert get_environ_proxies(url, no_proxy=no_proxy, config_cache=config_cache) == {}
 
     @pytest.mark.parametrize(
         "url",
@@ -244,12 +249,12 @@ class TestGetEnvironProxies:
             "http://localhost.localdomain:5000/v1.0/",
         ),
     )
-    def test_not_bypass_no_proxy_keyword(self, url, monkeypatch):
+    def test_not_bypass_no_proxy_keyword(self, url, monkeypatch, config_cache):
         # This is testing that the 'no_proxy' argument overrides the
         # environment variable 'no_proxy'
         monkeypatch.setenv("http_proxy", "http://proxy.example.com:3128/")
         no_proxy = "192.168.1.1,requests.com"
-        assert get_environ_proxies(url, no_proxy=no_proxy) != {}
+        assert get_environ_proxies(url, no_proxy=no_proxy, config_cache=config_cache) != {}
 
 
 class TestIsIPv4Address:
