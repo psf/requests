@@ -2,6 +2,7 @@
 
 import collections
 import contextlib
+import datetime
 import io
 import json
 import os
@@ -389,6 +390,55 @@ class TestRequests:
             params={"Set-Cookie": "foo=deleted; expires=Thu, 01-Jan-1970 00:00:01 GMT"},
         )
         assert "foo" not in s.cookies
+
+    def test_cookie_with_max_age_float(self, httpbin):
+        s = requests.session()
+        s.get(
+            httpbin("response-headers"),
+            params={"Set-Cookie": "foo=bar; expires=Sat, 25 Feb 2023 03:44:13 GMT; HttpOnly; Max-Age=1800.0; Path=/"},
+        )
+        assert "foo" in s.cookies
+
+    def test_multiple_cookies(self, httpbin):
+        s = requests.session()
+        s.get(
+            httpbin("response-headers"),
+            params={"Set-Cookie": "foo=1, bar=2"},
+        )
+        assert len(s.cookies) is 2
+        assert "foo" in s.cookies
+        assert "bar" in s.cookies
+
+    def test_delete_multiple_cookies(self, httpbin):
+        s = requests.session()
+        s.get(httpbin("cookies/set?foo=bar"))
+        s.get(httpbin("cookies/set?baz=grumble"))
+        assert s.cookies["foo"] == "bar"
+        assert s.cookies["baz"] == "grumble"
+        s.get(
+            httpbin("response-headers"),
+            params={"Set-Cookie": "foo=deleted; expires=Thu, 01-Jan-1970 00:00:01 GMT, baz=deleted; expires=Thu, 01-Jan-1970 00:00:01 GMT"},
+        )
+        assert "foo" not in s.cookies
+        assert "baz" not in s.cookies
+
+    def test_django_cookie_header(self, httpbin):
+        """
+        Set-Cookie header from a django app
+        Different data, but this is the structure
+        """
+        s = requests.session()
+        expires_date = datetime.datetime.utcnow() + datetime.timedelta(days=7)
+        expires = expires_date.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        # format: 'Sat, 04 Mar 2023 20:37:39 GMT'
+        s.get(
+            httpbin("response-headers"),
+            params={"Set-Cookie": f"jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9xeyJxxxVyX2lkIjoxNjgyMSwiZW1haWwiOiJqbzFAaW52aXRhZS5jb20iLCJ1c2VybmFtZSI6ImpvMUBpbnZpdGFlLmNvbSIsImZpcnN0X25hbWUiOiIiLCJsYXN0X25hbWUiOiIiLCJjb3VudHJ5IjoiVVMiLCJXXXlIjpudWxsLCJpc192ZXJpZmllZCI6ZmFsc2UsInNhbGVzZm9yY2VfY2xpZW50X2lkIjpudWxsLCJncm91cHMiOltdLCJwcmFjdGljZV9jb3VudHJ5IjpudWxsLCJwcmFjdGljZV9uYW1lIjpudWxsLCJwcmFjdGljZV9pZCI6bnVsbCwiaWF0IjoxNjc3Mjk0ODUzLCJleHAiOjE2NzcyOTY2NTMuMH0.Ey2XXLRhzXgI1mdy-_93A7U-z0D8237yDmlC3HsMu3Q; expires={expires}; HttpOnly; Max-Age=1800.0; Path=/, csrftoken=c0P07vQLHACDcNQ3DNHdlLsdvxzQYPURwYEXrV5xULSxCncZmJzufh63Yu9lHhs3; expires={expires}; Max-Age=31449600; Path=/; SameSite=Lax, sessionid=r6f428x1r44e93id3tartk9c3goz3phu; expires={expires}; HttpOnly; Max-Age=1209600; Path=/; SameSite=Lax"},
+        )
+        assert len(s.cookies) is 3
+        assert "csrftoken" in s.cookies
+        assert "jwt" in s.cookies
+        assert "sessionid" in s.cookies
 
     def test_cookie_quote_wrapped(self, httpbin):
         s = requests.session()

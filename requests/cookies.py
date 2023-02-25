@@ -9,6 +9,7 @@ requests.utils imports from here, so be careful with imports.
 
 import calendar
 import copy
+import re
 import time
 
 from ._internal_utils import to_native_string
@@ -112,6 +113,7 @@ class MockResponse:
 
         :param headers: a httplib.HTTPMessage or analogous carrying the headers
         """
+        fix_cookie_settings(headers)
         self._headers = headers
 
     def info(self):
@@ -120,6 +122,25 @@ class MockResponse:
     def getheaders(self, name):
         self._headers.getheaders(name)
 
+def fix_cookie_settings(headers):
+    """
+    A Set-Cookie header with multiple cookies will fail to parse
+    so split those up into multiple Set-Cookie headers (one per cookie).
+    
+    The Max-Age attribute on cookies should be an int. It can fail
+    to parse if its a float. Floating point max ages have been seen
+    in the wild, so convert those to int so they will parse.
+    """
+    setcookies = headers.get_all('Set-Cookie')
+    if setcookies != None:
+        del headers['Set-Cookie']
+        for setcookie in setcookies:
+            # remove comma from expires, so split(',') will work
+            setcookie = re.sub('expires=(...),', r'expires=\1', setcookie)
+            for newcookie in setcookie.split(','):
+                newcookie = newcookie.strip()
+                newcookie = re.sub(r'Max-Age=(\d+)\.\d+', r'Max-Age=\1', newcookie)
+                headers.add_header('Set-Cookie', newcookie)
 
 def extract_cookies_to_jar(jar, request, response):
     """Extract the cookies from the response into a CookieJar.
