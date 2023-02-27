@@ -177,7 +177,7 @@ server, you can access ``r.raw``. If you want to do this, make sure you set
     <urllib3.response.HTTPResponse object at 0x101194810>
 
     >>> r.raw.read(10)
-    '\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03'
+    b'\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03'
 
 In general, however, you should use a pattern like this to save what is being
 streamed to a file::
@@ -237,7 +237,7 @@ dictionary of data will automatically be form-encoded when the request is made::
 
     >>> payload = {'key1': 'value1', 'key2': 'value2'}
 
-    >>> r = requests.post("https://httpbin.org/post", data=payload)
+    >>> r = requests.post('https://httpbin.org/post', data=payload)
     >>> print(r.text)
     {
       ...
