@@ -505,6 +505,7 @@ class HTTPAdapter(BaseAdapter):
                     conn = conn.proxy_pool
 
                 low_conn = conn._get_conn(timeout=DEFAULT_POOL_TIMEOUT)
+                low_conn.timeout = timeout.read_timeout
 
                 try:
                     skip_host = "Host" in request.headers
