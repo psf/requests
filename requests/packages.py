@@ -10,7 +10,7 @@ except ImportError:
     warnings.filterwarnings("ignore", "Trying to detect", module="charset_normalizer")
 
 # This code exists for backwards compatibility reasons.
-# I don't like it either. Just look the other way. :)
+# I don't like it either. Just look the other way. 😉
 
 for package in ("urllib3", "idna"):
     locals()[package] = __import__(package)
