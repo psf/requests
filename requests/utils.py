@@ -290,10 +290,11 @@ def extract_zipped_paths(path):
     # we have a valid zip archive and a valid member of that archive
     tmp = tempfile.gettempdir()
     extracted_path = os.path.join(tmp, member.split("/")[-1])
-    if not os.path.exists(extracted_path):
-        # use read + write to avoid the creating nested folders, we only want the file, avoids mkdir racing condition
-        with atomic_open(extracted_path) as file_handler:
-            file_handler.write(zip_file.read(member))
+
+    # use read + write to avoid the creating nested folders, we only want the file, avoids mkdir racing condition
+    with atomic_open(extracted_path) as file_handler:
+        file_handler.write(zip_file.read(member))
+
     return extracted_path
 
 
