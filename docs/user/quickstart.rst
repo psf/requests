@@ -228,8 +228,8 @@ Furthermore, Requests does not change its behavior at all based on which custom 
 
 Note: All header values must be a ``string``, bytestring, or unicode. While permitted, it's advised to avoid passing unicode header values.
 
-More complicated POST requests
-------------------------------
+Passing Data
+------------
 
 Typically, you want to send some form-encoded data — much like an HTML form.
 To do this, simply pass a dictionary to the ``data`` argument. Your
