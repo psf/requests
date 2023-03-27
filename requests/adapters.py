@@ -142,6 +142,8 @@ class HTTPAdapter(BaseAdapter):
     ):
         if max_retries == DEFAULT_RETRIES:
             self.max_retries = Retry(0, read=False)
+        elif isinstance(max_retries, Retry):
+            self.max_retries = max_retries
         else:
             self.max_retries = Retry.from_int(max_retries)
         self.config = {}
