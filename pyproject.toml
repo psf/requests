@@ -11,3 +11,8 @@ testpaths = [
     "requests",
     "tests",
 ]
+
+[tool.coverage.run]
+omit = [
+    "requests/packages/*",
+]
