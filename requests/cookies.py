@@ -10,6 +10,9 @@ requests.utils imports from here, so be careful with imports.
 import calendar
 import copy
 import time
+# with python versions greater than 3.10^ using the MytableMapping directly throws an error
+# as a fix calling it directly from collections.abd inside the RequestCookieJar
+import collections.abc
 
 from ._internal_utils import to_native_string
 from .compat import Morsel, MutableMapping, cookielib, urlparse, urlunparse
@@ -173,7 +176,7 @@ class CookieConflictError(RuntimeError):
     """
 
 
-class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
+class RequestsCookieJar(cookielib.CookieJar, collections.abc.MutableMapping):
     """Compatibility class; is a cookielib.CookieJar, but exposes a dict
     interface.
 
@@ -185,6 +188,10 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
     compatibility with external client code. All requests code should work
     out of the box with externally provided instances of ``CookieJar``, e.g.
     ``LWPCookieJar`` and ``FileCookieJar``.
+
+    Calling the MutableMapping directly from <! collections.abc >
+    bypasses errors on linux machines using python 3.10^ and other 
+    version compatability for pymongo.
 
     Unlike a regular CookieJar, this class is pickleable.
 
