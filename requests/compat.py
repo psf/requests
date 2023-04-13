@@ -8,9 +8,9 @@ compatibility until the next major version.
 """
 
 try:
-    import chardet
-except ImportError:
     import charset_normalizer as chardet
+except ImportError:
+    import chardet
 
 import sys
 
