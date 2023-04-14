@@ -557,7 +557,6 @@ class Session(SessionRedirectMixin):
             If Tuple, ('cert', 'key') pair.
         :rtype: requests.Response
         """
-        # Create the Request.
         req = Request(
             method=method.upper(),
             url=url,
