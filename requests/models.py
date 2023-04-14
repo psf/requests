@@ -498,7 +498,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Check if file, fo, generator, iterator.
         # If not, run through normal process.
 
-        # Nottin' on you.
         body = None
         content_type = None
 
