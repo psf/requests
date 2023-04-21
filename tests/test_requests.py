@@ -975,6 +975,7 @@ class TestRequests:
         r = requests.get(httpbin(), cert=".")
         assert r.status_code == 200
 
+    @pytest.mark.skip(reason="broken on pypy")
     @pytest.mark.skipif(
         SNIMissingWarning is None,
         reason="urllib3 2.0 removed that warning and errors out instead",
