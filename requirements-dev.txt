@@ -6,7 +6,7 @@ pytest-mock==2.0.0
 httpbin==0.7.0
 trustme
 wheel
-cryptography<40.0.0; python_version <= '3.7' and platform_python_implementation == 'PyPy' 
+cryptography<40.0.0; python_version <= '3.7' and platform_python_implementation == 'PyPy'
 
 # Flask Stack
 Flask>1.0,<2.0
