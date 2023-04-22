@@ -22,6 +22,24 @@ CONTENT_TYPE_FORM_URLENCODED = "application/x-www-form-urlencoded"
 CONTENT_TYPE_MULTI_PART = "multipart/form-data"
 
 
+def _try_to_encode(data, charset='latin1'):
+    """This method returns encoded data. If the character encoding is not 
+    specified, the default is set to Latin.
+    
+    If an exception is raised due to encoding issues, the method will try
+    to use the UTF-8 character encoding."""
+    
+    try:
+        return data.encode(charset)
+    except UnicodeEncodeError:
+        warnings.warn(
+            "Non-latin1 data has been used! "
+            "Trying to use UTF-8 charset!",
+            category=UnicodeWarning
+        )
+        return data.encode("UTF-8")
+
+    
 def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
 
@@ -54,10 +72,10 @@ def _basic_auth_str(username, password):
     # -- End Removal --
 
     if isinstance(username, str):
-        username = username.encode("latin1")
+        username = _try_to_encode(username)
 
     if isinstance(password, str):
-        password = password.encode("latin1")
+        password = _try_to_encode(password)
 
     authstr = "Basic " + to_native_string(
         b64encode(b":".join((username, password))).strip()
