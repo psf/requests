@@ -20,6 +20,12 @@ jobs:
           - python-version: pypy-3.7
             os: ubuntu-latest
             experimental: false
+          - python-version: pypy-3.8
+            os: ubuntu-latest
+            experimental: false
+          - python-version: pypy-3.9
+            os: ubuntu-latest
+            experimental: false
 
     steps:
     - uses: actions/checkout@v2
