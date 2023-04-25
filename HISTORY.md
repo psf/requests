@@ -6,6 +6,14 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.29.0 (2023-04-26)
+-------------------
+
+**Improvements**
+
+- Requests now defers chunked requests to the urllib3 implementation to improve
+  standardization. (#6226)
+- Requests relaxes header component requirements to support bytes/str subclasses. (#6356)
 
 2.28.2 (2023-01-12)
 -------------------
