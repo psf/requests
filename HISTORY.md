@@ -6,6 +6,18 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.30.0 (2023-05-03)
+-------------------
+
+**Dependencies**
+- ⚠️ Added support for urllib3 2.0. ⚠️
+
+  This may contain minor breaking changes so we advise careful testing and
+  reviewing https://urllib3.readthedocs.io/en/latest/v2-migration-guide.html
+  prior to upgrading.
+
+  Users who wish to stay on urllib3 1.x can pin to `urllib3<2`.
+
 2.29.0 (2023-04-26)
 -------------------
 
