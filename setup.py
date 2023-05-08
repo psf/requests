@@ -65,7 +65,7 @@ requires = [
     "certifi>=2017.4.17",
 ]
 test_requirements = [
-    "pytest-httpbin==2.0.0rc2",
+    "pytest-httpbin==2.0.0",
     "pytest-cov",
     "pytest-mock",
     "pytest-xdist",
