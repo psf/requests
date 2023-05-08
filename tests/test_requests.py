@@ -1360,6 +1360,15 @@ class TestRequests:
         cookie = next(iter(jar))
         assert jar.popitem() == (cookie, cookie.value)
 
+        expected_jar = requests.cookies.RequestsCookieJar()
+        expected_jar.set("2nd_key", "2nd_value")
+        assert jar == expected_jar
+
+        jar.set("2nd_key", "another_value")
+        cookie = next(iter(jar))
+        assert jar.popitem() == (cookie, cookie.value)
+
+
     def test_cookie_policy_copy(self):
         class MyCookiePolicy(cookielib.DefaultCookiePolicy):
             pass

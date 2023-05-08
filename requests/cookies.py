@@ -343,11 +343,13 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
         """
         self.set(name, value)
 
-    def __delitem__(self, name):
+    def __delitem__(self, key):
         """Deletes a cookie given a name. Wraps ``cookielib.CookieJar``'s
         ``remove_cookie_by_name()``.
         """
-        remove_cookie_by_name(self, name)
+        if isinstance(key, Cookie):
+            key = key.name
+        remove_cookie_by_name(self, key)
 
     def set_cookie(self, cookie, *args, **kwargs):
         if (
