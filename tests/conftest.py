@@ -12,9 +12,9 @@ import pytest
 from requests.compat import urljoin
 
 
-def prepare_url(value):
+def prepare_url(url):
     # Issue #1483: Make sure the URL always has a trailing slash
-    httpbin_url = value.url.rstrip("/") + "/"
+    httpbin_url = url.rstrip("/") + "/"
 
     def inner(*suffix):
         return urljoin(httpbin_url, "/".join(suffix))
@@ -23,13 +23,14 @@ def prepare_url(value):
 
 
 @pytest.fixture
-def httpbin(httpbin):
-    return prepare_url(httpbin)
+def httpbin(request):
+    return prepare_url(request.config.getoption("--httpbin-url"))
 
 
 @pytest.fixture
-def httpbin_secure(httpbin_secure):
-    return prepare_url(httpbin_secure)
+def httpbin_secure(request):
+    return prepare_url(request.config.getoption("--httpbin-secure-url"))
+
 
 
 @pytest.fixture
@@ -56,3 +57,31 @@ def nosan_server(tmp_path_factory):
 
     server.shutdown()
     server_thread.join()
+
+
+def test_httpbin(httpbin):
+    url = httpbin("get")
+    r = requests.get(url)
+    assert r.status_code == 200
+
+
+def test_httpbin_secure(httpbin_secure):
+    url = httpbin_secure("get")
+    r = requests.get(url)
+    assert r.status_code == 200
+
+
+def test_post(httpbin):
+    url = httpbin("post")
+    data = {"foo": "bar"}
+    r = requests.post(url, data=data)
+    assert r.status_code == 200
+    assert r.json()["form"] == data
+
+
+def test_put(httpbin):
+    url = httpbin("put")
+    data = {"foo": "bar"}
+    r = requests.put(url, data=data)
+    assert r.status_code == 200
+    assert r.json()["form"]
