@@ -2206,6 +2206,14 @@ class TestRequests:
         assert not r.history[1].is_redirect
         assert r.url == urls_test[2]
 
+    def test_chunked_encoding(self, httpbin_secure, httpbin_ca_bundle):
+        assert (
+            requests.get(
+                httpbin_secure("stream", "20"), verify=httpbin_ca_bundle
+            ).status_code
+            == 200
+        )
+
 
 class TestCaseInsensitiveDict:
     @pytest.mark.parametrize(
