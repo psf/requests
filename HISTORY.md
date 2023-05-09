@@ -73,7 +73,7 @@ dev
   cert verification. All Requests 2.x versions before 2.28.0 are affected. (#6074)
 - Fixed urllib3 exception leak, wrapping `urllib3.exceptions.SSLError` with
   `requests.exceptions.SSLError` for `content` and `iter_content`. (#6057)
-- Fixed issue where invalid Windows registry entires caused proxy resolution
+- Fixed issue where invalid Windows registry entries caused proxy resolution
   to raise an exception rather than ignoring the entry. (#6149)
 - Fixed issue where entire payload could be included in the error message for
   JSONDecodeError. (#6036)
