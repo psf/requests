@@ -276,8 +276,16 @@ class HTTPAdapter(BaseAdapter):
 
         if cert:
             if not isinstance(cert, basestring):
-                conn.cert_file = cert[0]
-                conn.key_file = cert[1]
+                # a subscriptable object
+                if hasattr(cert, '__getitem__'):
+                    conn.cert_file = cert[0]
+                    conn.key_file = cert[1]
+                elif hasattr(cert, '__fspath__'):
+                    # a path-like object implements __fspath__
+                    # see https://docs.python.org/3/library/os.html#os.PathLike
+                    conn.cert_file = cert.__fspath__()
+                else:
+                    conn.cert_file = str(cert)
             else:
                 conn.cert_file = cert
                 conn.key_file = None
