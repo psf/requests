@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "pypy-3.8", "pypy-3.9"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12-dev", "pypy-3.8", "pypy-3.9"]
         os: [ubuntu-22.04, macOS-latest, windows-latest]
         include:
           # pypy-3.7 on Windows and Mac OS currently fails trying to compile
