@@ -386,13 +386,13 @@ parameter of ``None``. If you want to set a maximum size of the chunk,
 you can set a ``chunk_size`` parameter to any integer.
 
 
-.. _multipart:
+.. _multiple_multipart_files_same_field:
 
-POST Multiple Multipart-Encoded Files
--------------------------------------
+POST Multiple Multipart-Encoded Files to the Same Field
+-------------------------------------------------------
 
-You can send multiple files in one request. For example, suppose you want to
-upload image files to an HTML form with a multiple file field 'images'::
+You can send multiple files to the same form field in one request. For example, suppose you want to
+upload image files to an HTML form with a multiple-file field 'images'::
 
     <input type="file" name="images" multiple="true" required="true"/>
 

@@ -297,6 +297,9 @@ and it will be encoded automatically:
 
 Note, the ``json`` parameter is ignored if either ``data`` or ``files`` is passed.
 
+
+.. _multipart_file:
+
 POST a Multipart-Encoded File
 -----------------------------
 
@@ -351,8 +354,8 @@ support this, but there is a separate package which does -
 ``requests-toolbelt``. You should read `the toolbelt's documentation
 <https://toolbelt.readthedocs.io>`_ for more details about how to use it.
 
-For sending multiple files in one request refer to the :ref:`advanced <advanced>`
-section.
+For sending multiple files to the same form field in one request, refer to
+:ref:`multiple_multipart_files_same_field`.
 
 .. warning:: It is strongly recommended that you open files in :ref:`binary
              mode <tut-files>`. This is because Requests may attempt to provide
