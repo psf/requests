@@ -6,6 +6,33 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.31.0 (2023-05-22)
+-------------------
+
+**Security**
+- Versions of Requests between v2.3.0 and v2.30.0 are vulnerable to potential
+  forwarding of `Proxy-Authorization` headers to destination servers when
+  following HTTPS redirects.
+
+  When proxies are defined with user info (https://user:pass@proxy:8080), Requests
+  will construct a `Proxy-Authorization` header that is attached to the request to
+  authenticate with the proxy.
+
+  In cases where Requests receives a redirect response, it previously reattached
+  the `Proxy-Authorization` header incorrectly, resulting in the value being
+  sent through the tunneled connection to the destination server. Users who rely on
+  defining their proxy credentials in the URL are *strongly* encouraged to upgrade
+  to Requests 2.31.0+ to prevent unintentional leakage and rotate their proxy
+  credentials once the change has been fully deployed.
+
+  Users who do not use a proxy or do not supply their proxy credentials through
+  the user information portion of their proxy URL are not subject to this
+  vulnerability.
+
+  Full details can be read in our [Github Security Advisory](https://github.com/psf/requests/security/advisories/GHSA-j8r2-6x86-q33q)
+  and [CVE-2023-32681](https://nvd.nist.gov/vuln/detail/CVE-2023-32681).
+
+
 2.30.0 (2023-05-03)
 -------------------
 
