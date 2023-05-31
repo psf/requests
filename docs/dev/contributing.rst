@@ -4,7 +4,7 @@ Contributor's Guide
 ===================
 
 If you're reading this, you're probably interested in contributing to Requests.
-Thank you very much! Open source projects live-and-die based on the support
+Thank you very much! Open-source projects live and die based on the support
 they receive from others, and the fact that you're even considering
 contributing to the Requests project is *very* generous of you.
 
@@ -19,7 +19,7 @@ or `Seth Michael Larson`_, the primary maintainers.
 .. _Seth Michael Larson: https://sethmlarson.dev/
 
 The guide is split into sections based on the type of contribution you're
-thinking of making, with a section that covers general guidelines for all
+thinking of making, a section that covers general guidelines for all
 contributors.
 
 Be Cordial
@@ -27,7 +27,7 @@ Be Cordial
 
     **Be cordial or be on your way**. *—Kenneth Reitz*
 
-Requests has one very important rule governing all forms of contribution,
+Requests have one very important rule governing all forms of contribution,
 including reporting bugs or requesting features. This golden rule is
 "`be cordial or be on your way`_".
 
@@ -96,7 +96,7 @@ you must either apply the feedback or withdraw your contribution.
 Code Style
 ~~~~~~~~~~
 
-Requests uses a collection of tools to ensure the code base has a consistent
+Requests use a collection of tools to ensure the code base has a consistent
 style as it grows. We have these orchestrated using a tool called
 `pre-commit`_. This can be installed locally and run over your changes prior
 to opening a PR, and will also be run as part of the CI approval process
@@ -111,7 +111,7 @@ You can find the full list of formatting requirements specified in the
 New Contributors
 ~~~~~~~~~~~~~~~~
 
-If you are new or relatively new to Open Source, welcome! Requests aims to
+If you are new or relatively new to Open Source, welcome! Requests aim to
 be a gentle introduction to the world of Open Source. If you're concerned about
 how best to contribute, please consider mailing a maintainer (listed above) and
 asking for help.
@@ -128,7 +128,7 @@ the ``docs/`` directory of the codebase. They're written in
 documentation.
 
 When contributing documentation, please do your best to follow the style of the
-documentation files. This means a soft-limit of 79 characters wide in your text
+documentation files. This means a soft limit of 79 characters wide in your text
 files and a semi-formal, yet friendly and approachable, prose style.
 
 When presenting Python code, use single-quoted strings (``'hello'`` instead of
@@ -146,7 +146,7 @@ Bug Reports
 Bug reports are hugely important! Before you raise one, though, please check
 through the `GitHub issues`_, **both open and closed**, to confirm that the bug
 hasn't been reported before. Duplicate bug reports are a huge drain on the time
-of other contributors, and should be avoided as much as possible.
+of other contributors and should be avoided as much as possible.
 
 .. _GitHub issues: https://github.com/psf/requests/issues
 
@@ -154,7 +154,7 @@ of other contributors, and should be avoided as much as possible.
 Feature Requests
 ----------------
 
-Requests is in a perpetual feature freeze, only the BDFL can add or approve of
+Requests are in a perpetual feature freeze, only the BDFL can add or approve 
 new features. The maintainers believe that Requests is a feature-complete
 piece of software at this time.
 
@@ -163,5 +163,5 @@ open source project is learning the ability to say "no" to suggested changes,
 while keeping an open ear and mind.
 
 If you believe there is a feature missing, feel free to raise a feature
-request, but please do be aware that the overwhelming likelihood is that your
-feature request will not be accepted.
+request, but please be aware that the overwhelming likelihood is that your
+feature-request will not be accepted.
