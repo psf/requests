@@ -45,6 +45,11 @@ class JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):
 class HTTPError(RequestException):
     """An HTTP error occurred."""
 
+class ClientError(HTTPError):
+    """HTTP error for status code 4xx"""
+
+class ServerError(HTTPError):
+    """HTTP error for status code 5xx"""
 
 class ConnectionError(RequestException):
     """A Connection error occurred."""

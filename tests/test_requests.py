@@ -40,6 +40,9 @@ from requests.exceptions import (
     ReadTimeout,
     RequestException,
     RetryError,
+    HTTPError,
+    ClientError,
+    ServerError,
 )
 from requests.exceptions import SSLError as RequestsSSLError
 from requests.exceptions import Timeout, TooManyRedirects, UnrewindableBodyError
@@ -898,12 +901,29 @@ class TestRequests:
         r = requests.get(httpbin("status", "404"))
         assert not r.ok
 
-    def test_status_raising(self, httpbin):
-        r = requests.get(httpbin("status", "404"))
-        with pytest.raises(requests.exceptions.HTTPError):
+    @pytest.mark.parametrize(
+        (
+            "status_code",
+            "exception",
+        ),
+        [
+            (
+                "404",
+                ClientError,
+            ),
+            (
+                "500",
+                ServerError,
+            ),
+        ],
+    )
+    def test_status_raising(self, httpbin, status_code, exception):
+        r = requests.get(httpbin("status", status_code))
+        with pytest.raises(HTTPError):
+            r.raise_for_status()
+        with pytest.raises(exception):
             r.raise_for_status()
 
-        r = requests.get(httpbin("status", "500"))
         assert not r.ok
 
     def test_decompress_gzip(self, httpbin):

@@ -40,11 +40,13 @@ from .compat import urlencode, urlsplit, urlunparse
 from .cookies import _copy_cookie_jar, cookiejar_from_dict, get_cookie_header
 from .exceptions import (
     ChunkedEncodingError,
+    ClientError,
     ConnectionError,
     ContentDecodingError,
     HTTPError,
     InvalidJSONError,
     InvalidURL,
+    ServerError,
 )
 from .exceptions import JSONDecodeError as RequestsJSONDecodeError
 from .exceptions import MissingSchema
@@ -1011,14 +1013,14 @@ class Response:
             http_error_msg = (
                 f"{self.status_code} Client Error: {reason} for url: {self.url}"
             )
+            raise ClientError(http_error_msg, response=self)
 
         elif 500 <= self.status_code < 600:
             http_error_msg = (
                 f"{self.status_code} Server Error: {reason} for url: {self.url}"
             )
+            raise ServerError(http_error_msg, response=self)
 
-        if http_error_msg:
-            raise HTTPError(http_error_msg, response=self)
 
     def close(self):
         """Releases the connection back to the pool. Once this method has been
