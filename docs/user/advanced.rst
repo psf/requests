@@ -1026,8 +1026,30 @@ library to use SSLv3::
                 num_pools=connections, maxsize=maxsize,
                 block=block, ssl_version=ssl.PROTOCOL_SSLv3)
 
+Example: Automatic Retries
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, Requests does not retry failed connections. However, it is possible
+to implement automatic retries with a powerful array of features, including
+backoff, within a Requests :class:`Session <requests.Session>` using the
+`urllib3.util.Retry`_ class::
+
+    from urllib3.util import Retry
+    from requests import Session
+    from requests.adapters import HTTPAdapter
+
+    s = Session()
+    retries = Retry(
+        total=3,
+        backoff_factor=0.1,
+        status_forcelist=[502, 503, 504],
+        allowed_methods={'POST'},
+    )
+    s.mount('https://', HTTPAdapter(max_retries=retries))
+
 .. _`described here`: https://kenreitz.org/essays/2012/06/14/the-future-of-python-http
 .. _`urllib3`: https://github.com/urllib3/urllib3
+.. _`urllib3.util.Retry`: https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry
 
 .. _blocking-or-nonblocking:
 
