@@ -222,7 +222,7 @@ class HTTPAdapter(BaseAdapter):
                 **proxy_kwargs,
             )
         else:
-            proxy_headers = self.proxy_headers(proxy)
+            proxy_headers = self.proxy_headers(proxy, **proxy_kwargs)
             manager = self.proxy_manager[proxy] = proxy_from_url(
                 proxy,
                 proxy_headers=proxy_headers,
@@ -337,6 +337,7 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
         :rtype: urllib3.ConnectionPool
         """
+        proxy_headers = proxies.get('headers')
         proxy = select_proxy(url, proxies)
 
         if proxy:
@@ -347,7 +348,7 @@ class HTTPAdapter(BaseAdapter):
                     "Please check proxy URL. It is malformed "
                     "and could be missing the host."
                 )
-            proxy_manager = self.proxy_manager_for(proxy)
+            proxy_manager = self.proxy_manager_for(proxy, headers=proxy_headers)
             conn = proxy_manager.connection_from_url(url)
         else:
             # Only scheme should be lower case
@@ -410,7 +411,7 @@ class HTTPAdapter(BaseAdapter):
         """
         pass
 
-    def proxy_headers(self, proxy):
+    def proxy_headers(self, proxy, headers={}):
         """Returns a dictionary of the headers to add to any request sent
         through a proxy. This works with urllib3 magic to ensure that they are
         correctly sent to the proxy, rather than in a tunnelled request if
@@ -421,9 +422,11 @@ class HTTPAdapter(BaseAdapter):
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         :param proxy: The url of the proxy being used for this request.
+        :param headers: The headers of the proxy being used for this request.
         :rtype: dict
         """
-        headers = {}
+        if not headers:
+            headers = {}
         username, password = get_auth_from_url(proxy)
 
         if username:
