@@ -67,12 +67,12 @@ def request(method, url, timeout=30, **kwargs):
             response = session.request(method=method, url=url, timeout=timeout, **kwargs)
         end_time = time.time()
         logger.info("[External Request] {} request successful for {}, duration: {:.3f}s".format(
-            method, url, end_time - start_time
+            method.upper(), url, end_time - start_time
         ))
     except Exception as e:
         end_time = time.time()
         logger.warning("[External Request] {} request failed for {}, error: {}, duration: {:.3f}s".format(
-            method, url, str(e), end_time - start_time
+            method.upper(), url, str(e), end_time - start_time
         ))
         raise e
 
