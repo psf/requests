@@ -60,8 +60,24 @@ def request(method, url, timeout=30, **kwargs):
     # By using the 'with' statement we are sure the session is closed, thus we
     # avoid leaving sockets open which can trigger a ResourceWarning in some
     # cases, and look like a memory leak in others.
-    with sessions.Session() as session:
-        return session.request(method=method, url=url, timeout=timeout, **kwargs)
+
+    start_time = time.time()
+    try:
+        with sessions.Session() as session:
+            response = session.request(method=method, url=url, timeout=timeout, **kwargs)
+        end_time = time.time()
+        logger.info("[External Request] {} request successful for {}, duration: {:.3f}s".format(
+            method.upper(), url, end_time - start_time
+        ))
+    except Exception as e:
+        end_time = time.time()
+        logger.warning("[External Request] {} request failed for {}, error: {}, duration: {:.3f}s".format(
+            method.upper(), url, str(e), end_time - start_time
+        ))
+        raise e
+
+    return response
+
 
 
 def get(url, timeout=30, params=None, **kwargs):
@@ -74,21 +90,7 @@ def get(url, timeout=30, params=None, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-    start_time = time.time()
-    try:
-        response = request("get", url, timeout=timeout, params=params, **kwargs)
-        end_time = time.time()
-        logger.info("[External Request] GET request successful for {}, duration: {:.3f}s".format(
-            url, end_time - start_time
-        ))
-    except Exception as e:
-        end_time = time.time()
-        logger.warning("[External Request] GET request failed for {}, error: {}, duration: {:.3f}s".format(
-            url, str(e), end_time - start_time
-        ))
-        raise e
-
-    return response
+    return request("get", url, timeout=timeout, params=params, **kwargs)
 
 
 def options(url, timeout=30, **kwargs):
