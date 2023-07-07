@@ -8,6 +8,18 @@ requests (cookies, auth, proxies).
 import os
 import sys
 import time
+
+try:
+    import gi
+    try:
+        gi.require_version('Libproxy', '1.0')
+        from gi.repository import Libproxy
+        have_libproxy = True
+    except ValueError:
+        have_libproxy = False
+except ImportError:
+    have_libproxy = False
+
 from collections import OrderedDict
 from datetime import timedelta
 
@@ -574,7 +586,19 @@ class Session(SessionRedirectMixin):
         )
         prep = self.prepare_request(req)
 
-        proxies = proxies or {}
+        if have_libproxy:
+            px = Libproxy.ProxyFactory()
+            prox = px.get_proxies(url)
+            if prox:
+                if prox[0] == 'direct://':
+                    proxies = {}
+                else:
+                    proxies = { 'https': prox[0],
+                                'http': prox[0] }
+            else:
+                proxies = proxies or {}
+        else:
+            proxies = proxies or {}
 
         settings = self.merge_environment_settings(
             prep.url, proxies, stream, verify, cert
