@@ -262,7 +262,6 @@ class SessionRedirectMixin:
             if yield_requests:
                 yield req
             else:
-
                 resp = self.send(
                     req,
                     stream=stream,
@@ -389,7 +388,6 @@ class Session(SessionRedirectMixin):
     ]
 
     def __init__(self):
-
         #: A case-insensitive dictionary of headers to be sent on each
         #: :class:`Request <Request>` sent from this
         #: :class:`Session <Session>`.
@@ -713,7 +711,6 @@ class Session(SessionRedirectMixin):
 
         # Persist cookies
         if r.history:
-
             # If the hooks create history then we want those cookies too
             for resp in r.history:
                 extract_cookies_to_jar(self.cookies, resp.request, resp.raw)
@@ -761,7 +758,7 @@ class Session(SessionRedirectMixin):
             # Set environment's proxies.
             no_proxy = proxies.get("no_proxy") if proxies is not None else None
             env_proxies = get_environ_proxies(url, no_proxy=no_proxy)
-            for (k, v) in env_proxies.items():
+            for k, v in env_proxies.items():
                 proxies.setdefault(k, v)
 
             # Look for requests environment configuration
@@ -787,8 +784,7 @@ class Session(SessionRedirectMixin):
 
         :rtype: requests.adapters.BaseAdapter
         """
-        for (prefix, adapter) in self.adapters.items():
-
+        for prefix, adapter in self.adapters.items():
             if url.lower().startswith(prefix.lower()):
                 return adapter
 

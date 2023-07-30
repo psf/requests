@@ -75,11 +75,9 @@ except AttributeError:
 
 
 class TestRequests:
-
     digest_auth_algo = ("MD5", "SHA-256", "SHA-512")
 
     def test_entry_points(self):
-
         requests.session
         requests.session().get
         requests.session().head
@@ -510,7 +508,6 @@ class TestRequests:
 
     @pytest.mark.parametrize("key", ("User-agent", "user-agent"))
     def test_user_agent_transfers(self, httpbin, key):
-
         heads = {key: "Mozilla/5.0 (github.com/psf/requests)"}
 
         r = requests.get(httpbin("user-agent"), headers=heads)
@@ -704,7 +701,6 @@ class TestRequests:
             requests.sessions.get_netrc_auth = old_auth
 
     def test_DIGEST_HTTP_200_OK_GET(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "pass")
             url = httpbin("digest-auth", "auth", "user", "pass", authtype, "never")
@@ -722,7 +718,6 @@ class TestRequests:
             assert r.status_code == 200
 
     def test_DIGEST_AUTH_RETURNS_COOKIE(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
             auth = HTTPDigestAuth("user", "pass")
@@ -733,7 +728,6 @@ class TestRequests:
             assert r.status_code == 200
 
     def test_DIGEST_AUTH_SETS_SESSION_COOKIES(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
             auth = HTTPDigestAuth("user", "pass")
@@ -742,7 +736,6 @@ class TestRequests:
             assert s.cookies["fake"] == "fake_value"
 
     def test_DIGEST_STREAM(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "pass")
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
@@ -754,7 +747,6 @@ class TestRequests:
             assert r.raw.read() == b""
 
     def test_DIGESTAUTH_WRONG_HTTP_401_GET(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "wrongpass")
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
@@ -771,7 +763,6 @@ class TestRequests:
             assert r.status_code == 401
 
     def test_DIGESTAUTH_QUOTES_QOP_VALUE(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "pass")
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
@@ -780,7 +771,6 @@ class TestRequests:
             assert '"auth"' in r.request.headers["Authorization"]
 
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
-
         url = httpbin("post")
         requests.post(url).raise_for_status()
 
@@ -798,7 +788,6 @@ class TestRequests:
             requests.post(url, files=["bad file data"])
 
     def test_invalid_files_input(self, httpbin):
-
         url = httpbin("post")
         post = requests.post(url, files={"random-file-1": None, "random-file-2": 1})
         assert b'name="random-file-1"' not in post.request.body
@@ -846,7 +835,6 @@ class TestRequests:
         assert post2.json()["data"] == "st"
 
     def test_POSTBIN_GET_POST_FILES_WITH_DATA(self, httpbin):
-
         url = httpbin("post")
         requests.post(url).raise_for_status()
 
@@ -1035,7 +1023,6 @@ class TestRequests:
             requests.get(httpbin_secure("status", "200"))
 
     def test_urlencoded_get_query_multivalued_param(self, httpbin):
-
         r = requests.get(httpbin("get"), params={"test": ["foo", "baz"]})
         assert r.status_code == 200
         assert r.url == httpbin("get?test=foo&test=baz")
