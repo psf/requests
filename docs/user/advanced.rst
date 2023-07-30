@@ -994,9 +994,9 @@ The mount call registers a specific instance of a Transport Adapter to a
 prefix. Once mounted, any HTTP request made using that session whose URL starts
 with the given prefix will use the given Transport Adapter.
 
-.. note:: The adapter will be chosen based on a longest prefix match of the raw URL.
-  Be mindful of how you define your prefix. For example, the prefix ``http://localhost`` will also match
-  ``http://localhost.other.com`` or ``http://localhost@other.com``.
+.. note:: The adapter will be chosen based on a longest prefix match. Be mindful
+   prefixes such as ``http://localhost`` will also match ``http://localhost.other.com``
+   or ``http://localhost@other.com``. It's recommended to terminate full hostnames with a ``/``.
 
 Many of the details of implementing a Transport Adapter are beyond the scope of
 this documentation, but take a look at the next example for a simple SSL use-
