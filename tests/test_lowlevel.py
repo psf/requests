@@ -426,3 +426,29 @@ def test_json_decode_compatibility_for_alt_utf_encodings():
     assert isinstance(excinfo.value, requests.exceptions.RequestException)
     assert isinstance(excinfo.value, JSONDecodeError)
     assert r.text not in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "method,include,exclude",
+    (
+        (requests.get, [], [b"Content-Length:", b"Transfer-Encoding:"]),
+        (requests.post, [b"Content-Length: 0\r\n"], [b"Transfer-Encoding:"]),
+    )
+)
+def test_empty_urlencoded_form_body(method, include, exclude):
+    """Ensure we use only the specified Host header for chunked requests."""
+    close_server = threading.Event()
+    server = Server(echo_response_handler, wait_to_close_event=close_server)
+
+    with server as (host, port):
+        url = f"http://{host}:{port}/"
+        resp = method(url, data=(("a", None,),))
+        close_server.set()  # release server block
+
+    assert not resp.content.endswith(b"\r\n0\r\n\r\n")
+
+    for header in include:
+        assert header in resp.content
+
+    for header in exclude:
+        assert header not in resp.content
