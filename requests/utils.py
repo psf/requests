@@ -817,6 +817,25 @@ def should_bypass_proxies(url, no_proxy):
     return False
 
 
+def getproxies_fix_system_proxies_windows():
+    """Fix for urllib getproxies() bug on Windows with Python < 3.10.5
+    See: https://bugs.python.org/issue42627
+
+    :rtype: dict
+    """
+    proxy_hosts = []
+    protocols = {"http", "https", "ftp"}
+    proxies = getproxies()
+    if proxies.keys() != protocols:
+        return proxies
+    for protocol in proxies:
+        proxy_hosts.append(proxies[protocol].lstrip(protocol + "://"))
+    proxy_hosts = list(set(proxy_hosts))
+    if len(proxy_hosts) == 1:
+        return {protocol: "http://" + proxy_hosts[0] for protocol in protocols}
+    return proxies
+
+
 def get_environ_proxies(url, no_proxy=None):
     """
     Return a dict of environment proxies.
@@ -825,6 +844,8 @@ def get_environ_proxies(url, no_proxy=None):
     """
     if should_bypass_proxies(url, no_proxy=no_proxy):
         return {}
+    elif os.name == 'nt':
+        return getproxies_fix_system_proxies_windows()
     else:
         return getproxies()
 
