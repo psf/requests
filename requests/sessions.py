@@ -8,6 +8,7 @@ requests (cookies, auth, proxies).
 import os
 import sys
 import time
+import warnings
 from collections import OrderedDict
 from datetime import timedelta
 
@@ -772,6 +773,10 @@ class Session(SessionRedirectMixin):
                     or os.environ.get("CURL_CA_BUNDLE")
                     or verify
                 )
+                if os.environ.get('REQUESTS_CA_BUNDLE'):
+                    warnings.warn('Setting verify value to environment value of REQUESTS_CA_BUNDLE')
+                elif os.environ.get('CURL_CA_BUNDLE'):
+                    warnings.warn('Setting verify value to environment value of CURL_CA_BUNDLE')
 
         # Merge all the kwargs.
         proxies = merge_setting(proxies, self.proxies)
