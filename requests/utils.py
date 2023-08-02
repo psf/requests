@@ -545,7 +545,8 @@ def get_encoding_from_headers(headers):
 
     content_type, params = _parse_content_type_header(content_type)
 
-    if "charset" in params:
+    # Charset will be a bool if it was not provided with a value. Invalid so ignore it.
+    if "charset" in params and not isinstance(params["charset"], bool):
         return params["charset"].strip("'\"")
 
     if "text" in content_type:
