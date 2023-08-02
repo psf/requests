@@ -235,14 +235,14 @@ class Request(RequestHooksMixin):
     :param method: HTTP method to use.
     :param url: URL to send.
     :param headers: dictionary of headers to send.
-    :param files: dictionary of {filename: fileobject} files to multipart upload.
+    :param files: dictionary of ``{filename: fileobject}`` files to multipart upload.
     :param data: the body to attach to the request. If a dictionary or
-        list of tuples ``[(key, value)]`` is provided, form-encoding will
-        take place.
+        list of tuples ``[(key, value)]`` or ``[(key, [values])]`` is provided, 
+        form-encoding will take place.
     :param json: json for the body to attach to the request (if files or data is not specified).
     :param params: URL parameters to append to the URL. If a dictionary or
-        list of tuples ``[(key, value)]`` is provided, form-encoding will
-        take place.
+        list of tuples ``[(key, value)]`` or ``[(key, [values])]`` is provided, 
+        form-encoding will take place.
     :param auth: Auth handler or (user, pass) tuple.
     :param cookies: dictionary or CookieJar of cookies to attach to this request.
     :param hooks: dictionary of callback hooks, for internal usage.
