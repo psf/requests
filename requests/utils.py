@@ -205,7 +205,8 @@ def get_netrc_auth(url, raise_errors=False):
     else:
         netrc_locations = (f"~/{f}" for f in NETRC_FILES)
 
-    try:
+    # App Engine hack requires suppressing these errors
+    with contextlib.suppress(ImportError, AttributeError):
         from netrc import NetrcParseError, netrc
 
         netrc_path = None
@@ -247,10 +248,6 @@ def get_netrc_auth(url, raise_errors=False):
             # we'll just skip netrc auth unless explicitly asked to raise errors.
             if raise_errors:
                 raise
-
-    # App Engine hackiness.
-    except (ImportError, AttributeError):
-        pass
 
 
 def guess_filename(obj):
