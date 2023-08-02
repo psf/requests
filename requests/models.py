@@ -819,7 +819,7 @@ class Response:
                 except DecodeError as e:
                     raise ContentDecodingError(e)
                 except ReadTimeoutError as e:
-                    raise ConnectionError(e)
+                    raise ConnectionError(e, response=self)
                 except SSLError as e:
                     raise RequestsSSLError(e)
             else:
