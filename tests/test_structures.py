@@ -26,6 +26,29 @@ class TestCaseInsensitiveDict:
         del self.case_insensitive_dict[key]
         assert key not in self.case_insensitive_dict
 
+    def test_or(self):
+        assert self.case_insensitive_dict | {"Accept": "application/xml"} == {
+            "Accept": "application/xml"
+        }
+        assert self.case_insensitive_dict | {"Accept-Encoding": "gzip"} == {
+            "Accept": "application/json",
+            "Accept-Encoding": "gzip",
+        }
+
+    def test_ror(self):
+        assert {"Accept": "application/xml"} | self.case_insensitive_dict == {
+            "Accept": "application/json"
+        }
+        assert {"Accept-Encoding": "gzip"} | self.case_insensitive_dict == {
+            "Accept": "application/json",
+            "Accept-Encoding": "gzip",
+        }
+
+    def test_ior(self):
+        copy = self.case_insensitive_dict.copy()
+        copy |= {"Accept": "application/xml"}
+        assert copy == {"Accept": "application/xml"}
+
     def test_lower_items(self):
         assert list(self.case_insensitive_dict.lower_items()) == [
             ("accept", "application/json")
