@@ -234,7 +234,7 @@ class Request(RequestHooksMixin):
 
     :param method: HTTP method to use.
     :param url: URL to send.
-    :param headers: dictionary of headers to send.
+    :param headers: case insensitive dictionary of headers to send.
     :param files: dictionary of {filename: fileobject} files to multipart upload.
     :param data: the body to attach to the request. If a dictionary or
         list of tuples ``[(key, value)]`` is provided, form-encoding will
@@ -337,7 +337,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.method = None
         #: HTTP URL to send the request to.
         self.url = None
-        #: dictionary of HTTP headers.
+        #: Case-insensitive Dictionary of Request Headers.
         self.headers = None
         # The `CookieJar` used to create the Cookie header will be stored here
         # after prepare_cookies is called
