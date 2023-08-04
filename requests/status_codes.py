@@ -101,6 +101,19 @@ _codes = {
     509: ("bandwidth_limit_exceeded", "bandwidth"),
     510: ("not_extended",),
     511: ("network_authentication_required", "network_auth", "network_authentication"),
+    # Cloudflare-specific HTTP status codes
+    520: ("unknown_error",),
+    521: ("web_server_is_down",),
+    522: ("connection_timed_out",),
+    523: ("origin_is_unreachable",),
+    524: ("a_timeout_occurred",),
+    525: ("ssl_handshake_failed",),
+    526: ("invalid_ssl_certificate",),
+    527: ("railgun_error",),
+    530: ("origin_dns_error",),
+    531: ("origin_connection_timeout",),
+    532: ("origin_read_timeout",),
+    533: ("origin_uncertain_error",),
 }
 
 codes = LookupDict(name="status_codes")
