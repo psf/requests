@@ -62,7 +62,7 @@ requires = [
     "charset_normalizer>=2,<4",
     "idna>=2.5,<4",
     "urllib3>=1.21.1,<3",
-    "certifi>=2017.4.17",
+    "certifi>=2023.07.22",
 ]
 test_requirements = [
     "pytest-httpbin==2.0.0",
