@@ -641,6 +641,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 class Response:
     """The :class:`Response <Response>` object, which contains a
     server's response to an HTTP request.
+
+    A :class:`Response <Response>` object can be used as a context manager.
     """
 
     __attrs__ = [
