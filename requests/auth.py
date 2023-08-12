@@ -59,8 +59,8 @@ def _basic_auth_str(username, password):
     if isinstance(password, str):
         password = password.encode("latin1")
 
-    authstr = "Basic " + to_native_string(
-        b64encode(b":".join((username, password))).strip()
+    authstr = (
+        f'Basic {to_native_string(b64encode(b":".join((username, password))).strip())}'
     )
 
     return authstr
