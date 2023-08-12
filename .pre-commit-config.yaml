@@ -2,7 +2,7 @@ exclude: 'docs/|ext/'
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.0.1
+  rev: v4.4.0
   hooks:
   - id: check-yaml
   - id: debug-statements
@@ -13,16 +13,16 @@ repos:
   hooks:
     - id: isort
 - repo: https://github.com/psf/black
-  rev: 22.3.0
+  rev: 23.7.0
   hooks:
     - id: black
       exclude: tests/test_lowlevel.py
 - repo: https://github.com/asottile/pyupgrade
-  rev: v2.31.1
+  rev: v3.10.1
   hooks:
     - id: pyupgrade
       args: [--py37-plus]
 - repo: https://github.com/PyCQA/flake8
-  rev: 6.0.0
+  rev: 6.1.0
   hooks:
     - id: flake8
