@@ -6,6 +6,64 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.31.0 (2023-05-22)
+-------------------
+
+**Security**
+- Versions of Requests between v2.3.0 and v2.30.0 are vulnerable to potential
+  forwarding of `Proxy-Authorization` headers to destination servers when
+  following HTTPS redirects.
+
+  When proxies are defined with user info (https://user:pass@proxy:8080), Requests
+  will construct a `Proxy-Authorization` header that is attached to the request to
+  authenticate with the proxy.
+
+  In cases where Requests receives a redirect response, it previously reattached
+  the `Proxy-Authorization` header incorrectly, resulting in the value being
+  sent through the tunneled connection to the destination server. Users who rely on
+  defining their proxy credentials in the URL are *strongly* encouraged to upgrade
+  to Requests 2.31.0+ to prevent unintentional leakage and rotate their proxy
+  credentials once the change has been fully deployed.
+
+  Users who do not use a proxy or do not supply their proxy credentials through
+  the user information portion of their proxy URL are not subject to this
+  vulnerability.
+
+  Full details can be read in our [Github Security Advisory](https://github.com/psf/requests/security/advisories/GHSA-j8r2-6x86-q33q)
+  and [CVE-2023-32681](https://nvd.nist.gov/vuln/detail/CVE-2023-32681).
+
+
+2.30.0 (2023-05-03)
+-------------------
+
+**Dependencies**
+- ⚠️ Added support for urllib3 2.0. ⚠️
+
+  This may contain minor breaking changes so we advise careful testing and
+  reviewing https://urllib3.readthedocs.io/en/latest/v2-migration-guide.html
+  prior to upgrading.
+
+  Users who wish to stay on urllib3 1.x can pin to `urllib3<2`.
+
+2.29.0 (2023-04-26)
+-------------------
+
+**Improvements**
+
+- Requests now defers chunked requests to the urllib3 implementation to improve
+  standardization. (#6226)
+- Requests relaxes header component requirements to support bytes/str subclasses. (#6356)
+
+2.28.2 (2023-01-12)
+-------------------
+
+**Dependencies**
+
+- Requests now supports charset\_normalizer 3.x. (#6261)
+
+**Bugfixes**
+
+- Updated MissingSchema exception to suggest https scheme rather than http. (#6188)
 
 2.28.1 (2022-06-29)
 -------------------
@@ -42,7 +100,7 @@ dev
   cert verification. All Requests 2.x versions before 2.28.0 are affected. (#6074)
 - Fixed urllib3 exception leak, wrapping `urllib3.exceptions.SSLError` with
   `requests.exceptions.SSLError` for `content` and `iter_content`. (#6057)
-- Fixed issue where invalid Windows registry entires caused proxy resolution
+- Fixed issue where invalid Windows registry entries caused proxy resolution
   to raise an exception rather than ignoring the entry. (#6149)
 - Fixed issue where entire payload could be included in the error message for
   JSONDecodeError. (#6036)

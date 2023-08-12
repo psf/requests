@@ -324,7 +324,9 @@ class SessionRedirectMixin:
         except KeyError:
             username, password = None, None
 
-        if username and password:
+        # urllib3 handles proxy authorization for us in the standard adapter.
+        # Avoid appending this to TLS tunneled requests where it may be leaked.
+        if not scheme.startswith("https") and username and password:
             headers["Proxy-Authorization"] = _basic_auth_str(username, password)
 
         return new_proxies
@@ -543,6 +545,8 @@ class Session(SessionRedirectMixin):
         :type allow_redirects: bool
         :param proxies: (optional) Dictionary mapping protocol or protocol and
             hostname to the URL of the proxy.
+        :param hooks: (optional) Dictionary mapping hook name to one event or
+            list of events, event must be callable.
         :param stream: (optional) whether to immediately download the response
             content. Defaults to ``False``.
         :param verify: (optional) Either a boolean, in which case it controls whether we verify

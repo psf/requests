@@ -48,6 +48,7 @@ from requests.models import PreparedRequest, urlencode
 from requests.sessions import SessionRedirectMixin
 from requests.structures import CaseInsensitiveDict
 
+from . import SNIMissingWarning
 from .compat import StringIO
 from .utils import override_environ
 
@@ -646,6 +647,27 @@ class TestRequests:
 
         assert sent_headers.get("Proxy-Authorization") == proxy_auth_value
 
+    @pytest.mark.parametrize(
+        "url,has_proxy_auth",
+        (
+            ("http://example.com", True),
+            ("https://example.com", False),
+        ),
+    )
+    def test_proxy_authorization_not_appended_to_https_request(
+        self, url, has_proxy_auth
+    ):
+        session = requests.Session()
+        proxies = {
+            "http": "http://test:pass@localhost:8080",
+            "https": "http://test:pass@localhost:8090",
+        }
+        req = requests.Request("GET", url)
+        prep = req.prepare()
+        session.rebuild_proxies(prep, proxies)
+
+        assert ("Proxy-Authorization" in prep.headers) is has_proxy_auth
+
     def test_basicauth_with_netrc(self, httpbin):
         auth = ("user", "pass")
         wrong_auth = ("wronguser", "wrongpass")
@@ -974,6 +996,10 @@ class TestRequests:
         r = requests.get(httpbin(), cert=".")
         assert r.status_code == 200
 
+    @pytest.mark.skipif(
+        SNIMissingWarning is None,
+        reason="urllib3 2.0 removed that warning and errors out instead",
+    )
     def test_https_warnings(self, nosan_server):
         """warnings are emitted with requests.get"""
         host, port, ca_bundle = nosan_server
@@ -1746,6 +1772,31 @@ class TestRequests:
         """
         with pytest.raises(InvalidHeader):
             requests.get(httpbin("get"), headers=invalid_header)
+
+    def test_header_with_subclass_types(self, httpbin):
+        """If the subclasses does not behave *exactly* like
+        the base bytes/str classes, this is not supported.
+        This test is for backwards compatibility.
+        """
+
+        class MyString(str):
+            pass
+
+        class MyBytes(bytes):
+            pass
+
+        r_str = requests.get(httpbin("get"), headers={MyString("x-custom"): "myheader"})
+        assert r_str.request.headers["x-custom"] == "myheader"
+
+        r_bytes = requests.get(
+            httpbin("get"), headers={MyBytes(b"x-custom"): b"myheader"}
+        )
+        assert r_bytes.request.headers["x-custom"] == b"myheader"
+
+        r_mixed = requests.get(
+            httpbin("get"), headers={MyString("x-custom"): MyBytes(b"myheader")}
+        )
+        assert r_mixed.request.headers["x-custom"] == b"myheader"
 
     @pytest.mark.parametrize("files", ("foo", b"foo", bytearray(b"foo")))
     def test_can_send_objects_with_files(self, httpbin, files):
