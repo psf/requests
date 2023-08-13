@@ -75,7 +75,7 @@ test_requirements = [
 
 about = {}
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, "requests", "__version__.py"), "r", "utf-8") as f:
+with open(os.path.join(here, "src", "requests", "__version__.py"), "r", "utf-8") as f:
     exec(f.read(), about)
 
 with open("README.md", "r", "utf-8") as f:
@@ -92,7 +92,7 @@ setup(
     url=about["__url__"],
     packages=["requests"],
     package_data={"": ["LICENSE", "NOTICE"]},
-    package_dir={"requests": "requests"},
+    package_dir={"": "src"},
     include_package_data=True,
     python_requires=">=3.7",
     install_requires=requires,
