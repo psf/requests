@@ -1,2 +1,9 @@
-include README.md LICENSE NOTICE HISTORY.md pytest.ini requirements-dev.txt
+include README.md
+include LICENSE
+include NOTICE
+include HISTORY.md
+include pytest.ini
+include pyproject.toml
+include requirements-dev.txt
+
 recursive-include tests *.py
