@@ -8,6 +8,7 @@ import os
 import pickle
 import re
 import warnings
+from unittest import mock
 
 import pytest
 import urllib3
@@ -972,12 +973,12 @@ class TestRequests:
             ),
         ),
     )
-    def test_env_cert_bundles(self, httpbin, mocker, env, expected):
+    def test_env_cert_bundles(self, httpbin, env, expected):
         s = requests.Session()
-        mocker.patch("os.environ", env)
-        settings = s.merge_environment_settings(
-            url=httpbin("get"), proxies={}, stream=False, verify=True, cert=None
-        )
+        with mock.patch("os.environ", env):
+            settings = s.merge_environment_settings(
+                url=httpbin("get"), proxies={}, stream=False, verify=True, cert=None
+            )
         assert settings["verify"] == expected
 
     def test_http_with_certificate(self, httpbin):
@@ -1464,11 +1465,9 @@ class TestRequests:
             (urllib3.exceptions.SSLError, tuple(), RequestsSSLError),
         ),
     )
-    def test_iter_content_wraps_exceptions(
-        self, httpbin, mocker, exception, args, expected
-    ):
+    def test_iter_content_wraps_exceptions(self, httpbin, exception, args, expected):
         r = requests.Response()
-        r.raw = mocker.Mock()
+        r.raw = mock.Mock()
         # ReadTimeoutError can't be initialized by mock
         # so we'll manually create the instance with args
         r.raw.stream.side_effect = exception(*args)
@@ -2093,16 +2092,16 @@ class TestRequests:
         next(r.iter_lines())
         assert len(list(r.iter_lines())) == 3
 
-    def test_session_close_proxy_clear(self, mocker):
+    def test_session_close_proxy_clear(self):
         proxies = {
-            "one": mocker.Mock(),
-            "two": mocker.Mock(),
+            "one": mock.Mock(),
+            "two": mock.Mock(),
         }
         session = requests.Session()
-        mocker.patch.dict(session.adapters["http://"].proxy_manager, proxies)
-        session.close()
-        proxies["one"].clear.assert_called_once_with()
-        proxies["two"].clear.assert_called_once_with()
+        with mock.patch.dict(session.adapters["http://"].proxy_manager, proxies):
+            session.close()
+            proxies["one"].clear.assert_called_once_with()
+            proxies["two"].clear.assert_called_once_with()
 
     def test_proxy_auth(self):
         adapter = HTTPAdapter()
