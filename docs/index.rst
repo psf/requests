@@ -9,7 +9,7 @@ Requests: HTTP for Humans™
 Release v\ |version|. (:ref:`Installation <install>`)
 
 
-.. image:: https://pepy.tech/badge/requests/month
+.. image:: https://static.pepy.tech/badge/requests/month
     :target: https://pepy.tech/project/requests
     :alt: Requests Downloads Per Month Badge
     

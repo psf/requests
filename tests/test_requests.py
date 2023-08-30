@@ -8,6 +8,7 @@ import os
 import pickle
 import re
 import warnings
+from unittest import mock
 
 import pytest
 import urllib3
@@ -48,6 +49,7 @@ from requests.models import PreparedRequest, urlencode
 from requests.sessions import SessionRedirectMixin
 from requests.structures import CaseInsensitiveDict
 
+from . import SNIMissingWarning
 from .compat import StringIO
 from .utils import override_environ
 
@@ -74,11 +76,9 @@ except AttributeError:
 
 
 class TestRequests:
-
     digest_auth_algo = ("MD5", "SHA-256", "SHA-512")
 
     def test_entry_points(self):
-
         requests.session
         requests.session().get
         requests.session().head
@@ -509,7 +509,6 @@ class TestRequests:
 
     @pytest.mark.parametrize("key", ("User-agent", "user-agent"))
     def test_user_agent_transfers(self, httpbin, key):
-
         heads = {key: "Mozilla/5.0 (github.com/psf/requests)"}
 
         r = requests.get(httpbin("user-agent"), headers=heads)
@@ -646,6 +645,27 @@ class TestRequests:
 
         assert sent_headers.get("Proxy-Authorization") == proxy_auth_value
 
+    @pytest.mark.parametrize(
+        "url,has_proxy_auth",
+        (
+            ("http://example.com", True),
+            ("https://example.com", False),
+        ),
+    )
+    def test_proxy_authorization_not_appended_to_https_request(
+        self, url, has_proxy_auth
+    ):
+        session = requests.Session()
+        proxies = {
+            "http": "http://test:pass@localhost:8080",
+            "https": "http://test:pass@localhost:8090",
+        }
+        req = requests.Request("GET", url)
+        prep = req.prepare()
+        session.rebuild_proxies(prep, proxies)
+
+        assert ("Proxy-Authorization" in prep.headers) is has_proxy_auth
+
     def test_basicauth_with_netrc(self, httpbin):
         auth = ("user", "pass")
         wrong_auth = ("wronguser", "wrongpass")
@@ -682,7 +702,6 @@ class TestRequests:
             requests.sessions.get_netrc_auth = old_auth
 
     def test_DIGEST_HTTP_200_OK_GET(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "pass")
             url = httpbin("digest-auth", "auth", "user", "pass", authtype, "never")
@@ -700,7 +719,6 @@ class TestRequests:
             assert r.status_code == 200
 
     def test_DIGEST_AUTH_RETURNS_COOKIE(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
             auth = HTTPDigestAuth("user", "pass")
@@ -711,7 +729,6 @@ class TestRequests:
             assert r.status_code == 200
 
     def test_DIGEST_AUTH_SETS_SESSION_COOKIES(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
             auth = HTTPDigestAuth("user", "pass")
@@ -720,7 +737,6 @@ class TestRequests:
             assert s.cookies["fake"] == "fake_value"
 
     def test_DIGEST_STREAM(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "pass")
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
@@ -732,7 +748,6 @@ class TestRequests:
             assert r.raw.read() == b""
 
     def test_DIGESTAUTH_WRONG_HTTP_401_GET(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "wrongpass")
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
@@ -749,7 +764,6 @@ class TestRequests:
             assert r.status_code == 401
 
     def test_DIGESTAUTH_QUOTES_QOP_VALUE(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "pass")
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
@@ -758,7 +772,6 @@ class TestRequests:
             assert '"auth"' in r.request.headers["Authorization"]
 
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
-
         url = httpbin("post")
         requests.post(url).raise_for_status()
 
@@ -776,7 +789,6 @@ class TestRequests:
             requests.post(url, files=["bad file data"])
 
     def test_invalid_files_input(self, httpbin):
-
         url = httpbin("post")
         post = requests.post(url, files={"random-file-1": None, "random-file-2": 1})
         assert b'name="random-file-1"' not in post.request.body
@@ -824,7 +836,6 @@ class TestRequests:
         assert post2.json()["data"] == "st"
 
     def test_POSTBIN_GET_POST_FILES_WITH_DATA(self, httpbin):
-
         url = httpbin("post")
         requests.post(url).raise_for_status()
 
@@ -962,18 +973,22 @@ class TestRequests:
             ),
         ),
     )
-    def test_env_cert_bundles(self, httpbin, mocker, env, expected):
+    def test_env_cert_bundles(self, httpbin, env, expected):
         s = requests.Session()
-        mocker.patch("os.environ", env)
-        settings = s.merge_environment_settings(
-            url=httpbin("get"), proxies={}, stream=False, verify=True, cert=None
-        )
+        with mock.patch("os.environ", env):
+            settings = s.merge_environment_settings(
+                url=httpbin("get"), proxies={}, stream=False, verify=True, cert=None
+            )
         assert settings["verify"] == expected
 
     def test_http_with_certificate(self, httpbin):
         r = requests.get(httpbin(), cert=".")
         assert r.status_code == 200
 
+    @pytest.mark.skipif(
+        SNIMissingWarning is None,
+        reason="urllib3 2.0 removed that warning and errors out instead",
+    )
     def test_https_warnings(self, nosan_server):
         """warnings are emitted with requests.get"""
         host, port, ca_bundle = nosan_server
@@ -1009,7 +1024,6 @@ class TestRequests:
             requests.get(httpbin_secure("status", "200"))
 
     def test_urlencoded_get_query_multivalued_param(self, httpbin):
-
         r = requests.get(httpbin("get"), params={"test": ["foo", "baz"]})
         assert r.status_code == 200
         assert r.url == httpbin("get?test=foo&test=baz")
@@ -1470,11 +1484,9 @@ class TestRequests:
             (urllib3.exceptions.SSLError, tuple(), RequestsSSLError),
         ),
     )
-    def test_iter_content_wraps_exceptions(
-        self, httpbin, mocker, exception, args, expected
-    ):
+    def test_iter_content_wraps_exceptions(self, httpbin, exception, args, expected):
         r = requests.Response()
-        r.raw = mocker.Mock()
+        r.raw = mock.Mock()
         # ReadTimeoutError can't be initialized by mock
         # so we'll manually create the instance with args
         r.raw.stream.side_effect = exception(*args)
@@ -1765,6 +1777,31 @@ class TestRequests:
         """
         with pytest.raises(InvalidHeader):
             requests.get(httpbin("get"), headers=invalid_header)
+
+    def test_header_with_subclass_types(self, httpbin):
+        """If the subclasses does not behave *exactly* like
+        the base bytes/str classes, this is not supported.
+        This test is for backwards compatibility.
+        """
+
+        class MyString(str):
+            pass
+
+        class MyBytes(bytes):
+            pass
+
+        r_str = requests.get(httpbin("get"), headers={MyString("x-custom"): "myheader"})
+        assert r_str.request.headers["x-custom"] == "myheader"
+
+        r_bytes = requests.get(
+            httpbin("get"), headers={MyBytes(b"x-custom"): b"myheader"}
+        )
+        assert r_bytes.request.headers["x-custom"] == b"myheader"
+
+        r_mixed = requests.get(
+            httpbin("get"), headers={MyString("x-custom"): MyBytes(b"myheader")}
+        )
+        assert r_mixed.request.headers["x-custom"] == b"myheader"
 
     @pytest.mark.parametrize("files", ("foo", b"foo", bytearray(b"foo")))
     def test_can_send_objects_with_files(self, httpbin, files):
@@ -2074,16 +2111,16 @@ class TestRequests:
         next(r.iter_lines())
         assert len(list(r.iter_lines())) == 3
 
-    def test_session_close_proxy_clear(self, mocker):
+    def test_session_close_proxy_clear(self):
         proxies = {
-            "one": mocker.Mock(),
-            "two": mocker.Mock(),
+            "one": mock.Mock(),
+            "two": mock.Mock(),
         }
         session = requests.Session()
-        mocker.patch.dict(session.adapters["http://"].proxy_manager, proxies)
-        session.close()
-        proxies["one"].clear.assert_called_once_with()
-        proxies["two"].clear.assert_called_once_with()
+        with mock.patch.dict(session.adapters["http://"].proxy_manager, proxies):
+            session.close()
+            proxies["one"].clear.assert_called_once_with()
+            proxies["two"].clear.assert_called_once_with()
 
     def test_proxy_auth(self):
         adapter = HTTPAdapter()

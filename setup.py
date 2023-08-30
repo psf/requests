@@ -59,13 +59,13 @@ if sys.argv[-1] == "publish":
     sys.exit()
 
 requires = [
-    "charset_normalizer>=2,<3",
+    "charset_normalizer>=2,<4",
     "idna>=2.5,<4",
-    "urllib3>=1.21.1,<1.27",
+    "urllib3>=1.21.1,<3",
     "certifi>=2017.4.17",
 ]
 test_requirements = [
-    "pytest-httpbin==0.0.7",
+    "pytest-httpbin==2.0.0",
     "pytest-cov",
     "pytest-mock",
     "pytest-xdist",
@@ -75,7 +75,7 @@ test_requirements = [
 
 about = {}
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, "requests", "__version__.py"), "r", "utf-8") as f:
+with open(os.path.join(here, "src", "requests", "__version__.py"), "r", "utf-8") as f:
     exec(f.read(), about)
 
 with open("README.md", "r", "utf-8") as f:
@@ -92,9 +92,9 @@ setup(
     url=about["__url__"],
     packages=["requests"],
     package_data={"": ["LICENSE", "NOTICE"]},
-    package_dir={"requests": "requests"},
+    package_dir={"": "src"},
     include_package_data=True,
-    python_requires=">=3.7, <4",
+    python_requires=">=3.7",
     install_requires=requires,
     license=about["__license__"],
     zip_safe=False,
@@ -112,6 +112,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",

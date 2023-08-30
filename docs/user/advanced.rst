@@ -656,10 +656,10 @@ certificates trusted by Requests can be found with::
     from requests.utils import DEFAULT_CA_BUNDLE_PATH
     print(DEFAULT_CA_BUNDLE_PATH)
 
-You override this default certificate bundle by setting the standard
-``curl_ca_bundle`` environment variable to another file path::
+You override this default certificate bundle by setting the ``REQUESTS_CA_BUNDLE``
+(or ``CURL_CA_BUNDLE``) environment variable to another file path::
 
-    $ export curl_ca_bundle="/usr/local/myproxy_info/cacert.pem"
+    $ export REQUESTS_CA_BUNDLE="/usr/local/myproxy_info/cacert.pem"
     $ export https_proxy="http://10.10.1.10:1080"
 
     $ python
@@ -717,10 +717,9 @@ If ``chardet`` is installed, ``requests`` uses it, however for python3
 library is an LGPL-licenced dependency and some users of requests
 cannot depend on mandatory LGPL-licensed dependencies.
 
-When you install ``request`` without specifying ``[use_chardet_on_py3]]`` extra,
+When you install ``requests`` without specifying ``[use_chardet_on_py3]`` extra,
 and ``chardet`` is not already installed, ``requests`` uses ``charset-normalizer``
-(MIT-licensed) to guess the encoding. For Python 2, ``requests`` uses only
-``chardet`` and is a mandatory dependency there.
+(MIT-licensed) to guess the encoding.
 
 The only time Requests will not guess the encoding is if no explicit charset
 is present in the HTTP headers **and** the ``Content-Type``
@@ -995,6 +994,10 @@ The mount call registers a specific instance of a Transport Adapter to a
 prefix. Once mounted, any HTTP request made using that session whose URL starts
 with the given prefix will use the given Transport Adapter.
 
+.. note:: The adapter will be chosen based on a longest prefix match. Be mindful
+   prefixes such as ``http://localhost`` will also match ``http://localhost.other.com``
+   or ``http://localhost@other.com``. It's recommended to terminate full hostnames with a ``/``.
+
 Many of the details of implementing a Transport Adapter are beyond the scope of
 this documentation, but take a look at the next example for a simple SSL use-
 case. For more than that, you might look at subclassing the
@@ -1027,8 +1030,30 @@ library to use SSLv3::
                 num_pools=connections, maxsize=maxsize,
                 block=block, ssl_version=ssl.PROTOCOL_SSLv3)
 
+Example: Automatic Retries
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, Requests does not retry failed connections. However, it is possible
+to implement automatic retries with a powerful array of features, including
+backoff, within a Requests :class:`Session <requests.Session>` using the
+`urllib3.util.Retry`_ class::
+
+    from urllib3.util import Retry
+    from requests import Session
+    from requests.adapters import HTTPAdapter
+
+    s = Session()
+    retries = Retry(
+        total=3,
+        backoff_factor=0.1,
+        status_forcelist=[502, 503, 504],
+        allowed_methods={'POST'},
+    )
+    s.mount('https://', HTTPAdapter(max_retries=retries))
+
 .. _`described here`: https://kenreitz.org/essays/2012/06/14/the-future-of-python-http
 .. _`urllib3`: https://github.com/urllib3/urllib3
+.. _`urllib3.util.Retry`: https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry
 
 .. _blocking-or-nonblocking:
 
@@ -1056,7 +1081,7 @@ Header Ordering
 
 In unusual circumstances you may want to provide headers in an ordered manner. If you pass an ``OrderedDict`` to the ``headers`` keyword argument, that will provide the headers with an ordering. *However*, the ordering of the default headers used by Requests will be preferred, which means that if you override default headers in the ``headers`` keyword argument, they may appear out of order compared to other headers in that keyword argument.
 
-If this is problematic, users should consider setting the default headers on a :class:`Session <requests.Session>` object, by setting :attr:`Session <requests.Session.headers>` to a custom ``OrderedDict``. That ordering will always be preferred.
+If this is problematic, users should consider setting the default headers on a :class:`Session <requests.Session>` object, by setting :attr:`Session.headers <requests.Session.headers>` to a custom ``OrderedDict``. That ordering will always be preferred.
 
 .. _timeouts:
 
