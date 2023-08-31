@@ -66,7 +66,7 @@ def request(method, url, timeout=30, **kwargs):
         with sessions.Session() as session:
             response = session.request(method=method, url=url, timeout=timeout, **kwargs)
         end_time = time.time()
-        logger.info("[External Request] {} request successful for {}, duration: {:.3f}s".format(
+        logger.debug("[External Request] {} request successful for {}, duration: {:.3f}s".format(
             method.upper(), url, end_time - start_time
         ))
     except Exception as e:
