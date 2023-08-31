@@ -12,21 +12,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
-        os: [ubuntu-18.04, macOS-latest, windows-latest]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12-dev", "pypy-3.8", "pypy-3.9"]
+        os: [ubuntu-22.04, macOS-latest, windows-latest]
         include:
-          # pypy-3.7 on Mac OS currently fails trying to compile
-          # brotlipy. Moving pypy3 to only test linux.
+          # pypy-3.7 on Windows and Mac OS currently fails trying to compile
+          # cryptography. Moving pypy-3.7 to only test linux.
           - python-version: pypy-3.7
             os: ubuntu-latest
-            experimental: false
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
       with:
         python-version: ${{ matrix.python-version }}
+        cache: 'pip'
     - name: Install dependencies
       run: |
         make
