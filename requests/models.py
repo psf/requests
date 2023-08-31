@@ -170,7 +170,7 @@ class RequestEncodingMixin:
                         )
                     )
 
-        for k, v in files:
+        for (k, v) in files:
             # support for explicit filename
             ft = None
             fh = None
@@ -268,6 +268,7 @@ class Request(RequestHooksMixin):
         hooks=None,
         json=None,
     ):
+
         # Default empty dicts for dict params.
         data = [] if data is None else data
         files = [] if files is None else files
@@ -276,7 +277,7 @@ class Request(RequestHooksMixin):
         hooks = {} if hooks is None else hooks
 
         self.hooks = default_hooks()
-        for k, v in list(hooks.items()):
+        for (k, v) in list(hooks.items()):
             self.register_hook(event=k, hook=v)
 
         self.method = method
@@ -864,6 +865,7 @@ class Response:
         for chunk in self.iter_content(
             chunk_size=chunk_size, decode_unicode=decode_unicode
         ):
+
             if pending is not None:
                 chunk = pending + chunk
 

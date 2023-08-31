@@ -5,7 +5,6 @@ import tarfile
 import zipfile
 from collections import deque
 from io import BytesIO
-from unittest import mock
 
 import pytest
 
@@ -752,13 +751,13 @@ def test_should_bypass_proxies(url, expected, monkeypatch):
         ("http://user:pass@hostname:5000", "hostname"),
     ),
 )
-def test_should_bypass_proxies_pass_only_hostname(url, expected):
+def test_should_bypass_proxies_pass_only_hostname(url, expected, mocker):
     """The proxy_bypass function should be called with a hostname or IP without
     a port number or auth credentials.
     """
-    with mock.patch("requests.utils.proxy_bypass") as proxy_bypass:
-        should_bypass_proxies(url, no_proxy=None)
-        proxy_bypass.assert_called_once_with(expected)
+    proxy_bypass = mocker.patch("requests.utils.proxy_bypass")
+    should_bypass_proxies(url, no_proxy=None)
+    proxy_bypass.assert_called_once_with(expected)
 
 
 @pytest.mark.parametrize(
