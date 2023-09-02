@@ -10,7 +10,6 @@ requests.utils imports from here, so be careful with imports.
 import calendar
 import copy
 import time
-from http.cookiejar import Cookie
 
 from ._internal_utils import to_native_string
 from .compat import Morsel, MutableMapping, cookielib, urlparse, urlunparse
@@ -325,16 +324,14 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
         except CookieConflictError:
             return True
 
-    def __getitem__(self, key):
+    def __getitem__(self, name):
         """Dict-like __getitem__() for compatibility with client code. Throws
         exception if there are more than one cookie with name. In that case,
         use the more explicit get() method instead.
 
         .. warning:: operation is O(n), not O(1).
         """
-        if isinstance(key, Cookie):
-            key = key.name
-        return self._find_no_duplicates(key)
+        return self._find_no_duplicates(name)
 
     def __setitem__(self, name, value):
         """Dict-like __setitem__ for compatibility with client code. Throws
@@ -343,13 +340,18 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
         """
         self.set(name, value)
 
-    def __delitem__(self, key):
+    def __delitem__(self, name):
         """Deletes a cookie given a name. Wraps ``http.cookiejar.CookieJar``'s
         ``remove_cookie_by_name()``.
         """
-        if isinstance(key, Cookie):
-            key = key.name
-        remove_cookie_by_name(self, key)
+        remove_cookie_by_name(self, name)
+
+    def popitem(self):
+        if not self:
+            raise KeyError("Cookie jar is empty")
+        next_cookie = next(iter(self))
+        self.clear(next_cookie.domain, next_cookie.path, next_cookie.name)
+        return next_cookie, next_cookie.value
 
     def set_cookie(self, cookie, *args, **kwargs):
         if (
