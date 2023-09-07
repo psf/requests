@@ -760,11 +760,7 @@ class Response:
         the status code is between 200 and 400, this will return True. This
         is **not** a check to see if the response code is ``200 OK``.
         """
-        try:
-            self.raise_for_status()
-        except HTTPError:
-            return False
-        return True
+        return self.is_raisable_status()
 
     @property
     def is_redirect(self):
@@ -991,32 +987,26 @@ class Response:
 
     def raise_for_status(self):
         """Raises :class:`HTTPError`, if one occurred."""
+        if(self.is_raisable_status()):
+            http_error_msg = ""
+            reason = self.decode_reason()
 
-        http_error_msg = ""
-        if isinstance(self.reason, bytes):
-            # We attempt to decode utf-8 first because some servers
-            # choose to localize their reason strings. If the string
-            # isn't utf-8, we fall back to iso-8859-1 for all other
-            # encodings. (See PR #3538)
-            try:
-                reason = self.reason.decode("utf-8")
-            except UnicodeDecodeError:
-                reason = self.reason.decode("iso-8859-1")
-        else:
-            reason = self.reason
+            # Craft correct message 
+            if 400 <= self.status_code < 500:
+                http_error_msg = (
+                    f"{self.status_code} Client Error: {reason} for url: {self.url}"
+                )
 
-        if 400 <= self.status_code < 500:
-            http_error_msg = (
-                f"{self.status_code} Client Error: {reason} for url: {self.url}"
-            )
-
-        elif 500 <= self.status_code < 600:
-            http_error_msg = (
-                f"{self.status_code} Server Error: {reason} for url: {self.url}"
-            )
-
-        if http_error_msg:
-            raise HTTPError(http_error_msg, response=self)
+            elif 500 <= self.status_code < 600:
+                http_error_msg = (
+                    f"{self.status_code} Server Error: {reason} for url: {self.url}"
+                )
+            else:
+                http_error_msg = (
+                    f"{self.status_code} Unknown Error: {reason} for url: {self.url}"
+                )
+            if http_error_msg:
+                raise HTTPError(http_error_msg, response=self)
 
     def close(self):
         """Releases the connection back to the pool. Once this method has been
@@ -1030,3 +1020,23 @@ class Response:
         release_conn = getattr(self.raw, "release_conn", None)
         if release_conn is not None:
             release_conn()
+
+    def decode_reason(self):
+        reason = ""
+
+        if isinstance(self.reason, bytes):
+            # We attempt to decode utf-8 first because some servers
+            # choose to localize their reason strings. If the string
+            # isn't utf-8, we fall back to iso-8859-1 for all other
+            # encodings. (See PR #3538)
+            try:
+                reason = self.reason.decode("utf-8")
+            except UnicodeDecodeError:
+                reason = self.reason.decode("iso-8859-1")
+        else:
+            reason = self.reason
+
+        return reason
+
+    def is_raisable_status(self):
+        return (self.status_code >= 400)
