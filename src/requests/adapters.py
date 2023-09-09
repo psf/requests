@@ -130,6 +130,7 @@ class HTTPAdapter(BaseAdapter):
         "_pool_connections",
         "_pool_maxsize",
         "_pool_block",
+        "urllib3_response_options",
     ]
 
     def __init__(
@@ -153,6 +154,8 @@ class HTTPAdapter(BaseAdapter):
         self._pool_block = pool_block
 
         self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
+
+        self.urllib3_response_options = {}
 
     def __getstate__(self):
         return {attr: getattr(self, attr, None) for attr in self.__attrs__}
@@ -481,20 +484,25 @@ class HTTPAdapter(BaseAdapter):
         else:
             timeout = TimeoutSauce(connect=timeout, read=timeout)
 
+        urlopen_kwargs = self.urllib3_response_options.copy()
+        urlopen_kwargs.update(
+            {
+                "method": request.method,
+                "url": url,
+                "body": request.body,
+                "headers": request.headers,
+                "redirect": False,
+                "assert_same_host": False,
+                "preload_content": False,
+                "decode_content": False,
+                "retries": self.max_retries,
+                "timeout": timeout,
+                "chunked": chunked,
+            }
+        )
+
         try:
-            resp = conn.urlopen(
-                method=request.method,
-                url=url,
-                body=request.body,
-                headers=request.headers,
-                redirect=False,
-                assert_same_host=False,
-                preload_content=False,
-                decode_content=False,
-                retries=self.max_retries,
-                timeout=timeout,
-                chunked=chunked,
-            )
+            resp = conn.urlopen(**urlopen_kwargs)
 
         except (ProtocolError, OSError) as err:
             raise ConnectionError(err, request=request)
