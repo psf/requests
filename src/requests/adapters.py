@@ -438,6 +438,9 @@ class HTTPAdapter(BaseAdapter):
     ):
         """Sends PreparedRequest object. Returns Response object.
 
+        It is possible to pass additional arguments to :meth:`urllib3.poolmanager.PoolManager.urlopen`
+        (e.g. `enforce_content_length`) by populating :attr:`HTTPAdapter.urllib3_response_options`.
+
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
         :param stream: (optional) Whether to stream the request content.
         :param timeout: (optional) How long to wait for the server to send
