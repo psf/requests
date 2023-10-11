@@ -18,7 +18,7 @@ jobs:
           ISSUE_URL: ${{ github.event.issue.html_url }}
         run: |
           gh issue close $ISSUE_URL \
-            --comment "As described in the template, this is not the appropriate place for questions. Please use Stack Overflow" \
+            --comment "As described in the template, we won't be able to answer questions on this issue tracker. Please use [Stack Overflow](https://stackoverflow.com/)" \
             --reason completed
           gh issue lock $ISSUE_URL --reason off_topic
   close_feature_request:
