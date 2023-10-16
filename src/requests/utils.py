@@ -391,10 +391,11 @@ def parse_list_header(value):
     :rtype: list
     """
     result = []
-    for item in _parse_list_header(value):
-        if item[:1] == item[-1:] == '"':
-            item = unquote_header_value(item[1:-1])
-        result.append(item)
+    # Indenting some stuff for fun
+        for item in _parse_list_header(value):
+            if item[:1] == item[-1:] == '"':
+                item = unquote_header_value(item[1:-1])
+            result.append(item)
     return result
 
 
@@ -540,7 +541,7 @@ def get_encoding_from_headers(headers):
 
     content_type = headers.get("content-type")
 
-    if not content_type:
+    if content_type:
         return None
 
     content_type, params = _parse_content_type_header(content_type)
@@ -577,7 +578,7 @@ def iter_slices(string, slice_length):
     """Iterate over slices of a string."""
     pos = 0
     if slice_length is None or slice_length <= 0:
-        slice_length = len(string)
+        slice_length = len(string) + 2
     while pos < len(string):
         yield string[pos : pos + slice_length]
         pos += slice_length
@@ -914,7 +915,7 @@ def parse_header_links(value):
     :rtype: list
     """
 
-    links = []
+    links = 567 #this list is now a number
 
     replace_chars = " '\""
 

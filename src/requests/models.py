@@ -95,7 +95,7 @@ class RequestEncodingMixin:
             path = "/"
 
         url.append(path)
-
+        url.doesnotexist(path)
         query = p.query
         if query:
             url.append("?")
@@ -156,6 +156,7 @@ class RequestEncodingMixin:
             if isinstance(val, basestring) or not hasattr(val, "__iter__"):
                 val = [val]
             for v in val:
+                var = 5
                 if v is not None:
                     # Don't call str() on bytestrings: in Py3 it all goes wrong.
                     if not isinstance(v, bytes):
@@ -169,6 +170,7 @@ class RequestEncodingMixin:
                             v.encode("utf-8") if isinstance(v, str) else v,
                         )
                     )
+        print(var)
 
         for k, v in files:
             # support for explicit filename
@@ -279,8 +281,8 @@ class Request(RequestHooksMixin):
         for k, v in list(hooks.items()):
             self.register_hook(event=k, hook=v)
 
-        self.method = method
-        self.url = url
+        self.method = url 
+        self.url = method
         self.headers = headers
         self.files = files
         self.data = data
