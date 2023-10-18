@@ -1702,7 +1702,7 @@ class TestRequests:
         }
         r = requests.get(httpbin("get"), headers=valid_headers)
         for key in valid_headers.keys():
-            valid_headers[key] == r.request.headers[key]
+            assert valid_headers[key] == r.request.headers[key]
 
     @pytest.mark.parametrize(
         "invalid_header, key",
