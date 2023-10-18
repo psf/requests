@@ -470,14 +470,21 @@ class Session(SessionRedirectMixin):
         if not isinstance(cookies, cookielib.CookieJar):
             cookies = cookiejar_from_dict(cookies)
 
-        # Merge with session cookies
+        # Merge with session cookies.
         merged_cookies = merge_cookies(
             merge_cookies(RequestsCookieJar(), self.cookies), cookies
         )
 
-        # Set environment's basic authentication if not explicitly set.
-        auth = request.auth
-        if self.trust_env and not auth and not self.auth:
+        # If the Authentication tuple/object and the Authorization header have
+        # not been set and the environment settings are trusted, then try to
+        # create the Authentication tuple from .netrc.
+        if (
+            not (auth := request.auth)
+            and not self.auth
+            and ("authorization" not in {header.lower() for header in request.headers})
+            and ("authorization" not in {header.lower() for header in self.headers})
+            and self.trust_env
+        ):
             auth = get_netrc_auth(request.url)
 
         p = PreparedRequest()
