@@ -36,10 +36,9 @@ Providing the credentials in a tuple like this is exactly the same as the
 netrc Authentication
 ~~~~~~~~~~~~~~~~~~~~
 
-If no authentication method is given with the ``auth`` argument, Requests will
-attempt to get the authentication credentials for the URL's hostname from the
-user's netrc file. The netrc file overrides raw HTTP authentication headers
-set with `headers=`.
+If no authentication method is given with the ``auth`` argument and the
+Authorization header has not been set, Requests will attempt to get the
+authentication credentials for the URL's hostname from the user's netrc file.
 
 If credentials for the hostname are found, the request is sent with HTTP Basic
 Auth.
