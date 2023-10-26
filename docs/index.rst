@@ -1,11 +1,3 @@
-.. Requests documentation master file, created by
-   sphinx-quickstart on Sun Feb 13 23:54:25 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Requests: HTTP for Humans™
-==========================
-
 Release v\ |version|. (:ref:`Installation <install>`)
 
 
