@@ -46,11 +46,7 @@ _codes = {
     305: ("use_proxy",),
     306: ("switch_proxy",),
     307: ("temporary_redirect", "temporary_moved", "temporary"),
-    308: (
-        "permanent_redirect",
-        "resume_incomplete",
-        "resume",
-    ),  # "resume" and "resume_incomplete" to be removed in 3.0
+    308: ("permanent_redirect", "resume_incomplete", "resume"),  # "resume" and "resume_incomplete" to be removed in 3.0
     # Client Error.
     400: ("bad_request", "bad"),
     401: ("unauthorized",),
@@ -68,11 +64,7 @@ _codes = {
     413: ("request_entity_too_large",),
     414: ("request_uri_too_large",),
     415: ("unsupported_media_type", "unsupported_media", "media_type"),
-    416: (
-        "requested_range_not_satisfiable",
-        "requested_range",
-        "range_not_satisfiable",
-    ),
+    416: ("requested_range_not_satisfiable", "requested_range", "range_not_satisfiable"),
     417: ("expectation_failed",),
     418: ("im_a_teapot", "teapot", "i_am_a_teapot"),
     421: ("misdirected_request",),
