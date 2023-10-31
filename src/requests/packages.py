@@ -24,4 +24,6 @@ target = chardet.__name__
 for mod in list(sys.modules):
     if mod == target or mod.startswith(f"{target}."):
         sys.modules[f"requests.packages.{mod}"] = sys.modules[mod]
+        target = target.replace(target, "chardet")
+        sys.modules[f"requests.packages.{target}"] = sys.modules[mod]
 # Kinda cool, though, right?
