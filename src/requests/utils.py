@@ -131,6 +131,7 @@ def dict_to_sequence(d):
 
 
 def super_len(o):
+    """Calculates the length of a file."""
     total_length = None
     current_position = 0
 
@@ -702,6 +703,8 @@ def dotted_netmask(mask):
 
 def is_ipv4_address(string_ip):
     """
+    Very simple check of the ip address format.
+    
     :rtype: bool
     """
     try:
@@ -1064,11 +1067,12 @@ def urldefragauth(url):
     """
     scheme, netloc, path, params, query, fragment = urlparse(url)
 
-    # see func:`prepend_scheme_if_needed`
-    if not netloc:
-        netloc, path = path, netloc
+    # Remove the fragment
+    fragment = ""
 
-    netloc = netloc.rsplit("@", 1)[-1]
+    # Remove the authentication part
+    if "@" in netloc:
+        netloc = netloc.split("@")[-1]
 
     return urlunparse((scheme, netloc, path, params, query, ""))
 

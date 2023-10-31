@@ -43,24 +43,17 @@ def _implementation():
     to work out the correct shape of the code for those platforms.
     """
     implementation = platform.python_implementation()
+    implementation_version = platform.python_version()
 
-    if implementation == "CPython":
-        implementation_version = platform.python_version()
-    elif implementation == "PyPy":
+    if implementation == "PyPy":
         implementation_version = "{}.{}.{}".format(
             sys.pypy_version_info.major,
             sys.pypy_version_info.minor,
             sys.pypy_version_info.micro,
         )
         if sys.pypy_version_info.releaselevel != "final":
-            implementation_version = "".join(
-                [implementation_version, sys.pypy_version_info.releaselevel]
-            )
-    elif implementation == "Jython":
-        implementation_version = platform.python_version()  # Complete Guess
-    elif implementation == "IronPython":
-        implementation_version = platform.python_version()  # Complete Guess
-    else:
+            implementation_version += sys.pypy_version_info.releaselevel
+    elif implementation not in ("CPython", "PyPy"):
         implementation_version = "Unknown"
 
     return {"name": implementation, "version": implementation_version}

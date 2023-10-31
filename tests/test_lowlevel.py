@@ -405,6 +405,12 @@ def test_fragment_update_on_redirect():
 
 
 def test_json_decode_compatibility_for_alt_utf_encodings():
+	"""
+    Test and verify JSON decoding compatibility for alternative UTF encodings.
+    Sets up a response handler, sends a UTF-encoded HTTP response, and creates a server.
+    Makes a GET request, expects a JSONDecodeError, and checks the exception.
+    Asserts response text is not present in the exception message.
+    """
 
     def response_handler(sock):
         consume_socket_content(sock, timeout=0.5)
