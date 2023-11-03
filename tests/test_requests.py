@@ -130,6 +130,12 @@ class TestRequests:
         req = requests.Request(method, httpbin(method.lower()), data="").prepare()
         assert req.headers["Content-Length"] == "0"
 
+    @pytest.mark.parametrize("method", ("POST", "PUT", "PATCH", "OPTIONS"))
+    def test_empty_file_content_length(self, httpbin, method):
+        data = io.BytesIO(b"")
+        req = requests.Request(method, httpbin(method.lower()), data=data).prepare()
+        assert req.headers["Content-Length"] == "0"
+
     def test_override_content_length(self, httpbin):
         headers = {"Content-Length": "not zero"}
         r = requests.Request("POST", httpbin("post"), headers=headers).prepare()
