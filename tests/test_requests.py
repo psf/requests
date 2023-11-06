@@ -136,6 +136,16 @@ class TestRequests:
         req = requests.Request(method, httpbin(method.lower()), data=data).prepare()
         assert req.headers["Content-Length"] == "0"
 
+    @pytest.mark.parametrize("method", ("POST", "PUT", "PATCH", "OPTIONS"))
+    def test_not_readable_content_length_pipe(self, httpbin, method):
+        pipe_r, pipe_w = os.pipe()
+        pipe_rf = os.fdopen(pipe_r, "rb")
+        pipe_wf = os.fdopen(pipe_w, "wb")
+        pipe_wf.write(b"hello")
+        req = requests.Request(method, httpbin(method.lower()), data=pipe_rf).prepare()
+        assert req.headers.get("Content-Length") is None
+        assert req.headers["Transfer-Encoding"] == "chunked"
+
     def test_override_content_length(self, httpbin):
         headers = {"Content-Length": "not zero"}
         r = requests.Request("POST", httpbin("post"), headers=headers).prepare()
@@ -2157,7 +2167,9 @@ class TestRequests:
         resp.close()
         assert resp.raw.closed
 
-    def test_empty_stream_with_auth_does_not_set_transfer_encoding_header(self, httpbin):
+    def test_empty_stream_with_auth_does_not_set_transfer_encoding_header(
+        self, httpbin
+    ):
         """Ensure that a byte stream with size 0 will not set both a Content-Length
         and Transfer-Encoding header.
         """

@@ -12,6 +12,7 @@ import io
 import os
 import re
 import socket
+import stat
 import struct
 import sys
 import tempfile
@@ -131,6 +132,12 @@ def dict_to_sequence(d):
 
 
 def super_len(o):
+    """Returns the length of the object or None if the length cannot be measured.
+
+    Tries looking for length attributes, file handles and seek/tell in order
+    to figure out the object length.  If the length cannot be found, None
+    is returned.
+    """
     total_length = None
     current_position = 0
 
@@ -146,6 +153,8 @@ def super_len(o):
     elif hasattr(o, "fileno"):
         try:
             fileno = o.fileno()
+            if not stat.S_ISREG(os.fstat(fileno).st_mode):
+                raise io.UnsupportedOperation("Cannot tell size of non regular file")
         except (io.UnsupportedOperation, AttributeError):
             # AttributeError is a surprising exception, seeing as how we've just checked
             # that `hasattr(o, 'fileno')`.  It happens for objects obtained via
