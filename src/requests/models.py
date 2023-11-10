@@ -852,9 +852,14 @@ class Response:
     def iter_lines(
         self, chunk_size=ITER_CHUNK_SIZE, decode_unicode=False, delimiter=None
     ):
-        """Iterates over the response data, one line at a time.  When
-        stream=True is set on the request, this avoids reading the
-        content at once into memory for large responses.
+        """Iterates over the response data, one line at a time.
+
+        This method is broken and should not be used. It inserts fake
+        blank lines in unpredictable locations. Furthermore, if
+        stream=True is set on the request, the results may not be
+        reproducible. However, the behavior of this method is frozen
+        and cannot be fixed while preserving strict backward
+        compatibility. This behavior should be fixed in Requests 3.0.
 
         .. note:: This method is not reentrant safe.
         """
