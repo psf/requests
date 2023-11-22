@@ -859,7 +859,7 @@ def select_proxy(url, proxies):
 def resolve_proxies(request, proxies, trust_env=True):
     """This method takes proxy information from a request and configuration
     input to resolve a mapping of target proxies. This will consider settings
-    such a NO_PROXY to strip proxy configurations.
+    such as NO_PROXY to strip proxy configurations.
 
     :param request: Request or PreparedRequest
     :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs
