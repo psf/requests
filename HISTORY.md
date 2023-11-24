@@ -14,7 +14,7 @@ dev
   forwarding of `Proxy-Authorization` headers to destination servers when
   following HTTPS redirects.
 
-  When proxies are defined with user info (https://user:pass@proxy:8080), Requests
+  When proxies are defined with user info (`https://user:pass@proxy:8080`), Requests
   will construct a `Proxy-Authorization` header that is attached to the request to
   authenticate with the proxy.
 
