@@ -948,7 +948,7 @@ Link Headers
 Many HTTP APIs feature Link headers. They make APIs more self describing and
 discoverable.
 
-GitHub uses these for `pagination <https://developer.github.com/v3/#pagination>`_
+GitHub uses these for `pagination <https://docs.github.com/en/rest/guides/using-pagination-in-the-rest-api>`_
 in their API, for example::
 
     >>> url = 'https://api.github.com/users/kennethreitz/repos?page=1&per_page=10'
