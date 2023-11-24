@@ -291,7 +291,7 @@ versions of Requests.
 For the sake of security we recommend upgrading certifi frequently!
 
 .. _HTTP persistent connection: https://en.wikipedia.org/wiki/HTTP_persistent_connection
-.. _connection pooling: https://urllib3.readthedocs.io/en/latest/reference/index.html#module-urllib3.connectionpool
+.. _connection pooling: https://urllib3.readthedocs.io/en/latest/reference/urllib3.connectionpool.html
 .. _certifi: https://certifiio.readthedocs.io/
 .. _Mozilla trust store: https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
 
