@@ -1099,7 +1099,7 @@ The **connect** timeout is the number of seconds Requests will wait for your
 client to establish a connection to a remote machine (corresponding to the
 `connect()`_) call on the socket. It's a good practice to set connect timeouts
 to slightly larger than a multiple of 3, which is the default `TCP packet
-retransmission window <https://www.hjp.at/doc/rfc/rfc2988.txt>`_.
+retransmission window <https://datatracker.ietf.org/doc/html/rfc2988>`_.
 
 Once your client has connected to the server and sent the HTTP request, the
 **read** timeout is the number of seconds the client will wait for the server
