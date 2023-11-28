@@ -134,8 +134,13 @@ def super_len(o):
     total_length = None
     current_position = 0
 
-    if hasattr(o, "__len__"):
+    if hasattr(o, "__len__") and not isinstance(o, str):
         total_length = len(o)
+
+    elif isinstance(o, str):
+        # str with unicode chars might have multi-byte UTF-8
+        # representations, so they must be encoded
+        total_length = len(o.encode('utf-8'))
 
     elif hasattr(o, "len"):
         total_length = o.len
