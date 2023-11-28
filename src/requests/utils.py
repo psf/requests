@@ -134,6 +134,9 @@ def super_len(o):
     total_length = None
     current_position = 0
 
+    if isinstance(o, str):
+        o = o.encode("utf-8")
+
     if hasattr(o, "__len__"):
         total_length = len(o)
 
