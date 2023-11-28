@@ -1808,6 +1808,23 @@ class TestRequests:
 
         assert p.headers["Content-Length"] == length
 
+    def test_content_length_for_bytes_data(self, httpbin):
+        data = "This is a string containing multi-byte UTF-8 ☃️"
+        encoded_data = data.encode("utf-8")
+        length = str(len(encoded_data))
+        req = requests.Request("POST", httpbin("post"), data=encoded_data)
+        p = req.prepare()
+
+        assert p.headers["Content-Length"] == length
+
+    def test_content_length_for_string_data_counts_bytes(self, httpbin):
+        data = "This is a string containing multi-byte UTF-8 ☃️"
+        length = str(len(data.encode("utf-8")))
+        req = requests.Request("POST", httpbin("post"), data=data)
+        p = req.prepare()
+
+        assert p.headers["Content-Length"] == length
+
     def test_nonhttp_schemes_dont_check_URLs(self):
         test_urls = (
             "data:image/gif;base64,R0lGODlhAQABAHAAACH5BAUAAAAALAAAAAABAAEAAAICRAEAOw==",
