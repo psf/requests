@@ -2808,3 +2808,5 @@ class TestPreparingURLs:
         assert r2 == 425
         assert r3 == 425
         assert r4 == 425
+        assert r5 == 425
+        assert r6 == 425
