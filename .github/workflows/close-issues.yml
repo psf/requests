@@ -15,6 +15,7 @@ jobs:
     steps:
       - env:
           ISSUE_URL: ${{ github.event.issue.html_url }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh issue close $ISSUE_URL \
             --comment "As described in the template, we won't be able to answer questions on this issue tracker. Please use [Stack Overflow](https://stackoverflow.com/)" \
@@ -26,6 +27,7 @@ jobs:
     steps:
       - env:
           ISSUE_URL: ${{ github.event.issue.html_url }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh issue close $ISSUE_URL \
             --comment "As described in the template, Requests is not accepting feature requests" \
