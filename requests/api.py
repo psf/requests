@@ -14,7 +14,6 @@ import time
 from . import sessions
 
 logger = logging.getLogger(__name__)
-USER_AGENT = 'ZeroDown Backend Requests'
 
 
 def request(method, url, timeout=30, **kwargs):
@@ -64,11 +63,6 @@ def request(method, url, timeout=30, **kwargs):
 
     start_time = time.time()
     try:
-        headers = kwargs.get("headers")
-        headers = headers if headers else {}
-        headers["User-Agent"] = USER_AGENT
-        kwargs["headers"] = headers
-
         with sessions.Session() as session:
             response = session.request(method=method, url=url, timeout=timeout, **kwargs)
 
