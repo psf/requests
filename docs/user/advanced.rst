@@ -1122,4 +1122,12 @@ coffee.
 
     r = requests.get('https://github.com', timeout=None)
 
+.. note:: The connect timeout applies to each connection attempt to an IP address.
+If multiple addresses exist for a domain name, the underlying ``urllib3`` will
+try each address sequentially until one successfully connects.
+This may lead to an effective total connection timeout *multiple* times longer
+than the specified time, e.g. an unresponsive server having both IPv4 and IPv6
+addresses will have its perceived timeout *doubled*, so take that into account
+when setting the connection timeout.
+
 .. _`connect()`: https://linux.die.net/man/2/connect
