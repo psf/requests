@@ -79,7 +79,7 @@ _codes = {
     422: ("unprocessable_entity", "unprocessable"),
     423: ("locked",),
     424: ("failed_dependency", "dependency"),
-    425: ("unordered_collection", "unordered"),
+    425: ("unordered_collection", "unordered", "too_early"),
     426: ("upgrade_required", "upgrade"),
     428: ("precondition_required", "precondition"),
     429: ("too_many_requests", "too_many"),
