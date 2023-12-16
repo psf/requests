@@ -1129,5 +1129,11 @@ coffee.
           than the specified time, e.g. an unresponsive server having both IPv4 and IPv6
           addresses will have its perceived timeout *doubled*, so take that into account
           when setting the connection timeout.
+.. note:: Neither the connect nor read timeouts are `wall clock`_. This means
+          that if you start a request, and look at the time, and then look at
+          the time when the request finishes or times out, the real-world time
+          may be greater than what you specified.
 
+
+.. _`wall clock`: https://wiki.php.net/rfc/max_execution_wall_time
 .. _`connect()`: https://linux.die.net/man/2/connect
