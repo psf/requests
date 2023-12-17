@@ -25,7 +25,8 @@ _codes = {
     100: ("continue",),
     101: ("switching_protocols",),
     102: ("processing",),
-    103: ("checkpoint",),
+    103: ("checkpoint", "early_hints"),  # https://httpwg.org/specs/rfc8297.html#:~:text=2.,
+    # included%20in%20the%20informational%20response.
     122: ("uri_too_long", "request_uri_too_long"),
     200: ("ok", "okay", "all_ok", "all_okay", "all_good", "\\o/", "✓"),
     201: ("created",),
