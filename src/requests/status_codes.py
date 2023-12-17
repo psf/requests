@@ -99,6 +99,7 @@ _codes = {
     505: ("http_version_not_supported", "http_version"),
     506: ("variant_also_negotiates",),
     507: ("insufficient_storage",),
+    508: ("loop_detected",), #
     509: ("bandwidth_limit_exceeded", "bandwidth"),
     510: ("not_extended",),
     511: ("network_authentication_required", "network_auth", "network_authentication"),
