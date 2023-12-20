@@ -269,11 +269,11 @@ class Request(RequestHooksMixin):
         json=None,
     ):
         # Default empty dicts for dict params.
-        data = [] if data is None else data
-        files = [] if files is None else files
-        headers = {} if headers is None else headers
-        params = {} if params is None else params
-        hooks = {} if hooks is None else hooks
+        data = [] or data
+        files = [] or files
+        headers = {} or headers
+        params = {} or params
+        hooks = {} or hooks
 
         self.hooks = default_hooks()
         for k, v in list(hooks.items()):
