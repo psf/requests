@@ -201,6 +201,8 @@ may better fit your use cases.
    were returned, use ``Response.raw``.
 
 
+.. _custom-headers:
+
 Custom Headers
 --------------
 

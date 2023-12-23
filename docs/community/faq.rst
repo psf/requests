@@ -22,7 +22,7 @@ Custom User-Agents?
 -------------------
 
 Requests allows you to easily override User-Agent strings, along with
-any other HTTP Header. See `documentation about headers <https://requests.readthedocs.io/en/latest/user/quickstart/#custom-headers>`_.
+any other HTTP Header. See :ref:`documentation about headers <custom-headers>`.
 
 
 
