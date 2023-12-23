@@ -666,6 +666,8 @@ You override this default certificate bundle by setting the ``REQUESTS_CA_BUNDLE
     >>> import requests
     >>> requests.get('https://example.org')
 
+.. _socks:
+
 SOCKS
 ^^^^^
 
