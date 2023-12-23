@@ -192,3 +192,4 @@ Patches and Suggestions
 - Alessio Izzo (`@aless10 <https://github.com/aless10>`_)
 - Sylvain Marié (`@smarie <https://github.com/smarie>`_)
 - Hod Bin Noon (`@hodbn <https://github.com/hodbn>`_)
+- Mike Fiedler (`@miketheman <https://github.com/miketheman>`_)
