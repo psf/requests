@@ -2810,3 +2810,13 @@ class TestPreparingURLs:
         assert r4 == 425
         assert r5 == 425
         assert r6 == 425
+
+
+def test_json_decode_errors_are_serializable_deserializable():
+    json_decode_error = requests.exceptions.JSONDecodeError(
+        "Extra data",
+        '{"responseCode":["706"],"data":null}{"responseCode":["706"],"data":null}',
+        36,
+    )
+    deserialized_error = pickle.loads(pickle.dumps(json_decode_error))
+    assert repr(json_decode_error) == repr(deserialized_error)
