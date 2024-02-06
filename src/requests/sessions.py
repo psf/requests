@@ -387,7 +387,11 @@ class Session(SessionRedirectMixin):
         "max_redirects",
     ]
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        """
+            Args:
+              **kwargs: passed to the `HTTPAdapter` class.
+        """
         #: A case-insensitive dictionary of headers to be sent on each
         #: :class:`Request <Request>` sent from this
         #: :class:`Session <Session>`.
@@ -445,8 +449,8 @@ class Session(SessionRedirectMixin):
 
         # Default connection adapters.
         self.adapters = OrderedDict()
-        self.mount("https://", HTTPAdapter())
-        self.mount("http://", HTTPAdapter())
+        self.mount("https://", HTTPAdapter(**kwargs))
+        self.mount("http://", HTTPAdapter(**kwargs))
 
     def __enter__(self):
         return self
