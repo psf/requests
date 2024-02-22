@@ -390,6 +390,9 @@ class HTTPAdapter(BaseAdapter):
             using_socks_proxy = proxy_scheme.startswith("socks")
 
         url = request.path_url
+        if url.startswith("//"):  # Don't confuse urllib3
+            url = f"/{url.lstrip('/')}"
+
         if is_proxied_http_request and not using_socks_proxy:
             url = urldefragauth(request.url)
 
