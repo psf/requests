@@ -1,4 +1,4 @@
-.coverage
+.coverage*
 MANIFEST
 coverage.xml
 nosetests.xml
