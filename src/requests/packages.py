@@ -23,6 +23,8 @@ for package in ("urllib3", "idna"):
 target = chardet.__name__
 for mod in list(sys.modules):
     if mod == target or mod.startswith(f"{target}."):
-        target = target.replace(target, "chardet")
-        sys.modules[f"requests.packages.{target}"] = sys.modules[mod]
+        imported_mod = sys.modules[mod]
+        sys.modules[f"requests.packages.{mod}"] = imported_mod
+        mod = mod.replace(target, "chardet")
+        sys.modules[f"requests.packages.{mod}"] = imported_mod
 # Kinda cool, though, right?
