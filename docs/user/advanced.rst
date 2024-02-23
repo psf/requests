@@ -291,7 +291,7 @@ versions of Requests.
 For the sake of security we recommend upgrading certifi frequently!
 
 .. _HTTP persistent connection: https://en.wikipedia.org/wiki/HTTP_persistent_connection
-.. _connection pooling: https://urllib3.readthedocs.io/en/latest/reference/index.html#module-urllib3.connectionpool
+.. _connection pooling: https://urllib3.readthedocs.io/en/latest/reference/urllib3.connectionpool.html
 .. _certifi: https://certifiio.readthedocs.io/
 .. _Mozilla trust store: https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
 
@@ -948,7 +948,7 @@ Link Headers
 Many HTTP APIs feature Link headers. They make APIs more self describing and
 discoverable.
 
-GitHub uses these for `pagination <https://developer.github.com/v3/#pagination>`_
+GitHub uses these for `pagination <https://docs.github.com/en/rest/guides/using-pagination-in-the-rest-api>`_
 in their API, for example::
 
     >>> url = 'https://api.github.com/users/kennethreitz/repos?page=1&per_page=10'
@@ -1099,7 +1099,7 @@ The **connect** timeout is the number of seconds Requests will wait for your
 client to establish a connection to a remote machine (corresponding to the
 `connect()`_) call on the socket. It's a good practice to set connect timeouts
 to slightly larger than a multiple of 3, which is the default `TCP packet
-retransmission window <https://www.hjp.at/doc/rfc/rfc2988.txt>`_.
+retransmission window <https://datatracker.ietf.org/doc/html/rfc2988>`_.
 
 Once your client has connected to the server and sent the HTTP request, the
 **read** timeout is the number of seconds the client will wait for the server
