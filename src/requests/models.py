@@ -1007,12 +1007,12 @@ class Response:
 
         if 400 <= self.status_code < 500:
             http_error_msg = (
-                f"{self.status_code} Client Error: {reason} for url: {self.url}"
+                f"{self.status_code} Client Error: {reason} for url: {self.url} content: {self.content}"
             )
 
         elif 500 <= self.status_code < 600:
             http_error_msg = (
-                f"{self.status_code} Server Error: {reason} for url: {self.url}"
+                f"{self.status_code} Server Error: {reason} for url: {self.url} content: {self.content}"
             )
 
         if http_error_msg:
