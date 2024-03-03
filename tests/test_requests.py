@@ -2828,6 +2828,13 @@ class TestPreparingURLs:
         assert r5 == 425
         assert r6 == 425
 
+    def test_different_connection_pool_for_tls_settings(self):
+        s = requests.Session()
+        r1 = s.get("https://invalid.badssl.com", verify=False)
+        assert r1.status_code == 421
+        with pytest.raises(requests.exceptions.SSLError):
+            s.get("https://invalid.badssl.com")
+
 
 def test_json_decode_errors_are_serializable_deserializable():
     json_decode_error = requests.exceptions.JSONDecodeError(
