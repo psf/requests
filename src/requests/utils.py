@@ -139,6 +139,7 @@ def super_len(o):
     is returned.
     """
     total_length = None
+    length_undefined = False
     current_position = 0
 
     if isinstance(o, str):
@@ -154,12 +155,17 @@ def super_len(o):
         try:
             fileno = o.fileno()
             if not stat.S_ISREG(os.fstat(fileno).st_mode):
-                raise io.UnsupportedOperation("Cannot tell size of non regular file")
+                raise BufferError("Cannot tell size of non regular file")
         except (io.UnsupportedOperation, AttributeError):
             # AttributeError is a surprising exception, seeing as how we've just checked
             # that `hasattr(o, 'fileno')`.  It happens for objects obtained via
             # `Tarfile.extractfile()`, per issue 5229.
             pass
+        except BufferError:
+            # Telling size of non regular files does is not realiable
+            # if it is a socket or a pipe, they need to be handled as
+            # streams with no known end.
+            length_undefined = True
         else:
             total_length = os.fstat(fileno).st_size
 
@@ -178,7 +184,13 @@ def super_len(o):
                     FileModeWarning,
                 )
 
-    if hasattr(o, "tell"):
+    if hasattr(o, "tell") and not length_undefined:
+        # pipes have tell/seek, tell() will fail on Linux/MacOS,
+        # but not in windows, causing super_len to report the
+        # length as the number of bytes currently written to
+        # the pipe, which will be wrong if the pipe is continuously
+        # being written to. The length_underfined check will
+        # prevent trying to use tell/seek for a pipe.
         try:
             current_position = o.tell()
         except OSError:
