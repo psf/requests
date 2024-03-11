@@ -8,6 +8,7 @@ and maintain connections.
 
 import os.path
 import socket  # noqa: F401
+import typing
 
 from urllib3.exceptions import ClosedPoolError, ConnectTimeoutError
 from urllib3.exceptions import HTTPError as _HTTPError
@@ -61,10 +62,36 @@ except ImportError:
         raise InvalidSchema("Missing dependencies for SOCKS support.")
 
 
+if typing.TYPE_CHECKING:
+    from .models import PreparedRequest
+
+
 DEFAULT_POOLBLOCK = False
 DEFAULT_POOLSIZE = 10
 DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
+
+
+def _urllib3_request_context(
+    request: "PreparedRequest", verify: "bool | str | None"
+) -> "(typing.Dict[str, typing.Any], typing.Dict[str, typing.Any])":
+    host_params = {}
+    pool_kwargs = {}
+    parsed_request_url = urlparse(request.url)
+    scheme = parsed_request_url.scheme.lower()
+    port = parsed_request_url.port
+    cert_reqs = "CERT_REQUIRED"
+    if verify is False:
+        cert_reqs = "CERT_NONE"
+    if isinstance(verify, str):
+        pool_kwargs["ca_certs"] = verify
+    pool_kwargs["cert_reqs"] = cert_reqs
+    host_params = {
+        "scheme": scheme,
+        "host": parsed_request_url.hostname,
+        "port": port,
+    }
+    return host_params, pool_kwargs
 
 
 class BaseAdapter:
@@ -327,6 +354,35 @@ class HTTPAdapter(BaseAdapter):
 
         return response
 
+    def _get_connection(self, request, verify, proxies=None):
+        # Replace the existing get_connection without breaking things and
+        # ensure that TLS settings are considered when we interact with
+        # urllib3 HTTP Pools
+        proxy = select_proxy(request.url, proxies)
+        try:
+            host_params, pool_kwargs = _urllib3_request_context(request, verify)
+        except ValueError as e:
+            raise InvalidURL(e, request=request)
+        if proxy:
+            proxy = prepend_scheme_if_needed(proxy, "http")
+            proxy_url = parse_url(proxy)
+            if not proxy_url.host:
+                raise InvalidProxyURL(
+                    "Please check proxy URL. It is malformed "
+                    "and could be missing the host."
+                )
+            proxy_manager = self.proxy_manager_for(proxy)
+            conn = proxy_manager.connection_from_host(
+                **host_params, pool_kwargs=pool_kwargs
+            )
+        else:
+            # Only scheme should be lower case
+            conn = self.poolmanager.connection_from_host(
+                **host_params, pool_kwargs=pool_kwargs
+            )
+
+        return conn
+
     def get_connection(self, url, proxies=None):
         """Returns a urllib3 connection for the given URL. This should not be
         called from user code, and is only exposed for use when subclassing the
@@ -453,7 +509,7 @@ class HTTPAdapter(BaseAdapter):
         """
 
         try:
-            conn = self.get_connection(request.url, proxies)
+            conn = self._get_connection(request, verify, proxies)
         except LocationValueError as e:
             raise InvalidURL(e, request=request)
 
