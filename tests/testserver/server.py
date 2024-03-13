@@ -1,5 +1,6 @@
 import select
 import socket
+import ssl
 import threading
 
 
@@ -132,3 +133,44 @@ class Server(threading.Thread):
         self._close_server_sock_ignore_errors()
         self.join()
         return False  # allow exceptions to propagate
+
+
+class TLSServer(Server):
+    def __init__(
+        self,
+        *,
+        handler=None,
+        host="localhost",
+        port=0,
+        requests_to_handle=1,
+        wait_to_close_event=None,
+        cert_chain=None,
+        keyfile=None,
+        mutual_tls=False,
+        cacert=None,
+    ):
+        super().__init__(
+            handler=handler,
+            host=host,
+            port=port,
+            requests_to_handle=requests_to_handle,
+            wait_to_close_event=wait_to_close_event,
+        )
+        self.cert_chain = cert_chain
+        self.keyfile = keyfile
+        self.ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        self.ssl_context.load_cert_chain(self.cert_chain, keyfile=self.keyfile)
+        self.mutual_tls = mutual_tls
+        self.cacert = cacert
+        if mutual_tls:
+            # For simplicity, we're going to assume that the client cert is
+            # issued by the same CA as our Server certificate
+            self.ssl_context.verify_mode = ssl.CERT_OPTIONAL
+            self.ssl_context.load_verify_locations(self.cacert)
+
+    def _create_socket_and_bind(self):
+        sock = socket.socket()
+        sock = self.ssl_context.wrap_socket(sock, server_side=True)
+        sock.bind((self.host, self.port))
+        sock.listen()
+        return sock

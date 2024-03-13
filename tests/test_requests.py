@@ -7,6 +7,7 @@ import json
 import os
 import pickle
 import re
+import threading
 import warnings
 from unittest import mock
 
@@ -51,6 +52,7 @@ from requests.structures import CaseInsensitiveDict
 
 from . import SNIMissingWarning
 from .compat import StringIO
+from .testserver.server import TLSServer, consume_socket_content
 from .utils import override_environ
 
 # Requests to this URL should always fail with a connection timeout (nothing
@@ -2828,12 +2830,140 @@ class TestPreparingURLs:
         assert r5 == 425
         assert r6 == 425
 
-    def test_different_connection_pool_for_tls_settings(self):
+    def test_different_connection_pool_for_tls_settings_verify_True(self):
+        def response_handler(sock):
+            consume_socket_content(sock, timeout=0.5)
+            sock.send(
+                b"HTTP/1.1 200 OK\r\n"
+                b"Content-Length: 18\r\n\r\n"
+                b'\xff\xfe{\x00"\x00K0"\x00=\x00"\x00\xab0"\x00\r\n'
+            )
+
         s = requests.Session()
-        r1 = s.get("https://invalid.badssl.com", verify=False)
-        assert r1.status_code == 421
-        with pytest.raises(requests.exceptions.SSLError):
-            s.get("https://invalid.badssl.com")
+        close_server = threading.Event()
+        server = TLSServer(
+            handler=response_handler,
+            wait_to_close_event=close_server,
+            requests_to_handle=3,
+            cert_chain="tests/certs/expired/server/server.pem",
+            keyfile="tests/certs/expired/server/server.key",
+        )
+
+        with server as (host, port):
+            url = f"https://{host}:{port}"
+            r1 = s.get(url, verify=False)
+            assert r1.status_code == 200
+
+            # Cannot verify self-signed certificate
+            with pytest.raises(requests.exceptions.SSLError):
+                s.get(url)
+
+            close_server.set()
+        assert 2 == len(s.adapters["https://"].poolmanager.pools)
+
+    def test_different_connection_pool_for_tls_settings_verify_bundle_expired_cert(
+        self,
+    ):
+        def response_handler(sock):
+            consume_socket_content(sock, timeout=0.5)
+            sock.send(
+                b"HTTP/1.1 200 OK\r\n"
+                b"Content-Length: 18\r\n\r\n"
+                b'\xff\xfe{\x00"\x00K0"\x00=\x00"\x00\xab0"\x00\r\n'
+            )
+
+        s = requests.Session()
+        close_server = threading.Event()
+        server = TLSServer(
+            handler=response_handler,
+            wait_to_close_event=close_server,
+            requests_to_handle=3,
+            cert_chain="tests/certs/expired/server/server.pem",
+            keyfile="tests/certs/expired/server/server.key",
+        )
+
+        with server as (host, port):
+            url = f"https://{host}:{port}"
+            r1 = s.get(url, verify=False)
+            assert r1.status_code == 200
+
+            # Has right trust bundle, but certificate expired
+            with pytest.raises(requests.exceptions.SSLError):
+                s.get(url, verify="tests/certs/expired/ca/ca.crt")
+
+            close_server.set()
+        assert 2 == len(s.adapters["https://"].poolmanager.pools)
+
+    def test_different_connection_pool_for_tls_settings_verify_bundle_unexpired_cert(
+        self,
+    ):
+        def response_handler(sock):
+            consume_socket_content(sock, timeout=0.5)
+            sock.send(
+                b"HTTP/1.1 200 OK\r\n"
+                b"Content-Length: 18\r\n\r\n"
+                b'\xff\xfe{\x00"\x00K0"\x00=\x00"\x00\xab0"\x00\r\n'
+            )
+
+        s = requests.Session()
+        close_server = threading.Event()
+        server = TLSServer(
+            handler=response_handler,
+            wait_to_close_event=close_server,
+            requests_to_handle=3,
+            cert_chain="tests/certs/valid/server/server.pem",
+            keyfile="tests/certs/valid/server/server.key",
+        )
+
+        with server as (host, port):
+            url = f"https://{host}:{port}"
+            r1 = s.get(url, verify=False)
+            assert r1.status_code == 200
+
+            r2 = s.get(url, verify="tests/certs/valid/ca/ca.crt")
+            assert r2.status_code == 200
+
+            close_server.set()
+        assert 2 == len(s.adapters["https://"].poolmanager.pools)
+
+    def test_different_connection_pool_for_mtls_settings(self):
+        client_cert = None
+
+        def response_handler(sock):
+            nonlocal client_cert
+            client_cert = sock.getpeercert()
+            consume_socket_content(sock, timeout=0.5)
+            sock.send(
+                b"HTTP/1.1 200 OK\r\n"
+                b"Content-Length: 18\r\n\r\n"
+                b'\xff\xfe{\x00"\x00K0"\x00=\x00"\x00\xab0"\x00\r\n'
+            )
+
+        s = requests.Session()
+        close_server = threading.Event()
+        server = TLSServer(
+            handler=response_handler,
+            wait_to_close_event=close_server,
+            requests_to_handle=2,
+            cert_chain="tests/certs/expired/server/server.pem",
+            keyfile="tests/certs/expired/server/server.key",
+            mutual_tls=True,
+            cacert="tests/certs/expired/ca/ca.crt",
+        )
+
+        cert = (
+            "tests/certs/mtls/client/client.pem",
+            "tests/certs/mtls/client/client.key",
+        )
+        with server as (host, port):
+            url = f"https://{host}:{port}"
+            r1 = s.get(url, verify=False, cert=cert)
+            assert r1.status_code == 200
+            with pytest.raises(requests.exceptions.SSLError):
+                s.get(url, cert=cert)
+            close_server.set()
+
+        assert client_cert is not None
 
 
 def test_json_decode_errors_are_serializable_deserializable():
