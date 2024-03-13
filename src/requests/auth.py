@@ -218,20 +218,20 @@ class HTTPDigestAuth(AuthBase):
         self._thread_local.last_nonce = nonce
 
         # XXX should the partial digests be encoded too?
-        base = (
+        base = [
             f'username="{self.username}", realm="{realm}", nonce="{nonce}", '
             f'uri="{path}", response="{respdig}"'
-        )
+        ]
         if opaque:
-            base += f', opaque="{opaque}"'
+            base.append(f'opaque="{opaque}"')
         if algorithm:
-            base += f', algorithm="{algorithm}"'
+            base.append(f'algorithm="{algorithm}"')
         if entdig:
-            base += f', digest="{entdig}"'
+            base.append(f'digest="{entdig}"')
         if qop:
-            base += f', qop="auth", nc={ncvalue}, cnonce="{cnonce}"'
+            base.append(f'qop="auth", nc={ncvalue}, cnonce="{cnonce}"')
 
-        return f"Digest {base}"
+        return f"Digest {', '.join(base)}"
 
     def handle_redirect(self, r, **kwargs):
         """Reset num_401_calls counter on redirects."""
