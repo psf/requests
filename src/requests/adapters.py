@@ -73,7 +73,9 @@ DEFAULT_POOL_TIMEOUT = None
 
 
 def _urllib3_request_context(
-    request: "PreparedRequest", verify: "bool | str | None"
+    request: "PreparedRequest",
+    verify: "bool | str | None",
+    client_cert: "typing.Tuple[str, str] | str | None",
 ) -> "(typing.Dict[str, typing.Any], typing.Dict[str, typing.Any])":
     host_params = {}
     pool_kwargs = {}
@@ -86,6 +88,14 @@ def _urllib3_request_context(
     if isinstance(verify, str):
         pool_kwargs["ca_certs"] = verify
     pool_kwargs["cert_reqs"] = cert_reqs
+    if client_cert is not None:
+        if isinstance(client_cert, tuple) and len(client_cert) == 2:
+            pool_kwargs["cert_file"] = client_cert[0]
+            pool_kwargs["key_file"] = client_cert[1]
+        else:
+            # According to our docs, we allow users to specify just the client
+            # cert path
+            pool_kwargs["cert_file"] = client_cert
     host_params = {
         "scheme": scheme,
         "host": parsed_request_url.hostname,
@@ -354,13 +364,13 @@ class HTTPAdapter(BaseAdapter):
 
         return response
 
-    def _get_connection(self, request, verify, proxies=None):
+    def _get_connection(self, request, verify, proxies=None, cert=None):
         # Replace the existing get_connection without breaking things and
         # ensure that TLS settings are considered when we interact with
         # urllib3 HTTP Pools
         proxy = select_proxy(request.url, proxies)
         try:
-            host_params, pool_kwargs = _urllib3_request_context(request, verify)
+            host_params, pool_kwargs = _urllib3_request_context(request, verify, cert)
         except ValueError as e:
             raise InvalidURL(e, request=request)
         if proxy:
@@ -509,7 +519,7 @@ class HTTPAdapter(BaseAdapter):
         """
 
         try:
-            conn = self._get_connection(request, verify, proxies)
+            conn = self._get_connection(request, verify, proxies=proxies, cert=cert)
         except LocationValueError as e:
             raise InvalidURL(e, request=request)
 

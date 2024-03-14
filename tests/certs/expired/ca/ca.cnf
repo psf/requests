@@ -1,0 +1,12 @@
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+encrypt_key = no
+distinguished_name = dn
+
+[dn]
+C = US                            # country code
+O = Python Software Foundation    # organization
+OU = python-requests              # organization unit/department
+CN = Self-Signed Root CA          # common name / your cert name

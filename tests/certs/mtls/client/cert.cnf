@@ -1,0 +1,26 @@
+[req]
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+prompt=no
+
+[req_distinguished_name]
+C = US
+ST = DE
+O = Python Software Foundation
+OU = python-requests
+CN = requests
+
+[v3_req]
+# Extensions to add to a certificate request
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = *.localhost
+IP.1 = 127.0.0.1
+IP.2 = ::1
+URI.1 = spiffe://trust.python.org/v0/maintainer/sigmavirus24/project/requests/org/psf
+URI.2 = spiffe://trust.python.org/v1/maintainer:sigmavirus24/project:requests/org:psf
+URI.3 = spiffe://trust.python.org/v1/maintainer=sigmavirus24/project=requests/org=psf
