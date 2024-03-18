@@ -924,3 +924,35 @@ def test_set_environ_raises_exception():
             raise Exception("Expected exception")
 
     assert "Expected exception" in str(exception.value)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Test only on Windows")
+def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
+    """Tests for function should_bypass_proxies to check if proxy
+    can be bypassed or not with Windows ProxyOverride registry value ending with a semicolon.
+    """
+    import winreg
+
+    class RegHandle:
+        def Close(self):
+            pass
+
+    ie_settings = RegHandle()
+
+    def OpenKey(key, subkey):
+        return ie_settings
+
+    def QueryValueEx(key, value_name):
+        if key is ie_settings:
+            if value_name == "ProxyEnable":
+                return [1]
+            elif value_name == "ProxyOverride":
+                return [
+                    "192.168.*;127.0.0.1;localhost.localdomain;172.16.1.1;<-loopback>;"
+                ]
+
+    monkeypatch.setenv("NO_PROXY", "")
+    monkeypatch.setenv("no_proxy", "")
+    monkeypatch.setattr(winreg, "OpenKey", OpenKey)
+    monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
+    assert should_bypass_proxies("http://example.com/", None) is False
