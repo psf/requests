@@ -97,7 +97,7 @@ if sys.platform == "win32":
         # '<local>' string by the localhost entry and the corresponding
         # canonical entry.
         proxyOverride = proxyOverride.split(";")
-        # filter out empty strings to avoid re.match all true.
+        # filter out empty strings to avoid re.match return true in the following code.
         proxyOverride = filter(None, proxyOverride)
         # now check if we match one of the registry values.
         for test in proxyOverride:
