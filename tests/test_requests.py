@@ -1366,6 +1366,26 @@ class TestRequests:
         with pytest.raises(requests.cookies.CookieConflictError):
             jar.get(key)
 
+    def test_cookies_popitem(self):
+        jar = requests.cookies.RequestsCookieJar()
+        with pytest.raises(KeyError):
+            jar.popitem()
+
+        jar.set("1st_key", "1st_value")
+        jar.set("2nd_key", "2nd_value")
+        cookie = next(iter(jar))
+        assert jar.popitem() == (cookie, cookie.value)
+
+        expected_jar = requests.cookies.RequestsCookieJar()
+        expected_jar.set("2nd_key", "2nd_value")
+        assert jar == expected_jar
+
+        jar.set("2nd_key", "2nd_value", path="another_path")
+        jar.set("2nd_key", "2nd_value", path="another_path", domain="another_dom")
+        cookie = next(iter(jar))
+        assert jar.popitem() == (cookie, cookie.value)
+        assert len(jar) == 2
+
     def test_cookie_policy_copy(self):
         class MyCookiePolicy(cookielib.DefaultCookiePolicy):
             pass
