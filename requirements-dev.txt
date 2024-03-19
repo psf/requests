@@ -1,7 +1,8 @@
 -e .[socks]
-pytest>=2.8.0,<=6.2.5
-pytest-cov
-pytest-httpbin==2.0.0
+pytest>=2.8.0,!=6.2.5
+coverage
+pytest-xdist
 httpbin~=0.10.0
+pytest-httpbin==2.0.0
 trustme
 wheel

@@ -4,7 +4,7 @@ src_paths = ["src/requests", "test"]
 honor_noqa = true
 
 [tool.pytest.ini_options]
-addopts = "--doctest-modules"
+addopts = "--doctest-modules -n auto"
 doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
 minversion = "6.2"
 testpaths = ["tests"]

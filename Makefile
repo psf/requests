@@ -5,22 +5,23 @@ test:
 	# This runs all of the tests on all supported Python versions.
 	tox -p
 ci:
-	python -m pytest tests --junitxml=report.xml
+	python -m coverage run -m pytest --junitxml=report.xml
 
 test-readme:
-	python setup.py check --restructuredtext --strict && ([ $$? -eq 0 ] && echo "README.rst and HISTORY.rst ok") || echo "Invalid markup in README.rst or HISTORY.rst!"
+	python -m pip install twine build
+	python -m build
+	python -m twine check dist/*
 
 flake8:
 	python -m flake8 src/requests
 
 coverage:
-	python -m pytest --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=src/requests tests
+	python -m coverage run -m pytest
 
 publish:
-	python -m pip install 'twine>=1.5.0'
-	python setup.py sdist bdist_wheel
+	python -m pip install 'twine>=1.5.0' build
+	python -m build
 	twine upload dist/*
-	rm -fr build dist .egg requests.egg-info
 
 docs:
 	cd docs && make html
