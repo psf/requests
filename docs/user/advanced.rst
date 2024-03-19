@@ -1139,3 +1139,13 @@ coffee.
 
 .. _`wall clock`: https://wiki.php.net/rfc/max_execution_wall_time
 .. _`connect()`: https://linux.die.net/man/2/connect
+
+**You need to be careful when using the timeout argument.**
+
+If the specified domain has multiple IP addresses, `urllib3`_ will continue to try another IP address when the specified connection timeout is reached. Also, the connection timeout is applied for each attempt.
+Requests are affected by this because you are using `urllib3`_.
+This phenomenon can wait longer than you expect. Maybe it's the time that doubled the connection timeout.
+Of course there may be more.
+You can also consider extreme solutions, such as having the specified domain name return only one IP address.
+For example, if DNS returns both IPv4 DNS records (A) and IPv6 DNS records (AAAA), patch it so that it does not return IPv6.
+However, new issues may arise.
