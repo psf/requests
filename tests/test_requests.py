@@ -191,21 +191,23 @@ class TestRequests:
     @pytest.mark.parametrize("scheme", ("http://", "HTTP://", "hTTp://", "HttP://"))
     def test_mixed_case_scheme_acceptable(self, httpbin, scheme):
         s = requests.Session()
-        s.proxies = getproxies()
-        parts = urlparse(httpbin("get"))
-        url = scheme + parts.netloc + parts.path
-        r = requests.Request("GET", url)
-        r = s.send(r.prepare())
-        assert r.status_code == 200, f"failed for scheme {scheme}"
+        with override_environ(http_proxy=None, https_proxy=None):
+            s.proxies = getproxies()
+            parts = urlparse(httpbin("get"))
+            url = scheme + parts.netloc + parts.path
+            r = requests.Request("GET", url)
+            r = s.send(r.prepare())
+            assert r.status_code == 200, f"failed for scheme {scheme}"
 
     def test_HTTP_200_OK_GET_ALTERNATIVE(self, httpbin):
         r = requests.Request("GET", httpbin("get"))
         s = requests.Session()
-        s.proxies = getproxies()
+        with override_environ(http_proxy=None, https_proxy=None):
+            s.proxies = getproxies()
 
-        r = s.send(r.prepare())
+            r = s.send(r.prepare())
 
-        assert r.status_code == 200
+            assert r.status_code == 200
 
     def test_HTTP_302_ALLOW_REDIRECT_GET(self, httpbin):
         r = requests.get(httpbin("redirect", "1"))
@@ -579,8 +581,9 @@ class TestRequests:
         ),
     )
     def test_errors(self, url, exception):
-        with pytest.raises(exception):
-            requests.get(url, timeout=1)
+        with override_environ(http_proxy=None, https_proxy=None):
+            with pytest.raises(exception):
+                requests.get(url, timeout=1)
 
     def test_proxy_error(self):
         # any proxy related error (address resolution, no route to host, etc) should result in a ProxyError
@@ -603,14 +606,14 @@ class TestRequests:
             requests.get(httpbin(), proxies={"http": "http:///example.com:8080"})
 
     def test_respect_proxy_env_on_send_self_prepared_request(self, httpbin):
-        with override_environ(http_proxy=INVALID_PROXY):
+        with override_environ(no_proxy=None, http_proxy=INVALID_PROXY):
             with pytest.raises(ProxyError):
                 session = requests.Session()
                 request = requests.Request("GET", httpbin())
                 session.send(request.prepare())
 
     def test_respect_proxy_env_on_send_session_prepared_request(self, httpbin):
-        with override_environ(http_proxy=INVALID_PROXY):
+        with override_environ(no_proxy=None, http_proxy=INVALID_PROXY):
             with pytest.raises(ProxyError):
                 session = requests.Session()
                 request = requests.Request("GET", httpbin())
@@ -618,7 +621,7 @@ class TestRequests:
                 session.send(prepared)
 
     def test_respect_proxy_env_on_send_with_redirects(self, httpbin):
-        with override_environ(http_proxy=INVALID_PROXY):
+        with override_environ(no_proxy=None, http_proxy=INVALID_PROXY):
             with pytest.raises(ProxyError):
                 session = requests.Session()
                 url = httpbin("redirect/1")
@@ -627,13 +630,13 @@ class TestRequests:
                 session.send(request.prepare())
 
     def test_respect_proxy_env_on_get(self, httpbin):
-        with override_environ(http_proxy=INVALID_PROXY):
+        with override_environ(no_proxy=None, http_proxy=INVALID_PROXY):
             with pytest.raises(ProxyError):
                 session = requests.Session()
                 session.get(httpbin())
 
     def test_respect_proxy_env_on_request(self, httpbin):
-        with override_environ(http_proxy=INVALID_PROXY):
+        with override_environ(no_proxy=None, http_proxy=INVALID_PROXY):
             with pytest.raises(ProxyError):
                 session = requests.Session()
                 session.request(method="GET", url=httpbin())
