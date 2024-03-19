@@ -677,9 +677,7 @@ In addition to basic HTTP proxies, Requests also supports proxies using the
 SOCKS protocol. This is an optional feature that requires that additional
 third-party libraries be installed before use.
 
-You can get the dependencies for this feature from ``pip``:
-
-.. code-block:: bash
+You can get the dependencies for this feature from ``pip``::
 
     $ python -m pip install requests[socks]
 
