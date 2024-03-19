@@ -621,6 +621,7 @@ to your needs)::
 
     $ export HTTP_PROXY="http://10.10.1.10:3128"
     $ export HTTPS_PROXY="http://10.10.1.10:1080"
+    $ export NO_PROXY="www.example.com,10.20.1.128,10.20.2.0/24"
     $ export ALL_PROXY="socks5://10.10.1.10:3434"
 
     $ python
@@ -648,6 +649,20 @@ any request to the given scheme and exact hostname.
     proxies = {'http://10.20.1.128': 'http://10.10.1.10:5323'}
 
 Note that proxy URLs must include the scheme.
+
+To exclude a specific scheme and host from a proxy configuration,
+set it to an empty string so a direct connection is used:
+
+::
+
+    proxies = {
+      'http': 'http://10.10.1.10:3128',
+      'https': 'http://10.10.1.10:1080',
+      'http://10.20.1.128': '',
+    }
+
+Note that adding ``no_proxy`` to the ``proxies`` dictionary for this purpose is not
+supported.
 
 Finally, note that using a proxy for https connections typically requires your
 local machine to trust the proxy's root certificate. By default the list of
