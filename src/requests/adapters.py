@@ -26,6 +26,7 @@ from urllib3.poolmanager import PoolManager, proxy_from_url
 from urllib3.util import Timeout as TimeoutSauce
 from urllib3.util import parse_url
 from urllib3.util.retry import Retry
+from urllib3.util.ssl_ import create_urllib3_context
 
 from .auth import _basic_auth_str
 from .compat import basestring, urlparse
@@ -70,6 +71,8 @@ DEFAULT_POOLBLOCK = False
 DEFAULT_POOLSIZE = 10
 DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
+DEFAULT_SSL_CONTEXT = create_urllib3_context()
+DEFAULT_SSL_CONTEXT.load_verify_locations(extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH))
 
 
 def _urllib3_request_context(
@@ -85,8 +88,13 @@ def _urllib3_request_context(
     cert_reqs = "CERT_REQUIRED"
     if verify is False:
         cert_reqs = "CERT_NONE"
-    if isinstance(verify, str):
-        pool_kwargs["ca_certs"] = verify
+    elif verify is True:
+        pool_kwargs["ssl_context"] = DEFAULT_SSL_CONTEXT
+    elif isinstance(verify, str):
+        if not os.path.isdir(verify):
+            pool_kwargs["ca_certs"] = verify
+        else:
+            pool_kwargs["ca_cert_dir"] = verify
     pool_kwargs["cert_reqs"] = cert_reqs
     if client_cert is not None:
         if isinstance(client_cert, tuple) and len(client_cert) == 2:
@@ -284,27 +292,26 @@ class HTTPAdapter(BaseAdapter):
         :param cert: The SSL certificate to verify.
         """
         if url.lower().startswith("https") and verify:
-            cert_loc = None
-
-            # Allow self-specified cert location.
-            if verify is not True:
-                cert_loc = verify
-
-            if not cert_loc:
-                cert_loc = extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH)
-
-            if not cert_loc or not os.path.exists(cert_loc):
-                raise OSError(
-                    f"Could not find a suitable TLS CA certificate bundle, "
-                    f"invalid path: {cert_loc}"
-                )
-
             conn.cert_reqs = "CERT_REQUIRED"
 
-            if not os.path.isdir(cert_loc):
-                conn.ca_certs = cert_loc
-            else:
-                conn.ca_cert_dir = cert_loc
+            # Only load the CA certificates if 'verify' is a string indicating the CA bundle to use.
+            # Otherwise, if verify is a boolean, we don't load anything since
+            # the connection will be using a context with the default certificates already loaded,
+            # and this avoids a call to the slow load_verify_locations()
+            if verify is not True:
+                # `verify` must be a str with a path then
+                cert_loc = verify
+
+                if not os.path.exists(cert_loc):
+                    raise OSError(
+                        f"Could not find a suitable TLS CA certificate bundle, "
+                        f"invalid path: {cert_loc}"
+                    )
+
+                if not os.path.isdir(cert_loc):
+                    conn.ca_certs = cert_loc
+                else:
+                    conn.ca_cert_dir = cert_loc
         else:
             conn.cert_reqs = "CERT_NONE"
             conn.ca_certs = None
