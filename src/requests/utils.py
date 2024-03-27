@@ -714,22 +714,11 @@ def is_valid_cidr(string_network):
 
     :rtype: bool
     """
-    if string_network.count("/") == 1:
-        try:
-            mask = int(string_network.split("/")[1])
-        except ValueError:
-            return False
-
-        if mask < 1 or mask > 32:
-            return False
-
-        try:
-            socket.inet_aton(string_network.split("/")[0])
-        except OSError:
-            return False
-    else:
+    try:
+        interface = ipaddress.ip_interface(string_network)
+    except (ipaddress.AddressValueError, ValueError):
         return False
-    return True
+    return string_network in (interface.compressed, interface.exploded)
 
 
 @contextlib.contextmanager
