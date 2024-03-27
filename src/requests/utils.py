@@ -9,6 +9,7 @@ that are also useful for external consumption.
 import codecs
 import contextlib
 import io
+import ipaddress
 import os
 import re
 import socket
@@ -677,11 +678,12 @@ def address_in_network(ip, net):
 
     :rtype: bool
     """
-    ipaddr = struct.unpack("=L", socket.inet_aton(ip))[0]
-    netaddr, bits = net.split("/")
-    netmask = struct.unpack("=L", socket.inet_aton(dotted_netmask(int(bits))))[0]
-    network = struct.unpack("=L", socket.inet_aton(netaddr))[0] & netmask
-    return (ipaddr & netmask) == (network & netmask)
+    try:
+        ip_address = ipaddress.ip_address(ip)
+        network = ipaddress.ip_network(net)
+        return ip_address in network
+    except (ipaddress.AddressValueError, ValueError):
+        return False
 
 
 def dotted_netmask(mask):
