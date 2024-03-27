@@ -9,6 +9,7 @@ that are also useful for external consumption.
 import codecs
 import contextlib
 import io
+import ipaddress
 import os
 import re
 import socket
@@ -687,11 +688,12 @@ def address_in_network(ip, net):
 
     :rtype: bool
     """
-    ipaddr = struct.unpack("=L", socket.inet_aton(ip))[0]
-    netaddr, bits = net.split("/")
-    netmask = struct.unpack("=L", socket.inet_aton(dotted_netmask(int(bits))))[0]
-    network = struct.unpack("=L", socket.inet_aton(netaddr))[0] & netmask
-    return (ipaddr & netmask) == (network & netmask)
+    try:
+        ip_address = ipaddress.ip_address(ip)
+        network = ipaddress.ip_network(net)
+        return ip_address in network
+    except (ipaddress.AddressValueError, ValueError):
+        return False
 
 
 def dotted_netmask(mask):
@@ -710,8 +712,8 @@ def is_ipv4_address(string_ip):
     :rtype: bool
     """
     try:
-        socket.inet_aton(string_ip)
-    except OSError:
+        ipaddress.IPv4Address(string_ip)
+    except ipaddress.AddressValueError:
         return False
     return True
 
@@ -722,22 +724,11 @@ def is_valid_cidr(string_network):
 
     :rtype: bool
     """
-    if string_network.count("/") == 1:
-        try:
-            mask = int(string_network.split("/")[1])
-        except ValueError:
-            return False
-
-        if mask < 1 or mask > 32:
-            return False
-
-        try:
-            socket.inet_aton(string_network.split("/")[0])
-        except OSError:
-            return False
-    else:
+    try:
+        interface = ipaddress.ip_interface(string_network)
+    except (ipaddress.AddressValueError, ValueError):
         return False
-    return True
+    return string_network in (interface.compressed, interface.exploded)
 
 
 @contextlib.contextmanager
