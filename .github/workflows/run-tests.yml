@@ -28,3 +28,50 @@ jobs:
     - name: Run tests
       run: |
         make ci
+    - name: "Upload artifact"
+      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+      with:
+        name: coverage-data-${{ matrix.python-version }}
+        path: ".coverage.*"
+        if-no-files-found: error
+
+  coverage:
+    name: "Combine & check coverage"
+    needs: build
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+
+      - name: "Setup Python"
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
+        with:
+          python-version: "3.x"
+
+      - name: "Install Coverage"
+        run: python -Im pip install --upgrade coverage
+
+      - name: "Download coverage artifacts"
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-data-*
+          merge-multiple: true
+
+      - name: Combine coverage & fail if it's <100%.
+        run: |
+          python -Im coverage combine
+          python -Im coverage html --skip-covered --skip-empty
+
+          # Report and write to summary.
+          python -Im coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+
+          # Report again and fail if under 100%.
+          python -Im coverage report --show-missing --fail-under=85
+
+      - name: "Upload HTML report if check failed."
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: htmlcov
+        if: ${{ failure() }}

@@ -1,2 +1,14 @@
 [run]
-omit = requests/packages/*
+include = */requests/*.py
+omit = */requests/packages/*
+parallel = True
+
+[report]
+omit =
+    */requests/packages/*
+
+[paths]
+source =
+    src/requests/
+    */requests/
+    *\requests
