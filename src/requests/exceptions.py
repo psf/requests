@@ -7,7 +7,7 @@ This module contains the set of Requests' exceptions.
 from json import JSONDecodeError as StandardJSONDecodeError
 from urllib3.exceptions import HTTPError as BaseHTTPError
 
-from .compat import JSONDecodeError as CompatJSONDecodeError
+from .compat import JSONDecodeError as BaseCompatJSONDecodeError
 
 
 class RequestException(IOError):
@@ -28,10 +28,10 @@ class RequestException(IOError):
 class InvalidJSONError(RequestException):
     """A JSON error occurred."""
 
-class CompatJSONDecodeError(CompatJSONDecodeError, StandardJSONDecodeError):
+class CompatJSONDecodeError(BaseCompatJSONDecodeError, StandardJSONDecodeError):
     """
     A JSON decoding error occurred.
-    Ensures CompatJSONDecodeError is a subclass of standard JSONDecodeError.
+    CompatJSONDecodeError is a subclass of json.JSONDecodeError and simplejson.JSONDecodeError.
     """
 
 class JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):
