@@ -1003,7 +1003,7 @@ class TestRequests:
                 "SubjectAltNameWarning",
             )
 
-        with pytest.warns(None) as warning_records:
+        with pytest.warns() as warning_records:
             warnings.simplefilter("always")
             requests.get(f"https://localhost:{port}/", verify=ca_bundle)
 
