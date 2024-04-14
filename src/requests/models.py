@@ -1017,8 +1017,8 @@ class Response:
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)
-        
-        return self
+        else:
+            return self
 
     def close(self):
         """Releases the connection back to the pool. Once this method has been
