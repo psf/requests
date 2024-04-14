@@ -989,7 +989,7 @@ class Response:
 
         return resolved_links
 
-    def raise_for_status(self):
+    def raise_for_status(self) -> "Response":
         """Raises :class:`HTTPError`, if one occurred."""
 
         http_error_msg = ""
@@ -1017,6 +1017,8 @@ class Response:
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)
+        else:
+            return self
 
     def close(self):
         """Releases the connection back to the pool. Once this method has been
