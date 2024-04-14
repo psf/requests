@@ -897,10 +897,10 @@ class TestRequests:
 
     def test_raise_for_status_chainability(self, httpbin):
         for status_code in (200, 299, 300, 399):
-            response = requests.get(httpbin("status", str(status_code)))
-            out = response.raise_for_status()
+            r = requests.get(httpbin("status", str(status_code)))
+            out = r.raise_for_status()
             assert isinstance(out, requests.Response)
-            assert out is response
+            assert out is r
 
     def test_decompress_gzip(self, httpbin):
         r = requests.get(httpbin("gzip"))
