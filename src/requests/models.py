@@ -989,7 +989,7 @@ class Response:
 
         return resolved_links
 
-    def raise_for_status(self) -> "Response":
+    def raise_for_status(self):
         """Raises :class:`HTTPError`, if one occurred."""
 
         http_error_msg = ""
