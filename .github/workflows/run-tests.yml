@@ -14,6 +14,15 @@ jobs:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "pypy-3.9", "pypy-3.10"]
         os: [ubuntu-22.04, macOS-latest, windows-latest]
+        # Python 3.8 and 3.9 do not run on macOS-latest which
+        # is now using arm64 hardware.
+        # https://github.com/actions/setup-python/issues/696#issuecomment-1637587760
+        exclude:
+        - { python-version: "3.8", os: "macos-latest" }
+        - { python-version: "3.9", os: "macos-latest" }
+        include:
+        - { python-version: "3.8", os: "macos-13" }
+        - { python-version: "3.9", os: "macos-13" }
 
     steps:
     - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
