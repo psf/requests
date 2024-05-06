@@ -6,6 +6,7 @@ This module contains the transport adapters that Requests uses to define
 and maintain connections.
 """
 
+import os
 import os.path
 import socket  # noqa: F401
 import typing
