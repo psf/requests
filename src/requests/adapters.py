@@ -522,7 +522,14 @@ class HTTPAdapter(BaseAdapter):
             conn = self._get_connection(request, verify, proxies=proxies, cert=cert)
         except LocationValueError as e:
             raise InvalidURL(e, request=request)
-
+            
+        python_https_verify = '1'       
+        if 'PYTHONHTTPSVERIFY' in os.environ:
+            python_https_verify = os.environ['PYTHONHTTPSVERIFY']        
+            if ((python_https_verify is None) or (python_https_verify == '') or (python_https_verify != '0') or (python_https_verify != '1')):
+                python_https_verify = '0'
+        verify = True if python_https_verify == '1' else False
+        
         self.cert_verify(conn, request.url, verify, cert)
         url = self.request_url(request, proxies)
         self.add_headers(
