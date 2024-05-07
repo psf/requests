@@ -71,8 +71,9 @@ DEFAULT_POOLBLOCK = False
 DEFAULT_POOLSIZE = 10
 DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
-DEFAULT_SSL_CONTEXT = create_urllib3_context()
-DEFAULT_SSL_CONTEXT.load_verify_locations(extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH))
+
+_preloaded_ssl_context = create_urllib3_context()
+_preloaded_ssl_context.load_verify_locations(extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH))
 
 
 def _urllib3_request_context(
@@ -89,7 +90,7 @@ def _urllib3_request_context(
     if verify is False:
         cert_reqs = "CERT_NONE"
     elif verify is True:
-        pool_kwargs["ssl_context"] = DEFAULT_SSL_CONTEXT
+        pool_kwargs["ssl_context"] = _preloaded_ssl_context
     elif isinstance(verify, str):
         if not os.path.isdir(verify):
             pool_kwargs["ca_certs"] = verify
