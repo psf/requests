@@ -73,7 +73,9 @@ DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
 
 _preloaded_ssl_context = create_urllib3_context()
-_preloaded_ssl_context.load_verify_locations(extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH))
+_preloaded_ssl_context.load_verify_locations(
+    extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH)
+)
 
 
 def _urllib3_request_context(
