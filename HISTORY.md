@@ -6,6 +6,22 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+
+2.31.1 (2024-05-20)
+-------------------
+
+**Dependencies**
+
+- `charset_normalizer` and `chardet` are now optional dependencies of Requests.
+  The default behavior will degrade to using `utf-8` when decoding strings in
+  the `Response.text()` API if `Response.encoding` is not set.
+
+  This will not affect the default installation of Requests but enables
+  downstream repackaging to remove these dependencies if they're undesired.
+  Default installations of Requests will still use `charset_normalizer` unless
+  `chardet` is present.
+
+
 2.31.0 (2023-05-22)
 -------------------
 
