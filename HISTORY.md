@@ -6,6 +6,13 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.32.1 (2024-05-20)
+-------------------
+
+**Bugfixes**
+- Add missing test certs to the sdist distributed on PyPI.
+
+
 2.32.0 (2024-05-20)
 -------------------
 
