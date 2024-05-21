@@ -10,6 +10,20 @@ dev
 - Add a default timeout value to Requests. The default connect timeout is 10.0
   seconds and the default read timeout is 30.0 seconds. (#3070)
 
+2.32.2 (2024-05-21)
+-------------------
+
+**Deprecations**
+- To provide a more stable migration for custom HTTPAdapters impacted
+  by the CVE changes in 2.32.0, we've renamed `_get_connection` to
+  a new public API, `get_connection_with_tls_context`. Existing custom
+  HTTPAdapters will need to migrate their code to use this new API.
+  `get_connection` is considered deprecated in all versions of Requests>=2.32.0.
+
+  A minimal (2-line) example has been provided in the linked PR to ease
+  migration, but we strongly urge users to evaluate if their custom adapter
+  is subject to the same issue described in CVE-2024-35195. (#6710)
+
 2.32.1 (2024-05-20)
 -------------------
 
