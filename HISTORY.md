@@ -6,6 +6,10 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+**Security**
+- Add a default timeout value to Requests. The default connect timeout is 10.0
+  seconds and the default read timeout is 30.0 seconds. (#3070)
+
 2.32.2 (2024-05-21)
 -------------------
 

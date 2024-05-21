@@ -58,6 +58,10 @@ else:
     preferred_clock = time.time
 
 
+# (connect timeout, read timeout)
+_DEFAULT_TIMEOUT = (10.0, 30.0)
+
+
 def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
     """Determines appropriate setting for a given request, taking into account
     the explicit setting on that request, and the setting in the session. If a
@@ -582,7 +586,7 @@ class Session(SessionRedirectMixin):
 
         # Send the request.
         send_kwargs = {
-            "timeout": timeout,
+            "timeout": timeout if timeout is not None else _DEFAULT_TIMEOUT,
             "allow_redirects": allow_redirects,
         }
         send_kwargs.update(settings)
