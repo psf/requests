@@ -9,6 +9,7 @@ and maintain connections.
 import os.path
 import socket  # noqa: F401
 import typing
+import warnings
 
 from urllib3.exceptions import ClosedPoolError, ConnectTimeoutError
 from urllib3.exceptions import HTTPError as _HTTPError
@@ -374,10 +375,20 @@ class HTTPAdapter(BaseAdapter):
 
         return response
 
-    def _get_connection(self, request, verify, proxies=None, cert=None):
-        # Replace the existing get_connection without breaking things and
-        # ensure that TLS settings are considered when we interact with
-        # urllib3 HTTP Pools
+    def get_connection_with_tls_context(self, request, verify, proxies=None, cert=None):
+        """Returns a urllib3 connection for the given request and TLS settings.
+        This should not be called from user code, and is only exposed for use
+        when subclassing the :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
+
+        :param request: The :class:`PreparedRequest <PreparedRequest>` object
+            to be sent over the connection.
+        :param verify: Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :rtype: urllib3.ConnectionPool
+        """
         proxy = select_proxy(request.url, proxies)
         try:
             host_params, pool_kwargs = _urllib3_request_context(request, verify, cert)
@@ -404,7 +415,10 @@ class HTTPAdapter(BaseAdapter):
         return conn
 
     def get_connection(self, url, proxies=None):
-        """Returns a urllib3 connection for the given URL. This should not be
+        """DEPRECATED: Users should move to `get_connection_with_tls_context`
+        for all subclasses of HTTPAdapter using Requests>=2.32.2.
+
+        Returns a urllib3 connection for the given URL. This should not be
         called from user code, and is only exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
@@ -412,6 +426,15 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
         :rtype: urllib3.ConnectionPool
         """
+        warnings.warn(
+            (
+                "`get_connection` has been deprecated in favor of "
+                "`get_connection_with_tls_context`. Custom HTTPAdapter subclasses "
+                "will need to migrate for Requests>=2.32.2. Please see "
+                "https://github.com/psf/requests/pull/6710 for more details."
+            ),
+            DeprecationWarning,
+        )
         proxy = select_proxy(url, proxies)
 
         if proxy:
@@ -529,7 +552,9 @@ class HTTPAdapter(BaseAdapter):
         """
 
         try:
-            conn = self._get_connection(request, verify, proxies=proxies, cert=cert)
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
         except LocationValueError as e:
             raise InvalidURL(e, request=request)
 
