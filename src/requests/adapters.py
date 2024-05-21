@@ -9,6 +9,7 @@ and maintain connections.
 import os.path
 import socket  # noqa: F401
 import typing
+import warnings
 
 from urllib3.exceptions import ClosedPoolError, ConnectTimeoutError
 from urllib3.exceptions import HTTPError as _HTTPError
@@ -425,6 +426,15 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
         :rtype: urllib3.ConnectionPool
         """
+        warnings.warn(
+            (
+                "`get_connection` has been deprecated in favor of "
+                "`get_connection_with_tls_context`. Custom HTTPAdapter subclasses "
+                "will need to migrate for Requests>=2.32.2. Please see "
+                "https://github.com/psf/requests/pull/6710 for more details."
+            ),
+            DeprecationWarning,
+        )
         proxy = select_proxy(url, proxies)
 
         if proxy:
