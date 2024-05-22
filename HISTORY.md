@@ -6,6 +6,13 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.32.3 (2024-??-??)
+-------------------
+
+**Bugfixes**
+- Fix bug breaking the ability to specify custom SSLContexts in sub-classes of
+  HTTPAdapter. (#6655)
+
 2.32.2 (2024-05-21)
 -------------------
 
