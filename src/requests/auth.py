@@ -26,7 +26,7 @@ def _basic_auth_str(username, password):
     """Returns a Basic Auth string."""
 
     # "I want us to put a big-ol' comment on top of it that
-    # says that this behaviour is dumb but we need to preserve
+    # says that this behaviour is dumb, but we need to preserve
     # it because people are relying on it."
     #    - Lukasa
     #

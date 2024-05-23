@@ -438,7 +438,7 @@ class Session(SessionRedirectMixin):
         self.trust_env = True
 
         #: A CookieJar containing all currently outstanding cookies set on this
-        #: session. By default it is a
+        #: session. By default, it is a
         #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but
         #: may be any other ``cookielib.CookieJar`` compatible object.
         self.cookies = cookiejar_from_dict({})

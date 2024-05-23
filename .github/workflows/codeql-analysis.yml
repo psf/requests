@@ -35,7 +35,7 @@ jobs:
       uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
       with:
         # We must fetch at least the immediate parents so that if this is
-        # a pull request then we can checkout the head.
+        # a pull request, then we can checkout the head.
         fetch-depth: 2
 
     # If this run was triggered by a pull request event, then checkout

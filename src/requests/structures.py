@@ -21,7 +21,7 @@ class CaseInsensitiveDict(MutableMapping):
     case of the last key to be set, and ``iter(instance)``,
     ``keys()``, ``items()``, ``iterkeys()``, and ``iteritems()``
     will contain case-sensitive keys. However, querying and contains
-    testing is case insensitive::
+    testing is case-insensitive::
 
         cid = CaseInsensitiveDict()
         cid['Accept'] = 'application/json'

@@ -407,7 +407,7 @@ class HTTPAdapter(BaseAdapter):
                 **host_params, pool_kwargs=pool_kwargs
             )
         else:
-            # Only scheme should be lower case
+            # Only scheme should be lowercase
             conn = self.poolmanager.connection_from_host(
                 **host_params, pool_kwargs=pool_kwargs
             )
@@ -448,7 +448,7 @@ class HTTPAdapter(BaseAdapter):
             proxy_manager = self.proxy_manager_for(proxy)
             conn = proxy_manager.connection_from_url(url)
         else:
-            # Only scheme should be lower case
+            # Only scheme should be lowercase
             parsed = urlparse(url)
             url = parsed.geturl()
             conn = self.poolmanager.connection_from_url(url)
