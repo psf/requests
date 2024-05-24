@@ -83,16 +83,19 @@ def _urllib3_request_context(
     request: "PreparedRequest",
     verify: "bool | str | None",
     client_cert: "typing.Tuple[str, str] | str | None",
+    poolmanager: "PoolManager",
 ) -> "(typing.Dict[str, typing.Any], typing.Dict[str, typing.Any])":
     host_params = {}
     pool_kwargs = {}
     parsed_request_url = urlparse(request.url)
     scheme = parsed_request_url.scheme.lower()
     port = parsed_request_url.port
+    has_custom_pool_kwargs = getattr(poolmanager, "connection_pool_kw", False)
+
     cert_reqs = "CERT_REQUIRED"
     if verify is False:
         cert_reqs = "CERT_NONE"
-    elif verify is True:
+    elif verify is True and not has_custom_pool_kwargs:
         pool_kwargs["ssl_context"] = _preloaded_ssl_context
     elif isinstance(verify, str):
         if not os.path.isdir(verify):
@@ -391,7 +394,9 @@ class HTTPAdapter(BaseAdapter):
         """
         proxy = select_proxy(request.url, proxies)
         try:
-            host_params, pool_kwargs = _urllib3_request_context(request, verify, cert)
+            host_params, pool_kwargs = _urllib3_request_context(
+                request, verify, cert, self.poolmanager
+            )
         except ValueError as e:
             raise InvalidURL(e, request=request)
         if proxy:
