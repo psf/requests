@@ -83,16 +83,20 @@ def _urllib3_request_context(
     request: "PreparedRequest",
     verify: "bool | str | None",
     client_cert: "typing.Tuple[str, str] | str | None",
+    poolmanager: "PoolManager",
 ) -> "(typing.Dict[str, typing.Any], typing.Dict[str, typing.Any])":
     host_params = {}
     pool_kwargs = {}
     parsed_request_url = urlparse(request.url)
     scheme = parsed_request_url.scheme.lower()
     port = parsed_request_url.port
+    poolmanager_kwargs = getattr(poolmanager, "connection_pool_kw", {})
+    has_poolmanager_ssl_context = poolmanager_kwargs.get("ssl_context")
+
     cert_reqs = "CERT_REQUIRED"
     if verify is False:
         cert_reqs = "CERT_NONE"
-    elif verify is True:
+    elif verify is True and not has_poolmanager_ssl_context:
         pool_kwargs["ssl_context"] = _preloaded_ssl_context
     elif isinstance(verify, str):
         if not os.path.isdir(verify):
@@ -423,7 +427,7 @@ class HTTPAdapter(BaseAdapter):
             portion of the Pool Key including scheme, hostname, and port. The
             second is a dictionary of SSLContext related parameters.
         """
-        return _urllib3_request_context(request, verify, cert)
+        return _urllib3_request_context(request, verify, cert, self.poolmanager)
 
     def get_connection_with_tls_context(self, request, verify, proxies=None, cert=None):
         """Returns a urllib3 connection for the given request and TLS settings.
