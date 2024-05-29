@@ -87,6 +87,23 @@ except ImportError:
     _preloaded_ssl_context = None
 
 
+def _should_use_default_context(
+    verify: "bool | str | None",
+    client_cert: "typing.Tuple[str, str] | str | None",
+    poolmanager_kwargs: typing.Dict[str, typing.Any],
+) -> bool:
+    # Determine if we have and should use our default SSLContext
+    # to optimize performance on standard requests.
+    has_poolmanager_ssl_context = poolmanager_kwargs.get("ssl_context")
+    should_use_default_ssl_context = (
+        verify is True
+        and _preloaded_ssl_context is not None
+        and not has_poolmanager_ssl_context
+        and client_cert is None
+    )
+    return should_use_default_ssl_context
+
+
 def _urllib3_request_context(
     request: "PreparedRequest",
     verify: "bool | str | None",
@@ -98,19 +115,12 @@ def _urllib3_request_context(
     parsed_request_url = urlparse(request.url)
     scheme = parsed_request_url.scheme.lower()
     port = parsed_request_url.port
-
-    # Determine if we have and should use our default SSLContext
-    # to optimize performance on standard requests.
     poolmanager_kwargs = getattr(poolmanager, "connection_pool_kw", {})
-    has_poolmanager_ssl_context = poolmanager_kwargs.get("ssl_context")
-    should_use_default_ssl_context = (
-        _preloaded_ssl_context is not None and not has_poolmanager_ssl_context
-    )
 
     cert_reqs = "CERT_REQUIRED"
     if verify is False:
         cert_reqs = "CERT_NONE"
-    elif verify is True and should_use_default_ssl_context:
+    elif _should_use_default_context(verify, client_cert, poolmanager_kwargs):
         pool_kwargs["ssl_context"] = _preloaded_ssl_context
     elif isinstance(verify, str):
         if not os.path.isdir(verify):
