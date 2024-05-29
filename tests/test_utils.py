@@ -257,7 +257,14 @@ class TestIsIPv4Address:
     def test_valid(self):
         assert is_ipv4_address("8.8.8.8")
 
-    @pytest.mark.parametrize("value", ("8.8.8.8.8", "localhost.localdomain"))
+    @pytest.mark.parametrize(
+        "value",
+        (
+            "8.8.8.8.8",
+            "1.1.1.1 someone was here...",
+            "localhost.localdomain",
+        ),
+    )
     def test_invalid(self, value):
         assert not is_ipv4_address(value)
 
@@ -274,6 +281,7 @@ class TestIsValidCIDR:
             "192.168.1.0/128",
             "192.168.1.0/-1",
             "192.168.1.999/24",
+            "1.1.1.1 something/24",
         ),
     )
     def test_invalid(self, value):
@@ -284,8 +292,17 @@ class TestAddressInNetwork:
     def test_valid(self):
         assert address_in_network("192.168.1.1", "192.168.1.0/24")
 
-    def test_invalid(self):
-        assert not address_in_network("172.16.0.1", "192.168.1.0/24")
+    @pytest.mark.parametrize(
+        "ip, net",
+        (
+            ("172.16.0.1", "192.168.1.0/24"),
+            ("1.1.1.1", "1.1.1.1/24"),
+            ("1.1.1.1wtf", "1.1.1.1/24"),
+            ("1.1.1.1 wtf", "1.1.1.1/24"),
+        ),
+    )
+    def test_invalid(self, ip, net):
+        assert not address_in_network(ip, net)
 
 
 class TestGuessFilename:
