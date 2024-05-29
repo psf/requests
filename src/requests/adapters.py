@@ -73,10 +73,18 @@ DEFAULT_POOLSIZE = 10
 DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
 
-_preloaded_ssl_context = create_urllib3_context()
-_preloaded_ssl_context.load_verify_locations(
-    extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH)
-)
+
+try:
+    import ssl  # noqa: F401
+
+    _preloaded_ssl_context = create_urllib3_context()
+    _preloaded_ssl_context.load_verify_locations(
+        extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH)
+    )
+except ImportError:
+    # Bypass default SSLContext creation when Python
+    # interpreter isn't built with the ssl module.
+    _preloaded_ssl_context = None
 
 
 def _urllib3_request_context(
@@ -90,13 +98,19 @@ def _urllib3_request_context(
     parsed_request_url = urlparse(request.url)
     scheme = parsed_request_url.scheme.lower()
     port = parsed_request_url.port
+
+    # Determine if we have and should use our default SSLContext
+    # to optimize performance on standard requests.
     poolmanager_kwargs = getattr(poolmanager, "connection_pool_kw", {})
     has_poolmanager_ssl_context = poolmanager_kwargs.get("ssl_context")
+    should_use_default_ssl_context = (
+        _preloaded_ssl_context is not None and not has_poolmanager_ssl_context
+    )
 
     cert_reqs = "CERT_REQUIRED"
     if verify is False:
         cert_reqs = "CERT_NONE"
-    elif verify is True and not has_poolmanager_ssl_context:
+    elif verify is True and should_use_default_ssl_context:
         pool_kwargs["ssl_context"] = _preloaded_ssl_context
     elif isinstance(verify, str):
         if not os.path.isdir(verify):
