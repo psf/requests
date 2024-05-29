@@ -6,12 +6,14 @@ dev
 
 - \[Short description of non-trivial change.\]
 
-2.32.3 (2024-05-24)
+2.32.3 (2024-05-29)
 -------------------
 
 **Bugfixes**
-- Fix bug breaking the ability to specify custom SSLContexts in sub-classes of
+- Fixed bug breaking the ability to specify custom SSLContexts in sub-classes of
   HTTPAdapter. (#6716)
+- Fixed issue where Requests started failing to run on Python versions compiled
+  without the `ssl` module. (#6724)
 
 2.32.2 (2024-05-21)
 -------------------
