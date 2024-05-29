@@ -5,7 +5,8 @@ nosetests.xml
 junit-report.xml
 pylint.txt
 toy.py
-.cache/
+tox.ini
+violations.pyflakes.txt
 cover/
 build/
 docs/_build
@@ -14,24 +15,12 @@ requests.egg-info/
 *.swp
 *.egg
 env/
-.venv/
-.eggs/
-.tox/
-.pytest_cache/
-.vscode/
-.eggs/
+venv/
+.cache/
 
 .workon
-
-# in case you work with IntelliJ/PyCharm
-.idea
-*.iml
-.python-version
-
 
 t.py
 
 t2.py
 dist
-
-/.mypy_cache/

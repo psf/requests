@@ -36,7 +36,6 @@ Exceptions
 .. autoexception:: requests.ConnectTimeout
 .. autoexception:: requests.ReadTimeout
 .. autoexception:: requests.Timeout
-.. autoexception:: requests.JSONDecodeError
 
 
 Request Sessions
@@ -94,8 +93,8 @@ Cookies
 -------
 
 .. autofunction:: requests.utils.dict_from_cookiejar
+.. autofunction:: requests.utils.cookiejar_from_dict
 .. autofunction:: requests.utils.add_dict_to_cookiejar
-.. autofunction:: requests.cookies.cookiejar_from_dict
 
 .. autoclass:: requests.cookies.RequestsCookieJar
    :inherited-members:
@@ -110,7 +109,17 @@ Status Code Lookup
 
 .. autoclass:: requests.codes
 
-.. automodule:: requests.status_codes
+::
+
+    >>> requests.codes['temporary_redirect']
+    307
+
+    >>> requests.codes.teapot
+    418
+
+    >>> requests.codes['\o/']
+    200
+
 
 
 Migrating to 1.x
@@ -128,7 +137,7 @@ API Changes
   ::
 
       import requests
-      r = requests.get('https://api.github.com/events')
+      r = requests.get('https://github.com/timeline.json')
       r.json()   # This *call* raises an exception if JSON decoding fails
 
 * The ``Session`` API has changed. Sessions objects no longer take parameters.
@@ -140,7 +149,7 @@ API Changes
       s = requests.Session()    # formerly, session took parameters
       s.auth = auth
       s.headers.update(headers)
-      r = s.get('https://httpbin.org/headers')
+      r = s.get('http://httpbin.org/headers')
 
 * All request hooks have been removed except 'response'.
 
@@ -157,7 +166,7 @@ API Changes
   ::
 
       # in 0.x, passing prefetch=False would accomplish the same thing
-      r = requests.get('https://api.github.com/events', stream=True)
+      r = requests.get('https://github.com/timeline.json', stream=True)
       for chunk in r.iter_content(8192):
           ...
 
@@ -182,11 +191,11 @@ API Changes
 
       logging.basicConfig() # you need to initialize logging, otherwise you will not see anything from requests
       logging.getLogger().setLevel(logging.DEBUG)
-      requests_log = logging.getLogger("urllib3")
+      requests_log = logging.getLogger("requests.packages.urllib3")
       requests_log.setLevel(logging.DEBUG)
       requests_log.propagate = True
 
-      requests.get('https://httpbin.org/headers')
+      requests.get('http://httpbin.org/headers')
 
 
 
@@ -198,8 +207,8 @@ license from the ISC_ license to the `Apache 2.0`_ license. The Apache 2.0
 license ensures that contributions to Requests are also covered by the Apache
 2.0 license.
 
-.. _ISC: https://opensource.org/licenses/ISC
-.. _Apache 2.0: https://opensource.org/licenses/Apache-2.0
+.. _ISC: http://opensource.org/licenses/ISC
+.. _Apache 2.0: http://opensource.org/licenses/Apache-2.0
 
 
 Migrating to 2.x
@@ -214,7 +223,7 @@ For more details on the changes in this release including new APIs, links
 to the relevant GitHub issues and some of the bug fixes, read Cory's blog_
 on the subject.
 
-.. _blog: https://lukasa.co.uk/2013/09/Requests_20/
+.. _blog: http://lukasa.co.uk/2013/09/Requests_20/
 
 
 API Changes

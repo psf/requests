@@ -1,4 +1,7 @@
-import warnings
+# -*- coding: utf-8 -*-
+
+from requests.compat import is_py3
+
 
 try:
     import StringIO
@@ -10,14 +13,9 @@ try:
 except ImportError:
     cStringIO = None
 
-
-def u(s):
-    warnings.warn(
-        (
-            "This helper function is no longer relevant in Python 3. "
-            "Usage of this alias should be discontinued as it will be "
-            "removed in a future release of Requests."
-        ),
-        DeprecationWarning,
-    )
-    return s
+if is_py3:
+    def u(s):
+        return s
+else:
+    def u(s):
+        return s.decode('unicode-escape')

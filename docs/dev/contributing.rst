@@ -11,16 +11,21 @@ contributing to the Requests project is *very* generous of you.
 This document lays out guidelines and advice for contributing to this project.
 If you're thinking of contributing, please start by reading this document and
 getting a feel for how contributing to this project works. If you have any
-questions, feel free to reach out to either `Nate Prewitt`_, `Ian Cordasco`_,
-or `Seth Michael Larson`_, the primary maintainers.
+questions, feel free to reach out to either `Ian Cordasco`_ or `Cory Benfield`_,
+the primary maintainers.
 
 .. _Ian Cordasco: http://www.coglib.com/~icordasc/
-.. _Nate Prewitt: https://www.nateprewitt.com/
-.. _Seth Michael Larson: https://sethmlarson.dev/
+.. _Cory Benfield: https://lukasa.co.uk/about
+
+If you have non-technical feedback, philosophical ponderings, crazy ideas, or
+other general thoughts about Requests or its position within the Python
+ecosystem, the BDFL, `Kenneth Reitz`_, would love to hear from you.
 
 The guide is split into sections based on the type of contribution you're
 thinking of making, with a section that covers general guidelines for all
 contributors.
+
+.. _Kenneth Reitz: mailto:me@kennethreitz.org
 
 Be Cordial
 ----------
@@ -34,7 +39,7 @@ including reporting bugs or requesting features. This golden rule is
 **All contributions are welcome**, as long as
 everyone involved is treated with respect.
 
-.. _be cordial or be on your way: https://kenreitz.org/essays/2013/01/27/be-cordial-or-be-on-your-way
+.. _be cordial or be on your way: http://kennethreitz.org/be-cordial-or-be-on-your-way/
 
 .. _early-feedback:
 
@@ -78,7 +83,7 @@ When contributing code, you'll want to follow this checklist:
 4. Make your change.
 5. Run the entire test suite again, confirming that all tests pass *including
    the ones you just added*.
-6. Send a GitHub Pull Request to the main repository's ``main`` branch.
+6. Send a GitHub Pull Request to the main repository's ``master`` branch.
    GitHub Pull Requests are the expected method of code collaboration on this
    project.
 
@@ -93,21 +98,6 @@ event that you object to the code review feedback, you should make your case
 clearly and calmly. If, after doing so, the feedback is judged to still apply,
 you must either apply the feedback or withdraw your contribution.
 
-Code Style
-~~~~~~~~~~
-
-Requests uses a collection of tools to ensure the code base has a consistent
-style as it grows. We have these orchestrated using a tool called
-`pre-commit`_. This can be installed locally and run over your changes prior
-to opening a PR, and will also be run as part of the CI approval process
-before a change is merged.
-
-You can find the full list of formatting requirements specified in the
-`.pre-commit-config.yaml`_ at the top level directory of Requests.
-
-.. _pre-commit: https://pre-commit.com/
-.. _.pre-commit-config.yaml: https://github.com/psf/requests/blob/main/.pre-commit-config.yaml
-
 New Contributors
 ~~~~~~~~~~~~~~~~
 
@@ -118,6 +108,55 @@ asking for help.
 
 Please also check the :ref:`early-feedback` section.
 
+Kenneth Reitz's Code Style™
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Requests codebase uses the `PEP 8`_ code style.
+
+In addition to the standards outlined in PEP 8, we have a few guidelines:
+
+- Line-length can exceed 79 characters, to 100, when convenient.
+- Line-length can exceed 100 characters, when doing otherwise would be *terribly* inconvenient.
+- Always use single-quoted strings (e.g. ``'#flatearth'``), unless a single-quote occurs within the string.
+
+Additionally, one of the styles that PEP8 recommends for `line continuations`_
+completely lacks all sense of taste, and is not to be permitted within
+the Requests codebase::
+
+    # Aligned with opening delimiter.
+    foo = long_function_name(var_one, var_two,
+                             var_three, var_four)
+
+No. Just don't. Please.
+
+Docstrings are to follow the following syntaxes::
+
+    def the_earth_is_flat():
+        """NASA divided up the seas into thirty-three degrees."""
+        pass
+
+::
+
+    def fibonacci_spiral_tool():
+        """With my feet upon the ground I lose myself / between the sounds
+        and open wide to suck it in. / I feel it move across my skin. / I'm
+        reaching up and reaching out. / I'm reaching for the random or
+        whatever will bewilder me. / Whatever will bewilder me. / And
+        following our will and wind we may just go where no one's been. /
+        We'll ride the spiral to the end and may just go where no one's
+        been.
+
+        Spiral out. Keep going...
+        """
+        pass
+
+All functions, methods, and classes are to contain docstrings. Object data
+model methods (e.g. ``__repr__``) are typically the exception to this rule.
+
+Thanks for helping to make the world a better place!
+
+.. _PEP 8: http://pep8.org
+.. _line continuations: https://www.python.org/dev/peps/pep-0008/#indentation
 
 Documentation Contributions
 ---------------------------
@@ -148,7 +187,7 @@ through the `GitHub issues`_, **both open and closed**, to confirm that the bug
 hasn't been reported before. Duplicate bug reports are a huge drain on the time
 of other contributors, and should be avoided as much as possible.
 
-.. _GitHub issues: https://github.com/psf/requests/issues
+.. _GitHub issues: https://github.com/kennethreitz/requests/issues
 
 
 Feature Requests

@@ -1,3 +1,1 @@
-include README.md LICENSE NOTICE HISTORY.md requirements-dev.txt
-recursive-include tests *.py
-recursive-include tests/certs *
+include README.rst LICENSE NOTICE HISTORY.rst test_requests.py requirements.txt requests/cacert.pem

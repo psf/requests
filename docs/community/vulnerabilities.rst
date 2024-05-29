@@ -2,16 +2,14 @@ Vulnerability Disclosure
 ========================
 
 If you think you have found a potential security vulnerability in requests,
-please email `Nate <mailto:nate.prewitt@gmail.com>`_ and `Seth <mailto:@sethmichaellarson@gmail.com>`_ directly. **Do not file a public issue.**
+please email `sigmavirus24 <mailto:graffatcolmingov@gmail.com>`_ and
+`Lukasa <mailto:cory@lukasa.co.uk>`_ directly. **Do not file a public issue.**
 
 Our PGP Key fingerprints are:
 
-- 8722 7E29 AD9C FF5C FAC3  EA6A 44D3 FF97 B80D C864 (`@nateprewitt <https://keybase.io/nateprewitt>`_)
+- 0161 BB7E B208 B5E0 4FDC  9F81 D9DA 0A04 9113 F853 (@sigmavirus24)
 
-- EDD5 6765 A9D8 4653 CBC8  A134 51B0 6736 1740 F5FC (`@sethmlarson <https://keybase.io/sethmlarson>`_)
-
-You can also contact us on `Keybase <https://keybase.io/>`_ with the
-profiles above if desired.
+- 90DC AE40 FEA7 4B14 9B70  662D F25F 2144 EEC1 373D (@lukasa)
 
 If English is not your first language, please try to describe the problem and
 its impact to the best of your ability. For greater detail, please use your
@@ -72,7 +70,7 @@ time, to ensure that they are able to promptly release their downstream
 packages. Currently the list of people we actively contact *ahead of a public
 release* is:
 
-- Python Maintenance Team, Red Hat (python-maint@redhat.com)
+- Jeremy Cline, Red Hat (@jeremycline)
 - Daniele Tricoli, Debian (@eriol)
 
 We will notify these individuals at least a week ahead of our planned release
@@ -95,16 +93,13 @@ if upgrading is not an option.
 Previous CVEs
 -------------
 
-- Fixed in 2.20.0
-  - `CVE 2018-18074 <https://cve.mitre.org/cgi-bin/cvename.cgi?name=2018-18074>`_
-
 - Fixed in 2.6.0
 
-  - `CVE 2015-2296 <https://cve.mitre.org/cgi-bin/cvename.cgi?name=2015-2296>`_,
+  - `CVE 2015-2296 <http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=2015-2296>`_,
     reported by Matthew Daley of `BugFuzz <https://bugfuzz.com/>`_.
 
 - Fixed in 2.3.0
 
-  - `CVE 2014-1829 <https://cve.mitre.org/cgi-bin/cvename.cgi?name=2014-1829>`_
+  - `CVE 2014-1829 <http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=2014-1829>`_
 
-  - `CVE 2014-1830 <https://cve.mitre.org/cgi-bin/cvename.cgi?name=2014-1830>`_
+  - `CVE 2014-1830 <http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=2014-1830>`_
