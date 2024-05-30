@@ -583,7 +583,7 @@ class TestRequests:
             requests.get(url, timeout=1)
 
     def test_proxy_error(self):
-        # any proxy related error (address resolution, no route to host, etc) should result in a ProxyError
+        # any proxy related error (address resolution, no route to host, etc.) should result in a ProxyError
         with pytest.raises(ProxyError):
             requests.get(
                 "http://localhost:1", proxies={"http": "non-resolvable-address"}
@@ -1470,7 +1470,7 @@ class TestRequests:
     def test_iter_content_wraps_exceptions(self, httpbin, exception, args, expected):
         r = requests.Response()
         r.raw = mock.Mock()
-        # ReadTimeoutError can't be initialized by mock
+        # ReadTimeoutError can't be initialized by mock,
         # so we'll manually create the instance with args
         r.raw.stream.side_effect = exception(*args)
 
@@ -2216,7 +2216,7 @@ class TestRequests:
                 # default behavior
                 if resp.is_redirect:
                     return resp.headers["location"]
-                # edge case - check to see if 'location' is in headers anyways
+                # edge case - check to see if 'location' is in headers anyway
                 location = resp.headers.get("location")
                 if location and (location != resp.url):
                     return location
@@ -2431,7 +2431,7 @@ class TestMorselToCookieMaxAge:
         assert isinstance(cookie.expires, int)
 
     def test_max_age_invalid_str(self):
-        """Test case where a invalid max age is passed."""
+        """Test case where an invalid max age is passed."""
 
         morsel = Morsel()
         morsel["max-age"] = "woops"
@@ -2465,7 +2465,7 @@ class TestTimeout:
         To actually test this behavior, we'd want to check that setting the
         timeout to None actually lets the request block past the system default
         timeout. However, this would make the test suite unbearably slow.
-        Instead we verify that setting the timeout to None does not prevent the
+        Instead, we verify that setting the timeout to None does not prevent the
         request from succeeding.
         """
         r = requests.get(httpbin("get"), timeout=timeout)
@@ -2887,7 +2887,7 @@ class TestPreparingURLs:
             r1 = s.get(url, verify=False)
             assert r1.status_code == 200
 
-            # Has right trust bundle, but certificate expired
+            # Has the right trust bundle, but the certificate is expired
             with pytest.raises(requests.exceptions.SSLError):
                 s.get(url, verify="tests/certs/expired/ca/ca.crt")
 
