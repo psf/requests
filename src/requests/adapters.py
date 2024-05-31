@@ -118,15 +118,23 @@ def _urllib3_request_context(
     poolmanager_kwargs = getattr(poolmanager, "connection_pool_kw", {})
 
     cert_reqs = "CERT_REQUIRED"
+    cert_loc = None
     if verify is False:
         cert_reqs = "CERT_NONE"
     elif _should_use_default_context(verify, client_cert, poolmanager_kwargs):
         pool_kwargs["ssl_context"] = _preloaded_ssl_context
+    elif verify is True:
+        # Set default ca cert location if none provided
+        cert_loc = extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH)
     elif isinstance(verify, str):
-        if not os.path.isdir(verify):
-            pool_kwargs["ca_certs"] = verify
+        cert_loc = verify
+
+    if cert_loc is not None:
+        if not os.path.isdir(cert_loc):
+            pool_kwargs["ca_certs"] = cert_loc
         else:
-            pool_kwargs["ca_cert_dir"] = verify
+            pool_kwargs["ca_cert_dir"] = cert_loc
+
     pool_kwargs["cert_reqs"] = cert_reqs
     if client_cert is not None:
         if isinstance(client_cert, tuple) and len(client_cert) == 2:
