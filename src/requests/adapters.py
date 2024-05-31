@@ -334,10 +334,8 @@ class HTTPAdapter(BaseAdapter):
         if url.lower().startswith("https") and verify:
             conn.cert_reqs = "CERT_REQUIRED"
 
-            # Only load the CA certificates if 'verify' is a string indicating the CA bundle to use.
-            # Otherwise, if verify is a boolean, we don't load anything since
-            # the connection will be using a context with the default certificates already loaded,
-            # and this avoids a call to the slow load_verify_locations()
+            # Only load the CA certificates if `verify` is a
+            # string indicating the CA bundle to use.
             if verify is not True:
                 # `verify` must be a str with a path then
                 cert_loc = verify
