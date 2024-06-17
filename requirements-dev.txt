@@ -4,4 +4,5 @@ pytest-cov
 pytest-httpbin==2.0.0
 httpbin~=0.10.0
 trustme
+Werkzeug
 wheel
