@@ -41,6 +41,10 @@ def request(method, url, **kwargs):
             to a CA bundle to use. Defaults to ``True``.
     :param stream: (optional) if ``False``, the response content will be immediately downloaded.
     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+    :param chunked: (optional) If True, requests will send the body using 
+        chunked transfer encoding. If False, requests will send the body using 
+        the standard content-length form. Defaults to None which will auto choose.
+    :type chunked: bool, optional
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
 

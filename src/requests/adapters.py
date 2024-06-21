@@ -92,7 +92,7 @@ def _urllib3_request_context(
     verify: "bool | str | None",
     client_cert: "typing.Tuple[str, str] | str | None",
     poolmanager: "PoolManager",
-) -> "(typing.Dict[str, typing.Any], typing.Dict[str, typing.Any])":
+) -> "typing.Tuple[typing.Dict[str, typing.Any], typing.Dict[str, typing.Any]]":
     host_params = {}
     pool_kwargs = {}
     parsed_request_url = urlparse(request.url)
@@ -611,7 +611,14 @@ class HTTPAdapter(BaseAdapter):
         return headers
 
     def send(
-        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+        self,
+        request,
+        stream=False,
+        timeout=None,
+        verify=True,
+        cert=None,
+        proxies=None,
+        chunked=None,
     ):
         """Sends PreparedRequest object. Returns Response object.
 
@@ -626,6 +633,10 @@ class HTTPAdapter(BaseAdapter):
             must be a path to a CA bundle to use
         :param cert: (optional) Any user-provided SSL certificate to be trusted.
         :param proxies: (optional) The proxies dictionary to apply to the request.
+        :param chunked: (optional) If True, requests will send the body using 
+            chunked transfer encoding. If False, requests will send the body using 
+            the standard content-length form. Defaults to None which will auto choose.
+        :type chunked: bool, optional
         :rtype: requests.Response
         """
 
@@ -647,7 +658,8 @@ class HTTPAdapter(BaseAdapter):
             proxies=proxies,
         )
 
-        chunked = not (request.body is None or "Content-Length" in request.headers)
+        if chunked is None:
+            chunked = not (request.body is None or "Content-Length" in request.headers)
 
         if isinstance(timeout, tuple):
             try:

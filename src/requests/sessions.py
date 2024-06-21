@@ -515,6 +515,7 @@ class Session(SessionRedirectMixin):
         verify=None,
         cert=None,
         json=None,
+        chunked=None,
     ):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
@@ -557,6 +558,10 @@ class Session(SessionRedirectMixin):
             may be useful during local development or testing.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
+        :param chunked: (optional) If True, requests will send the body using 
+            chunked transfer encoding. If False, requests will send the body using 
+            the standard content-length form. Defaults to None which will auto choose.
+        :type chunked: bool, optional
         :rtype: requests.Response
         """
         # Create the Request.
@@ -584,6 +589,7 @@ class Session(SessionRedirectMixin):
         send_kwargs = {
             "timeout": timeout,
             "allow_redirects": allow_redirects,
+            "chunked": chunked,
         }
         send_kwargs.update(settings)
         resp = self.send(prep, **send_kwargs)
