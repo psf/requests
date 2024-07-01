@@ -1,0 +1,31 @@
+[req]
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+prompt=no
+
+[req_distinguished_name]
+C = US
+ST = DE
+O = Python Software Foundation
+OU = python-requests
+CN = localhost
+
+[v3_req]
+# Extensions to add to a certificate request
+basicConstraints = critical, CA:FALSE
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = critical, serverAuth
+subjectAltName = critical, @alt_names
+
+[v3_ca]
+# Extensions to add to a certificate request
+basicConstraints = critical, CA:FALSE
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = critical, serverAuth
+subjectAltName = critical, @alt_names
+
+[alt_names]
+DNS.1 = *.localhost
+DNS.1 = localhost
+IP.1 = 127.0.0.1
+IP.2 = ::1

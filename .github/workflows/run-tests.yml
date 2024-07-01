@@ -12,18 +12,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12-dev", "pypy-3.8", "pypy-3.9"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "pypy-3.9", "pypy-3.10"]
         os: [ubuntu-22.04, macOS-latest, windows-latest]
+        # Python 3.8 and 3.9 do not run on macOS-latest which
+        # is now using arm64 hardware.
+        # https://github.com/actions/setup-python/issues/696#issuecomment-1637587760
+        exclude:
+        - { python-version: "3.8", os: "macos-latest" }
+        - { python-version: "3.9", os: "macos-latest" }
         include:
-          # pypy-3.7 on Windows and Mac OS currently fails trying to compile
-          # cryptography. Moving pypy-3.7 to only test linux.
-          - python-version: pypy-3.7
-            os: ubuntu-latest
+        - { python-version: "3.8", os: "macos-13" }
+        - { python-version: "3.9", os: "macos-13" }
 
     steps:
-    - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+    - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
+      uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
@@ -33,3 +37,23 @@ jobs:
     - name: Run tests
       run: |
         make ci
+
+  no_chardet:
+    name: "No Character Detection"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+
+    steps:
+      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
+      - name: 'Set up Python 3.8'
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.8'
+      - name: Install dependencies
+        run: |
+          make
+          python -m pip uninstall -y "charset_normalizer" "chardet"
+      - name: Run tests
+        run: |
+          make ci

@@ -22,7 +22,7 @@ Custom User-Agents?
 -------------------
 
 Requests allows you to easily override User-Agent strings, along with
-any other HTTP Header. See `documentation about headers <https://requests.readthedocs.io/en/latest/user/quickstart/#custom-headers>`_.
+any other HTTP Header. See :ref:`documentation about headers <custom-headers>`.
 
 
 
@@ -55,7 +55,7 @@ Chris Adams gave an excellent summary on
 Python 3 Support?
 -----------------
 
-Yes! Requests officially supports Python 3.7+ and PyPy.
+Yes! Requests officially supports Python 3.8+ and PyPy.
 
 Python 2 Support?
 -----------------

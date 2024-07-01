@@ -201,6 +201,8 @@ may better fit your use cases.
    were returned, use ``Response.raw``.
 
 
+.. _custom-headers:
+
 Custom Headers
 --------------
 
@@ -566,6 +568,3 @@ All exceptions that Requests explicitly raises inherit from
 -----------------------
 
 Ready for more? Check out the :ref:`advanced <advanced>` section.
-
-
-If you're on the job market, consider taking `this programming quiz <https://triplebyte.com/a/b1i2FB8/requests-docs-1>`_. A substantial donation will be made to this project, if you find a job through this platform.

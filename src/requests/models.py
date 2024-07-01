@@ -789,7 +789,12 @@ class Response:
     @property
     def apparent_encoding(self):
         """The apparent encoding, provided by the charset_normalizer or chardet libraries."""
-        return chardet.detect(self.content)["encoding"]
+        if chardet is not None:
+            return chardet.detect(self.content)["encoding"]
+        else:
+            # If no character detection library is available, we'll fall back
+            # to a standard Python utf-8 str.
+            return "utf-8"
 
     def iter_content(self, chunk_size=1, decode_unicode=False):
         """Iterates over the response data.  When stream=True is set on the

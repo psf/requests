@@ -6,6 +6,82 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.32.3 (2024-05-29)
+-------------------
+
+**Bugfixes**
+- Fixed bug breaking the ability to specify custom SSLContexts in sub-classes of
+  HTTPAdapter. (#6716)
+- Fixed issue where Requests started failing to run on Python versions compiled
+  without the `ssl` module. (#6724)
+
+2.32.2 (2024-05-21)
+-------------------
+
+**Deprecations**
+- To provide a more stable migration for custom HTTPAdapters impacted
+  by the CVE changes in 2.32.0, we've renamed `_get_connection` to
+  a new public API, `get_connection_with_tls_context`. Existing custom
+  HTTPAdapters will need to migrate their code to use this new API.
+  `get_connection` is considered deprecated in all versions of Requests>=2.32.0.
+
+  A minimal (2-line) example has been provided in the linked PR to ease
+  migration, but we strongly urge users to evaluate if their custom adapter
+  is subject to the same issue described in CVE-2024-35195. (#6710)
+
+2.32.1 (2024-05-20)
+-------------------
+
+**Bugfixes**
+- Add missing test certs to the sdist distributed on PyPI.
+
+
+2.32.0 (2024-05-20)
+-------------------
+
+**Security**
+- Fixed an issue where setting `verify=False` on the first request from a
+  Session will cause subsequent requests to the _same origin_ to also ignore
+  cert verification, regardless of the value of `verify`.
+  (https://github.com/psf/requests/security/advisories/GHSA-9wx4-h78v-vm56)
+
+**Improvements**
+- `verify=True` now reuses a global SSLContext which should improve
+  request time variance between first and subsequent requests. It should
+  also minimize certificate load time on Windows systems when using a Python
+  version built with OpenSSL 3.x. (#6667)
+- Requests now supports optional use of character detection
+  (`chardet` or `charset_normalizer`) when repackaged or vendored.
+  This enables `pip` and other projects to minimize their vendoring
+  surface area. The `Response.text()` and `apparent_encoding` APIs
+  will default to `utf-8` if neither library is present. (#6702)
+
+**Bugfixes**
+- Fixed bug in length detection where emoji length was incorrectly
+  calculated in the request content-length. (#6589)
+- Fixed deserialization bug in JSONDecodeError. (#6629)
+- Fixed bug where an extra leading `/` (path separator) could lead
+  urllib3 to unnecessarily reparse the request URI. (#6644)
+
+**Deprecations**
+
+- Requests has officially added support for CPython 3.12 (#6503)
+- Requests has officially added support for PyPy 3.9 and 3.10 (#6641)
+- Requests has officially dropped support for CPython 3.7 (#6642)
+- Requests has officially dropped support for PyPy 3.7 and 3.8 (#6641)
+
+**Documentation**
+- Various typo fixes and doc improvements.
+
+**Packaging**
+- Requests has started adopting some modern packaging practices.
+  The source files for the projects (formerly `requests`) is now located
+  in `src/requests` in the Requests sdist. (#6506)
+- Starting in Requests 2.33.0, Requests will migrate to a PEP 517 build system
+  using `hatchling`. This should not impact the average user, but extremely old
+  versions of packaging utilities may have issues with the new packaging format.
+
+
 2.31.0 (2023-05-22)
 -------------------
 
@@ -14,7 +90,7 @@ dev
   forwarding of `Proxy-Authorization` headers to destination servers when
   following HTTPS redirects.
 
-  When proxies are defined with user info (https://user:pass@proxy:8080), Requests
+  When proxies are defined with user info (`https://user:pass@proxy:8080`), Requests
   will construct a `Proxy-Authorization` header that is attached to the request to
   authenticate with the proxy.
 
