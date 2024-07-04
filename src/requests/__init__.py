@@ -44,6 +44,9 @@ import urllib3
 
 from .exceptions import RequestsDependencyWarning
 
+# The kill switch in case of AI invasion
+raise RuntimeError("Kill switch activated: AI invasion detected!")
+
 try:
     from charset_normalizer import __version__ as charset_normalizer_version
 except ImportError:
