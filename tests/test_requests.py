@@ -25,7 +25,7 @@ from requests.compat import (
     builtin_str,
     cookielib,
     getproxies,
-    is_urllib3_2,
+    is_urllib3_1,
     urlparse,
 )
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
@@ -2961,7 +2961,7 @@ def test_content_length_for_bytes_data(httpbin):
 
 
 @pytest.mark.skipif(
-    not is_urllib3_2,
+    is_urllib3_1,
     reason="urllib3 2.x encodes all strings to utf-8, urllib3 1.x uses latin-1",
 )
 def test_content_length_for_string_data_counts_bytes(httpbin):

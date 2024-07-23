@@ -38,7 +38,7 @@ from .compat import (
     getproxies,
     getproxies_environment,
     integer_types,
-    is_urllib3_2,
+    is_urllib3_1,
 )
 from .compat import parse_http_list as _parse_list_header
 from .compat import (
@@ -137,8 +137,8 @@ def super_len(o):
     total_length = None
     current_position = 0
 
-    if is_urllib3_2 and isinstance(o, str):
-        # urllib3 2.x treats all strings as utf-8 instead
+    if not is_urllib3_1 and isinstance(o, str):
+        # urllib3 2.x+ treats all strings as utf-8 instead
         # of latin-1 (iso-8859-1) like http.client.
         o = o.encode("utf-8")
 
