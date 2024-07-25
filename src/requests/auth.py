@@ -104,6 +104,17 @@ class HTTPProxyAuth(HTTPBasicAuth):
         return r
 
 
+class HTTPHeaderAuth(AuthBase):
+    """Attaches authentication headers to the given Request object."""
+
+    def __init__(self, headers):
+        self.headers = headers
+
+    def __call__(self, r):
+        r.headers.update(self.headers)
+        return r
+
+
 class HTTPDigestAuth(AuthBase):
     """Attaches HTTP Digest Authentication to the given Request object."""
 

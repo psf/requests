@@ -17,7 +17,7 @@ from urllib3.util import Timeout as Urllib3Timeout
 
 import requests
 from requests.adapters import HTTPAdapter
-from requests.auth import HTTPDigestAuth, _basic_auth_str
+from requests.auth import HTTPDigestAuth, HTTPHeaderAuth, _basic_auth_str
 from requests.compat import (
     JSONDecodeError,
     Morsel,
@@ -702,6 +702,43 @@ class TestRequests:
             assert r.status_code == 401
         finally:
             requests.sessions.get_netrc_auth = old_auth
+
+    def test_header_auth(self, httpbin):
+        header_key = "Test-Header"
+        header_value = "1234567890ABCDEF"
+        auth = HTTPHeaderAuth({header_key: header_value})
+        url = httpbin("headers")
+
+        # Check header exists
+        r = requests.get(url, auth=auth)
+        assert r.json()["headers"][header_key] == header_value
+
+        # Make sure it's not a fluke
+        r = requests.get(url)
+        assert header_key not in r.json()["headers"]
+
+        # Verify auth header overrides provided headers
+        #  (not strictly a feature, but it's current behavior)
+        second_header_value = "NOT_RETURNED"
+        r = requests.get(url, headers={header_key: second_header_value}, auth=auth)
+        assert r.json()["headers"][header_key] == header_value
+
+        # Test with session
+        s = requests.session()
+        s.auth = auth
+        r = s.get(url)
+        assert r.json()["headers"][header_key] == header_value
+
+        # verify session header override
+        r = s.get(url, headers={header_key: second_header_value})
+        assert r.json()["headers"][header_key] == header_value
+
+        # Check sure multiple headers works
+        header_keys = ("Header-One", "Header-Two")
+        auth = HTTPHeaderAuth({key: key for key in header_keys})
+        r = requests.get(url, auth=auth)
+        returned_keys = r.json()["headers"].keys()
+        assert all(key in returned_keys for key in header_keys)
 
     def test_DIGEST_HTTP_200_OK_GET(self, httpbin):
         for authtype in self.digest_auth_algo:
