@@ -325,6 +325,16 @@ class HTTPAdapter(BaseAdapter):
                 cert_loc = verify
 
                 if not os.path.exists(cert_loc):
+                    # Need to handle if multiple paths/cert files in 'REQUESTS_CA_BUNDLE' environment variable
+                    if ";" in cert_loc:
+                        # get non-empty path strings
+                        paths = [p for p in cert_loc.split(";") if p]
+                        if len(paths) > 1:
+                            raise OSError(
+                                f"Need to specify one global CA certificate file, "
+                                f"invalid paths: {"\n".join(paths)}"
+                            )
+                            
                     raise OSError(
                         f"Could not find a suitable TLS CA certificate bundle, "
                         f"invalid path: {cert_loc}"
