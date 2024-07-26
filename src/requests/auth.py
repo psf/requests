@@ -124,16 +124,37 @@ class HTTPDigestAuth(AuthBase):
             self._thread_local.num_401_calls = None
 
     @staticmethod
-    def encode_to_bytes(data, encoding="latin-1"):
+    def _encode_data(data, encoding="latin-1"):
         """
         This function encodes input data to bytes using the specified
         encoding (default is Latin-1). It returns the encoded data as bytes.
         :rtype: bytes
         """
-        if type(data) == bytes:
+        if type(data) is bytes:
             return data
         str_data = str(data)
-        return str_data.encode(encoding)
+        try:
+            return str_data.encode(encoding)
+        except UnicodeEncodeError:
+            warnings.warn(
+                "This data will be encoded with UTF-8 because the provided "
+                "encoding could not handle some characters.",
+                category=UnicodeWarning,
+            )
+            return HTTPDigestAuth._encode_data(data, 'utf-8')
+
+
+    @staticmethod
+    def _decode_data(data, encoding="utf-8"):
+        """
+        This function decodes input data from bytes using the specified
+        encoding (default is UTF-8). It returns the decoded data as a string.
+        :rtype: str
+        """
+        if type(data) is not bytes:
+            return data
+        return data.decode(encoding)
+
 
     def build_digest_header(self, method, url):
         """
@@ -198,9 +219,9 @@ class HTTPDigestAuth(AuthBase):
         if p_parsed.query:
             path += f"?{p_parsed.query}"
 
-        username = self.encode_to_bytes(self.username)
-        realm = self.encode_to_bytes(realm)
-        password = self.encode_to_bytes(self.password)
+        username = self._encode_data(self.username)
+        realm = self._encode_data(realm)
+        password = self._encode_data(self.password)
 
         A1 = b':'.join([username, realm, password])
         A2 = f"{method}:{path}"
@@ -234,9 +255,12 @@ class HTTPDigestAuth(AuthBase):
         self._thread_local.last_nonce = nonce
 
         # XXX should the partial digests be encoded too?
+        decoded_username = self._decode_data(username)
+        decoded_realm = self._decode_data(realm)
+        decoded_nonce = self._decode_data(nonce)
         base = (
-            f'username="{self.username}", realm="{realm}", nonce="{nonce}", '
-            f'uri="{path}", response="{respdig}"'
+            f'username="{decoded_username}", realm="{decoded_realm}", '
+            f'nonce="{decoded_nonce}", uri="{path}", response="{respdig}"'
         )
         if opaque:
             base += f', opaque="{opaque}"'
