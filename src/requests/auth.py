@@ -202,7 +202,7 @@ class HTTPDigestAuth(AuthBase):
         realm = self.encode_to_bytes(realm)
         password = self.encode_to_bytes(self.password)
 
-        A1 = f"{username}:{realm}:{password}"
+        A1 = b':'.join([username, realm, password])
         A2 = f"{method}:{path}"
 
         HA1 = hash_utf8(A1)
