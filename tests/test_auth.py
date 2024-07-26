@@ -5,7 +5,6 @@ from src.requests.auth import HTTPDigestAuth
 
 
 class TestDigestAuth:
-
     def _build_a_digest_auth(self, user, password):
         auth = HTTPDigestAuth(user, password)
         auth.init_per_thread_state()
