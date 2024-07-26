@@ -140,11 +140,10 @@ class HTTPDigestAuth(AuthBase):
                 "encoding could not handle some characters.",
                 category=UnicodeWarning,
             )
-            if codec != 'utf-8':
-                return HTTPDigestAuth._encode_data(data, 'utf-8')
+            if codec != "utf-8":
+                return HTTPDigestAuth._encode_data(data, "utf-8")
             else:
                 raise UnicodeEncodeError("Cannot encode the provided data...")
-
 
     @staticmethod
     def _decode_data(data, codec):
@@ -160,9 +159,8 @@ class HTTPDigestAuth(AuthBase):
                 "No encoding provided. The data will be decoded using UTF-8.",
                 category=UnicodeWarning,
             )
-            codec = 'utf-8'
+            codec = "utf-8"
         return data.decode(codec)
-
 
     def build_digest_header(self, method, url):
         """
@@ -231,7 +229,7 @@ class HTTPDigestAuth(AuthBase):
         realm, realm_codec = self._encode_data(realm)
         password, _ = self._encode_data(self.password)
 
-        A1 = b':'.join([username, realm, password])
+        A1 = b":".join([username, realm, password])
         A2 = f"{method}:{path}"
 
         HA1 = hash_utf8(A1)
