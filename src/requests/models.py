@@ -422,7 +422,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         url = url.lstrip()
 
         # Don't do any URL preparation for non-HTTP schemes like `mailto`,
-        # `data` etc to work around exceptions from `url_parse`, which
+        # `data` etc. to work around exceptions from `url_parse`, which
         # handles RFC 3986 only.
         if ":" in url and not url.lower().startswith("http"):
             self.url = url
@@ -494,8 +494,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_body(self, data, files, json=None):
         """Prepares the given HTTP body data."""
 
-        # Check if file, fo, generator, iterator.
-        # If not, run through normal process.
+        # Check if it's a file, fo, generator, iterator.
+        # If not, run through the normal process.
 
         # Nottin' on you.
         body = None
@@ -956,7 +956,7 @@ class Response:
             # No encoding set. JSON RFC 4627 section 3 states we should expect
             # UTF-8, -16 or -32. Detect which one to use; If the detection or
             # decoding fails, fall back to `self.text` (using charset_normalizer to make
-            # a best guess).
+            # the best guess).
             encoding = guess_json_utf(self.content)
             if encoding is not None:
                 try:
