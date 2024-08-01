@@ -81,9 +81,10 @@ try:
     _preloaded_ssl_context.load_verify_locations(
         extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH)
     )
-except ImportError:
+except (ImportError, FileNotFoundError):
     # Bypass default SSLContext creation when Python
-    # interpreter isn't built with the ssl module.
+    # interpreter isn't built with the ssl module, or
+    # DEFAULT_CA_BUNDLE_PATH isn't present
     _preloaded_ssl_context = None
 
 
