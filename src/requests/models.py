@@ -87,6 +87,10 @@ class NewModel:
 
     def display(self):
         print(f"{self.name}: {self.value}")
+    
+    def update_value(self, new_value):
+        self.value = new_value
+
 
 class RequestEncodingMixin:
     @property
