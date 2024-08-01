@@ -80,6 +80,13 @@ DEFAULT_REDIRECT_LIMIT = 30
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
 
+class NewModel:
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+    def display(self):
+        print(f"{self.name}: {self.value}")
 
 class RequestEncodingMixin:
     @property
