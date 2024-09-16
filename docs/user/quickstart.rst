@@ -317,6 +317,18 @@ Requests makes it simple to upload Multipart-encoded files::
       ...
     }
 
+In general, however, you should not use ``open()`` like this. We are using it
+this way to make the examples more direct (in REPL). Ideally, ``open()``
+should always be used in a ``with``-statement, to make sure the file
+descriptor is properly closed afterwards::
+
+    url = 'https://httpbin.org/post'
+    with open('report.xls', 'rb') as fd:
+        files = {'file': fd}
+        r = requests.post(url, files=files)
+    # `r` can be used outside the with-statement context now
+    print(r.text)
+
 You can set the filename, content_type and headers explicitly::
 
     >>> url = 'https://httpbin.org/post'
