@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "pypy-3.9", "pypy-3.10"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy-3.9", "pypy-3.10"]
         os: [ubuntu-22.04, macOS-latest, windows-latest]
         # Python 3.8 and 3.9 do not run on macOS-latest which
         # is now using arm64 hardware.
@@ -31,6 +31,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
+        allow-prereleases: true
     - name: Install dependencies
       run: |
         make

@@ -40,7 +40,7 @@ requires = [
     "certifi>=2017.4.17",
 ]
 test_requirements = [
-    "pytest-httpbin==2.0.0",
+    "pytest-httpbin==2.1.0",
     "pytest-cov",
     "pytest-mock",
     "pytest-xdist",
@@ -87,6 +87,7 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
