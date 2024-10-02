@@ -19,7 +19,6 @@ env/
 .tox/
 .pytest_cache/
 .vscode/
-.eggs/
 
 .workon
 
