@@ -305,9 +305,10 @@ POST a Multipart-Encoded File
 Requests makes it simple to upload Multipart-encoded files::
 
     >>> url = 'https://httpbin.org/post'
-    >>> files = {'file': open('report.xls', 'rb')}
+    >>> with open('report.xls', 'rb') as fd:
+    ...     files = {'file': fd}
 
-    >>> r = requests.post(url, files=files)
+    ...     r = requests.post(url, files=files)
     >>> r.text
     {
       ...
@@ -320,9 +321,10 @@ Requests makes it simple to upload Multipart-encoded files::
 You can set the filename, content_type and headers explicitly::
 
     >>> url = 'https://httpbin.org/post'
-    >>> files = {'file': ('report.xls', open('report.xls', 'rb'), 'application/vnd.ms-excel', {'Expires': '0'})}
+    >>> with open('report.xls', 'rb') as fd:
+    ...     files = {'file': ('report.xls', fd, 'application/vnd.ms-excel', {'Expires': '0'})}
 
-    >>> r = requests.post(url, files=files)
+    ...     r = requests.post(url, files=files)
     >>> r.text
     {
       ...
