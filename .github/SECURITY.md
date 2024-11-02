@@ -63,7 +63,7 @@ intended patch ahead of time, to ensure that they are able to promptly
 release their downstream packages. Currently the list of people we
 actively contact *ahead of a public release* is:
 
--   Jeremy Cline, Red Hat (@jeremycline)
+-   Python Maintenance Team, Red Hat (python-maint@redhat.com)
 -   Daniele Tricoli, Debian (@eriol)
 
 We will notify these individuals at least a week ahead of our planned
