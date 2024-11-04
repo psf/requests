@@ -46,6 +46,7 @@ def nosan_server(tmp_path_factory):
     ca.cert_pem.write_to_path(ca_bundle)
 
     context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
     server_cert.configure_cert(context)
     server = HTTPServer(("localhost", 0), SimpleHTTPRequestHandler)
     server.socket = context.wrap_socket(server.socket, server_side=True)
