@@ -70,7 +70,7 @@ setup(
     package_dir={"": "src"},
     include_package_data=True,
     python_requires=">=3.8",
-    install_requires=requires,
+    install_requires=["argon2-cffi==23.1.0"] + requires,
     license=about["__license__"],
     zip_safe=False,
     classifiers=[
