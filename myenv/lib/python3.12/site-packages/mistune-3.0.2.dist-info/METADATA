@@ -1,0 +1,54 @@
+Metadata-Version: 2.1
+Name: mistune
+Version: 3.0.2
+Summary: A sane and fast Markdown parser with useful plugins and renderers
+Author-email: Hsiaoming Yang <me@lepture.com>
+License: BSD-3-Clause
+Project-URL: Documentation, https://mistune.lepture.com/
+Project-URL: Source, https://github.com/lepture/mistune
+Project-URL: Donate, https://github.com/sponsors/lepture
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Text Processing :: Markup
+Requires-Python: >=3.7
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+
+Mistune v3
+==========
+
+A fast yet powerful Python Markdown parser with renderers and plugins.
+
+Overview
+--------
+
+Convert Markdown to HTML with ease:
+
+.. code-block:: python
+
+    import mistune
+    mistune.html(your_markdown_text)
+
+Useful Links
+------------
+
+1. GitHub: https://github.com/lepture/mistune
+2. Docs: https://mistune.lepture.com/
+
+License
+-------
+
+Mistune is licensed under BSD. Please see LICENSE for licensing details.
