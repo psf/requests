@@ -51,7 +51,7 @@ from .exceptions import MissingSchema
 from .exceptions import SSLError as RequestsSSLError
 from .exceptions import StreamConsumedError
 from .hooks import default_hooks
-from .status_codes import codes, http_status_map, HttpStatus
+from .status_codes import codes
 from .structures import CaseInsensitiveDict
 from .utils import (
     check_header_validity,
