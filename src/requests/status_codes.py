@@ -19,6 +19,16 @@ the names are allowed. For example, ``codes.ok``, ``codes.OK``, and
 """
 
 from .structures import LookupDict
+from enum import Enum
+
+
+class HttpStatus(Enum):
+    INFORMATIONAL = 1
+    SUCCESSFUL = 2
+    REDIRECTION = 3
+    CLIENT_ERROR = 4
+    SERVER_ERROR = 5
+
 
 _codes = {
     # Informational.
@@ -101,6 +111,15 @@ _codes = {
     509: ("bandwidth_limit_exceeded", "bandwidth"),
     510: ("not_extended",),
     511: ("network_authentication_required", "network_auth", "network_authentication"),
+}
+
+# Precomputed mapping of status code groups to corresponding HttpStatus categories
+http_status_map = {
+    HttpStatus.INFORMATIONAL.value: HttpStatus.INFORMATIONAL,
+    HttpStatus.SUCCESSFUL.value: HttpStatus.SUCCESSFUL,
+    HttpStatus.REDIRECTION.value: HttpStatus.REDIRECTION,
+    HttpStatus.CLIENT_ERROR.value: HttpStatus.CLIENT_ERROR,
+    HttpStatus.SERVER_ERROR.value: HttpStatus.SERVER_ERROR,
 }
 
 codes = LookupDict(name="status_codes")

@@ -51,7 +51,7 @@ from .exceptions import MissingSchema
 from .exceptions import SSLError as RequestsSSLError
 from .exceptions import StreamConsumedError
 from .hooks import default_hooks
-from .status_codes import codes
+from .status_codes import codes, http_status_map, HttpStatus
 from .structures import CaseInsensitiveDict
 from .utils import (
     check_header_validity,
@@ -782,6 +782,31 @@ class Response:
         )
 
     @property
+    def is_1xx_informational(self):
+        """True if the status code is an informational (1xx)"""
+        return self.get_status_group() == HttpStatus.INFORMATIONAL
+
+    @property
+    def is_2xx_successful(self):
+        """True if the status code is a successful (2xx) response."""
+        return self.get_status_group() == HttpStatus.SUCCESSFUL
+
+    @property
+    def is_3xx_redirection(self):
+        """True if the status code is a redirection (3xx)."""
+        return self.get_status_group() == HttpStatus.REDIRECTION
+
+    @property
+    def is_4xx_client_error(self):
+        """True if the status code is a client error (4xx)."""
+        return self.get_status_group() == HttpStatus.CLIENT_ERROR
+
+    @property
+    def is_5xx_server_error(self):
+        """True if the status code is a server error (5xx)."""
+        return self.get_status_group() == HttpStatus.SERVER_ERROR
+
+    @property
     def next(self):
         """Returns a PreparedRequest for the next request in a redirect chain, if there is one."""
         return self._next
@@ -1022,6 +1047,17 @@ class Response:
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)
+
+    def get_status_group(self) -> HttpStatus:
+        """
+        Determine the HTTP status group (1xx, 2xx, 3xx, 4xx, 5xx) based on the status code.
+
+        This method divides the status code by 100 to extract the group (e.g., 2xx, 3xx, etc.)
+        and returns the corresponding HttpStatus enum.
+
+        :return: The HttpStatus group (Informational, Successful, Redirection, Client Error, or Server Error).
+        """
+        return http_status_map.get(self.status_code // 100)
 
     def close(self):
         """Releases the connection back to the pool. Once this method has been
