@@ -306,6 +306,21 @@ class TestRequests:
         assert r.history[0].status_code == 303
         assert r.history[0].is_redirect
 
+    def test_HTTP_2xx_successful(self, httpbin):
+        response = requests.get(httpbin("/status/200"))
+        assert response.status_code == 200
+        assert response.is_2xx_successful
+
+    def test_HTTP_4xx_client_error(self, httpbin):
+        response = requests.get(httpbin("/status/404"))
+        assert response.status_code == 404
+        assert response.is_4xx_client_error
+
+    def test_HTTP_5xx_server_error(self, httpbin):
+        response = requests.get(httpbin("/status/503"))
+        assert response.status_code == 503
+        assert response.is_5xx_server_error
+
     def test_header_and_body_removal_on_redirect(self, httpbin):
         purged_headers = ("Content-Length", "Content-Type")
         ses = requests.Session()
