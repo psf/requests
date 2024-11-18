@@ -8,8 +8,9 @@ This module contains the primary objects that power Requests.
 import datetime
 
 # Import encoding now, to avoid implicit import later.
-# Implicit import within threads may cause LookupError when standard library is in a ZIP,
-# such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
+# Implicit import within threads may cause LookupError when standard library
+# is in a ZIP, such as in Embedded Python. See
+# https://github.com/psf/requests/issues/3578.
 import encodings.idna  # noqa: F401
 from io import UnsupportedOperation
 
@@ -108,8 +109,8 @@ class RequestEncodingMixin:
         """Encode parameters in a piece of data.
 
         Will successfully encode parameters when passed as a dict or a list of
-        2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
-        if parameters are supplied as a dict.
+        2-tuples. Order is retained if data is a list of 2-tuples but
+        arbitrary if parameters are supplied as a dict.
         """
 
         if isinstance(data, (str, bytes)):
@@ -140,8 +141,9 @@ class RequestEncodingMixin:
         Will successfully encode files when passed as a dict or a list of
         tuples. Order is retained if data is a list of tuples but arbitrary
         if parameters are supplied as a dict.
-        The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, contentype)
-        or 4-tuples (filename, fileobj, contentype, custom_headers).
+        The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename,
+        fileobj, contentype) or 4-tuples (filename, fileobj, contentype,
+        custom_headers).
         """
         if not files:
             raise ValueError("Files must be provided.")
@@ -157,15 +159,18 @@ class RequestEncodingMixin:
                 val = [val]
             for v in val:
                 if v is not None:
-                    # Don't call str() on bytestrings: in Py3 it all goes wrong.
+                    # Don't call str() on bytestrings: in Py3 it all goes
+                    # wrong.
                     if not isinstance(v, bytes):
                         v = str(v)
 
                     new_fields.append(
                         (
-                            field.decode("utf-8")
-                            if isinstance(field, bytes)
-                            else field,
+                            (
+                                field.decode("utf-8")
+                                if isinstance(field, bytes)
+                                else field
+                            ),
                             v.encode("utf-8") if isinstance(v, str) else v,
                         )
                     )
@@ -208,12 +213,16 @@ class RequestHooksMixin:
         """Properly register a hook."""
 
         if event not in self.hooks:
-            raise ValueError(f'Unsupported event specified, with event name "{event}"')
+            raise ValueError(
+                f'Unsupported event specified, with event name "{event}"'
+            )
 
         if isinstance(hook, Callable):
             self.hooks[event].append(hook)
         elif hasattr(hook, "__iter__"):
-            self.hooks[event].extend(h for h in hook if isinstance(h, Callable))
+            self.hooks[event].extend(
+                h for h in hook if isinstance(h, Callable)
+            )
 
     def deregister_hook(self, event, hook):
         """Deregister a previously registered hook.
@@ -230,21 +239,25 @@ class RequestHooksMixin:
 class Request(RequestHooksMixin):
     """A user-created :class:`Request <Request>` object.
 
-    Used to prepare a :class:`PreparedRequest <PreparedRequest>`, which is sent to the server.
+    Used to prepare a :class:`PreparedRequest <PreparedRequest>`, which is
+    sent to the server.
 
     :param method: HTTP method to use.
     :param url: URL to send.
     :param headers: dictionary of headers to send.
-    :param files: dictionary of {filename: fileobject} files to multipart upload.
+    :param files: dictionary of {filename: fileobject} files to multipart
+        upload.
     :param data: the body to attach to the request. If a dictionary or
         list of tuples ``[(key, value)]`` is provided, form-encoding will
         take place.
-    :param json: json for the body to attach to the request (if files or data is not specified).
+    :param json: json for the body to attach to the request (if files or data
+        is not specified).
     :param params: URL parameters to append to the URL. If a dictionary or
         list of tuples ``[(key, value)]`` is provided, form-encoding will
         take place.
     :param auth: Auth handler or (user, pass) tuple.
-    :param cookies: dictionary or CookieJar of cookies to attach to this request.
+    :param cookies: dictionary or CookieJar of cookies to attach to this
+        request.
     :param hooks: dictionary of callback hooks, for internal usage.
 
     Usage::
@@ -293,7 +306,8 @@ class Request(RequestHooksMixin):
         return f"<Request [{self.method}]>"
 
     def prepare(self):
-        """Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it."""
+        """Constructs a :class:`PreparedRequest <PreparedRequest>` for
+        transmission and returns it."""
         p = PreparedRequest()
         p.prepare(
             method=self.method,
@@ -443,10 +457,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if not host:
             raise InvalidURL(f"Invalid URL {url!r}: No host supplied")
 
-        # In general, we want to try IDNA encoding the hostname if the string contains
-        # non-ASCII characters. This allows users to automatically get the correct IDNA
-        # behaviour. For strings containing only ASCII characters, we need to also verify
-        # it doesn't start with a wildcard (*), before allowing the unencoded hostname.
+        # In general, we want to try IDNA encoding the hostname if the string
+        # contains non-ASCII characters. This allows users to automatically
+        # get the correct IDNA behaviour. For strings containing only ASCII
+        # characters, we need to also verify it doesn't start with a wildcard
+        # (*), before allowing the unencoded hostname.
         if not unicode_is_ascii(host):
             try:
                 host = self._get_idna_encoded_host(host)
@@ -477,7 +492,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 query = enc_params
 
-        url = requote_uri(urlunparse([scheme, netloc, path, None, query, fragment]))
+        url = requote_uri(
+            urlunparse([scheme, netloc, path, None, query, fragment])
+        )
         self.url = url
 
     def prepare_headers(self, headers):
@@ -614,9 +631,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         given cookies using cookielib. Due to cookielib's design, the header
         will not be regenerated if it already exists, meaning this function
         can only be called once for the life of the
-        :class:`PreparedRequest <PreparedRequest>` object. Any subsequent calls
-        to ``prepare_cookies`` will have no actual effect, unless the "Cookie"
-        header is removed beforehand.
+        :class:`PreparedRequest <PreparedRequest>` object. Any subsequent
+        calls to ``prepare_cookies`` will have no actual effect, unless the
+        "Cookie" header is removed beforehand.
         """
         if isinstance(cookies, cookielib.CookieJar):
             self._cookies = cookies
@@ -681,7 +698,8 @@ class Response:
 
         #: A list of :class:`Response <Response>` objects from
         #: the history of the Request. Any redirect responses will end
-        #: up here. The list is sorted from the oldest to the most recent request.
+        #: up here. The list is sorted from the oldest to the most recent
+        # request.
         self.history = []
 
         #: Textual reason of responded HTTP Status, e.g. "Not Found" or "OK".
@@ -768,10 +786,13 @@ class Response:
 
     @property
     def is_redirect(self):
-        """True if this Response is a well-formed HTTP redirect that could have
-        been processed automatically (by :meth:`Session.resolve_redirects`).
+        """True if this Response is a well-formed HTTP redirect that could
+        have been processed automatically
+        (by :meth:`Session.resolve_redirects`).
         """
-        return "location" in self.headers and self.status_code in REDIRECT_STATI
+        return (
+            "location" in self.headers and self.status_code in REDIRECT_STATI
+        )
 
     @property
     def is_permanent_redirect(self):
@@ -783,12 +804,14 @@ class Response:
 
     @property
     def next(self):
-        """Returns a PreparedRequest for the next request in a redirect chain, if there is one."""
+        """Returns a PreparedRequest for the next request in a redirect chain,
+        if there is one."""
         return self._next
 
     @property
     def apparent_encoding(self):
-        """The apparent encoding, provided by the charset_normalizer or chardet libraries."""
+        """The apparent encoding, provided by the charset_normalizer or
+        chardet libraries."""
         if chardet is not None:
             return chardet.detect(self.content)["encoding"]
         else:
@@ -840,7 +863,8 @@ class Response:
             raise StreamConsumedError()
         elif chunk_size is not None and not isinstance(chunk_size, int):
             raise TypeError(
-                f"chunk_size must be an int, it is instead a {type(chunk_size)}."
+                f"chunk_size must be an int, it is instead a "
+                f"{type(chunk_size)}."
             )
         # simulate reading small chunks of the content
         reused_chunks = iter_slices(self._content, chunk_size)
@@ -894,12 +918,16 @@ class Response:
         if self._content is False:
             # Read the contents.
             if self._content_consumed:
-                raise RuntimeError("The content for this response was already consumed")
+                raise RuntimeError(
+                    "The content for this response was already consumed"
+                )
 
             if self.status_code == 0 or self.raw is None:
                 self._content = None
             else:
-                self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+                self._content = (
+                    b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+                )
 
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3
@@ -913,10 +941,11 @@ class Response:
         If Response.encoding is None, encoding will be guessed using
         ``charset_normalizer`` or ``chardet``.
 
-        The encoding of the response content is determined based solely on HTTP
-        headers, following RFC 2616 to the letter. If you can take advantage of
-        non-HTTP knowledge to make a better guess at the encoding, you should
-        set ``r.encoding`` appropriately before accessing this property.
+        The encoding of the response content is determined based solely on
+        HTTP headers, following RFC 2616 to the letter. If you can take
+        advantage of non-HTTP knowledge to make a better guess at the
+        encoding, you should set ``r.encoding`` appropriately before accessing
+        this property.
         """
 
         # Try charset from content-type
@@ -934,8 +963,8 @@ class Response:
         try:
             content = str(self.content, encoding, errors="replace")
         except (LookupError, TypeError):
-            # A LookupError is raised if the encoding was not found which could
-            # indicate a misspelling or similar mistake.
+            # A LookupError is raised if the encoding was not found which
+            # could indicate a misspelling or similar mistake.
             #
             # A TypeError can be raised if encoding is None
             #
@@ -948,19 +977,21 @@ class Response:
         r"""Returns the json-encoded content of a response, if any.
 
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
-        :raises requests.exceptions.JSONDecodeError: If the response body does not
-            contain valid json.
+        :raises requests.exceptions.JSONDecodeError: If the response body does
+            not contain valid json.
         """
 
         if not self.encoding and self.content and len(self.content) > 3:
             # No encoding set. JSON RFC 4627 section 3 states we should expect
             # UTF-8, -16 or -32. Detect which one to use; If the detection or
-            # decoding fails, fall back to `self.text` (using charset_normalizer to make
-            # a best guess).
+            # decoding fails, fall back to `self.text` (using
+            # charset_normalizer to make a best guess).
             encoding = guess_json_utf(self.content)
             if encoding is not None:
                 try:
-                    return complexjson.loads(self.content.decode(encoding), **kwargs)
+                    return complexjson.loads(
+                        self.content.decode(encoding), **kwargs
+                    )
                 except UnicodeDecodeError:
                     # Wrong UTF codec detected; usually because it's not UTF-8
                     # but some other 8-bit codec.  This is an RFC violation,
@@ -1011,14 +1042,12 @@ class Response:
             reason = self.reason
 
         if 400 <= self.status_code < 500:
-            http_error_msg = (
-                f"{self.status_code} Client Error: {reason} for url: {self.url}"
-            )
+            http_error_msg = f"{self.status_code} Client Error: {reason} for "
+            f"url: {self.url}"
 
         elif 500 <= self.status_code < 600:
-            http_error_msg = (
-                f"{self.status_code} Server Error: {reason} for url: {self.url}"
-            )
+            http_error_msg = f"{self.status_code} Server Error: {reason} for "
+            f"url: {self.url}"
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)

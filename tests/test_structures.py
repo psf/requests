@@ -32,7 +32,10 @@ class TestCaseInsensitiveDict:
         ]
 
     def test_repr(self):
-        assert repr(self.case_insensitive_dict) == "{'Accept': 'application/json'}"
+        assert (
+            repr(self.case_insensitive_dict)
+            == "{'Accept': 'application/json'}"
+        )
 
     def test_copy(self):
         copy = self.case_insensitive_dict.copy()
