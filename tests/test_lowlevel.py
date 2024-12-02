@@ -334,7 +334,7 @@ def test_redirect_rfc1808_to_non_ascii_location():
         assert len(r.history) == 1
         assert r.history[0].status_code == 301
         assert redirect_request[0].startswith(b'GET /' + expected_path + b' HTTP/1.1')
-        assert r.url == '{}/{}'.format(url, expected_path.decode('ascii'))
+        assert r.url == f"{url}/{expected_path.decode('ascii')}"
 
         close_server.set()
 

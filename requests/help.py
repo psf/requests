@@ -47,10 +47,10 @@ def _implementation():
     if implementation == "CPython":
         implementation_version = platform.python_version()
     elif implementation == "PyPy":
-        implementation_version = "{}.{}.{}".format(
-            sys.pypy_version_info.major,
-            sys.pypy_version_info.minor,
-            sys.pypy_version_info.micro,
+        implementation_version = (
+            f"{sys.pypy_version_info.major}."
+            f"{sys.pypy_version_info.minor}."
+            f"{sys.pypy_version_info.micro}"
         )
         if sys.pypy_version_info.releaselevel != "final":
             implementation_version = "".join(

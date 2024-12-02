@@ -11,19 +11,17 @@ REQUIRED_PYTHON = (3, 7)
 
 if CURRENT_PYTHON < REQUIRED_PYTHON:
     sys.stderr.write(
-        """
+        f"""
 ==========================
 Unsupported Python version
 ==========================
-This version of Requests requires at least Python {}.{}, but
-you're trying to install it on Python {}.{}. To resolve this,
+This version of Requests requires at least Python {REQUIRED_PYTHON[0]}.{REQUIRED_PYTHON[1]}, but
+you're trying to install it on Python {CURRENT_PYTHON[0]}.{CURRENT_PYTHON[1]}. To resolve this,
 consider upgrading to a supported Python version.
 
 If you can't upgrade your Python version, you'll need to
 pin to an older version of Requests (<2.28).
-""".format(
-            *(REQUIRED_PYTHON + CURRENT_PYTHON)
-        )
+"""
     )
     sys.exit(1)
 
