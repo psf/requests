@@ -2216,6 +2216,36 @@ class TestRequests:
         assert not r.history[1].is_redirect
         assert r.url == urls_test[2]
 
+    def test_http_digest_auth_non_latin_credentials(self, httpbin):
+        auth = HTTPDigestAuth("Сергей_Ласточкин", "1234")
+        url = httpbin("digest-auth", "auth", "Сергей_Ласточкин", "1234", "MD5", "never")
+
+        r = requests.get(url, auth=auth)
+        assert r.status_code == 200
+
+        r = requests.get(url)
+        assert r.status_code == 401
+
+        s = requests.session()
+        s.auth = HTTPDigestAuth("Сергей_Ласточкин", "1234")
+        r = s.get(url)
+        assert r.status_code == 200
+
+    def test_http_digest_auth_non_latin_credentials_with_bytes(self, httpbin):
+        auth = HTTPDigestAuth("Сергей_Ласточкин".encode("utf-8"), "1234".encode("utf-8"))
+        url = httpbin("digest-auth", "auth", "Сергей_Ласточкин", "1234", "MD5", "never")
+
+        r = requests.get(url, auth=auth)
+        assert r.status_code == 200
+
+        r = requests.get(url)
+        assert r.status_code == 401
+
+        s = requests.session()
+        s.auth = HTTPDigestAuth("Сергей_Ласточкин".encode("utf-8"), "1234".encode("utf-8"))
+        r = s.get(url)
+        assert r.status_code == 200
+
 
 class TestCaseInsensitiveDict:
     @pytest.mark.parametrize(
@@ -2713,10 +2743,8 @@ class TestPreparingURLs:
     @pytest.mark.parametrize(
         "input, expected",
         (
-            (
-                b"http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
-                "http+unix://%2Fvar%2Frun%2Fsocket/path~",
-            ),
+            b"http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
+            "http+unix://%2Fvar%2Frun%2Fsocket/path~",
             (
                 "http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
                 "http+unix://%2Fvar%2Frun%2Fsocket/path~",
