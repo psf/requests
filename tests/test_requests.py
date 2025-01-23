@@ -704,22 +704,30 @@ class TestRequests:
         finally:
             requests.sessions.get_netrc_auth = old_auth
 
+
     def test_DIGEST_HTTP_200_OK_GET(self, httpbin):
-        for authtype in self.digest_auth_algo:
-            auth = HTTPDigestAuth("user", "pass")
-            url = httpbin("digest-auth", "auth", "user", "pass", authtype, "never")
 
-            r = requests.get(url, auth=auth)
-            assert r.status_code == 200
+        assert hasattr(self, "digest_auth_algo"), "digest_auth_algo is not defined."
 
-            r = requests.get(url)
-            assert r.status_code == 401
-            print(r.headers["WWW-Authenticate"])
+    for authtype in self.digest_auth_algo:
+        url = httpbin("digest-auth", "auth", "user", "pass", authtype, "never")
+        assert url, "httpbin did not return a valid URL."
 
-            s = requests.session()
-            s.auth = HTTPDigestAuth("user", "pass")
-            r = s.get(url)
-            assert r.status_code == 200
+        auth = HTTPDigestAuth("user", "pass")
+        response = requests.get(url, auth=auth)
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+
+        response = requests.get(url)
+        assert response.status_code == 401, f"Expected 401, got {response.status_code}"
+        www_authenticate = response.headers.get("WWW-Authenticate")
+        assert www_authenticate, "WWW-Authenticate header is missing in the 401 response."
+        print(www_authenticate)
+
+        with requests.Session() as session:
+            session.auth = HTTPDigestAuth("user", "pass")
+            response = session.get(url)
+            assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+
 
     def test_DIGEST_AUTH_RETURNS_COOKIE(self, httpbin):
         for authtype in self.digest_auth_algo:
