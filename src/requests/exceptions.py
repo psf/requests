@@ -4,6 +4,7 @@ requests.exceptions
 
 This module contains the set of Requests' exceptions.
 """
+import warnings
 from urllib3.exceptions import HTTPError as BaseHTTPError
 
 from .compat import JSONDecodeError as CompatJSONDecodeError
@@ -149,3 +150,13 @@ class FileModeWarning(RequestsWarning, DeprecationWarning):
 
 class RequestsDependencyWarning(RequestsWarning):
     """An imported dependency doesn't match the expected version range."""
+
+
+def __getattr__(name):
+    if name == "URLRequired":
+        warnings.warn(
+            "URLRequired exception is deprecated and will be removed in a future version.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return URLRequired
