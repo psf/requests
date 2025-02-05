@@ -61,10 +61,13 @@ class TestTestServer:
             assert r.headers["Content-Length"] == "0"
 
     def test_basic_waiting_server(self):
-        """the server waits for the block_server event to be set before closing"""
+        """the server waits for the block_server event to be set before
+        closing"""
         block_server = threading.Event()
 
-        with Server.basic_response_server(wait_to_close_event=block_server) as (
+        with Server.basic_response_server(
+            wait_to_close_event=block_server
+        ) as (
             host,
             port,
         ):
@@ -79,7 +82,9 @@ class TestTestServer:
         """multiple requests can be served"""
         requests_to_handle = 5
 
-        server = Server.basic_response_server(requests_to_handle=requests_to_handle)
+        server = Server.basic_response_server(
+            requests_to_handle=requests_to_handle
+        )
 
         with server as (host, port):
             server_url = f"http://{host}:{port}"
@@ -91,7 +96,9 @@ class TestTestServer:
             with pytest.raises(requests.exceptions.ConnectionError):
                 r = requests.get(server_url)
 
-    @pytest.mark.skip(reason="this fails non-deterministically under pytest-xdist")
+    @pytest.mark.skip(
+        reason="this fails non-deterministically under pytest-xdist"
+    )
     def test_request_recovery(self):
         """can check the requests content"""
         # TODO: figure out why this sometimes fails when using pytest-xdist.
@@ -142,7 +149,8 @@ class TestTestServer:
         assert server.handler_results[0] == data
 
     def test_server_finishes_on_error(self):
-        """the server thread exits even if an exception exits the context manager"""
+        """the server thread exits even if an exception exits the context
+        manager"""
         server = Server.basic_response_server()
         with pytest.raises(Exception):
             with server:
