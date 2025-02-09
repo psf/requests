@@ -336,6 +336,12 @@ class TestExtractZippedPaths:
         assert os.path.exists(extracted_path)
         assert filecmp.cmp(extracted_path, __file__)
 
+        # If we don't remove the extracted_path at the end of the test case,
+        # any subsequent changes to the current file will cause this particular
+        # test case to fail, since the extract_zipped_paths function does not
+        # rewrite a file to the extracted_path if a file already exists there.
+        os.remove(extracted_path)
+
     def test_invalid_unc_path(self):
         path = r"\\localhost\invalid\location"
         assert extract_zipped_paths(path) == path
