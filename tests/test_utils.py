@@ -104,20 +104,23 @@ class TestSuperLen:
             ("rb", 0),
         ),
     )
-    def test_file(self, tmpdir, mode, warnings_num, recwarn):
-        file_obj = tmpdir.join("test.txt")
-        file_obj.write("Test")
-        with file_obj.open(mode) as fd:
+    def test_file(self, tmp_path, mode, warnings_num, recwarn):
+        file_path = tmp_path / "test.txt"
+        with file_path.open("w") as file_obj:
+            file_obj.write("Test")
+
+        with file_path.open(mode) as fd:
             assert super_len(fd) == 4
         assert len(recwarn) == warnings_num
 
-    def test_tarfile_member(self, tmpdir):
-        file_obj = tmpdir.join("test.txt")
-        file_obj.write("Test")
+    def test_tarfile_member(self, tmp_path):
+        file_path = tmp_path / "test.txt"
+        with file_path.open("w") as file_obj:
+            file_obj.write("Test")
 
-        tar_obj = str(tmpdir.join("test.tar"))
+        tar_obj = str(tmp_path / "test.tar")
         with tarfile.open(tar_obj, "w") as tar:
-            tar.add(str(file_obj), arcname="test.txt")
+            tar.add(file_path, arcname="test.txt")
 
         with tarfile.open(tar_obj) as tar:
             member = tar.extractfile("test.txt")
@@ -323,13 +326,13 @@ class TestExtractZippedPaths:
     def test_unzipped_paths_unchanged(self, path):
         assert path == extract_zipped_paths(path)
 
-    def test_zipped_paths_extracted(self, tmpdir):
-        zipped_py = tmpdir.join("test.zip")
-        with zipfile.ZipFile(zipped_py.strpath, "w") as f:
+    def test_zipped_paths_extracted(self, tmp_path):
+        zipped_py = tmp_path / "test.zip"
+        with zipfile.ZipFile(str(zipped_py), "w") as f:
             f.write(__file__)
 
         _, name = os.path.splitdrive(__file__)
-        zipped_path = os.path.join(zipped_py.strpath, name.lstrip(r"\/"))
+        zipped_path = os.path.join(str(zipped_py), name.lstrip(r"\/"))
         extracted_path = extract_zipped_paths(zipped_path)
 
         assert extracted_path != zipped_path
