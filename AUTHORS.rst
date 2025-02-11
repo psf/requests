@@ -193,3 +193,4 @@ Patches and Suggestions
 - Sylvain Marié (`@smarie <https://github.com/smarie>`_)
 - Hod Bin Noon (`@hodbn <https://github.com/hodbn>`_)
 - Mike Fiedler (`@miketheman <https://github.com/miketheman>`_)
+- Linkai Zheng (`@Konano <https://github.com/Konano>`_)
