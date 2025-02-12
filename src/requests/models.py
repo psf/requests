@@ -946,6 +946,7 @@ class Response:
 
     def json(self, **kwargs):
         r"""Decodes the JSON response body (if any) as a Python object.
+
         This may return a dictionary, list, etc. depending on what is in the response.
 
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
