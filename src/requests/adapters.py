@@ -141,21 +141,30 @@ class BaseAdapter:
         super().__init__()
 
     def send(
-        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+        self,
+        request,
+        stream=False,
+        timeout=None,
+        verify=True,
+        cert=None,
+        proxies=None,
     ):
         """Sends PreparedRequest object. Returns Response object.
 
-        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being
+            sent.
         :param stream: (optional) Whether to stream the request content.
         :param timeout: (optional) How long to wait for the server to send
             data before giving up, as a float, or a :ref:`(connect timeout,
             read timeout) <timeouts>` tuple.
         :type timeout: float or tuple
-        :param verify: (optional) Either a boolean, in which case it controls whether we verify
-            the server's TLS certificate, or a string, in which case it must be a path
-            to a CA bundle to use
-        :param cert: (optional) Any user-provided SSL certificate to be trusted.
-        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :param verify: (optional) Either a boolean, controlling whether to
+            verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be
+            trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the
+            request.
         """
         raise NotImplementedError
 
@@ -181,7 +190,8 @@ class HTTPAdapter(BaseAdapter):
         connections. If you need granular control over the conditions under
         which we retry a request, import urllib3's ``Retry`` class and pass
         that instead.
-    :param pool_block: Whether the connection pool should block for connections.
+    :param pool_block: Whether the connection pool should block for
+        connections.
 
     Usage::
 
@@ -249,7 +259,8 @@ class HTTPAdapter(BaseAdapter):
         :param connections: The number of urllib3 connection pools to cache.
         :param maxsize: The maximum number of connections to save in the pool.
         :param block: Block when no free connections are available.
-        :param pool_kwargs: Extra keyword arguments used to initialize the Pool Manager.
+        :param pool_kwargs: Extra keyword arguments used to initialize the
+            Pool Manager.
         """
         # save these values for pickling
         self._pool_connections = connections
@@ -271,7 +282,8 @@ class HTTPAdapter(BaseAdapter):
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         :param proxy: The proxy to return a urllib3 ProxyManager for.
-        :param proxy_kwargs: Extra keyword arguments used to configure the Proxy Manager.
+        :param proxy_kwargs: Extra keyword arguments used to configure the
+            Proxy Manager.
         :returns: ProxyManager
         :rtype: urllib3.ProxyManager
         """
@@ -302,32 +314,33 @@ class HTTPAdapter(BaseAdapter):
         return manager
 
     def cert_verify(self, conn, url, verify, cert):
-        """Verify a SSL certificate. This method should not be called from user
-        code, and is only exposed for use when subclassing the
+        """Verify a SSL certificate. This method should not be called from
+        user code, and is only exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         :param conn: The urllib3 connection object associated with the cert.
         :param url: The requested URL.
-        :param verify: Either a boolean, in which case it controls whether we verify
-            the server's TLS certificate, or a string, in which case it must be a path
-            to a CA bundle to use
+        :param verify: Either a boolean, in which case it controls whether we
+            verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use.
         :param cert: The SSL certificate to verify.
         """
         if url.lower().startswith("https") and verify:
             conn.cert_reqs = "CERT_REQUIRED"
 
-            # Only load the CA certificates if 'verify' is a string indicating the CA bundle to use.
-            # Otherwise, if verify is a boolean, we don't load anything since
-            # the connection will be using a context with the default certificates already loaded,
-            # and this avoids a call to the slow load_verify_locations()
+            # Only load the CA certificates if 'verify' is a string indicating
+            # the CA bundle to use. Otherwise, if verify is a boolean, we
+            # don't load anything since the connection will be using a context
+            # with the default certificates already loaded, and this avoids a
+            # call to the slow load_verify_locations()
             if verify is not True:
                 # `verify` must be a str with a path then
                 cert_loc = verify
 
                 if not os.path.exists(cert_loc):
                     raise OSError(
-                        f"Could not find a suitable TLS CA certificate bundle, "
-                        f"invalid path: {cert_loc}"
+                        f"Could not find a suitable TLS CA certificate "
+                        f"bundle, invalid path: {cert_loc}"
                     )
 
                 if not os.path.isdir(cert_loc):
@@ -353,7 +366,8 @@ class HTTPAdapter(BaseAdapter):
                 )
             if conn.key_file and not os.path.exists(conn.key_file):
                 raise OSError(
-                    f"Could not find the TLS key file, invalid path: {conn.key_file}"
+                    f"Could not find the TLS key file, "
+                    f"invalid path: {conn.key_file}"
                 )
 
     def build_response(self, req, resp):
@@ -362,7 +376,8 @@ class HTTPAdapter(BaseAdapter):
         for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`
 
-        :param req: The :class:`PreparedRequest <PreparedRequest>` used to generate the response.
+        :param req: The :class:`PreparedRequest <PreparedRequest>` used to
+            generate the response.
         :param resp: The urllib3 response object.
         :rtype: requests.Response
         """
@@ -404,14 +419,14 @@ class HTTPAdapter(BaseAdapter):
         this writing, use the following to determine what keys may be in that
         dictionary:
 
-        * If ``verify`` is ``True``, ``"ssl_context"`` will be set and will be the
-          default Requests SSL Context
+        * If ``verify`` is ``True``, ``"ssl_context"`` will be set and will be
+          the default Requests SSL Context
         * If ``verify`` is ``False``, ``"ssl_context"`` will not be set but
-          ``"cert_reqs"`` will be set
-        * If ``verify`` is a string, (i.e., it is a user-specified trust bundle)
-          ``"ca_certs"`` will be set if the string is not a directory recognized
-          by :py:func:`os.path.isdir`, otherwise ``"ca_certs_dir"`` will be
-          set.
+          ``"cert_reqs"`` will be set.
+        * If ``verify`` is a string, (i.e., it is a user-specified trust
+          bundle) ``"ca_certs"`` will be set if the string is not a directory
+          recognized by :py:func:`os.path.isdir`, otherwise ``"ca_certs_dir"``
+          will be set.
         * If ``"cert"`` is specified, ``"cert_file"`` will always be set. If
           ``"cert"`` is a tuple with a second item, ``"key_file"`` will also
           be present
@@ -428,8 +443,8 @@ class HTTPAdapter(BaseAdapter):
             :class:`~requests.models.PreparedRequest`
         :param verify:
             Either a boolean, in which case it controls whether
-            we verify the server's TLS certificate, or a string, in which case it
-            must be a path to a CA bundle to use.
+            we verify the server's TLS certificate, or a string, in which case
+            it must be a path to a CA bundle to use.
         :param cert:
             (optional) Any user-provided SSL certificate for client
             authentication (a.k.a., mTLS). This may be a string (i.e., just
@@ -441,12 +456,17 @@ class HTTPAdapter(BaseAdapter):
             portion of the Pool Key including scheme, hostname, and port. The
             second is a dictionary of SSLContext related parameters.
         """
-        return _urllib3_request_context(request, verify, cert, self.poolmanager)
+        return _urllib3_request_context(
+            request, verify, cert, self.poolmanager
+        )
 
-    def get_connection_with_tls_context(self, request, verify, proxies=None, cert=None):
-        """Returns a urllib3 connection for the given request and TLS settings.
-        This should not be called from user code, and is only exposed for use
-        when subclassing the :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
+    def get_connection_with_tls_context(
+        self, request, verify, proxies=None, cert=None
+    ):
+        """Returns a urllib3 connection for the given request and TLS
+        settings. This should not be called from user code, and is only
+        exposed for use when subclassing the :class:`HTTPAdapter
+        <requests.adapters.HTTPAdapter>`.
 
         :param request:
             The :class:`PreparedRequest <PreparedRequest>` object to be sent
@@ -465,10 +485,12 @@ class HTTPAdapter(BaseAdapter):
         """
         proxy = select_proxy(request.url, proxies)
         try:
-            host_params, pool_kwargs = self.build_connection_pool_key_attributes(
-                request,
-                verify,
-                cert,
+            host_params, pool_kwargs = (
+                self.build_connection_pool_key_attributes(
+                    request,
+                    verify,
+                    cert,
+                )
             )
         except ValueError as e:
             raise InvalidURL(e, request=request)
@@ -501,14 +523,16 @@ class HTTPAdapter(BaseAdapter):
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
         :param url: The URL to connect to.
-        :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
+        :param proxies: (optional) A Requests-style dictionary of proxies used
+        on this request.
         :rtype: urllib3.ConnectionPool
         """
         warnings.warn(
             (
                 "`get_connection` has been deprecated in favor of "
-                "`get_connection_with_tls_context`. Custom HTTPAdapter subclasses "
-                "will need to migrate for Requests>=2.32.2. Please see "
+                "`get_connection_with_tls_context`."
+                "Custom HTTPAdapter subclasses will need to migrate for"
+                "Requests>=2.32.2. Please see "
                 "https://github.com/psf/requests/pull/6710 for more details."
             ),
             DeprecationWarning,
@@ -553,8 +577,10 @@ class HTTPAdapter(BaseAdapter):
         when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
-        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
-        :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs.
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being
+            sent.
+        :param proxies: A dictionary of schemes or schemes and hosts to proxy
+            URLs.
         :rtype: str
         """
         proxy = select_proxy(request.url, proxies)
@@ -584,7 +610,8 @@ class HTTPAdapter(BaseAdapter):
         when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
-        :param request: The :class:`PreparedRequest <PreparedRequest>` to add headers to.
+        :param request: The :class:`PreparedRequest <PreparedRequest>` to add
+            headers to.
         :param kwargs: The keyword arguments from the call to send().
         """
         pass
@@ -606,26 +633,37 @@ class HTTPAdapter(BaseAdapter):
         username, password = get_auth_from_url(proxy)
 
         if username:
-            headers["Proxy-Authorization"] = _basic_auth_str(username, password)
+            headers["Proxy-Authorization"] = _basic_auth_str(
+                username, password
+            )
 
         return headers
 
     def send(
-        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+        self,
+        request,
+        stream=False,
+        timeout=None,
+        verify=True,
+        cert=None,
+        proxies=None,
     ):
         """Sends PreparedRequest object. Returns Response object.
 
-        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being
+            sent.
         :param stream: (optional) Whether to stream the request content.
         :param timeout: (optional) How long to wait for the server to send
             data before giving up, as a float, or a :ref:`(connect timeout,
             read timeout) <timeouts>` tuple.
         :type timeout: float or tuple or urllib3 Timeout object
-        :param verify: (optional) Either a boolean, in which case it controls whether
-            we verify the server's TLS certificate, or a string, in which case it
-            must be a path to a CA bundle to use
-        :param cert: (optional) Any user-provided SSL certificate to be trusted.
-        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :param verify: (optional) Either a boolean, in which case it controls
+            whether we verify the server's TLS certificate, or a string, in
+            which case it must be a path to a CA bundle to use.
+        :param cert: (optional) Any user-provided SSL certificate to be
+            trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the
+            request.
         :rtype: requests.Response
         """
 
@@ -647,7 +685,9 @@ class HTTPAdapter(BaseAdapter):
             proxies=proxies,
         )
 
-        chunked = not (request.body is None or "Content-Length" in request.headers)
+        chunked = not (
+            request.body is None or "Content-Length" in request.headers
+        )
 
         if isinstance(timeout, tuple):
             try:
@@ -655,8 +695,9 @@ class HTTPAdapter(BaseAdapter):
                 timeout = TimeoutSauce(connect=connect, read=read)
             except ValueError:
                 raise ValueError(
-                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
-                    f"or a single float to set both timeouts to the same value."
+                    f"Invalid timeout {timeout}. Pass a (connect, read) "
+                    f"timeout tuple, or a single float to set both timeouts "
+                    f"to the same value."
                 )
         elif isinstance(timeout, TimeoutSauce):
             pass

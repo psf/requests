@@ -4,7 +4,8 @@ from requests.help import info
 
 
 def test_system_ssl():
-    """Verify we're actually setting system_ssl when it should be available."""
+    """Verify we're actually setting system_ssl when it should be
+    available."""
     assert info()["system_ssl"]["version"] != ""
 
 
@@ -22,6 +23,7 @@ def test_idna_without_version_attribute():
 
 
 def test_idna_with_version_attribute():
-    """Verify we're actually setting idna version when it should be available."""
+    """Verify we're actually setting idna version when it should be
+    available."""
     with mock.patch("requests.help.idna", new=VersionedPackage("2.6")):
         assert info()["idna"] == {"version": "2.6"}
