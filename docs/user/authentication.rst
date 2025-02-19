@@ -32,6 +32,27 @@ for using it::
 Providing the credentials in a tuple like this is exactly the same as the
 ``HTTPBasicAuth`` example above.
 
+Header Authentication
+--------------------
+
+Some services require authentication data in the header of the request.
+Multiple headers can be added to an authentication object to keep them separate
+from request data::
+
+    >>> from requests.auth import HTTPHeaderAuth
+    >>> auth = HTTPHeaderAuth({'Api-Key': '1234567890ABCDEF'}})
+    >>> response = requests.get('https://httpbin.org/headers', auth=auth)
+    >>> response.json()['headers']['Api-Key']
+    '1234567890abcdef'
+
+Be aware that keys in the authentication object will override headers set by
+the current request or session parameters::
+
+    >>> from requests.auth import HTTPHeaderAuth
+    >>> auth = HTTPHeaderAuth({'Api-Key': '1234567890ABCDEF'}})
+    >>> response = requests.get('https://httpbin.org/headers', headers={'Api-Key': '0000000000'}, auth=auth)
+    >>> response.json()['headers']['Api-Key']
+    '1234567890ABCDEF'
 
 netrc Authentication
 ~~~~~~~~~~~~~~~~~~~~
