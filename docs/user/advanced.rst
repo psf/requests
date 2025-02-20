@@ -681,7 +681,7 @@ You can get the dependencies for this feature from ``pip``:
 
 .. code-block:: bash
 
-    $ python -m pip install requests[socks]
+    $ python -m pip install 'requests[socks]'
 
 Once you've installed those dependencies, using a SOCKS proxy is just as easy
 as using a HTTP one::
