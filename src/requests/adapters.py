@@ -299,8 +299,10 @@ class HTTPAdapter(BaseAdapter):
                     block=self._pool_block,
                     **proxy_kwargs,
                 )
-            # Copy `connection_pool_kw` from the current poolmanager
-            manager.connection_pool_kw = self.poolmanager.connection_pool_kw
+            # Copy the missing key-value pairs from the current pool manager for the `connection_pool_kw` field
+            for key, value in self.poolmanager.connection_pool_kw.items():
+                if key not in manager.connection_pool_kw:
+                    manager.connection_pool_kw[key] = value
 
         return manager
 
