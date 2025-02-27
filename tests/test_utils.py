@@ -53,7 +53,9 @@ class TestSuperLen:
             (StringIO.StringIO, "Test"),
             (BytesIO, b"Test"),
             pytest.param(
-                cStringIO, "Test", marks=pytest.mark.skipif("cStringIO is None")
+                cStringIO,
+                "Test",
+                marks=pytest.mark.skipif("cStringIO is None"),
             ),
         ),
     )
@@ -196,7 +198,8 @@ class TestGetEnvironProxies:
     @pytest.fixture(autouse=True, params=["no_proxy", "NO_PROXY"])
     def no_proxy(self, request, monkeypatch):
         monkeypatch.setenv(
-            request.param, "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1"
+            request.param,
+            "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1",
         )
 
     @pytest.mark.parametrize(
@@ -352,9 +355,11 @@ class TestContentEncodingDetection:
             # HTML5 meta charset attribute
             '<meta charset="UTF-8">',
             # HTML4 pragma directive
-            '<meta http-equiv="Content-type" content="text/html;charset=UTF-8">',
+            '<meta http-equiv="Content-type" '
+            'content="text/html;charset=UTF-8">',
             # XHTML 1.x served with text/html MIME type
-            '<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />',
+            '<meta http-equiv="Content-type" '
+            'content="text/html;charset=UTF-8" />',
             # XHTML 1.x served as XML
             '<?xml version="1.0" encoding="UTF-8"?>',
         ),
@@ -417,7 +422,8 @@ ENCODED_PASSWORD = compat.quote(PASSWORD, "")
     "url, auth",
     (
         (
-            f"http://{ENCODED_USER}:{ENCODED_PASSWORD}@request.com/url.html#test",
+            f"http://{ENCODED_USER}:{ENCODED_PASSWORD}@request.com"
+            f"/url.html#test",
             (USER, PASSWORD),
         ),
         ("http://user:pass@complex.url.com/path?query=yes", ("user", "pass")),
@@ -425,7 +431,10 @@ ENCODED_PASSWORD = compat.quote(PASSWORD, "")
             "http://user:pass%20pass@complex.url.com/path?query=yes",
             ("user", "pass pass"),
         ),
-        ("http://user:pass pass@complex.url.com/path?query=yes", ("user", "pass pass")),
+        (
+            "http://user:pass pass@complex.url.com/path?query=yes",
+            ("user", "pass pass"),
+        ),
         (
             "http://user%25user:pass@complex.url.com/path?query=yes",
             ("user%user", "pass"),
@@ -536,7 +545,10 @@ def test_select_proxies(url, expected, proxies):
 @pytest.mark.parametrize(
     "value, expected",
     (
-        ('foo="is a fish", bar="as well"', {"foo": "is a fish", "bar": "as well"}),
+        (
+            'foo="is a fish", bar="as well"',
+            {"foo": "is a fish", "bar": "as well"},
+        ),
         ("key_without_value", {"key_without_value": None}),
     ),
 )
@@ -558,7 +570,8 @@ def test_parse_dict_header(value, expected):
         ),
         ("text/plain", ("text/plain", {})),
         (
-            "multipart/form-data; boundary = something ; boundary2='something_else' ; no_equals ",
+            "multipart/form-data; boundary = something ; "
+            "boundary2='something_else' ; no_equals ",
             (
                 "multipart/form-data",
                 {
@@ -569,7 +582,8 @@ def test_parse_dict_header(value, expected):
             ),
         ),
         (
-            'multipart/form-data; boundary = something ; boundary2="something_else" ; no_equals ',
+            'multipart/form-data; boundary = something ; '
+            'boundary2="something_else" ; no_equals ',
             (
                 "multipart/form-data",
                 {
@@ -580,7 +594,8 @@ def test_parse_dict_header(value, expected):
             ),
         ),
         (
-            "multipart/form-data; boundary = something ; 'boundary2=something_else' ; no_equals ",
+            "multipart/form-data; boundary = something ; "
+            "'boundary2=something_else' ; no_equals ",
             (
                 "multipart/form-data",
                 {
@@ -591,7 +606,8 @@ def test_parse_dict_header(value, expected):
             ),
         ),
         (
-            'multipart/form-data; boundary = something ; "boundary2=something_else" ; no_equals ',
+            'multipart/form-data; boundary = something ; '
+            '"boundary2=something_else" ; no_equals ',
             (
                 "multipart/form-data",
                 {
@@ -613,7 +629,9 @@ def test__parse_content_type_header(value, expected):
     (
         (CaseInsensitiveDict(), None),
         (
-            CaseInsensitiveDict({"content-type": "application/json; charset=utf-8"}),
+            CaseInsensitiveDict(
+                {"content-type": "application/json; charset=utf-8"}
+            ),
             "utf-8",
         ),
         (CaseInsensitiveDict({"content-type": "text/plain"}), "ISO-8859-1"),
@@ -647,12 +665,19 @@ def test_iter_slices(value, length):
     (
         (
             '<http:/.../front.jpeg>; rel=front; type="image/jpeg"',
-            [{"url": "http:/.../front.jpeg", "rel": "front", "type": "image/jpeg"}],
+            [
+                {
+                    "url": "http:/.../front.jpeg",
+                    "rel": "front",
+                    "type": "image/jpeg",
+                }
+            ],
         ),
         ("<http:/.../front.jpeg>", [{"url": "http:/.../front.jpeg"}]),
         ("<http:/.../front.jpeg>;", [{"url": "http:/.../front.jpeg"}]),
         (
-            '<http:/.../front.jpeg>; type="image/jpeg",<http://.../back.jpeg>;',
+            '<http:/.../front.jpeg>; type="image/jpeg",'
+            '<http://.../back.jpeg>;',
             [
                 {"url": "http:/.../front.jpeg", "type": "image/jpeg"},
                 {"url": "http://.../back.jpeg"},
@@ -675,7 +700,10 @@ def test_parse_header_links(value, expected):
             "http://user:pass@example.com/path?query",
             "http://user:pass@example.com/path?query",
         ),
-        ("http://user@example.com/path?query", "http://user@example.com/path?query"),
+        (
+            "http://user@example.com/path?query",
+            "http://user@example.com/path?query",
+        ),
     ),
 )
 def test_prepend_scheme_if_needed(value, expected):
@@ -697,7 +725,10 @@ def test_to_native_string(value, expected):
 @pytest.mark.parametrize(
     "url, expected",
     (
-        ("http://u:p@example.com/path?a=1#test", "http://example.com/path?a=1"),
+        (
+            "http://u:p@example.com/path?a=1#test",
+            "http://example.com/path?a=1",
+        ),
         ("http://example.com/path", "http://example.com/path"),
         ("//u:p@example.com/path", "//example.com/path"),
         ("//example.com/path", "//example.com/path"),
@@ -730,11 +761,13 @@ def test_should_bypass_proxies(url, expected, monkeypatch):
     """
     monkeypatch.setenv(
         "no_proxy",
-        "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1, google.com:6000",
+        "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1, "
+        "google.com:6000",
     )
     monkeypatch.setenv(
         "NO_PROXY",
-        "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1, google.com:6000",
+        "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1, "
+        "google.com:6000",
     )
     assert should_bypass_proxies(url, no_proxy=None) == expected
 
@@ -828,7 +861,9 @@ def test_should_bypass_proxies_no_proxy(url, expected, monkeypatch):
         ("http://192.168.0.1/", False, ""),
     ),
 )
-def test_should_bypass_proxies_win_registry(url, expected, override, monkeypatch):
+def test_should_bypass_proxies_win_registry(
+    url, expected, override, monkeypatch
+):
     """Tests for function should_bypass_proxies to check if proxy
     can be bypassed or not with Windows registry settings
     """
@@ -849,7 +884,8 @@ def test_should_bypass_proxies_win_registry(url, expected, override, monkeypatch
     def QueryValueEx(key, value_name):
         if key is ie_settings:
             if value_name == "ProxyEnable":
-                # this could be a string (REG_SZ) or a 32-bit number (REG_DWORD)
+                # this could be a string (REG_SZ) or a 32-bit number
+                # (REG_DWORD)
                 proxyEnableValues.rotate()
                 return [proxyEnableValues[0]]
             elif value_name == "ProxyOverride":
@@ -908,7 +944,8 @@ def test_should_bypass_proxies_win_registry_bad_values(monkeypatch):
     ),
 )
 def test_set_environ(env_name, value):
-    """Tests set_environ will set environ values and will restore the environ."""
+    """Tests set_environ will set environ values and will restore the
+    environ."""
     environ_copy = copy.deepcopy(os.environ)
     with set_environ(env_name, value):
         assert os.environ.get(env_name) == value
@@ -929,7 +966,8 @@ def test_set_environ_raises_exception():
 @pytest.mark.skipif(os.name != "nt", reason="Test only on Windows")
 def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
     """Tests for function should_bypass_proxies to check if proxy
-    can be bypassed or not with Windows ProxyOverride registry value ending with a semicolon.
+    can be bypassed or not with Windows ProxyOverride registry value ending
+    with a semicolon.
     """
     import winreg
 
@@ -948,7 +986,8 @@ def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
                 return [1]
             elif value_name == "ProxyOverride":
                 return [
-                    "192.168.*;127.0.0.1;localhost.localdomain;172.16.1.1;<-loopback>;"
+                    "192.168.*;127.0.0.1;localhost.localdomain;172.16.1.1;"
+                    "<-loopback>;"
                 ]
 
     monkeypatch.setenv("NO_PROXY", "")
