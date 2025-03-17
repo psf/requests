@@ -55,7 +55,7 @@ class CaseInsensitiveDict(MutableMapping):
         del self._store[key.lower()]
 
     def __iter__(self):
-        return (casedkey for casedkey, mappedvalue in self._store.values())
+        return (casedkey for casedkey in self._store)
 
     def __len__(self):
         return len(self._store)
