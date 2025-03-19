@@ -44,7 +44,7 @@ test_requirements = [
     "pytest-cov",
     "pytest-mock",
     "pytest-xdist",
-    "PySocks>=1.5.6, !=1.5.7",
+    "PySocks>=1.6.0",
     "pytest>=3",
 ]
 
@@ -97,7 +97,7 @@ setup(
     tests_require=test_requirements,
     extras_require={
         "security": [],
-        "socks": ["PySocks>=1.5.6, !=1.5.7"],
+        "socks": ["PySocks>=1.6.0"],
         "use_chardet_on_py3": ["chardet>=3.0.2,<6"],
     },
     project_urls={
