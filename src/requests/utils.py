@@ -514,32 +514,33 @@ def get_encodings_from_content(content):
     )
 
 
-def _parse_content_type_header(header: str):
+def _parse_content_type_header(header):
     """Returns content type and parameters from given header.
 
     :param header: Header string
     :return: Tuple of content type and parameter dictionary
     """
-    if ";" not in header:
+    semicolon_index = header.find(";")
+    if semicolon_index == -1:
         return header.strip(), {}
 
-    parts = header.split(";")
-    content_type = parts[0].strip()
+    content_type = header[:semicolon_index].strip()
     params_dict = {}
 
-    for param in parts[1:]:
+    rest = header[semicolon_index + 1:]
+    for param in rest.split(";"):
         param = param.strip()
         if not param:
             continue
 
         if "=" in param:
             key, value = param.split("=", 1)
-            key = key.strip().strip("\"' ")
-            value = value.strip().strip("\"' ")
+            key = key.strip("\"' ").lower()
+            value = value.strip("\"' ")
         else:
-            key, value = param.strip().strip("\"' "), True
+            key, value = param.strip("\"' ").lower(), True
 
-        params_dict[key.lower()] = value
+        params_dict[key] = value
 
     return content_type, params_dict
 
