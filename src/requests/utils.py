@@ -514,28 +514,33 @@ def get_encodings_from_content(content):
     )
 
 
-def _parse_content_type_header(header):
-    """Returns content type and parameters from given header
+def _parse_content_type_header(header: str):
+    """Returns content type and parameters from given header.
 
-    :param header: string
-    :return: tuple containing content type and dictionary of
-         parameters
+    :param header: Header string
+    :return: Tuple of content type and parameter dictionary
     """
+    if ";" not in header:
+        return header.strip(), {}
 
-    tokens = header.split(";")
-    content_type, params = tokens[0].strip(), tokens[1:]
+    parts = header.split(";")
+    content_type = parts[0].strip()
     params_dict = {}
-    items_to_strip = "\"' "
 
-    for param in params:
+    for param in parts[1:]:
         param = param.strip()
-        if param:
-            key, value = param, True
-            index_of_equals = param.find("=")
-            if index_of_equals != -1:
-                key = param[:index_of_equals].strip(items_to_strip)
-                value = param[index_of_equals + 1 :].strip(items_to_strip)
-            params_dict[key.lower()] = value
+        if not param:
+            continue
+
+        if "=" in param:
+            key, value = param.split("=", 1)
+            key = key.strip().strip("\"' ")
+            value = value.strip().strip("\"' ")
+        else:
+            key, value = param.strip().strip("\"' "), True
+
+        params_dict[key.lower()] = value
+
     return content_type, params_dict
 
 
