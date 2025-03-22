@@ -1,5 +1,6 @@
 import copy
 import filecmp
+import io
 import os
 import tarfile
 import zipfile
@@ -150,6 +151,13 @@ class TestSuperLen:
     def test_super_len_with_no_matches(self):
         """Ensure that objects without any length methods default to 0"""
         assert super_len(object()) == 0
+
+    def test_super_len_with_stringio_containing_multibyte_chars(self):
+        """Ensure StringIO with multi-byte characters reports correct byte length"""
+        # emoji takes 4 bytes in UTF-8 but is 1 character
+        s = io.StringIO("💩")
+        # Super len should return 4 (byte length) not 1 (character length)
+        assert super_len(s) == 4
 
 
 class TestToKeyValList:

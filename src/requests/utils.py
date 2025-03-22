@@ -195,6 +195,18 @@ def super_len(o):
                     # seek back to current position to support
                     # partially read file-like objects
                     o.seek(current_position or 0)
+
+                    # Handle StringIO with multi-byte characters by correctly measuring UTF-8 byte length
+                    if isinstance(o, io.StringIO):
+                        # Save current position
+                        current_pos = o.tell()
+                        # Get entire content and calculate byte length after UTF-8 encoding
+                        o.seek(0)
+                        content = o.read()
+                        # Restore original position
+                        o.seek(current_pos)
+                        # Set total_length to the byte length, not character count
+                        total_length = len(content.encode("utf-8"))
                 except OSError:
                     total_length = 0
 
