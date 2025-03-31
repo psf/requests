@@ -12,8 +12,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy-3.9", "pypy-3.10"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy-3.10", "pypy-3.11"]
         os: [ubuntu-22.04, macOS-latest, windows-latest]
+        # Pypy-3.11 can't install openssl-sys with rust
+        # which prevents us from testing in GHA.
+        exclude:
+        - { python-version: "pypy-3.11", os: "windows-latest" }
 
     steps:
     - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
