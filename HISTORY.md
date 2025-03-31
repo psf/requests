@@ -6,6 +6,11 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+**Deprecations**
+- Added support for pypy 3.11 for Linux and macOS.
+- Dropped support for pypy 3.9 following its end of support.
+
+
 2.32.3 (2024-05-29)
 -------------------
 
