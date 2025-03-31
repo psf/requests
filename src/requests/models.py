@@ -60,7 +60,6 @@ from .utils import (
     guess_json_utf,
     iter_slices,
     parse_header_links,
-    requote_uri,
     stream_decode_response_unicode,
     super_len,
     to_key_val_list,
@@ -477,7 +476,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 query = enc_params
 
-        url = requote_uri(urlunparse([scheme, netloc, path, None, query, fragment]))
+        url = urlunparse([scheme, netloc, path, None, query, fragment])
         self.url = url
 
     def prepare_headers(self, headers):
