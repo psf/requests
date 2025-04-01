@@ -81,7 +81,7 @@ def _urllib3_request_context(
 ) -> "(typing.Dict[str, typing.Any], typing.Dict[str, typing.Any])":
     host_params = {}
     pool_kwargs = {}
-    parsed_request_url = urlparse(request.url)
+    parsed_request_url = parse_url(request.url)
     scheme = parsed_request_url.scheme.lower()
     port = parsed_request_url.port
 
