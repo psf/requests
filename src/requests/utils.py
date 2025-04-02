@@ -452,16 +452,16 @@ def unquote_header_value(value, is_filename=False):
     """
     if value and value[0] == value[-1] == '"':
         # this is not the real unquoting, but fixing this so that the
-        # RFC is met will result in bugs with internet explorer and
-        # probably some other browsers as well.  IE for example is
+        # RFC is met will result in bugs with Internet Explorer and
+        # probably some other browsers as well. IE, for example, is
         # uploading files with "C:\foo\bar.txt" as filename
         value = value[1:-1]
 
-        # if this is a filename and the starting characters look like
-        # a UNC path, then just return the value without quotes.  Using the
+        # If this is a filename and the starting characters look like
+        # a UNC path, then just return the value without quotes. Using the
         # replace sequence below on a UNC path has the effect of turning
         # the leading double slash into a single slash and then
-        # _fix_ie_filename() doesn't work correctly.  See #458.
+        # _fix_ie_filename() doesn't work correctly. See #458.
         if not is_filename or value[:2] != "\\\\":
             return value.replace("\\\\", "\\").replace('\\"', '"')
     return value
@@ -678,7 +678,7 @@ def requote_uri(uri):
     except InvalidURL:
         # We couldn't unquote the given URI, so let's try quoting it, but
         # there may be unquoted '%'s in the URI. We need to make sure they're
-        # properly quoted so they do not cause issues elsewhere.
+        # properly quoted, so they do not cause issues elsewhere.
         return quote(uri, safe=safe_without_percent)
 
 
@@ -1007,7 +1007,7 @@ def prepend_scheme_if_needed(url, new_scheme):
         netloc, path = path, netloc
 
     if auth:
-        # parse_url doesn't provide the netloc with auth
+        # parse_url doesn't provide the netloc with auth,
         # so we'll add it ourselves.
         netloc = "@".join([auth, netloc])
     if scheme is None:
@@ -1019,8 +1019,8 @@ def prepend_scheme_if_needed(url, new_scheme):
 
 
 def get_auth_from_url(url):
-    """Given a url with authentication components, extract them into a tuple of
-    username,password.
+    """Given a URL with authentication components, extract them into a tuple of
+    (username, password).
 
     :rtype: (str,str)
     """
@@ -1066,7 +1066,7 @@ def _validate_header_part(header, header_part, header_validator_index):
 
 def urldefragauth(url):
     """
-    Given a url remove the fragment and the authentication part.
+    Given a URL remove the fragment and the authentication part.
 
     :rtype: str
     """
@@ -1082,7 +1082,7 @@ def urldefragauth(url):
 
 
 def rewind_body(prepared_request):
-    """Move file pointer back to its recorded starting position
+    """Move file pointer back to its recorded starting position,
     so it can be read again on redirect.
     """
     body_seek = getattr(prepared_request.body, "seek", None)
