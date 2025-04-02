@@ -7,7 +7,8 @@ def override_environ(**kwargs):
     save_env = dict(os.environ)
     for key, value in kwargs.items():
         if value is None:
-            del os.environ[key]
+            with contextlib.suppress(KeyError):
+                del os.environ[key]
         else:
             os.environ[key] = value
     try:
