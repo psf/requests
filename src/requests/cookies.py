@@ -346,6 +346,13 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
         """
         remove_cookie_by_name(self, name)
 
+    def popitem(self):
+        if not self:
+            raise KeyError("Cookie jar is empty")
+        next_cookie = next(iter(self))
+        self.clear(next_cookie.domain, next_cookie.path, next_cookie.name)
+        return next_cookie, next_cookie.value
+
     def set_cookie(self, cookie, *args, **kwargs):
         if (
             hasattr(cookie.value, "startswith")
