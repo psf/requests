@@ -290,6 +290,8 @@ class HTTPAdapter(BaseAdapter):
             )
         else:
             proxy_headers = self.proxy_headers(proxy)
+            if 'host' in proxy_kwargs and proxy_kwargs['host']:
+                proxy_headers['host'] = f"{proxy_kwargs['host']}"
             manager = self.proxy_manager[proxy] = proxy_from_url(
                 proxy,
                 proxy_headers=proxy_headers,
@@ -480,7 +482,9 @@ class HTTPAdapter(BaseAdapter):
                     "Please check proxy URL. It is malformed "
                     "and could be missing the host."
                 )
-            proxy_manager = self.proxy_manager_for(proxy)
+            u = parse_url(request.url)
+            host=u.host
+            proxy_manager = self.proxy_manager_for(proxy, host=host)
             conn = proxy_manager.connection_from_host(
                 **host_params, pool_kwargs=pool_kwargs
             )
