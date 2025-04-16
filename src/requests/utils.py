@@ -346,6 +346,13 @@ def from_key_val_list(value):
 
 
 def to_key_val_list(value):
+	"""Convert a value to a key-value list for headers or params.
+
+    Args:
+        value: Input value (dict, list, or None).
+    Returns:
+        List of tuples or None if invalid.
+    """
     """Take an object and test to see if it can be represented as a
     dictionary. If it can be, return a list of tuples, e.g.,
 
