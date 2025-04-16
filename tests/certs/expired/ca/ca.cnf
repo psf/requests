@@ -14,3 +14,4 @@ CN = Self-Signed Root CA          # common name / your cert name
 
 [v3_ca]
 basicConstraints = critical, CA:true
+keyUsage = critical, cRLSign, digitalSignature, keyCertSign
