@@ -8,3 +8,9 @@ addopts = "--doctest-modules"
 doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
 minversion = "6.2"
 testpaths = ["tests"]
+
+[tool.codespell]
+skip = '.git,*.pdf,*.svg,*.css,*.ai'
+check-hidden = true
+# ignore-regex = ''
+ignore-words-list = 'fo'
