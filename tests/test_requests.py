@@ -1662,10 +1662,10 @@ class TestRequests:
         s.mount(mixed_case_prefix, my_adapter)
 
         assert s.get_adapter(url_matching_prefix_with_different_case) is my_adapter
-    
+
     def test_session_get_adapter_prefix_with_trailing_slash(self):
         # from issue #6935
-        prefix = "https://example.com/" # trailing slash
+        prefix = "https://example.com/"  # trailing slash
         url_matching_prefix = "https://example.com/some/path"
         url_not_matching_prefix = "https://example.com.other.com/some/path"
 
@@ -1677,7 +1677,7 @@ class TestRequests:
         assert s.get_adapter(url_not_matching_prefix) is not adapter
 
     def test_session_get_adapter_prefix_without_trailing_slash(self):
-         # from issue #6935
+        # from issue #6935
         prefix = "https://example.com"  # no trailing slash
         url_matching_prefix = "https://example.com/some/path"
         url_extended_hostname = "https://example.com.other.com/some/path"
