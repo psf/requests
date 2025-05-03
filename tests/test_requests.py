@@ -1663,6 +1663,32 @@ class TestRequests:
 
         assert s.get_adapter(url_matching_prefix_with_different_case) is my_adapter
 
+    def test_session_get_adapter_prefix_with_trailing_slash(self):
+        # from issue #6935
+        prefix = "https://example.com/"  # trailing slash
+        url_matching_prefix = "https://example.com/some/path"
+        url_not_matching_prefix = "https://example.com.other.com/some/path"
+
+        s = requests.Session()
+        adapter = HTTPAdapter()
+        s.mount(prefix, adapter)
+
+        assert s.get_adapter(url_matching_prefix) is adapter
+        assert s.get_adapter(url_not_matching_prefix) is not adapter
+
+    def test_session_get_adapter_prefix_without_trailing_slash(self):
+        # from issue #6935
+        prefix = "https://example.com"  # no trailing slash
+        url_matching_prefix = "https://example.com/some/path"
+        url_extended_hostname = "https://example.com.other.com/some/path"
+
+        s = requests.Session()
+        adapter = HTTPAdapter()
+        s.mount(prefix, adapter)
+
+        assert s.get_adapter(url_matching_prefix) is adapter
+        assert s.get_adapter(url_extended_hostname) is adapter
+
     def test_header_remove_is_case_insensitive(self, httpbin):
         # From issue #1321
         s = requests.Session()
