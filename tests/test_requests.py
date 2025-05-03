@@ -2981,3 +2981,15 @@ def test_json_decode_errors_are_serializable_deserializable():
     )
     deserialized_error = pickle.loads(pickle.dumps(json_decode_error))
     assert repr(json_decode_error) == repr(deserialized_error)
+
+def test_mount_with_trailing_slash_matches_exact_prefix():
+    s = requests.Session()
+    adapter = HTTPAdapter()
+    s.mount("https://example.com/", adapter)
+    assert s.get_adapter("https://example.com/foo").__class__ is HTTPAdapter
+
+def test_mount_without_trailing_slash_shows_warning_behavior():
+    s = requests.Session()
+    adapter = HTTPAdapter()
+    s.mount("https://example.com", adapter)
+    assert s.get_adapter("https://example.com/bar").__class__ is HTTPAdapter
