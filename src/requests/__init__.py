@@ -175,6 +175,7 @@ from .exceptions import (
     URLRequired,
 )
 from .models import PreparedRequest, Request, Response
+from .retry import Retry, ConstantRetry, ExponentialRetry, ExponentialRetryWithJitter, RetryStrategy
 from .sessions import Session, session
 from .status_codes import codes
 

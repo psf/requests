@@ -15,6 +15,7 @@ from ._internal_utils import to_native_string
 from .adapters import HTTPAdapter
 from .auth import _basic_auth_str
 from .compat import Mapping, cookielib, urljoin, urlparse
+from .retry import Retry, ExponentialRetryWithJitter
 from .cookies import (
     RequestsCookieJar,
     cookiejar_from_dict,
@@ -385,6 +386,12 @@ class Session(SessionRedirectMixin):
         "stream",
         "trust_env",
         "max_redirects",
+        "max_retries",
+        "retry_strategy",
+        "retry_status_forcelist",
+        "retry_allowed_methods",
+        "retry_on_timeout",
+        "retry_on_connection_error",
     ]
 
     def __init__(self):
@@ -442,6 +449,30 @@ class Session(SessionRedirectMixin):
         #: :class:`RequestsCookieJar <requests.cookies.RequestsCookieJar>`, but
         #: may be any other ``cookielib.CookieJar`` compatible object.
         self.cookies = cookiejar_from_dict({})
+
+        #: Maximum number of retries for failed requests.
+        #: This defaults to 0, which means no retries.
+        self.max_retries = 0
+
+        #: The retry strategy to use for retries.
+        #: This defaults to ExponentialRetryWithJitter.
+        self.retry_strategy = ExponentialRetryWithJitter()
+
+        #: A set of status codes that should force a retry.
+        #: This defaults to None, which means no status-based retries.
+        self.retry_status_forcelist = None
+
+        #: A set of HTTP methods to retry.
+        #: This defaults to None, which means use the default methods.
+        self.retry_allowed_methods = None
+
+        #: Whether to retry on timeout errors.
+        #: This defaults to False.
+        self.retry_on_timeout = False
+
+        #: Whether to retry on connection errors.
+        #: This defaults to True.
+        self.retry_on_connection_error = True
 
         # Default connection adapters.
         self.adapters = OrderedDict()
@@ -579,6 +610,20 @@ class Session(SessionRedirectMixin):
         settings = self.merge_environment_settings(
             prep.url, proxies, stream, verify, cert
         )
+
+        # Configure retry if needed
+        if self.max_retries > 0:
+            retry = Retry(
+                total=self.max_retries,
+                status_forcelist=self.retry_status_forcelist,
+                allowed_methods=self.retry_allowed_methods,
+                backoff_strategy=self.retry_strategy,
+                retry_on_timeout=self.retry_on_timeout,
+                retry_on_connection_error=self.retry_on_connection_error,
+            )
+            # Apply the retry configuration to all adapters
+            for _, adapter in self.adapters.items():
+                adapter.max_retries = retry.to_urllib3_retry()
 
         # Send the request.
         send_kwargs = {
