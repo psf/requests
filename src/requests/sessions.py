@@ -16,6 +16,8 @@ from .adapters import HTTPAdapter
 from .auth import _basic_auth_str
 from .compat import Mapping, cookielib, urljoin, urlparse
 from .retry import Retry, ExponentialRetryWithJitter
+from .middleware import MiddlewareChain
+from .timeout import Timeout, TimeoutStrategy, ConstantTimeout, LinearTimeout, ExponentialTimeout
 from .cookies import (
     RequestsCookieJar,
     cookiejar_from_dict,
@@ -392,6 +394,9 @@ class Session(SessionRedirectMixin):
         "retry_allowed_methods",
         "retry_on_timeout",
         "retry_on_connection_error",
+        "middleware",
+        "default_timeout",
+        "timeout_strategy",
     ]
 
     def __init__(self):
@@ -473,6 +478,18 @@ class Session(SessionRedirectMixin):
         #: Whether to retry on connection errors.
         #: This defaults to True.
         self.retry_on_connection_error = True
+
+        #: Middleware chain for processing requests and responses.
+        #: This allows for custom processing of requests and responses.
+        self.middleware = MiddlewareChain()
+
+        #: Default timeout settings for requests.
+        #: This defaults to None, which means no timeout.
+        self.default_timeout = Timeout()
+
+        #: Timeout strategy for retries.
+        #: This defaults to None, which means no timeout strategy.
+        self.timeout_strategy = None
 
         # Default connection adapters.
         self.adapters = OrderedDict()
@@ -603,6 +620,17 @@ class Session(SessionRedirectMixin):
             cookies=cookies,
             hooks=hooks,
         )
+
+        # Create context for middleware
+        context = {
+            'session': self,
+            'method': method,
+            'url': url,
+        }
+
+        # Process request through middleware
+        req = self.middleware.process_request(req, context)
+
         prep = self.prepare_request(req)
 
         proxies = proxies or {}
@@ -624,6 +652,19 @@ class Session(SessionRedirectMixin):
             # Apply the retry configuration to all adapters
             for _, adapter in self.adapters.items():
                 adapter.max_retries = retry.to_urllib3_retry()
+
+        # Process timeout
+        if timeout is None and self.default_timeout is not None:
+            # Use default timeout if none provided
+            timeout = self.default_timeout
+        else:
+            # Convert to Timeout object
+            timeout = Timeout.from_value(timeout)
+
+        # Apply timeout strategy if configured
+        if self.timeout_strategy is not None and self.max_retries > 0:
+            # Store the base timeout for use in retries
+            context['base_timeout'] = timeout
 
         # Send the request.
         send_kwargs = {
@@ -753,6 +794,16 @@ class Session(SessionRedirectMixin):
 
         # Response manipulation hooks
         r = dispatch_hook("response", hooks, r, **kwargs)
+
+        # Create context for middleware
+        context = {
+            'session': self,
+            'request': request,
+            'elapsed': elapsed,
+        }
+
+        # Process response through middleware
+        r = self.middleware.process_response(r, context)
 
         # Persist cookies
         if r.history:

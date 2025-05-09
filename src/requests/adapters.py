@@ -649,6 +649,11 @@ class HTTPAdapter(BaseAdapter):
 
         chunked = not (request.body is None or "Content-Length" in request.headers)
 
+        # Handle our new Timeout object
+        if hasattr(timeout, 'to_urllib3_timeout') and callable(getattr(timeout, 'to_urllib3_timeout')):
+            timeout = timeout.to_urllib3_timeout()
+
+        # Handle traditional timeout formats
         if isinstance(timeout, tuple):
             try:
                 connect, read = timeout

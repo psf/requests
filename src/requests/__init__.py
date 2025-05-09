@@ -178,6 +178,13 @@ from .models import PreparedRequest, Request, Response
 from .retry import Retry, ConstantRetry, ExponentialRetry, ExponentialRetryWithJitter, RetryStrategy
 from .sessions import Session, session
 from .status_codes import codes
+from .middleware import (
+    Middleware, MiddlewareChain, LoggingMiddleware, TimingMiddleware,
+    HeadersMiddleware, UserAgentMiddleware, AuthMiddleware, RetryContextMiddleware
+)
+from .timeout import (
+    Timeout, TimeoutStrategy, ConstantTimeout, LinearTimeout, ExponentialTimeout
+)
 
 logging.getLogger(__name__).addHandler(NullHandler())
 
