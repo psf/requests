@@ -34,7 +34,7 @@ including reporting bugs or requesting features. This golden rule is
 **All contributions are welcome**, as long as
 everyone involved is treated with respect.
 
-.. _be cordial or be on your way: https://kenreitz.org/essays/2013/01/27/be-cordial-or-be-on-your-way
+.. _be cordial or be on your way: https://kennethreitz.org/essays/2013/be_cordial_or_be_on_your_way
 
 .. _early-feedback:
 
