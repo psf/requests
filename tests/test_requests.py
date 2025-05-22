@@ -118,17 +118,17 @@ class TestRequests:
         assert pr.url == req.url
         assert pr.body == "life=42"
 
-    @pytest.mark.parametrize("method", ("GET", "HEAD"))
+    @pytest.mark.parametrize("method", ("CONNECT", "GET", "HEAD", "OPTIONS", "TRACE"))
     def test_no_content_length(self, httpbin, method):
         req = requests.Request(method, httpbin(method.lower())).prepare()
         assert "Content-Length" not in req.headers
 
-    @pytest.mark.parametrize("method", ("POST", "PUT", "PATCH", "OPTIONS"))
+    @pytest.mark.parametrize("method", ("DELETE", "PATCH", "POST", "PUT"))
     def test_no_body_content_length(self, httpbin, method):
         req = requests.Request(method, httpbin(method.lower())).prepare()
         assert req.headers["Content-Length"] == "0"
 
-    @pytest.mark.parametrize("method", ("POST", "PUT", "PATCH", "OPTIONS"))
+    @pytest.mark.parametrize("method", ("DELETE", "PATCH", "POST", "PUT"))
     def test_empty_content_length(self, httpbin, method):
         req = requests.Request(method, httpbin(method.lower()), data="").prepare()
         assert req.headers["Content-Length"] == "0"

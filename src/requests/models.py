@@ -578,11 +578,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 # to Transfer-Encoding: chunked.
                 self.headers["Content-Length"] = builtin_str(length)
         elif (
-            self.method not in ("GET", "HEAD")
+            self.method not in ("CONNECT", "GET", "HEAD", "OPTIONS", "TRACE")
             and self.headers.get("Content-Length") is None
         ):
             # Set Content-Length to 0 for methods that can have a body
-            # but don't provide one. (i.e. not GET or HEAD)
+            # but don't provide one. (i.e. not CONNECT, GET, HEAD, OPTIONS
+            # or TRACE)
             self.headers["Content-Length"] = "0"
 
     def prepare_auth(self, auth, url=""):
