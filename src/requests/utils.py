@@ -136,7 +136,16 @@ def dict_to_sequence(d):
 def super_len(o):
     total_length = None
     current_position = 0
-
+    if isinstance(o, io.StringIO):
+        try:
+            content = o.getvalue()
+            encoded = content.encode('utf-8')
+            print(f"StringIO content: '{content}', encoded length: {len(encoded)}") 
+            total_length = len(encoded)
+        except (OSError, AttributeError):
+            total_length = 0
+        return total_length
+    
     if not is_urllib3_1 and isinstance(o, str):
         # urllib3 2.x+ treats all strings as utf-8 instead
         # of latin-1 (iso-8859-1) like http.client.
@@ -173,6 +182,7 @@ def super_len(o):
                     ),
                     FileModeWarning,
                 )
+  
 
     if hasattr(o, "tell"):
         try:
