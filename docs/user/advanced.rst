@@ -1053,7 +1053,7 @@ backoff, within a Requests :class:`Session <requests.Session>` using the
     )
     s.mount('https://', HTTPAdapter(max_retries=retries))
 
-.. _`described here`: https://kenreitz.org/essays/2012/06/14/the-future-of-python-http
+.. _`described here`: https://kennethreitz.org/essays/2012/the_future_of_python_http
 .. _`urllib3`: https://github.com/urllib3/urllib3
 .. _`urllib3.util.Retry`: https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry
 
