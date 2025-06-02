@@ -233,7 +233,7 @@ Note: All header values must be a ``string``, bytestring, or unicode. While perm
 More complicated POST requests
 ------------------------------
 
-Typically, you want to send some form-encoded data — much like an HTML form.
+Typically, you want to send some form-encoded data - much like an HTML form.
 To do this, simply pass a dictionary to the ``data`` argument. Your
 dictionary of data will automatically be form-encoded when the request is made::
 
@@ -270,7 +270,9 @@ use the same key::
       },
       ...
     }
-    >>> r1.text == r2.text
+    >>> # NOTE: httpbin.org injects an "X-Amzn-Trace-Id" header in its JSON response,
+    >>> # so r1.text and r2.text may differ even though they carry identical form data.
+    >>> r1.json()['form'] == r2.json()['form']
     True
 
 There are times that you may want to send data that is not form-encoded. If
@@ -290,7 +292,7 @@ Please note that the above code will NOT add the ``Content-Type`` header
 
 If you need that header set and you don't want to encode the ``dict`` yourself,
 you can also pass it directly using the ``json`` parameter (added in version 2.4.2)
-and it will be encoded automatically:
+and it will be encoded automatically::
 
     >>> url = 'https://api.github.com/some/endpoint'
     >>> payload = {'some': 'data'}
