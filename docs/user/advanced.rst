@@ -1136,3 +1136,18 @@ coffee.
 
 .. _`wall clock`: https://wiki.php.net/rfc/max_execution_wall_time
 .. _`connect()`: https://linux.die.net/man/2/connect
+
+Handling Timeouts
+-----------------
+
+You can specify a timeout for your request using the `timeout` parameter. If the request takes longer than the specified time, a `Timeout` exception will be raised:
+
+.. code-block:: python
+
+   import requests
+
+   try:
+       response = requests.get('https://api.github.com', timeout=5)
+       print(response.status_code)
+   except requests.Timeout:
+       print("The request timed out.")
