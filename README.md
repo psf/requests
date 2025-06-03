@@ -2,6 +2,8 @@
 
 **Requests** is a simple, yet elegant, HTTP library.
 
+# example:"Fix typo in README"
+
 ```python
 >>> import requests
 >>> r = requests.get('https://httpbin.org/basic-auth/user/pass', auth=('user', 'pass'))
