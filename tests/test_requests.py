@@ -7,6 +7,7 @@ import json
 import os
 import pickle
 import re
+import tempfile
 import threading
 import warnings
 from unittest import mock
@@ -703,6 +704,36 @@ class TestRequests:
             assert r.status_code == 401
         finally:
             requests.sessions.get_netrc_auth = old_auth
+
+    def test_basicauth_with_netrc_leak(self, httpbin):
+        url1 = httpbin("basic-auth", "user", "pass")
+        url = url1[len("http://") :]
+        domain = url.split(":")[0]
+        url = f"http://example.com:@{url}"
+
+        netrc_file = ""
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as fp:
+            fp.write("machine example.com\n")
+            fp.write("login wronguser\n")
+            fp.write("password wrongpass\n")
+            fp.write(f"machine {domain}\n")
+            fp.write("login user\n")
+            fp.write("password pass\n")
+            fp.close()
+            netrc_file = fp.name
+
+        old_netrc = os.environ.get("NETRC", "")
+        os.environ["NETRC"] = netrc_file
+
+        try:
+            # Should use netrc
+            # Make sure that we don't use the example.com credentails
+            # for the request
+            r = requests.get(url)
+            assert r.status_code == 200
+        finally:
+            os.environ["NETRC"] = old_netrc
+            os.unlink(netrc_file)
 
     def test_DIGEST_HTTP_200_OK_GET(self, httpbin):
         for authtype in self.digest_auth_algo:
