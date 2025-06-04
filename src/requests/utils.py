@@ -236,16 +236,8 @@ def get_netrc_auth(url, raise_errors=False):
             return
 
         ri = urlparse(url)
-
-        # Strip port numbers from netloc. This weird `if...encode`` dance is
-        # used for Python 3.2, which doesn't support unicode literals.
-        splitstr = b":"
-        if isinstance(url, str):
-            splitstr = splitstr.decode("ascii")
-        host = ri.netloc.split(splitstr)[0]
-
         try:
-            _netrc = netrc(netrc_path).authenticators(host)
+            _netrc = netrc(netrc_path).authenticators(ri.hostname)
             if _netrc:
                 # Return with login / password
                 login_i = 0 if _netrc[0] else 1
