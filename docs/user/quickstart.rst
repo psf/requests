@@ -222,6 +222,7 @@ Note: Custom headers are given less precedence than more specific sources of inf
   are specified in ``.netrc``, which in turn will be overridden by the  ``auth=``
   parameter. Requests will search for the netrc file at `~/.netrc`, `~/_netrc`,
   or at the path specified by the `NETRC` environment variable.
+  Check details in :ref:`netrc authentication <authentication>`.
 * Authorization headers will be removed if you get redirected off-host.
 * Proxy-Authorization headers will be overridden by proxy credentials provided in the URL.
 * Content-Length headers will be overridden when we can determine the length of the content.
