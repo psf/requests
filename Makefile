@@ -16,10 +16,13 @@ flake8:
 coverage:
 	python -m pytest --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=src/requests tests
 
-publish:
-	python -m pip install 'twine>=1.5.0'
-	python setup.py sdist bdist_wheel
-	twine upload dist/*
+.publishenv:
+	python -m venv .publishenv
+	.publishenv/bin/pip install 'twine>=1.5.0' build
+
+publish: .publishenv
+	.publishenv/bin/python -m build
+	.publishenv/bin/python twine upload --skip-existing dist/*
 	rm -fr build dist .egg requests.egg-info
 
 docs:
