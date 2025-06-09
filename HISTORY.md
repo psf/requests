@@ -6,6 +6,17 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.32.4 (2025-06-10)
+-------------------
+
+**Security**
+- CVE-2024-47081 Fixed an issue where a maliciously crafted URL and trusted
+  environment will retrieve credentials for the wrong hostname/machine from a
+  netrc file.
+
+**Improvements**
+- Numerous documentation improvements
+
 **Deprecations**
 - Added support for pypy 3.11 for Linux and macOS.
 - Dropped support for pypy 3.9 following its end of support.
