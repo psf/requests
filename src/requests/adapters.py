@@ -410,7 +410,7 @@ class HTTPAdapter(BaseAdapter):
           ``"cert_reqs"`` will be set
         * If ``verify`` is a string, (i.e., it is a user-specified trust bundle)
           ``"ca_certs"`` will be set if the string is not a directory recognized
-          by :py:func:`os.path.isdir`, otherwise ``"ca_certs_dir"`` will be
+          by :py:func:`os.path.isdir`, otherwise ``"ca_cert_dir"`` will be
           set.
         * If ``"cert"`` is specified, ``"cert_file"`` will always be set. If
           ``"cert"`` is a tuple with a second item, ``"key_file"`` will also
