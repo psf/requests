@@ -327,7 +327,7 @@ class HTTPAdapter(BaseAdapter):
                 if not os.path.exists(cert_loc):
                     raise OSError(
                         f"Could not find a suitable TLS CA certificate bundle, "
-                        f"invalid path: {cert_loc}"
+                        f"invalid path: {cert_loc!r}"
                     )
 
                 if not os.path.isdir(cert_loc):
@@ -349,11 +349,11 @@ class HTTPAdapter(BaseAdapter):
             if conn.cert_file and not os.path.exists(conn.cert_file):
                 raise OSError(
                     f"Could not find the TLS certificate file, "
-                    f"invalid path: {conn.cert_file}"
+                    f"invalid path: {conn.cert_file!r}"
                 )
             if conn.key_file and not os.path.exists(conn.key_file):
                 raise OSError(
-                    f"Could not find the TLS key file, invalid path: {conn.key_file}"
+                    f"Could not find the TLS key file, invalid path: {conn.key_file!r}"
                 )
 
     def build_response(self, req, resp):
