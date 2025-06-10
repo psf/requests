@@ -960,17 +960,19 @@ class TestRequests:
         INVALID_PATH = "/garbage"
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), verify=INVALID_PATH)
-        assert str(
-            e.value
-        ) == f"Could not find a suitable TLS CA certificate bundle, invalid path: {INVALID_PATH!r}"
+        assert (
+            str(e.value)
+            == f"Could not find a suitable TLS CA certificate bundle, invalid path: {INVALID_PATH!r}"
+        )
 
     def test_invalid_ssl_certificate_files(self, httpbin_secure):
         INVALID_PATH = "/garbage"
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), cert=INVALID_PATH)
-        assert str(
-            e.value
-        ) == f"Could not find the TLS certificate file, invalid path: {INVALID_PATH!r}"
+        assert (
+            str(e.value)
+            == f"Could not find the TLS certificate file, invalid path: {INVALID_PATH!r}"
+        )
 
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), cert=(".", INVALID_PATH))
@@ -2456,7 +2458,6 @@ class TestMorselToCookieExpires:
 
 
 class TestMorselToCookieMaxAge:
-
     """Tests for morsel_to_cookie when morsel contains max-age."""
 
     def test_max_age_valid_int(self):
