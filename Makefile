@@ -22,7 +22,7 @@ coverage:
 
 publish: .publishenv
 	.publishenv/bin/python -m build
-	.publishenv/bin/python twine upload --skip-existing dist/*
+	.publishenv/bin/python -m twine upload --skip-existing dist/*
 	rm -fr build dist .egg requests.egg-info
 
 docs:
