@@ -7,6 +7,7 @@ import json
 import os
 import pickle
 import re
+import tempfile
 import threading
 import warnings
 from unittest import mock
@@ -25,6 +26,7 @@ from requests.compat import (
     builtin_str,
     cookielib,
     getproxies,
+    is_urllib3_1,
     urlparse,
 )
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
@@ -702,6 +704,36 @@ class TestRequests:
             assert r.status_code == 401
         finally:
             requests.sessions.get_netrc_auth = old_auth
+
+    def test_basicauth_with_netrc_leak(self, httpbin):
+        url1 = httpbin("basic-auth", "user", "pass")
+        url = url1[len("http://") :]
+        domain = url.split(":")[0]
+        url = f"http://example.com:@{url}"
+
+        netrc_file = ""
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as fp:
+            fp.write("machine example.com\n")
+            fp.write("login wronguser\n")
+            fp.write("password wrongpass\n")
+            fp.write(f"machine {domain}\n")
+            fp.write("login user\n")
+            fp.write("password pass\n")
+            fp.close()
+            netrc_file = fp.name
+
+        old_netrc = os.environ.get("NETRC", "")
+        os.environ["NETRC"] = netrc_file
+
+        try:
+            # Should use netrc
+            # Make sure that we don't use the example.com credentails
+            # for the request
+            r = requests.get(url)
+            assert r.status_code == 200
+        finally:
+            os.environ["NETRC"] = old_netrc
+            os.unlink(netrc_file)
 
     def test_DIGEST_HTTP_200_OK_GET(self, httpbin):
         for authtype in self.digest_auth_algo:
@@ -1662,6 +1694,32 @@ class TestRequests:
 
         assert s.get_adapter(url_matching_prefix_with_different_case) is my_adapter
 
+    def test_session_get_adapter_prefix_with_trailing_slash(self):
+        # from issue #6935
+        prefix = "https://example.com/"  # trailing slash
+        url_matching_prefix = "https://example.com/some/path"
+        url_not_matching_prefix = "https://example.com.other.com/some/path"
+
+        s = requests.Session()
+        adapter = HTTPAdapter()
+        s.mount(prefix, adapter)
+
+        assert s.get_adapter(url_matching_prefix) is adapter
+        assert s.get_adapter(url_not_matching_prefix) is not adapter
+
+    def test_session_get_adapter_prefix_without_trailing_slash(self):
+        # from issue #6935
+        prefix = "https://example.com"  # no trailing slash
+        url_matching_prefix = "https://example.com/some/path"
+        url_extended_hostname = "https://example.com.other.com/some/path"
+
+        s = requests.Session()
+        adapter = HTTPAdapter()
+        s.mount(prefix, adapter)
+
+        assert s.get_adapter(url_matching_prefix) is adapter
+        assert s.get_adapter(url_extended_hostname) is adapter
+
     def test_header_remove_is_case_insensitive(self, httpbin):
         # From issue #1321
         s = requests.Session()
@@ -1805,23 +1863,6 @@ class TestRequests:
     def test_autoset_header_values_are_native(self, httpbin):
         data = "this is a string"
         length = "16"
-        req = requests.Request("POST", httpbin("post"), data=data)
-        p = req.prepare()
-
-        assert p.headers["Content-Length"] == length
-
-    def test_content_length_for_bytes_data(self, httpbin):
-        data = "This is a string containing multi-byte UTF-8 ☃️"
-        encoded_data = data.encode("utf-8")
-        length = str(len(encoded_data))
-        req = requests.Request("POST", httpbin("post"), data=encoded_data)
-        p = req.prepare()
-
-        assert p.headers["Content-Length"] == length
-
-    def test_content_length_for_string_data_counts_bytes(self, httpbin):
-        data = "This is a string containing multi-byte UTF-8 ☃️"
-        length = str(len(data.encode("utf-8")))
         req = requests.Request("POST", httpbin("post"), data=data)
         p = req.prepare()
 
@@ -2964,6 +3005,29 @@ class TestPreparingURLs:
             close_server.set()
 
         assert client_cert is not None
+
+
+def test_content_length_for_bytes_data(httpbin):
+    data = "This is a string containing multi-byte UTF-8 ☃️"
+    encoded_data = data.encode("utf-8")
+    length = str(len(encoded_data))
+    req = requests.Request("POST", httpbin("post"), data=encoded_data)
+    p = req.prepare()
+
+    assert p.headers["Content-Length"] == length
+
+
+@pytest.mark.skipif(
+    is_urllib3_1,
+    reason="urllib3 2.x encodes all strings to utf-8, urllib3 1.x uses latin-1",
+)
+def test_content_length_for_string_data_counts_bytes(httpbin):
+    data = "This is a string containing multi-byte UTF-8 ☃️"
+    length = str(len(data.encode("utf-8")))
+    req = requests.Request("POST", httpbin("post"), data=data)
+    p = req.prepare()
+
+    assert p.headers["Content-Length"] == length
 
 
 def test_json_decode_errors_are_serializable_deserializable():

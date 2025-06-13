@@ -945,7 +945,9 @@ class Response:
         return content
 
     def json(self, **kwargs):
-        r"""Returns the json-encoded content of a response, if any.
+        r"""Decodes the JSON response body (if any) as a Python object.
+
+        This may return a dictionary, list, etc. depending on what is in the response.
 
         :param \*\*kwargs: Optional arguments that ``json.loads`` takes.
         :raises requests.exceptions.JSONDecodeError: If the response body does not

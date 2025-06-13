@@ -1,18 +1,9 @@
 # Vulnerability Disclosure
 
 If you think you have found a potential security vulnerability in
-requests, please email [Nate](mailto:nate.prewitt@gmail.com)
-and [Seth](mailto:sethmichaellarson@gmail.com) directly.
-**Do not file a public issue.**
-
-Our PGP Key fingerprints are:
-
-- 8722 7E29 AD9C FF5C FAC3  EA6A 44D3 FF97 B80D C864 ([@nateprewitt](https://keybase.io/nateprewitt))
-
-- EDD5 6765 A9D8 4653 CBC8  A134 51B0 6736 1740 F5FC ([@sethmlarson](https://keybase.io/sethmlarson))
-
-You can also contact us on [Keybase](https://keybase.io) with the
-profiles above if desired.
+requests, please open a [draft Security Advisory](https://github.com/psf/requests/security/advisories/new)
+via GitHub. We will coordinate verification and next steps through
+that secure medium.
 
 If English is not your first language, please try to describe the
 problem and its impact to the best of your ability. For greater detail,
@@ -72,7 +63,7 @@ intended patch ahead of time, to ensure that they are able to promptly
 release their downstream packages. Currently the list of people we
 actively contact *ahead of a public release* is:
 
--   Jeremy Cline, Red Hat (@jeremycline)
+-   Python Maintenance Team, Red Hat (python-maint@redhat.com)
 -   Daniele Tricoli, Debian (@eriol)
 
 We will notify these individuals at least a week ahead of our planned
