@@ -1,4 +1,5 @@
 import copy
+import io
 import filecmp
 import os
 import tarfile
@@ -975,3 +976,17 @@ def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
     monkeypatch.setattr(winreg, "OpenKey", OpenKey)
     monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
     assert should_bypass_proxies("http://example.com/", None) is False
+def test_super_len_stringio_multi_byte():
+    s = "💩"  # U+1F4A9 (4 bytes in UTF-8)
+    sio = io.StringIO(s)
+    assert super_len(sio) == 4, f"Expected 4, got {super_len(sio)}"
+
+def test_super_len_stringio_mixed_chars():
+    s = "A💩B"  # 1 byte + 4 bytes + 1 byte
+    sio = io.StringIO(s)
+    assert super_len(sio) == 6, f"Expected 6, got {super_len(sio)}"
+
+def test_super_len_stringio_empty():
+    s = ""
+    sio = io.StringIO(s)
+    assert super_len(sio) == 0, f"Expected 0, got {super_len(sio)}"
