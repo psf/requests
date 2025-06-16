@@ -45,19 +45,8 @@ chardet = _resolve_char_detection()
 # Pythons
 # -------
 
-# json/simplejson module import resolution
-has_simplejson = False
-try:
-    import simplejson as json
-
-    has_simplejson = True
-except ImportError:
-    import json
-
-if has_simplejson:
-    from simplejson import JSONDecodeError
-else:
-    from json import JSONDecodeError
+import json
+from json import JSONDecodeError
 
 # Keep OrderedDict for backwards compatibility.
 from collections import OrderedDict
