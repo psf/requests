@@ -6,6 +6,10 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+**Deprecations**
+- Requests has officially dropped support for Python 3.8
+
+
 2.32.4 (2025-06-10)
 -------------------
 
