@@ -104,7 +104,7 @@ def _urllib3_request_context(
             pool_kwargs["cert_file"] = client_cert
     host_params = {
         "scheme": scheme,
-        "host": parsed_request_url.hostname,
+        "host": parsed_request_url.host,
         "port": port,
     }
     return host_params, pool_kwargs
