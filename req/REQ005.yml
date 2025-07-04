@@ -5,7 +5,7 @@ header: |
 level: 1.5
 links: []
 normative: true
-ref: ''
-reviewed: 5ZcRe1Dol1QArV1sBxTkini-CUQ1NQhmnZHl_rSvXHo=
+ref: tests/test_requests.py
+reviewed: Cikk_cKwsMuNGz8pnJrK97AZse-FxrVLC_-D9EWA7t4=
 text: |
   The requests library shall have a function the user can use to peform DELETE requests.

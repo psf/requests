@@ -4,9 +4,9 @@ header: |
   basic-auth
 level: 1.4.1
 links:
-- REQ004: 0vPEPXPCoajDXU2V86QBN9QDYswUalNfTuRkO6k_aU0=
+- REQ004: RlcsDYyCOjETdgdt9hT61Ekhqa148risRmIBqjZFlfY=
 normative: true
-ref: ''
-reviewed: mW94Ib1m9oJr_thd6xuv5NP6_ig3hsaGaLeYIGyK_jE=
+ref: tests/test_requests.py
+reviewed: OuJ7BCJ3HL8RIRi3_RchaJv7ucSqI0Fd5bKxC_JzZo4=
 text: |
   The requests library shall have a function the user can use to peform GET.basic-auth requests.

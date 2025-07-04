@@ -5,7 +5,7 @@ header: |
 level: 1.3
 links: []
 normative: true
-ref: ''
-reviewed: -VOIFgd3ZFet73-GtbggU_IUeY-S74XwMUZmu2NTQCg=
+ref: tests/test_requests.py
+reviewed: Y8yJwNW3SYO78CjeDW4TYviZZ4ZZ4Vr9yPZumjzsueY=
 text: |
   The requests library shall have a function the user can use to peform PATCH requests.

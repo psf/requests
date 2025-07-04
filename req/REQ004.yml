@@ -5,7 +5,7 @@ header: |
 level: 1.4.0
 links: []
 normative: true
-ref: ''
-reviewed: 0vPEPXPCoajDXU2V86QBN9QDYswUalNfTuRkO6k_aU0=
+ref: tests/test_requests.py
+reviewed: RlcsDYyCOjETdgdt9hT61Ekhqa148risRmIBqjZFlfY=
 text: |
   The requests library shall have a function the user can use to peform GET requests.
