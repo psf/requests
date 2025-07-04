@@ -1,0 +1,11 @@
+active: true
+derived: false
+header: |
+  PUT
+level: 1.2
+links: []
+normative: true
+ref: ''
+reviewed: CSlBjkQL6VPqUSiRA7D2mqDVymblgQDQPeUAiU2TOR0=
+text: |
+  The requests library shall have a function the user can use to peform PUT requests.

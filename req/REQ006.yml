@@ -1,0 +1,11 @@
+active: true
+derived: false
+header: |
+  Documentation
+level: 1.6
+links: []
+normative: true
+ref: ''
+reviewed: UwH_fNgxIcxSKtyV6lh_SLTU6q8_A3TXjXQsaWLuzJo=
+text: |
+  The requests library shall be documented.

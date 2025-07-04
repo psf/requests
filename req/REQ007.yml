@@ -1,0 +1,12 @@
+active: true
+derived: false
+header: |
+  basic-auth
+level: 1.4.1
+links:
+- REQ004: 0vPEPXPCoajDXU2V86QBN9QDYswUalNfTuRkO6k_aU0=
+normative: true
+ref: ''
+reviewed: mW94Ib1m9oJr_thd6xuv5NP6_ig3hsaGaLeYIGyK_jE=
+text: |
+  The requests library shall have a function the user can use to peform GET.basic-auth requests.

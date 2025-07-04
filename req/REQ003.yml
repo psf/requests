@@ -1,0 +1,11 @@
+active: true
+derived: false
+header: |
+  PATCH
+level: 1.3
+links: []
+normative: true
+ref: ''
+reviewed: -VOIFgd3ZFet73-GtbggU_IUeY-S74XwMUZmu2NTQCg=
+text: |
+  The requests library shall have a function the user can use to peform PATCH requests.

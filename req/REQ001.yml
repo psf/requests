@@ -1,0 +1,11 @@
+active: true
+derived: false
+header: |
+  POST
+level: 1.1
+links: []
+normative: true
+ref: ''
+reviewed: S6Ozh27nJ3dP1cxQXwLT61iFZzbQhQTtTmTJjj3koK4=
+text: |
+  The requests library shall have a function the user can use to peform POST requests.

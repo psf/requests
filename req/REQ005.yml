@@ -1,0 +1,11 @@
+active: true
+derived: false
+header: |
+  DELETE
+level: 1.5
+links: []
+normative: true
+ref: ''
+reviewed: 5ZcRe1Dol1QArV1sBxTkini-CUQ1NQhmnZHl_rSvXHo=
+text: |
+  The requests library shall have a function the user can use to peform DELETE requests.
