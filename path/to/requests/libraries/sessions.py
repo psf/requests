@@ -1,0 +1,3 @@
+def resolve_proxies(self, proxies):
+    new_proxies = self.trust_env if not proxies else False
+    # ... rest of your existing code ...
