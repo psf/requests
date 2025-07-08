@@ -634,6 +634,14 @@ class Session(SessionRedirectMixin):
         :rtype: requests.Response
         """
 
+        if data==None:
+           if json==None:
+              pass
+           else :
+              print("On POST ",json," a l adresse ", url)
+        else :
+           print("On POST ",data," a l adresse ", url)
+
         return self.request("POST", url, data=data, json=json, **kwargs)
 
     def put(self, url, data=None, **kwargs):

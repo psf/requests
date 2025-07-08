@@ -1,0 +1,12 @@
+active: true
+derived: false
+header: |
+  print POST
+level: 1.1.2
+links:
+- REQ001: kA05wwNV3x0Z22mJ2zV9hRMpIcKxDQVgKH__aoI6jxM=
+normative: true
+ref: ''
+reviewed: null
+text: |
+  Affiche avec print la donnée envoyée avec POST

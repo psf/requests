@@ -5,7 +5,7 @@ header: |
 level: 1.2
 links: []
 normative: true
-ref: tests/test_requests.py
+ref: ''
 reviewed: cQnMgITZs5jvg_JFEQnw8yDSvcmaqVdlTKd3xSiTAs8=
 text: |
   The requests library shall have a function the user can use to peform PUT requests.

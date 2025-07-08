@@ -1,0 +1,12 @@
+active: true
+derived: false
+header: |
+  POST
+level: 1.1.1
+links:
+- REQ001: kA05wwNV3x0Z22mJ2zV9hRMpIcKxDQVgKH__aoI6jxM=
+normative: true
+ref: ''
+reviewed: null
+text: |
+  The function POST works well

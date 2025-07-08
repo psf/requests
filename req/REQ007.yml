@@ -6,7 +6,7 @@ level: 1.4.1
 links:
 - REQ004: RlcsDYyCOjETdgdt9hT61Ekhqa148risRmIBqjZFlfY=
 normative: true
-ref: tests/test_requests.py
+ref: ''
 reviewed: OuJ7BCJ3HL8RIRi3_RchaJv7ucSqI0Fd5bKxC_JzZo4=
 text: |
   The requests library shall have a function the user can use to peform GET.basic-auth requests.
