@@ -1,0 +1,12 @@
+active: true
+derived: false
+header: |
+  GET
+level: 1.4.2
+links:
+- REQ004: RlcsDYyCOjETdgdt9hT61Ekhqa148risRmIBqjZFlfY=
+normative: true
+ref: ''
+reviewed: null
+text: |
+  The function GET works well

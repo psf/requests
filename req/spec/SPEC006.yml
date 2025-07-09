@@ -1,0 +1,12 @@
+active: true
+derived: false
+header: |
+  Documented
+level: 1.6.1
+links:
+- REQ006: UwH_fNgxIcxSKtyV6lh_SLTU6q8_A3TXjXQsaWLuzJo=
+normative: true
+ref: ''
+reviewed: null
+text: |
+  The library is well documented
