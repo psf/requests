@@ -25,9 +25,6 @@ jobs:
         run: |
           mkdir -p pub
           doorstop publish all ./pub
-      - name: Vérifier le contenu généré
-        run: |
-          ls -la ./pub
           
       - name: Déployer sur GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
