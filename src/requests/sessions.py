@@ -601,7 +601,7 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault("allow_redirects", True)
 
 
-        res=self.request("GET", url, **kwargs
+        res=self.request("GET", url, **kwargs)
         print("On GET ",res," a l adresse ", url)
 
 
