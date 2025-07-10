@@ -599,13 +599,7 @@ class Session(SessionRedirectMixin):
         """
 
         kwargs.setdefault("allow_redirects", True)
-
-
-        res=self.request("GET", url, **kwargs
-        print("On GET ",res," a l adresse ", url)
-
-
-        return res
+        return self.request("GET", url, **kwargs
 
     def options(self, url, **kwargs):
         r"""Sends a OPTIONS request. Returns :class:`Response` object.
