@@ -1,0 +1,36 @@
+name: Doorstop HTML Publish
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cloner le dépôt
+        uses: actions/checkout@v3
+        
+      - name: Installer Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Installer Doorstop
+        run: pip install doorstop
+
+      - name: Initialiser Doorstop et générer la doc HTML
+        run: |
+          mkdir -p pub
+          doorstop publish all ./pub
+      - name: Vérifier le contenu généré
+        run: |
+          ls -la ./pub
+          
+      - name: Déployer sur GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./pub
