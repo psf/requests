@@ -1,0 +1,15 @@
+active: true
+derived: false
+header: |
+  Print GET
+level: 1.4.3
+links:
+- REQ004: RlcsDYyCOjETdgdt9hT61Ekhqa148risRmIBqjZFlfY=
+normative: true
+ref: ''
+references:
+- path: tests/test_requests.py
+  type: file
+reviewed: null
+text: |
+  Show what we GET using a Print
