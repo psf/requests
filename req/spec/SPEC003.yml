@@ -7,6 +7,9 @@ links:
 - REQ003: Y8yJwNW3SYO78CjeDW4TYviZZ4ZZ4Vr9yPZumjzsueY=
 normative: true
 ref: ''
+references:
+- path: tests/test_requests.py
+  type: file
 reviewed: null
 text: |
   The function PATCH works well
