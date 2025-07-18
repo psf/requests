@@ -1,7 +1,0 @@
-id: SPEC-1
-title: Test
-description: tsting
-related_requirements:
-- REQ-1
-implementation_unit: everywhere
-unit_test: ../../tests/test_requests.py
