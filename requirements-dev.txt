@@ -6,3 +6,4 @@ httpbin~=0.10.0
 trustme
 wheel
 tox
+flake8
