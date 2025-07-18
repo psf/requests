@@ -1,6 +1,9 @@
 .PHONY: docs
 init:
 	python -m pip install -r requirements-dev.txt
+test:
+	# This runs all of the tests on all supported Python versions.
+	python -m pytest tests
 
 ci:
 	python -m pytest tests --junitxml=report.xml
