@@ -5,5 +5,3 @@ pytest-httpbin==2.1.0
 httpbin~=0.10.0
 trustme
 wheel
-tox
-flake8
