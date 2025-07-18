@@ -1,0 +1,7 @@
+id: SPEC-3
+title: should fail
+description: failure expected
+related_requirements:
+- REQ-1
+implementation_unit: none
+unit_test: ../../tests/test_sample2.py

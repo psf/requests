@@ -4,3 +4,13 @@ settings:
   parent: REQ
   prefix: SPEC
   sep: ''
+attributes:
+  defaults:
+    Auteur:
+attributes:
+  defaults:
+    Documents:
+    - path:
+      func:
+      type: test
+

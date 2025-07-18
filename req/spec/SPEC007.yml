@@ -1,3 +1,6 @@
+Document:
+- func: null
+  type: test
 active: true
 derived: false
 header: |

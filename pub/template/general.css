@@ -1,0 +1,15 @@
+body {
+    padding-left: 0px;
+    padding-top: 0px;
+    padding-right: 0px;
+}
+
+/* indent everything within a section */
+section > * {
+    margin-left: 30px;
+}
+
+/* don't indent the section header */
+section > :first-child {
+    margin-left: 0px;
+}

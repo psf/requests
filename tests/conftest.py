@@ -56,3 +56,14 @@ def nosan_server(tmp_path_factory):
 
     server.shutdown()
     server_thread.join()
+
+
+
+
+
+
+# conftest.py
+#def pytest_collection_modifyitems(config, items):
+#    for item in items:
+#        marks = [mark.name for mark in item.iter_markers()]
+#        print(f"{item.nodeid} -> {marks}")
