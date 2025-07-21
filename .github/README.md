@@ -16,7 +16,24 @@ This repository uses GitHub Actions to ensure that all unit test files reference
   4. Posts detailed results as PR comments
   5. **Blocks merge** if validation fails
 
-### 2. `branch-protection.yml` - Branch Protection Setup
+### 2. `traceability-matrix.yml` - Automatic Traceability Matrix Generation
+- **Triggers**: 
+  - Pull requests merged to main/master branch
+  - Direct pushes to main/master branch
+- **Purpose**: Automatically generates traceability matrix after successful merges
+- **Process**:
+  1. Installs cdlreq and dependencies
+  2. Generates traceability matrix using `cdlreq export` (Excel format)
+  3. Creates fallback JSON/TXT formats if cdlreq unavailable
+  4. Commits matrix files back to repository
+  5. Posts PR comment with matrix summary
+  6. Uploads matrix as workflow artifacts
+- **Output Files**:
+  - `traceability_matrix.xlsx` - Excel format (preferred)
+  - `traceability_matrix.json` - JSON format (fallback)
+  - `traceability_matrix.txt` - Human-readable text report (fallback)
+
+### 3. `branch-protection.yml` - Branch Protection Setup
 - **Triggers**: Manual workflow dispatch
 - **Purpose**: Automatically configure branch protection rules
 - **Requirements**: `coverage-summary` status check must pass
@@ -101,9 +118,21 @@ unit_test: tests/test_example.py
 
 ## Workflow Status
 
+## Workflow Integration
+
 Pull requests **cannot be merged** until:
 - ✅ All specification unit test files exist
 - ✅ All specification unit test files are executed during pytest
 - ✅ Pull request is approved by at least 1 reviewer
 
-This ensures that all code referenced in specifications has corresponding unit tests that are actually executed, maintaining proper test coverage and preventing untested code from being merged.
+After successful merge:
+- 📊 **Traceability matrix is automatically generated** using `cdlreq export`
+- 📁 **Matrix files are committed** back to the repository
+- 💬 **PR comment is posted** with generation summary
+- 🏗️ **Artifacts are uploaded** for download
+
+This ensures that:
+1. All code referenced in specifications has corresponding unit tests that are actually executed
+2. An up-to-date traceability matrix is always available after changes
+3. Requirements and specifications relationships are automatically documented
+4. Compliance documentation is generated without manual intervention
