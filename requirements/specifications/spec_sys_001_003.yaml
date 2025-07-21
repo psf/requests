@@ -1,0 +1,8 @@
+id: SPEC-SYS-001-003
+title: Response
+description: The requests.get() function returns a Response object with the attributes
+  .status_code, .text, .content, .json()
+related_requirements:
+- REQ-SYS-001
+implementation_unit: src/requests/sessions.py
+unit_test: tests/test_requests.py
