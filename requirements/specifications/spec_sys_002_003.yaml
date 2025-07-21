@@ -1,0 +1,8 @@
+id: SPEC-SYS-002-003
+title: Response
+description: The requests.post() function returns a Response object with the usual
+  methods to read the received information
+related_requirements:
+- REQ-SYS-002
+implementation_unit: src/requests/sessions.py
+unit_test: tests/test_requests.py
