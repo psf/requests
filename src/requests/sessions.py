@@ -602,7 +602,7 @@ class Session(SessionRedirectMixin):
 
 
         res=self.request("GET", url, **kwargs)
-        print("On GET ",res," a l adresse ", url)
+#        print("On GET ",res," a l adresse ", url)
 
 
         return res
@@ -641,13 +641,13 @@ class Session(SessionRedirectMixin):
         :rtype: requests.Response
         """
 
-        if data==None:
-           if json==None:
-              pass
-           else :
-              print("On POST ",json," a l adresse ", url)
-        else :
-           print("On POST ",data," a l adresse ", url)
+ #       if data==None:
+ #          if json==None:
+ #             pass
+ #          else :
+ #             print("On POST ",json," a l adresse ", url)
+ #       else :
+ #          print("On POST ",data," a l adresse ", url)
 
         return self.request("POST", url, data=data, json=json, **kwargs)
 
