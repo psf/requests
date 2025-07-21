@@ -1,0 +1,7 @@
+id: SPEC-SYS-001-001
+title: URL
+description: 'The requests.get() function takes at least an URL as argument : requests.get(url)'
+related_requirements:
+- REQ-SYS-001
+implementation_unit: src/requests/sessions.py
+unit_test: tests/test_requests.py

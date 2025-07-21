@@ -1,0 +1,5 @@
+id: REQ-SYS-002
+title: HTTP Post
+description: The requests.post() function shall be able to send data via HTTP Post
+type: functional
+acceptance_criteria: []

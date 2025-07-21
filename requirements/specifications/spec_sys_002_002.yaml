@@ -1,0 +1,7 @@
+id: SPEC-SYS-002-002
+title: Data
+description: The requests.post() function allows to send data via data or json
+related_requirements:
+- REQ-SYS-002
+implementation_unit: src/requests/sessions.py
+unit_test: tests/test_requests.py

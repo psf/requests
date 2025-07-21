@@ -1,0 +1,8 @@
+id: SPEC-SYS-001-002
+title: Parameters
+description: The requests.get() function accepts some dynamic URL as arguments via
+  params
+related_requirements:
+- REQ-SYS-001
+implementation_unit: src/requests/sessions.py
+unit_test: tests/test_requests.py

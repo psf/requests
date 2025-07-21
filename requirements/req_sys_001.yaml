@@ -1,0 +1,5 @@
+id: REQ-SYS-001
+title: HTTP Get
+description: The requests.get() function shall be able to do a HTTP Get request
+type: functional
+acceptance_criteria: []

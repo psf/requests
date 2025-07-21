@@ -1,7 +1,0 @@
-id: SPEC-2
-title: should not work
-description: s
-related_requirements:
-- REQ-1
-implementation_unit: nothing
-unit_test: tests/test_sample.py
