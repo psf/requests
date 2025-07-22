@@ -62,13 +62,7 @@ jobs:
             python -c "from cdlreq.cli.commands import cli; cli(['export', '--directory', '.', '--output', 'requirements/traceability_matrix.json', '--format', 'json'])"
           else
             # Try direct import and execution
-            python -c "
-import sys
-sys.path.insert(0, '/tmp/cdlreq')
-from cdlreq.export import export_traceability_matrix
-export_traceability_matrix('.', 'requirements/traceability_matrix.xlsx', format='xlsx')
-export_traceability_matrix('.', 'requirements/traceability_matrix.json', format='json')
-"
+            python -c "import sys; sys.path.insert(0, '/tmp/cdlreq'); from cdlreq.export import export_traceability_matrix; export_traceability_matrix('.', 'requirements/traceability_matrix.xlsx', format='xlsx'); export_traceability_matrix('.', 'requirements/traceability_matrix.json', format='json')"
           fi
         else
           echo "Error: Could not find or import cdlreq"
