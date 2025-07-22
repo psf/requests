@@ -75,13 +75,7 @@ jobs:
           echo "Using cdlreq Python module for specification validation"
           
           # Validate all specifications have valid unit test paths
-          if python -c "
-import sys
-sys.path.insert(0, '/tmp/cdlreq')
-from cdlreq.validation import validate_specifications
-result = validate_specifications('.')
-sys.exit(0 if result else 1)
-" > spec_validation_output.txt 2>&1; then
+          if python -c "import sys; sys.path.insert(0, '/tmp/cdlreq'); from cdlreq.validation import validate_specifications; result = validate_specifications('.'); sys.exit(0 if result else 1)" > spec_validation_output.txt 2>&1; then
             SPEC_VALIDATION_EXIT_CODE=0
             echo "✅ All specification unit test paths are valid"
           else
