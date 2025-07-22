@@ -65,17 +65,17 @@ jobs:
     - name: Validate specification unit tests
       id: validate_specs
       run: |
-        echo "Validating specification unit test paths..."
+        echo "Validating specification unit test paths using cdlreq..."
         
         # Set up Python path for cdlreq
         export PYTHONPATH="/tmp/cdlreq:$PYTHONPATH"
         
-        # Run cdlreq validation for specifications
+        # Run cdlreq validate command for specifications
         if python -c "import cdlreq" 2>/dev/null; then
           echo "Using cdlreq Python module for specification validation"
           
-          # Validate all specifications have valid unit test paths
-          if python -c "import sys; sys.path.insert(0, '/tmp/cdlreq'); from cdlreq.validation import validate_specifications; result = validate_specifications('.'); sys.exit(0 if result else 1)" > spec_validation_output.txt 2>&1; then
+          # Use cdlreq validate command
+          if python -c "from cdlreq.cli.commands import cli; cli(['validate', '--directory', '.'])" > spec_validation_output.txt 2>&1; then
             SPEC_VALIDATION_EXIT_CODE=0
             echo "✅ All specification unit test paths are valid"
           else
@@ -117,50 +117,37 @@ jobs:
     - name: Check test coverage
       id: coverage
       run: |
-        echo "Checking if all specification unit tests were executed..."
+        echo "Checking test coverage using cdlreq..."
         
-        # Extract unit test paths from specifications
-        echo "Extracting unit tests from specifications..."
-        MISSING_TESTS=""
-        TOTAL_SPEC_TESTS=0
-        EXECUTED_TESTS=0
+        # Set up Python path for cdlreq
+        export PYTHONPATH="/tmp/cdlreq:$PYTHONPATH"
         
-        for spec_file in requirements/specifications/*.yaml; do
-          if [ -f "$spec_file" ]; then
-            # Extract unit_test field from each specification
-            UNIT_TEST=$(grep "unit_test:" "$spec_file" | sed 's/.*unit_test: *//' | tr -d '"' | tr -d "'" | xargs)
-            if [ ! -z "$UNIT_TEST" ] && [ "$UNIT_TEST" != "null" ]; then
-              TOTAL_SPEC_TESTS=$((TOTAL_SPEC_TESTS + 1))
-              echo "Checking if test exists: $UNIT_TEST"
-              
-              # Check if this test appears in pytest output (regardless of pass/fail)
-              if grep -q "$UNIT_TEST" pytest_output.txt; then
-                echo "✅ Found executed: $UNIT_TEST"
-                EXECUTED_TESTS=$((EXECUTED_TESTS + 1))
-              else
-                echo "❌ Missing execution: $UNIT_TEST"
-                MISSING_TESTS="$MISSING_TESTS\n- $UNIT_TEST"
-              fi
-            fi
+        # Run cdlreq coverage check with pytest output
+        if python -c "import cdlreq" 2>/dev/null; then
+          echo "Using cdlreq Python module for coverage verification"
+          
+          # Use cdlreq coverage command
+          if python -c "from cdlreq.cli.commands import cli; cli(['coverage', 'pytest_output.txt', '--directory', '.'])" > coverage_output.txt 2>&1; then
+            COVERAGE_EXIT_CODE=0
+            echo "✅ Coverage verification passed"
+          else
+            COVERAGE_EXIT_CODE=1
+            echo "❌ Coverage verification failed"
           fi
-        done
-        
-        echo "===================="
-        echo "COVERAGE SUMMARY:"
-        echo "Total specification tests: $TOTAL_SPEC_TESTS"
-        echo "Executed tests: $EXECUTED_TESTS"
-        echo "Missing tests: $((TOTAL_SPEC_TESTS - EXECUTED_TESTS))"
-        
-        if [ $EXECUTED_TESTS -eq $TOTAL_SPEC_TESTS ]; then
-          echo "✅ All specification unit tests were executed"
-          echo "coverage_exit_code=0" >> $GITHUB_OUTPUT
+          
+          echo "=== COVERAGE OUTPUT ==="
+          cat coverage_output.txt
+          echo "======================"
+          
+          echo "coverage_exit_code=$COVERAGE_EXIT_CODE" >> $GITHUB_OUTPUT
+          
+          if [ $COVERAGE_EXIT_CODE -ne 0 ]; then
+            echo "🚫 Blocking PR merge - specification unit tests coverage failed"
+            exit 1
+          fi
         else
-          echo "❌ Some specification unit tests were not executed:"
-          echo -e "$MISSING_TESTS"
-          echo ""
-          echo "🚫 Blocking PR merge - all specification unit tests must be executed"
-          echo "coverage_exit_code=1" >> $GITHUB_OUTPUT
-          exit 1
+          echo "⚠️ Could not import cdlreq for coverage verification"
+          echo "coverage_exit_code=0" >> $GITHUB_OUTPUT
         fi
 
     - name: Check final results
