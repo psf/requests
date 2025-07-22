@@ -59,14 +59,17 @@ jobs:
         if git diff --staged --quiet; then
           echo "No changes to commit"
         else
-          git commit -m "Update traceability matrix
+          git commit -m "$(cat <<'EOF'
+Update traceability matrix
 
 Generated traceability matrix using cdlreq export
 Saved in requirements/ directory
 
 🤖 Generated with [Claude Code](https://claude.ai/code)
 
-Co-Authored-By: Claude <noreply@anthropic.com>"
+Co-Authored-By: Claude <noreply@anthropic.com>
+EOF
+)"
           git push
 
     - name: Upload artifacts
