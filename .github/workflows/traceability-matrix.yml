@@ -1,6 +1,11 @@
 name: Generate Traceability Matrix
 
 on:
+  workflow_run:
+    workflows: ["PR Checks"]
+    types:
+      - completed
+    branches: [main, master]
   push:
     branches: [main, master]
   pull_request:
@@ -9,6 +14,8 @@ on:
 jobs:
   generate-traceability-matrix:
     runs-on: ubuntu-latest
+    # Only run if PR checks passed or if triggered by direct push/PR
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name != 'workflow_run'
     
     steps:
     - name: Checkout code
