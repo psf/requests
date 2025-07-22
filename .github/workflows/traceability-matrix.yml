@@ -88,6 +88,7 @@ jobs:
         else
           git commit -m "Update traceability matrix - Generated using cdlreq export and saved in requirements/ directory"
           git push
+        fi
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
