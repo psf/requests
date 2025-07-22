@@ -63,7 +63,7 @@ jobs:
           git push
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: traceability-matrix
         path: requirements/traceability_matrix.*
