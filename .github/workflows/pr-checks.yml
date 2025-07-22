@@ -1,0 +1,226 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test-and-coverage:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov
+        pip install pyyaml jsonschema click openpyxl
+        
+        # Install project dependencies
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        elif [ -f requirements-dev.txt ]; then
+          pip install -r requirements-dev.txt
+        fi
+        
+        # Install the project itself
+        pip install -e .
+
+    - name: Install cdlreq
+      run: |
+        # Install cdlreq for coverage verification
+        export PYTHONPATH="/tmp/cdlreq:$PYTHONPATH"
+        
+        if git clone https://github.com/SeanHgh/cdlreq.git /tmp/cdlreq; then
+          echo "Successfully cloned cdlreq"
+          cd /tmp/cdlreq
+          
+          # Try pip install first
+          if pip install -e . 2>/dev/null; then
+            echo "Successfully installed cdlreq with pip"
+          else
+            echo "Pip install failed, using manual setup"
+            export PYTHONPATH="/tmp/cdlreq:$PYTHONPATH"
+          fi
+        else
+          echo "Failed to clone cdlreq repository"
+          exit 1
+        fi
+
+    - name: Run pytest and save output
+      id: pytest
+      run: |
+        echo "Running pytest tests..."
+        
+        # Run pytest with coverage and save output to file
+        pytest tests/ --tb=short --no-header -v > pytest_output.txt 2>&1
+        PYTEST_EXIT_CODE=$?
+        
+        echo "Pytest completed with exit code: $PYTEST_EXIT_CODE"
+        echo "pytest_exit_code=$PYTEST_EXIT_CODE" >> $GITHUB_OUTPUT
+        
+        # Display the output
+        echo "=== PYTEST OUTPUT ==="
+        cat pytest_output.txt
+        echo "===================="
+        
+        # Don't exit here - let coverage check decide final result
+        echo "Pytest output saved to pytest_output.txt"
+
+    - name: Verify test coverage with cdlreq
+      id: coverage
+      run: |
+        echo "Verifying test coverage with cdlreq..."
+        
+        # Set up Python path for cdlreq
+        export PYTHONPATH="/tmp/cdlreq:$PYTHONPATH"
+        
+        # Run cdlreq coverage check
+        if python -c "import cdlreq" 2>/dev/null; then
+          echo "Using cdlreq Python module for coverage verification"
+          
+          # Try to run coverage check
+          if python -c "from cdlreq.cli.commands import cli; cli(['coverage', '--directory', '.'])" > coverage_output.txt 2>&1; then
+            COVERAGE_EXIT_CODE=0
+          else
+            COVERAGE_EXIT_CODE=1
+          fi
+          
+          echo "Coverage check completed with exit code: $COVERAGE_EXIT_CODE"
+          echo "coverage_exit_code=$COVERAGE_EXIT_CODE" >> $GITHUB_OUTPUT
+          
+          # Display coverage output
+          echo "=== COVERAGE OUTPUT ==="
+          cat coverage_output.txt
+          echo "======================="
+          
+        else
+          echo "Error: Could not import cdlreq for coverage verification"
+          echo "coverage_exit_code=1" >> $GITHUB_OUTPUT
+          COVERAGE_EXIT_CODE=1
+        fi
+        
+        # Check if coverage verification passed
+        if [ $COVERAGE_EXIT_CODE -ne 0 ]; then
+          echo "❌ Coverage verification failed"
+          echo "Some specifications have untested unit test paths"
+          exit 1
+        else
+          echo "✅ Coverage verification passed"
+        fi
+
+    - name: Check final results
+      run: |
+        PYTEST_CODE=${{ steps.pytest.outputs.pytest_exit_code }}
+        COVERAGE_CODE=${{ steps.coverage.outputs.coverage_exit_code }}
+        
+        echo "=== FINAL RESULTS ==="
+        echo "Pytest exit code: $PYTEST_CODE"
+        echo "Coverage exit code: $COVERAGE_CODE"
+        
+        if [ "$PYTEST_CODE" -ne 0 ]; then
+          echo "❌ Pytest tests failed"
+          FINAL_RESULT=1
+        elif [ "$COVERAGE_CODE" -ne 0 ]; then
+          echo "❌ Coverage verification failed"
+          FINAL_RESULT=1
+        else
+          echo "✅ All checks passed"
+          FINAL_RESULT=0
+        fi
+        
+        echo "===================="
+        
+        if [ $FINAL_RESULT -ne 0 ]; then
+          echo "🚫 PR checks failed - blocking merge"
+          exit 1
+        else
+          echo "🎉 PR checks passed - ready to merge"
+        fi
+
+    - name: Upload test outputs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-outputs
+        path: |
+          pytest_output.txt
+          coverage_output.txt
+        retention-days: 30
+
+    - name: Comment on PR with results
+      if: always()
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const pytestCode = '${{ steps.pytest.outputs.pytest_exit_code }}';
+          const coverageCode = '${{ steps.coverage.outputs.coverage_exit_code }}';
+          
+          let pytestOutput = '';
+          let coverageOutput = '';
+          
+          try {
+            pytestOutput = fs.readFileSync('pytest_output.txt', 'utf8');
+          } catch (e) {
+            pytestOutput = 'No pytest output available';
+          }
+          
+          try {
+            coverageOutput = fs.readFileSync('coverage_output.txt', 'utf8');
+          } catch (e) {
+            coverageOutput = 'No coverage output available';
+          }
+          
+          const pytestStatus = pytestCode === '0' ? '✅ PASSED' : '❌ FAILED';
+          const coverageStatus = coverageCode === '0' ? '✅ PASSED' : '❌ FAILED';
+          const overallStatus = (pytestCode === '0' && coverageCode === '0') ? '🎉 READY TO MERGE' : '🚫 MERGE BLOCKED';
+          
+          const body = `## 🔍 PR Checks Results
+          
+${overallStatus}
+
+### 📊 Test Results Summary:
+- **Pytest Tests**: ${pytestStatus}
+- **Coverage Verification**: ${coverageStatus}
+
+### 🧪 Pytest Output:
+<details>
+<summary>Click to expand pytest results</summary>
+
+\`\`\`
+${pytestOutput.slice(0, 3000)}${pytestOutput.length > 3000 ? '\n... (output truncated)' : ''}
+\`\`\`
+</details>
+
+### 📈 Coverage Verification:
+<details>
+<summary>Click to expand coverage results</summary>
+
+\`\`\`
+${coverageOutput.slice(0, 3000)}${coverageOutput.length > 3000 ? '\n... (output truncated)' : ''}
+\`\`\`
+</details>
+
+---
+${overallStatus === '🚫 MERGE BLOCKED' ? 
+  '**❌ This PR cannot be merged until all tests pass and coverage requirements are met.**' : 
+  '**✅ This PR has passed all checks and is ready to merge.**'
+}
+
+*Automated PR checks powered by pytest and cdlreq coverage verification*`;
+          
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: body
+          });
