@@ -1,10 +1,16 @@
 name: PR Checks
 
 on:
-  push:
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number'
+        required: false
+        type: string
+      pr_head_sha:
+        description: 'PR head SHA'
+        required: false
+        type: string
 
 jobs:
   test-and-coverage:
@@ -158,7 +164,7 @@ jobs:
         retention-days: 30
 
     - name: Comment on PR with results
-      if: always() && github.event_name == 'pull_request'
+      if: always() && github.event.inputs.pr_number
       uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -204,6 +210,6 @@ jobs:
           await github.rest.issues.createComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            issue_number: context.issue.number,
+            issue_number: '${{ github.event.inputs.pr_number }}',
             body: body
           });

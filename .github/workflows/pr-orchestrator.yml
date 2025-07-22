@@ -1,0 +1,208 @@
+name: PR Orchestrator
+
+on:
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  run-pr-checks:
+    name: Run PR Checks
+    runs-on: ubuntu-latest
+    steps:
+    - name: Trigger PR Checks workflow
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          console.log('🚀 Triggering PR Checks workflow...');
+          
+          const result = await github.rest.actions.createWorkflowDispatch({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: 'pr-checks.yml',
+            ref: context.payload.pull_request.head.ref,
+            inputs: {
+              pr_number: context.payload.pull_request.number.toString(),
+              pr_head_sha: context.payload.pull_request.head.sha
+            }
+          });
+          
+          console.log('✅ PR Checks workflow triggered successfully');
+
+    - name: Wait for PR Checks completion
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          console.log('⏳ Waiting for PR Checks workflow to complete...');
+          
+          const maxWaitTime = 30 * 60 * 1000; // 30 minutes
+          const pollInterval = 30 * 1000; // 30 seconds
+          const startTime = Date.now();
+          
+          while (Date.now() - startTime < maxWaitTime) {
+            // Get recent workflow runs for PR Checks
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'pr-checks.yml',
+              head_sha: context.payload.pull_request.head.sha,
+              per_page: 10
+            });
+            
+            console.log(`Found ${runs.data.workflow_runs.length} workflow runs for this SHA`);
+            
+            // Find the most recent run
+            const latestRun = runs.data.workflow_runs[0];
+            
+            if (latestRun) {
+              console.log(`Latest run status: ${latestRun.status}, conclusion: ${latestRun.conclusion}`);
+              
+              if (latestRun.status === 'completed') {
+                if (latestRun.conclusion === 'success') {
+                  console.log('✅ PR Checks completed successfully');
+                  core.setOutput('pr_checks_result', 'success');
+                  return;
+                } else {
+                  console.log(`❌ PR Checks failed with conclusion: ${latestRun.conclusion}`);
+                  core.setOutput('pr_checks_result', 'failure');
+                  core.setFailed('PR Checks workflow failed');
+                  return;
+                }
+              }
+            }
+            
+            console.log('Still waiting...');
+            await new Promise(resolve => setTimeout(resolve, pollInterval));
+          }
+          
+          console.log('⏰ Timeout waiting for PR Checks completion');
+          core.setOutput('pr_checks_result', 'timeout');
+          core.setFailed('Timeout waiting for PR Checks workflow completion');
+
+  run-traceability-matrix:
+    name: Run Traceability Matrix
+    runs-on: ubuntu-latest
+    needs: run-pr-checks
+    if: success()
+    steps:
+    - name: Trigger Traceability Matrix workflow
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          console.log('🚀 Triggering Traceability Matrix workflow...');
+          
+          const result = await github.rest.actions.createWorkflowDispatch({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: 'traceability-matrix.yml',
+            ref: context.payload.pull_request.head.ref,
+            inputs: {
+              pr_number: context.payload.pull_request.number.toString(),
+              pr_head_sha: context.payload.pull_request.head.sha
+            }
+          });
+          
+          console.log('✅ Traceability Matrix workflow triggered successfully');
+
+    - name: Wait for Traceability Matrix completion
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          console.log('⏳ Waiting for Traceability Matrix workflow to complete...');
+          
+          const maxWaitTime = 20 * 60 * 1000; // 20 minutes
+          const pollInterval = 30 * 1000; // 30 seconds
+          const startTime = Date.now();
+          
+          while (Date.now() - startTime < maxWaitTime) {
+            // Get recent workflow runs for Traceability Matrix
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'traceability-matrix.yml',
+              head_sha: context.payload.pull_request.head.sha,
+              per_page: 10
+            });
+            
+            console.log(`Found ${runs.data.workflow_runs.length} workflow runs for this SHA`);
+            
+            // Find the most recent run
+            const latestRun = runs.data.workflow_runs[0];
+            
+            if (latestRun) {
+              console.log(`Latest run status: ${latestRun.status}, conclusion: ${latestRun.conclusion}`);
+              
+              if (latestRun.status === 'completed') {
+                if (latestRun.conclusion === 'success') {
+                  console.log('✅ Traceability Matrix completed successfully');
+                  return;
+                } else {
+                  console.log(`⚠️ Traceability Matrix completed with conclusion: ${latestRun.conclusion}`);
+                  return; // Don't fail the orchestrator if matrix generation has issues
+                }
+              }
+            }
+            
+            console.log('Still waiting...');
+            await new Promise(resolve => setTimeout(resolve, pollInterval));
+          }
+          
+          console.log('⏰ Timeout waiting for Traceability Matrix completion');
+          console.log('ℹ️ Continuing without failing (matrix generation is not critical)');
+
+  summary:
+    name: Workflow Summary
+    runs-on: ubuntu-latest
+    needs: [run-pr-checks, run-traceability-matrix]
+    if: always()
+    steps:
+    - name: Post workflow summary
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const prChecksResult = '${{ needs.run-pr-checks.result }}';
+          const matrixResult = '${{ needs.run-traceability-matrix.result }}';
+          
+          console.log('📊 Workflow Summary:');
+          console.log(`PR Checks: ${prChecksResult}`);
+          console.log(`Traceability Matrix: ${matrixResult}`);
+          
+          let status = '🎉 All workflows completed successfully';
+          let details = '✅ **PR Checks**: Passed\n✅ **Traceability Matrix**: Generated';
+          
+          if (prChecksResult !== 'success') {
+            status = '❌ PR workflow failed';
+            details = `❌ **PR Checks**: Failed (${prChecksResult})\n⏭️ **Traceability Matrix**: Skipped`;
+          } else if (matrixResult !== 'success') {
+            status = '⚠️ PR checks passed, matrix generation had issues';
+            details = `✅ **PR Checks**: Passed\n⚠️ **Traceability Matrix**: ${matrixResult}`;
+          }
+          
+          const body = `## 🔄 PR Orchestrator Summary
+          
+${status}
+
+### 📋 Workflow Results:
+${details}
+
+### 🕐 Execution Timeline:
+1. **PR Checks** - Tests and coverage verification
+2. **Traceability Matrix** - Requirements matrix generation (if checks passed)
+
+---
+*Automated workflow orchestration for PR processing*`;
+          
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: body
+          });
+          
+          if (prChecksResult !== 'success') {
+            core.setFailed('PR Checks workflow failed - blocking PR merge');
+          }
