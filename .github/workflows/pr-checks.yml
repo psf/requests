@@ -62,6 +62,42 @@ jobs:
           exit 1
         fi
 
+    - name: Validate specification unit tests
+      id: validate_specs
+      run: |
+        echo "Validating specification unit test paths..."
+        
+        # Set up Python path for cdlreq
+        export PYTHONPATH="/tmp/cdlreq:$PYTHONPATH"
+        
+        # Run cdlreq validation for specifications
+        if python -c "import cdlreq" 2>/dev/null; then
+          echo "Using cdlreq Python module for specification validation"
+          
+          # Validate all specifications have valid unit test paths
+          if python -c "import sys; sys.path.insert(0, '/tmp/cdlreq'); from cdlreq.validation import validate_specifications; result = validate_specifications('.'); sys.exit(0 if result else 1)" > spec_validation_output.txt 2>&1; then
+            SPEC_VALIDATION_EXIT_CODE=0
+            echo "✅ All specification unit test paths are valid"
+          else
+            SPEC_VALIDATION_EXIT_CODE=1
+            echo "❌ Some specification unit test paths are invalid"
+          fi
+          
+          echo "=== SPECIFICATION VALIDATION OUTPUT ==="
+          cat spec_validation_output.txt
+          echo "======================================="
+          
+          echo "spec_validation_exit_code=$SPEC_VALIDATION_EXIT_CODE" >> $GITHUB_OUTPUT
+          
+          if [ $SPEC_VALIDATION_EXIT_CODE -ne 0 ]; then
+            echo "🚫 Blocking PR merge due to invalid specification unit test paths"
+            exit 1
+          fi
+        else
+          echo "⚠️ Could not import cdlreq for specification validation"
+          echo "spec_validation_exit_code=0" >> $GITHUB_OUTPUT
+        fi
+
     - name: Run pytest and save output
       id: pytest
       run: |
@@ -126,14 +162,19 @@ jobs:
 
     - name: Check final results
       run: |
+        SPEC_VALIDATION_CODE=${{ steps.validate_specs.outputs.spec_validation_exit_code }}
         PYTEST_CODE=${{ steps.pytest.outputs.pytest_exit_code }}
         COVERAGE_CODE=${{ steps.coverage.outputs.coverage_exit_code }}
         
         echo "=== FINAL RESULTS ==="
+        echo "Specification validation exit code: $SPEC_VALIDATION_CODE"
         echo "Pytest exit code: $PYTEST_CODE"
         echo "Coverage exit code: $COVERAGE_CODE"
         
-        if [ "$PYTEST_CODE" -ne 0 ]; then
+        if [ "$SPEC_VALIDATION_CODE" -ne 0 ]; then
+          echo "❌ Specification unit test validation failed"
+          FINAL_RESULT=1
+        elif [ "$PYTEST_CODE" -ne 0 ]; then
           echo "❌ Pytest tests failed"
           FINAL_RESULT=1
         elif [ "$COVERAGE_CODE" -ne 0 ]; then
@@ -159,6 +200,7 @@ jobs:
       with:
         name: test-outputs
         path: |
+          spec_validation_output.txt
           pytest_output.txt
           coverage_output.txt
         retention-days: 30
@@ -170,11 +212,19 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const fs = require('fs');
+          const specValidationCode = '${{ steps.validate_specs.outputs.spec_validation_exit_code }}';
           const pytestCode = '${{ steps.pytest.outputs.pytest_exit_code }}';
           const coverageCode = '${{ steps.coverage.outputs.coverage_exit_code }}';
           
+          let specValidationOutput = '';
           let pytestOutput = '';
           let coverageOutput = '';
+          
+          try {
+            specValidationOutput = fs.readFileSync('spec_validation_output.txt', 'utf8');
+          } catch (e) {
+            specValidationOutput = 'No specification validation output available';
+          }
           
           try {
             pytestOutput = fs.readFileSync('pytest_output.txt', 'utf8');
@@ -188,24 +238,29 @@ jobs:
             coverageOutput = 'No coverage output available';
           }
           
+          const specValidationStatus = specValidationCode === '0' ? '✅ PASSED' : '❌ FAILED';
           const pytestStatus = pytestCode === '0' ? '✅ PASSED' : '❌ FAILED';
           const coverageStatus = coverageCode === '0' ? '✅ PASSED' : '❌ FAILED';
-          const overallStatus = (pytestCode === '0' && coverageCode === '0') ? '🎉 READY TO MERGE' : '🚫 MERGE BLOCKED';
+          const overallStatus = (specValidationCode === '0' && pytestCode === '0' && coverageCode === '0') ? '🎉 READY TO MERGE' : '🚫 MERGE BLOCKED';
           
           const body = "## 🔍 PR Checks Results\n\n" + overallStatus + 
             "\n\n### 📊 Test Results Summary:\n" +
+            "- **Specification Validation**: " + specValidationStatus + "\n" +
             "- **Pytest Tests**: " + pytestStatus + "\n" +
             "- **Coverage Verification**: " + coverageStatus + "\n\n" +
+            "### 📋 Specification Validation:\n<details>\n<summary>Click to expand specification validation results</summary>\n\n```\n" +
+            specValidationOutput.slice(0, 2000) + (specValidationOutput.length > 2000 ? '\n... (output truncated)' : '') +
+            "\n```\n</details>\n\n" +
             "### 🧪 Pytest Output:\n<details>\n<summary>Click to expand pytest results</summary>\n\n```\n" +
-            pytestOutput.slice(0, 3000) + (pytestOutput.length > 3000 ? '\n... (output truncated)' : '') +
+            pytestOutput.slice(0, 2000) + (pytestOutput.length > 2000 ? '\n... (output truncated)' : '') +
             "\n```\n</details>\n\n" +
             "### 📈 Coverage Verification:\n<details>\n<summary>Click to expand coverage results</summary>\n\n```\n" +
-            coverageOutput.slice(0, 3000) + (coverageOutput.length > 3000 ? '\n... (output truncated)' : '') +
+            coverageOutput.slice(0, 2000) + (coverageOutput.length > 2000 ? '\n... (output truncated)' : '') +
             "\n```\n</details>\n\n---\n" +
             (overallStatus === '🚫 MERGE BLOCKED' ? 
-              '**❌ This PR cannot be merged until all tests pass and coverage requirements are met.**' : 
+              '**❌ This PR cannot be merged until all checks pass (specification validation, tests, and coverage).**' : 
               '**✅ This PR has passed all checks and is ready to merge.**') +
-            "\n\n*Automated PR checks powered by pytest and cdlreq coverage verification*";
+            "\n\n*Automated PR checks with specification validation, pytest testing, and cdlreq coverage verification*";
           
           await github.rest.issues.createComment({
             owner: context.repo.owner,

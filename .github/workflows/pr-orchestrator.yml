@@ -5,150 +5,76 @@ on:
     branches: [main, master]
 
 jobs:
-  run-pr-checks:
-    name: Run PR Checks
+  pr-checks:
+    name: Run Tests and Coverage
     runs-on: ubuntu-latest
+    
     steps:
-    - name: Trigger PR Checks workflow
-      uses: actions/github-script@v7
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          console.log('🚀 Triggering PR Checks workflow...');
-          
-          const result = await github.rest.actions.createWorkflowDispatch({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            workflow_id: 'pr-checks.yml',
-            ref: context.payload.pull_request.head.ref,
-            inputs: {
-              pr_number: context.payload.pull_request.number.toString(),
-              pr_head_sha: context.payload.pull_request.head.sha
-            }
-          });
-          
-          console.log('✅ PR Checks workflow triggered successfully');
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - name: Wait for PR Checks completion
-      uses: actions/github-script@v7
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          console.log('⏳ Waiting for PR Checks workflow to complete...');
-          
-          const maxWaitTime = 30 * 60 * 1000; // 30 minutes
-          const pollInterval = 30 * 1000; // 30 seconds
-          const startTime = Date.now();
-          
-          while (Date.now() - startTime < maxWaitTime) {
-            // Get recent workflow runs for PR Checks
-            const runs = await github.rest.actions.listWorkflowRuns({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'pr-checks.yml',
-              head_sha: context.payload.pull_request.head.sha,
-              per_page: 10
-            });
-            
-            console.log(`Found ${runs.data.workflow_runs.length} workflow runs for this SHA`);
-            
-            // Find the most recent run
-            const latestRun = runs.data.workflow_runs[0];
-            
-            if (latestRun) {
-              console.log(`Latest run status: ${latestRun.status}, conclusion: ${latestRun.conclusion}`);
-              
-              if (latestRun.status === 'completed') {
-                if (latestRun.conclusion === 'success') {
-                  console.log('✅ PR Checks completed successfully');
-                  core.setOutput('pr_checks_result', 'success');
-                  return;
-                } else {
-                  console.log(`❌ PR Checks failed with conclusion: ${latestRun.conclusion}`);
-                  core.setOutput('pr_checks_result', 'failure');
-                  core.setFailed('PR Checks workflow failed');
-                  return;
-                }
-              }
-            }
-            
-            console.log('Still waiting...');
-            await new Promise(resolve => setTimeout(resolve, pollInterval));
-          }
-          
-          console.log('⏰ Timeout waiting for PR Checks completion');
-          core.setOutput('pr_checks_result', 'timeout');
-          core.setFailed('Timeout waiting for PR Checks workflow completion');
+        python-version: '3.11'
 
-  run-traceability-matrix:
-    name: Run Traceability Matrix
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov pyyaml jsonschema click openpyxl
+        pip install -e .
+
+    - name: Install cdlreq
+      run: |
+        git clone https://github.com/SeanHgh/cdlreq.git /tmp/cdlreq
+        cd /tmp/cdlreq && pip install -e . || echo "Using manual setup"
+        export PYTHONPATH="/tmp/cdlreq:$PYTHONPATH"
+
+    - name: Validate specifications
+      run: |
+        export PYTHONPATH="/tmp/cdlreq:$PYTHONPATH"
+        python -c "import sys; sys.path.insert(0, '/tmp/cdlreq'); from cdlreq.validation import validate_specifications; result = validate_specifications('.'); sys.exit(0 if result else 1)" || exit 1
+
+    - name: Run tests
+      run: |
+        pytest tests/ --tb=short -v || exit 1
+
+    - name: Check coverage
+      run: |
+        export PYTHONPATH="/tmp/cdlreq:$PYTHONPATH"
+        python -c "from cdlreq.cli.commands import cli; cli(['coverage', 'pytest_output.txt', '--directory', '.'])" || exit 1
+
+  traceability-matrix:
+    name: Generate Matrix
     runs-on: ubuntu-latest
-    needs: run-pr-checks
+    needs: pr-checks
     if: success()
+    
     steps:
-    - name: Trigger Traceability Matrix workflow
-      uses: actions/github-script@v7
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          console.log('🚀 Triggering Traceability Matrix workflow...');
-          
-          const result = await github.rest.actions.createWorkflowDispatch({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            workflow_id: 'traceability-matrix.yml',
-            ref: context.payload.pull_request.head.ref,
-            inputs: {
-              pr_number: context.payload.pull_request.number.toString(),
-              pr_head_sha: context.payload.pull_request.head.sha
-            }
-          });
-          
-          console.log('✅ Traceability Matrix workflow triggered successfully');
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - name: Wait for Traceability Matrix completion
-      uses: actions/github-script@v7
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          console.log('⏳ Waiting for Traceability Matrix workflow to complete...');
-          
-          const maxWaitTime = 20 * 60 * 1000; // 20 minutes
-          const pollInterval = 30 * 1000; // 30 seconds
-          const startTime = Date.now();
-          
-          while (Date.now() - startTime < maxWaitTime) {
-            // Get recent workflow runs for Traceability Matrix
-            const runs = await github.rest.actions.listWorkflowRuns({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'traceability-matrix.yml',
-              head_sha: context.payload.pull_request.head.sha,
-              per_page: 10
-            });
-            
-            console.log(`Found ${runs.data.workflow_runs.length} workflow runs for this SHA`);
-            
-            // Find the most recent run
-            const latestRun = runs.data.workflow_runs[0];
-            
-            if (latestRun) {
-              console.log(`Latest run status: ${latestRun.status}, conclusion: ${latestRun.conclusion}`);
-              
-              if (latestRun.status === 'completed') {
-                if (latestRun.conclusion === 'success') {
-                  console.log('✅ Traceability Matrix completed successfully');
-                  return;
-                } else {
-                  console.log(`⚠️ Traceability Matrix completed with conclusion: ${latestRun.conclusion}`);
-                  return; // Don't fail the orchestrator if matrix generation has issues
-                }
-              }
-            }
-            
-            console.log('Still waiting...');
-            await new Promise(resolve => setTimeout(resolve, pollInterval));
-          }
-          
-          console.log('⏰ Timeout waiting for Traceability Matrix completion');
-          console.log('ℹ️ Continuing without failing (matrix generation is not critical)');
+        python-version: '3.11'
+
+    - name: Install cdlreq
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyyaml jsonschema click openpyxl
+        git clone https://github.com/SeanHgh/cdlreq.git /tmp/cdlreq
+        cd /tmp/cdlreq && pip install -e . || echo "Using manual setup"
+
+    - name: Generate matrix
+      run: |
+        export PYTHONPATH="/tmp/cdlreq:$PYTHONPATH"
+        python -c "from cdlreq.cli.commands import cli; cli(['export', '--directory', '.', '--output', 'requirements/traceability_matrix.xlsx'])"
+
+    - name: Commit matrix
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add requirements/traceability_matrix.xlsx
+        git diff --staged --quiet || git commit -m "Update traceability matrix"
+        git push || echo "No changes to push"
