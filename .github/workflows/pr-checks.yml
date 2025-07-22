@@ -1,8 +1,6 @@
 name: PR Checks
 
 on:
-  push:
-    branches: [main, master]
   pull_request:
     branches: [main, master]
 
@@ -88,8 +86,8 @@ jobs:
         if python -c "import cdlreq" 2>/dev/null; then
           echo "Using cdlreq Python module for coverage verification"
           
-          # Try to run coverage check
-          if python -c "from cdlreq.cli.commands import cli; cli(['coverage', '--directory', '.'])" > coverage_output.txt 2>&1; then
+          # Try to run coverage check with pytest output file
+          if python -c "from cdlreq.cli.commands import cli; cli(['coverage', 'pytest_output.txt', '--directory', '.'])" > coverage_output.txt 2>&1; then
             COVERAGE_EXIT_CODE=0
           else
             COVERAGE_EXIT_CODE=1
@@ -158,7 +156,7 @@ jobs:
         retention-days: 30
 
     - name: Comment on PR with results
-      if: always()
+      if: always() && github.event_name == 'pull_request'
       uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
