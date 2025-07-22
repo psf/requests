@@ -57,13 +57,22 @@ jobs:
           cdlreq export --directory . --output requirements/traceability_matrix.json --format json
         elif python -c "import cdlreq" 2>/dev/null; then
           echo "Using cdlreq Python module"
-          python -m cdlreq.cli export --directory . --output requirements/traceability_matrix.xlsx
-          python -m cdlreq.cli export --directory . --output requirements/traceability_matrix.json --format json
+          # Try different invocation methods
+          if python -c "from cdlreq.cli.commands import cli; cli(['export', '--directory', '.', '--output', 'requirements/traceability_matrix.xlsx'])" 2>/dev/null; then
+            python -c "from cdlreq.cli.commands import cli; cli(['export', '--directory', '.', '--output', 'requirements/traceability_matrix.json', '--format', 'json'])"
+          else
+            # Try direct import and execution
+            python -c "
+import sys
+sys.path.insert(0, '/tmp/cdlreq')
+from cdlreq.export import export_traceability_matrix
+export_traceability_matrix('.', 'requirements/traceability_matrix.xlsx', format='xlsx')
+export_traceability_matrix('.', 'requirements/traceability_matrix.json', format='json')
+"
+          fi
         else
-          echo "Trying direct Python execution"
-          cd /tmp/cdlreq
-          python -m cdlreq.cli export --directory /home/runner/work/requests/requests --output /home/runner/work/requests/requests/requirements/traceability_matrix.xlsx
-          python -m cdlreq.cli export --directory /home/runner/work/requests/requests --output /home/runner/work/requests/requests/requirements/traceability_matrix.json --format json
+          echo "Error: Could not find or import cdlreq"
+          exit 1
         fi
 
     - name: Verify matrix files were created
