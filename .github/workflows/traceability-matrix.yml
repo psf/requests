@@ -9,290 +9,69 @@ on:
 jobs:
   generate-traceability-matrix:
     runs-on: ubuntu-latest
-    # Only run on merged PRs or direct pushes to main/master
-    if: (github.event_name == 'push') || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        # Ensure we have the latest code after merge
-        ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
 
-    - name: Install cdlreq dependencies
+    - name: Install cdlreq
       run: |
         python -m pip install --upgrade pip
         pip install pyyaml jsonschema click openpyxl
+        
+        # Install cdlreq from GitHub
+        git clone https://github.com/SeanHgh/cdlreq.git /tmp/cdlreq
+        pip install -e /tmp/cdlreq
 
-    - name: Install cdlreq for traceability matrix generation
+    - name: Generate traceability matrix using cdlreq export
       run: |
-        echo "📥 Installing cdlreq..."
+        echo "Generating traceability matrix..."
+        cdlreq export --directory . --output requirements/traceability_matrix.xlsx
         
-        # Try multiple methods to install cdlreq
-        if git clone https://github.com/SeanHgh/cdlreq.git /tmp/cdlreq; then
-          echo "✅ Successfully cloned cdlreq from GitHub"
-          pip install -e /tmp/cdlreq
-        elif [ -d "../cdlreq" ]; then
-          echo "✅ Using local cdlreq from parent directory"
-          pip install -e ../cdlreq
-        else
-          echo "⚠️  cdlreq not available, using inline export functionality"
-          
-          # Create a simple inline traceability matrix generator as fallback
-          python3 << 'EOF' > generate_matrix.py
-import yaml
-import json
-from pathlib import Path
-from datetime import datetime
-import sys
+        # Also generate JSON format for easier inspection
+        cdlreq export --directory . --output requirements/traceability_matrix.json --format json
 
-def generate_traceability_matrix():
-    """Generate a simple traceability matrix"""
-    
-    print("📊 Generating traceability matrix...")
-    
-    # Find requirements and specifications
-    req_dir = Path("requirements")
-    spec_dir = req_dir / "specifications"
-    
-    if not req_dir.exists():
-        print("❌ No requirements directory found")
-        return False
-    
-    # Load requirements
-    requirements = []
-    for req_file in req_dir.glob("*.yaml"):
-        try:
-            with open(req_file, 'r') as f:
-                req = yaml.safe_load(f)
-                requirements.append(req)
-        except Exception as e:
-            print(f"⚠️  Error loading requirement {req_file}: {e}")
-    
-    # Load specifications
-    specifications = []
-    if spec_dir.exists():
-        for spec_file in spec_dir.glob("*.yaml"):
-            try:
-                with open(spec_file, 'r') as f:
-                    spec = yaml.safe_load(f)
-                    specifications.append(spec)
-            except Exception as e:
-                print(f"⚠️  Error loading specification {spec_file}: {e}")
-    
-    # Generate matrix data
-    matrix_data = {
-        "generated_at": datetime.now().isoformat(),
-        "requirements": requirements,
-        "specifications": specifications,
-        "traceability": []
-    }
-    
-    # Create traceability links
-    for spec in specifications:
-        if "related_requirements" in spec:
-            for req_id in spec["related_requirements"]:
-                matrix_data["traceability"].append({
-                    "requirement_id": req_id,
-                    "specification_id": spec.get("id", "unknown"),
-                    "specification_title": spec.get("title", ""),
-                    "implementation_unit": spec.get("implementation_unit", ""),
-                    "unit_test": spec.get("unit_test", "")
-                })
-    
-    # Save as JSON
-    with open("traceability_matrix.json", "w") as f:
-        json.dump(matrix_data, f, indent=2)
-    
-    # Generate simple text report
-    with open("traceability_matrix.txt", "w") as f:
-        f.write("TRACEABILITY MATRIX REPORT\n")
-        f.write("=" * 50 + "\n")
-        f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
-        
-        f.write(f"SUMMARY:\n")
-        f.write(f"- Requirements: {len(requirements)}\n")
-        f.write(f"- Specifications: {len(specifications)}\n")
-        f.write(f"- Traceability Links: {len(matrix_data['traceability'])}\n\n")
-        
-        f.write("REQUIREMENTS:\n")
-        f.write("-" * 20 + "\n")
-        for req in requirements:
-            f.write(f"ID: {req.get('id', 'unknown')}\n")
-            f.write(f"Title: {req.get('title', 'N/A')}\n")
-            f.write(f"Description: {req.get('description', 'N/A')}\n\n")
-        
-        f.write("SPECIFICATIONS:\n")
-        f.write("-" * 20 + "\n")
-        for spec in specifications:
-            f.write(f"ID: {spec.get('id', 'unknown')}\n")
-            f.write(f"Title: {spec.get('title', 'N/A')}\n")
-            f.write(f"Description: {spec.get('description', 'N/A')}\n")
-            f.write(f"Related Requirements: {', '.join(spec.get('related_requirements', []))}\n")
-            f.write(f"Implementation: {spec.get('implementation_unit', 'N/A')}\n")
-            f.write(f"Unit Test: {spec.get('unit_test', 'N/A')}\n\n")
-        
-        f.write("TRACEABILITY MATRIX:\n")
-        f.write("-" * 30 + "\n")
-        f.write("REQ-ID -> SPEC-ID | TITLE | IMPLEMENTATION | TEST\n")
-        f.write("-" * 70 + "\n")
-        for link in matrix_data["traceability"]:
-            f.write(f"{link['requirement_id']} -> {link['specification_id']} | {link['specification_title'][:20]} | {link['implementation_unit'][:15]} | {link['unit_test'][:20]}\n")
-    
-    print(f"✅ Generated traceability matrix:")
-    print(f"   - JSON format: traceability_matrix.json")
-    print(f"   - Text report: traceability_matrix.txt")
-    print(f"   - {len(requirements)} requirements")
-    print(f"   - {len(specifications)} specifications")
-    print(f"   - {len(matrix_data['traceability'])} traceability links")
-    
-    return True
-
-if __name__ == "__main__":
-    success = generate_traceability_matrix()
-    sys.exit(0 if success else 1)
-EOF
-        fi
-
-    - name: Generate traceability matrix
+    - name: Verify matrix files were created
       run: |
-        echo "🔄 Generating traceability matrix..."
-        
-        # Try using cdlreq export command first
-        if command -v cdlreq &> /dev/null; then
-          echo "📊 Using cdlreq export command..."
-          cdlreq export --directory . --output traceability_matrix.xlsx
-          echo "✅ Excel traceability matrix generated: traceability_matrix.xlsx"
-          
-        elif python -c "import cdlreq" 2>/dev/null; then
-          echo "📊 Using cdlreq Python module..."
-          python -c "from cdlreq.cli.commands import cli; cli()" export --directory . --output traceability_matrix.xlsx
-          echo "✅ Excel traceability matrix generated: traceability_matrix.xlsx"
-          
-        elif [ -f "generate_matrix.py" ]; then
-          echo "📊 Using fallback matrix generator..."
-          python generate_matrix.py
-          echo "✅ Traceability matrix generated (JSON/TXT format)"
-          
-        else
-          echo "❌ No method available to generate traceability matrix"
-          exit 1
-        fi
-        
-        echo ""
-        echo "📋 Files generated:"
-        ls -la traceability_matrix*
-
-    - name: Create matrix summary
-      id: matrix_summary
-      run: |
-        echo "📊 Creating matrix summary..."
+        echo "Generated files:"
+        ls -la requirements/traceability_matrix*
         
         # Count requirements and specifications
         REQ_COUNT=$(find requirements -name "*.yaml" -not -path "*/specifications/*" | wc -l)
         SPEC_COUNT=$(find requirements/specifications -name "*.yaml" 2>/dev/null | wc -l || echo 0)
         
-        echo "Matrix generated with:"
+        echo "Matrix contains:"
         echo "- Requirements: $REQ_COUNT"
         echo "- Specifications: $SPEC_COUNT"
-        
-        # Set outputs for next steps
-        echo "req_count=$REQ_COUNT" >> $GITHUB_OUTPUT
-        echo "spec_count=$SPEC_COUNT" >> $GITHUB_OUTPUT
-        
-        # Create summary for commit message
-        SUMMARY="Traceability matrix: $REQ_COUNT requirements, $SPEC_COUNT specifications"
-        echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
 
-    - name: Commit and push traceability matrix
-      if: success()
+    - name: Commit traceability matrix
       run: |
-        # Configure git
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         
-        # Add generated files
-        git add traceability_matrix*
+        git add requirements/traceability_matrix.*
         
-        # Check if there are changes to commit
         if git diff --staged --quiet; then
-          echo "📄 No changes to traceability matrix files"
+          echo "No changes to commit"
         else
-          echo "📝 Committing traceability matrix updates..."
-          
-          # Determine trigger context
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            TRIGGER="PR #${{ github.event.pull_request.number }} merge"
-            PR_TITLE="${{ github.event.pull_request.title }}"
-          else
-            TRIGGER="Push to ${{ github.ref_name }}"
-            PR_TITLE="Direct push"
-          fi
-          
-          git commit -m "$(cat <<EOF
-Update traceability matrix - ${{ steps.matrix_summary.outputs.summary }}
+          git commit -m "Update traceability matrix
 
-Generated after: $TRIGGER
-PR Title: $PR_TITLE
-Commit: ${{ github.sha }}
-Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+Generated traceability matrix using cdlreq export
+Saved in requirements/ directory
 
 🤖 Generated with [Claude Code](https://claude.ai/code)
 
-Co-Authored-By: Claude <noreply@anthropic.com>
-EOF
-)"
-          
-          # Push changes
-          git push origin ${{ github.ref_name }}
-          echo "✅ Traceability matrix committed and pushed"
-        fi
+Co-Authored-By: Claude <noreply@anthropic.com>"
+          git push
 
-    - name: Upload traceability matrix artifacts
-      if: always()
+    - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: traceability-matrix-${{ github.sha }}
-        path: |
-          traceability_matrix*
+        name: traceability-matrix
+        path: requirements/traceability_matrix.*
         retention-days: 30
-
-    - name: Comment on PR with matrix info
-      if: github.event_name == 'pull_request' && success()
-      uses: actions/github-script@v7
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const reqCount = '${{ steps.matrix_summary.outputs.req_count }}';
-          const specCount = '${{ steps.matrix_summary.outputs.spec_count }}';
-          
-          const body = `## 📊 Traceability Matrix Generated
-          
-          ✅ **Successfully generated traceability matrix after PR merge!**
-          
-          ### 📈 Matrix Summary:
-          - **Requirements**: ${reqCount}
-          - **Specifications**: ${specCount}
-          - **Generated**: ${new Date().toISOString().split('T')[0]}
-          
-          ### 📁 Generated Files:
-          - \`traceability_matrix.xlsx\` - Excel format (if cdlreq available)
-          - \`traceability_matrix.json\` - JSON format
-          - \`traceability_matrix.txt\` - Text report
-          
-          The traceability matrix has been automatically committed to the main branch and is available in the repository.
-          
-          ---
-          *This matrix shows the relationships between requirements and specifications, including implementation units and test files.*`;
-          
-          await github.rest.issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number,
-            body: body
-          });
