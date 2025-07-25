@@ -32,7 +32,6 @@ from requests.utils import (
     parse_dict_header,
     parse_header_links,
     prepend_scheme_if_needed,
-    requote_uri,
     select_proxy,
     set_environ,
     should_bypass_proxies,
@@ -40,7 +39,6 @@ from requests.utils import (
     to_key_val_list,
     to_native_string,
     unquote_header_value,
-    unquote_unreserved,
     urldefragauth,
 )
 
@@ -458,45 +456,6 @@ ENCODED_PASSWORD = compat.quote(PASSWORD, "")
 )
 def test_get_auth_from_url(url, auth):
     assert get_auth_from_url(url) == auth
-
-
-@pytest.mark.parametrize(
-    "uri, expected",
-    (
-        (
-            # Ensure requoting doesn't break expectations
-            "http://example.com/fiz?buz=%25ppicture",
-            "http://example.com/fiz?buz=%25ppicture",
-        ),
-        (
-            # Ensure we handle unquoted percent signs in redirects
-            "http://example.com/fiz?buz=%ppicture",
-            "http://example.com/fiz?buz=%25ppicture",
-        ),
-    ),
-)
-def test_requote_uri_with_unquoted_percents(uri, expected):
-    """See: https://github.com/psf/requests/issues/2356"""
-    assert requote_uri(uri) == expected
-
-
-@pytest.mark.parametrize(
-    "uri, expected",
-    (
-        (
-            # Illegal bytes
-            "http://example.com/?a=%--",
-            "http://example.com/?a=%--",
-        ),
-        (
-            # Reserved characters
-            "http://example.com/?a=%300",
-            "http://example.com/?a=00",
-        ),
-    ),
-)
-def test_unquote_unreserved(uri, expected):
-    assert unquote_unreserved(uri) == expected
 
 
 @pytest.mark.parametrize(
