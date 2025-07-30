@@ -156,9 +156,15 @@ def super_len(o):
             o.seek(0)
             content = o.read()
             total_length = len(content.encode("utf-8"))
+            # Calculate remaining bytes from current position
+            if current_pos > 0:
+                consumed_content = content[:current_pos]
+                consumed_bytes = len(consumed_content.encode("utf-8"))
+                return max(0, total_length - consumed_bytes)
+            else:
+                return total_length
         finally:
             o.seek(current_pos)
-        return max(0, total_length - (len(content[:current_pos].encode("utf-8")) if current_pos > 0 else 0))
 
     if hasattr(o, "__len__"):
         total_length = len(o)
