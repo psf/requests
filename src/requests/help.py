@@ -109,7 +109,7 @@ def info():
     system_ssl = ssl.OPENSSL_VERSION_NUMBER
     system_ssl_info = {
         "version": f"{system_ssl:x}" if system_ssl is not None else "",
-        "version_readable": ssl.OPENSSL_VERSION    
+        "human_friendly_version": ssl.OPENSSL_VERSION,   
     }
 
     return {
