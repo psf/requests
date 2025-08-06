@@ -97,7 +97,7 @@ def info():
         pyopenssl_info = {
             "version": OpenSSL.__version__,
             "openssl_version": f"{OpenSSL.SSL.OPENSSL_VERSION_NUMBER:x}",
-            "openssl_version_readable": openssl_version
+            "human_friendly_version": openssl_version,
         }
     cryptography_info = {
         "version": getattr(cryptography, "__version__", ""),
