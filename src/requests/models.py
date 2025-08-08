@@ -760,11 +760,7 @@ class Response:
         the status code is between 200 and 400, this will return True. This
         is **not** a check to see if the response code is ``200 OK``.
         """
-        try:
-            self.raise_for_status()
-        except HTTPError:
-            return False
-        return True
+        return self.status_code < 400
 
     @property
     def is_redirect(self):
