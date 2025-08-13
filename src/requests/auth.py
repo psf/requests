@@ -181,8 +181,10 @@ class HTTPDigestAuth(AuthBase):
         # XXX not implemented yet
         entdig = None
         p_parsed = urlparse(url)
-        #: path is request-uri defined in RFC 2616 which should not be empty
-        path = p_parsed.path or "/"
+        # 拼接 path 和 params，保证分号及其后的内容不会丢失
+        path = p_parsed.path
+        if p_parsed.params:
+            path += ';' + p_parsed.params
         if p_parsed.query:
             path += f"?{p_parsed.query}"
 
