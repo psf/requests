@@ -1,3 +1,76 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "requests"
+description = "Python HTTP for Humans."
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [
+    { name = "Kenneth Reitz", email = "me@kennethreitz.org" },
+]
+maintainers = [
+    {name = "Ian Stapleton Cordasco", email="graffatcolmingov@gmail.com"},
+    {name = "Nate Prewitt", email="nate.prewitt@gmail.com"}
+]
+requires-python = ">=3.9"
+dependencies = [
+    "charset_normalizer>=2,<4",
+    "idna>=2.5,<4",
+    "urllib3>=1.21.1,<3",
+    "certifi>=2017.4.17"
+]
+dynamic = ["version"]
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries"
+]
+
+[project.urls]
+Documentation = "https://requests.readthedocs.io"
+Source = "https://github.com/psf/requests"
+
+[project.optional-dependencies]
+security = []
+socks = ["PySocks>=1.5.6, !=1.5.7"]
+use_chardet_on_py3 = ["chardet>=3.0.2,<6"]
+test = [
+    "pytest-httpbin==2.1.0",
+    "pytest-cov",
+    "pytest-mock",
+    "pytest-xdist",
+    "PySocks>=1.5.6, !=1.5.7",
+    "pytest>=3"
+]
+
+[tool.setuptools]
+license-files = ["LICENSE", "NOTICE"]
+
+[tool.setuptools.dynamic]
+version = {attr = "requests.__version__.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.ruff]
 target-version = "py310"
 src = ["src/requests", "tests"]
