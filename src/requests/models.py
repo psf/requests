@@ -6,6 +6,8 @@ This module contains the primary objects that power Requests.
 """
 
 import datetime
+import email
+import email.policy
 
 # Import encoding now, to avoid implicit import later.
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
@@ -663,10 +665,10 @@ class Response:
         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
         self.status_code = None
 
-        #: Case-insensitive Dictionary of Response Headers.
+        #: Case-insensitive Dictionary (email.EmailMessage) of Response Headers.
         #: For example, ``headers['content-encoding']`` will return the
         #: value of a ``'Content-Encoding'`` response header.
-        self.headers = CaseInsensitiveDict()
+        self.headers = email.message.EmailMessage(policy=email.policy.HTTP)
 
         #: File-like object representation of response (for advanced usage).
         #: Use of ``raw`` requires that ``stream=True`` be set on the request.

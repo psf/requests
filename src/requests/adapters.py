@@ -6,6 +6,8 @@ This module contains the transport adapters that Requests uses to define
 and maintain connections.
 """
 
+import email
+import email.policy
 import os.path
 import socket  # noqa: F401
 import typing
@@ -44,7 +46,6 @@ from .exceptions import (
     SSLError,
 )
 from .models import Response
-from .structures import CaseInsensitiveDict
 from .utils import (
     DEFAULT_CA_BUNDLE_PATH,
     extract_zipped_paths,
@@ -348,8 +349,17 @@ class HTTPAdapter(BaseAdapter):
         # Fallback to None if there's no status_code, for whatever reason.
         response.status_code = getattr(resp, "status", None)
 
-        # Make headers case-insensitive.
-        response.headers = CaseInsensitiveDict(getattr(resp, "headers", {}))
+        # Make headers case-insensitive and allow duplicates
+        response.headers = email.message.EmailMessage(policy=email.policy.HTTP)
+        if hasattr(resp, "headers"):
+            header_dict = dict(resp.headers)
+            for hdr in header_dict.keys():
+                if hdr.lower() == "set-cookie":
+                    cookies = resp.headers.get_all("set-cookie")
+                    for c in cookies:
+                        response.headers[hdr] = c
+                else:
+                    response.headers[hdr] = header_dict[hdr]
 
         # Set encoding.
         response.encoding = get_encoding_from_headers(response.headers)
