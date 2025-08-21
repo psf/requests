@@ -1235,6 +1235,18 @@ class TestRequests:
         )
         assert resp.cookies.get("cookie") == "value"
 
+    def test_multi_cookie(self, httpbin):
+        s = requests.Session()
+        resp = s.request(
+            "GET",
+            httpbin("cookies/set?cookie=value&anothercookie=anothervalue"),
+            allow_redirects=False,
+            headers={"Host": b"httpbin.org"},
+        )
+        assert resp.cookies.get("cookie") == "value"
+        assert resp.cookies.get("anothercookie") == "anothervalue"
+        assert len(resp.headers.get_all("set-cookie")) == 2
+
     def test_links(self):
         r = requests.Response()
         r.headers = {
