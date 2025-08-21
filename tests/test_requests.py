@@ -2573,6 +2573,7 @@ class RedirectSession(SessionRedirectMixin):
         except IndexError:
             r.status_code = 200
 
+        r.url = "http://www.example.com/"
         r.headers = CaseInsensitiveDict({"Location": "/"})
         r.raw = self._build_raw()
         r.request = request
@@ -2772,10 +2773,18 @@ class TestPreparingURLs:
         (
             (
                 b"http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
+                "http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
+            ),
+            (
+                b"http+unix://%2Fvar%2Frun%2Fsocket/path~",
                 "http+unix://%2Fvar%2Frun%2Fsocket/path~",
             ),
             (
                 "http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
+                "http+unix://%2Fvar%2Frun%2Fsocket/path%7E",
+            ),
+            (
+                "http+unix://%2Fvar%2Frun%2Fsocket/path~",
                 "http+unix://%2Fvar%2Frun%2Fsocket/path~",
             ),
             (
