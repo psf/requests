@@ -5,7 +5,7 @@ test:
 	python -m pytest tests
 
 ci:
-	python -m pytest tests --junitxml=report.xml
+	python -m pytest tests --junitxml=report.xml --tb=long
 
 test-readme:
 	python setup.py check --restructuredtext --strict && ([ $$? -eq 0 ] && echo "README.rst and HISTORY.rst ok") || echo "Invalid markup in README.rst or HISTORY.rst!"
