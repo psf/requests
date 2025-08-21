@@ -1,0 +1,111 @@
+Document which exception request() might raise :: 
+
+Common Exceptions Raised by requests Methods
+
+1. requests.exceptions.RequestException  
+
+   - This is the base class for all exceptions raised by the requests library. 
+     If you're unsure what type of exception might be raised, catching RequestException will allow you to handle all potential errors raised by any of the requests functions (get, post, etc.).
+   - Example: 
+     python
+     try:
+         response = requests.get('https://example.com')
+     except requests.exceptions.RequestException as e:
+         print(f"Request failed: {e}")
+     
+
+2. requests.exceptions.Timeout  
+   - Raised when a request times out (either on connect or read). This could happen if the server doesn't respond in the expected time or there is network congestion.
+   - Example: 
+     python
+     try:
+         response = requests.get('https://example.com', timeout=5)
+     except requests.exceptions.Timeout:
+         print("The request timed out.")
+     
+
+3. requests.exceptions.TooManyRedirects  
+   - Raised when a request exceeds the maximum number of redirects. By default, requests allows up to 30 redirects.
+   - Example:
+     python
+     try:
+         response = requests.get('https://example.com/redirect', allow_redirects=True)
+     except requests.exceptions.TooManyRedirects:
+         print("Too many redirects occurred.")
+     
+
+4. requests.exceptions.ConnectionError  
+   - Raised when a network problem (such as a DNS failure, refused connection, or other connection-related issue) occurs.
+   - Example:
+     python
+     try:
+         response = requests.get('https://example.com')
+     except requests.exceptions.ConnectionError:
+         print("Network connection error.")
+     
+
+5. requests.exceptions.HTTPError  
+   - This is raised for HTTP error codes (such as 4xx or 5xx) when you use .raise_for_status() on a response object. For example, requests.get() by itself does not raise an exception for HTTP errors but will do so if you call .raise_for_status().
+   - Example:
+     python
+     try:
+         response = requests.get('https://example.com')
+         response.raise_for_status()
+     except requests.exceptions.HTTPError as e:
+         print(f"HTTP error occurred: {e}")
+     
+
+6. requests.exceptions.JSONDecodeError  
+   - As you pointed out, this is specifically raised by the .json() method when the server’s response body is not valid JSON. If you're calling .json() on a response, it could raise this exception if the content cannot be parsed as JSON.
+   - Example:
+     python
+     try:
+         response = requests.get('https://example.com')
+         data = response.json()
+     except requests.exceptions.JSONDecodeError:
+         print("Failed to decode JSON response.")
+     
+
+7. requests.exceptions.URLRequired  
+   - Raised when a URL is not provided to the request method (e.g., missing URL in requests.get() or requests.post()).
+   - Example:
+     python
+     try:
+         response = requests.get('')
+     except requests.exceptions.URLRequired:
+         print("A URL is required but was not provided.")
+     
+
+8. requests.exceptions.MissingSchema  
+   - Raised if the URL passed is incomplete (for instance, omitting http:// or https://).
+   - Example:
+     python
+     try:
+         response = requests.get('example.com')
+     except requests.exceptions.MissingSchema:
+         print("The URL is missing a schema (e.g., http://).")
+     
+---------------------------------------------------------------------------------
+Example: Handling Multiple Exceptions
+---------------------------------------------------------------------------------
+To handle different exceptions more precisely, you could have something like this:
+
+python
+import requests
+
+try:
+    response = requests.get('https://example.com', timeout=10)
+    response.raise_for_status()  # Raises HTTPError for bad responses
+    data = response.json()  # May raise JSONDecodeError if response is not JSON
+except requests.exceptions.Timeout:
+    print("The request timed out.")
+except requests.exceptions.TooManyRedirects:
+    print("Too many redirects occurred.")
+except requests.exceptions.ConnectionError:
+    print("There was a problem with the network.")
+except requests.exceptions.HTTPError as err:
+    print(f"HTTP error occurred: {err}")
+except requests.exceptions.JSONDecodeError:
+    print("Failed to decode JSON response.")
+except requests.exceptions.RequestException as e:
+    print(f"An unexpected error occurred: {e}")
