@@ -58,7 +58,7 @@ master_doc = "index"
 
 # General information about the project.
 project = u"Requests"
-copyright = u'MMXVIX. A Kenneth Reitz Project'
+copyright = u'MMXXIV. A Kenneth Reitz Project'
 author = u"Kenneth Reitz"
 
 # The version info for the project you're documenting, acts as replacement for
