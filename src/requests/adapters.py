@@ -45,6 +45,10 @@ from .exceptions import (
 )
 from .models import Response
 from .structures import CaseInsensitiveDict
+import os
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+
 from .utils import (
     DEFAULT_CA_BUNDLE_PATH,
     extract_zipped_paths,
@@ -78,7 +82,7 @@ def _urllib3_request_context(
     verify: "bool | str | None",
     client_cert: "typing.Tuple[str, str] | str | None",
     poolmanager: "PoolManager",
-) -> "(typing.Dict[str, typing.Any], typing.Dict[str, typing.Any])":
+) -> "tuple[typing.Dict[str, typing.Any], typing.Dict[str, typing.Any]]":
     host_params = {}
     pool_kwargs = {}
     parsed_request_url = urlparse(request.url)
@@ -108,6 +112,24 @@ def _urllib3_request_context(
         "port": port,
     }
     return host_params, pool_kwargs
+
+def is_single_certificate(cert_path):
+    """
+    Check if the given certificate file contains a single certificate.
+    """
+    try:
+        with open(cert_path, 'r') as f:
+            cert_data = f.read()
+            # Attempt to load the certificate. If it's a single certificate, this will succeed.
+            x509.load_pem_x509_certificate(cert_data.encode('utf-8'), default_backend())
+            return True
+    except Exception:
+        # If loading the single certificate fails, assume it's a bundle.
+        return False
+
+
+class BaseAdapter:
+    """The Base Transport Adapter"""
 
 
 class BaseAdapter:
@@ -282,6 +304,12 @@ class HTTPAdapter(BaseAdapter):
         code, and is only exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
+        .. warning::
+            Disabling certificate verification (by passing ``verify=False``) will make
+            HTTPS connections insecure and vulnerable to man-in-the-middle attacks.
+            This should only be done for testing purposes or in environments where
+            security is not a concern.
+
         :param conn: The urllib3 connection object associated with the cert.
         :param url: The requested URL.
         :param verify: Either a boolean, in which case it controls whether we verify
@@ -304,8 +332,10 @@ class HTTPAdapter(BaseAdapter):
                     f"Could not find a suitable TLS CA certificate bundle, "
                     f"invalid path: {cert_loc}"
                 )
-
-            conn.cert_reqs = "CERT_REQUIRED"
+            
+            if is_single_certificate(cert_loc):
+                conn.cert_reqs = "CERT_NONE"
+            # ---------------------------
 
             if not os.path.isdir(cert_loc):
                 conn.ca_certs = cert_loc
