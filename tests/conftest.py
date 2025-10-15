@@ -8,7 +8,6 @@ import ssl
 import threading
 
 import pytest
-
 from requests.compat import urljoin
 
 
@@ -22,13 +21,13 @@ def prepare_url(value):
     return inner
 
 
-@pytest.fixture
-def httpbin(httpbin):
+# ---- FIX: expose wrappers under new names to avoid shadowing plugin fixtures ----
+@pytest.fixture(name="httpbin_url")
+def _httpbin_url(httpbin):
     return prepare_url(httpbin)
 
-
-@pytest.fixture
-def httpbin_secure(httpbin_secure):
+@pytest.fixture(name="httpbin_secure_url")
+def _httpbin_secure_url(httpbin_secure):
     return prepare_url(httpbin_secure)
 
 
