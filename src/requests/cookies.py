@@ -300,7 +300,9 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
         for cookie in iter(self):
             if cookie.domain is not None:
                 domains.add(cookie.domain)
-        return len(domains) > 1
+                if len(domains) > 1:
+                    return True
+        return False
 
     def get_dict(self, domain=None, path=None):
         """Takes as an argument an optional domain and path and returns a plain
