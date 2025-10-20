@@ -2120,6 +2120,44 @@ class TestRequests:
         prep = r.prepare()
         assert "stuff=elixr" == prep.body
 
+    def test_json_param_put_content_type_works(self, httpbin):
+        """Test that put() accepts and properly passes the json parameter."""
+        test_data = {"key": "value", "number": 42}
+        r = requests.put(httpbin("put"), json=test_data)
+        assert r.status_code == 200
+        assert "application/json" in r.request.headers["Content-Type"]
+        assert test_data == r.json()["json"]
+
+    def test_json_param_put_should_not_override_data_param(self, httpbin):
+        """Test that data parameter takes precedence over json in put()."""
+        r = requests.Request(
+            method="PUT",
+            url=httpbin("put"),
+            data={"stuff": "elixr"},
+            json={"music": "flute"},
+        )
+        prep = r.prepare()
+        assert "stuff=elixr" == prep.body
+
+    def test_json_param_patch_content_type_works(self, httpbin):
+        """Test that patch() accepts and properly passes the json parameter."""
+        test_data = {"key": "value", "number": 42}
+        r = requests.patch(httpbin("patch"), json=test_data)
+        assert r.status_code == 200
+        assert "application/json" in r.request.headers["Content-Type"]
+        assert test_data == r.json()["json"]
+
+    def test_json_param_patch_should_not_override_data_param(self, httpbin):
+        """Test that data parameter takes precedence over json in patch()."""
+        r = requests.Request(
+            method="PATCH",
+            url=httpbin("patch"),
+            data={"stuff": "elixr"},
+            json={"music": "flute"},
+        )
+        prep = r.prepare()
+        assert "stuff=elixr" == prep.body
+
     def test_response_iter_lines(self, httpbin):
         r = requests.get(httpbin("stream/4"), stream=True)
         assert r.status_code == 200
