@@ -47,16 +47,17 @@ from .exceptions import RequestsDependencyWarning
 try:
     from charset_normalizer import __version__ as charset_normalizer_version
 except ImportError:
-    charset_normalizer_version = None
+    charset_normalizer_version = None  # type: ignore[assignment]
 
 try:
     from chardet import __version__ as chardet_version
 except ImportError:
-    chardet_version = None
+    chardet_version = None  # type: ignore[assignment]
 
 
-def check_compatibility(urllib3_version, chardet_version, charset_normalizer_version):
-    urllib3_version = urllib3_version.split(".")
+def check_compatibility(urllib3_ver: str, chardet_ver: "str | None", charset_normalizer_ver: "str | None") -> None:
+    """Check compatibility of dependency versions."""
+    urllib3_version = urllib3_ver.split(".")
     assert urllib3_version != ["dev"]  # Verify urllib3 isn't installed from git.
 
     # Sometimes, urllib3 only reports its version as 16.1.
@@ -64,24 +65,21 @@ def check_compatibility(urllib3_version, chardet_version, charset_normalizer_ver
         urllib3_version.append("0")
 
     # Check urllib3 for compatibility.
-    major, minor, patch = urllib3_version  # noqa: F811
-    major, minor, patch = int(major), int(minor), int(patch)
+    urllib3_major, urllib3_minor = int(urllib3_version[0]), int(urllib3_version[1])  # noqa: F811
     # urllib3 >= 1.21.1
-    assert major >= 1
-    if major == 1:
-        assert minor >= 21
+    assert urllib3_major >= 1
+    if urllib3_major == 1:
+        assert urllib3_minor >= 21
 
     # Check charset_normalizer for compatibility.
-    if chardet_version:
-        major, minor, patch = chardet_version.split(".")[:3]
-        major, minor, patch = int(major), int(minor), int(patch)
+    if chardet_ver:
+        chardet_version_tuple = tuple(int(x) for x in chardet_ver.split(".")[:3])
         # chardet_version >= 3.0.2, < 6.0.0
-        assert (3, 0, 2) <= (major, minor, patch) < (6, 0, 0)
-    elif charset_normalizer_version:
-        major, minor, patch = charset_normalizer_version.split(".")[:3]
-        major, minor, patch = int(major), int(minor), int(patch)
+        assert (3, 0, 2) <= chardet_version_tuple < (6, 0, 0)
+    elif charset_normalizer_ver:
+        charset_version_tuple = tuple(int(x) for x in charset_normalizer_ver.split(".")[:3])
         # charset_normalizer >= 2.0.0 < 4.0.0
-        assert (2, 0, 0) <= (major, minor, patch) < (4, 0, 0)
+        assert (2, 0, 0) <= charset_version_tuple < (4, 0, 0)
     else:
         warnings.warn(
             "Unable to find acceptable character detection dependency "
@@ -90,31 +88,30 @@ def check_compatibility(urllib3_version, chardet_version, charset_normalizer_ver
         )
 
 
-def _check_cryptography(cryptography_version):
+def _check_cryptography(cryptography_ver: str) -> None:
+    """Check cryptography version for compatibility."""
     # cryptography < 1.3.4
     try:
-        cryptography_version = list(map(int, cryptography_version.split(".")))
+        crypto_ver_list = list(map(int, cryptography_ver.split(".")))
     except ValueError:
         return
 
-    if cryptography_version < [1, 3, 4]:
-        warning = "Old version of cryptography ({}) may cause slowdown.".format(
-            cryptography_version
-        )
+    if crypto_ver_list < [1, 3, 4]:
+        warning = f"Old version of cryptography ({crypto_ver_list}) may cause slowdown."
         warnings.warn(warning, RequestsDependencyWarning)
 
 
 # Check imported dependencies for compatibility.
 try:
     check_compatibility(
-        urllib3.__version__, chardet_version, charset_normalizer_version
+        urllib3.__version__,  # type: ignore[attr-defined]
+        chardet_version, charset_normalizer_version
     )
 except (AssertionError, ValueError):
     warnings.warn(
-        "urllib3 ({}) or chardet ({})/charset_normalizer ({}) doesn't match a supported "
-        "version!".format(
-            urllib3.__version__, chardet_version, charset_normalizer_version
-        ),
+        f"urllib3 ({urllib3.__version__}) or chardet ({chardet_version})/"  # type: ignore[attr-defined]
+        f"charset_normalizer ({charset_normalizer_version}) doesn't match a supported "
+        f"version!",
         RequestsDependencyWarning,
     )
 
@@ -125,7 +122,7 @@ try:
     try:
         import ssl
     except ImportError:
-        ssl = None
+        ssl = None  # type: ignore[assignment]
 
     if not getattr(ssl, "HAS_SNI", False):
         from urllib3.contrib import pyopenssl
@@ -140,6 +137,7 @@ except ImportError:
     pass
 
 # urllib3's DependencyWarnings should be silenced.
+# pylint: disable=wrong-import-position
 from urllib3.exceptions import DependencyWarning
 
 warnings.simplefilter("ignore", DependencyWarning)
@@ -162,6 +160,7 @@ from .__version__ import (
     __version__,
 )
 from .api import delete, get, head, options, patch, post, put, request
+# pylint: disable=redefined-builtin
 from .exceptions import (
     ConnectionError,
     ConnectTimeout,
@@ -174,9 +173,11 @@ from .exceptions import (
     TooManyRedirects,
     URLRequired,
 )
+# pylint: enable=redefined-builtin
 from .models import PreparedRequest, Request, Response
 from .sessions import Session, session
 from .status_codes import codes
+# pylint: enable=wrong-import-position
 
 logging.getLogger(__name__).addHandler(NullHandler())
 

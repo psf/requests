@@ -4,6 +4,7 @@ requests.exceptions
 
 This module contains the set of Requests' exceptions.
 """
+from typing import Any, Tuple
 from urllib3.exceptions import HTTPError as BaseHTTPError
 
 from .compat import JSONDecodeError as CompatJSONDecodeError
@@ -14,7 +15,7 @@ class RequestException(IOError):
     request.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize RequestException with `request` and `response` objects."""
         response = kwargs.pop("response", None)
         self.response = response
@@ -31,7 +32,7 @@ class InvalidJSONError(RequestException):
 class JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):
     """Couldn't decode the text into json"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         Construct the JSONDecodeError instance first with all
         args. Then use it's args to construct the IOError so that
@@ -41,7 +42,7 @@ class JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):
         CompatJSONDecodeError.__init__(self, *args)
         InvalidJSONError.__init__(self, *self.args, **kwargs)
 
-    def __reduce__(self):
+    def __reduce__(self) -> Tuple[Any, ...]:
         """
         The __reduce__ method called when pickling the object must
         be the one from the JSONDecodeError (be it json/simplejson)
@@ -49,15 +50,18 @@ class JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):
         one like the IOError, and the MRO would by default call the
         __reduce__ method from the IOError due to the inheritance order.
         """
-        return CompatJSONDecodeError.__reduce__(self)
+        result: Tuple[Any, ...] = CompatJSONDecodeError.__reduce__(self)
+        return result
 
 
 class HTTPError(RequestException):
     """An HTTP error occurred."""
 
 
+# pylint: disable=redefined-builtin
 class ConnectionError(RequestException):
     """A Connection error occurred."""
+# pylint: enable=redefined-builtin
 
 
 class ProxyError(ConnectionError):

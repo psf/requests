@@ -4,34 +4,35 @@ import json
 import platform
 import ssl
 import sys
+from typing import Any, Dict
 
 import idna
 import urllib3
 
-from . import __version__ as requests_version
+from . import __version__ as requests_version  # type: ignore[attr-defined]
 
 try:
-    import charset_normalizer
+    import charset_normalizer  # type: ignore[import-not-found]
 except ImportError:
-    charset_normalizer = None
+    charset_normalizer = None  # type: ignore[assignment]
 
 try:
-    import chardet
+    import chardet  # type: ignore[import-not-found]
 except ImportError:
-    chardet = None
+    chardet = None  # type: ignore[assignment]
 
 try:
-    from urllib3.contrib import pyopenssl
+    from urllib3.contrib import pyopenssl  # type: ignore[import-not-found]
 except ImportError:
-    pyopenssl = None
-    OpenSSL = None
-    cryptography = None
+    pyopenssl = None  # type: ignore[assignment]
+    OpenSSL = None  # type: ignore[assignment]
+    cryptography = None  # type: ignore[assignment]
 else:
-    import cryptography
-    import OpenSSL
+    import cryptography  # type: ignore[import-not-found,assignment]
+    import OpenSSL  # type: ignore[import-not-found,no-redef]
 
 
-def _implementation():
+def _implementation() -> Dict[str, str]:
     """Return a dict with the Python implementation and version.
 
     Provide both the name and the version of the Python implementation
@@ -47,15 +48,17 @@ def _implementation():
     if implementation == "CPython":
         implementation_version = platform.python_version()
     elif implementation == "PyPy":
-        implementation_version = "{}.{}.{}".format(
-            sys.pypy_version_info.major,
-            sys.pypy_version_info.minor,
-            sys.pypy_version_info.micro,
+        # pylint: disable=no-member
+        implementation_version = (
+            f"{sys.pypy_version_info.major}."  # type: ignore[attr-defined]
+            f"{sys.pypy_version_info.minor}."  # type: ignore[attr-defined]
+            f"{sys.pypy_version_info.micro}"  # type: ignore[attr-defined]
         )
-        if sys.pypy_version_info.releaselevel != "final":
+        if sys.pypy_version_info.releaselevel != "final":  # type: ignore[attr-defined]
             implementation_version = "".join(
-                [implementation_version, sys.pypy_version_info.releaselevel]
+                [implementation_version, sys.pypy_version_info.releaselevel]  # type: ignore[attr-defined]
             )
+        # pylint: enable=no-member
     elif implementation == "Jython":
         implementation_version = platform.python_version()  # Complete Guess
     elif implementation == "IronPython":
@@ -66,7 +69,7 @@ def _implementation():
     return {"name": implementation, "version": implementation_version}
 
 
-def info():
+def info() -> Dict[str, Any]:
     """Generate information for a bug report."""
     try:
         platform_info = {
@@ -80,24 +83,24 @@ def info():
         }
 
     implementation_info = _implementation()
-    urllib3_info = {"version": urllib3.__version__}
-    charset_normalizer_info = {"version": None}
-    chardet_info = {"version": None}
+    urllib3_info: Dict[str, str] = {"version": urllib3.__version__}  # type: ignore[attr-defined]
+    charset_normalizer_info: Dict[str, "str | None"] = {"version": None}
+    chardet_info: Dict[str, "str | None"] = {"version": None}
     if charset_normalizer:
-        charset_normalizer_info = {"version": charset_normalizer.__version__}
+        charset_normalizer_info = {"version": charset_normalizer.__version__}  # type: ignore[attr-defined]
     if chardet:
-        chardet_info = {"version": chardet.__version__}
+        chardet_info = {"version": chardet.__version__}  # type: ignore[attr-defined]
 
-    pyopenssl_info = {
+    pyopenssl_info: Dict[str, "str | None"] = {
         "version": None,
         "openssl_version": "",
     }
     if OpenSSL:
-        pyopenssl_info = {
-            "version": OpenSSL.__version__,
-            "openssl_version": f"{OpenSSL.SSL.OPENSSL_VERSION_NUMBER:x}",
+        pyopenssl_info = {  # type: ignore[unreachable]
+            "version": OpenSSL.__version__,  # type: ignore[attr-defined]
+            "openssl_version": f"{OpenSSL.SSL.OPENSSL_VERSION_NUMBER:x}",  # type: ignore[attr-defined]
         }
-    cryptography_info = {
+    cryptography_info: Dict[str, str] = {
         "version": getattr(cryptography, "__version__", ""),
     }
     idna_info = {
@@ -125,7 +128,7 @@ def info():
     }
 
 
-def main():
+def main() -> None:
     """Pretty-print the bug information as JSON."""
     print(json.dumps(info(), sort_keys=True, indent=2))
 

@@ -7,7 +7,6 @@ and maintain connections.
 """
 
 import os.path
-import socket  # noqa: F401
 import typing
 import warnings
 
@@ -31,6 +30,7 @@ from urllib3.util.retry import Retry
 from .auth import _basic_auth_str
 from .compat import basestring, urlparse
 from .cookies import extract_cookies_to_jar
+# pylint: disable=redefined-builtin
 from .exceptions import (
     ConnectionError,
     ConnectTimeout,
@@ -40,9 +40,11 @@ from .exceptions import (
     InvalidURL,
     ProxyError,
     ReadTimeout,
+    RequestException,
     RetryError,
     SSLError,
 )
+# pylint: enable=redefined-builtin
 from .models import Response
 from .structures import CaseInsensitiveDict
 from .utils import (
@@ -58,9 +60,11 @@ from .utils import (
 try:
     from urllib3.contrib.socks import SOCKSProxyManager
 except ImportError:
-
-    def SOCKSProxyManager(*args, **kwargs):
+    # pylint: disable=invalid-name
+    def SOCKSProxyManager(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:  # type: ignore[misc,no-redef]
+        """Fallback function when SOCKS support is not available."""
         raise InvalidSchema("Missing dependencies for SOCKS support.")
+    # pylint: enable=invalid-name
 
 
 if typing.TYPE_CHECKING:
@@ -77,8 +81,12 @@ def _urllib3_request_context(
     request: "PreparedRequest",
     verify: "bool | str | None",
     client_cert: "typing.Tuple[str, str] | str | None",
-    poolmanager: "PoolManager",
-) -> "(typing.Dict[str, typing.Any], typing.Dict[str, typing.Any])":
+    poolmanager: "PoolManager",  # pylint: disable=unused-argument
+) -> "typing.Tuple[typing.Dict[str, typing.Any], typing.Dict[str, typing.Any]]":
+    """Build urllib3 request context for connection pooling.
+    
+    Note: poolmanager argument is reserved for future use.
+    """
     host_params = {}
     pool_kwargs = {}
     parsed_request_url = urlparse(request.url)
@@ -113,12 +121,9 @@ def _urllib3_request_context(
 class BaseAdapter:
     """The Base Transport Adapter"""
 
-    def __init__(self):
-        super().__init__()
-
     def send(
-        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
-    ):
+        self, request: "PreparedRequest", *, stream: bool = False, timeout: "None | float | typing.Tuple[float, float] | typing.Tuple[float, None]" = None, verify: "bool | str" = True, cert: "None | str | typing.Tuple[str, str]" = None, proxies: "None | typing.Dict[str, str]" = None
+    ) -> Response:
         """Sends PreparedRequest object. Returns Response object.
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
@@ -135,7 +140,7 @@ class BaseAdapter:
         """
         raise NotImplementedError
 
-    def close(self):
+    def close(self) -> None:
         """Cleans up adapter specific items."""
         raise NotImplementedError
 
@@ -177,17 +182,17 @@ class HTTPAdapter(BaseAdapter):
 
     def __init__(
         self,
-        pool_connections=DEFAULT_POOLSIZE,
-        pool_maxsize=DEFAULT_POOLSIZE,
-        max_retries=DEFAULT_RETRIES,
-        pool_block=DEFAULT_POOLBLOCK,
-    ):
+        pool_connections: int = DEFAULT_POOLSIZE,
+        pool_maxsize: int = DEFAULT_POOLSIZE,
+        max_retries: "int | Retry" = DEFAULT_RETRIES,
+        pool_block: bool = DEFAULT_POOLBLOCK,
+    ) -> None:
         if max_retries == DEFAULT_RETRIES:
             self.max_retries = Retry(0, read=False)
         else:
             self.max_retries = Retry.from_int(max_retries)
-        self.config = {}
-        self.proxy_manager = {}
+        self.config: typing.Dict[str, typing.Any] = {}
+        self.proxy_manager: typing.Dict[str, typing.Any] = {}
 
         super().__init__()
 
@@ -197,10 +202,10 @@ class HTTPAdapter(BaseAdapter):
 
         self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
 
-    def __getstate__(self):
+    def __getstate__(self) -> typing.Dict[str, typing.Any]:
         return {attr: getattr(self, attr, None) for attr in self.__attrs__}
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: typing.Dict[str, typing.Any]) -> None:
         # Can't handle by adding 'proxy_manager' to self.__attrs__ because
         # self.poolmanager uses a lambda function, which isn't pickleable.
         self.proxy_manager = {}
@@ -214,8 +219,8 @@ class HTTPAdapter(BaseAdapter):
         )
 
     def init_poolmanager(
-        self, connections, maxsize, block=DEFAULT_POOLBLOCK, **pool_kwargs
-    ):
+        self, connections: int, maxsize: int, block: bool = DEFAULT_POOLBLOCK, **pool_kwargs: typing.Any
+    ) -> None:
         """Initializes a urllib3 PoolManager.
 
         This method should not be called from user code, and is only
@@ -239,7 +244,7 @@ class HTTPAdapter(BaseAdapter):
             **pool_kwargs,
         )
 
-    def proxy_manager_for(self, proxy, **proxy_kwargs):
+    def proxy_manager_for(self, proxy: str, **proxy_kwargs: typing.Any) -> "PoolManager | typing.Any":
         """Return urllib3 ProxyManager for the given proxy.
 
         This method should not be called from user code, and is only
@@ -277,7 +282,8 @@ class HTTPAdapter(BaseAdapter):
 
         return manager
 
-    def cert_verify(self, conn, url, verify, cert):
+    # pylint: disable=too-many-branches
+    def cert_verify(self, conn: typing.Any, url: str, verify: "bool | str", cert: "None | str | typing.Tuple[str, str]") -> None:
         """Verify a SSL certificate. This method should not be called from user
         code, and is only exposed for use when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
@@ -332,8 +338,9 @@ class HTTPAdapter(BaseAdapter):
                 raise OSError(
                     f"Could not find the TLS key file, invalid path: {conn.key_file}"
                 )
+    # pylint: enable=too-many-branches
 
-    def build_response(self, req, resp):
+    def build_response(self, req: "PreparedRequest", resp: typing.Any) -> Response:
         """Builds a :class:`Response <requests.Response>` object from a urllib3
         response. This should not be called from user code, and is only exposed
         for use when subclassing the
@@ -370,7 +377,8 @@ class HTTPAdapter(BaseAdapter):
 
         return response
 
-    def build_connection_pool_key_attributes(self, request, verify, cert=None):
+    # pylint: disable=invalid-name
+    def build_connection_pool_key_attributes(self, request: "PreparedRequest", verify: "bool | str", cert: "None | str | typing.Tuple[str, str]" = None) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Dict[str, typing.Any]]:
         """Build the PoolKey attributes used by urllib3 to return a connection.
 
         This looks at the PreparedRequest, the user-specified verify value,
@@ -419,8 +427,9 @@ class HTTPAdapter(BaseAdapter):
             second is a dictionary of SSLContext related parameters.
         """
         return _urllib3_request_context(request, verify, cert, self.poolmanager)
+    # pylint: enable=invalid-name
 
-    def get_connection_with_tls_context(self, request, verify, proxies=None, cert=None):
+    def get_connection_with_tls_context(self, request: "PreparedRequest", verify: "bool | str", proxies: "None | typing.Dict[str, str]" = None, cert: "None | str | typing.Tuple[str, str]" = None) -> typing.Any:
         """Returns a urllib3 connection for the given request and TLS settings.
         This should not be called from user code, and is only exposed for use
         when subclassing the :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
@@ -440,15 +449,15 @@ class HTTPAdapter(BaseAdapter):
         :rtype:
             urllib3.ConnectionPool
         """
-        proxy = select_proxy(request.url, proxies)
+        proxy = select_proxy(request.url or "", proxies)
         try:
             host_params, pool_kwargs = self.build_connection_pool_key_attributes(
                 request,
                 verify,
                 cert,
             )
-        except ValueError as e:
-            raise InvalidURL(e, request=request)
+        except ValueError as err:
+            raise InvalidURL(err, request=request) from err
         if proxy:
             proxy = prepend_scheme_if_needed(proxy, "http")
             proxy_url = parse_url(proxy)
@@ -469,7 +478,7 @@ class HTTPAdapter(BaseAdapter):
 
         return conn
 
-    def get_connection(self, url, proxies=None):
+    def get_connection(self, url: str, proxies: "None | typing.Dict[str, str]" = None) -> typing.Any:
         """DEPRECATED: Users should move to `get_connection_with_tls_context`
         for all subclasses of HTTPAdapter using Requests>=2.32.2.
 
@@ -490,7 +499,7 @@ class HTTPAdapter(BaseAdapter):
             ),
             DeprecationWarning,
         )
-        proxy = select_proxy(url, proxies)
+        proxy = select_proxy(url or "", proxies)
 
         if proxy:
             proxy = prepend_scheme_if_needed(proxy, "http")
@@ -510,7 +519,7 @@ class HTTPAdapter(BaseAdapter):
 
         return conn
 
-    def close(self):
+    def close(self) -> None:
         """Disposes of any internal state.
 
         Currently, this closes the PoolManager and any active ProxyManager,
@@ -520,7 +529,7 @@ class HTTPAdapter(BaseAdapter):
         for proxy in self.proxy_manager.values():
             proxy.clear()
 
-    def request_url(self, request, proxies):
+    def request_url(self, request: "PreparedRequest", proxies: "None | typing.Dict[str, str]") -> str:
         """Obtain the url to use when making the final request.
 
         If the message is being sent through a HTTP proxy, the full URL has to
@@ -534,8 +543,8 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs.
         :rtype: str
         """
-        proxy = select_proxy(request.url, proxies)
-        scheme = urlparse(request.url).scheme
+        proxy = select_proxy(request.url or "", proxies)
+        scheme = urlparse(request.url or "").scheme
 
         is_proxied_http_request = proxy and scheme != "https"
         using_socks_proxy = False
@@ -548,11 +557,11 @@ class HTTPAdapter(BaseAdapter):
             url = f"/{url.lstrip('/')}"
 
         if is_proxied_http_request and not using_socks_proxy:
-            url = urldefragauth(request.url)
+            url = urldefragauth(request.url or "")
 
         return url
 
-    def add_headers(self, request, **kwargs):
+    def add_headers(self, request: "PreparedRequest", **kwargs: typing.Any) -> None:
         """Add any headers needed by the connection. As of v2.0 this does
         nothing by default, but is left for overriding by users that subclass
         the :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
@@ -564,9 +573,8 @@ class HTTPAdapter(BaseAdapter):
         :param request: The :class:`PreparedRequest <PreparedRequest>` to add headers to.
         :param kwargs: The keyword arguments from the call to send().
         """
-        pass
 
-    def proxy_headers(self, proxy):
+    def proxy_headers(self, proxy: str) -> typing.Dict[str, str]:
         """Returns a dictionary of the headers to add to any request sent
         through a proxy. This works with urllib3 magic to ensure that they are
         correctly sent to the proxy, rather than in a tunnelled request if
@@ -587,9 +595,54 @@ class HTTPAdapter(BaseAdapter):
 
         return headers
 
+    def _prepare_timeout(self, timeout: "None | float | typing.Tuple[float, float] | typing.Tuple[float, None] | TimeoutSauce") -> TimeoutSauce:
+        """Convert timeout to TimeoutSauce object."""
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                return TimeoutSauce(connect=connect, read=read)
+            except ValueError as exc:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                ) from exc
+        if isinstance(timeout, TimeoutSauce):
+            return timeout
+        return TimeoutSauce(connect=timeout, read=timeout)
+
+    def _handle_max_retry_error(self, err: MaxRetryError, request: "PreparedRequest") -> None:
+        """Handle MaxRetryError by raising appropriate exception."""
+        if isinstance(err.reason, ConnectTimeoutError):
+            # TODO: Remove this in 3.0.0: see #2811
+            if not isinstance(err.reason, NewConnectionError):
+                raise ConnectTimeout(err, request=request) from err
+
+        if isinstance(err.reason, ResponseError):
+            raise RetryError(err, request=request) from err
+
+        if isinstance(err.reason, _ProxyError):
+            raise ProxyError(err, request=request) from err
+
+        if isinstance(err.reason, _SSLError):
+            # This branch is for urllib3 v1.22 and later.
+            raise SSLError(err, request=request) from err
+
+        raise ConnectionError(err, request=request) from err
+
+    def _handle_ssl_http_error(self, err: "_SSLError | _HTTPError", request: "PreparedRequest") -> None:
+        """Handle _SSLError and _HTTPError by raising appropriate exception."""
+        if isinstance(err, _SSLError):
+            # This branch is for urllib3 versions earlier than v1.22
+            raise SSLError(err, request=request) from err
+        if isinstance(err, ReadTimeoutError):
+            raise ReadTimeout(err, request=request) from err
+        if isinstance(err, _InvalidHeader):
+            raise InvalidHeader(err, request=request) from err
+        raise RequestException(err, request=request) from err
+
     def send(
-        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
-    ):
+        self, request: "PreparedRequest", *, stream: bool = False, timeout: "None | float | typing.Tuple[float, float] | typing.Tuple[float, None]" = None, verify: "bool | str" = True, cert: "None | str | typing.Tuple[str, str]" = None, proxies: "None | typing.Dict[str, str]" = None
+    ) -> Response:
         """Sends PreparedRequest object. Returns Response object.
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
@@ -610,10 +663,10 @@ class HTTPAdapter(BaseAdapter):
             conn = self.get_connection_with_tls_context(
                 request, verify, proxies=proxies, cert=cert
             )
-        except LocationValueError as e:
-            raise InvalidURL(e, request=request)
+        except LocationValueError as err:
+            raise InvalidURL(err, request=request) from err
 
-        self.cert_verify(conn, request.url, verify, cert)
+        self.cert_verify(conn, request.url or "", verify, cert)
         url = self.request_url(request, proxies)
         self.add_headers(
             request,
@@ -624,21 +677,8 @@ class HTTPAdapter(BaseAdapter):
             proxies=proxies,
         )
 
-        chunked = not (request.body is None or "Content-Length" in request.headers)
-
-        if isinstance(timeout, tuple):
-            try:
-                connect, read = timeout
-                timeout = TimeoutSauce(connect=connect, read=read)
-            except ValueError:
-                raise ValueError(
-                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
-                    f"or a single float to set both timeouts to the same value."
-                )
-        elif isinstance(timeout, TimeoutSauce):
-            pass
-        else:
-            timeout = TimeoutSauce(connect=timeout, read=timeout)
+        chunked = not (request.body is None or "Content-Length" in (request.headers or {}))
+        timeout_obj = self._prepare_timeout(timeout)
 
         try:
             resp = conn.urlopen(
@@ -651,46 +691,23 @@ class HTTPAdapter(BaseAdapter):
                 preload_content=False,
                 decode_content=False,
                 retries=self.max_retries,
-                timeout=timeout,
+                timeout=timeout_obj,
                 chunked=chunked,
             )
 
         except (ProtocolError, OSError) as err:
-            raise ConnectionError(err, request=request)
+            raise ConnectionError(err, request=request) from err
 
-        except MaxRetryError as e:
-            if isinstance(e.reason, ConnectTimeoutError):
-                # TODO: Remove this in 3.0.0: see #2811
-                if not isinstance(e.reason, NewConnectionError):
-                    raise ConnectTimeout(e, request=request)
+        except MaxRetryError as err:
+            self._handle_max_retry_error(err, request)
 
-            if isinstance(e.reason, ResponseError):
-                raise RetryError(e, request=request)
+        except ClosedPoolError as err:
+            raise ConnectionError(err, request=request) from err
 
-            if isinstance(e.reason, _ProxyError):
-                raise ProxyError(e, request=request)
+        except _ProxyError as err:
+            raise ProxyError(err) from err
 
-            if isinstance(e.reason, _SSLError):
-                # This branch is for urllib3 v1.22 and later.
-                raise SSLError(e, request=request)
-
-            raise ConnectionError(e, request=request)
-
-        except ClosedPoolError as e:
-            raise ConnectionError(e, request=request)
-
-        except _ProxyError as e:
-            raise ProxyError(e)
-
-        except (_SSLError, _HTTPError) as e:
-            if isinstance(e, _SSLError):
-                # This branch is for urllib3 versions earlier than v1.22
-                raise SSLError(e, request=request)
-            elif isinstance(e, ReadTimeoutError):
-                raise ReadTimeout(e, request=request)
-            elif isinstance(e, _InvalidHeader):
-                raise InvalidHeader(e, request=request)
-            else:
-                raise
+        except (_SSLError, _HTTPError) as err:
+            self._handle_ssl_http_error(err, request)
 
         return self.build_response(request, resp)

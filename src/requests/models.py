@@ -6,11 +6,12 @@ This module contains the primary objects that power Requests.
 """
 
 import datetime
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
 # Import encoding now, to avoid implicit import later.
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
 # such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
-import encodings.idna  # noqa: F401
+import encodings.idna  # noqa: F401 # pylint: disable=unused-import
 from io import UnsupportedOperation
 
 from urllib3.exceptions import (
@@ -38,6 +39,7 @@ from .compat import (
 from .compat import json as complexjson
 from .compat import urlencode, urlsplit, urlunparse
 from .cookies import _copy_cookie_jar, cookiejar_from_dict, get_cookie_header
+# pylint: disable=redefined-builtin
 from .exceptions import (
     ChunkedEncodingError,
     ConnectionError,
@@ -46,6 +48,7 @@ from .exceptions import (
     InvalidJSONError,
     InvalidURL,
 )
+# pylint: enable=redefined-builtin
 from .exceptions import JSONDecodeError as RequestsJSONDecodeError
 from .exceptions import MissingSchema
 from .exceptions import SSLError as RequestsSSLError
@@ -68,13 +71,15 @@ from .utils import (
 
 #: The set of HTTP status codes that indicate an automatically
 #: processable redirect.
+# pylint: disable=no-member
 REDIRECT_STATI = (
-    codes.moved,  # 301
-    codes.found,  # 302
-    codes.other,  # 303
-    codes.temporary_redirect,  # 307
-    codes.permanent_redirect,  # 308
+    codes.moved,  # type: ignore[attr-defined]  # 301
+    codes.found,  # type: ignore[attr-defined]  # 302
+    codes.other,  # type: ignore[attr-defined]  # 303
+    codes.temporary_redirect,  # type: ignore[attr-defined]  # 307
+    codes.permanent_redirect,  # type: ignore[attr-defined]  # 308
 )
+# pylint: enable=no-member
 
 DEFAULT_REDIRECT_LIMIT = 30
 CONTENT_CHUNK_SIZE = 10 * 1024
@@ -82,21 +87,23 @@ ITER_CHUNK_SIZE = 512
 
 
 class RequestEncodingMixin:
+    url: Any  # provided by subclass
+
     @property
-    def path_url(self):
+    def path_url(self) -> str:
         """Build the path URL to use."""
 
         url = []
 
-        p = urlsplit(self.url)
+        parsed = urlsplit(self.url)
 
-        path = p.path
+        path = parsed.path
         if not path:
             path = "/"
 
         url.append(path)
 
-        query = p.query
+        query = parsed.query
         if query:
             url.append("?")
             url.append(query)
@@ -104,7 +111,7 @@ class RequestEncodingMixin:
         return "".join(url)
 
     @staticmethod
-    def _encode_params(data):
+    def _encode_params(data: Any) -> Any:
         """Encode parameters in a piece of data.
 
         Will successfully encode parameters when passed as a dict or a list of
@@ -114,27 +121,83 @@ class RequestEncodingMixin:
 
         if isinstance(data, (str, bytes)):
             return data
-        elif hasattr(data, "read"):
+        if hasattr(data, "read"):
             return data
-        elif hasattr(data, "__iter__"):
-            result = []
-            for k, vs in to_key_val_list(data):
-                if isinstance(vs, basestring) or not hasattr(vs, "__iter__"):
-                    vs = [vs]
-                for v in vs:
-                    if v is not None:
-                        result.append(
-                            (
-                                k.encode("utf-8") if isinstance(k, str) else k,
-                                v.encode("utf-8") if isinstance(v, str) else v,
-                            )
-                        )
-            return urlencode(result, doseq=True)
-        else:
+        if not hasattr(data, "__iter__"):
             return data
 
+        result = []
+        key_val_list = to_key_val_list(data)
+        if key_val_list is None:
+            return data
+        for key, values in key_val_list:
+            if isinstance(values, basestring) or not hasattr(values, "__iter__"):
+                values = [values]
+            for value in values:
+                if value is None:
+                    continue
+                result.append(
+                    (
+                        key.encode("utf-8") if isinstance(key, str) else key,
+                        value.encode("utf-8") if isinstance(value, str) else value,
+                    )
+                )
+        return urlencode(result, doseq=True)
+
     @staticmethod
-    def _encode_files(files, data):
+    def _process_field_for_multipart(field: Any, val: Any) -> List[Tuple[Any, Any]]:
+        """Process a single field for multipart encoding."""
+        result = []
+        if isinstance(val, basestring) or not hasattr(val, "__iter__"):
+            val = [val]
+        for value in val:
+            if value is None:
+                continue
+            # Don't call str() on bytestrings: in Py3 it all goes wrong.
+            if not isinstance(value, bytes):
+                value = str(value)
+
+            result.append(
+                (
+                    field.decode("utf-8")
+                    if isinstance(field, bytes)
+                    else field,
+                    value.encode("utf-8") if isinstance(value, str) else value,
+                )
+            )
+        return result
+
+    @staticmethod
+    def _process_file_for_multipart(key: Any, value: Any) -> Optional[Any]:
+        """Process a single file for multipart encoding."""
+        file_type = None
+        file_headers = None
+        if isinstance(value, (tuple, list)):
+            if len(value) == 2:
+                filename, fileobj = value
+            elif len(value) == 3:
+                filename, fileobj, file_type = value
+            else:
+                filename, fileobj, file_type, file_headers = value
+        else:
+            filename = guess_filename(value) or key
+            fileobj = value
+
+        if isinstance(fileobj, (str, bytes, bytearray)):
+            file_data = fileobj
+        elif hasattr(fileobj, "read"):
+            file_data = fileobj.read()
+        elif fileobj is None:
+            return None
+        else:
+            file_data = fileobj
+
+        request_field = RequestField(name=key, data=file_data, filename=filename, headers=file_headers)
+        request_field.make_multipart(content_type=file_type)
+        return request_field
+
+    @staticmethod
+    def _encode_files(files: Any, data: Any) -> Tuple[Any, str]:
         """Build the body for a multipart/form-data request.
 
         Will successfully encode files when passed as a dict or a list of
@@ -145,77 +208,43 @@ class RequestEncodingMixin:
         """
         if not files:
             raise ValueError("Files must be provided.")
-        elif isinstance(data, basestring):
+        if isinstance(data, basestring):
             raise ValueError("Data must not be a string.")
 
         new_fields = []
-        fields = to_key_val_list(data or {})
-        files = to_key_val_list(files or {})
 
-        for field, val in fields:
-            if isinstance(val, basestring) or not hasattr(val, "__iter__"):
-                val = [val]
-            for v in val:
-                if v is not None:
-                    # Don't call str() on bytestrings: in Py3 it all goes wrong.
-                    if not isinstance(v, bytes):
-                        v = str(v)
+        # Process data fields
+        data_list = to_key_val_list(data or {})
+        if data_list is not None:
+            for field, val in data_list:
+                new_fields.extend(RequestEncodingMixin._process_field_for_multipart(field, val))
 
-                    new_fields.append(
-                        (
-                            field.decode("utf-8")
-                            if isinstance(field, bytes)
-                            else field,
-                            v.encode("utf-8") if isinstance(v, str) else v,
-                        )
-                    )
+        # Process file fields
+        files_list = to_key_val_list(files or {})
+        if files_list is not None:
+            for key, value in files_list:
+                request_field = RequestEncodingMixin._process_file_for_multipart(key, value)
+                if request_field is not None:
+                    new_fields.append(request_field)
 
-        for k, v in files:
-            # support for explicit filename
-            ft = None
-            fh = None
-            if isinstance(v, (tuple, list)):
-                if len(v) == 2:
-                    fn, fp = v
-                elif len(v) == 3:
-                    fn, fp, ft = v
-                else:
-                    fn, fp, ft, fh = v
-            else:
-                fn = guess_filename(v) or k
-                fp = v
-
-            if isinstance(fp, (str, bytes, bytearray)):
-                fdata = fp
-            elif hasattr(fp, "read"):
-                fdata = fp.read()
-            elif fp is None:
-                continue
-            else:
-                fdata = fp
-
-            rf = RequestField(name=k, data=fdata, filename=fn, headers=fh)
-            rf.make_multipart(content_type=ft)
-            new_fields.append(rf)
-
-        body, content_type = encode_multipart_formdata(new_fields)
-
-        return body, content_type
+        return encode_multipart_formdata(new_fields)
 
 
 class RequestHooksMixin:
-    def register_hook(self, event, hook):
+    hooks: Dict[str, List[Any]]
+
+    def register_hook(self, event: str, hook: Any) -> None:
         """Properly register a hook."""
 
         if event not in self.hooks:
             raise ValueError(f'Unsupported event specified, with event name "{event}"')
 
-        if isinstance(hook, Callable):
+        if isinstance(hook, Callable):  # type: ignore[arg-type]
             self.hooks[event].append(hook)
         elif hasattr(hook, "__iter__"):
-            self.hooks[event].extend(h for h in hook if isinstance(h, Callable))
+            self.hooks[event].extend(h for h in hook if isinstance(h, Callable))  # type: ignore[arg-type]
 
-    def deregister_hook(self, event, hook):
+    def deregister_hook(self, event: str, hook: Any) -> bool:
         """Deregister a previously registered hook.
         Returns True if the hook existed, False if not.
         """
@@ -255,19 +284,21 @@ class Request(RequestHooksMixin):
       <PreparedRequest [GET]>
     """
 
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
-        method=None,
-        url=None,
-        headers=None,
-        files=None,
-        data=None,
-        params=None,
-        auth=None,
-        cookies=None,
-        hooks=None,
-        json=None,
-    ):
+        method: Optional[str] = None,
+        url: Optional[str] = None,
+        *,
+        headers: Optional[Any] = None,
+        files: Optional[Any] = None,
+        data: Optional[Any] = None,
+        params: Optional[Any] = None,
+        auth: Optional[Any] = None,
+        cookies: Optional[Any] = None,
+        hooks: Optional[Any] = None,
+        json: Optional[Any] = None,
+    ) -> None:
         # Default empty dicts for dict params.
         data = [] if data is None else data
         files = [] if files is None else files
@@ -276,8 +307,8 @@ class Request(RequestHooksMixin):
         hooks = {} if hooks is None else hooks
 
         self.hooks = default_hooks()
-        for k, v in list(hooks.items()):
-            self.register_hook(event=k, hook=v)
+        for key, value in list(hooks.items()):
+            self.register_hook(event=key, hook=value)
 
         self.method = method
         self.url = url
@@ -289,13 +320,13 @@ class Request(RequestHooksMixin):
         self.auth = auth
         self.cookies = cookies
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Request [{self.method}]>"
 
-    def prepare(self):
+    def prepare(self) -> "PreparedRequest":
         """Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it."""
-        p = PreparedRequest()
-        p.prepare(
+        prepared = PreparedRequest()
+        prepared.prepare(
             method=self.method,
             url=self.url,
             headers=self.headers,
@@ -307,7 +338,7 @@ class Request(RequestHooksMixin):
             cookies=self.cookies,
             hooks=self.hooks,
         )
-        return p
+        return prepared
 
 
 class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
@@ -331,36 +362,38 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
       <Response [200]>
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         #: HTTP verb to send to the server.
-        self.method = None
+        self.method: Optional[Any] = None
         #: HTTP URL to send the request to.
-        self.url = None
+        self.url: Optional[Any] = None
         #: dictionary of HTTP headers.
-        self.headers = None
+        self.headers: Optional[Any] = None
         # The `CookieJar` used to create the Cookie header will be stored here
         # after prepare_cookies is called
-        self._cookies = None
+        self._cookies: Optional[Any] = None
         #: request body to send to the server.
-        self.body = None
+        self.body: Optional[Any] = None
         #: dictionary of callback hooks, for internal usage.
-        self.hooks = default_hooks()
+        self.hooks: Dict[str, List[Any]] = default_hooks()
         #: integer denoting starting position of a readable file-like body.
-        self._body_position = None
+        self._body_position: Optional[Any] = None
 
+    # pylint: disable=too-many-arguments
     def prepare(
         self,
-        method=None,
-        url=None,
-        headers=None,
-        files=None,
-        data=None,
-        params=None,
-        auth=None,
-        cookies=None,
-        hooks=None,
-        json=None,
-    ):
+        method: Optional[str] = None,
+        url: Optional[str] = None,
+        *,
+        headers: Optional[Any] = None,
+        files: Optional[Any] = None,
+        data: Optional[Any] = None,
+        params: Optional[Any] = None,
+        auth: Optional[Any] = None,
+        cookies: Optional[Any] = None,
+        hooks: Optional[Any] = None,
+        json: Optional[Any] = None,
+    ) -> None:
         """Prepares the entire request with the given parameters."""
 
         self.prepare_method(method)
@@ -368,7 +401,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.prepare_headers(headers)
         self.prepare_cookies(cookies)
         self.prepare_body(data, files, json)
-        self.prepare_auth(auth, url)
+        self.prepare_auth(auth, url or "")
 
         # Note that prepare_auth must be last to enable authentication schemes
         # such as OAuth to work on a fully prepared request.
@@ -376,37 +409,37 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # This MUST go after prepare_auth. Authenticators could add a hook
         self.prepare_hooks(hooks)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<PreparedRequest [{self.method}]>"
 
-    def copy(self):
-        p = PreparedRequest()
-        p.method = self.method
-        p.url = self.url
-        p.headers = self.headers.copy() if self.headers is not None else None
-        p._cookies = _copy_cookie_jar(self._cookies)
-        p.body = self.body
-        p.hooks = self.hooks
-        p._body_position = self._body_position
-        return p
+    def copy(self) -> "PreparedRequest":
+        prepared = PreparedRequest()
+        prepared.method = self.method
+        prepared.url = self.url
+        prepared.headers = self.headers.copy() if self.headers is not None else None
+        prepared._cookies = _copy_cookie_jar(self._cookies)  # pylint: disable=protected-access
+        prepared.body = self.body
+        prepared.hooks = self.hooks
+        prepared._body_position = self._body_position  # pylint: disable=protected-access
+        return prepared
 
-    def prepare_method(self, method):
+    def prepare_method(self, method: Optional[str]) -> None:
         """Prepares the given HTTP method."""
         self.method = method
         if self.method is not None:
             self.method = to_native_string(self.method.upper())
 
     @staticmethod
-    def _get_idna_encoded_host(host):
-        import idna
+    def _get_idna_encoded_host(host: str) -> str:
+        import idna  # pylint: disable=import-outside-toplevel
 
         try:
             host = idna.encode(host, uts46=True).decode("utf-8")
-        except idna.IDNAError:
-            raise UnicodeError
+        except idna.IDNAError as exc:
+            raise UnicodeError from exc
         return host
 
-    def prepare_url(self, url, params):
+    def prepare_url(self, url: Optional[Any], params: Optional[Any]) -> None:  # pylint: disable=too-many-branches
         """Prepares the given HTTP URL."""
         #: Accept objects that have string representations.
         #: We're unable to blindly call unicode/str functions
@@ -431,8 +464,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Support for unicode domain names and paths.
         try:
             scheme, auth, host, port, path, query, fragment = parse_url(url)
-        except LocationParseError as e:
-            raise InvalidURL(*e.args)
+        except LocationParseError as exc:
+            raise InvalidURL(*exc.args) from exc
 
         if not scheme:
             raise MissingSchema(
@@ -450,8 +483,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if not unicode_is_ascii(host):
             try:
                 host = self._get_idna_encoded_host(host)
-            except UnicodeError:
-                raise InvalidURL("URL has an invalid label.")
+            except UnicodeError as exc:
+                raise InvalidURL("URL has an invalid label.") from exc
         elif host.startswith(("*", ".")):
             raise InvalidURL("URL has an invalid label.")
 
@@ -480,7 +513,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         url = requote_uri(urlunparse([scheme, netloc, path, None, query, fragment]))
         self.url = url
 
-    def prepare_headers(self, headers):
+    def prepare_headers(self, headers: Optional[Any]) -> None:
         """Prepares the given HTTP headers."""
 
         self.headers = CaseInsensitiveDict()
@@ -491,7 +524,21 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 name, value = header
                 self.headers[to_native_string(name)] = value
 
-    def prepare_body(self, data, files, json=None):
+    def _record_body_position(self, body: Any) -> None:
+        """Record the current file position for rewinding."""
+        if getattr(body, "tell", None) is None:
+            return
+        # Record the current file position before reading.
+        # This will allow us to rewind a file in the event
+        # of a redirect.
+        try:
+            self._body_position = body.tell()
+        except OSError:
+            # This differentiates from None, allowing us to catch
+            # a failed `tell()` later when trying to rewind the body
+            self._body_position = object()
+
+    def prepare_body(self, data: Optional[Any], files: Optional[Any], json: Optional[Any] = None) -> None:  # pylint: disable=too-many-branches
         """Prepares the given HTTP body data."""
 
         # Check if file, fo, generator, iterator.
@@ -508,8 +555,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
             try:
                 body = complexjson.dumps(json, allow_nan=False)
-            except ValueError as ve:
-                raise InvalidJSONError(ve, request=self)
+            except ValueError as value_error:
+                raise InvalidJSONError(value_error, request=self) from value_error
 
             if not isinstance(body, bytes):
                 body = body.encode("utf-8")
@@ -528,49 +575,40 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 length = None
 
             body = data
-
-            if getattr(body, "tell", None) is not None:
-                # Record the current file position before reading.
-                # This will allow us to rewind a file in the event
-                # of a redirect.
-                try:
-                    self._body_position = body.tell()
-                except OSError:
-                    # This differentiates from None, allowing us to catch
-                    # a failed `tell()` later when trying to rewind the body
-                    self._body_position = object()
+            self._record_body_position(body)
 
             if files:
                 raise NotImplementedError(
                     "Streamed bodies and files are mutually exclusive."
                 )
 
-            if length:
+            if length and self.headers is not None:
                 self.headers["Content-Length"] = builtin_str(length)
-            else:
+            elif self.headers is not None:
                 self.headers["Transfer-Encoding"] = "chunked"
         else:
             # Multi-part file uploads.
             if files:
                 (body, content_type) = self._encode_files(files, data)
-            else:
-                if data:
-                    body = self._encode_params(data)
-                    if isinstance(data, basestring) or hasattr(data, "read"):
-                        content_type = None
-                    else:
-                        content_type = "application/x-www-form-urlencoded"
+            elif data:
+                body = self._encode_params(data)
+                if isinstance(data, basestring) or hasattr(data, "read"):
+                    content_type = None
+                else:
+                    content_type = "application/x-www-form-urlencoded"
 
             self.prepare_content_length(body)
 
             # Add content-type if it wasn't explicitly provided.
-            if content_type and ("content-type" not in self.headers):
+            if content_type and self.headers is not None and ("content-type" not in self.headers):
                 self.headers["Content-Type"] = content_type
 
         self.body = body
 
-    def prepare_content_length(self, body):
+    def prepare_content_length(self, body: Optional[Any]) -> None:
         """Prepare Content-Length header based on request method and body"""
+        if self.headers is None:
+            return
         if body is not None:
             length = super_len(body)
             if length:
@@ -585,12 +623,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             # but don't provide one. (i.e. not GET or HEAD)
             self.headers["Content-Length"] = "0"
 
-    def prepare_auth(self, auth, url=""):
+    def prepare_auth(self, auth: Optional[Any], url: str = "") -> None:  # pylint: disable=unused-argument
         """Prepares the given HTTP auth data."""
 
         # If no Auth is explicitly provided, extract it from the URL first.
-        if auth is None:
-            url_auth = get_auth_from_url(self.url)
+        if auth is None and self.url:
+            url_auth = get_auth_from_url(str(self.url))
             auth = url_auth if any(url_auth) else None
 
         if auth:
@@ -599,15 +637,15 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 auth = HTTPBasicAuth(*auth)
 
             # Allow auth to make its changes.
-            r = auth(self)
+            authenticated_request = auth(self)
 
             # Update self to reflect the auth changes.
-            self.__dict__.update(r.__dict__)
+            self.__dict__.update(authenticated_request.__dict__)
 
             # Recompute Content-Length
             self.prepare_content_length(self.body)
 
-    def prepare_cookies(self, cookies):
+    def prepare_cookies(self, cookies: Optional[Any]) -> None:
         """Prepares the given HTTP cookie data.
 
         This function eventually generates a ``Cookie`` header from the
@@ -624,10 +662,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             self._cookies = cookiejar_from_dict(cookies)
 
         cookie_header = get_cookie_header(self._cookies, self)
-        if cookie_header is not None:
+        if cookie_header is not None and self.headers is not None:
             self.headers["Cookie"] = cookie_header
 
-    def prepare_hooks(self, hooks):
+    def prepare_hooks(self, hooks: Optional[Any]) -> None:
         """Prepares the given hooks."""
         # hooks can be passed as None to the prepare method and to this
         # method. To prevent iterating over None, simply use an empty list
@@ -637,7 +675,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             self.register_hook(event, hooks[event])
 
 
-class Response:
+class Response:  # pylint: disable=too-many-instance-attributes
     """The :class:`Response <Response>` object, which contains a
     server's response to an HTTP request.
     """
@@ -655,40 +693,40 @@ class Response:
         "request",
     ]
 
-    def __init__(self):
-        self._content = False
-        self._content_consumed = False
-        self._next = None
+    def __init__(self) -> None:
+        self._content: Union[bool, bytes] = False
+        self._content_consumed: bool = False
+        self._next: Optional[Any] = None
 
         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
-        self.status_code = None
+        self.status_code: Optional[int] = None
 
         #: Case-insensitive Dictionary of Response Headers.
         #: For example, ``headers['content-encoding']`` will return the
         #: value of a ``'Content-Encoding'`` response header.
-        self.headers = CaseInsensitiveDict()
+        self.headers: CaseInsensitiveDict = CaseInsensitiveDict()
 
         #: File-like object representation of response (for advanced usage).
         #: Use of ``raw`` requires that ``stream=True`` be set on the request.
         #: This requirement does not apply for use internally to Requests.
-        self.raw = None
+        self.raw: Optional[Any] = None
 
         #: Final URL location of Response.
-        self.url = None
+        self.url: Optional[str] = None
 
         #: Encoding to decode with when accessing r.text.
-        self.encoding = None
+        self.encoding: Optional[str] = None
 
         #: A list of :class:`Response <Response>` objects from
         #: the history of the Request. Any redirect responses will end
         #: up here. The list is sorted from the oldest to the most recent request.
-        self.history = []
+        self.history: List["Response"] = []
 
         #: Textual reason of responded HTTP Status, e.g. "Not Found" or "OK".
-        self.reason = None
+        self.reason: Optional[str] = None
 
         #: A CookieJar of Cookies the server sent back.
-        self.cookies = cookiejar_from_dict({})
+        self.cookies: Any = cookiejar_from_dict({})
 
         #: The amount of time elapsed between sending the request
         #: and the arrival of the response (as a timedelta).
@@ -696,27 +734,30 @@ class Response:
         #: the first byte of the request and finishing parsing the headers. It
         #: is therefore unaffected by consuming the response content or the
         #: value of the ``stream`` keyword argument.
-        self.elapsed = datetime.timedelta(0)
+        self.elapsed: datetime.timedelta = datetime.timedelta(0)
 
         #: The :class:`PreparedRequest <PreparedRequest>` object to which this
         #: is a response.
-        self.request = None
+        self.request: Optional[PreparedRequest] = None
 
-    def __enter__(self):
+        #: The connection adapter that was used to send the request.
+        self.connection: Optional[Any] = None
+
+    def __enter__(self) -> "Response":
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: Any) -> None:
         self.close()
 
-    def __getstate__(self):
+    def __getstate__(self) -> Dict[str, Any]:
         # Consume everything; accessing the content attribute makes
         # sure the content has been fully read.
         if not self._content_consumed:
-            self.content
+            self.content  # noqa: B018  # pylint: disable=pointless-statement  # Intentionally accessing content to consume it
 
         return {attr: getattr(self, attr, None) for attr in self.__attrs__}
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: Dict[str, Any]) -> None:
         for name, value in state.items():
             setattr(self, name, value)
 
@@ -724,10 +765,10 @@ class Response:
         setattr(self, "_content_consumed", True)
         setattr(self, "raw", None)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Response [{self.status_code}]>"
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """Returns True if :attr:`status_code` is less than 400.
 
         This attribute checks if the status code of the response is between
@@ -737,7 +778,7 @@ class Response:
         """
         return self.ok
 
-    def __nonzero__(self):
+    def __nonzero__(self) -> bool:
         """Returns True if :attr:`status_code` is less than 400.
 
         This attribute checks if the status code of the response is between
@@ -747,12 +788,12 @@ class Response:
         """
         return self.ok
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Any]:
         """Allows you to use a response as an iterator."""
         return self.iter_content(128)
 
     @property
-    def ok(self):
+    def ok(self) -> bool:  # pylint: disable=invalid-name
         """Returns True if :attr:`status_code` is less than 400, False if not.
 
         This attribute checks if the status code of the response is between
@@ -767,36 +808,38 @@ class Response:
         return True
 
     @property
-    def is_redirect(self):
+    def is_redirect(self) -> bool:
         """True if this Response is a well-formed HTTP redirect that could have
         been processed automatically (by :meth:`Session.resolve_redirects`).
         """
         return "location" in self.headers and self.status_code in REDIRECT_STATI
 
     @property
-    def is_permanent_redirect(self):
+    def is_permanent_redirect(self) -> bool:
         """True if this Response one of the permanent versions of redirect."""
+        # pylint: disable=no-member
         return "location" in self.headers and self.status_code in (
-            codes.moved_permanently,
-            codes.permanent_redirect,
+            codes.moved_permanently,  # type: ignore[attr-defined]
+            codes.permanent_redirect,  # type: ignore[attr-defined]
         )
+        # pylint: enable=no-member
 
     @property
-    def next(self):
+    def next(self) -> Optional[PreparedRequest]:
         """Returns a PreparedRequest for the next request in a redirect chain, if there is one."""
         return self._next
 
     @property
-    def apparent_encoding(self):
+    def apparent_encoding(self) -> str:
         """The apparent encoding, provided by the charset_normalizer or chardet libraries."""
         if chardet is not None:
-            return chardet.detect(self.content)["encoding"]
-        else:
-            # If no character detection library is available, we'll fall back
-            # to a standard Python utf-8 str.
-            return "utf-8"
+            encoding: str = chardet.detect(self.content)["encoding"]
+            return encoding
+        # If no character detection library is available, we'll fall back
+        # to a standard Python utf-8 str.
+        return "utf-8"
 
-    def iter_content(self, chunk_size=1, decode_unicode=False):
+    def iter_content(self, chunk_size: Optional[int] = 1, decode_unicode: bool = False) -> Iterator[Any]:
         """Iterates over the response data.  When stream=True is set on the
         request, this avoids reading the content at once into memory for
         large responses.  The chunk size is the number of bytes it should
@@ -813,23 +856,23 @@ class Response:
         available encoding based on the response.
         """
 
-        def generate():
+        def generate() -> Iterator[bytes]:
             # Special case for urllib3.
             if hasattr(self.raw, "stream"):
                 try:
-                    yield from self.raw.stream(chunk_size, decode_content=True)
-                except ProtocolError as e:
-                    raise ChunkedEncodingError(e)
-                except DecodeError as e:
-                    raise ContentDecodingError(e)
-                except ReadTimeoutError as e:
-                    raise ConnectionError(e)
-                except SSLError as e:
-                    raise RequestsSSLError(e)
+                    yield from self.raw.stream(chunk_size, decode_content=True)  # type: ignore[union-attr]
+                except ProtocolError as proto_error:
+                    raise ChunkedEncodingError(proto_error) from proto_error
+                except DecodeError as decode_error:
+                    raise ContentDecodingError(decode_error) from decode_error
+                except ReadTimeoutError as timeout_error:
+                    raise ConnectionError(timeout_error) from timeout_error
+                except SSLError as ssl_error:
+                    raise RequestsSSLError(ssl_error) from ssl_error
             else:
                 # Standard file-like object.
                 while True:
-                    chunk = self.raw.read(chunk_size)
+                    chunk = self.raw.read(chunk_size)  # type: ignore[union-attr]
                     if not chunk:
                         break
                     yield chunk
@@ -838,25 +881,28 @@ class Response:
 
         if self._content_consumed and isinstance(self._content, bool):
             raise StreamConsumedError()
-        elif chunk_size is not None and not isinstance(chunk_size, int):
+        if chunk_size is not None and not isinstance(chunk_size, int):
             raise TypeError(
                 f"chunk_size must be an int, it is instead a {type(chunk_size)}."
             )
         # simulate reading small chunks of the content
-        reused_chunks = iter_slices(self._content, chunk_size)
+        if isinstance(self._content, bytes):
+            reused_chunks: Iterator[Any] = iter_slices(self._content, chunk_size)
+        else:
+            reused_chunks = iter([])
 
         stream_chunks = generate()
 
-        chunks = reused_chunks if self._content_consumed else stream_chunks
+        chunks: Iterator[Any] = reused_chunks if self._content_consumed else stream_chunks
 
         if decode_unicode:
-            chunks = stream_decode_response_unicode(chunks, self)
+            chunks = stream_decode_response_unicode(chunks, self)  # type: ignore[arg-type]
 
         return chunks
 
     def iter_lines(
-        self, chunk_size=ITER_CHUNK_SIZE, decode_unicode=False, delimiter=None
-    ):
+        self, chunk_size: int = ITER_CHUNK_SIZE, decode_unicode: bool = False, delimiter: Optional[Any] = None
+    ) -> Iterator[Any]:
         """Iterates over the response data, one line at a time.  When
         stream=True is set on the request, this avoids reading the
         content at once into memory for large responses.
@@ -888,7 +934,7 @@ class Response:
             yield pending
 
     @property
-    def content(self):
+    def content(self) -> Optional[bytes]:
         """Content of the response, in bytes."""
 
         if self._content is False:
@@ -896,18 +942,20 @@ class Response:
             if self._content_consumed:
                 raise RuntimeError("The content for this response was already consumed")
 
-            if self.status_code == 0 or self.raw is None:
-                self._content = None
+            if not self.status_code or self.raw is None:
+                self._content = b""
             else:
                 self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
 
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3
         # since we exhausted the data.
-        return self._content
+        if isinstance(self._content, bytes):
+            return self._content
+        return None
 
     @property
-    def text(self):
+    def text(self) -> str:
         """Content of the response, in unicode.
 
         If Response.encoding is None, encoding will be guessed using
@@ -932,7 +980,7 @@ class Response:
 
         # Decode unicode from given encoding.
         try:
-            content = str(self.content, encoding, errors="replace")
+            content = str(self.content, encoding or "utf-8", errors="replace")
         except (LookupError, TypeError):
             # A LookupError is raised if the encoding was not found which could
             # indicate a misspelling or similar mistake.
@@ -944,7 +992,7 @@ class Response:
 
         return content
 
-    def json(self, **kwargs):
+    def json(self, **kwargs: Any) -> Any:
         r"""Decodes the JSON response body (if any) as a Python object.
 
         This may return a dictionary, list, etc. depending on what is in the response.
@@ -969,70 +1017,73 @@ class Response:
                     # and the server didn't bother to tell us what codec *was*
                     # used.
                     pass
-                except JSONDecodeError as e:
-                    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+                except JSONDecodeError as json_error:
+                    raise RequestsJSONDecodeError(json_error.msg, json_error.doc, json_error.pos) from json_error
 
         try:
             return complexjson.loads(self.text, **kwargs)
-        except JSONDecodeError as e:
+        except JSONDecodeError as json_error:
             # Catch JSON-related errors and raise as requests.JSONDecodeError
             # This aliases json.JSONDecodeError and simplejson.JSONDecodeError
-            raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+            raise RequestsJSONDecodeError(json_error.msg, json_error.doc, json_error.pos) from json_error
 
     @property
-    def links(self):
+    def links(self) -> Dict[str, Any]:
         """Returns the parsed header links of the response, if any."""
 
         header = self.headers.get("link")
 
-        resolved_links = {}
+        resolved_links: Dict[str, Any] = {}
 
         if header:
             links = parse_header_links(header)
 
             for link in links:
                 key = link.get("rel") or link.get("url")
-                resolved_links[key] = link
+                if key:
+                    resolved_links[key] = link
 
         return resolved_links
 
-    def raise_for_status(self):
+    def raise_for_status(self) -> None:
         """Raises :class:`HTTPError`, if one occurred."""
 
         http_error_msg = ""
+        reason: Optional[str] = ""
         if isinstance(self.reason, bytes):
             # We attempt to decode utf-8 first because some servers
             # choose to localize their reason strings. If the string
             # isn't utf-8, we fall back to iso-8859-1 for all other
             # encodings. (See PR #3538)
-            try:
+            try:  # type: ignore[unreachable]
                 reason = self.reason.decode("utf-8")
             except UnicodeDecodeError:
                 reason = self.reason.decode("iso-8859-1")
-        else:
+        elif self.reason:
             reason = self.reason
 
-        if 400 <= self.status_code < 500:
-            http_error_msg = (
-                f"{self.status_code} Client Error: {reason} for url: {self.url}"
-            )
+        if self.status_code is not None:
+            if 400 <= self.status_code < 500:
+                http_error_msg = (
+                    f"{self.status_code} Client Error: {reason} for url: {self.url}"
+                )
 
-        elif 500 <= self.status_code < 600:
-            http_error_msg = (
-                f"{self.status_code} Server Error: {reason} for url: {self.url}"
-            )
+            elif 500 <= self.status_code < 600:
+                http_error_msg = (
+                    f"{self.status_code} Server Error: {reason} for url: {self.url}"
+                )
 
         if http_error_msg:
             raise HTTPError(http_error_msg, response=self)
 
-    def close(self):
+    def close(self) -> None:
         """Releases the connection back to the pool. Once this method has been
         called the underlying ``raw`` object must not be accessed again.
 
         *Note: Should not normally need to be called explicitly.*
         """
         if not self._content_consumed:
-            self.raw.close()
+            self.raw.close()  # type: ignore[union-attr]
 
         release_conn = getattr(self.raw, "release_conn", None)
         if release_conn is not None:

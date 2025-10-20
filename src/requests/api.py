@@ -8,10 +8,13 @@ This module implements the Requests API.
 :license: Apache2, see LICENSE for more details.
 """
 
+from typing import Any, Optional
+
 from . import sessions
+from .models import Response
 
 
-def request(method, url, **kwargs):
+def request(method: str, url: str, **kwargs: Any) -> Response:
     """Constructs and sends a :class:`Request <Request>`.
 
     :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
@@ -56,10 +59,10 @@ def request(method, url, **kwargs):
     # avoid leaving sockets open which can trigger a ResourceWarning in some
     # cases, and look like a memory leak in others.
     with sessions.Session() as session:
-        return session.request(method=method, url=url, **kwargs)
+        return session.request(method=method, url=url, **kwargs)  # type: ignore[no-any-return]
 
 
-def get(url, params=None, **kwargs):
+def get(url: str, params: Optional[Any] = None, **kwargs: Any) -> Response:
     r"""Sends a GET request.
 
     :param url: URL for the new :class:`Request` object.
@@ -69,11 +72,11 @@ def get(url, params=None, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
+    # pylint: disable=missing-timeout
     return request("get", url, params=params, **kwargs)
 
 
-def options(url, **kwargs):
+def options(url: str, **kwargs: Any) -> Response:
     r"""Sends an OPTIONS request.
 
     :param url: URL for the new :class:`Request` object.
@@ -81,11 +84,11 @@ def options(url, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
+    # pylint: disable=missing-timeout
     return request("options", url, **kwargs)
 
 
-def head(url, **kwargs):
+def head(url: str, **kwargs: Any) -> Response:
     r"""Sends a HEAD request.
 
     :param url: URL for the new :class:`Request` object.
@@ -97,10 +100,11 @@ def head(url, **kwargs):
     """
 
     kwargs.setdefault("allow_redirects", False)
+    # pylint: disable=missing-timeout
     return request("head", url, **kwargs)
 
 
-def post(url, data=None, json=None, **kwargs):
+def post(url: str, data: Optional[Any] = None, json: Optional[Any] = None, **kwargs: Any) -> Response:
     r"""Sends a POST request.
 
     :param url: URL for the new :class:`Request` object.
@@ -111,11 +115,11 @@ def post(url, data=None, json=None, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
+    # pylint: disable=missing-timeout
     return request("post", url, data=data, json=json, **kwargs)
 
 
-def put(url, data=None, **kwargs):
+def put(url: str, data: Optional[Any] = None, **kwargs: Any) -> Response:
     r"""Sends a PUT request.
 
     :param url: URL for the new :class:`Request` object.
@@ -126,11 +130,11 @@ def put(url, data=None, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
+    # pylint: disable=missing-timeout
     return request("put", url, data=data, **kwargs)
 
 
-def patch(url, data=None, **kwargs):
+def patch(url: str, data: Optional[Any] = None, **kwargs: Any) -> Response:
     r"""Sends a PATCH request.
 
     :param url: URL for the new :class:`Request` object.
@@ -141,11 +145,11 @@ def patch(url, data=None, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
+    # pylint: disable=missing-timeout
     return request("patch", url, data=data, **kwargs)
 
 
-def delete(url, **kwargs):
+def delete(url: str, **kwargs: Any) -> Response:
     r"""Sends a DELETE request.
 
     :param url: URL for the new :class:`Request` object.
@@ -153,5 +157,5 @@ def delete(url, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-
+    # pylint: disable=missing-timeout
     return request("delete", url, **kwargs)
