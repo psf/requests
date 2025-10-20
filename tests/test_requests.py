@@ -526,6 +526,142 @@ class TestRequests:
         r = requests.put(httpbin("put"))
         assert r.status_code == 200
 
+    def test_put_with_json_parameter(self, httpbin):
+        """Test that put() accepts and properly passes json parameter."""
+        test_data = {"key": "value", "number": 42, "nested": {"a": 1}}
+
+        response = requests.put(httpbin("put"), json=test_data)
+        assert response.status_code == 200
+
+        # Verify the server received the JSON data
+        response_json = response.json()
+        assert response_json["json"] == test_data
+        assert response_json["headers"]["Content-Type"] == "application/json"
+
+    def test_patch_with_json_parameter(self, httpbin):
+        """Test that patch() accepts and properly passes json parameter."""
+        test_data = {"key": "value", "number": 42, "nested": {"a": 1}}
+
+        response = requests.patch(httpbin("patch"), json=test_data)
+        assert response.status_code == 200
+
+        # Verify the server received the JSON data
+        response_json = response.json()
+        assert response_json["json"] == test_data
+        assert response_json["headers"]["Content-Type"] == "application/json"
+
+    def test_put_json_parameter_serialization(self):
+        """Test that put() properly serializes json parameter."""
+        test_data = {"test": "data", "number": 123}
+
+        # Use mock to verify the request is made with proper json data
+        with mock.patch("requests.sessions.Session.request") as mock_request:
+            mock_request.return_value = mock.Mock(spec=requests.Response)
+            requests.put("http://example.com/api", json=test_data)
+
+            # Verify request was called with json parameter
+            mock_request.assert_called_once()
+            call_kwargs = mock_request.call_args[1]
+            assert "json" in call_kwargs
+            assert call_kwargs["json"] == test_data
+
+    def test_patch_json_parameter_serialization(self):
+        """Test that patch() properly serializes json parameter."""
+        test_data = {"test": "data", "number": 123}
+
+        # Use mock to verify the request is made with proper json data
+        with mock.patch("requests.sessions.Session.request") as mock_request:
+            mock_request.return_value = mock.Mock(spec=requests.Response)
+            requests.patch("http://example.com/api", json=test_data)
+
+            # Verify request was called with json parameter
+            mock_request.assert_called_once()
+            call_kwargs = mock_request.call_args[1]
+            assert "json" in call_kwargs
+            assert call_kwargs["json"] == test_data
+
+    def test_put_json_and_data_together(self):
+        """Test that put() can handle both json and data parameters."""
+        # This should work but json takes precedence
+        with mock.patch("requests.sessions.Session.request") as mock_request:
+            mock_request.return_value = mock.Mock(spec=requests.Response)
+            requests.put("http://example.com/api", json={"a": 1}, data={"b": 2})
+
+            mock_request.assert_called_once()
+            call_kwargs = mock_request.call_args[1]
+            assert "json" in call_kwargs
+            assert "data" in call_kwargs
+
+    def test_patch_json_and_data_together(self):
+        """Test that patch() can handle both json and data parameters."""
+        # This should work but json takes precedence
+        with mock.patch("requests.sessions.Session.request") as mock_request:
+            mock_request.return_value = mock.Mock(spec=requests.Response)
+            requests.patch("http://example.com/api", json={"a": 1}, data={"b": 2})
+
+            mock_request.assert_called_once()
+            call_kwargs = mock_request.call_args[1]
+            assert "json" in call_kwargs
+            assert "data" in call_kwargs
+
+    def test_put_json_none_explicitly(self):
+        """Test that put() handles json=None correctly."""
+        with mock.patch("requests.sessions.Session.request") as mock_request:
+            mock_request.return_value = mock.Mock(spec=requests.Response)
+            requests.put("http://example.com/api", json=None)
+
+            mock_request.assert_called_once()
+            call_kwargs = mock_request.call_args[1]
+            assert "json" in call_kwargs
+            assert call_kwargs["json"] is None
+
+    def test_patch_json_none_explicitly(self):
+        """Test that patch() handles json=None correctly."""
+        with mock.patch("requests.sessions.Session.request") as mock_request:
+            mock_request.return_value = mock.Mock(spec=requests.Response)
+            requests.patch("http://example.com/api", json=None)
+
+            mock_request.assert_called_once()
+            call_kwargs = mock_request.call_args[1]
+            assert "json" in call_kwargs
+            assert call_kwargs["json"] is None
+
+    def test_put_json_with_complex_data(self):
+        """Test put() with complex nested JSON data."""
+        complex_data = {
+            "users": [
+                {"name": "Alice", "age": 30, "active": True},
+                {"name": "Bob", "age": 25, "active": False},
+            ],
+            "metadata": {"version": "1.0", "timestamp": "2025-01-01T00:00:00Z"},
+            "settings": {"notifications": True, "theme": "dark"},
+        }
+
+        with mock.patch("requests.sessions.Session.request") as mock_request:
+            mock_request.return_value = mock.Mock(spec=requests.Response)
+            requests.put("http://example.com/api", json=complex_data)
+
+            call_kwargs = mock_request.call_args[1]
+            assert call_kwargs["json"] == complex_data
+
+    def test_patch_json_with_complex_data(self):
+        """Test patch() with complex nested JSON data."""
+        complex_data = {
+            "users": [
+                {"name": "Alice", "age": 30, "active": True},
+                {"name": "Bob", "age": 25, "active": False},
+            ],
+            "metadata": {"version": "1.0", "timestamp": "2025-01-01T00:00:00Z"},
+            "settings": {"notifications": True, "theme": "dark"},
+        }
+
+        with mock.patch("requests.sessions.Session.request") as mock_request:
+            mock_request.return_value = mock.Mock(spec=requests.Response)
+            requests.patch("http://example.com/api", json=complex_data)
+
+            call_kwargs = mock_request.call_args[1]
+            assert call_kwargs["json"] == complex_data
+
     def test_BASICAUTH_TUPLE_HTTP_200_OK_GET(self, httpbin):
         auth = ("user", "pass")
         url = httpbin("basic-auth", "user", "pass")
@@ -1405,6 +1541,233 @@ class TestRequests:
         jar = requests.cookies.RequestsCookieJar()
         jar.set_policy(MyCookiePolicy())
         assert isinstance(jar.copy().get_policy(), MyCookiePolicy)
+
+    def test_mock_response_getheaders_returns_headers_list(self):
+        """Test that MockResponse.getheaders() returns the list of headers."""
+        from http.client import HTTPMessage
+
+        # Create a mock HTTPMessage with get_all method (Python 3)
+        mock_headers = mock.Mock(spec=HTTPMessage)
+        # In Python 3, HTTPMessage uses get_all instead of getheaders
+        # But MockResponse calls getheaders, so we need to mock it
+        mock_headers.getheaders = mock.Mock(
+            return_value=["cookie1=value1", "cookie2=value2"]
+        )
+
+        # Create MockResponse
+        from requests.cookies import MockResponse
+
+        mock_response = MockResponse(mock_headers)
+
+        # Test that getheaders returns a result (not None)
+        result = mock_response.getheaders("Set-Cookie")
+        assert result is not None, "getheaders() should return a value, not None"
+        assert isinstance(result, list), "getheaders() should return a list"
+
+    def test_mock_response_getheaders_with_single_header(self):
+        """Test MockResponse.getheaders() with a single header value."""
+        from http.client import HTTPMessage
+        from requests.cookies import MockResponse
+
+        # Create a minimal HTTPMessage mock
+        mock_headers = mock.Mock(spec=HTTPMessage)
+        mock_headers.getheaders = mock.Mock(return_value=["value1"])
+
+        mock_response = MockResponse(mock_headers)
+        result = mock_response.getheaders("Test-Header")
+
+        assert result == ["value1"]
+        mock_headers.getheaders.assert_called_once_with("Test-Header")
+
+    def test_mock_response_getheaders_with_multiple_headers(self):
+        """Test MockResponse.getheaders() with multiple header values."""
+        from http.client import HTTPMessage
+        from requests.cookies import MockResponse
+
+        mock_headers = mock.Mock(spec=HTTPMessage)
+        mock_headers.getheaders = mock.Mock(
+            return_value=["cookie1=value1", "cookie2=value2"]
+        )
+
+        mock_response = MockResponse(mock_headers)
+        result = mock_response.getheaders("Set-Cookie")
+
+        assert result == ["cookie1=value1", "cookie2=value2"]
+        assert len(result) == 2
+        mock_headers.getheaders.assert_called_once_with("Set-Cookie")
+
+    def test_mock_response_getheaders_with_nonexistent_header(self):
+        """Test MockResponse.getheaders() with a header that doesn't exist."""
+        from http.client import HTTPMessage
+        from requests.cookies import MockResponse
+
+        mock_headers = mock.Mock(spec=HTTPMessage)
+        mock_headers.getheaders = mock.Mock(return_value=[])
+
+        mock_response = MockResponse(mock_headers)
+        result = mock_response.getheaders("Nonexistent-Header")
+
+        assert result == []
+        mock_headers.getheaders.assert_called_once_with("Nonexistent-Header")
+
+    def test_mock_response_getheaders_preserves_header_values(self):
+        """Test that MockResponse.getheaders() preserves the exact header values."""
+        from http.client import HTTPMessage
+        from requests.cookies import MockResponse
+
+        expected_values = [
+            "attachment; filename=file.txt",
+            "inline; filename=other.pdf",
+        ]
+        mock_headers = mock.Mock(spec=HTTPMessage)
+        mock_headers.getheaders = mock.Mock(return_value=expected_values)
+
+        mock_response = MockResponse(mock_headers)
+        result = mock_response.getheaders("Content-Disposition")
+
+        assert result == expected_values
+        assert result[0] == "attachment; filename=file.txt"
+        assert result[1] == "inline; filename=other.pdf"
+
+    def test_multiple_domains_returns_false_for_empty_jar(self):
+        """Test that empty jar returns False."""
+        jar = requests.cookies.RequestsCookieJar()
+        assert jar.multiple_domains() is False
+
+    def test_multiple_domains_returns_false_for_single_domain(self):
+        """Test that jar with single domain returns False."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1", domain="example.com")
+        jar.set("cookie2", "value2", domain="example.com")
+        jar.set("cookie3", "value3", domain="example.com")
+
+        assert jar.multiple_domains() is False
+
+    def test_multiple_domains_returns_true_for_two_domains(self):
+        """Test that jar with two different domains returns True."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1", domain="example.com")
+        jar.set("cookie2", "value2", domain="test.com")
+
+        assert jar.multiple_domains() is True
+
+    def test_multiple_domains_returns_true_for_many_domains(self):
+        """Test that jar with many different domains returns True."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1", domain="example.com")
+        jar.set("cookie2", "value2", domain="test.com")
+        jar.set("cookie3", "value3", domain="another.com")
+        jar.set("cookie4", "value4", domain="yetanother.com")
+
+        assert jar.multiple_domains() is True
+
+    def test_multiple_domains_with_duplicate_domains(self):
+        """Test that duplicates of same domain still count as single domain."""
+        jar = requests.cookies.RequestsCookieJar()
+        # Add multiple cookies with the same domain
+        jar.set("cookie1", "value1", domain="example.com")
+        jar.set("cookie2", "value2", domain="example.com")
+        jar.set("cookie3", "value3", domain="example.com")
+        jar.set("cookie4", "value4", domain="example.com")
+
+        # Should return False because all cookies are from the same domain
+        assert jar.multiple_domains() is False
+
+    def test_multiple_domains_mixed_duplicates_and_unique(self):
+        """Test with mix of duplicate and unique domains."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1", domain="example.com")
+        jar.set("cookie2", "value2", domain="example.com")
+        jar.set("cookie3", "value3", domain="test.com")
+        jar.set("cookie4", "value4", domain="test.com")
+        jar.set("cookie5", "value5", domain="example.com")
+
+        # Should return True because there are two different domains
+        assert jar.multiple_domains() is True
+
+    def test_multiple_domains_ignores_none_domains(self):
+        """Test that cookies with None domain are handled correctly."""
+        jar = requests.cookies.RequestsCookieJar()
+        # Default domain is empty string, not None
+        jar.set("cookie1", "value1", domain="")
+        jar.set("cookie2", "value2", domain="example.com")
+
+        # Should return True because empty string and "example.com" are different
+        assert jar.multiple_domains() is True
+
+    def test_multiple_domains_only_none_domains(self):
+        """Test jar with only default/empty domain cookies."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1")  # default domain is ""
+        jar.set("cookie2", "value2")  # default domain is ""
+
+        # Should return False because all have the same default domain
+        assert jar.multiple_domains() is False
+
+    def test_multiple_domains_case_handling(self):
+        """Test that domain comparison handles case correctly."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1", domain="Example.com")
+        jar.set("cookie2", "value2", domain="example.com")
+
+        # Note: Cookie domains are case-insensitive per RFC,
+        # so these should be treated as the same domain
+        # The jar may normalize them to lowercase
+        assert jar.multiple_domains() is False
+
+    def test_multiple_domains_with_subdomain(self):
+        """Test that subdomains are treated as different domains."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1", domain="example.com")
+        jar.set("cookie2", "value2", domain="sub.example.com")
+
+        # Different domains (parent and subdomain)
+        assert jar.multiple_domains() is True
+
+    def test_multiple_domains_with_leading_dot(self):
+        """Test domains with leading dots are treated as different."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1", domain="example.com")
+        jar.set("cookie2", "value2", domain=".example.com")
+
+        # These are different domain strings
+        assert jar.multiple_domains() is True
+
+    def test_multiple_domains_stress_test(self):
+        """Stress test with many cookies and domains."""
+        jar = requests.cookies.RequestsCookieJar()
+        domains = [
+            "domain1.com",
+            "domain2.com",
+            "domain3.com",
+            "domain4.com",
+            "domain5.com",
+        ]
+
+        # Add multiple cookies for each domain
+        for domain in domains:
+            for i in range(10):
+                jar.set(f"cookie_{domain}_{i}", f"value_{i}", domain=domain)
+
+        # Should return True because there are multiple different domains
+        assert jar.multiple_domains() is True
+        assert len(jar.list_domains()) == 5
+
+    def test_multiple_domains_consistency_with_list_domains(self):
+        """Test that multiple_domains() is consistent with list_domains()."""
+        jar = requests.cookies.RequestsCookieJar()
+
+        # Single domain
+        jar.set("cookie1", "value1", domain="example.com")
+        assert jar.multiple_domains() == (len(jar.list_domains()) > 1)
+
+        # Two domains
+        jar.set("cookie2", "value2", domain="test.com")
+        assert jar.multiple_domains() == (len(jar.list_domains()) > 1)
+
+        # Three domains
+        jar.set("cookie3", "value3", domain="another.com")
+        assert jar.multiple_domains() == (len(jar.list_domains()) > 1)
 
     def test_time_elapsed_blank(self, httpbin):
         r = requests.get(httpbin("get"))

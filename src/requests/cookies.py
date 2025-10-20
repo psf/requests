@@ -118,7 +118,7 @@ class MockResponse:
         return self._headers
 
     def getheaders(self, name):
-        self._headers.getheaders(name)
+        return self._headers.getheaders(name)
 
 
 def extract_cookies_to_jar(jar, request, response):
@@ -296,12 +296,11 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
 
         :rtype: bool
         """
-        domains = []
+        domains = set()
         for cookie in iter(self):
-            if cookie.domain is not None and cookie.domain in domains:
-                return True
-            domains.append(cookie.domain)
-        return False  # there is only one domain in jar
+            if cookie.domain is not None:
+                domains.add(cookie.domain)
+        return len(domains) > 1
 
     def get_dict(self, domain=None, path=None):
         """Takes as an argument an optional domain and path and returns a plain
