@@ -17,7 +17,7 @@ def test_request_url_trims_leading_path_separators():
 def test_unknown_httperror_wrapped_in_requestexception():
     """Test that unknown urllib3 HTTPError types are wrapped in RequestException.
     
-    This tests Bug #007: When urllib3 raises an HTTPError that isn't explicitly
+    When urllib3 raises an HTTPError that isn't explicitly
     handled (not SSLError, ReadTimeoutError, or InvalidHeader), it should be
     wrapped in RequestException rather than propagating as-is.
     """
