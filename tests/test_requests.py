@@ -2479,6 +2479,22 @@ class TestMorselToCookieMaxAge:
         with pytest.raises(TypeError):
             morsel_to_cookie(morsel)
 
+    def test_max_age_exception_chaining(self):
+        """Test that exception chaining is preserved when max-age conversion fails."""
+
+        morsel = Morsel()
+        morsel["max-age"] = "invalid"
+        with pytest.raises(TypeError) as exc_info:
+            morsel_to_cookie(morsel)
+
+        # Verify the TypeError was raised
+        assert "max-age: invalid must be integer" in str(exc_info.value)
+
+        # Verify the original ValueError is preserved as the cause
+        assert exc_info.value.__cause__ is not None
+        assert isinstance(exc_info.value.__cause__, ValueError)
+        assert "invalid literal for int()" in str(exc_info.value.__cause__)
+
 
 class TestTimeout:
     def test_stream_timeout(self, httpbin):
