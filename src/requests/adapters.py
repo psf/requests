@@ -587,6 +587,30 @@ class HTTPAdapter(BaseAdapter):
 
         return headers
 
+    def _prepare_timeout(self, timeout):
+        """Convert timeout to TimeoutSauce object.
+
+        This method should not be called from user code, and is only exposed
+        for use when subclassing the
+        :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
+
+        :param timeout: None, float, tuple, or TimeoutSauce object
+        :return: TimeoutSauce object
+        :raises ValueError: If timeout tuple has wrong format
+        """
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                return TimeoutSauce(connect=connect, read=read)
+            except ValueError as exc:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                ) from exc
+        if isinstance(timeout, TimeoutSauce):
+            return timeout
+        return TimeoutSauce(connect=timeout, read=timeout)
+
     def send(
         self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
     ):
@@ -626,19 +650,7 @@ class HTTPAdapter(BaseAdapter):
 
         chunked = not (request.body is None or "Content-Length" in request.headers)
 
-        if isinstance(timeout, tuple):
-            try:
-                connect, read = timeout
-                timeout = TimeoutSauce(connect=connect, read=read)
-            except ValueError:
-                raise ValueError(
-                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
-                    f"or a single float to set both timeouts to the same value."
-                )
-        elif isinstance(timeout, TimeoutSauce):
-            pass
-        else:
-            timeout = TimeoutSauce(connect=timeout, read=timeout)
+        timeout = self._prepare_timeout(timeout)
 
         try:
             resp = conn.urlopen(
