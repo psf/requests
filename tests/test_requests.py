@@ -1225,6 +1225,25 @@ class TestRequests:
         prep = s.prepare_request(req)
         assert prep.url == "https://httpbin.org/"
 
+    def test_prepare_request_with_none_method(self):
+        """Test that prepare_request handles None method correctly.
+        
+        This test verifies Bug #008 fix: When Request.method is None,
+        prepare_request() should default to "GET" instead of crashing.
+        """
+        # Create a Request without specifying method (defaults to None)
+        req = requests.Request(url="https://httpbin.org/")
+        assert req.method is None
+        
+        s = requests.Session()
+        
+        # After the fix, this should work and default to GET
+        prep = s.prepare_request(req)
+        
+        # Verify the method defaults to GET
+        assert prep.method == "GET"
+        assert prep.url == "https://httpbin.org/"
+
     def test_request_with_bytestring_host(self, httpbin):
         s = requests.Session()
         resp = s.request(

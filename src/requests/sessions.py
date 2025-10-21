@@ -482,7 +482,7 @@ class Session(SessionRedirectMixin):
 
         p = PreparedRequest()
         p.prepare(
-            method=request.method.upper(),
+            method=(request.method or "GET").upper(),
             url=request.url,
             files=request.files,
             data=request.data,
