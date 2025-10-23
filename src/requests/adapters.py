@@ -73,17 +73,65 @@ DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
 
 
+def _has_ipv6_zone_id(url: str) -> bool:
+    """
+    Detect if URL contains IPv6 zone identifier (scope ID).
+
+    IPv6 zone IDs use % character within brackets, e.g.:
+    http://[fe80::1%eth0]:8080/
+
+    This is used to determine whether to use urllib3's parse_url()
+    (which handles zone IDs correctly) or urlparse() for backward
+    compatibility.
+
+    :param url: URL string to check
+    :return: True if URL contains IPv6 zone ID
+    :rtype: bool
+    """
+    # Look for pattern: [<text>%<text>] indicating IPv6 with zone ID
+    # The % can be URL-encoded as %25 or literal %
+    import re
+
+    return bool(re.search(r"\[[^\]]*%[^\]]*\]", url))
+
+
 def _urllib3_request_context(
     request: "PreparedRequest",
     verify: "bool | str | None",
     client_cert: "typing.Tuple[str, str] | str | None",
     poolmanager: "PoolManager",
 ) -> "(typing.Dict[str, typing.Any], typing.Dict[str, typing.Any])":
+    """
+    Build the pool key attributes and SSL context for a urllib3 request.
+
+    This function uses urllib3's parse_url() for IPv6 addresses with
+    zone identifiers (e.g., fe80::1%eth0) and urlparse() for all other URLs
+    to maintain backward compatibility while supporting link-local IPv6.
+
+    :param request: The PreparedRequest object
+    :param verify: SSL verification settings
+    :param client_cert: Client certificate settings
+    :param poolmanager: The PoolManager instance
+    :return: Tuple of (host_params dict, pool_kwargs dict)
+    :rtype: tuple
+    """
     host_params = {}
     pool_kwargs = {}
-    parsed_request_url = urlparse(request.url)
-    scheme = parsed_request_url.scheme.lower()
-    port = parsed_request_url.port
+
+    # Use urllib3's parse_url for IPv6 zone IDs, urlparse otherwise
+    if _has_ipv6_zone_id(request.url):
+        parsed_request_url = parse_url(request.url)
+        scheme = parsed_request_url.scheme.lower()
+        port = parsed_request_url.port
+        # parse_url uses .host and includes brackets for IPv6, strip them
+        hostname = parsed_request_url.host
+        if hostname and hostname.startswith("[") and hostname.endswith("]"):
+            hostname = hostname[1:-1]
+    else:
+        parsed_request_url = urlparse(request.url)
+        scheme = parsed_request_url.scheme.lower()
+        port = parsed_request_url.port
+        hostname = parsed_request_url.hostname  # urlparse uses .hostname
 
     cert_reqs = "CERT_REQUIRED"
     if verify is False:
@@ -104,7 +152,7 @@ def _urllib3_request_context(
             pool_kwargs["cert_file"] = client_cert
     host_params = {
         "scheme": scheme,
-        "host": parsed_request_url.hostname,
+        "host": hostname,
         "port": port,
     }
     return host_params, pool_kwargs
