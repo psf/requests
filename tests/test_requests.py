@@ -1228,7 +1228,7 @@ class TestRequests:
     def test_prepare_request_with_none_method(self):
         """Test that prepare_request handles None method correctly.
         
-        This test verifies Bug #008 fix: When Request.method is None,
+        When Request.method is None,
         prepare_request() should default to "GET" instead of crashing.
         """
         # Create a Request without specifying method (defaults to None)
