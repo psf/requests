@@ -13,7 +13,6 @@ def test_request_url_trims_leading_path_separators():
 def test_request_url_with_none_url():
     """Test that request_url() handles None url gracefully.
     
-    Null Pointer Dereference in HTTP Adapters.
     PreparedRequest.__init__() initializes self.url = None,
     so request_url() should handle this case defensively.
     """
@@ -31,7 +30,6 @@ def test_request_url_with_none_url():
 def test_request_url_with_none_url_and_proxy():
     """Test that request_url() handles None url with proxy gracefully.
     
-    Null Pointer Dereference in HTTP Adapters.
     """
     a = requests.adapters.HTTPAdapter()
     p = PreparedRequest()
@@ -47,7 +45,6 @@ def test_request_url_with_none_url_and_proxy():
 def test_send_with_none_headers():
     """Test that send() handles None headers gracefully.
     
-    Null Pointer Dereference in HTTP Adapters.
     PreparedRequest.__init__() initializes self.headers = None,
     so send() should handle this case defensively when checking
     for 'Content-Length' in headers.
@@ -85,7 +82,6 @@ def test_send_with_none_headers():
 def test_urllib3_request_context_with_none_url():
     """Test that _urllib3_request_context() handles None url gracefully.
     
-    Null Pointer Dereference in HTTP Adapters.
     After the fix, this should handle None url gracefully using 'or ""' fallback.
     """
     from requests.adapters import _urllib3_request_context
