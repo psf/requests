@@ -9,6 +9,7 @@ that are also useful for external consumption.
 import codecs
 import contextlib
 import io
+import ipaddress
 import os
 import re
 import socket
@@ -669,19 +670,27 @@ def requote_uri(uri):
         return quote(uri, safe=safe_without_percent)
 
 
-def address_in_network(ip, net):
-    """This function allows you to check if an IP belongs to a network subnet
+def address_in_network(ip: str, net: str) -> bool:
+    """Check if an IP address belongs to a network subnet.
 
-    Example: returns True if ip = 192.168.1.1 and net = 192.168.1.0/24
-             returns False if ip = 192.168.1.1 and net = 192.168.100.0/24
+    Supports both IPv4 and IPv6 addresses and networks.
+    Returns False if IP version doesn't match network version.
 
+    Example: returns True if ip = '192.168.1.1' and net = '192.168.1.0/24'
+             returns False if ip = '192.168.1.1' and net = '192.168.100.0/24'
+             returns True if ip = '2001:db8::1' and net = '2001:db8::/32'
+             returns False if ip = '192.168.1.1' and net = '2001:db8::/32'
+
+    :param ip: IP address string (IPv4 or IPv6)
+    :param net: Network in CIDR notation (e.g., '192.168.1.0/24' or '2001:db8::/32')
     :rtype: bool
     """
-    ipaddr = struct.unpack("=L", socket.inet_aton(ip))[0]
-    netaddr, bits = net.split("/")
-    netmask = struct.unpack("=L", socket.inet_aton(dotted_netmask(int(bits))))[0]
-    network = struct.unpack("=L", socket.inet_aton(netaddr))[0] & netmask
-    return (ipaddr & netmask) == (network & netmask)
+    try:
+        ip_obj = ipaddress.ip_address(ip)
+        network_obj = ipaddress.ip_network(net, strict=False)
+        return ip_obj in network_obj
+    except (ipaddress.AddressValueError, ipaddress.NetmaskValueError, ValueError):
+        return False
 
 
 def dotted_netmask(mask):
@@ -695,39 +704,87 @@ def dotted_netmask(mask):
     return socket.inet_ntoa(struct.pack(">I", bits))
 
 
-def is_ipv4_address(string_ip):
-    """
+def is_ipv4_address(string_ip: str) -> bool:
+    """Check if a string is a valid IPv4 address.
+
+    Example: returns True if string_ip = '192.168.1.1'
+             returns False if string_ip = 'localhost'
+
+    :param string_ip: The string to check
     :rtype: bool
     """
     try:
-        socket.inet_aton(string_ip)
-    except OSError:
+        ipaddress.IPv4Address(string_ip)
+    except (ipaddress.AddressValueError, ValueError):
         return False
     return True
 
 
-def is_valid_cidr(string_network):
-    """
-    Very simple check of the cidr format in no_proxy variable.
+def is_ipv6_address(string_ip: str) -> bool:
+    """Check if a string is a valid IPv6 address.
 
+    Example: returns True if string_ip = '::1'
+             returns True if string_ip = '2001:db8::1'
+             returns False if string_ip = '192.168.1.1'
+
+    :param string_ip: The string to check
     :rtype: bool
     """
-    if string_network.count("/") == 1:
-        try:
-            mask = int(string_network.split("/")[1])
-        except ValueError:
-            return False
-
-        if mask < 1 or mask > 32:
-            return False
-
-        try:
-            socket.inet_aton(string_network.split("/")[0])
-        except OSError:
-            return False
-    else:
+    try:
+        ipaddress.IPv6Address(string_ip)
+    except (ipaddress.AddressValueError, ValueError):
         return False
     return True
+
+
+def compare_ips(a: str, b: str) -> bool:
+    """Compare two IP addresses for equality.
+
+    Normalizes IPv6 addresses to handle different compression formats.
+    Works with both IPv4 and IPv6 addresses.
+
+    Example: returns True if a = '::1' and b = '0:0:0:0:0:0:0:1'
+             returns True if a = '192.168.1.1' and b = '192.168.1.1'
+             returns False if a = '::1' and b = '::2'
+             returns False if a = '192.168.1.1' and b = '::1'
+
+    :param a: First IP address string
+    :param b: Second IP address string
+    :rtype: bool
+    """
+    try:
+        return ipaddress.ip_address(a) == ipaddress.ip_address(b)
+    except (ipaddress.AddressValueError, ValueError):
+        return False
+
+
+def is_valid_cidr(string_network: str) -> bool:
+    """Check if a string is valid CIDR notation for IPv4 or IPv6.
+
+    Example: returns True if string_network = '192.168.1.0/24'
+             returns True if string_network = '2001:db8::/32'
+             returns False if string_network = '192.168.1.0/33'
+
+    :param string_network: The CIDR string to check
+    :rtype: bool
+    """
+    if string_network.count("/") != 1:
+        return False
+
+    try:
+        address, mask_str = string_network.split("/")
+        mask = int(mask_str)
+    except ValueError:
+        return False
+
+    # Check if it's IPv4
+    if is_ipv4_address(address):
+        return 1 <= mask <= 32
+    # Check if it's IPv6
+    elif is_ipv6_address(address):
+        return 0 <= mask <= 128
+    else:
+        return False
 
 
 @contextlib.contextmanager
@@ -780,12 +837,12 @@ def should_bypass_proxies(url, no_proxy):
         # the end of the hostname, both with and without the port.
         no_proxy = (host for host in no_proxy.replace(" ", "").split(",") if host)
 
-        if is_ipv4_address(parsed.hostname):
+        if is_ipv4_address(parsed.hostname) or is_ipv6_address(parsed.hostname):
             for proxy_ip in no_proxy:
                 if is_valid_cidr(proxy_ip):
                     if address_in_network(parsed.hostname, proxy_ip):
                         return True
-                elif parsed.hostname == proxy_ip:
+                elif compare_ips(parsed.hostname, proxy_ip):
                     # If no_proxy ip was defined in plain IP notation instead of cidr notation &
                     # matches the IP of the index
                     return True

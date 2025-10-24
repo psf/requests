@@ -17,6 +17,7 @@ from requests.utils import (
     _parse_content_type_header,
     add_dict_to_cookiejar,
     address_in_network,
+    compare_ips,
     dotted_netmask,
     extract_zipped_paths,
     get_auth_from_url,
@@ -27,6 +28,7 @@ from requests.utils import (
     guess_filename,
     guess_json_utf,
     is_ipv4_address,
+    is_ipv6_address,
     is_valid_cidr,
     iter_slices,
     parse_dict_header,
@@ -281,18 +283,76 @@ class TestIsIPv4Address:
         assert not is_ipv4_address(value)
 
 
-class TestIsValidCIDR:
-    def test_valid(self):
-        assert is_valid_cidr("192.168.1.0/24")
+class TestIsIPv6Address:
+    @pytest.mark.parametrize(
+        "value",
+        (
+            "::1",  # loopback
+            "::0",  # all zeros
+            "2001:db8::1",  # compressed
+            "2001:0db8:0000:0000:0000:0000:0000:0001",  # full notation
+            "fe80::1",  # link-local
+            "ff02::1",  # multicast
+            "2001:db8:85a3::8a2e:370:7334",  # compressed with multiple segments
+            "::",  # all zeros compressed
+            "::ffff:192.0.2.1",  # IPv4-mapped IPv6
+        ),
+    )
+    def test_valid(self, value):
+        assert is_ipv6_address(value)
 
     @pytest.mark.parametrize(
         "value",
         (
-            "8.8.8.8",
-            "192.168.1.0/a",
-            "192.168.1.0/128",
-            "192.168.1.0/-1",
-            "192.168.1.999/24",
+            "192.168.1.1",  # IPv4 address
+            "localhost",  # hostname
+            "gggg::1",  # invalid hex
+            "::1::2",  # double compression
+            "2001:db8::1::2",  # double compression
+            "2001:db8:85a3::8a2e:370g:7334",  # invalid character
+            "",  # empty string
+            "not-an-ip",  # random string
+        ),
+    )
+    def test_invalid(self, value):
+        assert not is_ipv6_address(value)
+
+
+class TestIsValidCIDR:
+    @pytest.mark.parametrize(
+        "value",
+        (
+            "192.168.1.0/24",  # IPv4 CIDR
+            "192.168.1.0/32",  # IPv4 single host
+            "10.0.0.0/8",  # IPv4 large network
+            "192.168.1.0/1",  # IPv4 minimal mask
+            "2001:db8::/32",  # IPv6 CIDR
+            "2001:db8::/64",  # IPv6 typical subnet
+            "2001:db8::/128",  # IPv6 single host
+            "fe80::/10",  # IPv6 link-local
+            "::/0",  # IPv6 all networks
+            "::1/128",  # IPv6 loopback
+        ),
+    )
+    def test_valid(self, value):
+        assert is_valid_cidr(value)
+
+    @pytest.mark.parametrize(
+        "value",
+        (
+            "8.8.8.8",  # no mask
+            "192.168.1.0/a",  # non-numeric mask
+            "192.168.1.0/128",  # mask too large for IPv4
+            "192.168.1.0/-1",  # negative mask
+            "192.168.1.999/24",  # invalid IPv4
+            "192.168.1.0/0",  # mask is 0 (invalid)
+            "192.168.1.0/33",  # mask too large for IPv4
+            "2001:db8::/129",  # mask too large for IPv6
+            "2001:db8::/-1",  # negative mask for IPv6
+            "2001:db8::/a",  # non-numeric mask for IPv6
+            "2001:db8::1",  # no mask
+            "gggg::/64",  # invalid IPv6
+            "192.168.1.0/24/32",  # multiple slashes
         ),
     )
     def test_invalid(self, value):
@@ -300,11 +360,93 @@ class TestIsValidCIDR:
 
 
 class TestAddressInNetwork:
-    def test_valid(self):
-        assert address_in_network("192.168.1.1", "192.168.1.0/24")
+    @pytest.mark.parametrize(
+        "ip, network",
+        (
+            ("192.168.1.1", "192.168.1.0/24"),  # IPv4 basic
+            ("192.168.1.0", "192.168.1.0/24"),  # network address
+            ("192.168.1.255", "192.168.1.0/24"),  # broadcast address
+            ("10.0.0.1", "10.0.0.0/8"),  # large IPv4 network
+            ("2001:db8::1", "2001:db8::/32"),  # IPv6 basic
+            ("2001:db8:0:0:0:0:0:1", "2001:db8::/32"),  # IPv6 full notation
+            ("2001:db8::ffff", "2001:db8::/32"),  # IPv6 in network
+            ("fe80::1", "fe80::/10"),  # link-local
+            ("::1", "::1/128"),  # loopback single host
+            ("::", "::/128"),  # all zeros single host
+        ),
+    )
+    def test_valid(self, ip, network):
+        assert address_in_network(ip, network)
 
-    def test_invalid(self):
-        assert not address_in_network("172.16.0.1", "192.168.1.0/24")
+    @pytest.mark.parametrize(
+        "ip, network",
+        (
+            ("172.16.0.1", "192.168.1.0/24"),  # IPv4 not in network
+            ("192.168.2.1", "192.168.1.0/24"),  # IPv4 adjacent network
+            ("192.168.1.1", "192.168.1.0/32"),  # host doesn't match
+            ("2001:db9::1", "2001:db8::/32"),  # IPv6 not in network
+            ("2001:db8:1::1", "2001:db8::/64"),  # IPv6 different subnet
+            ("192.168.1.1", "2001:db8::/32"),  # IPv4 vs IPv6
+            ("2001:db8::1", "192.168.1.0/24"),  # IPv6 vs IPv4
+            ("::1", "fe80::/10"),  # loopback not in link-local
+        ),
+    )
+    def test_invalid(self, ip, network):
+        assert not address_in_network(ip, network)
+
+    @pytest.mark.parametrize(
+        "ip, network",
+        (
+            ("not-an-ip", "192.168.1.0/24"),  # invalid IP
+            ("192.168.1.1", "not-a-network"),  # invalid network
+            ("192.168.1.1", "192.168.1.0/abc"),  # invalid CIDR
+        ),
+    )
+    def test_invalid_input(self, ip, network):
+        assert not address_in_network(ip, network)
+
+
+class TestCompareIPs:
+    @pytest.mark.parametrize(
+        "a, b",
+        (
+            ("192.168.1.1", "192.168.1.1"),  # IPv4 identical
+            ("::1", "::1"),  # IPv6 identical
+            ("::1", "0:0:0:0:0:0:0:1"),  # IPv6 compressed vs full
+            ("2001:db8::1", "2001:0db8:0000:0000:0000:0000:0000:0001"),  # IPv6 variations
+            ("::ffff:192.0.2.1", "::ffff:c000:201"),  # IPv4-mapped IPv6
+            ("::", "0:0:0:0:0:0:0:0"),  # all zeros
+            ("fe80::1", "fe80:0:0:0:0:0:0:1"),  # link-local
+        ),
+    )
+    def test_equal(self, a, b):
+        assert compare_ips(a, b)
+
+    @pytest.mark.parametrize(
+        "a, b",
+        (
+            ("192.168.1.1", "192.168.1.2"),  # IPv4 different
+            ("::1", "::2"),  # IPv6 different
+            ("192.168.1.1", "::1"),  # IPv4 vs IPv6
+            ("2001:db8::1", "2001:db8::2"),  # IPv6 different
+            ("10.0.0.1", "192.168.1.1"),  # different IPv4
+        ),
+    )
+    def test_not_equal(self, a, b):
+        assert not compare_ips(a, b)
+
+    @pytest.mark.parametrize(
+        "a, b",
+        (
+            ("not-an-ip", "192.168.1.1"),  # invalid first
+            ("192.168.1.1", "not-an-ip"),  # invalid second
+            ("not-an-ip", "not-an-ip"),  # both invalid
+            ("", "192.168.1.1"),  # empty first
+            ("192.168.1.1", ""),  # empty second
+        ),
+    )
+    def test_invalid_input(self, a, b):
+        assert not compare_ips(a, b)
 
 
 class TestGuessFilename:
@@ -349,6 +491,13 @@ class TestExtractZippedPaths:
 
         _, name = os.path.splitdrive(__file__)
         zipped_path = os.path.join(zipped_py.strpath, name.lstrip(r"\/"))
+        
+        # Clean up any previously cached extracted file to ensure fresh extraction
+        import tempfile
+        expected_extracted_path = os.path.join(tempfile.gettempdir(), name.split(os.sep)[-1])
+        if os.path.exists(expected_extracted_path):
+            os.remove(expected_extracted_path)
+        
         extracted_path = extract_zipped_paths(zipped_path)
 
         assert extracted_path != zipped_path
@@ -731,6 +880,7 @@ def test_urldefragauth(url, expected):
 @pytest.mark.parametrize(
     "url, expected",
     (
+        # IPv4 tests
         ("http://192.168.0.1:5000/", True),
         ("http://192.168.0.1/", True),
         ("http://172.16.1.1/", True),
@@ -741,6 +891,21 @@ def test_urldefragauth(url, expected):
         ("http://172.16.1.12:5000/", False),
         ("http://google.com:5000/v1.0/", False),
         ("file:///some/path/on/disk", True),
+        # IPv6 tests - exact match
+        ("http://[::1]/", True),
+        ("http://[0:0:0:0:0:0:0:1]/", True),  # full notation of ::1
+        ("http://[::1]:8080/", True),
+        ("http://[fe80::1]/", True),
+        ("http://[fe80:0:0:0:0:0:0:1]/", True),  # full notation of fe80::1
+        # IPv6 tests - CIDR match
+        ("http://[2001:db8::1]/", True),
+        ("http://[2001:db8::ffff]/", True),
+        ("http://[2001:db8:0:0:0:0:0:1]/", True),  # full notation
+        ("http://[2001:db8::1]:9000/", True),
+        # IPv6 tests - should not bypass
+        ("http://[2001:db9::1]/", False),  # not in no_proxy
+        ("http://[fe80::2]/", False),  # not exact match
+        ("http://[::2]/", False),  # not in no_proxy
     ),
 )
 def test_should_bypass_proxies(url, expected, monkeypatch):
@@ -749,11 +914,11 @@ def test_should_bypass_proxies(url, expected, monkeypatch):
     """
     monkeypatch.setenv(
         "no_proxy",
-        "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1, google.com:6000",
+        "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1,::1,fe80::1,2001:db8::/32, google.com:6000",
     )
     monkeypatch.setenv(
         "NO_PROXY",
-        "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1, google.com:6000",
+        "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1,::1,fe80::1,2001:db8::/32, google.com:6000",
     )
     assert should_bypass_proxies(url, no_proxy=None) == expected
 
