@@ -2,8 +2,6 @@
 pytest>=2.8.0,<9
 pytest-cov
 pytest-httpbin==2.1.0
-pytest-mock
-pytest-timeout
 httpbin~=0.10.0
 trustme
 wheel
