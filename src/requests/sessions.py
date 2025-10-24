@@ -699,6 +699,12 @@ class Session(SessionRedirectMixin):
         # Start time (approximately) of the request
         start = preferred_clock()
 
+        # Check if the URL should bypass the proxy based on 'no_proxy' in kwargs
+        if kwargs.get("proxies"):
+            no_proxy_list = kwargs["proxies"].get("no_proxy")
+            if should_bypass_proxies(request.url, no_proxy=no_proxy_list):
+                kwargs["proxies"] = {}  # Clear proxies if URL should be bypassed
+
         # Send the request
         r = adapter.send(request, **kwargs)
 

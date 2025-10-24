@@ -836,6 +836,10 @@ def select_proxy(url, proxies):
     if urlparts.hostname is None:
         return proxies.get(urlparts.scheme, proxies.get("all"))
 
+    # Check NO_PROXY from environment first
+    if should_bypass_proxies(url, no_proxy=os.environ.get('NO_PROXY')):
+        return None
+
     proxy_keys = [
         urlparts.scheme + "://" + urlparts.hostname,
         urlparts.scheme,
