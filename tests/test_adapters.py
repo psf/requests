@@ -98,7 +98,7 @@ class TestUrllib3UrlopenKwargs:
         """Test that custom adapter works with Session."""
 
         class CustomAdapter(requests.adapters.HTTPAdapter):
-            def __init__(self, *args, **kwargs):  # type: ignore[no-untyped-def]
+            def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
                 self.urllib3_urlopen_kwargs["enforce_content_length"] = False
 
