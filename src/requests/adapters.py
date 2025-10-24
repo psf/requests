@@ -165,6 +165,18 @@ class HTTPAdapter(BaseAdapter):
       >>> s = requests.Session()
       >>> a = requests.adapters.HTTPAdapter(max_retries=3)
       >>> s.mount('http://', a)
+
+    The HTTPAdapter also exposes a ``urllib3_urlopen_kwargs`` attribute that can
+    be used to pass additional keyword arguments to urllib3's ``urlopen`` method.
+    This is useful for controlling urllib3-specific behavior that requests does not
+    expose directly. For example::
+
+      >>> class CustomAdapter(HTTPAdapter):
+      ...     def __init__(self, *args, **kwargs):
+      ...         super().__init__(*args, **kwargs)
+      ...         self.urllib3_urlopen_kwargs["enforce_content_length"] = False
+      >>> s = requests.Session()
+      >>> s.mount("http://", CustomAdapter())
     """
 
     __attrs__ = [
@@ -173,6 +185,7 @@ class HTTPAdapter(BaseAdapter):
         "_pool_connections",
         "_pool_maxsize",
         "_pool_block",
+        "urllib3_urlopen_kwargs",
     ]
 
     def __init__(
@@ -196,6 +209,8 @@ class HTTPAdapter(BaseAdapter):
         self._pool_block = pool_block
 
         self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
+
+        self.urllib3_urlopen_kwargs = {}
 
     def __getstate__(self):
         return {attr: getattr(self, attr, None) for attr in self.__attrs__}
@@ -604,6 +619,11 @@ class HTTPAdapter(BaseAdapter):
         :param cert: (optional) Any user-provided SSL certificate to be trusted.
         :param proxies: (optional) The proxies dictionary to apply to the request.
         :rtype: requests.Response
+
+        .. note:: Additional keyword arguments can be passed to urllib3's ``urlopen``
+            method by populating the ``urllib3_urlopen_kwargs`` attribute on the
+            HTTPAdapter instance. These will be merged with the default arguments
+            and can override them if needed.
         """
 
         try:
@@ -640,20 +660,23 @@ class HTTPAdapter(BaseAdapter):
         else:
             timeout = TimeoutSauce(connect=timeout, read=timeout)
 
+        urlopen_kwargs = {
+            "method": request.method,
+            "url": url,
+            "body": request.body,
+            "headers": request.headers,
+            "redirect": False,
+            "assert_same_host": False,
+            "preload_content": False,
+            "decode_content": False,
+            "retries": self.max_retries,
+            "timeout": timeout,
+            "chunked": chunked,
+        }
+        urlopen_kwargs.update(self.urllib3_urlopen_kwargs)
+
         try:
-            resp = conn.urlopen(
-                method=request.method,
-                url=url,
-                body=request.body,
-                headers=request.headers,
-                redirect=False,
-                assert_same_host=False,
-                preload_content=False,
-                decode_content=False,
-                retries=self.max_retries,
-                timeout=timeout,
-                chunked=chunked,
-            )
+            resp = conn.urlopen(**urlopen_kwargs)
 
         except (ProtocolError, OSError) as err:
             raise ConnectionError(err, request=request)
