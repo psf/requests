@@ -48,12 +48,6 @@ def test_send_with_none_headers():
     PreparedRequest.__init__() initializes self.headers = None,
     so send() should handle this case defensively when checking
     for 'Content-Length' in headers.
-    
-    The bug was triggered when:
-    1. request.headers is None
-    2. request.body is not None (so the short-circuit evaluation doesn't prevent the check)
-    
-    After the fix, this should handle None headers gracefully using 'or {}' fallback.
     """
     a = requests.adapters.HTTPAdapter()
     p = PreparedRequest()
@@ -82,7 +76,6 @@ def test_send_with_none_headers():
 def test_urllib3_request_context_with_none_url():
     """Test that _urllib3_request_context() handles None url gracefully.
     
-    After the fix, this should handle None url gracefully using 'or ""' fallback.
     """
     from requests.adapters import _urllib3_request_context
     
