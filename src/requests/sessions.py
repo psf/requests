@@ -166,6 +166,7 @@ class SessionRedirectMixin:
         cert=None,
         proxies=None,
         yield_requests=False,
+        _user_explicitly_set_proxies=False,
         **adapter_kwargs,
     ):
         """Receives a Response. Returns a generator of Responses or Requests."""
@@ -242,7 +243,7 @@ class SessionRedirectMixin:
             prepared_request.prepare_cookies(prepared_request._cookies)
 
             # Rebuild auth and proxy information.
-            proxies = self.rebuild_proxies(prepared_request, proxies)
+            proxies = self.rebuild_proxies(prepared_request, proxies, _user_explicitly_set_proxies)
             self.rebuild_auth(prepared_request, resp)
 
             # A failed tell() sets `_body_position` to `object()`. This non-None
@@ -299,7 +300,7 @@ class SessionRedirectMixin:
         if new_auth is not None:
             prepared_request.prepare_auth(new_auth)
 
-    def rebuild_proxies(self, prepared_request, proxies):
+    def rebuild_proxies(self, prepared_request, proxies, _user_explicitly_set_proxies=False):
         """This method re-evaluates the proxy configuration by considering the
         environment variables. If we are redirected to a URL covered by
         NO_PROXY, we strip the proxy configuration. Otherwise, we set missing
@@ -313,7 +314,9 @@ class SessionRedirectMixin:
         """
         headers = prepared_request.headers
         scheme = urlparse(prepared_request.url).scheme
-        new_proxies = resolve_proxies(prepared_request, proxies, self.trust_env)
+        # Don't trust environment if user explicitly set proxies (even if empty after merge)
+        trust_env = self.trust_env if not _user_explicitly_set_proxies else False
+        new_proxies = resolve_proxies(prepared_request, proxies, trust_env)
 
         if "Proxy-Authorization" in headers:
             del headers["Proxy-Authorization"]
@@ -720,7 +723,9 @@ class Session(SessionRedirectMixin):
         # Resolve redirects if allowed.
         if allow_redirects:
             # Redirect resolving generator.
-            gen = self.resolve_redirects(r, request, **kwargs)
+            # Track if user explicitly set proxies to avoid environment override on redirects
+            user_set_proxies = "proxies" in kwargs and kwargs.get("proxies") is not None
+            gen = self.resolve_redirects(r, request, _user_explicitly_set_proxies=user_set_proxies, **kwargs)
             history = [resp for resp in gen]
         else:
             history = []
@@ -736,8 +741,9 @@ class Session(SessionRedirectMixin):
         # If redirects aren't being followed, store the response on the Request for Response.next().
         if not allow_redirects:
             try:
+                user_set_proxies = "proxies" in kwargs and kwargs.get("proxies") is not None
                 r._next = next(
-                    self.resolve_redirects(r, request, yield_requests=True, **kwargs)
+                    self.resolve_redirects(r, request, yield_requests=True, _user_explicitly_set_proxies=user_set_proxies, **kwargs)
                 )
             except StopIteration:
                 pass

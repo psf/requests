@@ -670,6 +670,19 @@ class TestRequests:
 
         assert ("Proxy-Authorization" in prep.headers) is has_proxy_auth
 
+    def test_proxy_bypass_on_redirect_with_explicit_none(self, httpbin):
+        """Test that explicit proxies={'http': None} bypasses proxy on redirects.
+        
+        This tests issue #6981 where redirects would incorrectly use environment
+        proxy settings even when the user explicitly passed proxies={'http': None}
+        to bypass the proxy.
+        """
+        with override_environ(http_proxy=INVALID_PROXY):
+            # This should succeed because we explicitly bypass the proxy
+            session = requests.Session()
+            resp = session.get(httpbin("redirect/1"), proxies={'http': None, 'https': None})
+            assert resp.status_code == 200
+
     def test_basicauth_with_netrc(self, httpbin):
         auth = ("user", "pass")
         wrong_auth = ("wronguser", "wrongpass")
