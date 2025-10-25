@@ -56,12 +56,12 @@ def test_send_with_none_headers():
     p.headers = None  # Explicitly set to None
     p.body = b"test data"  # Non-None body triggers the headers check
     
-    # After the fix, this should not raise TypeError from 'in None' check
+    # This should not raise TypeError from 'in None' check
     # It may raise other exceptions (like connection errors), but not TypeError
     try:
         a.send(p)
     except TypeError as e:
-        # If we get a TypeError, the fix didn't work
+        # If we get a TypeError, there is an issue
         if "argument of type 'NoneType' is not iterable" in str(e):
             pytest.fail(f"Bug still exists! Got TypeError from 'in None' check: {e}")
         else:
@@ -83,17 +83,17 @@ def test_urllib3_request_context_with_none_url():
     p = PreparedRequest()
     p.url = None  # Explicitly None
     
-    # After the fix, this should not raise AttributeError/TypeError from parsing None
+    # This should not raise AttributeError/TypeError from parsing None
     # It should parse "" instead, which results in empty scheme/host/port
     try:
         host_params, pool_kwargs = _urllib3_request_context(p, True, None, a.poolmanager)
-        # If we get here, the fix worked - it handled None gracefully
+        # If we get here, it handled None gracefully
         # Verify we got empty/default values
         assert host_params["scheme"] == ""
         assert host_params["host"] is None
         assert host_params["port"] is None
     except (AttributeError, TypeError) as e:
-        # If we get AttributeError or TypeError, the fix didn't work
+        # If we get AttributeError or TypeError, there is an issue
         pytest.fail(f"Bug still exists! Got {type(e).__name__} from None dereference: {e}")
     except Exception:
         # Other exceptions are OK - the important thing is we didn't crash on None
