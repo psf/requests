@@ -8,7 +8,7 @@ of data structures like CaseInsensitiveDict and LookupDict.
 from collections.abc import Mapping
 
 import pytest
-from hypothesis import assume, given
+from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
 from requests.structures import CaseInsensitiveDict, LookupDict
@@ -17,6 +17,7 @@ from requests.structures import CaseInsensitiveDict, LookupDict
 class TestCaseInsensitiveDictProperties:
     """Property-based tests for CaseInsensitiveDict."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(st.text(min_size=1), st.text()))
     def test_caseinsensitivedict_creation(self, data: dict) -> None:
         """CaseInsensitiveDict should be creatable from dict."""
@@ -24,6 +25,7 @@ class TestCaseInsensitiveDictProperties:
         assert isinstance(cid, CaseInsensitiveDict)
         assert len(cid) == len(data)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -47,6 +49,7 @@ class TestCaseInsensitiveDictProperties:
             assert cid[key.upper()] == value
             assert cid[key] == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -66,16 +69,20 @@ class TestCaseInsensitiveDictProperties:
         # Keys should maintain their original case
         assert all(isinstance(k, str) for k in keys)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(min_size=1, max_size=50), st.text(min_size=0, max_size=100)
         )
     )
     def test_caseinsensitivedict_len(self, data: dict) -> None:
-        """CaseInsensitiveDict length should match number of items."""
+        """CaseInsensitiveDict length should match number of unique case-insensitive keys."""
         cid = CaseInsensitiveDict(data)
-        assert len(cid) == len(data)
+        # Calculate expected length based on unique case-insensitive keys
+        unique_keys = {k.lower() for k in data.keys()}
+        assert len(cid) == len(unique_keys)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet=st.characters(
@@ -96,6 +103,7 @@ class TestCaseInsensitiveDictProperties:
         assert cid[key.lower()] == value
         assert cid[key.upper()] == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet=st.characters(
@@ -116,6 +124,7 @@ class TestCaseInsensitiveDictProperties:
         del cid[key.upper()]
         assert key.lower() not in cid
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -135,6 +144,7 @@ class TestCaseInsensitiveDictProperties:
         assert len(keys) == len(data)
         assert all(isinstance(k, str) for k in keys)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -154,6 +164,7 @@ class TestCaseInsensitiveDictProperties:
         assert len(items) == len(data)
         assert all(isinstance(item, tuple) and len(item) == 2 for item in items)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -173,6 +184,7 @@ class TestCaseInsensitiveDictProperties:
         assert all(key.islower() for key, _ in lower_items)
         assert len(lower_items) == len(data)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -193,6 +205,7 @@ class TestCaseInsensitiveDictProperties:
         assert cid is not cid_copy
         assert isinstance(cid_copy, CaseInsensitiveDict)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -211,6 +224,7 @@ class TestCaseInsensitiveDictProperties:
         cid2 = CaseInsensitiveDict(data)
         assert cid1 == cid2
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -234,6 +248,7 @@ class TestCaseInsensitiveDictProperties:
         # They should be equal when comparing case-insensitively
         assert cid == CaseInsensitiveDict(regular_dict)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -269,6 +284,7 @@ class TestCaseInsensitiveDictProperties:
         for key in data2:
             assert key in cid or key.lower() in cid or key.upper() in cid
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet=st.characters(
@@ -288,6 +304,7 @@ class TestCaseInsensitiveDictProperties:
         assert key.lower() in cid
         assert key.upper() in cid
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -308,6 +325,7 @@ class TestCaseInsensitiveDictProperties:
         assert isinstance(repr_str, str)
         assert len(repr_str) > 0
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet=st.characters(
@@ -335,6 +353,7 @@ class TestCaseInsensitiveDictProperties:
 class TestLookupDictProperties:
     """Property-based tests for LookupDict."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=1, max_size=50))
     def test_lookupdict_creation(self, name: str) -> None:
         """LookupDict should be creatable with a name."""
@@ -342,6 +361,7 @@ class TestLookupDictProperties:
         assert isinstance(ld, LookupDict)
         assert ld.name == name
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(min_size=1, max_size=50),
         st.text(min_size=1, max_size=50),
@@ -358,6 +378,7 @@ class TestLookupDictProperties:
         result = ld[key]
         assert result == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=1, max_size=50), st.text(min_size=1, max_size=50))
     def test_lookupdict_getitem_missing_returns_none(
         self, name: str, key: str
@@ -367,6 +388,7 @@ class TestLookupDictProperties:
         result = ld[key]
         assert result is None
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(min_size=1, max_size=50),
         st.text(min_size=1, max_size=50),
@@ -385,6 +407,7 @@ class TestLookupDictProperties:
         # Now should return value
         assert ld.get(key, default) == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=1, max_size=50))
     def test_lookupdict_repr(self, name: str) -> None:
         """LookupDict repr should include name."""
@@ -394,10 +417,11 @@ class TestLookupDictProperties:
         assert name in repr_str
         assert "lookup" in repr_str.lower()
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(min_size=1, max_size=50),
         st.dictionaries(
-            st.text(min_size=1, max_size=20),
+            st.text(min_size=1, max_size=20).filter(lambda x: not x.startswith("__")),
             st.text(min_size=0, max_size=100),
             min_size=1,
             max_size=10,
@@ -408,7 +432,7 @@ class TestLookupDictProperties:
     ) -> None:
         """LookupDict should handle multiple attributes."""
         ld = LookupDict(name=name)
-        # Set multiple attributes
+        # Set multiple attributes (filter out dunder/special attributes)
         for key, value in attrs.items():
             setattr(ld, key, value)
         # Verify all are accessible
@@ -416,12 +440,14 @@ class TestLookupDictProperties:
             assert ld[key] == value
             assert ld.get(key) == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=1, max_size=50))
     def test_lookupdict_is_dict_subclass(self, name: str) -> None:
         """LookupDict should be a dict subclass."""
         ld = LookupDict(name=name)
         assert isinstance(ld, dict)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(min_size=1, max_size=50),
         st.text(min_size=1, max_size=50),
@@ -445,6 +471,7 @@ class TestLookupDictProperties:
 class TestCaseInsensitiveDictInvariants:
     """Test invariants that should always hold for CaseInsensitiveDict."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -462,6 +489,7 @@ class TestCaseInsensitiveDictInvariants:
         cid = CaseInsensitiveDict(data)
         assert isinstance(cid, Mapping)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -481,6 +509,7 @@ class TestCaseInsensitiveDictInvariants:
         cid = CaseInsensitiveDict(data)
         assert len(list(cid.keys())) == len(list(cid.values()))
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -504,6 +533,7 @@ class TestCaseInsensitiveDictInvariants:
             assert cid.get(key) == value
             assert key in cid or key.lower() in cid or key.upper() in cid
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet=st.characters(
@@ -526,6 +556,7 @@ class TestCaseInsensitiveDictInvariants:
         cid[key.upper()] = value2
         assert cid[key.lower()] == value2
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -545,6 +576,7 @@ class TestCaseInsensitiveDictInvariants:
         cid_copy = cid.copy()
         assert cid == cid_copy
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(

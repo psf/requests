@@ -44,6 +44,7 @@ from requests.utils import (
 class TestSuperLenProperties:
     """Property-based tests for super_len function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(alphabet=st.characters(max_codepoint=127)))
     def test_super_len_string_equals_len(self, s: str) -> None:
         """super_len of an ASCII string should equal its byte length when encoded."""
@@ -51,22 +52,26 @@ class TestSuperLenProperties:
         expected = len(s.encode("utf-8"))
         assert super_len(s) == expected
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.binary())
     def test_super_len_bytes_equals_len(self, b: bytes) -> None:
         """super_len of bytes should equal its length."""
         assert super_len(b) == len(b)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.lists(st.integers()))
     def test_super_len_list_equals_len(self, lst: list) -> None:
         """super_len of a list should equal its length."""
         assert super_len(lst) == len(lst)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.binary())
     def test_super_len_bytesio_equals_len(self, data: bytes) -> None:
         """super_len of BytesIO should equal data length."""
         bio = BytesIO(data)
         assert super_len(bio) == len(data)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.binary())
     def test_super_len_bytesio_partially_read(self, data: bytes) -> None:
         """super_len should account for partially read BytesIO."""
@@ -78,6 +83,7 @@ class TestSuperLenProperties:
         remaining = len(data) - read_amount
         assert super_len(bio) == remaining
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text())
     def test_super_len_stringio(self, s: str) -> None:
         """super_len of StringIO should equal string length."""
@@ -88,6 +94,7 @@ class TestSuperLenProperties:
 class TestKeyValListProperties:
     """Property-based tests for key-value list conversion functions."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.lists(st.tuples(st.text(min_size=1), st.text())))
     def test_to_key_val_list_from_list(
         self, items: list[tuple[str, str]]
@@ -96,6 +103,7 @@ class TestKeyValListProperties:
         result = to_key_val_list(items)
         assert result == items
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(st.text(min_size=1), st.text()))
     def test_to_key_val_list_from_dict(self, d: dict) -> None:
         """to_key_val_list should convert dict to list of tuples."""
@@ -103,17 +111,20 @@ class TestKeyValListProperties:
         assert isinstance(result, list)
         assert set(result) == set(d.items())
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.none())
     def test_to_key_val_list_none(self, value: None) -> None:
         """to_key_val_list should return None for None input."""
         assert to_key_val_list(value) is None
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.one_of(st.text(), st.integers(), st.booleans()))
     def test_to_key_val_list_invalid_types(self, value) -> None:
         """to_key_val_list should raise ValueError for invalid types."""
         with pytest.raises(ValueError):
             to_key_val_list(value)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.lists(st.tuples(st.text(min_size=1), st.text()), unique_by=lambda x: x[0]))
     def test_from_key_val_list_returns_ordered_dict(
         self, items: list[tuple[str, str]]
@@ -126,6 +137,7 @@ class TestKeyValListProperties:
         for key, value in items:
             assert result[key] == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(st.text(min_size=1), st.text()))
     def test_from_key_val_list_from_dict(self, d: dict) -> None:
         """from_key_val_list should work with dict input."""
@@ -133,17 +145,20 @@ class TestKeyValListProperties:
         assert isinstance(result, OrderedDict)
         assert dict(result) == d
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.none())
     def test_from_key_val_list_none(self, value: None) -> None:
         """from_key_val_list should return None for None input."""
         assert from_key_val_list(value) is None
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.one_of(st.text(), st.integers(), st.booleans()))
     def test_from_key_val_list_invalid_types(self, value) -> None:
         """from_key_val_list should raise ValueError for invalid types."""
         with pytest.raises(ValueError):
             from_key_val_list(value)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.lists(st.tuples(st.text(min_size=1), st.text()), unique_by=lambda x: x[0]))
     def test_roundtrip_to_from_key_val_list(
         self, items: list[tuple[str, str]]
@@ -157,20 +172,24 @@ class TestKeyValListProperties:
 class TestUnquoteHeaderValueProperties:
     """Property-based tests for unquote_header_value function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=1))
     def test_unquote_non_quoted_unchanged(self, value: str) -> None:
         """Unquoted values without surrounding quotes should be unchanged."""
         assume(not (value.startswith('"') and value.endswith('"')))
         assert unquote_header_value(value) == value
 
-    @given(st.text())
+    @settings(max_examples=1000, deadline=None)
+    @given(st.text().filter(lambda x: x != '"'))
     def test_unquote_quoted_removes_quotes(self, value: str) -> None:
         """Quoted values should have quotes removed."""
         quoted = f'"{value}"'
         result = unquote_header_value(quoted)
         # The function also processes escape sequences
+        # Edge case: single quote character would still have quotes after unquoting
         assert not (result.startswith('"') and result.endswith('"'))
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.none())
     def test_unquote_none(self, value: None) -> None:
         """None input should return None."""
@@ -180,6 +199,7 @@ class TestUnquoteHeaderValueProperties:
 class TestIPv4Properties:
     """Property-based tests for IPv4 address validation."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.integers(min_value=0, max_value=255),
         st.integers(min_value=0, max_value=255),
@@ -193,13 +213,16 @@ class TestIPv4Properties:
         ip = f"{a}.{b}.{c}.{d}"
         assert is_ipv4_address(ip)
 
-    @given(st.text().filter(lambda x: "." not in x and not x.isdigit() and "\x00" not in x))
+    @settings(max_examples=1000, deadline=None)
+    @given(st.text().filter(lambda x: "." not in x and not x.isdigit() and "\x00" not in x and not any(c.isspace() for c in x)))
     def test_invalid_ipv4_no_dots(self, value: str) -> None:
         """Strings without dots (except single numbers) should not be valid IPv4."""
         # Note: Single numbers like "0" are valid shorthand IPs
         # Also filter out null characters which cause ValueError
+        # Also filter out strings containing any whitespace (socket.inet_aton strips whitespace)
         assert not is_ipv4_address(value)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.integers(min_value=1, max_value=32))
     def test_dotted_netmask_valid_range(self, mask: int) -> None:
         """dotted_netmask should work for valid mask values."""
@@ -208,6 +231,7 @@ class TestIPv4Properties:
         assert len(parts) == 4
         assert all(0 <= int(p) <= 255 for p in parts)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.integers(min_value=0, max_value=255),
         st.integers(min_value=0, max_value=255),
@@ -222,12 +246,14 @@ class TestIPv4Properties:
         cidr = f"{a}.{b}.{c}.{d}/{mask}"
         assert is_valid_cidr(cidr)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text())
     def test_invalid_cidr_no_slash(self, value: str) -> None:
         """CIDR without slash should be invalid."""
         assume("/" not in value)
         assert not is_valid_cidr(value)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.integers(min_value=0, max_value=255),
         st.integers(min_value=0, max_value=255),
@@ -246,6 +272,7 @@ class TestIPv4Properties:
 class TestIterSlicesProperties:
     """Property-based tests for iter_slices function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(), st.integers(min_value=1, max_value=100))
     def test_iter_slices_covers_all_content(
         self, text: str, slice_length: int
@@ -254,6 +281,7 @@ class TestIterSlicesProperties:
         result = "".join(iter_slices(text, slice_length))
         assert result == text
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.binary(), st.integers(min_value=1, max_value=100))
     def test_iter_slices_bytes_covers_all(
         self, data: bytes, slice_length: int
@@ -262,6 +290,7 @@ class TestIterSlicesProperties:
         result = b"".join(iter_slices(data, slice_length))
         assert result == data
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=1), st.integers(min_value=1, max_value=10))
     def test_iter_slices_max_slice_size(
         self, text: str, slice_length: int
@@ -274,6 +303,7 @@ class TestIterSlicesProperties:
         if slices:
             assert len(slices[-1]) <= slice_length
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=1))
     def test_iter_slices_none_length(self, text: str) -> None:
         """None or invalid slice_length should return full string (non-empty)."""
@@ -281,6 +311,7 @@ class TestIterSlicesProperties:
         assert len(result) == 1
         assert result[0] == text
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=1))
     def test_iter_slices_zero_length(self, text: str) -> None:
         """Zero slice_length should return full string (non-empty)."""
@@ -288,6 +319,7 @@ class TestIterSlicesProperties:
         assert len(result) == 1
         assert result[0] == text
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=1))
     def test_iter_slices_negative_length(self, text: str) -> None:
         """Negative slice_length should return full string (non-empty)."""
@@ -299,6 +331,7 @@ class TestIterSlicesProperties:
 class TestGuessJSONUTFProperties:
     """Property-based tests for guess_json_utf function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.sampled_from(["utf-8", "utf-16", "utf-32"]))
     def test_guess_json_utf_recognizes_encoding(
         self, encoding: str
@@ -310,6 +343,7 @@ class TestGuessJSONUTFProperties:
         assert result is not None
         assert encoding.split("-")[0] in result
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.binary(min_size=4, max_size=4))
     def test_guess_json_utf_returns_string_or_none(
         self, data: bytes
@@ -322,6 +356,7 @@ class TestGuessJSONUTFProperties:
 class TestURLDefragAuthProperties:
     """Property-based tests for urldefragauth function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet=st.characters(
@@ -346,6 +381,7 @@ class TestURLDefragAuthProperties:
         result = urldefragauth(url)
         assert "#" not in result
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet=st.characters(
@@ -379,6 +415,7 @@ class TestURLDefragAuthProperties:
 class TestRequoteURIProperties:
     """Property-based tests for requote_uri function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet=st.characters(
@@ -395,6 +432,7 @@ class TestRequoteURIProperties:
         second = requote_uri(first)
         assert first == second
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=1))
     def test_requote_uri_returns_string(self, path: str) -> None:
         """requote_uri should always return a string."""
@@ -410,6 +448,7 @@ class TestRequoteURIProperties:
 class TestUnquoteUnreservedProperties:
     """Property-based tests for unquote_unreserved function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet=st.characters(
@@ -428,6 +467,7 @@ class TestUnquoteUnreservedProperties:
             # Invalid percent-escape sequences may raise InvalidURL
             pass
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~",
@@ -446,6 +486,7 @@ class TestUnquoteUnreservedProperties:
 class TestPreprendSchemeIfNeededProperties:
     """Property-based tests for prepend_scheme_if_needed function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet=st.characters(
@@ -463,6 +504,7 @@ class TestPreprendSchemeIfNeededProperties:
         result = prepend_scheme_if_needed(url, "http")
         assert result.startswith("http://")
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.sampled_from(["http", "https", "ftp"]),
         st.text(
@@ -485,11 +527,13 @@ class TestPreprendSchemeIfNeededProperties:
 class TestParseHeaderLinksProperties:
     """Property-based tests for parse_header_links function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=0, max_size=0))
     def test_parse_header_links_empty_string(self, value: str) -> None:
         """Empty string should return empty list."""
         assert parse_header_links(value) == []
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet=st.characters(
@@ -509,6 +553,7 @@ class TestParseHeaderLinksProperties:
 class TestParseDictHeaderProperties:
     """Property-based tests for parse_dict_header function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet=st.characters(
@@ -534,6 +579,7 @@ class TestParseDictHeaderProperties:
         assert isinstance(result, dict)
         assert key in result
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=1, max_size=20))
     def test_parse_dict_header_no_value(self, key: str) -> None:
         """parse_dict_header should handle keys without values."""
@@ -546,6 +592,7 @@ class TestParseDictHeaderProperties:
 class TestParseListHeaderProperties:
     """Property-based tests for parse_list_header function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.lists(
             st.text(
@@ -570,6 +617,7 @@ class TestParseListHeaderProperties:
 class TestParseContentTypeHeaderProperties:
     """Property-based tests for _parse_content_type_header function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet="abcdefghijklmnopqrstuvwxyz/",
@@ -587,6 +635,7 @@ class TestParseContentTypeHeaderProperties:
         assert isinstance(result[0], str)
         assert isinstance(result[1], dict)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet="abcdefghijklmnopqrstuvwxyz/",
@@ -613,6 +662,7 @@ class TestParseContentTypeHeaderProperties:
 class TestGetEncodingFromHeadersProperties:
     """Property-based tests for get_encoding_from_headers function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(st.text(), st.text()))
     def test_get_encoding_from_headers_with_caseinsensitive_dict(
         self, headers_dict: dict
@@ -622,6 +672,7 @@ class TestGetEncodingFromHeadersProperties:
         result = get_encoding_from_headers(headers)
         assert result is None or isinstance(result, str)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.sampled_from(
             ["utf-8", "iso-8859-1", "utf-16", "ascii", "windows-1252"]

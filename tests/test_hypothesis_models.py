@@ -44,6 +44,7 @@ def valid_urls(draw):
 class TestRequestProperties:
     """Property-based tests for Request class."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(http_methods, valid_urls())
     def test_request_creation(self, method: str, url: str) -> None:
         """Request should be creatable with method and URL."""
@@ -52,6 +53,7 @@ class TestRequestProperties:
         assert req.method == method
         assert req.url == url
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         http_methods,
         valid_urls(),
@@ -64,6 +66,7 @@ class TestRequestProperties:
         req = Request(method=method, url=url, headers=headers)
         assert req.headers == headers
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         http_methods,
         valid_urls(),
@@ -74,6 +77,7 @@ class TestRequestProperties:
         req = Request(method=method, url=url, params=params)
         assert req.params == params
 
+    @settings(max_examples=1000, deadline=None)
     @given(http_methods, valid_urls())
     def test_request_prepare_returns_prepared_request(self, method: str, url: str) -> None:
         """Request.prepare() should return PreparedRequest."""
@@ -81,6 +85,7 @@ class TestRequestProperties:
         prepared = req.prepare()
         assert isinstance(prepared, PreparedRequest)
 
+    @settings(max_examples=1000, deadline=None)
     @given(http_methods, valid_urls())
     def test_request_repr(self, method: str, url: str) -> None:
         """Request repr should include method."""
@@ -90,6 +95,7 @@ class TestRequestProperties:
         assert method in repr_str
         assert "Request" in repr_str
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         http_methods,
         valid_urls(),
@@ -104,6 +110,7 @@ class TestRequestProperties:
 class TestPreparedRequestProperties:
     """Property-based tests for PreparedRequest class."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(http_methods)
     def test_prepared_request_method_normalization(self, method: str) -> None:
         """PreparedRequest should normalize method to uppercase."""
@@ -111,6 +118,7 @@ class TestPreparedRequestProperties:
         preq.prepare_method(method)
         assert preq.method == method.upper()
 
+    @settings(max_examples=1000, deadline=None)
     @given(valid_urls())
     def test_prepared_request_url(self, url: str) -> None:
         """PreparedRequest should accept and store URL."""
@@ -123,6 +131,7 @@ class TestPreparedRequestProperties:
             # Some generated URLs may be invalid
             pass
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -146,6 +155,7 @@ class TestPreparedRequestProperties:
             # Some header values might be invalid
             pass
 
+    @settings(max_examples=1000, deadline=None)
     @given(http_methods, valid_urls())
     def test_prepared_request_copy(self, method: str, url: str) -> None:
         """PreparedRequest.copy() should create independent copy."""
@@ -160,6 +170,7 @@ class TestPreparedRequestProperties:
         except (InvalidURL, MissingSchema):
             pass
 
+    @settings(max_examples=1000, deadline=None)
     @given(http_methods)
     def test_prepared_request_repr(self, method: str) -> None:
         """PreparedRequest repr should include method."""
@@ -170,6 +181,7 @@ class TestPreparedRequestProperties:
         assert method.upper() in repr_str
         assert "PreparedRequest" in repr_str
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(min_size=1, max_size=20), st.text(min_size=0, max_size=50), max_size=5
@@ -188,6 +200,7 @@ class TestPreparedRequestProperties:
             # Some data might not be JSON serializable
             pass
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=0, max_size=100))
     def test_prepared_request_string_body(self, data: str) -> None:
         """PreparedRequest should handle string data."""
@@ -197,6 +210,7 @@ class TestPreparedRequestProperties:
         # String data should be encoded
         assert preq.body is not None or data == ""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         http_methods,
         valid_urls(),
@@ -220,6 +234,7 @@ class TestPreparedRequestProperties:
 class TestResponseProperties:
     """Property-based tests for Response class."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.integers(min_value=100, max_value=599))
     def test_response_status_code(self, status_code: int) -> None:
         """Response should accept valid HTTP status codes."""
@@ -227,6 +242,7 @@ class TestResponseProperties:
         resp.status_code = status_code
         assert resp.status_code == status_code
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.integers(min_value=200, max_value=399))
     def test_response_ok_for_2xx_3xx(self, status_code: int) -> None:
         """Response with 2xx or 3xx status should be ok."""
@@ -235,6 +251,7 @@ class TestResponseProperties:
         resp.url = "http://example.com"
         assert resp.ok is True
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.integers(min_value=400, max_value=599))
     def test_response_not_ok_for_4xx_5xx(self, status_code: int) -> None:
         """Response with 4xx or 5xx status should not be ok."""
@@ -243,6 +260,7 @@ class TestResponseProperties:
         resp.url = "http://example.com"
         assert resp.ok is False
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.binary(min_size=0, max_size=1000))
     def test_response_content(self, content: bytes) -> None:
         """Response should store and return content."""
@@ -251,6 +269,7 @@ class TestResponseProperties:
         resp._content_consumed = True
         assert resp.content == content
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=0, max_size=100))
     def test_response_text(self, text: str) -> None:
         """Response should convert content to text."""
@@ -260,6 +279,7 @@ class TestResponseProperties:
         resp.encoding = "utf-8"
         assert isinstance(resp.text, str)
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -285,6 +305,7 @@ class TestResponseProperties:
             # Some data might not be JSON serializable
             pass
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.integers(min_value=100, max_value=599))
     def test_response_repr(self, status_code: int) -> None:
         """Response repr should include status code."""
@@ -295,6 +316,7 @@ class TestResponseProperties:
         assert str(status_code) in repr_str
         assert "Response" in repr_str
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.integers(min_value=100, max_value=599))
     def test_response_bool(self, status_code: int) -> None:
         """Response bool conversion should match ok property."""
@@ -303,6 +325,7 @@ class TestResponseProperties:
         resp.url = "http://example.com"
         assert bool(resp) == resp.ok
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(
             st.text(
@@ -322,6 +345,7 @@ class TestResponseProperties:
         for key, value in headers.items():
             assert resp.headers.get(key.lower()) == value or resp.headers.get(key) == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.sampled_from([301, 302, 303, 307, 308]))
     def test_response_is_redirect(self, status_code: int) -> None:
         """Response with redirect status and location should be redirect."""
@@ -330,6 +354,7 @@ class TestResponseProperties:
         resp.headers = CaseInsensitiveDict({"location": "http://example.com/new"})
         assert resp.is_redirect is True
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.sampled_from([301, 308]))
     def test_response_is_permanent_redirect(self, status_code: int) -> None:
         """Response with 301 or 308 and location should be permanent redirect."""
@@ -338,6 +363,7 @@ class TestResponseProperties:
         resp.headers = CaseInsensitiveDict({"location": "http://example.com/new"})
         assert resp.is_permanent_redirect is True
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.sampled_from([200, 404, 500]))
     def test_response_is_not_redirect(self, status_code: int) -> None:
         """Response without redirect status should not be redirect."""
@@ -350,6 +376,7 @@ class TestResponseProperties:
 class TestRequestResponseInvariants:
     """Test invariants that should hold across Request/Response interactions."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(http_methods, valid_urls())
     def test_request_prepare_preserves_method(self, method: str, url: str) -> None:
         """Preparing a request should preserve method (as uppercase)."""
@@ -357,6 +384,7 @@ class TestRequestResponseInvariants:
         prepared = req.prepare()
         assert prepared.method == method.upper()
 
+    @settings(max_examples=1000, deadline=None)
     @given(http_methods, valid_urls())
     def test_request_prepare_preserves_url(self, method: str, url: str) -> None:
         """Preparing a request should preserve URL."""
@@ -369,6 +397,7 @@ class TestRequestResponseInvariants:
         except (InvalidURL, MissingSchema):
             pass
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         http_methods,
         valid_urls(),
@@ -400,6 +429,7 @@ class TestRequestResponseInvariants:
         except Exception:
             pass
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.integers(min_value=100, max_value=599))
     def test_response_bool_consistency(self, status_code: int) -> None:
         """Response bool and ok property should be consistent."""
@@ -408,6 +438,7 @@ class TestRequestResponseInvariants:
         resp.url = "http://example.com"
         assert bool(resp) == resp.ok
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.binary(min_size=0, max_size=500))
     def test_response_content_idempotent(self, content: bytes) -> None:
         """Accessing response.content multiple times should return same value."""
@@ -418,6 +449,7 @@ class TestRequestResponseInvariants:
         second = resp.content
         assert first == second == content
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.integers(min_value=200, max_value=299),
         st.text(min_size=0, max_size=100),
@@ -436,6 +468,7 @@ class TestRequestResponseInvariants:
 class TestRequestEncodingInvariants:
     """Test encoding-related invariants for requests."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         http_methods,
         valid_urls(),
@@ -453,6 +486,7 @@ class TestRequestEncodingInvariants:
         except (InvalidURL, MissingSchema):
             pass
 
+    @settings(max_examples=1000, deadline=None)
     @given(http_methods, valid_urls(), st.text(min_size=1, max_size=100))
     def test_string_body_is_encoded(self, method: str, url: str, body: str) -> None:
         """String body should be encoded in prepared request."""
@@ -468,6 +502,7 @@ class TestRequestEncodingInvariants:
 class TestPreparedRequestPathURL:
     """Test path_url property of PreparedRequest."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(valid_urls())
     def test_path_url_excludes_scheme_and_host(self, url: str) -> None:
         """path_url should exclude scheme and host."""
@@ -483,6 +518,7 @@ class TestPreparedRequestPathURL:
         except (InvalidURL, MissingSchema):
             pass
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         valid_urls(),
         st.dictionaries(st.text(min_size=1, max_size=10), st.text(min_size=1, max_size=10)),

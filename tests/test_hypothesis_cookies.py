@@ -9,7 +9,7 @@ import http.cookiejar as cookielib
 from http.cookies import Morsel
 
 import pytest
-from hypothesis import assume, given
+from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
 from requests.cookies import (
@@ -39,6 +39,7 @@ cookie_values = st.text(
 class TestRequestsCookieJarProperties:
     """Property-based tests for RequestsCookieJar class."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_from_dict(self, cookies: dict) -> None:
         """cookiejar_from_dict should create RequestsCookieJar from dict."""
@@ -46,6 +47,7 @@ class TestRequestsCookieJarProperties:
         assert isinstance(jar, RequestsCookieJar)
         assert len(jar) == len(cookies)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_preserves_values(self, cookies: dict) -> None:
         """RequestsCookieJar should preserve cookie values."""
@@ -53,6 +55,7 @@ class TestRequestsCookieJarProperties:
         for name, value in cookies.items():
             assert jar.get(name) == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(cookie_names, cookie_values)
     def test_cookiejar_set_get(self, name: str, value: str) -> None:
         """Setting and getting cookies should work."""
@@ -60,6 +63,7 @@ class TestRequestsCookieJarProperties:
         jar.set(name, value)
         assert jar.get(name) == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(cookie_names, cookie_values)
     def test_cookiejar_setitem_getitem(self, name: str, value: str) -> None:
         """Dict-style access should work."""
@@ -67,6 +71,7 @@ class TestRequestsCookieJarProperties:
         jar[name] = value
         assert jar[name] == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(cookie_names, cookie_values)
     def test_cookiejar_contains(self, name: str, value: str) -> None:
         """'in' operator should work for cookies."""
@@ -74,6 +79,7 @@ class TestRequestsCookieJarProperties:
         jar[name] = value
         assert name in jar
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, min_size=1, max_size=20))
     def test_cookiejar_keys(self, cookies: dict) -> None:
         """keys() should return all cookie names."""
@@ -82,6 +88,7 @@ class TestRequestsCookieJarProperties:
         assert len(keys) == len(cookies)
         assert all(k in cookies for k in keys)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, min_size=1, max_size=20))
     def test_cookiejar_values(self, cookies: dict) -> None:
         """values() should return all cookie values."""
@@ -90,6 +97,7 @@ class TestRequestsCookieJarProperties:
         assert len(values) == len(cookies)
         assert all(v in cookies.values() for v in values)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, min_size=1, max_size=20))
     def test_cookiejar_items(self, cookies: dict) -> None:
         """items() should return name-value pairs."""
@@ -98,6 +106,7 @@ class TestRequestsCookieJarProperties:
         assert len(items) == len(cookies)
         assert all(isinstance(item, tuple) and len(item) == 2 for item in items)
 
+    @settings(max_examples=1000, deadline=None)
     @given(cookie_names, cookie_values)
     def test_cookiejar_delitem(self, name: str, value: str) -> None:
         """Deleting cookies should work."""
@@ -107,12 +116,14 @@ class TestRequestsCookieJarProperties:
         del jar[name]
         assert name not in jar
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_len(self, cookies: dict) -> None:
         """len() should return number of cookies."""
         jar = cookiejar_from_dict(cookies)
         assert len(jar) == len(cookies)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_iteration(self, cookies: dict) -> None:
         """Iterating over jar should yield cookies."""
@@ -124,6 +135,7 @@ class TestRequestsCookieJarProperties:
             assert hasattr(cookie, "value")
         assert count == len(cookies)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_copy(self, cookies: dict) -> None:
         """copy() should create independent copy."""
@@ -135,6 +147,7 @@ class TestRequestsCookieJarProperties:
         for name in cookies:
             assert jar.get(name) == jar_copy.get(name)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_copy_is_independent(self, cookies: dict) -> None:
         """Modifying copy should not affect original."""
@@ -143,6 +156,7 @@ class TestRequestsCookieJarProperties:
         jar_copy.set("new_cookie", "new_value")
         assert "new_cookie" not in jar
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(cookie_names, cookie_values, max_size=10),
         st.dictionaries(cookie_names, cookie_values, max_size=10),
@@ -159,6 +173,7 @@ class TestRequestsCookieJarProperties:
 class TestCreateCookieProperties:
     """Property-based tests for create_cookie function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(cookie_names, cookie_values)
     def test_create_cookie_basic(self, name: str, value: str) -> None:
         """create_cookie should create valid cookie."""
@@ -167,6 +182,7 @@ class TestCreateCookieProperties:
         assert cookie.name == name
         assert cookie.value == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(cookie_names, cookie_values)
     def test_create_cookie_has_required_attributes(self, name: str, value: str) -> None:
         """Created cookie should have all required attributes."""
@@ -178,6 +194,7 @@ class TestCreateCookieProperties:
         assert hasattr(cookie, "secure")
         assert hasattr(cookie, "expires")
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         cookie_names,
         cookie_values,
@@ -192,12 +209,14 @@ class TestCreateCookieProperties:
         cookie = create_cookie(name, value, domain=domain)
         assert cookie.domain == domain
 
+    @settings(max_examples=1000, deadline=None)
     @given(cookie_names, cookie_values, st.text(min_size=1, max_size=50))
     def test_create_cookie_with_path(self, name: str, value: str, path: str) -> None:
         """create_cookie should accept path parameter."""
         cookie = create_cookie(name, value, path=path)
         assert cookie.path == path
 
+    @settings(max_examples=1000, deadline=None)
     @given(cookie_names, cookie_values, st.booleans())
     def test_create_cookie_with_secure(self, name: str, value: str, secure: bool) -> None:
         """create_cookie should accept secure parameter."""
@@ -208,12 +227,14 @@ class TestCreateCookieProperties:
 class TestCookieJarFromDictProperties:
     """Property-based tests for cookiejar_from_dict function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_from_dict_creates_jar(self, cookies: dict) -> None:
         """cookiejar_from_dict should create RequestsCookieJar."""
         jar = cookiejar_from_dict(cookies)
         assert isinstance(jar, RequestsCookieJar)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_from_dict_preserves_all_cookies(self, cookies: dict) -> None:
         """All cookies from dict should be in jar."""
@@ -221,6 +242,7 @@ class TestCookieJarFromDictProperties:
         for name, value in cookies.items():
             assert jar.get(name) == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(cookie_names, cookie_values, max_size=10),
         st.dictionaries(cookie_names, cookie_values, max_size=10),
@@ -237,6 +259,7 @@ class TestCookieJarFromDictProperties:
         for name in cookies2:
             assert name in result
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(cookie_names, cookie_values, min_size=1, max_size=10),
         st.dictionaries(cookie_names, cookie_values, max_size=10),
@@ -256,6 +279,7 @@ class TestCookieJarFromDictProperties:
 class TestMergeCookiesProperties:
     """Property-based tests for merge_cookies function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(cookie_names, cookie_values, max_size=10),
         st.dictionaries(cookie_names, cookie_values, max_size=10),
@@ -272,6 +296,7 @@ class TestMergeCookiesProperties:
             found = any(c.name == name for c in result)
             assert found
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.dictionaries(cookie_names, cookie_values, max_size=10),
         st.dictionaries(cookie_names, cookie_values, max_size=10),
@@ -292,6 +317,7 @@ class TestMergeCookiesProperties:
 class TestRequestsCookieJarDictInterface:
     """Test dict-like interface of RequestsCookieJar."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, min_size=1, max_size=20))
     def test_cookiejar_dict_conversion(self, cookies: dict) -> None:
         """RequestsCookieJar should be convertible to dict."""
@@ -302,6 +328,7 @@ class TestRequestsCookieJarDictInterface:
         for name, value in cookies.items():
             assert result.get(name) == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_get_dict(self, cookies: dict) -> None:
         """get_dict() should return plain dict."""
@@ -310,6 +337,7 @@ class TestRequestsCookieJarDictInterface:
         assert isinstance(result, dict)
         assert len(result) == len(cookies)
 
+    @settings(max_examples=1000, deadline=None)
     @given(cookie_names, cookie_values, cookie_values)
     def test_cookiejar_get_with_default(
         self, name: str, value: str, default: str
@@ -320,6 +348,7 @@ class TestRequestsCookieJarDictInterface:
         jar.set(name, value)
         assert jar.get(name, default) == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         cookie_names,
         cookie_values,
@@ -338,6 +367,7 @@ class TestRequestsCookieJarDictInterface:
         result = jar.get(name, domain=domain)
         assert result == value
 
+    @settings(max_examples=1000, deadline=None)
     @given(cookie_names, cookie_values, st.text(min_size=1, max_size=20))
     def test_cookiejar_get_with_path(self, name: str, value: str, path: str) -> None:
         """get() should support path parameter."""
@@ -350,30 +380,35 @@ class TestRequestsCookieJarDictInterface:
 class TestRequestsCookieJarInvariants:
     """Test invariants that should always hold for RequestsCookieJar."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_is_cookiejar(self, cookies: dict) -> None:
         """RequestsCookieJar should be a CookieJar."""
         jar = cookiejar_from_dict(cookies)
         assert isinstance(jar, cookielib.CookieJar)
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_len_equals_item_count(self, cookies: dict) -> None:
         """len() should equal number of items."""
         jar = cookiejar_from_dict(cookies)
         assert len(jar) == len(list(jar))
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_keys_values_same_length(self, cookies: dict) -> None:
         """keys() and values() should have same length."""
         jar = cookiejar_from_dict(cookies)
         assert len(jar.keys()) == len(jar.values())
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_items_length_equals_len(self, cookies: dict) -> None:
         """items() length should equal len()."""
         jar = cookiejar_from_dict(cookies)
         assert len(jar.items()) == len(jar)
 
+    @settings(max_examples=1000, deadline=None)
     @given(cookie_names, cookie_values, cookie_values)
     def test_cookiejar_set_get_roundtrip(
         self, name: str, value1: str, value2: str
@@ -386,6 +421,7 @@ class TestRequestsCookieJarInvariants:
         jar.set(name, value2)
         assert jar.get(name) == value2
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, min_size=1, max_size=20))
     def test_cookiejar_contains_all_set_cookies(self, cookies: dict) -> None:
         """All set cookies should be in the jar."""
@@ -395,6 +431,7 @@ class TestRequestsCookieJarInvariants:
         for name in cookies:
             assert name in jar
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.dictionaries(cookie_names, cookie_values, max_size=20))
     def test_cookiejar_pickleable_roundtrip(self, cookies: dict) -> None:
         """RequestsCookieJar should be pickleable."""
@@ -411,6 +448,7 @@ class TestRequestsCookieJarInvariants:
 class TestCookieSetNoneValue:
     """Test setting None as cookie value."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(cookie_names)
     def test_set_none_removes_cookie(self, name: str) -> None:
         """Setting cookie to None should remove it."""
@@ -420,6 +458,7 @@ class TestCookieSetNoneValue:
         jar.set(name, None)
         assert name not in jar
 
+    @settings(max_examples=1000, deadline=None)
     @given(cookie_names, cookie_values)
     def test_set_none_on_nonexistent_cookie(self, name: str, value: str) -> None:
         """Setting None on nonexistent cookie should not raise."""
@@ -431,6 +470,7 @@ class TestCookieSetNoneValue:
 class TestCookieJarListMethods:
     """Test list_* methods of RequestsCookieJar."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.lists(
             st.tuples(
@@ -461,6 +501,7 @@ class TestCookieJarListMethods:
         for domain in domains:
             assert domain in result_domains
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.lists(
             st.tuples(cookie_names, cookie_values, st.text(min_size=1, max_size=20)),

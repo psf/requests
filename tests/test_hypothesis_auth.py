@@ -9,7 +9,7 @@ import base64
 import re
 
 import pytest
-from hypothesis import assume, given
+from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
 from requests.auth import HTTPBasicAuth, HTTPDigestAuth, HTTPProxyAuth, _basic_auth_str
@@ -29,6 +29,7 @@ safe_text = st.text(
 class TestBasicAuthStrProperties:
     """Property-based tests for _basic_auth_str function."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_basic_auth_str_format(self, username: str, password: str) -> None:
         """_basic_auth_str should return properly formatted Basic auth string."""
@@ -36,6 +37,7 @@ class TestBasicAuthStrProperties:
         assert isinstance(result, str)
         assert result.startswith("Basic ")
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_basic_auth_str_base64_decodable(self, username: str, password: str) -> None:
         """_basic_auth_str should produce valid base64 encoding."""
@@ -51,6 +53,7 @@ class TestBasicAuthStrProperties:
             # If decoding fails, test fails
             pytest.fail("Failed to decode base64")
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_basic_auth_str_contains_credentials(self, username: str, password: str) -> None:
         """_basic_auth_str should encode username and password."""
@@ -60,6 +63,7 @@ class TestBasicAuthStrProperties:
         assert username in decoded
         assert password in decoded
 
+    @settings(max_examples=1000, deadline=None)
     @given(st.text(min_size=1, max_size=50), st.text(min_size=1, max_size=50))
     def test_basic_auth_str_deterministic(self, username: str, password: str) -> None:
         """_basic_auth_str should be deterministic."""
@@ -75,6 +79,7 @@ class TestBasicAuthStrProperties:
 class TestHTTPBasicAuthProperties:
     """Property-based tests for HTTPBasicAuth class."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_http_basic_auth_creation(self, username: str, password: str) -> None:
         """HTTPBasicAuth should be creatable with username and password."""
@@ -83,6 +88,7 @@ class TestHTTPBasicAuthProperties:
         assert auth.username == username
         assert auth.password == password
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_http_basic_auth_adds_header(self, username: str, password: str) -> None:
         """HTTPBasicAuth should add Authorization header to request."""
@@ -96,6 +102,7 @@ class TestHTTPBasicAuthProperties:
         assert "Authorization" in result.headers
         assert result.headers["Authorization"].startswith("Basic ")
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_http_basic_auth_equality(self, username: str, password: str) -> None:
         """HTTPBasicAuth instances with same credentials should be equal."""
@@ -103,6 +110,7 @@ class TestHTTPBasicAuthProperties:
         auth2 = HTTPBasicAuth(username, password)
         assert auth1 == auth2
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text, safe_text)
     def test_http_basic_auth_inequality(
         self, username1: str, username2: str, password: str
@@ -113,6 +121,7 @@ class TestHTTPBasicAuthProperties:
         auth2 = HTTPBasicAuth(username2, password)
         assert auth1 != auth2
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_http_basic_auth_returns_request(self, username: str, password: str) -> None:
         """HTTPBasicAuth should return the request object."""
@@ -125,6 +134,7 @@ class TestHTTPBasicAuthProperties:
         result = auth(req)
         assert result is req
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_http_basic_auth_ne_operator(self, username: str, password: str) -> None:
         """HTTPBasicAuth __ne__ should work correctly."""
@@ -136,6 +146,7 @@ class TestHTTPBasicAuthProperties:
 class TestHTTPProxyAuthProperties:
     """Property-based tests for HTTPProxyAuth class."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_http_proxy_auth_creation(self, username: str, password: str) -> None:
         """HTTPProxyAuth should be creatable with username and password."""
@@ -144,6 +155,7 @@ class TestHTTPProxyAuthProperties:
         assert auth.username == username
         assert auth.password == password
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_http_proxy_auth_adds_header(self, username: str, password: str) -> None:
         """HTTPProxyAuth should add Proxy-Authorization header."""
@@ -157,6 +169,7 @@ class TestHTTPProxyAuthProperties:
         assert "Proxy-Authorization" in result.headers
         assert result.headers["Proxy-Authorization"].startswith("Basic ")
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_http_proxy_auth_is_basic_auth_subclass(
         self, username: str, password: str
@@ -169,6 +182,7 @@ class TestHTTPProxyAuthProperties:
 class TestHTTPDigestAuthProperties:
     """Property-based tests for HTTPDigestAuth class."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_http_digest_auth_creation(self, username: str, password: str) -> None:
         """HTTPDigestAuth should be creatable with username and password."""
@@ -177,12 +191,14 @@ class TestHTTPDigestAuthProperties:
         assert auth.username == username
         assert auth.password == password
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_http_digest_auth_has_thread_local(self, username: str, password: str) -> None:
         """HTTPDigestAuth should have thread-local storage."""
         auth = HTTPDigestAuth(username, password)
         assert hasattr(auth, "_thread_local")
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_http_digest_auth_init_per_thread_state(
         self, username: str, password: str
@@ -197,6 +213,7 @@ class TestHTTPDigestAuthProperties:
         assert hasattr(auth._thread_local, "pos")
         assert hasattr(auth._thread_local, "num_401_calls")
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_http_digest_auth_equality(self, username: str, password: str) -> None:
         """HTTPDigestAuth instances with same credentials should be equal."""
@@ -204,6 +221,7 @@ class TestHTTPDigestAuthProperties:
         auth2 = HTTPDigestAuth(username, password)
         assert auth1 == auth2
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text, safe_text)
     def test_http_digest_auth_inequality(
         self, username1: str, username2: str, password: str
@@ -218,6 +236,7 @@ class TestHTTPDigestAuthProperties:
 class TestAuthInvariants:
     """Test invariants that should hold for authentication classes."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_basic_auth_idempotent(self, username: str, password: str) -> None:
         """Applying HTTPBasicAuth multiple times should be idempotent."""
@@ -237,6 +256,7 @@ class TestAuthInvariants:
         # Should produce same header
         assert auth_header1 == auth_header2
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_proxy_auth_idempotent(self, username: str, password: str) -> None:
         """Applying HTTPProxyAuth multiple times should be idempotent."""
@@ -256,6 +276,7 @@ class TestAuthInvariants:
         # Should produce same header
         assert auth_header1 == auth_header2
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_basic_auth_header_format(self, username: str, password: str) -> None:
         """HTTPBasicAuth should produce correctly formatted header."""
@@ -271,6 +292,7 @@ class TestAuthInvariants:
         # Should match Basic auth format
         assert re.match(r"^Basic [A-Za-z0-9+/]+=*$", auth_header)
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_proxy_auth_header_format(self, username: str, password: str) -> None:
         """HTTPProxyAuth should produce correctly formatted header."""
@@ -286,6 +308,7 @@ class TestAuthInvariants:
         # Should match Basic auth format
         assert re.match(r"^Basic [A-Za-z0-9+/]+=*$", auth_header)
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text, safe_text, safe_text)
     def test_different_credentials_different_headers(
         self, user1: str, pass1: str, user2: str, pass2: str
@@ -316,6 +339,7 @@ class TestAuthInvariants:
 class TestAuthHeaderEncoding:
     """Test encoding properties of auth headers."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(
         st.text(
             alphabet=st.characters(
@@ -348,6 +372,7 @@ class TestAuthHeaderEncoding:
         assert username.encode("latin1") in decoded
         assert password.encode("latin1") in decoded
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_basic_auth_str_roundtrip(self, username: str, password: str) -> None:
         """Basic auth string should be decodable to recover credentials."""
@@ -365,30 +390,35 @@ class TestAuthHeaderEncoding:
 class TestAuthEquality:
     """Test equality and inequality operations for auth classes."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_basic_auth_equal_to_itself(self, username: str, password: str) -> None:
         """HTTPBasicAuth should be equal to itself."""
         auth = HTTPBasicAuth(username, password)
         assert auth == auth
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_proxy_auth_equal_to_itself(self, username: str, password: str) -> None:
         """HTTPProxyAuth should be equal to itself."""
         auth = HTTPProxyAuth(username, password)
         assert auth == auth
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_digest_auth_equal_to_itself(self, username: str, password: str) -> None:
         """HTTPDigestAuth should be equal to itself."""
         auth = HTTPDigestAuth(username, password)
         assert auth == auth
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_basic_auth_not_equal_to_none(self, username: str, password: str) -> None:
         """HTTPBasicAuth should not be equal to None."""
         auth = HTTPBasicAuth(username, password)
         assert auth != None  # noqa: E711
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_basic_auth_not_equal_to_other_type(
         self, username: str, password: str
@@ -399,6 +429,7 @@ class TestAuthEquality:
         assert auth != 123
         assert auth != {}
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_basic_auth_copy_is_equal(self, username: str, password: str) -> None:
         """A copy of HTTPBasicAuth should be equal to original."""
@@ -410,6 +441,7 @@ class TestAuthEquality:
 class TestDigestAuthSpecificProperties:
     """Test properties specific to HTTPDigestAuth."""
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_digest_auth_nonce_count_starts_at_zero(
         self, username: str, password: str
@@ -419,6 +451,7 @@ class TestDigestAuthSpecificProperties:
         auth.init_per_thread_state()
         assert auth._thread_local.nonce_count == 0
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_digest_auth_last_nonce_starts_empty(
         self, username: str, password: str
@@ -428,6 +461,7 @@ class TestDigestAuthSpecificProperties:
         auth.init_per_thread_state()
         assert auth._thread_local.last_nonce == ""
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_digest_auth_chal_starts_empty(self, username: str, password: str) -> None:
         """HTTPDigestAuth chal should start as empty dict."""
@@ -435,6 +469,7 @@ class TestDigestAuthSpecificProperties:
         auth.init_per_thread_state()
         assert auth._thread_local.chal == {}
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_digest_auth_pos_starts_none(self, username: str, password: str) -> None:
         """HTTPDigestAuth pos should start as None."""
@@ -442,6 +477,7 @@ class TestDigestAuthSpecificProperties:
         auth.init_per_thread_state()
         assert auth._thread_local.pos is None
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_digest_auth_num_401_calls_starts_none(
         self, username: str, password: str
@@ -451,6 +487,7 @@ class TestDigestAuthSpecificProperties:
         auth.init_per_thread_state()
         assert auth._thread_local.num_401_calls is None
 
+    @settings(max_examples=1000, deadline=None)
     @given(safe_text, safe_text)
     def test_digest_auth_multiple_init_idempotent(
         self, username: str, password: str
