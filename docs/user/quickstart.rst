@@ -47,6 +47,18 @@ OPTIONS? These are all just as simple::
     >>> r = requests.head('https://httpbin.org/get')
     >>> r = requests.options('https://httpbin.org/get')
 
+You can also specify **custom headers** while making a request, for example:
+
+.. code-block:: python
+
+    import requests
+
+    url = "https://httpbin.org/get"
+    headers = {"User-Agent": "MyApp/1.0"}
+    response = requests.get(url, headers=headers)
+    print(response.status_code)
+    print(response.json())
+
 That's all well and good, but it's also only the start of what Requests can
 do.
 
