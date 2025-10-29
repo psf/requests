@@ -966,6 +966,91 @@ class TestRequests:
             INVALID_PATH
         )
 
+    def test_verify_precedence_session_true_method_true(self, httpbin_secure):
+        """session.verify=True, method verify=True: should use env var and fail"""
+        INVALID_PATH = "/garbage"
+        with override_environ(requests_ca_bundle=INVALID_PATH):
+            session = requests.Session()
+            session.verify = True
+            with pytest.raises(IOError) as e:
+                session.get(httpbin_secure(), verify=True)
+            assert "Could not find a suitable TLS CA certificate bundle" in str(e.value)
+
+    def test_verify_precedence_session_true_method_none(self, httpbin_secure):
+        """session.verify=True, method verify=None: should use env var and fail"""
+        INVALID_PATH = "/garbage"
+        with override_environ(requests_ca_bundle=INVALID_PATH):
+            session = requests.Session()
+            session.verify = True
+            with pytest.raises(IOError) as e:
+                session.get(httpbin_secure())
+            assert "Could not find a suitable TLS CA certificate bundle" in str(e.value)
+
+    def test_verify_precedence_session_true_method_false(self, httpbin_secure):
+        """session.verify=True, method verify=False: method override, should succeed"""
+        INVALID_PATH = "/garbage"
+        with override_environ(requests_ca_bundle=INVALID_PATH):
+            session = requests.Session()
+            session.verify = True
+            # Should succeed - method parameter overrides session
+            session.get(httpbin_secure(), verify=False)
+
+    def test_verify_precedence_session_none_method_true(self, httpbin_secure):
+        """session.verify=None, method verify=True: should use env var and fail"""
+        INVALID_PATH = "/garbage"
+        with override_environ(requests_ca_bundle=INVALID_PATH):
+            session = requests.Session()
+            # session.verify defaults to None
+            with pytest.raises(IOError) as e:
+                session.get(httpbin_secure(), verify=True)
+            assert "Could not find a suitable TLS CA certificate bundle" in str(e.value)
+
+    def test_verify_precedence_session_none_method_none(self, httpbin_secure):
+        """session.verify=None, method verify=None: should use env var and fail"""
+        INVALID_PATH = "/garbage"
+        with override_environ(requests_ca_bundle=INVALID_PATH):
+            session = requests.Session()
+            # Both default to None
+            with pytest.raises(IOError) as e:
+                session.get(httpbin_secure())
+            assert "Could not find a suitable TLS CA certificate bundle" in str(e.value)
+
+    def test_verify_precedence_session_none_method_false(self, httpbin_secure):
+        """session.verify=None, method verify=False: method override, should succeed"""
+        INVALID_PATH = "/garbage"
+        with override_environ(requests_ca_bundle=INVALID_PATH):
+            session = requests.Session()
+            # Should succeed - method parameter overrides
+            session.get(httpbin_secure(), verify=False)
+
+    def test_verify_precedence_session_false_method_true(self, httpbin_secure):
+        """session.verify=False, method verify=True: method override, should use env var and fail"""
+        INVALID_PATH = "/garbage"
+        with override_environ(requests_ca_bundle=INVALID_PATH):
+            session = requests.Session()
+            session.verify = False
+            with pytest.raises(IOError) as e:
+                session.get(httpbin_secure(), verify=True)
+            assert "Could not find a suitable TLS CA certificate bundle" in str(e.value)
+
+    def test_verify_precedence_session_false_method_none(self, httpbin_secure):
+        """session.verify=False, method verify=None: session wins, should succeed (THIS IS THE BUG)"""
+        INVALID_PATH = "/garbage"
+        with override_environ(requests_ca_bundle=INVALID_PATH):
+            session = requests.Session()
+            session.verify = False
+            # Should succeed - session.verify=False should be respected
+            session.get(httpbin_secure())
+
+    def test_verify_precedence_session_false_method_false(self, httpbin_secure):
+        """session.verify=False, method verify=False: both false, should succeed"""
+        INVALID_PATH = "/garbage"
+        with override_environ(requests_ca_bundle=INVALID_PATH):
+            session = requests.Session()
+            session.verify = False
+            # Should succeed - both say False
+            session.get(httpbin_secure(), verify=False)
+
     def test_invalid_ssl_certificate_files(self, httpbin_secure):
         INVALID_PATH = "/garbage"
         with pytest.raises(IOError) as e:

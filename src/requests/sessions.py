@@ -763,7 +763,10 @@ class Session(SessionRedirectMixin):
 
             # Look for requests environment configuration
             # and be compatible with cURL.
-            if verify is True or verify is None:
+            # Determine the effective verify setting (method param > session)
+            # to respect proper precedence order before applying environment variables
+            effective_verify = verify if verify is not None else self.verify
+            if effective_verify is True or effective_verify is None:
                 verify = (
                     os.environ.get("REQUESTS_CA_BUNDLE")
                     or os.environ.get("CURL_CA_BUNDLE")
