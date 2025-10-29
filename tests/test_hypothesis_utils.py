@@ -180,13 +180,13 @@ class TestUnquoteHeaderValueProperties:
         assert unquote_header_value(value) == value
 
     @settings(max_examples=1000, deadline=None)
-    @given(st.text().filter(lambda x: x != '"'))
+    @given(st.text().filter(lambda x: x != '"' and '\\"' not in x))
     def test_unquote_quoted_removes_quotes(self, value: str) -> None:
         """Quoted values should have quotes removed."""
         quoted = f'"{value}"'
         result = unquote_header_value(quoted)
         # The function also processes escape sequences
-        # Edge case: single quote character would still have quotes after unquoting
+        # Filter out escaped quotes since they can produce quotes in the result
         assert not (result.startswith('"') and result.endswith('"'))
 
     @settings(max_examples=1000, deadline=None)

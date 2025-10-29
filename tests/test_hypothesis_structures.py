@@ -405,6 +405,8 @@ class TestLookupDictProperties:
         self, name: str, key: str, value: str, default: str
     ) -> None:
         """LookupDict.get() should work like dict.get()."""
+        # Filter out 'name' since it's an instance attribute
+        assume(key != "name")
         ld = LookupDict(name=name)
         # Missing key should return default
         assert ld.get(key, default) == default
@@ -427,7 +429,7 @@ class TestLookupDictProperties:
     @given(
         st.text(min_size=1, max_size=50),
         st.dictionaries(
-            st.text(min_size=1, max_size=20).filter(lambda x: not x.startswith("__")),
+            st.text(min_size=1, max_size=20).filter(lambda x: not x.startswith("__") and x not in ['name', 'get']),
             st.text(min_size=0, max_size=100),
             min_size=1,
             max_size=10,
@@ -438,7 +440,7 @@ class TestLookupDictProperties:
     ) -> None:
         """LookupDict should handle multiple attributes."""
         ld = LookupDict(name=name)
-        # Set multiple attributes (filter out dunder/special attributes)
+        # Set multiple attributes (filter out dunder/special attributes and method names)
         for key, value in attrs.items():
             setattr(ld, key, value)
         # Verify all are accessible
