@@ -23,7 +23,9 @@ class TestCaseInsensitiveDictProperties:
         """CaseInsensitiveDict should be creatable from dict."""
         cid = CaseInsensitiveDict(data)
         assert isinstance(cid, CaseInsensitiveDict)
-        assert len(cid) == len(data)
+        # Length should match unique case-insensitive keys
+        unique_keys = {k.lower() for k in data.keys()}
+        assert len(cid) == len(unique_keys)
 
     @settings(max_examples=1000, deadline=None)
     @given(
@@ -371,6 +373,8 @@ class TestLookupDictProperties:
         self, name: str, key: str, value: str
     ) -> None:
         """LookupDict should allow attribute-style access."""
+        # Filter out dunder attributes and 'name' to avoid restricted/reserved attributes
+        assume(not key.startswith("__") and key != "name")
         ld = LookupDict(name=name)
         # Set via attribute
         setattr(ld, key, value)
@@ -384,6 +388,8 @@ class TestLookupDictProperties:
         self, name: str, key: str
     ) -> None:
         """LookupDict should return None for missing keys."""
+        # Filter out 'name' since it's an instance attribute that will be returned
+        assume(key != "name")
         ld = LookupDict(name=name)
         result = ld[key]
         assert result is None
@@ -457,6 +463,8 @@ class TestLookupDictProperties:
         self, name: str, key: str, value: str
     ) -> None:
         """LookupDict should return None by default for missing keys."""
+        # Filter out dunder attributes and 'name' to avoid restricted/reserved attributes
+        assume(not key.startswith("__") and key != "name")
         ld = LookupDict(name=name)
         # Missing key
         assert ld.get(key) is None
