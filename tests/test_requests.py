@@ -1034,7 +1034,7 @@ class TestRequests:
             assert "Could not find a suitable TLS CA certificate bundle" in str(e.value)
 
     def test_verify_precedence_session_false_method_none(self, httpbin_secure):
-        """session.verify=False, method verify=None: session wins, should succeed (THIS IS THE BUG)"""
+        """session.verify=False, method verify=None: session wins, should succeed"""
         INVALID_PATH = "/garbage"
         with override_environ(requests_ca_bundle=INVALID_PATH):
             session = requests.Session()
