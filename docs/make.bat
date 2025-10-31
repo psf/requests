@@ -1,21 +1,40 @@
 @ECHO OFF
 
-REM Command file for Sphinx documentation
+REM ============================================================================
+REM Sphinx Documentation Build Script for Requests
+REM ============================================================================
+REM Purpose: Build Sphinx documentation in various formats (HTML, PDF, etc.)
+REM Author: Requests Documentation Team
+REM Date: 2025
+REM
+REM This script provides a Windows interface to Sphinx documentation builds.
+REM It supports multiple output formats and handles Sphinx installation checks.
+REM ============================================================================
 
+REM Define error code constants
+set "ERROR_COMMAND_NOT_FOUND=9009"
+
+REM Configure Sphinx build settings
 if "%SPHINXBUILD%" == "" (
-	set SPHINXBUILD=sphinx-build
+	set "SPHINXBUILD=sphinx-build"
 )
-set BUILDDIR=_build
-set ALLSPHINXOPTS=-d %BUILDDIR%/doctrees %SPHINXOPTS% .
-set I18NSPHINXOPTS=%SPHINXOPTS% .
+set "BUILDDIR=_build"
+set "ALLSPHINXOPTS=-d %BUILDDIR%/doctrees %SPHINXOPTS% ."
+set "I18NSPHINXOPTS=%SPHINXOPTS% ."
 if NOT "%PAPER%" == "" (
-	set ALLSPHINXOPTS=-D latex_paper_size=%PAPER% %ALLSPHINXOPTS%
-	set I18NSPHINXOPTS=-D latex_paper_size=%PAPER% %I18NSPHINXOPTS%
+	set "ALLSPHINXOPTS=-D latex_paper_size=%PAPER% %ALLSPHINXOPTS%"
+	set "I18NSPHINXOPTS=-D latex_paper_size=%PAPER% %I18NSPHINXOPTS%"
 )
 
 if "%1" == "" goto help
 
 if "%1" == "help" (
+	REM ========================================================================
+	REM Subroutine: help
+	REM Purpose: Display usage information and available build targets
+	REM Parameters: None
+	REM Returns: Displays help text and exits
+	REM ========================================================================
 	:help
 	echo.Please use `make ^<target^>` where ^<target^> is one of
 	echo.  html       to make standalone HTML files
@@ -43,21 +62,30 @@ if "%1" == "help" (
 
 if "%1" == "clean" (
 	for /d %%i in (%BUILDDIR%\*) do rmdir /q /s %%i
-	del /q /s %BUILDDIR%\*
+	del /q /s %BUILDDIR%\* 2>nul
+	if errorlevel 1 (
+		echo.Warning: Some files could not be deleted
+	)
 	goto end
 )
 
 
 REM Check if sphinx-build is available and fallback to Python version if any
 %SPHINXBUILD% 1>NUL 2>NUL
-if errorlevel 9009 goto sphinx_python
+if errorlevel %ERROR_COMMAND_NOT_FOUND% goto sphinx_python
 goto sphinx_ok
 
+REM ============================================================================
+REM Subroutine: sphinx_python
+REM Purpose: Fallback to Python module invocation if sphinx-build not found
+REM Parameters: None
+REM Returns: Sets SPHINXBUILD to Python module path or exits with error
+REM ============================================================================
 :sphinx_python
 
-set SPHINXBUILD=python -m sphinx.__init__
+set "SPHINXBUILD=python -m sphinx.__init__"
 %SPHINXBUILD% 2> nul
-if errorlevel 9009 (
+if errorlevel %ERROR_COMMAND_NOT_FOUND% (
 	echo.
 	echo.The 'sphinx-build' command was not found. Make sure you have Sphinx
 	echo.installed, then set the SPHINXBUILD environment variable to point
@@ -69,6 +97,12 @@ if errorlevel 9009 (
 	exit /b 1
 )
 
+REM ============================================================================
+REM Subroutine: sphinx_ok
+REM Purpose: Confirms Sphinx is available and proceeds with build operations
+REM Parameters: None
+REM Returns: Continues to build target handling
+REM ============================================================================
 :sphinx_ok
 
 
@@ -260,4 +294,11 @@ if "%1" == "pseudoxml" (
 	goto end
 )
 
+REM ============================================================================
+REM Subroutine: end
+REM Purpose: Exit point for all build operations
+REM Parameters: None
+REM Returns: Terminates script execution with success code
+REM ============================================================================
 :end
+exit /b 0
