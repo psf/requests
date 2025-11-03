@@ -4,8 +4,8 @@ REM ============================================================================
 REM Sphinx Documentation Build Script for Requests
 REM ============================================================================
 REM Purpose: Build Sphinx documentation in various formats (HTML, PDF, etc.)
-REM Author: Requests Documentation Team
-REM Date: 2025
+REM Author: ???
+REM Version: 1.0.1
 REM
 REM This script provides a Windows interface to Sphinx documentation builds.
 REM It supports multiple output formats and handles Sphinx installation checks.
