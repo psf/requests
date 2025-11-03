@@ -47,24 +47,13 @@ class MockRequest:
         return self.get_host()
 
     def get_full_url(self):
-        # Only return the response's URL if the user hadn't set the Host
-        # header
-        if not self._r.headers.get("Host"):
+        host = self._r.headers.get("Host")
+        if not host:
             return self._r.url
-        # If they did set it, retrieve it and reconstruct the expected domain
-        host = to_native_string(self._r.headers["Host"], encoding="utf-8")
         parsed = urlparse(self._r.url)
-        # Reconstruct the URL as we expect it
-        return urlunparse(
-            [
-                parsed.scheme,
-                host,
-                parsed.path,
-                parsed.params,
-                parsed.query,
-                parsed.fragment,
-            ]
-        )
+        parsed = parsed._replace(netloc=to_native_string(host, encoding="utf-8"))
+        return urlunparse(parsed)
+
 
     def is_unverifiable(self):
         return True
@@ -118,7 +107,7 @@ class MockResponse:
         return self._headers
 
     def getheaders(self, name):
-        self._headers.getheaders(name)
+        return self._headers.getheaders(name)
 
 
 def extract_cookies_to_jar(jar, request, response):
@@ -276,19 +265,11 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
 
     def list_domains(self):
         """Utility method to list all the domains in the jar."""
-        domains = []
-        for cookie in iter(self):
-            if cookie.domain not in domains:
-                domains.append(cookie.domain)
-        return domains
+        return list({cookie.domain for cookie in self})
 
     def list_paths(self):
         """Utility method to list all the paths in the jar."""
-        paths = []
-        for cookie in iter(self):
-            if cookie.path not in paths:
-                paths.append(cookie.path)
-        return paths
+        return list({cookie.path for cookie in self})
 
     def multiple_domains(self):
         """Returns True if there are multiple domains in the jar.
@@ -296,12 +277,8 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
 
         :rtype: bool
         """
-        domains = []
-        for cookie in iter(self):
-            if cookie.domain is not None and cookie.domain in domains:
-                return True
-            domains.append(cookie.domain)
-        return False  # there is only one domain in jar
+        domains = {cookie.domain for cookie in self if cookie.domain}
+        return len(domains) > 1
 
     def get_dict(self, domain=None, path=None):
         """Takes as an argument an optional domain and path and returns a plain
@@ -395,22 +372,17 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
             that match name and optionally domain and path
         :return: cookie.value
         """
-        toReturn = None
-        for cookie in iter(self):
-            if cookie.name == name:
-                if domain is None or cookie.domain == domain:
-                    if path is None or cookie.path == path:
-                        if toReturn is not None:
-                            # if there are multiple cookies that meet passed in criteria
-                            raise CookieConflictError(
-                                f"There are multiple cookies with name, {name!r}"
-                            )
-                        # we will eventually return this as long as no cookie conflict
-                        toReturn = cookie.value
-
-        if toReturn:
-            return toReturn
-        raise KeyError(f"name={name!r}, domain={domain!r}, path={path!r}")
+        matches = [
+            c.value for c in self
+            if c.name == name
+            and (domain is None or c.domain == domain)
+            and (path is None or c.path == path)
+        ]
+        if not matches:
+            raise KeyError(f"name={name!r}, domain={domain!r}, path={path!r}")
+        if len(matches) > 1:
+            raise CookieConflictError(f"Multiple cookies found with name {name!r}")
+        return matches[0]
 
     def __getstate__(self):
         """Unlike a normal CookieJar, this class is pickleable."""
@@ -452,7 +424,7 @@ def _copy_cookie_jar(jar):
     return new_jar
 
 
-def create_cookie(name, value, **kwargs):
+def create_cookie(name, value, **kwargs) -> cookielib.Cookie:
     """Make a cookie from underspecified parameters.
 
     By default, the pair of `name` and `value` will be set for the domain ''
@@ -547,15 +519,11 @@ def merge_cookies(cookiejar, cookies):
     :rtype: CookieJar
     """
     if not isinstance(cookiejar, cookielib.CookieJar):
-        raise ValueError("You can only merge into CookieJar")
+        raise TypeError("cookiejar must be a CookieJar")
 
     if isinstance(cookies, dict):
-        cookiejar = cookiejar_from_dict(cookies, cookiejar=cookiejar, overwrite=False)
+        cookiejar_from_dict(cookies, cookiejar=cookiejar, overwrite=False)
     elif isinstance(cookies, cookielib.CookieJar):
-        try:
-            cookiejar.update(cookies)
-        except AttributeError:
-            for cookie_in_jar in cookies:
-                cookiejar.set_cookie(cookie_in_jar)
-
+        for cookie in cookies:
+            cookiejar.set_cookie(copy.copy(cookie))
     return cookiejar
