@@ -6,7 +6,7 @@ from codecs import open
 from setuptools import setup
 
 CURRENT_PYTHON = sys.version_info[:2]
-REQUIRED_PYTHON = (3, 9)
+REQUIRED_PYTHON = (3, 10)
 
 if CURRENT_PYTHON < REQUIRED_PYTHON:
     sys.stderr.write(
@@ -69,7 +69,7 @@ setup(
     package_data={"": ["LICENSE", "NOTICE"]},
     package_dir={"": "src"},
     include_package_data=True,
-    python_requires=">=3.9",
+    python_requires=">=3.10",
     install_requires=requires,
     license=about["__license__"],
     zip_safe=False,
@@ -82,7 +82,6 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
