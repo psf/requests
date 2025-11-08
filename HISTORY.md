@@ -19,7 +19,6 @@ dev
 **Deprecations**
 - Added support for Python 3.14.
 - Dropped support for Python 3.8 following its end of support.
-- Dropped support for Python 3.9 following its end of support.
 
 2.32.4 (2025-06-10)
 -------------------
