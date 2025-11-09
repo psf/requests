@@ -1,0 +1,205 @@
+Metadata-Version: 2.1
+Name: brotlicffi
+Version: 1.1.0.0
+Summary: Python CFFI bindings to the Brotli library
+Home-page: https://github.com/python-hyper/brotlicffi
+Author: Cory Benfield
+Author-email: cory@lukasa.co.uk
+License: MIT
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.7
+License-File: LICENSE
+Requires-Dist: cffi >=1.0.0
+
+BrotliCFFI
+==========
+
+.. image:: https://img.shields.io/pypi/v/brotlicffi
+    :alt: Version
+    :target: https://pypi.org/project/brotlicffi
+
+.. image:: https://img.shields.io/conda/vn/conda-forge/brotlicffi
+    :alt: Version-Conda
+    :target: https://anaconda.org/conda-forge/brotlicffi
+
+.. image:: https://pepy.tech/badge/brotlicffi
+    :alt: Downloads
+    :target: https://pepy.tech/project/brotlicffi
+
+.. image:: https://img.shields.io/github/workflow/status/python-hyper/brotlicffi/CI/master
+    :alt: CI Status
+    :target: https://github.com/python-hyper/brotlicffi/actions
+
+This library contains Python CFFI bindings for the reference Brotli encoder/decoder,
+`available here`_. This allows Python software to use the Brotli compression
+algorithm directly from Python code.
+
+Install from PyPI:
+
+.. code-block::
+
+    $ python -m pip install brotlicffi
+
+Install from Conda:
+
+.. code-block::
+
+    $ conda install -c conda-forge brotlicffi
+
+To use it simply, try this:
+
+.. code-block:: python
+
+    import brotlicffi
+    data = brotlicffi.decompress(compressed_data)
+
+More information can be found `in the documentation`_.
+
+.. _available here: https://github.com/google/brotli
+.. _in the documentation: https://brotlipy.readthedocs.org
+
+Using BrotliCFFI in Projects
+----------------------------
+
+The API is 100% compatible with the `Brotli Python C bindings`_.
+We recommend installing the C bindings on CPython and the CFFI
+bindings everywhere else (PyPy, etc)
+
+Essentially you use requirements like this:
+
+ .. code-block:: python
+
+    install_requires=[
+        "brotli; platform_python_implementation == 'CPython'",
+        "brotlicffi; platform_python_implementation != 'CPython'"
+    ]
+
+and then import the correct Brotli library like so:
+
+ .. code-block:: python
+
+    try:
+        import brotlicffi as brotli
+    except ImportError:
+        import brotli
+
+We provide an `example project`_ that shows how to use both
+libraries together to support Brotli with multiple Python implementations.
+
+.. _Brotli Python C bindings: https://pypi.org/project/Brotli
+.. _example project: https://github.com/python-hyper/brotlipy/tree/master/example
+
+License
+-------
+
+The source code of BrotliCFFI is available under the MIT license. Brotli itself
+is made available under the Version 2.0 of the Apache Software License. See the
+LICENSE and libbrotli/LICENSE files for more information.
+
+Authors
+-------
+
+BrotliCFFI/brotlipy was authored by Cory Benfield and
+is currently maintained by Seth Michael Larson.
+
+
+Changelog
+=========
+
+1.1.0.0 (2023-09-14)
+--------------------
+
+- Upgraded libbrotli to v1.1.0
+- Added explicit support for Python 3.10, 3.11, and 3.12
+- Removed support for Python 2.7, 3.5, and 3.6
+
+
+1.0.9.2 (2021-04-06)
+--------------------
+
+- Added ``manylinux_aarch64`` wheels
+
+
+1.0.9.1 (2021-01-27)
+--------------------
+
+- Avoid byte/string comparison warning in error message construction
+
+
+1.0.9.0 (2021-01-20)
+--------------------
+
+- Updated to v1.0.9 of the Brotli library
+- Library version now follows Brotli version
+- Removed the ``dictionary`` parameter from ``compress`` and ``Compressor``
+- **NOTE:** Python 2.7 wheels for Windows likely won't work until
+  `google/brotli#848`_ is resolved
+
+.. _google/brotli#848: https://github.com/google/brotli/issues/848
+
+0.8.0 (2020-11-30)
+------------------
+
+- Renamed the package on PyPI to ``brotlicffi``, all further updates will be
+  published to the new package. Using the ``brotlipy`` is deprecated.
+- Changed the importable namespace from ``brotli`` to ``brotlicffi`` to no longer
+  conflict with the ``Brotli`` PyPI package.
+- Added ``process()`` method to ``Compressor`` and ``Decompressor``.
+- Added ``is_finished()`` method to ``Decompressor``.
+
+0.7.0 (2017-05-30)
+------------------
+
+- Update to v0.6.0 of the Brotli library.
+
+0.6.0 (2016-09-08)
+------------------
+
+- Resolved a bug where ``decompress()`` would return an empty bytestring
+  instead of erroring if the provided bytestring was small enough.
+- Added the ``finish()`` method to the streaming decompressor.
+
+0.5.1 (2016-08-17)
+------------------
+
+- Update to v0.5.2 of the Brotli library.
+- Add new exception type (``Error``).
+- Add compatibility with C++ brotli library by aliasing ``Error`` to ``error``.
+- Extra error checking of input parameters to the compressor.
+
+0.5.0 (2016-08-16)
+------------------
+
+- Update to v0.5.0 of the Brotli library.
+- Extend one-shot compression API to include all control parameters.
+- Added streaming/incremental compression API.
+- Added flags to control compression mode.
+
+0.4.0 (2016-08-01)
+------------------
+
+Update to v0.4.0 of the Brotli library.
+
+0.3.0 (2016-05-11)
+------------------
+
+Update to v0.3.0 of the Brotli library.
+
+0.2.0 (2015-10-05)
+------------------
+
+Fix broken ``brotli.compress`` support on Windows.
+
+0.1.3 (2015-10-05)
+------------------
+
+- Added basic for ``brotli.compress`` through a C wrapper included in this
+  library.

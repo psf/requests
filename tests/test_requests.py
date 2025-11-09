@@ -29,7 +29,12 @@ from requests.compat import (
     is_urllib3_1,
     urlparse,
 )
-from requests.cookies import cookiejar_from_dict, morsel_to_cookie
+from requests.cookies import (
+    RequestsCookieJar,
+    cookiejar_from_dict,
+    create_cookie,
+    morsel_to_cookie,
+)
 from requests.exceptions import (
     ChunkedEncodingError,
     ConnectionError,
@@ -2272,6 +2277,48 @@ class TestRequests:
         assert r.history[1].status_code == 200
         assert not r.history[1].is_redirect
         assert r.url == urls_test[2]
+
+    def test_cookie_escaped_quotes(self):
+        """Preserve escaped quotes (\") in cookie values wrapped with quotes."""
+        jar = RequestsCookieJar()
+        cookie = create_cookie(
+            name="test_cookie", value='"159\\"687"', domain="example.com"
+        )
+        jar.set_cookie(cookie)
+        retrieved = jar.get("test_cookie")
+        assert retrieved == '159"687'
+
+    def test_cookie_no_quotes(self):
+        """Preserve escaped quotes in unwrapped cookie values."""
+        jar = RequestsCookieJar()
+        cookie = create_cookie(
+            name="test_cookie", value='159\\"687', domain="example.com"
+        )
+        jar.set_cookie(cookie)
+        retrieved = jar.get("test_cookie")
+        assert retrieved == '159\\"687'
+
+    def test_cookie_no_escaped_quotes(self):
+        """Preserve cookie values that contain backslashes but no escaped quotes."""
+        jar = RequestsCookieJar()
+        cookie = create_cookie(
+            name="test_cookie", value="159\\687", domain="example.com"
+        )
+        jar.set_cookie(cookie)
+        retrieved = jar.get("test_cookie")
+        assert retrieved == "159\\687"
+
+    def test_cookie_json_fragment(self):
+        """Preserve JSON fragments inside cookie values with escaped quotes."""
+        jar = RequestsCookieJar()
+        cookie = create_cookie(
+            name="session_data",
+            value='"{\\"user\\": \\"x\\", \\"id\\": 42}"',
+            domain="example.com",
+        )
+        jar.set_cookie(cookie)
+        retrieved = jar.get("session_data")
+        assert retrieved == '{"user": "x", "id": 42}'
 
 
 class TestCaseInsensitiveDict:
