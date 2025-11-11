@@ -1852,6 +1852,18 @@ class TestRequests:
         p = r.prepare()
         assert "multipart/form-data" in p.headers["Content-Type"]
 
+    def test_can_override_session_content_type_with_multipart_request(self, httpbin):
+        s = requests.Session()
+        s.headers["Content-Type"] = "application/json"
+        data = {"a": "this is a string"}
+        files = {"b": "foo"}
+        headers = {"Content-Type": None}
+        r = requests.Request(
+            "POST", httpbin("post"), headers=headers, data=data, files=files
+        )
+        p = s.prepare_request(r)
+        assert "multipart/form-data" in p.headers["Content-Type"]
+
     def test_can_send_file_object_with_non_string_filename(self, httpbin):
         f = io.BytesIO()
         f.name = 2
