@@ -431,6 +431,18 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         # Support for unicode domain names and paths.
         try:
             scheme, auth, host, port, path, query, fragment = parse_url(url)
+
+            # Bug mitigation for RFC 6874: parse_url incorrectly decodes the zone ID delimiter (%25 -> %).
+            # We reconstruct the host with the correct, fully-encoded delimiter to prevent
+            # downstream errors (like the ipaddress validation or incorrect connection arguments).
+
+            if host and host.startswith('[') and host.endswith(']') and host.count('%') == 1:
+
+                # Extract the Zone ID, which is the part after the single %
+                host_ip_with_zone = host.strip('[]')
+                host_ip, zone_id = host_ip_with_zone.split('%', 1)
+                host = f'[{host_ip}%25{zone_id}]'
+        
         except LocationParseError as e:
             raise InvalidURL(*e.args)
 
