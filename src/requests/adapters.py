@@ -90,9 +90,11 @@ def _has_ipv6_zone_id(url: str) -> bool:
     """
     # Look for pattern: [<text>%<text>] indicating IPv6 with zone ID
     # The % can be URL-encoded as %25 or literal %
+    # Match brackets containing a % anywhere in the URL
+    # This handles both literal % and %25 encoding
     import re
 
-    return bool(re.search(r"\[[^\]]*%[^\]]*\]", url))
+    return bool(re.search(r"\[[^\]]*%(?:25)?[^\]]*\]", url))
 
 
 def _urllib3_request_context(
