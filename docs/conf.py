@@ -96,7 +96,14 @@ add_function_parentheses = False
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-add_module_names = True
+add_module_names = False
+autodoc_typehints = 'none'
+nitpick_ignore = [('py:class', 'PreparedRequest'),
+    ('py:class', 'Session'),
+    ('py:class', 'urllib3.ConnectionPool'),
+    ('py:class', 'Timeout'),
+    ('py:class', 'CookieJar'),
+]
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.

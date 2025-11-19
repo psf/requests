@@ -1,4 +1,4 @@
-exclude: 'docs/|ext/'
+exclude: 'docs/|ext/venv/|sphinx-env/'
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
