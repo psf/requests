@@ -32,6 +32,8 @@ class TestIPv6ZoneIDDetection:
             ("http://192.168.1.1:8080/", False),
             ("https://google.com/", False),
             ("http://localhost/", False),
+            ("http://example.com/foo%20bar", False),  # % in path, not zone ID
+            ("http://[::1]/path%20with%20percent", False),  # % in path, not in host
         ],
     )
     def test_has_ipv6_zone_id(self, url: str, has_zone_id: bool) -> None:
