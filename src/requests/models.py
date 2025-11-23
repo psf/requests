@@ -119,8 +119,15 @@ class RequestEncodingMixin:
         elif hasattr(data, "__iter__"):
             result = []
             for k, vs in to_key_val_list(data):
-                if isinstance(vs, basestring) or not hasattr(vs, "__iter__"):
+                if isinstance(vs, (str, bytes)) or not hasattr(vs, '__iter__'):
                     vs = [vs]
+                
+                # --- START FIX ---
+                # If vs is an empty list [], treat it as [''] so it yields one empty key
+                if not vs:
+                    vs = ['']
+                # --- END FIX ---
+
                 for v in vs:
                     if v is not None:
                         result.append(
