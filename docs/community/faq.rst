@@ -8,14 +8,26 @@ This part of the documentation answers common questions about Requests.
 Encoded Data?
 -------------
 
-Requests automatically decompresses gzip-encoded responses, and does
-its best to decode response content to unicode when possible.
+Requests automatically decompresses gzip-encoded responses when you access
+``Response.text`` or ``Response.content``::
+
+    >>> r = requests.get('https://httpbin.org/gzip')
+    >>> r.content  # Automatically decompressed
+    b'{"gzipped": true, ...}'
 
 When either the `brotli <https://pypi.org/project/Brotli/>`_ or `brotlicffi <https://pypi.org/project/brotlicffi/>`_
 package is installed, requests also decodes Brotli-encoded responses.
 
+However, when using ``stream=True`` and accessing ``Response.raw``, automatic
+decompression is **not** performed by default. If you need decompressed data
+when streaming, you must explicitly enable it::
+
+    >>> r = requests.get('https://httpbin.org/gzip', stream=True)
+    >>> r.raw.decode_content = True
+    >>> data = r.raw.read()  # Now decompressed
+
 You can get direct access to the raw response (and even the socket),
-if needed as well.
+if needed. See :ref:`body-content-workflow` for more details on streaming responses.
 
 
 Custom User-Agents?
