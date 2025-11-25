@@ -321,6 +321,34 @@ Alternatively, you can read the undecoded body from the underlying
 urllib3 :class:`urllib3.HTTPResponse <urllib3.response.HTTPResponse>` at
 :attr:`Response.raw <requests.Response.raw>`.
 
+.. note:: **Automatic decompression with streaming**
+
+   When using ``stream=True``, responses with ``Content-Encoding: gzip`` or ``deflate`` 
+   are **not** automatically decompressed when accessing ``Response.raw``. This differs 
+   from the normal behavior where ``Response.content`` and ``Response.text`` provide 
+   decompressed data automatically.
+   
+   To enable automatic decompression when reading from ``Response.raw``::
+
+       >>> r = requests.get('https://httpbin.org/gzip', stream=True)
+       >>> r.raw.decode_content = True  # Enable automatic decompression
+       >>> data = r.raw.read()  # Returns decompressed data
+
+   This is particularly important when passing ``Response.raw`` to parsers that expect
+   decompressed data::
+
+       >>> import json
+       >>> r = requests.get('https://api.example.com/data.json.gz', stream=True)
+       >>> r.raw.decode_content = True
+       >>> data = json.load(r.raw)  # Works correctly with decompressed stream
+
+       # Or with XML parsers:
+       >>> import lxml.etree
+       >>> r = requests.get('https://api.example.com/large.xml.gz', stream=True)
+       >>> r.raw.decode_content = True
+       >>> for event, elem in lxml.etree.iterparse(r.raw):
+       ...     process(elem)
+
 If you set ``stream`` to ``True`` when making a request, Requests cannot
 release the connection back to the pool unless you consume all the data or call
 :meth:`Response.close <requests.Response.close>`. This can lead to
