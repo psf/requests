@@ -658,6 +658,12 @@ class HTTPAdapter(BaseAdapter):
         except (ProtocolError, OSError) as err:
             raise ConnectionError(err, request=request)
 
+        except AssertionError as e:
+            raise InvalidURL(
+                f"Invalid URL {request.url!r}: URL may contain invalid characters",
+                request=request,
+            )
+
         except MaxRetryError as e:
             if isinstance(e.reason, ConnectTimeoutError):
                 # TODO: Remove this in 3.0.0: see #2811

@@ -2762,6 +2762,25 @@ class TestPreparingURLs:
         with pytest.raises(requests.exceptions.InvalidURL):
             r.prepare()
 
+    def test_malformed_url_with_proxy_raises_invalid_url(self):
+        """Malformed URL through proxy should raise InvalidURL, not AssertionError.
+
+        Regression test for GitHub issue #6828.
+        When a URL contains invalid characters in the hostname (like an encoded
+        non-breaking space) and is sent through a proxy, Python's http.client
+        raises AssertionError. Requests should catch this and raise InvalidURL.
+        """
+        # URL with encoded non-breaking space (%C2%A0) in hostname - this is invalid
+        malformed_url = "http://%C2%A0www.example.com/"
+
+        # Use a dummy proxy - we expect InvalidURL before connection is attempted
+        proxies = {"http": "http://127.0.0.1:9999"}
+
+        with pytest.raises(requests.exceptions.InvalidURL) as excinfo:
+            requests.get(malformed_url, proxies=proxies, timeout=0.1)
+
+        assert "Invalid URL" in str(excinfo.value)
+
     @pytest.mark.parametrize("url, exception", (("http://:1", InvalidURL),))
     def test_redirecting_to_bad_url(self, httpbin, url, exception):
         with pytest.raises(exception):
