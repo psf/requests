@@ -183,9 +183,13 @@ class HTTPDigestAuth(AuthBase):
         p_parsed = urlparse(url)
         #: path is request-uri defined in RFC 2616 which should not be empty
         path = p_parsed.path or "/"
+
+        # Normalize path by removing excess leading slashes (same as adapters.py)
+        if path.startswith("//"):
+            path = f"/{path.lstrip('/')}"
+
         if p_parsed.query:
             path += f"?{p_parsed.query}"
-
         A1 = f"{self.username}:{realm}:{self.password}"
         A2 = f"{method}:{path}"
 
