@@ -805,6 +805,30 @@ class TestRequests:
             r = requests.get(url, auth=auth)
             assert '"auth"' in r.request.headers["Authorization"]
 
+    def test_DIGEST_AUTH_NORMALIZES_DOUBLE_SLASH_PATH(self):
+        """Digest auth URI should normalize double slashes to match request path.
+        
+        Regression test for GitHub issue #6784.
+        """
+        auth = HTTPDigestAuth("user", "pass")
+        auth.init_per_thread_state()
+        
+        # Simulate server challenge
+        auth._thread_local.chal = {
+            "realm": "test",
+            "nonce": "abc123",
+            "qop": "auth",
+            "algorithm": "MD5"
+        }
+        
+        # URL with double slash in path
+        url = "http://example.com//path/to/resource"
+        header = auth.build_digest_header("GET", url)
+        
+        # The URI should be normalized to single slash
+        assert 'uri="/path/to/resource"' in header
+        assert 'uri="//path/to/resource"' not in header
+
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
         url = httpbin("post")
         requests.post(url).raise_for_status()
