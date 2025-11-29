@@ -25,7 +25,7 @@ Requests is one of the most downloaded Python packages today, pulling in around 
 [![Supported Versions](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests)
 [![Contributors](https://img.shields.io/github/contributors/psf/requests.svg)](https://github.com/psf/requests/graphs/contributors)
 
-## Installing Requests and Supported Versions
+## Installing Requests and Supported Python Versions
 
 Requests is available on PyPI:
 
@@ -33,7 +33,7 @@ Requests is available on PyPI:
 $ python -m pip install requests
 ```
 
-Requests officially supports Python 3.9+.
+Requests officially supports Python 3.9+ (currently tested up to Python 3.12).
 
 ## Supported Features & Best–Practices
 
