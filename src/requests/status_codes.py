@@ -105,6 +105,69 @@ _codes = {
 
 codes = LookupDict(name="status_codes")
 
+STATUS_TEXT = {
+    code: titles[0].replace("_", " ").title()
+    for code, titles in _codes.items()
+}
+
+def get_status_text(code):
+    """Human-readable text for status code."""
+    return STATUS_TEXT.get(code, "Unknown Status Code")
+
+
+
+def is_success(code):
+    """Returns True if the HTTP status code is a success code (2xx)."""
+    return 200 <= code < 300
+
+def status_category(code):
+    """Returns the category of the HTTP status code."""
+    if 100 <= code < 200:
+        return "Informational"
+    elif 200 <= code < 300:
+        return "Successful"
+    elif 300 <= code < 400:
+        return "Redirection"
+    elif 400 <= code < 500:
+        return "Client Error"
+    elif 500 <= code < 600:
+        return "Server Error"
+    else:
+        return "Unknown Status Code"
+
+def is_error(code):
+    """Check if 4xx or 5xx error."""
+    return 400 <= code < 600
+
+def is_client_error(code):
+    """Check if 4xx error."""
+    return 400 <= code < 500
+
+def is_server_error(code):
+    """Check if 5xx error."""
+    return 500 <= code < 600
+
+def is_redirect(code):
+    """Check if 3xx redirect."""
+    return 300 <= code < 400
+
+def is_informational(code):
+    """Check if 1xx informational."""
+    return 100 <= code < 200
+
+def needs_authentication(code):
+    """Check if auth needed (401 or 407)."""
+    return code in (401, 407)
+
+def can_retry(code):
+    """Check if request should be retried."""
+    return code in {408, 429, 500, 502, 503, 504}
+
+def is_cacheable(code):
+    """Check if response can be cached."""
+    return code in {200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501}
+
+
 
 def _init():
     for code, titles in _codes.items():
