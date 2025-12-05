@@ -5,3 +5,5 @@ pytest-httpbin==2.1.0
 httpbin~=0.10.0
 trustme
 wheel
+brotlicffi>=1.2.0.0 # not directly required, pinned by Snyk to avoid a vulnerability
+werkzeug>=3.1.4 # not directly required, pinned by Snyk to avoid a vulnerability
