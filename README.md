@@ -33,7 +33,7 @@ Requests is available on PyPI:
 $ python -m pip install requests
 ```
 
-Requests officially supports Python 3.8+.
+Requests officially supports Python 3.9+.
 
 ## Supported Features & Best–Practices
 
