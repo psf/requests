@@ -28,6 +28,8 @@ from urllib3.util import Timeout as TimeoutSauce
 from urllib3.util import parse_url
 from urllib3.util.retry import Retry
 
+from http.cookiejar import LWPCookieJar
+
 from .auth import _basic_auth_str
 from .compat import basestring, urlparse
 from .cookies import extract_cookies_to_jar
@@ -363,6 +365,10 @@ class HTTPAdapter(BaseAdapter):
 
         # Add new cookies from the server.
         extract_cookies_to_jar(response.cookies, req, resp)
+
+        # Expose LWPCookieJar
+        response.lwpcookies = LWPCookieJar()
+        extract_cookies_to_jar(response.lwpcookies, req, resp)
 
         # Give the Response some context.
         response.request = req
