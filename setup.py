@@ -36,7 +36,7 @@ if sys.argv[-1] == "publish":
 requires = [
     "charset_normalizer>=2,<4",
     "idna>=2.5,<4",
-    "urllib3>=1.21.1,<3",
+    "urllib3>=2.6.0,<3",
     "certifi>=2017.4.17",
 ]
 test_requirements = [

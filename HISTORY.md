@@ -6,6 +6,13 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.32.6 (2025-12-08)
+-------------------
+
+**Security**
+- CVE-2025-66418 Updated urllib3 dependency to >=2.6.0 to address security vulnerabilities
+  fixed in the December 5th, 2025 urllib3 release.
+
 2.32.5 (2025-08-18)
 -------------------
 
