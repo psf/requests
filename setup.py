@@ -99,6 +99,7 @@ setup(
         "security": [],
         "socks": ["PySocks>=1.5.6, !=1.5.7"],
         "use_chardet_on_py3": ["chardet>=3.0.2,<6"],
+        "simplejson": ["simplejson"], 
     },
     project_urls={
         "Documentation": "https://requests.readthedocs.io",
