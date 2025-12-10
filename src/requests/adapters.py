@@ -10,6 +10,7 @@ import os.path
 import socket  # noqa: F401
 import typing
 import warnings
+from builtins import TimeoutError
 
 from urllib3.exceptions import ClosedPoolError, ConnectTimeoutError
 from urllib3.exceptions import HTTPError as _HTTPError
@@ -674,7 +675,46 @@ class HTTPAdapter(BaseAdapter):
                 # This branch is for urllib3 v1.22 and later.
                 raise SSLError(e, request=request)
 
-            raise ConnectionError(e, request=request)
+            # --- ENHANCED ERROR MESSAGING START ---
+            msg = f"{e}"  # Fallback to existing default message
+
+            if isinstance(e.reason, NewConnectionError):
+                # Safely get the root cause: either .original_error or .__cause__
+                root_cause = getattr(e.reason, 'original_error', None) or e.reason.__cause__
+
+                if root_cause:
+                    # 1. DNS Failure
+                    if isinstance(root_cause, socket.gaierror):
+                        msg = (
+                            f"Name resolution failed for {request.url}. "
+                            "Please check the URL and your DNS settings."
+                        )
+                    
+                    # 2. Connection Refused
+                    elif isinstance(root_cause, ConnectionRefusedError):
+                        msg = (
+                            f"Connection refused by {request.url}. "
+                            "The server might be down or not accepting connections."
+                        )
+                    
+                    # 3. Connection Timed Out (Combined check)
+                    elif isinstance(root_cause, (socket.timeout, TimeoutError)):
+                        msg = (
+                            f"Connection timed out accessing {request.url}. "
+                            "Please check your network connection and firewall settings."
+                        )
+                    
+                    # 4. Network Unreachable (Matches the specific issue report)
+                    # errno 101 is ENETUNREACH (Linux/Unix), 10051 is WSAENETUNREACH (Windows)
+                    elif isinstance(root_cause, OSError) and getattr(root_cause, "errno", None) in {101, 10051}:
+                        msg = (
+                            f"Network unreachable while connecting to {request.url}. "
+                            "Please check your network connection or VPN settings."
+                        )
+
+            # Raise ConnectionError with new message, preserving the traceback
+            raise ConnectionError(msg, request=request) from e
+            # --- ENHANCED ERROR MESSAGING END ---
 
         except ClosedPoolError as e:
             raise ConnectionError(e, request=request)
