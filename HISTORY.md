@@ -16,7 +16,7 @@ dev
   of use cases. The Requests team has decided to revert this feature as long term
   maintenance of it is proving to be unsustainable in its current iteration.
 
-**Deprecations**
+**Support changes**
 - Added support for Python 3.14.
 - Dropped support for Python 3.8 following its end of support.
 
@@ -31,7 +31,7 @@ dev
 **Improvements**
 - Numerous documentation improvements
 
-**Deprecations**
+**Support changes**
 - Added support for pypy 3.11 for Linux and macOS.
 - Dropped support for pypy 3.9 following its end of support.
 
@@ -105,7 +105,7 @@ dev
 
 **Packaging**
 - Requests has started adopting some modern packaging practices.
-  The source files for the projects (formerly `requests`) is now located
+  The source files for the project (formerly `requests`) are now located
   in `src/requests` in the Requests sdist. (#6506)
 - Starting in Requests 2.33.0, Requests will migrate to a PEP 517 build system
   using `hatchling`. This should not impact the average user, but extremely old
