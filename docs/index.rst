@@ -45,42 +45,38 @@ Release v\ |version|. (:ref:`Installation <install>`)
 
 See `similar code, sans Requests <https://gist.github.com/973705>`_.
 
-
-**Requests** allows you to send HTTP/1.1 requests extremely easily. 
-There's no need to manually add query strings to your
-URLs, or to form-encode your POST data. Keep-alive and HTTP connection pooling
-are 100% automatic, thanks to `urllib3 <https://github.com/urllib3/urllib3>`_.
+**Requests** allows you to send HTTP/1.1 requests very easily and efficiently, 
+without manually adding query strings to your URLs or form-encoding your POST data. 
+Keep-alive and HTTP connection pooling are 100% automatic, thanks to `urllib3 <https://github.com/urllib3/urllib3>`_.
 
 Beloved Features
 ----------------
 
-Requests is ready for today's web.
+Requests is a modern HTTP library, fully ready for today's web.
 
-- Keep-Alive & Connection Pooling
-- International Domains and URLs
-- Sessions with Cookie Persistence
-- Browser-style SSL Verification
-- Automatic Content Decoding
-- Basic/Digest Authentication
-- Elegant Key/Value Cookies
-- Automatic Decompression
-- Unicode Response Bodies
-- HTTP(S) Proxy Support
-- Multipart File Uploads
-- Streaming Downloads
-- Connection Timeouts
-- Chunked Requests
-- ``.netrc`` Support
+- Keep-Alive & Connection Pooling.
+- International Domains and URLs.
+- Sessions with Cookie Persistence.
+- Browser-style SSL Verification.
+- Automatic Content Decoding.
+- Basic/Digest Authentication.
+- Elegant Key/Value Cookies.
+- Automatic Decompression.
+- Unicode Response Bodies.
+- HTTP(S) Proxy Support.
+- Multipart File Uploads.
+- Streaming Downloads.
+- Connection Timeouts.
+- Chunked Requests.
+- ``.netrc`` Support.
 
 Requests officially supports Python 3.9+, and runs great on PyPy.
-
 
 The User Guide
 --------------
 
-This part of the documentation, which is mostly prose, begins with some
-background information about Requests, then focuses on step-by-step
-instructions for getting the most out of Requests.
+This section, mostly prose, starts with background information about Requests 
+and then provides step-by-step instructions to help you get the most out of it.
 
 .. toctree::
    :maxdepth: 2
@@ -90,12 +86,10 @@ instructions for getting the most out of Requests.
    user/advanced
    user/authentication
 
-
 The Community Guide
 -------------------
 
-This part of the documentation, which is mostly prose, details the
-Requests ecosystem and community.
+This section, mostly prose, explains the Requests ecosystem and its community.
 
 .. toctree::
    :maxdepth: 2
@@ -122,7 +116,6 @@ this part of the documentation is for you.
    :maxdepth: 2
 
    api
-
 
 The Contributor Guide
 ---------------------
