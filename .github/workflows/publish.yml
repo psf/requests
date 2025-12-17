@@ -1,0 +1,93 @@
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: "Build dists"
+    runs-on: "ubuntu-latest"
+    environment:
+      name: "publish"
+    outputs:
+      hashes: ${{ steps.hash.outputs.hashes }}
+      artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          egress-policy: audit
+
+      - name: "Checkout repository"
+        uses: "actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8"
+        with:
+          persist-credentials: false
+
+      - name: "Setup Python"
+        uses: "actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c"
+        with:
+          python-version: "3.x"
+
+      - name: "Install dependencies"
+        run: python -m pip install build==0.8.0
+
+      - name: "Build dists"
+        run: |
+          SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) \
+          python -m build
+
+      - name: "Generate hashes"
+        id: hash
+        run: |
+          cd dist && echo "::set-output name=hashes::$(sha256sum * | base64 -w0)"
+
+      - name: "Upload dists"
+        uses: "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+        id: upload-artifact
+        with:
+          name: "dist"
+          path: "dist/"
+          if-no-files-found: error
+          retention-days: 5
+
+  provenance:
+    needs: [build]
+    permissions:
+      actions: read
+      contents: write
+      id-token: write # Needed to access the workflow's OIDC identity.
+    uses: "slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0"
+    with:
+      base64-subjects: "${{ needs.build.outputs.hashes }}"
+      upload-assets: true
+      compile-generator: true # Workaround for https://github.com/slsa-framework/slsa-github-generator/issues/1163
+
+  publish:
+    name: "Publish"
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: ["build", "provenance"]
+    permissions:
+      contents: write
+      id-token: write
+    runs-on: "ubuntu-latest"
+
+    steps:
+    - name: Harden the runner (Audit all outbound calls)
+      uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+      with:
+        egress-policy: audit
+
+    - name: "Download dists"
+      uses: "actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0" # v5.0.0
+      with:
+        artifact-ids: ${{ needs.build.outputs.artifact-id }}
+        path: "dist/"
+
+    - name: "Publish dists to PyPI"
+      uses: "pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e"

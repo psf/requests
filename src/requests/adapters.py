@@ -27,7 +27,6 @@ from urllib3.poolmanager import PoolManager, proxy_from_url
 from urllib3.util import Timeout as TimeoutSauce
 from urllib3.util import parse_url
 from urllib3.util.retry import Retry
-from urllib3.util.ssl_ import create_urllib3_context
 
 from .auth import _basic_auth_str
 from .compat import basestring, urlparse
@@ -74,19 +73,6 @@ DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
 
 
-try:
-    import ssl  # noqa: F401
-
-    _preloaded_ssl_context = create_urllib3_context()
-    _preloaded_ssl_context.load_verify_locations(
-        extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH)
-    )
-except ImportError:
-    # Bypass default SSLContext creation when Python
-    # interpreter isn't built with the ssl module.
-    _preloaded_ssl_context = None
-
-
 def _urllib3_request_context(
     request: "PreparedRequest",
     verify: "bool | str | None",
@@ -99,19 +85,9 @@ def _urllib3_request_context(
     scheme = parsed_request_url.scheme.lower()
     port = parsed_request_url.port
 
-    # Determine if we have and should use our default SSLContext
-    # to optimize performance on standard requests.
-    poolmanager_kwargs = getattr(poolmanager, "connection_pool_kw", {})
-    has_poolmanager_ssl_context = poolmanager_kwargs.get("ssl_context")
-    should_use_default_ssl_context = (
-        _preloaded_ssl_context is not None and not has_poolmanager_ssl_context
-    )
-
     cert_reqs = "CERT_REQUIRED"
     if verify is False:
         cert_reqs = "CERT_NONE"
-    elif verify is True and should_use_default_ssl_context:
-        pool_kwargs["ssl_context"] = _preloaded_ssl_context
     elif isinstance(verify, str):
         if not os.path.isdir(verify):
             pool_kwargs["ca_certs"] = verify
@@ -314,26 +290,27 @@ class HTTPAdapter(BaseAdapter):
         :param cert: The SSL certificate to verify.
         """
         if url.lower().startswith("https") and verify:
-            conn.cert_reqs = "CERT_REQUIRED"
+            cert_loc = None
 
-            # Only load the CA certificates if 'verify' is a string indicating the CA bundle to use.
-            # Otherwise, if verify is a boolean, we don't load anything since
-            # the connection will be using a context with the default certificates already loaded,
-            # and this avoids a call to the slow load_verify_locations()
+            # Allow self-specified cert location.
             if verify is not True:
-                # `verify` must be a str with a path then
                 cert_loc = verify
 
-                if not os.path.exists(cert_loc):
-                    raise OSError(
-                        f"Could not find a suitable TLS CA certificate bundle, "
-                        f"invalid path: {cert_loc}"
-                    )
+            if not cert_loc:
+                cert_loc = extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH)
 
-                if not os.path.isdir(cert_loc):
-                    conn.ca_certs = cert_loc
-                else:
-                    conn.ca_cert_dir = cert_loc
+            if not cert_loc or not os.path.exists(cert_loc):
+                raise OSError(
+                    f"Could not find a suitable TLS CA certificate bundle, "
+                    f"invalid path: {cert_loc}"
+                )
+
+            conn.cert_reqs = "CERT_REQUIRED"
+
+            if not os.path.isdir(cert_loc):
+                conn.ca_certs = cert_loc
+            else:
+                conn.ca_cert_dir = cert_loc
         else:
             conn.cert_reqs = "CERT_NONE"
             conn.ca_certs = None
@@ -410,7 +387,7 @@ class HTTPAdapter(BaseAdapter):
           ``"cert_reqs"`` will be set
         * If ``verify`` is a string, (i.e., it is a user-specified trust bundle)
           ``"ca_certs"`` will be set if the string is not a directory recognized
-          by :py:func:`os.path.isdir`, otherwise ``"ca_certs_dir"`` will be
+          by :py:func:`os.path.isdir`, otherwise ``"ca_cert_dir"`` will be
           set.
         * If ``"cert"`` is specified, ``"cert_file"`` will always be set. If
           ``"cert"`` is a tuple with a second item, ``"key_file"`` will also

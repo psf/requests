@@ -6,6 +6,31 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.32.5 (2025-08-18)
+-------------------
+
+**Bugfixes**
+
+- The SSLContext caching feature originally introduced in 2.32.0 has created
+  a new class of issues in Requests that have had negative impact across a number
+  of use cases. The Requests team has decided to revert this feature as long term
+  maintenance of it is proving to be unsustainable in its current iteration.
+
+**Deprecations**
+- Added support for Python 3.14.
+- Dropped support for Python 3.8 following its end of support.
+
+2.32.4 (2025-06-10)
+-------------------
+
+**Security**
+- CVE-2024-47081 Fixed an issue where a maliciously crafted URL and trusted
+  environment will retrieve credentials for the wrong hostname/machine from a
+  netrc file.
+
+**Improvements**
+- Numerous documentation improvements
+
 **Deprecations**
 - Added support for pypy 3.11 for Linux and macOS.
 - Dropped support for pypy 3.9 following its end of support.

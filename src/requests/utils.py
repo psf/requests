@@ -219,14 +219,7 @@ def get_netrc_auth(url, raise_errors=False):
         netrc_path = None
 
         for f in netrc_locations:
-            try:
-                loc = os.path.expanduser(f)
-            except KeyError:
-                # os.path.expanduser can fail when $HOME is undefined and
-                # getpwuid fails. See https://bugs.python.org/issue20164 &
-                # https://github.com/psf/requests/issues/1846
-                return
-
+            loc = os.path.expanduser(f)
             if os.path.exists(loc):
                 netrc_path = loc
                 break
@@ -236,13 +229,7 @@ def get_netrc_auth(url, raise_errors=False):
             return
 
         ri = urlparse(url)
-
-        # Strip port numbers from netloc. This weird `if...encode`` dance is
-        # used for Python 3.2, which doesn't support unicode literals.
-        splitstr = b":"
-        if isinstance(url, str):
-            splitstr = splitstr.decode("ascii")
-        host = ri.netloc.split(splitstr)[0]
+        host = ri.hostname
 
         try:
             _netrc = netrc(netrc_path).authenticators(host)

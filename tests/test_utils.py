@@ -23,6 +23,7 @@ from requests.utils import (
     get_encoding_from_headers,
     get_encodings_from_content,
     get_environ_proxies,
+    get_netrc_auth,
     guess_filename,
     guess_json_utf,
     is_ipv4_address,
@@ -150,6 +151,24 @@ class TestSuperLen:
     def test_super_len_with_no_matches(self):
         """Ensure that objects without any length methods default to 0"""
         assert super_len(object()) == 0
+
+
+class TestGetNetrcAuth:
+    def test_works(self, tmp_path, monkeypatch):
+        netrc_path = tmp_path / ".netrc"
+        monkeypatch.setenv("NETRC", str(netrc_path))
+        with open(netrc_path, "w") as f:
+            f.write("machine example.com login aaaa password bbbb\n")
+        auth = get_netrc_auth("http://example.com/thing")
+        assert auth == ("aaaa", "bbbb")
+
+    def test_not_vulnerable_to_bad_url_parsing(self, tmp_path, monkeypatch):
+        netrc_path = tmp_path / ".netrc"
+        monkeypatch.setenv("NETRC", str(netrc_path))
+        with open(netrc_path, "w") as f:
+            f.write("machine example.com login aaaa password bbbb\n")
+        auth = get_netrc_auth("http://example.com:@evil.com/&apos;")
+        assert auth is None
 
 
 class TestToKeyValList:

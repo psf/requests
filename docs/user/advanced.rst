@@ -969,11 +969,9 @@ Requests will automatically parse these link headers and make them easily consum
 Transport Adapters
 ------------------
 
-As of v1.0.0, Requests has moved to a modular internal design. Part of the
-reason this was done was to implement Transport Adapters, originally
-`described here`_. Transport Adapters provide a mechanism to define interaction
-methods for an HTTP service. In particular, they allow you to apply per-service
-configuration.
+As of v1.0.0, Requests has moved to a modular internal design using Transport
+Adapters. These objects provide a mechanism to define interaction methods for an
+HTTP service. In particular, they allow you to apply per-service configuration.
 
 Requests ships with a single Transport Adapter, the :class:`HTTPAdapter
 <requests.adapters.HTTPAdapter>`. This adapter provides the default Requests
@@ -1053,7 +1051,6 @@ backoff, within a Requests :class:`Session <requests.Session>` using the
     )
     s.mount('https://', HTTPAdapter(max_retries=retries))
 
-.. _`described here`: https://kenreitz.org/essays/2012/06/14/the-future-of-python-http
 .. _`urllib3`: https://github.com/urllib3/urllib3
 .. _`urllib3.util.Retry`: https://urllib3.readthedocs.io/en/stable/reference/urllib3.util.html#urllib3.util.Retry
 
