@@ -443,6 +443,12 @@ class Session(SessionRedirectMixin):
         #: may be any other ``cookielib.CookieJar`` compatible object.
         self.cookies = cookiejar_from_dict({})
 
+    @property
+    def ai(self):
+        """AI capabilities for this session."""
+        from .ai import AIProxy
+        return AIProxy(self)
+
         # Default connection adapters.
         self.adapters = OrderedDict()
         self.mount("https://", HTTPAdapter())

@@ -702,6 +702,12 @@ class Response:
         #: is a response.
         self.request = None
 
+    @property
+    def ai(self):
+        """AI capabilities for this response."""
+        from .ai import AIProxy
+        return AIProxy(self)
+
     def __enter__(self):
         return self
 

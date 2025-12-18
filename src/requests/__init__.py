@@ -149,6 +149,8 @@ import logging
 from logging import NullHandler
 
 from . import packages, utils
+from . import ai
+from .ai import configure as ai_configure
 from .__version__ import (
     __author__,
     __author_email__,
