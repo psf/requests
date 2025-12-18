@@ -40,7 +40,7 @@ class AIProxy:
     def _get_model(self):
         genai = _check_genai()
         if self._model is None:
-            self._model = genai.GenerativeModel('gemini-1.5-flash')
+            self._model = genai.GenerativeModel('gemini-flash-latest')
         return self._model
 
     def extract(self, prompt, schema=None):
