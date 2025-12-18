@@ -1406,6 +1406,40 @@ class TestRequests:
         jar.set_policy(MyCookiePolicy())
         assert isinstance(jar.copy().get_policy(), MyCookiePolicy)
 
+    def test_cookie_jar_list_domains(self):
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("a", "1", domain="foo.com")
+        jar.set("b", "2", domain="bar.com")
+        jar.set("c", "3", domain="foo.com")
+        domains = jar.list_domains()
+        assert set(domains) == {"foo.com", "bar.com"}
+
+    def test_cookie_jar_list_paths(self):
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("a", "1", path="/api")
+        jar.set("b", "2", path="/web")
+        jar.set("c", "3", path="/api")
+        paths = jar.list_paths()
+        assert set(paths) == {"/api", "/web"}
+
+    def test_cookie_jar_multiple_domains(self):
+        jar1 = requests.cookies.RequestsCookieJar()
+        jar1.set("a", "1", domain="foo.com")
+        jar1.set("b", "2", domain="bar.com")
+        assert jar1.multiple_domains() is False
+
+        jar2 = requests.cookies.RequestsCookieJar()
+        jar2.set("a", "1", domain="foo.com")
+        jar2.set("b", "2", domain="foo.com")
+        assert jar2.multiple_domains() is True
+
+    def test_cookiejar_from_dict_no_overwrite(self):
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("existing", "old")
+        cookiejar_from_dict({"existing": "new", "added": "val"}, jar, overwrite=False)
+        assert jar["existing"] == "old"
+        assert jar["added"] == "val"
+
     def test_time_elapsed_blank(self, httpbin):
         r = requests.get(httpbin("get"))
         td = r.elapsed

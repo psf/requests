@@ -276,19 +276,11 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
 
     def list_domains(self):
         """Utility method to list all the domains in the jar."""
-        domains = []
-        for cookie in iter(self):
-            if cookie.domain not in domains:
-                domains.append(cookie.domain)
-        return domains
+        return list({cookie.domain for cookie in self})
 
     def list_paths(self):
         """Utility method to list all the paths in the jar."""
-        paths = []
-        for cookie in iter(self):
-            if cookie.path not in paths:
-                paths.append(cookie.path)
-        return paths
+        return list({cookie.path for cookie in self})
 
     def multiple_domains(self):
         """Returns True if there are multiple domains in the jar.
@@ -296,12 +288,13 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
 
         :rtype: bool
         """
-        domains = []
-        for cookie in iter(self):
-            if cookie.domain is not None and cookie.domain in domains:
-                return True
-            domains.append(cookie.domain)
-        return False  # there is only one domain in jar
+        domains = set()
+        for cookie in self:
+            if cookie.domain is not None:
+                if cookie.domain in domains:
+                    return True
+                domains.add(cookie.domain)
+        return False
 
     def get_dict(self, domain=None, path=None):
         """Takes as an argument an optional domain and path and returns a plain
@@ -531,7 +524,7 @@ def cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True):
         cookiejar = RequestsCookieJar()
 
     if cookie_dict is not None:
-        names_from_jar = [cookie.name for cookie in cookiejar]
+        names_from_jar = {cookie.name for cookie in cookiejar}
         for name in cookie_dict:
             if overwrite or (name not in names_from_jar):
                 cookiejar.set_cookie(create_cookie(name, cookie_dict[name]))
