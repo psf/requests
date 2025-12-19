@@ -359,6 +359,26 @@ class TestExtractZippedPaths:
         path = r"\\localhost\invalid\location"
         assert extract_zipped_paths(path) == path
 
+    def test_zipfile_closed_on_member_not_found(self, tmpdir):
+        """Ensure ZipFile is properly closed when member is not found."""
+        zipped_py = tmpdir.join("test.zip")
+        with zipfile.ZipFile(zipped_py.strpath, "w") as f:
+            f.writestr("existing_file.txt", "content")
+
+        nonexistent_path = os.path.join(zipped_py.strpath, "nonexistent_member.txt")
+
+        close_called = []
+        original_close = zipfile.ZipFile.close
+
+        def tracking_close(self):
+            close_called.append(True)
+            return original_close(self)
+
+        with mock.patch.object(zipfile.ZipFile, "close", tracking_close):
+            result = extract_zipped_paths(nonexistent_path)
+            assert result == nonexistent_path
+            assert close_called, "ZipFile.close() was not called"
+
 
 class TestContentEncodingDetection:
     def test_none(self):
