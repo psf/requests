@@ -1299,6 +1299,14 @@ class TestRequests:
         assert len(d2) == 2
         assert len(d3) == 2
 
+    def test_cookie_empty_value(self):
+        """Empty string cookie values should be retrievable."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("empty", "")
+
+        assert jar["empty"] == ""
+        assert jar.get("empty") == ""
+
     def test_cookie_as_dict_keeps_items(self):
         key = "some_cookie"
         value = "some_value"
