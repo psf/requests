@@ -3038,3 +3038,6 @@ def test_json_decode_errors_are_serializable_deserializable():
     )
     deserialized_error = pickle.loads(pickle.dumps(json_decode_error))
     assert repr(json_decode_error) == repr(deserialized_error)
+ 
+         d e f   t e s t _ c o o k i e _ p o l i c y _ p r e s e r v e d _ i n _ p r e p a r e _ r e q u e s t ( s e l f ) :  
+ 
