@@ -471,12 +471,10 @@ class Session(SessionRedirectMixin):
             cookies = cookiejar_from_dict(cookies)
 
         # Merge with session cookies
-        # I need to preserve the cookie policy from the session's cookie jar
-        # The bug was that we were creating a new RequestsCookieJar() without 
-        # preserving the custom policy, which meant any custom cookie policies
-        # set by the user would be lost during request preparation
+        # Preserve the cookie policy from the session's cookie jar
+        # Fixes issue where custom policies were lost during request preparation
         if isinstance(self.cookies, RequestsCookieJar):
-            # Create a new jar but preserve the custom policy
+            # Create a new jar with the same policy as the session's jar
             jar = RequestsCookieJar()
             jar.set_policy(self.cookies.get_policy())
             merged_cookies = merge_cookies(
