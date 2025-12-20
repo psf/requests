@@ -469,6 +469,33 @@ class TestRequests:
         assert cookies["foo"] == "bar"
         assert cookies["cookie"] == "tasty"
 
+    @pytest.mark.parametrize("jar", (
+        requests.cookies.RequestsCookieJar(),
+        cookielib.CookieJar()
+    ))
+    def test_custom_cookie_policy_is_persisted(self, httpbin, jar):
+        """Verify a custom CookiePolicy is propagated on each session request."""
+
+        class TestCookiePolicy(cookielib.DefaultCookiePolicy):
+            """Policy to restrict all cookies from localhost (127.0.0.1)."""
+            def __init__(self):
+                cookielib.DefaultCookiePolicy.__init__(self, blocked_domains=['127.0.0.1'])
+
+        # Establish session with jar and set some cookies.
+        s = requests.session()
+        s.cookies = jar
+        s.get(httpbin("cookies/set?k1=v1&k2=v2"))
+        assert len(s.cookies) == 2
+
+        # Set policy
+        s.cookies.set_policy(TestCookiePolicy())
+        
+        # No cookies were sent to our blocked domain and none were set.
+        resp = s.get(httpbin("cookies/set?k3=v3"))
+        assert "Cookie" not in resp.request.headers
+        assert len(s.cookies) == 2
+        assert "k3" not in s.cookies
+
     def test_requests_in_history_are_not_overridden(self, httpbin):
         resp = requests.get(httpbin("redirect/3"))
         urls = [r.url for r in resp.history]
