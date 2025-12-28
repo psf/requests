@@ -1136,3 +1136,18 @@ coffee.
 
 .. _`wall clock`: https://wiki.php.net/rfc/max_execution_wall_time
 .. _`connect()`: https://linux.die.net/man/2/connect
+
+Timeout Best Practices
+---------------------
+
+Using timeouts helps prevent requests from hanging indefinitely.
+It is generally recommended to specify a timeout value for production code.
+
+For example::
+
+    requests.get('https://example.com', timeout=5)
+
+Note: A timeout value does not limit the total time of the request. It applies to
+the connect and read operations (see the section above).
+
+This can improve application reliability and make error handling more predictable.
