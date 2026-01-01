@@ -421,6 +421,8 @@ class Session(SessionRedirectMixin):
         #: expired certificates, which will make your application vulnerable to
         #: man-in-the-middle (MitM) attacks.
         #: Only set this to `False` for testing.
+        #: You can also set verify to a string path to a CA bundle to use for
+        #: verification.
         self.verify = True
 
         #: SSL client certificate default, if String, path to ssl client
