@@ -133,7 +133,7 @@ When presenting Python code, use single-quoted strings (``'hello'`` instead of
 ``"hello"``).
 
 .. _reStructuredText: https://docutils.sourceforge.net/rst.html
-.. _Sphinx: https://sphinx-doc.org/index.html
+.. _Sphinx: https://www.sphinx-doc.org/en/master/
 
 
 .. _bug-reports:
