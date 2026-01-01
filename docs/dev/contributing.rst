@@ -132,8 +132,8 @@ files and a semi-formal, yet friendly and approachable, prose style.
 When presenting Python code, use single-quoted strings (``'hello'`` instead of
 ``"hello"``).
 
-.. _reStructuredText: http://docutils.sourceforge.net/rst.html
-.. _Sphinx: http://sphinx-doc.org/index.html
+.. _reStructuredText: https://docutils.sourceforge.net/rst.html
+.. _Sphinx: https://sphinx-doc.org/index.html
 
 
 .. _bug-reports:
