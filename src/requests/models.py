@@ -84,7 +84,10 @@ ITER_CHUNK_SIZE = 512
 class RequestEncodingMixin:
     @property
     def path_url(self):
-        """Build the path URL to use."""
+        """
+        Build the URL path by extracting the path and query from the full URL,
+        excluding the scheme and domain. Defaults to "/" if no path exists.
+        """
 
         url = []
 
