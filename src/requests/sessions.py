@@ -63,6 +63,19 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
     the explicit setting on that request, and the setting in the session. If a
     setting is a dictionary, they will be merged together using `dict_class`
     """
+    """
+    功能：合并请求级和会话级的配置项，优先使用请求级配置，支持字典类型的深度合并
+    参数：
+        - request_setting: 请求层面的配置（如单个请求的headers）
+        - session_setting: 会话层面的配置（如Session对象的默认headers）
+        - dict_class: 合并字典时使用的字典类型（默认OrderedDict，保证顺序）
+    返回：合并后的配置项
+    逻辑：
+        1. 若会话配置为None，直接返回请求配置；若请求配置为None，返回会话配置
+        2. 非字典类型（如verify布尔值）直接返回请求配置
+        3. 字典类型则先合并会话配置，再用请求配置覆盖，最后移除值为None的键
+    场景：用于合并headers、params、proxies等跨请求/会话的配置
+    """
 
     if session_setting is None:
         return request_setting
@@ -94,6 +107,18 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
     This is necessary because when request_hooks == {'response': []}, the
     merge breaks Session hooks entirely.
     """
+    """
+    功能：专门合并请求和会话的钩子（hooks）配置，修复普通merge_setting对空列表钩子的兼容问题
+    参数：
+        - request_hooks: 请求层面的钩子（如单个请求的response钩子）
+        - session_hooks: 会话层面的钩子（如Session默认的hooks）
+        - dict_class: 合并字典的类型
+    返回：合并后的钩子配置
+    逻辑：
+        1. 若会话钩子/请求钩子的response字段为空列表，优先返回另一方的钩子
+        2. 其他情况调用merge_setting完成合并
+    场景：解决钩子合并时「空列表覆盖有效钩子」的问题，保证钩子逻辑不丢失
+    """
     if session_hooks is None or session_hooks.get("response") == []:
         return request_hooks
 
@@ -106,6 +131,16 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 class SessionRedirectMixin:
     def get_redirect_target(self, resp):
         """Receives a Response. Returns a redirect URI or ``None``"""
+        """
+    功能：从响应对象中提取重定向目标URL，处理编码问题
+    参数：resp - requests.Response对象
+    返回：重定向URL（字符串）或None（无重定向）
+    逻辑：
+        1. 检查响应是否为重定向（resp.is_redirect）
+        2. 提取Location头，修复latin1编码导致的UTF8字符错误
+        3. 无重定向时返回None
+    场景：重定向循环中获取下一个请求的URL
+    """
         # Due to the nature of how requests processes redirects this method will
         # be called at least once upon the original response and at least twice
         # on each subsequent redirect response (if any).
@@ -126,6 +161,18 @@ class SessionRedirectMixin:
 
     def should_strip_auth(self, old_url, new_url):
         """Decide whether Authorization header should be removed when redirecting"""
+        """
+    功能：判断重定向时是否需要移除Authorization请求头（避免凭证泄露）
+    参数：
+        - old_url: 原请求URL
+        - new_url: 重定向目标URL
+    返回：True（移除）/False（保留）
+    逻辑：
+        1. 跨域名重定向：直接移除
+        2. 特殊兼容：http→https（标准端口80→443）保留auth
+        3. 端口/协议变化（非默认端口）：移除
+    场景：重定向时的安全处理，防止Authorization头泄露到其他域名/端口
+    """
         old_parsed = urlparse(old_url)
         new_parsed = urlparse(new_url)
         if old_parsed.hostname != new_parsed.hostname:
@@ -169,6 +216,21 @@ class SessionRedirectMixin:
         **adapter_kwargs,
     ):
         """Receives a Response. Returns a generator of Responses or Requests."""
+        """
+    功能：处理重定向逻辑，生成重定向后的响应/请求对象（生成器）
+    参数：
+        - resp: 初始响应对象
+        - req: 初始请求对象（PreparedRequest）
+        - stream/timeout/verify/cert/proxies: 请求参数
+        - yield_requests: True则生成PreparedRequest，False生成Response
+    返回：生成器，逐个返回重定向后的请求/响应
+    逻辑：
+        1. 循环提取重定向URL，记录重定向历史
+        2. 检查重定向次数，超过max_redirects抛出TooManyRedirects异常
+        3. 重构请求：更新URL、方法、头信息、Cookie、代理、认证
+        4. 释放旧连接，重新发送请求
+    场景：Session.send方法中处理自动重定向
+    """
 
         hist = []  # keep track of history
 
@@ -284,6 +346,16 @@ class SessionRedirectMixin:
         request to avoid leaking credentials. This method intelligently removes
         and reapplies authentication where possible to avoid credential loss.
         """
+        """
+    功能：重定向时重构请求的认证信息（移除/重新获取）
+    参数：
+        - prepared_request: 待发送的PreparedRequest对象
+        - response: 触发重定向的响应对象
+    逻辑：
+        1. 若需要移除auth（should_strip_auth返回True），删除Authorization头
+        2. 从.netrc（信任环境时）获取新域名的认证信息，更新到请求中
+    场景：重定向后更新请求的认证信息，保证权限正确
+    """
         headers = prepared_request.headers
         url = prepared_request.url
 
@@ -311,6 +383,18 @@ class SessionRedirectMixin:
 
         :rtype: dict
         """
+        """
+    功能：重定向时重构代理配置，处理环境变量和Proxy-Authorization头
+    参数：
+        - prepared_request: 待发送的PreparedRequest对象
+        - proxies: 原代理配置字典
+    返回：重构后的代理配置字典
+    逻辑：
+        1. 重新解析环境变量中的代理配置（NO_PROXY等）
+        2. 移除旧的Proxy-Authorization头
+        3. 为非HTTPS请求添加新的Proxy-Authorization头（若代理有账号密码）
+    场景：重定向到新域名时，更新代理配置，避免代理认证失效
+    """
         headers = prepared_request.headers
         scheme = urlparse(prepared_request.url).scheme
         new_proxies = resolve_proxies(prepared_request, proxies, self.trust_env)
@@ -334,6 +418,17 @@ class SessionRedirectMixin:
         """When being redirected we may want to change the method of the request
         based on certain specs or browser behavior.
         """
+        """
+    功能：重定向时根据HTTP标准和浏览器行为修改请求方法
+    参数：
+        - prepared_request: 待发送的PreparedRequest对象
+        - response: 触发重定向的响应对象
+    逻辑：
+        1. 303 See Other → 非HEAD请求改为GET
+        2. 302 Found → 非HEAD请求改为GET（浏览器兼容行为）
+        3. 301 Moved Permanently → POST请求改为GET（兼容历史行为）
+    场景：符合HTTP重定向的方法转换规则，模拟浏览器行为
+    """
         method = prepared_request.method
 
         # https://tools.ietf.org/html/rfc7231#section-6.4.4
@@ -388,6 +483,23 @@ class Session(SessionRedirectMixin):
     ]
 
     def __init__(self):
+        """
+    功能：初始化Session对象，设置默认配置和连接适配器
+    初始化项说明：
+        - headers: 默认请求头（User-Agent等），CaseInsensitiveDict类型
+        - auth: 默认认证信息（None/元组/认证对象）
+        - proxies: 默认代理配置（空字典）
+        - hooks: 默认钩子（default_hooks，包含response等空钩子）
+        - params: 默认URL参数（空字典）
+        - stream: 是否流式响应（默认False，立即下载内容）
+        - verify: SSL证书验证（默认True，安全校验）
+        - cert: SSL客户端证书（None/路径字符串/（cert, key）元组）
+        - max_redirects: 最大重定向次数（默认30）
+        - trust_env: 是否信任环境变量（代理/认证，默认True）
+        - cookies: 会话CookieJar（RequestsCookieJar）
+        - adapters: 连接适配器（默认挂载http/https的HTTPAdapter）
+    场景：创建Session实例时初始化所有默认配置，为后续请求提供基础
+    """
         #: A case-insensitive dictionary of headers to be sent on each
         #: :class:`Request <Request>` sent from this
         #: :class:`Session <Session>`.
@@ -449,12 +561,33 @@ class Session(SessionRedirectMixin):
         self.mount("http://", HTTPAdapter())
 
     def __enter__(self):
+        """
+    功能：上下文管理器进入方法，返回自身
+    场景：with requests.Session() as s: 时触发，无需手动调用
+    """
         return self
 
     def __exit__(self, *args):
+        """
+    功能：上下文管理器退出方法，关闭会话
+    参数：*args - 异常信息（若有）
+    逻辑：调用self.close()关闭所有适配器
+    场景：with块结束时自动关闭会话，释放连接池
+    """
         self.close()
 
     def prepare_request(self, request):
+        """
+    功能：将Request对象转换为PreparedRequest对象，合并会话配置
+    参数：request - requests.Request对象（未准备的请求）
+    返回：requests.PreparedRequest对象（可直接发送的请求）
+    逻辑：
+        1. 处理Cookie：合并会话Cookie和请求Cookie
+        2. 处理认证：信任环境时从.netrc获取默认认证
+        3. 合并headers/params/auth/hooks：会话配置 + 请求配置（请求优先）
+        4. 调用PreparedRequest.prepare完成请求准备
+    场景：Session.request方法内部调用，将用户传入的请求参数转换为可发送的请求对象
+    """
         """Constructs a :class:`PreparedRequest <PreparedRequest>` for
         transmission and returns it. The :class:`PreparedRequest` has settings
         merged from the :class:`Request <Request>` instance and those of the
@@ -516,6 +649,23 @@ class Session(SessionRedirectMixin):
         cert=None,
         json=None,
     ):
+        """
+    功能：构造Request对象 → 准备为PreparedRequest → 发送请求 → 返回响应
+    参数说明（核心）：
+        - method: HTTP方法（GET/POST等，自动转大写）
+        - url: 请求URL
+        - params/headers/cookies/auth: 同Request对象参数
+        - timeout: 超时时间（浮点数/（连接超时，读取超时）元组）
+        - allow_redirects: 是否允许重定向（默认True）
+        - stream/verify/cert: 覆盖会话默认配置
+        - json: JSON请求体（自动序列化，优先级高于data）
+    逻辑：
+        1. 创建Request对象，封装所有请求参数
+        2. 调用prepare_request生成PreparedRequest
+        3. 合并环境配置（代理/stream/verify/cert）
+        4. 调用self.send发送请求，返回Response
+    场景：所有HTTP方法（get/post等）的底层实现，是Session的核心入口
+    """
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -597,6 +747,33 @@ class Session(SessionRedirectMixin):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
+        """
+    功能：发送GET请求，封装request方法
+    参数：
+        - url: 请求URL
+        - **kwargs: 传递给request的参数（如params/headers等）
+    逻辑：
+        1. 默认设置allow_redirects=True（允许重定向）
+        2. 调用self.request("GET", url, **kwargs)
+    返回：requests.Response对象
+
+def options(self, url, **kwargs):
+    """功能：发送OPTIONS请求，默认allow_redirects=True，封装request("OPTIONS")"""
+
+def head(self, url, **kwargs):
+    """功能：发送HEAD请求，默认allow_redirects=False，封装request("HEAD")"""
+
+def post(self, url, data=None, json=None, **kwargs):
+    """功能：发送POST请求，支持data/json参数，封装request("POST")"""
+
+def put(self, url, data=None, **kwargs):
+    """功能：发送PUT请求，支持data参数，封装request("PUT")"""
+
+def patch(self, url, data=None, **kwargs):
+    """功能：发送PATCH请求，支持data参数，封装request("PATCH")"""
+
+def delete(self, url, **kwargs):
+    """功能：发送DELETE请求，封装request("DELETE")"""
 
         kwargs.setdefault("allow_redirects", True)
         return self.request("GET", url, **kwargs)
