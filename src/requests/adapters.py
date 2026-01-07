@@ -154,6 +154,7 @@ class BaseAdapter:
        """
         发送已准备的请求对象，返回响应对象（抽象方法）
 
+
         Args:
             request: 已准备的请求对象
             stream: 是否流式传输响应内容
