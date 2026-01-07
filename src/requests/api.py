@@ -95,6 +95,15 @@ def head(url, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
+    """Sends a HEAD request (默认禁用重定向).
+
+    Args:
+        url: 请求目标 URL 字符串
+        **kwargs: 传递给 request 函数的额外参数
+
+    Returns:
+        Response 对象
+    """
 
     kwargs.setdefault("allow_redirects", False)
     return request("head", url, **kwargs)
@@ -111,6 +120,23 @@ def post(url, data=None, json=None, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
+    """Sends a POST request.
+
+    Args:
+        url: 请求目标 URL 字符串
+        data: 请求体数据，可选类型：字典/元组列表/字节串/文件类对象
+        json: JSON 序列化对象
+        **kwargs: 传递给 request 函数的额外参数
+
+    Returns:
+        Response 对象
+
+    Example:
+        >>> payload = {'key1': 'value1', 'key2': 'value2'}
+        >>> response = requests.post('https://httpbin.org/post', data=payload)
+        >>> response.json()['form']['key1']
+        'value1'
+    """
 
     return request("post", url, data=data, json=json, **kwargs)
 
@@ -125,6 +151,17 @@ def put(url, data=None, **kwargs):
     :param \*\*kwargs: Optional arguments that ``request`` takes.
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
+    """
+    """Sends a PUT request.
+
+    Args:
+        url: 请求目标 URL 字符串
+        data: 请求体数据
+        json: JSON 序列化对象
+        **kwargs: 传递给 request 函数的额外参数
+
+    Returns:
+        Response 对象
     """
 
     return request("put", url, data=data, **kwargs)
@@ -141,7 +178,17 @@ def patch(url, data=None, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
+"""Sends a PATCH request.
 
+    Args:
+        url: 请求目标 URL 字符串
+        data: 请求体数据
+        json: JSON 序列化对象
+        **kwargs: 传递给 request 函数的额外参数
+
+    Returns:
+        Response 对象
+    """
     return request("patch", url, data=data, **kwargs)
 
 
@@ -153,5 +200,13 @@ def delete(url, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
+"""Sends a DELETE request.
 
+    Args:
+        url: 请求目标 URL 字符串
+        **kwargs: 传递给 request 函数的额外参数
+
+    Returns:
+        Response 对象
+    """
     return request("delete", url, **kwargs)
