@@ -79,6 +79,20 @@ def _urllib3_request_context(
     client_cert: "typing.Tuple[str, str] | str | None",
     poolmanager: "PoolManager",
 ) -> "(typing.Dict[str, typing.Any], typing.Dict[str, typing.Any])":
+    """
+    构建 urllib3 请求上下文的主机参数和池参数
+
+    Args:
+        request: 已准备的请求对象
+        verify: 验证TLS证书的开关或CA证书路径
+        client_cert: 客户端证书（单路径或证书+密钥路径元组）
+        poolmanager: urllib3的连接池管理器
+
+    Returns:
+        元组，包含：
+        - host_params: 包含scheme/host/port的字典
+        - pool_kwargs: 连接池的配置参数字典
+    """
     host_params = {}
     pool_kwargs = {}
     parsed_request_url = urlparse(request.url)
@@ -137,6 +151,20 @@ class BaseAdapter:
 
     def close(self):
         """Cleans up adapter specific items."""
+       """
+        发送已准备的请求对象，返回响应对象（抽象方法）
+
+        Args:
+            request: 已准备的请求对象
+            stream: 是否流式传输响应内容
+            timeout: 超时时间（浮点数/元组/urllib3 Timeout对象）
+            verify: 验证TLS证书的开关或CA证书路径
+            cert: 客户端SSL证书
+            proxies: 代理配置字典
+
+        Raises:
+            NotImplementedError: 抽象方法未实现
+        """
         raise NotImplementedError
 
 
@@ -197,6 +225,15 @@ class HTTPAdapter(BaseAdapter):
 
         self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
 
+"""
+        初始化urllib3 PoolManager
+
+        Args:
+            connections: 缓存的urllib3连接池数量
+            maxsize: 连接池中保存的最大连接数
+            block: 无空闲连接时是否阻塞
+            pool_kwargs: 初始化PoolManager的额外关键字参数
+        """
     def __getstate__(self):
         return {attr: getattr(self, attr, None) for attr in self.__attrs__}
 
@@ -252,6 +289,16 @@ class HTTPAdapter(BaseAdapter):
         :rtype: urllib3.ProxyManager
         """
         if proxy in self.proxy_manager:
+            """
+        返回指定代理的urllib3 ProxyManager
+
+        Args:
+            proxy: 代理URL
+            proxy_kwargs: 配置ProxyManager的额外关键字参数
+
+        Returns:
+            对应的ProxyManager或SOCKSProxyManager实例
+        """
             manager = self.proxy_manager[proxy]
         elif proxy.lower().startswith("socks"):
             username, password = get_auth_from_url(proxy)
@@ -288,6 +335,18 @@ class HTTPAdapter(BaseAdapter):
             the server's TLS certificate, or a string, in which case it must be a path
             to a CA bundle to use
         :param cert: The SSL certificate to verify.
+        """
+        """
+        验证SSL证书
+
+        Args:
+            conn: 关联证书的urllib3连接对象
+            url: 请求的URL
+            verify: 验证TLS证书的开关或CA证书路径
+            cert: 要验证的SSL证书
+
+        Raises:
+            OSError: 找不到CA证书或客户端证书/密钥文件
         """
         if url.lower().startswith("https") and verify:
             cert_loc = None
@@ -342,6 +401,16 @@ class HTTPAdapter(BaseAdapter):
         :param req: The :class:`PreparedRequest <PreparedRequest>` used to generate the response.
         :param resp: The urllib3 response object.
         :rtype: requests.Response
+        """
+        """
+        从urllib3响应对象构建requests.Response对象
+
+        Args:
+            req: 生成响应的已准备请求对象
+            resp: urllib3响应对象
+
+        Returns:
+            requests.Response对象
         """
         response = Response()
 
@@ -420,6 +489,19 @@ class HTTPAdapter(BaseAdapter):
         """
         return _urllib3_request_context(request, verify, cert, self.poolmanager)
 
+"""
+        构建urllib3用于选择连接的PoolKey属性
+
+        Args:
+            request: 要发送的已准备请求对象
+            verify: 验证TLS证书的开关或CA证书路径
+            cert: 客户端SSL证书（mTLS）
+
+        Returns:
+            元组，包含：
+            - host_params: 包含scheme/host/port的字典
+            - pool_kwargs: SSLContext相关参数字典
+        """
     def get_connection_with_tls_context(self, request, verify, proxies=None, cert=None):
         """Returns a urllib3 connection for the given request and TLS settings.
         This should not be called from user code, and is only exposed for use
@@ -439,6 +521,22 @@ class HTTPAdapter(BaseAdapter):
             authentication (a.k.a., mTLS).
         :rtype:
             urllib3.ConnectionPool
+        """
+        """
+        获取带TLS上下文的urllib3连接
+
+        Args:
+            request: 要发送的已准备请求对象
+            verify: 验证TLS证书的开关或CA证书路径
+            proxies: 代理配置字典
+            cert: 客户端SSL证书（mTLS）
+
+        Returns:
+            urllib3.ConnectionPool实例
+
+        Raises:
+            InvalidURL: URL无效
+            InvalidProxyURL: 代理URL格式错误
         """
         proxy = select_proxy(request.url, proxies)
         try:
@@ -480,6 +578,19 @@ class HTTPAdapter(BaseAdapter):
         :param url: The URL to connect to.
         :param proxies: (optional) A Requests-style dictionary of proxies used on this request.
         :rtype: urllib3.ConnectionPool
+        """
+        """
+        （已废弃）获取指定URL的urllib3连接
+
+        Args:
+            url: 要连接的URL
+            proxies: 代理配置字典
+
+        Returns:
+            urllib3.ConnectionPool实例
+
+        Raises:
+            InvalidProxyURL: 代理URL格式错误
         """
         warnings.warn(
             (
@@ -563,6 +674,17 @@ class HTTPAdapter(BaseAdapter):
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` to add headers to.
         :param kwargs: The keyword arguments from the call to send().
+        """
+        """
+        为连接添加所需的头部（可覆写）
+
+        Args:
+            request: 要添加头部的已准备请求对象
+            kwargs: send()调用的关键字参数
+        """
+        pass
+
+    def proxy_headers(self, proxy: str) -> Dict[str, str]:
         """
         pass
 
