@@ -111,6 +111,13 @@ class RequestEncodingMixin:
         2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
         if parameters are supplied as a dict.
         """
+         """
+        编码请求参数
+        
+        支持字典/2元组列表形式的参数，保留元组列表的顺序；字典顺序随机
+        :param data: 待编码的参数（str/bytes/可迭代对象/文件对象等）
+        :return: 编码后的参数字符串/原始数据（文件对象等）
+        """
 
         if isinstance(data, (str, bytes)):
             return data
@@ -142,6 +149,18 @@ class RequestEncodingMixin:
         if parameters are supplied as a dict.
         The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, contentype)
         or 4-tuples (filename, fileobj, contentype, custom_headers).
+        """
+        """
+        构建multipart/form-data请求的请求体（文件上传）
+        
+        支持字典/元组列表形式的文件参数：
+        - 2元组: (filename, fileobj)
+        - 3元组: (filename, fileobj, contentype)
+        - 4元组: (filename, fileobj, contentype, custom_headers)
+        :param files: 文件参数
+        :param data: 普通表单参数
+        :return: (编码后的请求体, Content-Type头值)
+        :raise ValueError: 文件为空或data为字符串时抛出
         """
         if not files:
             raise ValueError("Files must be provided.")
@@ -206,6 +225,13 @@ class RequestEncodingMixin:
 class RequestHooksMixin:
     def register_hook(self, event, hook):
         """Properly register a hook."""
+        """
+        注册钩子函数
+        
+        :param event: 钩子事件名称（需为支持的事件）
+        :param hook: 单个钩子函数/钩子函数可迭代对象
+        :raise ValueError: 事件名称不支持时抛出
+        """
 
         if event not in self.hooks:
             raise ValueError(f'Unsupported event specified, with event name "{event}"')
@@ -254,6 +280,20 @@ class Request(RequestHooksMixin):
       >>> req.prepare()
       <PreparedRequest [GET]>
     """
+    """
+    用户创建的请求对象，用于构建PreparedRequest并发送到服务器
+    
+    :param method: HTTP方法（GET/POST等）
+    :param url: 请求URL
+    :param headers: 请求头字典
+    :param files: 文件上传字典 {filename: fileobj}
+    :param data: 请求体数据（字典/元组列表/字符串等）
+    :param json: JSON格式的请求体数据
+    :param params: URL查询参数
+    :param auth: 认证处理器/(user, pass)元组
+    :param cookies: Cookie字典/CookieJar对象
+    :param hooks: 钩子回调字典
+    """
 
     def __init__(
         self,
@@ -291,6 +331,11 @@ class Request(RequestHooksMixin):
 
     def __repr__(self):
         return f"<Request [{self.method}]>"
+        """
+        构建PreparedRequest对象（包含待发送的原始字节数据）
+        
+        :return: PreparedRequest实例
+        """
 
     def prepare(self):
         """Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it."""
@@ -330,6 +375,19 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
       >>> s.send(r)
       <Response [200]>
     """
+    """
+    可修改的预编译请求对象，包含发送到服务器的原始字节数据
+    由Request对象生成，不建议手动实例化
+    
+    属性说明：
+    - method: HTTP方法
+    - url: 请求URL
+    - headers: 请求头字典
+    - _cookies: CookieJar对象
+    - body: 请求体字节数据
+    - hooks: 钩子回调字典
+    - _body_position: 可读文件类请求体的起始位置
+    """
 
     def __init__(self):
         #: HTTP verb to send to the server.
@@ -362,6 +420,20 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         json=None,
     ):
         """Prepares the entire request with the given parameters."""
+         """
+        完整构建请求（按顺序初始化方法、URL、头、Cookie、体、认证、钩子）
+        
+        :param method: HTTP方法
+        :param url: 请求URL
+        :param headers: 请求头
+        :param files: 文件上传参数
+        :param data: 请求体数据
+        :param params: URL查询参数
+        :param auth: 认证信息
+        :param cookies: Cookie信息
+        :param hooks: 钩子回调
+        :param json: JSON请求体数据
+        """
 
         self.prepare_method(method)
         self.prepare_url(url, params)
@@ -408,6 +480,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_url(self, url, params):
         """Prepares the given HTTP URL."""
+        """
+        初始化请求URL（处理编码、查询参数、IDNA域名等）
+        
+        :param url: 原始URL
+        :param params: URL查询参数
+        :raise InvalidURL: URL格式无效时抛出
+        :raise MissingSchema: URL缺少协议（http/https）时抛出
+        """
         #: Accept objects that have string representations.
         #: We're unable to blindly call unicode/str functions
         #: as this will include the bytestring indicator (b'')
@@ -482,6 +562,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_headers(self, headers):
         """Prepares the given HTTP headers."""
+        """
+        初始化请求头（转为大小写不敏感字典、校验头合法性）
+        
+        :param headers: 原始请求头字典
+        """
 
         self.headers = CaseInsensitiveDict()
         if headers:
@@ -493,6 +578,15 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_body(self, data, files, json=None):
         """Prepares the given HTTP body data."""
+        """
+        初始化请求体（处理JSON、表单、文件、流式数据）
+        
+        :param data: 原始请求体数据
+        :param files: 文件上传参数
+        :param json: JSON请求体数据
+        :raise NotImplementedError: 流式数据和文件同时存在时抛出
+        :raise InvalidJSONError: JSON序列化失败时抛出
+        """
 
         # Check if file, fo, generator, iterator.
         # If not, run through normal process.
