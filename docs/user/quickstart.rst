@@ -164,6 +164,30 @@ and returned. To check that a request is successful, use
 ``r.raise_for_status()`` or check ``r.status_code`` is what you expect.
 
 
+Gracefully Handling JSON Errors
+-------------------------------
+
+Sometimes a server may return invalid or unexpected JSON.
+To avoid your program crashing when calling ``response.json()``,
+it's a good idea to handle the potential ``ValueError`` that may occur:
+
+.. code-block:: python
+
+    import requests
+
+    response = requests.get("https://api.example.com/data")
+
+    try:
+        data = response.json()
+    except ValueError:
+        data = None
+        print("The server did not return valid JSON.")
+
+In this example, invalid JSON will not cause your program to crash,
+and you can safely provide fallback behaviour.
+
+
+
 Raw Response Content
 --------------------
 
