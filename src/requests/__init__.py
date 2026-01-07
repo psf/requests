@@ -56,6 +56,13 @@ except ImportError:
 
 
 def check_compatibility(urllib3_version, chardet_version, charset_normalizer_version):
+    """
+    检查依赖库版本是否符合 Requests 要求
+    :param urllib3_version: urllib3 版本字符串（如 "1.26.18"）
+    :param chardet_version: chardet 版本字符串（None 表示未安装）
+    :param charset_normalizer_version: charset_normalizer 版本字符串（None 表示未安装）
+    :raises AssertionError: 依赖版本不符合要求时触发
+    """
     urllib3_version = urllib3_version.split(".")
     assert urllib3_version != ["dev"]  # Verify urllib3 isn't installed from git.
 
