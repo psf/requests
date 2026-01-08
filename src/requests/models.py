@@ -12,6 +12,8 @@ import datetime
 # such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
 import encodings.idna  # noqa: F401
 from io import UnsupportedOperation
+from typing import Iterator, Union, Optional
+
 
 from urllib3.exceptions import (
     DecodeError,
@@ -796,7 +798,12 @@ class Response:
             # to a standard Python utf-8 str.
             return "utf-8"
 
-    def iter_content(self, chunk_size=1, decode_unicode=False):
+    def iter_content(
+    self,
+    chunk_size: Optional[int] = 1,
+    decode_unicode: bool = False,
+    ) -> Iterator[Union[bytes, str]]:
+
         """Iterates over the response data.  When stream=True is set on the
         request, this avoids reading the content at once into memory for
         large responses.  The chunk size is the number of bytes it should
