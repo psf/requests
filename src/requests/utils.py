@@ -668,7 +668,6 @@ def requote_uri(uri):
         # properly quoted so they do not cause issues elsewhere.
         return quote(uri, safe=safe_without_percent)
 
-
 def address_in_network(ip, net):
     """This function allows you to check if an IP belongs to a network subnet
 
@@ -695,6 +694,17 @@ def dotted_netmask(mask):
     return socket.inet_ntoa(struct.pack(">I", bits))
 
 
+def is_ipv6_address(string_ip):
+    """
+    :rtype: bool
+    """
+    try:
+        socket.inet_pton(socket.AF_INET6, string_ip)
+    except OSError:
+        return False
+    return True
+
+
 def is_ipv4_address(string_ip):
     """
     :rtype: bool
@@ -704,7 +714,6 @@ def is_ipv4_address(string_ip):
     except OSError:
         return False
     return True
-
 
 def is_valid_cidr(string_network):
     """
@@ -718,17 +727,41 @@ def is_valid_cidr(string_network):
         except ValueError:
             return False
 
-        if mask < 1 or mask > 32:
+        if mask < 1 or mask > 128:
             return False
 
-        try:
-            socket.inet_aton(string_network.split("/")[0])
-        except OSError:
-            return False
+        if is_ipv4_address(string_network.split("/")[0]):
+            if mask > 32:
+                return False
+            return True
+        if is_ipv6_address(string_network.split("/")[0]):
+            return True
+        return False
     else:
         return False
     return True
 
+def address_in_network_ipv6(ip, net):
+    """This function allows you to check if an IPv6 address belongs to a network subnet
+
+    :rtype: bool
+    """
+    if "/" not in net:
+        return ip == net
+
+    netaddr, bits = net.split("/")
+    try:
+        bits = int(bits)
+    except ValueError:
+        return False
+
+    if bits < 1 or bits > 128:
+        return False
+
+    ipaddr = int.from_bytes(socket.inet_pton(socket.AF_INET6, ip), "big")
+    network = int.from_bytes(socket.inet_pton(socket.AF_INET6, netaddr), "big")
+    mask = (1 << 128) - (1 << (128 - bits))
+    return (ipaddr & mask) == (network & mask)
 
 @contextlib.contextmanager
 def set_environ(env_name, value):
@@ -789,6 +822,14 @@ def should_bypass_proxies(url, no_proxy):
                     # If no_proxy ip was defined in plain IP notation instead of cidr notation &
                     # matches the IP of the index
                     return True
+        elif is_ipv6_address(parsed.hostname):
+            for proxy_ip in no_proxy:
+                if is_valid_cidr(proxy_ip):
+                    if address_in_network_ipv6(parsed.hostname, proxy_ip):
+                        return True
+                elif parsed.hostname == proxy_ip:
+                    return True
+
         else:
             host_with_port = parsed.hostname
             if parsed.port:
