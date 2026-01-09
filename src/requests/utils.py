@@ -142,6 +142,11 @@ def super_len(o):
         # of latin-1 (iso-8859-1) like http.client.
         o = o.encode("utf-8")
 
+    if isinstance(o, io.StringIO):
+        total_length = len(o.getvalue().encode("utf-8"))
+        current_position = len(o.getvalue()[: o.tell()].encode("utf-8"))
+        return max(0, total_length - current_position)
+
     if hasattr(o, "__len__"):
         total_length = len(o)
 
