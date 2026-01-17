@@ -34,7 +34,7 @@ timeline::
 Now, we have a :class:`Response <requests.Response>` object called ``r``. We can
 get all the information we need from this object.
 
-Requests' simple API means that all forms of HTTP request are as obvious. For
+Requests' simple API means that all forms of HTTP requests are equally straightforward. For
 example, this is how you make an HTTP POST request::
 
     >>> r = requests.post('https://httpbin.org/post', data={'key': 'value'})
