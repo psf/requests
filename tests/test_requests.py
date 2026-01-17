@@ -3038,3 +3038,7 @@ def test_json_decode_errors_are_serializable_deserializable():
     )
     deserialized_error = pickle.loads(pickle.dumps(json_decode_error))
     assert repr(json_decode_error) == repr(deserialized_error)
+
+def test_timeout_rejects_non_numeric_value():
+    with pytest.raises(TypeError):
+        requests.get("http://example.com", timeout="abc")
