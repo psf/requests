@@ -125,7 +125,17 @@ if sys.platform == "win32":
 
 
 def dict_to_sequence(d):
-    """Returns an internal sequence dictionary update."""
+    """
+    Converts a dictionary to an iterable of key-value pairs for internal sequence processing.
+    
+    This function ensures consistent handling of dictionary-like inputs by normalizing them into an iterable of (key, value) pairs, which is required for internal sequence operations within the Requests library. It supports both dictionary objects and other mappings by leveraging the `items()` method, enabling seamless integration with request data structures such as headers, parameters, and form data.
+    
+    Args:
+        d: A dictionary or mapping object to be converted into an iterable of key-value pairs.
+    
+    Returns:
+        An iterable of (key, value) tuples suitable for internal sequence processing.
+    """
 
     if hasattr(d, "items"):
         d = d.items()
@@ -134,6 +144,15 @@ def dict_to_sequence(d):
 
 
 def super_len(o):
+    """
+    Calculate the remaining length of a file-like object or string from the current position, crucial for accurate content-length determination in HTTP requests.
+    
+    Args:
+        o: A file-like object, string, or other object with length information. For file-like objects, the length is determined by __len__, .len, file size via fileno, or by seeking to the end if no length is available. If o is a string, it is encoded to UTF-8 if using urllib3 2.x+.
+    
+    Returns:
+        The number of bytes remaining from the current position to the end of the object, or 0 if the length cannot be determined. The result is clamped to non-negative values.
+    """
     total_length = None
     current_position = 0
 
@@ -205,7 +224,18 @@ def super_len(o):
 
 
 def get_netrc_auth(url, raise_errors=False):
-    """Returns the Requests tuple auth for a given url from netrc."""
+    """
+    Returns the Requests-compatible authentication tuple (username, password) for a given URL using credentials stored in the netrc file.
+    
+    This function enables automatic authentication with HTTP servers by reading login credentials from the system's netrc file, which is commonly used to store credentials for various network services. It supports both explicit netrc file paths via the NETRC environment variable and default locations like ~/.netrc. The returned tuple can be directly used with Requests' auth parameter, simplifying secure access to authenticated APIs and services without hardcoding credentials.
+    
+    Args:
+        url: The URL to determine authentication for, used to look up the appropriate host entry in the netrc file.
+        raise_errors: If True, raises exceptions for netrc parsing or file access errors; otherwise, silently skips netrc authentication.
+    
+    Returns:
+        A tuple of (username, password) if credentials are found in netrc for the URL's host, or None if no credentials are available or an error occurs and raise_errors is False.
+    """
 
     netrc_file = os.environ.get("NETRC")
     if netrc_file is not None:
@@ -249,16 +279,33 @@ def get_netrc_auth(url, raise_errors=False):
 
 
 def guess_filename(obj):
-    """Tries to guess the filename of the given object."""
+    """
+    Tries to guess the filename from an object's name attribute, primarily used to infer a default filename for file-like objects in HTTP responses.
+    
+    This helps Requests determine appropriate filenames when saving downloaded content, such as from a response's `Content-Disposition` header or when a file-like object is provided. It ensures consistent and meaningful default filenames in scenarios where no explicit name is provided.
+    
+    Args:
+        obj: An object that may have a 'name' attribute, such as a file-like object or stream
+    
+    Returns:
+        The base filename if the object's name is a valid string not starting or ending with angle brackets, otherwise None
+    """
     name = getattr(obj, "name", None)
     if name and isinstance(name, basestring) and name[0] != "<" and name[-1] != ">":
         return os.path.basename(name)
 
 
 def extract_zipped_paths(path):
-    """Replace nonexistent paths that look like they refer to a member of a zip
-    archive with the location of an extracted copy of the target, or else
-    just return the provided path unchanged.
+    """
+    Replace paths pointing to members within ZIP archives with the local extracted file path, enabling seamless access to archive contents without requiring manual extraction.
+    
+    This is particularly useful in the context of Requests, where users may need to work with compressed assets (e.g., bundled resources or downloadable archives) as if they were regular files. By automatically extracting archive members on-demand, the function supports efficient, transparent access to embedded content during HTTP workflows.
+    
+    Args:
+        path: A file path that may refer to a member within a ZIP archive
+    
+    Returns:
+        The local path to the extracted file if the archive and member are valid; otherwise, returns the original path unchanged
     """
     if os.path.exists(path):
         # this is already a valid path, no need to do anything further
@@ -294,7 +341,14 @@ def extract_zipped_paths(path):
 
 @contextlib.contextmanager
 def atomic_open(filename):
-    """Write a file to the disk in an atomic fashion"""
+    """
+    Write a file to disk atomically, ensuring data integrity during writes.
+    
+    This function is used internally by Requests to safely write temporary data (such as response content) to disk without risking corruption or partial writes. By creating a temporary file first and then replacing the target file in a single atomic operation, it prevents race conditions and ensures that either the entire file is written successfully or no changes are made at all—critical for maintaining consistency when handling HTTP responses or cached data.
+    
+    Args:
+        filename: The path to the file to be written; the final file will be created or replaced atomically
+    """
     tmp_descriptor, tmp_name = tempfile.mkstemp(dir=os.path.dirname(filename))
     try:
         with os.fdopen(tmp_descriptor, "wb") as tmp_handler:
@@ -306,22 +360,11 @@ def atomic_open(filename):
 
 
 def from_key_val_list(value):
-    """Take an object and test to see if it can be represented as a
-    dictionary. Unless it can not be represented as such, return an
-    OrderedDict, e.g.,
-
-    ::
-
-        >>> from_key_val_list([('key', 'val')])
-        OrderedDict([('key', 'val')])
-        >>> from_key_val_list('string')
-        Traceback (most recent call last):
-        ...
-        ValueError: cannot encode objects that are not 2-tuples
-        >>> from_key_val_list({'key': 'val'})
-        OrderedDict([('key', 'val')])
-
-    :rtype: OrderedDict
+    """
+    Convert a value into an ordered dictionary representation, preserving key-value order for consistent serialization and HTTP header or form data processing.
+    
+    Args:
+        value: An iterable of 2-tuples, a dictionary, or a similar structure containing key-value pairs. The function is used internally to normalize input data for HTTP requests, ensuring that order is preserved when sending data in requests (e.g., form data, headers, or query parameters), which is critical for predictable and correct HTTP behavior.
     """
     if value is None:
         return None
@@ -333,21 +376,11 @@ def from_key_val_list(value):
 
 
 def to_key_val_list(value):
-    """Take an object and test to see if it can be represented as a
-    dictionary. If it can be, return a list of tuples, e.g.,
-
-    ::
-
-        >>> to_key_val_list([('key', 'val')])
-        [('key', 'val')]
-        >>> to_key_val_list({'key': 'val'})
-        [('key', 'val')]
-        >>> to_key_val_list('string')
-        Traceback (most recent call last):
-        ...
-        ValueError: cannot encode objects that are not 2-tuples
-
-    :rtype: list
+    """
+    Convert various input types into a list of key-value tuples, supporting flexible data formats for HTTP request parameters.
+    
+    Args:
+        value: An object that may be a list of tuples, a dictionary, or another iterable. The function is used to normalize input data into a consistent format suitable for constructing HTTP request parameters, such as query strings or form data, ensuring compatibility across different data sources in the Requests library.
     """
     if value is None:
         return None
@@ -363,27 +396,14 @@ def to_key_val_list(value):
 
 # From mitsuhiko/werkzeug (used with permission).
 def parse_list_header(value):
-    """Parse lists as described by RFC 2068 Section 2.
-
-    In particular, parse comma-separated lists where the elements of
-    the list may include quoted-strings.  A quoted-string could
-    contain a comma.  A non-quoted string could have quotes in the
-    middle.  Quotes are removed automatically after parsing.
-
-    It basically works like :func:`parse_set_header` just that items
-    may appear multiple times and case sensitivity is preserved.
-
-    The return value is a standard :class:`list`:
-
-    >>> parse_list_header('token, "quoted value"')
-    ['token', 'quoted value']
-
-    To create a header from the :class:`list` again, use the
-    :func:`dump_header` function.
-
-    :param value: a string with a list header.
-    :return: :class:`list`
-    :rtype: list
+    """
+    Parse comma-separated header values with support for quoted strings, as defined in RFC 2068 Section 2. This function is essential in Requests for correctly handling HTTP headers that contain list-like data, such as `Accept`, `Content-Type`, or `Set-Cookie`, where values may include commas within quoted strings or have case-sensitive content.
+    
+    Args:
+        value: A string containing a list of header values, potentially including quoted substrings with embedded commas.
+    
+    Returns:
+        A list of parsed values with quotes stripped and proper unquoting applied, preserving case sensitivity and allowing duplicate entries—ideal for reconstructing headers using `dump_header` while maintaining compliance with HTTP standards.
     """
     result = []
     for item in _parse_list_header(value):
@@ -395,26 +415,16 @@ def parse_list_header(value):
 
 # From mitsuhiko/werkzeug (used with permission).
 def parse_dict_header(value):
-    """Parse lists of key, value pairs as described by RFC 2068 Section 2 and
-    convert them into a python dict:
-
-    >>> d = parse_dict_header('foo="is a fish", bar="as well"')
-    >>> type(d) is dict
-    True
-    >>> sorted(d.items())
-    [('bar', 'as well'), ('foo', 'is a fish')]
-
-    If there is no value for a key it will be `None`:
-
-    >>> parse_dict_header('key_without_value')
-    {'key_without_value': None}
-
-    To create a header from the :class:`dict` again, use the
-    :func:`dump_header` function.
-
-    :param value: a string with a dict header.
-    :return: :class:`dict`
-    :rtype: dict
+    """
+    Parse a header value containing key-value pairs (as defined in RFC 2068 Section 2) into a Python dictionary, enabling easy handling of structured header data in HTTP requests.
+    
+    This function is essential in Requests for processing HTTP headers that contain multiple named parameters, such as those used in Content-Type or Set-Cookie headers, allowing the library to correctly interpret and manipulate complex header values.
+    
+    Args:
+        value: A string containing comma-separated key-value pairs, where values may be quoted.
+    
+    Returns:
+        A dictionary mapping header keys to their corresponding values, with unquoted values and None for keys without values.
     """
     result = {}
     for item in _parse_list_header(value):
@@ -430,6 +440,16 @@ def parse_dict_header(value):
 
 # From mitsuhiko/werkzeug (used with permission).
 def unquote_header_value(value, is_filename=False):
+    """
+    Unquotes header values to handle browser-specific quoting behavior, ensuring compatibility with real-world HTTP headers, particularly for filenames in file uploads.
+    
+    Args:
+        value: The header value to unquote, typically from Content-Disposition or similar headers.
+        is_filename: If True, treats the value as a filename and skips unquoting UNC paths (e.g., \\\\server\\share) to prevent breaking IE compatibility.
+    
+    Returns:
+        The unquoted header value with backslashes and quotes properly normalized, preserving correct path formatting for filenames.
+    """
     r"""Unquotes a header value.  (Reversal of :func:`quote_header_value`).
     This does not use the real unquoting but what browsers are actually
     using for quoting.
@@ -455,10 +475,16 @@ def unquote_header_value(value, is_filename=False):
 
 
 def dict_from_cookiejar(cj):
-    """Returns a key/value dictionary from a CookieJar.
-
-    :param cj: CookieJar object to extract cookies from.
-    :rtype: dict
+    """
+    Converts a CookieJar object into a dictionary of cookie names and values for easy access and manipulation.
+    
+    This function is particularly useful in the context of HTTP sessions where cookies need to be extracted, inspected, or passed to other components—such as when persisting session state or debugging request behavior. It enables seamless integration with other parts of the Requests library that expect simple key-value mappings.
+    
+    Args:
+        cj: CookieJar object containing cookies to extract
+    
+    Returns:
+        A dictionary mapping cookie names to their corresponding values
     """
 
     cookie_dict = {cookie.name: cookie.value for cookie in cj}
@@ -466,20 +492,33 @@ def dict_from_cookiejar(cj):
 
 
 def add_dict_to_cookiejar(cj, cookie_dict):
-    """Returns a CookieJar from a key/value dictionary.
-
-    :param cj: CookieJar to insert cookies into.
-    :param cookie_dict: Dict of key/values to insert into CookieJar.
-    :rtype: CookieJar
+    """
+    Converts a dictionary of cookies into a CookieJar for use in HTTP sessions.
+    
+    This function enables seamless integration of key-value cookie data into a CookieJar, which is essential for maintaining persistent session state across multiple requests. By leveraging Requests' session management capabilities, this allows developers to easily set cookies programmatically, supporting use cases like web scraping, API authentication, and stateful interactions with web services.
+    
+    Args:
+        cj: CookieJar to insert cookies into.
+        cookie_dict: Dictionary of cookie names and values to be added to the CookieJar.
+    
+    Returns:
+        The updated CookieJar with the provided cookies inserted.
     """
 
     return cookiejar_from_dict(cookie_dict, cj)
 
 
 def get_encodings_from_content(content):
-    """Returns encodings from given content string.
-
-    :param content: bytestring to extract encodings from.
+    """
+    Extracts character encodings declared in HTML or XML content to determine how the content should be decoded.
+    
+    This function is used internally by Requests to identify the encoding of response content when it's not explicitly provided in the HTTP headers. By parsing common encoding declarations in the document's metadata (such as `<meta charset="...">`, `<meta content="...;charset=...">`, or `<?xml encoding="...">`), Requests can correctly decode the response body, ensuring accurate text representation. This is especially important for handling non-ASCII content from web servers that don't specify encoding in headers.
+    
+    Args:
+        content: Bytestring containing HTML or XML content to extract encoding declarations from.
+    
+    Returns:
+        List of encoding strings found in the content, in order of discovery from different sources.
     """
     warnings.warn(
         (
@@ -502,11 +541,14 @@ def get_encodings_from_content(content):
 
 
 def _parse_content_type_header(header):
-    """Returns content type and parameters from given header
-
-    :param header: string
-    :return: tuple containing content type and dictionary of
-         parameters
+    """
+    Parses a Content-Type header to extract the content type and its parameters, which is essential for correctly interpreting the format and encoding of HTTP response bodies.
+    
+    Args:
+        header: The raw Content-Type header string from an HTTP response.
+    
+    Returns:
+        A tuple containing the content type (e.g., 'application/json') and a dictionary of parameters (e.g., {'charset': 'utf-8'}), enabling proper handling of data encoding and parsing in Requests' internal processing.
     """
 
     tokens = header.split(";")
@@ -527,10 +569,13 @@ def _parse_content_type_header(header):
 
 
 def get_encoding_from_headers(headers):
-    """Returns encodings from given HTTP Header Dict.
-
-    :param headers: dictionary to extract encoding from.
-    :rtype: str
+    """
+    Extracts character encoding from HTTP headers to ensure proper text decoding.
+    
+    The function determines the appropriate encoding for response content based on the Content-Type header, which is essential for correctly interpreting text data in HTTP responses. This supports Requests' goal of simplifying HTTP interactions by automatically handling encoding detection, ensuring accurate decoding of response bodies without requiring manual intervention.
+    
+    Args:
+        headers: Dictionary containing HTTP headers, typically from a response.
     """
 
     content_type = headers.get("content-type")
@@ -552,7 +597,16 @@ def get_encoding_from_headers(headers):
 
 
 def stream_decode_response_unicode(iterator, r):
-    """Stream decodes an iterator."""
+    """
+    Stream-decodes response content from an iterator using the response's encoding, ensuring proper Unicode handling for large or chunked responses.
+    
+    Args:
+        iterator: An iterable yielding byte chunks from the HTTP response body.
+        r: The response object containing the encoding information to use for decoding.
+    
+    Returns:
+        An iterator yielding decoded Unicode strings, with any invalid bytes replaced using the 'replace' error handler.
+    """
 
     if r.encoding is None:
         yield from iterator
@@ -569,7 +623,13 @@ def stream_decode_response_unicode(iterator, r):
 
 
 def iter_slices(string, slice_length):
-    """Iterate over slices of a string."""
+    """
+    Iterate over fixed-length slices of a string, useful for processing large text data in chunks during HTTP request handling.
+    
+    Args:
+        string: The input string to be sliced.
+        slice_length: The length of each slice; if None or non-positive, the entire string is returned as a single slice.
+    """
     pos = 0
     if slice_length is None or slice_length <= 0:
         slice_length = len(string)
@@ -579,16 +639,14 @@ def iter_slices(string, slice_length):
 
 
 def get_unicode_from_response(r):
-    """Returns the requested content back in unicode.
-
-    :param r: Response object to get unicode content from.
-
-    Tried:
-
-    1. charset from content-type
-    2. fall back and replace all unicode characters
-
-    :rtype: str
+    """
+    Extracts Unicode text from an HTTP response, handling encoding gracefully to ensure consistent text output.
+    
+    Args:
+        r: Response object from which to extract Unicode content. The function attempts to use the charset specified in the response headers, falling back to error replacement if decoding fails.
+    
+    Returns:
+        The response content as a Unicode string, with invalid characters replaced when necessary. This ensures reliable text processing across different encodings, which is essential for consistent data handling in web interactions.
     """
     warnings.warn(
         (
@@ -624,10 +682,16 @@ UNRESERVED_SET = frozenset(
 
 
 def unquote_unreserved(uri):
-    """Un-escape any percent-escape sequences in a URI that are unreserved
-    characters. This leaves all reserved, illegal and non-ASCII bytes encoded.
-
-    :rtype: str
+    """
+    Un-escape percent-encoded characters in a URI only if they represent unreserved characters, preserving reserved, illegal, and non-ASCII sequences unchanged.
+    
+    This ensures that URI components remain properly encoded according to RFC 3986, which is essential for maintaining valid and predictable URL structure when constructing or manipulating HTTP requests. By only decoding safe, unreserved characters (like letters, digits, and certain punctuation), the function prevents unintended changes to reserved characters (e.g., `?`, `&`, `=`) that have special meaning in URLs.
+    
+    Args:
+        uri: The URI string containing percent-encoded sequences to process.
+    
+    Returns:
+        A new URI string with unreserved percent-escape sequences decoded, while all other sequences remain encoded.
     """
     parts = uri.split("%")
     for i in range(1, len(parts)):
@@ -648,12 +712,16 @@ def unquote_unreserved(uri):
 
 
 def requote_uri(uri):
-    """Re-quote the given URI.
-
-    This function passes the given URI through an unquote/quote cycle to
-    ensure that it is fully and consistently quoted.
-
-    :rtype: str
+    """
+    Re-quote a URI to ensure consistent and correct URL encoding, particularly handling percent signs that may have been left unquoted.
+    
+    This function is used internally in Requests to normalize URIs after parsing or manipulation, ensuring that reserved characters and percent signs are properly encoded. This prevents issues when constructing or sending HTTP requests, especially when dealing with URLs containing special characters or malformed encoding.
+    
+    Args:
+        uri: The URI string to re-quote
+    
+    Returns:
+        A properly quoted URI string with consistent encoding, ensuring safe and correct HTTP request construction
     """
     safe_with_percent = "!#$%&'()*+,/:;=?@[]~"
     safe_without_percent = "!#$&'()*+,/:;=?@[]~"
@@ -670,12 +738,17 @@ def requote_uri(uri):
 
 
 def address_in_network(ip, net):
-    """This function allows you to check if an IP belongs to a network subnet
-
-    Example: returns True if ip = 192.168.1.1 and net = 192.168.1.0/24
-             returns False if ip = 192.168.1.1 and net = 192.168.100.0/24
-
-    :rtype: bool
+    """
+    Checks whether an IP address belongs to a specified network subnet, enabling network validation within HTTP client operations.
+    
+    This function is particularly useful in scenarios where Requests needs to determine if a target IP falls within a trusted or expected network range, such as when implementing network-based access controls or validating connectivity in secure environments.
+    
+    Args:
+        ip: The IP address to check, in standard dotted-decimal notation (e.g., "192.168.1.1").
+        net: The network subnet in CIDR notation (e.g., "192.168.1.0/24").
+    
+    Returns:
+        True if the IP is within the specified network subnet; False otherwise.
     """
     ipaddr = struct.unpack("=L", socket.inet_aton(ip))[0]
     netaddr, bits = net.split("/")
@@ -685,11 +758,13 @@ def address_in_network(ip, net):
 
 
 def dotted_netmask(mask):
-    """Converts mask from /xx format to xxx.xxx.xxx.xxx
-
-    Example: if mask is 24 function returns 255.255.255.0
-
-    :rtype: str
+    """
+    Converts a CIDR notation subnet mask (e.g., /24) to its dotted decimal format (e.g., 255.255.255.0).
+    
+    This utility is used within Requests to support network configuration and IP address manipulation, particularly when working with network-related features such as proxy settings, IP filtering, or when interfacing with systems that require traditional netmask notation. The function enables consistent representation of subnet masks across different parts of the library.
+    
+    Returns:
+        The dotted decimal representation of the subnet mask as a string.
     """
     bits = 0xFFFFFFFF ^ (1 << 32 - mask) - 1
     return socket.inet_ntoa(struct.pack(">I", bits))
@@ -697,7 +772,15 @@ def dotted_netmask(mask):
 
 def is_ipv4_address(string_ip):
     """
-    :rtype: bool
+    Check if a given string is a valid IPv4 address.
+    
+    This function is used internally by Requests to validate IP addresses when handling network connections or DNS resolution. Ensuring the IP format is correct helps prevent errors during HTTP request setup, particularly when connecting directly to hosts via IP instead of domain names.
+    
+    Args:
+        string_ip: The string to validate as an IPv4 address.
+    
+    Returns:
+        True if the string is a valid IPv4 address, False otherwise.
     """
     try:
         socket.inet_aton(string_ip)
@@ -708,9 +791,15 @@ def is_ipv4_address(string_ip):
 
 def is_valid_cidr(string_network):
     """
-    Very simple check of the cidr format in no_proxy variable.
-
-    :rtype: bool
+    Validates whether a given string follows the CIDR (Classless Inter-Domain Routing) format used in the no_proxy environment variable.
+    
+    This check ensures that network addresses specified in no_proxy are properly formatted with a valid IP address and subnet mask (e.g., 192.168.1.0/24), which is essential for correctly excluding specific networks from proxy usage in HTTP requests. The validation confirms both the syntax and semantic correctness of the CIDR notation.
+    
+    Args:
+        string_network: A string representing a network in CIDR format (e.g., '10.0.0.0/24').
+    
+    Returns:
+        True if the string is a valid CIDR notation, False otherwise.
     """
     if string_network.count("/") == 1:
         try:
@@ -732,12 +821,15 @@ def is_valid_cidr(string_network):
 
 @contextlib.contextmanager
 def set_environ(env_name, value):
-    """Set the environment variable 'env_name' to 'value'
-
-    Save previous value, yield, and then restore the previous value stored in
-    the environment variable 'env_name'.
-
-    If 'value' is None, do nothing"""
+    """
+    Temporarily set an environment variable for the duration of a context, preserving the original value.
+    
+    This is useful in testing or temporary configuration scenarios where you need to modify environment settings without affecting the global state. The function ensures that any changes are automatically reverted after the context exits, maintaining clean isolation—critical for reliable test suites and transient operations within Requests' ecosystem.
+    
+    Args:
+        env_name: The name of the environment variable to modify.
+        value: The value to set. If None, no changes are made.
+    """
     value_changed = value is not None
     if value_changed:
         old_value = os.environ.get(env_name)
@@ -754,9 +846,16 @@ def set_environ(env_name, value):
 
 def should_bypass_proxies(url, no_proxy):
     """
-    Returns whether we should bypass proxies or not.
-
-    :rtype: bool
+    Determines whether a given URL should bypass configured proxies, based on the no_proxy environment variable or explicit no_proxy setting.
+    
+    This function is essential for maintaining security and network efficiency in Requests by ensuring that certain URLs—such as internal services or local resources—are not routed through external proxies. It checks both IP addresses and hostnames against the no_proxy list, supporting CIDR notation and port-aware matching.
+    
+    Args:
+        url: The URL to evaluate for proxy bypass.
+        no_proxy: Optional explicit no_proxy setting; if None, the function checks the NO_PROXY environment variable.
+    
+    Returns:
+        True if the URL should bypass proxies, False otherwise.
     """
 
     # Prioritize lowercase environment variables over uppercase
@@ -815,9 +914,16 @@ def should_bypass_proxies(url, no_proxy):
 
 def get_environ_proxies(url, no_proxy=None):
     """
-    Return a dict of environment proxies.
-
-    :rtype: dict
+    Return a dictionary of proxy settings from environment variables, excluding proxies when the URL should be bypassed.
+    
+    This function determines whether to use system-provided proxy settings based on environment variables (like HTTP_PROXY, HTTPS_PROXY) and respects the NO_PROXY setting to avoid routing certain URLs through proxies. It's used internally by Requests to ensure that requests are routed correctly according to system configuration and security policies, helping maintain consistent and predictable network behavior across different environments.
+    
+    Args:
+        url: The URL being requested, used to determine if proxies should be bypassed.
+        no_proxy: Optional list of host patterns to exclude from proxy usage, typically derived from the NO_PROXY environment variable.
+    
+    Returns:
+        A dictionary mapping protocol (http, https) to proxy URLs if proxies are configured and applicable; otherwise, an empty dictionary when bypassing proxies.
     """
     if should_bypass_proxies(url, no_proxy=no_proxy):
         return {}
@@ -826,10 +932,17 @@ def get_environ_proxies(url, no_proxy=None):
 
 
 def select_proxy(url, proxies):
-    """Select a proxy for the url, if applicable.
-
-    :param url: The url being for the request
-    :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs
+    """
+    Select an appropriate proxy for a given URL based on configured proxy settings.
+    
+    This function enables Requests to route HTTP requests through specified proxies when needed, supporting fine-grained control over proxy usage by scheme and host. It prioritizes specific proxy configurations (scheme://host), falls back to scheme-only proxies, and defaults to a global proxy if no specific match is found.
+    
+    Args:
+        url: The URL being requested, used to determine the appropriate proxy based on scheme and hostname
+        proxies: A dictionary mapping proxy schemes or scheme-host combinations to proxy URLs, or None to use no proxies
+    
+    Returns:
+        The selected proxy URL if one matches the request, otherwise None
     """
     proxies = proxies or {}
     urlparts = urlparse(url)
@@ -852,15 +965,16 @@ def select_proxy(url, proxies):
 
 
 def resolve_proxies(request, proxies, trust_env=True):
-    """This method takes proxy information from a request and configuration
-    input to resolve a mapping of target proxies. This will consider settings
-    such as NO_PROXY to strip proxy configurations.
-
-    :param request: Request or PreparedRequest
-    :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs
-    :param trust_env: Boolean declaring whether to trust environment configs
-
-    :rtype: dict
+    """
+    Resolves the appropriate proxy configuration for a given request by combining user-provided proxies with environment settings, while respecting NO_PROXY rules to avoid proxying certain destinations. This ensures secure and correct proxy usage in HTTP requests, which is essential for applications that need to route traffic through proxies while maintaining bypass rules for internal or sensitive domains.
+    
+    Args:
+        request: The request object (or PreparedRequest) containing the URL to determine proxy settings for.
+        proxies: A dictionary mapping URL schemes (e.g., 'http', 'https') or specific hosts to proxy URLs, or None.
+        trust_env: Whether to consider system environment variables (like HTTP_PROXY, NO_PROXY) when determining proxy settings.
+    
+    Returns:
+        A dictionary of proxy configurations for each scheme, updated with environment-provided proxies when applicable and bypassed according to NO_PROXY rules.
     """
     proxies = proxies if proxies is not None else {}
     url = request.url
@@ -880,16 +994,25 @@ def resolve_proxies(request, proxies, trust_env=True):
 
 def default_user_agent(name="python-requests"):
     """
-    Return a string representing the default user agent.
-
-    :rtype: str
+    Return a default user agent string used to identify requests made by the library.
+    
+    This helps server-side applications recognize traffic originating from Requests, which is useful for analytics, rate limiting, and debugging. The user agent includes the library name and version to provide transparency about the client making the request.
+    
+    Args:
+        name: Custom identifier to include in the user agent (default: "python-requests")
+    
+    Returns:
+        A formatted user agent string combining the provided name and the current library version
     """
     return f"{name}/{__version__}"
 
 
 def default_headers():
     """
-    :rtype: requests.structures.CaseInsensitiveDict
+    Returns a set of default HTTP headers used by the Requests library to ensure consistent and efficient HTTP communication. These headers help identify the client, manage content encoding, and maintain persistent connections, aligning with best practices for web interactions.
+    
+    Returns:
+        A CaseInsensitiveDict containing default headers including User-Agent, Accept-Encoding, Accept, and Connection.
     """
     return CaseInsensitiveDict(
         {
@@ -902,11 +1025,16 @@ def default_headers():
 
 
 def parse_header_links(value):
-    """Return a list of parsed link headers proxies.
-
-    i.e. Link: <http:/.../front.jpeg>; rel=front; type="image/jpeg",<http://.../back.jpeg>; rel=back;type="image/jpeg"
-
-    :rtype: list
+    """
+    Parse HTTP Link headers into a structured list of dictionaries for easy access to URLs and their associated parameters.
+    
+    Link headers are commonly used in HTTP responses to provide metadata about related resources, such as pagination links, alternate representations, or resource relationships. This function extracts and parses these links, making it easier for developers to navigate and utilize linked resources in API interactions.
+    
+    Args:
+        value: A string containing one or more Link headers, formatted as per RFC 5988 (e.g., `<url>; rel=type; type="mime"`).
+    
+    Returns:
+        A list of dictionaries, each containing a 'url' key and any additional parameters from the link (e.g., 'rel', 'type'), enabling straightforward access to linked resources in API clients.
     """
 
     links = []
@@ -946,7 +1074,13 @@ _null3 = _null * 3
 
 def guess_json_utf(data):
     """
-    :rtype: str
+    Guess the UTF encoding of JSON data based on byte patterns and BOM detection.
+    
+    This function helps Requests correctly decode JSON responses by identifying the underlying encoding
+    when the content lacks explicit charset information. Since JSON always starts with ASCII characters,
+    the presence and position of null bytes (0x00) and byte order marks (BOMs) can reliably indicate
+    the encoding (UTF-8, UTF-16, or UTF-32). This ensures accurate parsing of JSON data regardless
+    of the encoding used by the server, which is critical for robust HTTP response handling.
     """
     # JSON always starts with two ASCII characters, so detection is as
     # easy as counting the nulls and from their location and count
@@ -977,10 +1111,17 @@ def guess_json_utf(data):
 
 
 def prepend_scheme_if_needed(url, new_scheme):
-    """Given a URL that may or may not have a scheme, prepend the given scheme.
-    Does not replace a present scheme with the one provided as an argument.
-
-    :rtype: str
+    """
+    Ensures a URL has a scheme by prepending the specified scheme if none is present, preserving existing schemes to maintain URL integrity.
+    
+    This function supports Requests' goal of simplifying HTTP interactions by handling malformed or incomplete URLs consistently, particularly when constructing requests from user-provided input that may lack a scheme (e.g., "example.com" instead of "https://example.com"). It maintains backward compatibility with legacy URL parsing behavior.
+    
+    Args:
+        url: The URL string that may or may not include a scheme.
+        new_scheme: The scheme to prepend if the URL lacks one (e.g., 'https').
+    
+    Returns:
+        A URL string with the scheme added if missing, otherwise unchanged.
     """
     parsed = parse_url(url)
     scheme, auth, host, port, path, query, fragment = parsed
@@ -1006,10 +1147,16 @@ def prepend_scheme_if_needed(url, new_scheme):
 
 
 def get_auth_from_url(url):
-    """Given a url with authentication components, extract them into a tuple of
-    username,password.
-
-    :rtype: (str,str)
+    """
+    Extract authentication credentials from a URL to support secure HTTP requests in the Requests library.
+    
+    This function enables the library to automatically parse and handle HTTP authentication details (username and password) embedded in URLs, which is essential for seamless authentication when making requests to protected resources. It ensures that credentials are properly decoded and returned in a usable format.
+    
+    Args:
+        url: The URL string containing optional authentication components (e.g., `https://user:pass@example.com`).
+    
+    Returns:
+        A tuple containing the decoded username and password as strings. If no authentication is present, returns ('', '').
     """
     parsed = urlparse(url)
 
@@ -1022,10 +1169,16 @@ def get_auth_from_url(url):
 
 
 def check_header_validity(header):
-    """Verifies that header parts don't contain leading whitespace
-    reserved characters, or return characters.
-
-    :param header: tuple, in the format (name, value).
+    """
+    Validates HTTP header components to ensure they don't contain invalid characters that could compromise request integrity or cause parsing issues.
+    
+    Headers must not include leading whitespace, reserved characters, or control characters like returns, as these can lead to malformed requests or security vulnerabilities. This validation helps maintain compatibility with HTTP standards and ensures reliable communication with web servers.
+    
+    Args:
+        header: Tuple containing (name, value) of the HTTP header to validate.
+    
+    Returns:
+        True if both header name and value are valid; raises ValueError otherwise.
     """
     name, value = header
     _validate_header_part(header, name, 0)
@@ -1033,6 +1186,17 @@ def check_header_validity(header):
 
 
 def _validate_header_part(header, header_part, header_validator_index):
+    """
+    Validates HTTP header names and values to ensure they conform to HTTP protocol standards, preventing malformed headers that could cause security issues or server rejection.
+    
+    Args:
+        header: The name of the header being validated (used in error messages)
+        header_part: The header part to validate, must be str or bytes
+        header_validator_index: Index indicating whether validating header name (0) or value (1)
+    
+    Returns:
+        None if validation passes; raises InvalidHeader if validation fails
+    """
     if isinstance(header_part, str):
         validator = _HEADER_VALIDATORS_STR[header_validator_index]
     elif isinstance(header_part, bytes):
@@ -1053,9 +1217,13 @@ def _validate_header_part(header, header_part, header_validator_index):
 
 def urldefragauth(url):
     """
-    Given a url remove the fragment and the authentication part.
-
-    :rtype: str
+    Remove the fragment identifier and authentication credentials from a URL to produce a clean, standardized endpoint for HTTP requests.
+    
+    Args:
+        url: The input URL containing optional fragment and authentication parts
+    
+    Returns:
+        A cleaned URL with no fragment and without user credentials, suitable for consistent request handling in the Requests library
     """
     scheme, netloc, path, params, query, fragment = urlparse(url)
 
@@ -1069,8 +1237,13 @@ def urldefragauth(url):
 
 
 def rewind_body(prepared_request):
-    """Move file pointer back to its recorded starting position
-    so it can be read again on redirect.
+    """
+    Rewind the request body to its original position to enable re-reading during HTTP redirects.
+    
+    This is necessary because HTTP redirects require the request body to be resent, but the body stream may have been consumed during the initial request. By rewinding the file pointer to its recorded starting position, the body can be read again, ensuring the redirect request includes the full original payload. This maintains the integrity of the request when following redirects, which is essential for proper API and web service interactions.
+    
+    Args:
+        prepared_request: The prepared request object containing the body stream and its recorded position.
     """
     body_seek = getattr(prepared_request.body, "seek", None)
     if body_seek is not None and isinstance(

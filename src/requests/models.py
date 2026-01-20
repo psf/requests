@@ -82,9 +82,28 @@ ITER_CHUNK_SIZE = 512
 
 
 class RequestEncodingMixin:
+    """
+    Mixin class to handle request encoding for HTTP requests.
+    
+        This class provides utility methods for encoding request parameters and files
+        in various formats, such as URL-encoded form data and multipart/form-data.
+    
+        Methods:
+        - path_url: Build the path URL to use.
+        - _encode_params: Encode parameters in a piece of data.
+        - _encode_files: Build the body for a multipart/form-data request.
+    """
+
     @property
     def path_url(self):
-        """Build the path URL to use."""
+        """
+        Construct the full path URL by combining the path and query parameters from the original URL.
+        
+        This ensures consistent URL formatting when making HTTP requests, preserving the path and query string components for accurate endpoint identification. This is particularly important in the Requests library to maintain correct request targeting and avoid unintended behavior due to malformed or incomplete URLs.
+        
+        Returns:
+            The reconstructed URL path with query parameters, if present
+        """
 
         url = []
 
@@ -105,11 +124,16 @@ class RequestEncodingMixin:
 
     @staticmethod
     def _encode_params(data):
-        """Encode parameters in a piece of data.
-
-        Will successfully encode parameters when passed as a dict or a list of
-        2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
-        if parameters are supplied as a dict.
+        """
+        Encode request parameters into a URL-encoded format for HTTP requests.
+        
+        This function prepares query parameters or form data by encoding keys and values to UTF-8, ensuring proper transmission in HTTP requests. It supports dictionaries and lists of 2-tuples, preserving order when input is a list while handling arbitrary ordering for dictionaries. The result is a properly formatted string suitable for inclusion in URLs or POST bodies, which is essential for Requests' core functionality of sending well-formed HTTP requests with correct parameter encoding.
+        
+        Args:
+            data: A dictionary, list of 2-tuples, string, or file-like object containing parameters to encode
+        
+        Returns:
+            A URL-encoded string representing the parameters, or the original input if it's already a string or file-like object
         """
 
         if isinstance(data, (str, bytes)):
@@ -135,13 +159,17 @@ class RequestEncodingMixin:
 
     @staticmethod
     def _encode_files(files, data):
-        """Build the body for a multipart/form-data request.
-
-        Will successfully encode files when passed as a dict or a list of
-        tuples. Order is retained if data is a list of tuples but arbitrary
-        if parameters are supplied as a dict.
-        The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, contentype)
-        or 4-tuples (filename, fileobj, contentype, custom_headers).
+        """
+        Build the multipart/form-data request body from file fields and form data, enabling proper encoding of files and form parameters for HTTP requests.
+        
+        This function is essential for uploading files via HTTP POST requests, particularly when using the `requests` library's multipart encoding capabilities. It handles various file input formats—including dictionaries, lists of tuples, and file-like objects—and ensures correct MIME encoding with proper content types and headers.
+        
+        Args:
+            files: A dictionary or list of tuples specifying file fields. Tuples can be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, content_type), or 4-tuples (filename, fileobj, content_type, custom_headers).
+            data: A dictionary or list of tuples containing non-file form fields to include in the request.
+        
+        Returns:
+            A tuple containing the encoded request body (bytes) and the corresponding Content-Type header value for multipart/form-data.
         """
         if not files:
             raise ValueError("Files must be provided.")
@@ -204,8 +232,34 @@ class RequestEncodingMixin:
 
 
 class RequestHooksMixin:
+    """
+    Mixin class to provide request hook functionality for HTTP clients.
+    
+        This class enables the registration and management of hooks that can be executed
+        before or after HTTP requests, allowing for customization of request behavior
+        such as authentication, logging, or request transformation.
+    
+        Attributes:
+        - _hooks: A dictionary storing registered hooks, where keys are hook types
+          (e.g., 'request', 'response') and values are lists of callable functions.
+    
+        Methods:
+        - register_hook: Register a hook function to be called during request processing.
+        - deregister_hook: Remove a previously registered hook function.
+        - _get_hooks: Retrieve the list of hooks for a given type.
+        - _run_hooks: Execute all hooks of a given type with provided arguments.
+    """
+
     def register_hook(self, event, hook):
-        """Properly register a hook."""
+        """
+        Register a callback function to be executed when a specific event occurs during request processing.
+        
+        This allows users to extend Requests' behavior by injecting custom logic at key points in the HTTP request lifecycle, such as before sending a request or after receiving a response. Hooks are essential for implementing features like logging, monitoring, automatic retry mechanisms, or modifying request/response data dynamically.
+        
+        Args:
+            event: The name of the event to register the hook for (e.g., 'pre_request', 'response').
+            hook: A callable function or iterable of callables to execute when the event is triggered.
+        """
 
         if event not in self.hooks:
             raise ValueError(f'Unsupported event specified, with event name "{event}"')
@@ -216,8 +270,17 @@ class RequestHooksMixin:
             self.hooks[event].extend(h for h in hook if isinstance(h, Callable))
 
     def deregister_hook(self, event, hook):
-        """Deregister a previously registered hook.
-        Returns True if the hook existed, False if not.
+        """
+        Remove a previously registered hook for a specific event, allowing fine-grained control over request/response processing.
+        
+        Args:
+            event: The event name (e.g., 'pre_request', 'response') for which the hook was registered.
+            hook: The function to be removed from the hook list for the specified event.
+        
+        Returns:
+            True if the hook was successfully removed (i.e., it existed), False if it was not found or already deregistered.
+        
+        This function enables dynamic modification of request lifecycle behavior—such as custom logging, authentication, or response transformation—by allowing hooks to be safely removed when no longer needed, maintaining clean and efficient execution flow in HTTP workflows.
         """
 
         try:
@@ -228,32 +291,34 @@ class RequestHooksMixin:
 
 
 class Request(RequestHooksMixin):
-    """A user-created :class:`Request <Request>` object.
-
-    Used to prepare a :class:`PreparedRequest <PreparedRequest>`, which is sent to the server.
-
-    :param method: HTTP method to use.
-    :param url: URL to send.
-    :param headers: dictionary of headers to send.
-    :param files: dictionary of {filename: fileobject} files to multipart upload.
-    :param data: the body to attach to the request. If a dictionary or
-        list of tuples ``[(key, value)]`` is provided, form-encoding will
-        take place.
-    :param json: json for the body to attach to the request (if files or data is not specified).
-    :param params: URL parameters to append to the URL. If a dictionary or
-        list of tuples ``[(key, value)]`` is provided, form-encoding will
-        take place.
-    :param auth: Auth handler or (user, pass) tuple.
-    :param cookies: dictionary or CookieJar of cookies to attach to this request.
-    :param hooks: dictionary of callback hooks, for internal usage.
-
-    Usage::
-
-      >>> import requests
-      >>> req = requests.Request('GET', 'https://httpbin.org/get')
-      >>> req.prepare()
-      <PreparedRequest [GET]>
     """
+    A customizable HTTP request object used to define and manage HTTP operations with flexibility and ease.
+    
+        Used to prepare a :class:`PreparedRequest <PreparedRequest>`, which is sent to the server.
+    
+        :param method: HTTP method to use.
+        :param url: URL to send.
+        :param headers: dictionary of headers to send.
+        :param files: dictionary of {filename: fileobject} files to multipart upload.
+        :param data: the body to attach to the request. If a dictionary or
+            list of tuples ``[(key, value)]`` is provided, form-encoding will
+            take place.
+        :param json: json for the body to attach to the request (if files or data is not specified).
+        :param params: URL parameters to append to the URL. If a dictionary or
+            list of tuples ``[(key, value)]`` is provided, form-encoding will
+            take place.
+        :param auth: Auth handler or (user, pass) tuple.
+        :param cookies: dictionary or CookieJar of cookies to attach to this request.
+        :param hooks: dictionary of callback hooks, for internal usage.
+    
+        Usage::
+    
+          >>> import requests
+          >>> req = requests.Request('GET', 'https://httpbin.org/get')
+          >>> req.prepare()
+          <PreparedRequest [GET]>
+    """
+
 
     def __init__(
         self,
@@ -268,6 +333,23 @@ class Request(RequestHooksMixin):
         hooks=None,
         json=None,
     ):
+        """
+        Initialize a request object to encapsulate HTTP request parameters for easy execution via the Requests library.
+        
+        This constructor sets up the foundational components of an HTTP request—such as method, URL, headers, and payload—enabling consistent and reusable request configurations. By providing sensible defaults and handling parameter normalization, it supports the library's goal of simplifying HTTP interactions for developers, making it easier to send requests with minimal boilerplate code.
+        
+        Args:
+            method: HTTP method to use (e.g., 'GET', 'POST') (default: None)
+            url: URL to send the request to (default: None)
+            headers: Dictionary of HTTP headers to include (default: empty dict)
+            files: List of files to send in the request (default: empty list)
+            data: Data to send in the request body (default: empty list)
+            params: Dictionary of URL parameters to append to the URL (default: empty dict)
+            auth: Authentication credentials (default: None)
+            cookies: Dictionary of cookies to include in the request (default: None)
+            hooks: Dictionary of event hooks to register (default: empty dict)
+            json: JSON data to send in the request body (default: None)
+        """
         # Default empty dicts for dict params.
         data = [] if data is None else data
         files = [] if files is None else files
@@ -290,10 +372,21 @@ class Request(RequestHooksMixin):
         self.cookies = cookies
 
     def __repr__(self):
+        """
+        Returns a concise, human-readable representation of the request object, displaying the HTTP method in angle brackets for easy identification during debugging or logging.
+        
+        Returns:
+            A formatted string in the form <Request [METHOD]>, where METHOD is the request's method attribute, enabling quick visual confirmation of the request type in interactive sessions or error traces.
+        """
         return f"<Request [{self.method}]>"
 
     def prepare(self):
-        """Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it."""
+        """
+        Constructs a prepared HTTP request object that is fully serialized and ready for transmission, enabling efficient and consistent sending of HTTP requests.
+        
+        Returns:
+            A fully prepared :class:`PreparedRequest <PreparedRequest>` object containing all request data in a format suitable for sending over the network.
+        """
         p = PreparedRequest()
         p.prepare(
             method=self.method,
@@ -311,27 +404,33 @@ class Request(RequestHooksMixin):
 
 
 class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
-    """The fully mutable :class:`PreparedRequest <PreparedRequest>` object,
-    containing the exact bytes that will be sent to the server.
-
-    Instances are generated from a :class:`Request <Request>` object, and
-    should not be instantiated manually; doing so may produce undesirable
-    effects.
-
-    Usage::
-
-      >>> import requests
-      >>> req = requests.Request('GET', 'https://httpbin.org/get')
-      >>> r = req.prepare()
-      >>> r
-      <PreparedRequest [GET]>
-
-      >>> s = requests.Session()
-      >>> s.send(r)
-      <Response [200]>
+    """
+    A mutable representation of an HTTP request that has been fully prepared for sending, including all necessary headers, body content, and encoding details to ensure accurate transmission to the server.
+    
+        Instances are generated from a :class:`Request <Request>` object, and
+        should not be instantiated manually; doing so may produce undesirable
+        effects.
+    
+        Usage::
+    
+          >>> import requests
+          >>> req = requests.Request('GET', 'https://httpbin.org/get')
+          >>> r = req.prepare()
+          >>> r
+          <PreparedRequest [GET]>
+    
+          >>> s = requests.Session()
+          >>> s.send(r)
+          <Response [200]>
     """
 
+
     def __init__(self):
+        """
+        Initialize a request object with default values for HTTP method, URL, headers, body, and hooks to support flexible and consistent HTTP request construction.
+        
+        This setup enables Requests to maintain a clean, predictable interface for building HTTP requests, allowing users to easily customize request parameters while ensuring internal consistency. The initial null values for method, URL, body, and cookies (to be populated later via `prepare_cookies`) provide flexibility during request preparation, while the empty `hooks` dictionary supports extensibility for event-driven behavior such as authentication or logging. This design aligns with Requests' goal of simplifying HTTP interactions by abstracting low-level details and offering a seamless, intuitive API.
+        """
         #: HTTP verb to send to the server.
         self.method = None
         #: HTTP URL to send the request to.
@@ -361,7 +460,21 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         hooks=None,
         json=None,
     ):
-        """Prepares the entire request with the given parameters."""
+        """
+        Prepares a complete HTTP request by assembling all components—method, URL, headers, cookies, body, authentication, and hooks—into a standardized format for sending.
+        
+        Args:
+            method: The HTTP method (e.g., GET, POST) to use for the request.
+            url: The target URL for the request, optionally including query parameters.
+            headers: Custom HTTP headers to include in the request.
+            files: Files to upload, typically used in multipart form data.
+            data: Form data or raw body content to send in the request body.
+            params: URL query parameters to append to the request URL.
+            auth: Authentication credentials or handler for authenticating the request.
+            cookies: Cookies to include in the request.
+            hooks: Callbacks to execute at various stages of the request lifecycle.
+            json: JSON data to serialize and send in the request body.
+        """
 
         self.prepare_method(method)
         self.prepare_url(url, params)
@@ -377,9 +490,22 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.prepare_hooks(hooks)
 
     def __repr__(self):
+        """
+        Returns a concise, human-readable representation of the PreparedRequest instance, primarily showing the HTTP method for debugging and logging purposes.
+        
+        This representation helps developers quickly identify the request method during troubleshooting or when inspecting request objects in interactive environments, aligning with Requests' goal of making HTTP interactions intuitive and transparent.
+        
+        Returns:
+            A formatted string in the form '<PreparedRequest [METHOD]>', where METHOD is the HTTP method of the request.
+        """
         return f"<PreparedRequest [{self.method}]>"
 
     def copy(self):
+        """
+        Create a deep copy of the current request object to ensure independent data structures for safe modification.
+        
+        This is essential in Requests for maintaining state integrity when working with sessions, hooks, or multiple request variations—allowing developers to safely modify copied requests without affecting the original, which supports reliable and predictable HTTP operations in complex workflows.
+        """
         p = PreparedRequest()
         p.method = self.method
         p.url = self.url
@@ -391,13 +517,27 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         return p
 
     def prepare_method(self, method):
-        """Prepares the given HTTP method."""
+        """
+        Normalizes the HTTP method to uppercase for consistent internal handling.
+        
+        Args:
+            method: The HTTP method (e.g., 'GET', 'POST') to prepare. Ensures case-insensitive method specification is standardized to uppercase, which supports reliable comparison and processing within the request lifecycle.
+        """
         self.method = method
         if self.method is not None:
             self.method = to_native_string(self.method.upper())
 
     @staticmethod
     def _get_idna_encoded_host(host):
+        """
+        Converts a host string to its IDNA-encoded form to ensure proper internationalized domain name handling in HTTP requests.
+        
+        Args:
+            host: The host string to encode, which may contain non-ASCII characters such as those from non-Latin scripts
+        
+        Returns:
+            The IDNA-encoded host string in UTF-8 format, enabling correct DNS resolution for internationalized domain names
+        """
         import idna
 
         try:
@@ -407,7 +547,16 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         return host
 
     def prepare_url(self, url, params):
-        """Prepares the given HTTP URL."""
+        """
+        Prepares an HTTP URL by normalizing its components, handling Unicode domains, encoding parameters, and ensuring valid URL structure for reliable HTTP requests.
+        
+        Args:
+            url: The URL string or bytes to prepare, which may include non-ASCII characters or require IDNA encoding.
+            params: Optional query parameters to encode and append to the URL.
+        
+        Returns:
+            The fully prepared and normalized HTTP URL string, ready for use in HTTP requests with proper encoding and validation.
+        """
         #: Accept objects that have string representations.
         #: We're unable to blindly call unicode/str functions
         #: as this will include the bytestring indicator (b'')
@@ -481,7 +630,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.url = url
 
     def prepare_headers(self, headers):
-        """Prepares the given HTTP headers."""
+        """
+        Prepares HTTP headers for use in requests, ensuring case-insensitive handling and validating header values for correctness.
+        
+        Args:
+            headers: A dictionary of HTTP headers to prepare. Invalid header values will raise an exception.
+        """
 
         self.headers = CaseInsensitiveDict()
         if headers:
@@ -492,7 +646,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 self.headers[to_native_string(name)] = value
 
     def prepare_body(self, data, files, json=None):
-        """Prepares the given HTTP body data."""
+        """
+        Prepares the HTTP request body by handling various data types including JSON, form data, file uploads, and streaming bodies.
+        
+        Args:
+            data: The request data, which can be a dictionary, string, file-like object, or iterator. Used for form encoding or as raw body content.
+            files: A dictionary of file fields and file contents for multipart encoding. Only used when uploading files.
+            json: A Python object to serialize as JSON. Used when sending JSON data in the request body.
+        """
 
         # Check if file, fo, generator, iterator.
         # If not, run through normal process.
@@ -570,7 +731,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         self.body = body
 
     def prepare_content_length(self, body):
-        """Prepare Content-Length header based on request method and body"""
+        """
+        Set the Content-Length header based on the request body and method to ensure proper HTTP protocol compliance.
+        
+        This function ensures that HTTP requests adhere to the expected format by setting the Content-Length header when a body is present, or explicitly setting it to 0 for methods that can have a body but don't. This is essential for reliable communication with servers, particularly when using chunked transfer encoding is not desired or supported. The logic prevents malformed requests and supports consistent behavior across different HTTP methods.
+        
+        Args:
+            body: The request body data, which may be a string, bytes, or iterable. If provided, its length determines the Content-Length value.
+        """
         if body is not None:
             length = super_len(body)
             if length:
@@ -586,7 +754,13 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             self.headers["Content-Length"] = "0"
 
     def prepare_auth(self, auth, url=""):
-        """Prepares the given HTTP auth data."""
+        """
+        Prepares HTTP authentication data for the request, extracting credentials from the URL if none are explicitly provided. This ensures secure and consistent authentication handling across requests, aligning with Requests' goal of simplifying HTTP interactions while supporting robust authentication workflows.
+        
+        Args:
+            auth: Authentication credentials (e.g., tuple for basic auth, or an Auth object), or None to extract from URL.
+            url: Optional URL to extract auth information from if auth is not provided.
+        """
 
         # If no Auth is explicitly provided, extract it from the URL first.
         if auth is None:
@@ -608,15 +782,13 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             self.prepare_content_length(self.body)
 
     def prepare_cookies(self, cookies):
-        """Prepares the given HTTP cookie data.
-
-        This function eventually generates a ``Cookie`` header from the
-        given cookies using cookielib. Due to cookielib's design, the header
-        will not be regenerated if it already exists, meaning this function
-        can only be called once for the life of the
-        :class:`PreparedRequest <PreparedRequest>` object. Any subsequent calls
-        to ``prepare_cookies`` will have no actual effect, unless the "Cookie"
-        header is removed beforehand.
+        """
+        Prepares HTTP cookie data for inclusion in the request headers.
+        
+        This function converts provided cookie data into a properly formatted Cookie header using cookielib, ensuring cookies are correctly serialized and included in outgoing requests. It is essential for maintaining session state and handling server-side cookies, which is a core capability of Requests for interacting with web services that rely on cookies for authentication and tracking.
+        
+        Args:
+            cookies: A dictionary of cookie key-value pairs, or a cookielib.CookieJar object containing cookie data to be included in the request.
         """
         if isinstance(cookies, cookielib.CookieJar):
             self._cookies = cookies
@@ -628,7 +800,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             self.headers["Cookie"] = cookie_header
 
     def prepare_hooks(self, hooks):
-        """Prepares the given hooks."""
+        """
+        Prepares and registers event hooks for HTTP request lifecycle events, enabling custom behavior during request processing.
+        
+        Args:
+            hooks: A dictionary mapping event names to callback functions. If None or falsy, an empty list is used to avoid iteration errors.
+        """
         # hooks can be passed as None to the prepare method and to this
         # method. To prevent iterating over None, simply use an empty list
         # if hooks is False-y
@@ -638,9 +815,11 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
 
 class Response:
-    """The :class:`Response <Response>` object, which contains a
-    server's response to an HTTP request.
     """
+    The :class:`Response <Response>` object, which contains a
+        server's response to an HTTP request.
+    """
+
 
     __attrs__ = [
         "_content",
@@ -656,6 +835,11 @@ class Response:
     ]
 
     def __init__(self):
+        """
+        Initialize a Response object with default values for HTTP response attributes.
+        
+        This constructor sets up the foundational state for an HTTP response within the Requests library, enabling consistent handling of response data across all HTTP operations. By initializing key attributes like status code, headers, cookies, and timing information to safe defaults, it ensures reliable behavior during request processing, redirect handling, and content retrieval—supporting Requests' core purpose of providing a simple, intuitive interface for HTTP interactions while maintaining internal consistency and extensibility. The response object serves as the primary container for all data returned from a server, allowing users to access content, headers, status, and metadata in a structured, predictable way.
+        """
         self._content = False
         self._content_consumed = False
         self._next = None
@@ -703,12 +887,36 @@ class Response:
         self.request = None
 
     def __enter__(self):
+        """
+        Enter the runtime context for this object, enabling it to be used in a 'with' statement.
+        
+        This allows the request session to be managed automatically, ensuring proper setup and cleanup of resources such as connections and cookies. The instance itself is returned to support fluent usage in context managers.
+        
+        Returns:
+            The instance itself, enabling use in 'with' statements.
+        """
         return self
 
     def __exit__(self, *args):
+        """
+        Closes the underlying connection and releases associated resources when exiting a context block.
+        
+        This ensures proper cleanup of network resources, preventing resource leaks and maintaining efficient connection handling across multiple requests. The context manager pattern is used to guarantee that connections are always closed, even if an exception occurs during request processing.
+        
+        Args:
+            args: Exception information passed by the context manager protocol (type, value, traceback), if an exception occurred.
+        """
         self.close()
 
     def __getstate__(self):
+        """
+        Returns a dictionary of instance attributes for pickling, ensuring all content is fully consumed before serialization to maintain data integrity.
+        
+        This is critical in Requests because response content may be lazily loaded from a stream. By consuming the content during pickling, we ensure that the serialized state reflects the complete, fully-read response body, preventing data loss or inconsistencies when the object is later unpickled.
+        
+        Returns:
+            Dictionary mapping attribute names to their values, including all attributes listed in __attrs__ (default: None if attribute not present)
+        """
         # Consume everything; accessing the content attribute makes
         # sure the content has been fully read.
         if not self._content_consumed:
@@ -717,6 +925,12 @@ class Response:
         return {attr: getattr(self, attr, None) for attr in self.__attrs__}
 
     def __setstate__(self, state):
+        """
+        Restores the object's state from a pickled representation, enabling persistent storage and reconstruction of request objects.
+        
+        Args:
+            state: Dictionary containing the attributes to restore on the object, allowing the object to resume its previous state after serialization.
+        """
         for name, value in state.items():
             setattr(self, name, value)
 
@@ -725,40 +939,56 @@ class Response:
         setattr(self, "raw", None)
 
     def __repr__(self):
+        """
+        Returns a concise, human-readable representation of the response object, showing its HTTP status code. This helps developers quickly identify the outcome of an HTTP request during debugging or interactive use, aligning with Requests' goal of making HTTP interactions intuitive and transparent.
+        
+        Returns:
+            A formatted string in the form <Response [status_code]>, where status_code is the HTTP status code of the response.
+        """
         return f"<Response [{self.status_code}]>"
 
     def __bool__(self):
-        """Returns True if :attr:`status_code` is less than 400.
-
-        This attribute checks if the status code of the response is between
-        400 and 600 to see if there was a client error or a server error. If
-        the status code, is between 200 and 400, this will return True. This
-        is **not** a check to see if the response code is ``200 OK``.
+        """
+        Returns True if the response status code indicates success (less than 400), enabling easy conditional checks for successful HTTP responses.
+        
+        This method supports the core purpose of Requests by providing a clean, intuitive way to determine if an HTTP request was successful without requiring explicit status code comparisons. It's commonly used in control flow to handle successful responses differently from client or server errors.
+        
+        Returns:
+            bool: True if the status code is less than 400, indicating a successful response.
         """
         return self.ok
 
     def __nonzero__(self):
-        """Returns True if :attr:`status_code` is less than 400.
-
-        This attribute checks if the status code of the response is between
-        400 and 600 to see if there was a client error or a server error. If
-        the status code, is between 200 and 400, this will return True. This
-        is **not** a check to see if the response code is ``200 OK``.
+        """
+        Returns True if the response status code indicates success (less than 400), which is useful for quickly determining whether an HTTP request was handled successfully by the server.
+        
+        This method supports the library's goal of simplifying HTTP interaction by providing a convenient way to check response success without manually comparing status codes. It's commonly used in conditional logic to handle successful responses differently from client or server errors.
+        
+        Returns:
+            bool: True if status code is less than 400, False otherwise
         """
         return self.ok
 
     def __iter__(self):
-        """Allows you to use a response as an iterator."""
+        """
+        Allows the response object to be iterated over, enabling efficient streaming of response content.
+        
+        This supports the library's goal of providing a simple, intuitive interface for handling HTTP responses, particularly for large payloads where loading the entire content into memory is impractical. By yielding chunks of data incrementally, it reduces memory usage and enables real-time processing.
+        
+        Returns:
+            An iterator that yields chunks of response content, 128 bytes at a time.
+        """
         return self.iter_content(128)
 
     @property
     def ok(self):
-        """Returns True if :attr:`status_code` is less than 400, False if not.
-
-        This attribute checks if the status code of the response is between
-        400 and 600 to see if there was a client error or a server error. If
-        the status code is between 200 and 400, this will return True. This
-        is **not** a check to see if the response code is ``200 OK``.
+        """
+        Returns True if the response status code indicates success (less than 400), False otherwise.
+        
+        This method is used to quickly determine whether an HTTP request was successful from the client's perspective, aligning with the library's goal of simplifying HTTP interaction. It checks for status codes in the 2xx range (successful) and 3xx range (redirects), which are generally considered acceptable outcomes. Unlike checking for a specific status like 200 OK, this method provides a broader success indicator suitable for general use in applications that need to handle various successful responses.
+        
+        Returns:
+            bool: True if the status code is less than 400, False otherwise
         """
         try:
             self.raise_for_status()
@@ -768,14 +998,24 @@ class Response:
 
     @property
     def is_redirect(self):
-        """True if this Response is a well-formed HTTP redirect that could have
-        been processed automatically (by :meth:`Session.resolve_redirects`).
+        """
+        Determines if the response represents a valid HTTP redirect that can be automatically handled by Requests' redirect resolution system.
+        
+        This is used internally by Session.resolve_redirects to determine whether a response should be followed automatically, ensuring consistent and predictable behavior when dealing with redirects in web requests. The check verifies both the presence of a Location header and that the status code is one of the standard redirect statuses.
+        
+        Returns:
+            True if the response is a well-formed redirect that can be processed automatically, False otherwise
         """
         return "location" in self.headers and self.status_code in REDIRECT_STATI
 
     @property
     def is_permanent_redirect(self):
-        """True if this Response one of the permanent versions of redirect."""
+        """
+        Checks if the response indicates a permanent redirect, which is important for handling URL changes correctly in web interactions.
+        
+        Returns:
+            True if the response has a Location header and a status code indicating a permanent redirect (301 or 308), False otherwise.
+        """
         return "location" in self.headers and self.status_code in (
             codes.moved_permanently,
             codes.permanent_redirect,
@@ -783,12 +1023,23 @@ class Response:
 
     @property
     def next(self):
-        """Returns a PreparedRequest for the next request in a redirect chain, if there is one."""
+        """
+        Returns the PreparedRequest for the next step in a redirect chain, allowing the request flow to continue seamlessly through redirects.
+        
+        This enables Requests to automatically handle HTTP redirects while maintaining the state and configuration of each request in the chain, which is essential for reliable web interactions and API consumption.
+        Returns:
+            PreparedRequest for the next request in the redirect chain, or None if no further redirects are available.
+        """
         return self._next
 
     @property
     def apparent_encoding(self):
-        """The apparent encoding, provided by the charset_normalizer or chardet libraries."""
+        """
+        Determines the most likely encoding of the response content using either charset_normalizer or chardet, falling back to UTF-8 if no detection library is available.
+        
+        Returns:
+            The detected encoding as a string, or 'utf-8' as a fallback when encoding detection is not possible.
+        """
         if chardet is not None:
             return chardet.detect(self.content)["encoding"]
         else:
@@ -797,20 +1048,17 @@ class Response:
             return "utf-8"
 
     def iter_content(self, chunk_size=1, decode_unicode=False):
-        """Iterates over the response data.  When stream=True is set on the
-        request, this avoids reading the content at once into memory for
-        large responses.  The chunk size is the number of bytes it should
-        read into memory.  This is not necessarily the length of each item
-        returned as decoding can take place.
-
-        chunk_size must be of type int or None. A value of None will
-        function differently depending on the value of `stream`.
-        stream=True will read data as it arrives in whatever size the
-        chunks are received. If stream=False, data is returned as
-        a single chunk.
-
-        If decode_unicode is True, content will be decoded using the best
-        available encoding based on the response.
+        """
+        Iterates over the response content in chunks, enabling efficient handling of large responses without loading the entire body into memory at once.
+        
+        This is particularly important for streaming responses (when `stream=True`) to prevent excessive memory usage, aligning with Requests' goal of providing a high-level, memory-efficient HTTP client for web interactions.
+        
+        Args:
+            chunk_size: The number of bytes to read at a time. If None, the behavior depends on the stream setting: with `stream=True`, data is read as it arrives in whatever size the chunks are received; with `stream=False`, the entire response is returned as a single chunk.
+            decode_unicode: If True, the content is decoded using the best available encoding based on the response headers, ensuring proper handling of Unicode text.
+        
+        Returns:
+            An iterator that yields chunks of the response content, optionally decoded if `decode_unicode` is True.
         """
 
         def generate():
@@ -857,11 +1105,15 @@ class Response:
     def iter_lines(
         self, chunk_size=ITER_CHUNK_SIZE, decode_unicode=False, delimiter=None
     ):
-        """Iterates over the response data, one line at a time.  When
-        stream=True is set on the request, this avoids reading the
-        content at once into memory for large responses.
-
-        .. note:: This method is not reentrant safe.
+        """
+        Iterates over response data line by line, enabling efficient processing of large responses without loading the entire content into memory.
+        
+        This is particularly useful when streaming responses (stream=True), as it allows incremental processing of data, which is essential for handling large or continuous data streams—such as real-time APIs or large file downloads—without exhausting system memory.
+        
+        Args:
+            chunk_size: The size of each chunk to read from the response stream.
+            decode_unicode: If True, attempts to decode bytes into Unicode using the response's encoding.
+            delimiter: Custom delimiter to split lines; if None, uses the default line break characters.
         """
 
         pending = None
@@ -889,7 +1141,14 @@ class Response:
 
     @property
     def content(self):
-        """Content of the response, in bytes."""
+        """
+        Returns the response body as bytes, lazily loading it on first access to optimize performance and memory usage.
+        
+        This allows users to efficiently retrieve raw response data without immediately consuming the entire content, which is especially useful for large responses or when only partial data is needed. The content is only read once and cached, ensuring subsequent accesses are fast and avoiding redundant network operations.
+        
+        Returns:
+            The response body as bytes, or None if the response has no content or the status code indicates an error.
+        """
 
         if self._content is False:
             # Read the contents.
@@ -908,15 +1167,13 @@ class Response:
 
     @property
     def text(self):
-        """Content of the response, in unicode.
-
-        If Response.encoding is None, encoding will be guessed using
-        ``charset_normalizer`` or ``chardet``.
-
-        The encoding of the response content is determined based solely on HTTP
-        headers, following RFC 2616 to the letter. If you can take advantage of
-        non-HTTP knowledge to make a better guess at the encoding, you should
-        set ``r.encoding`` appropriately before accessing this property.
+        """
+        Returns the response content as a Unicode string, automatically detecting encoding from HTTP headers or using heuristics if none is specified.
+        
+        This method enables users to easily access textual content from HTTP responses in a consistent, human-readable format, which is essential for processing web data such as HTML, JSON, or plain text. If no encoding is provided in the response headers, Requests attempts to guess the correct encoding using `charset_normalizer` or `chardet`, ensuring accurate text representation even when servers don't specify encoding properly.
+        
+        Returns:
+            The response body decoded into a Unicode string
         """
 
         # Try charset from content-type
@@ -945,6 +1202,17 @@ class Response:
         return content
 
     def json(self, **kwargs):
+        """
+        Decodes the response body as a JSON object, providing a convenient way to work with API responses that return structured data.
+        
+        This method is essential for interacting with modern web APIs, which commonly return data in JSON format. It handles encoding detection automatically and falls back to text-based decoding if needed, ensuring robustness across different server implementations.
+        
+        Args:
+            **kwargs: Additional arguments passed to json.loads for customizing parsing behavior
+        
+        Returns:
+            A Python object (dict, list, str, etc.) representing the parsed JSON content
+        """
         r"""Decodes the JSON response body (if any) as a Python object.
 
         This may return a dictionary, list, etc. depending on what is in the response.
@@ -981,7 +1249,12 @@ class Response:
 
     @property
     def links(self):
-        """Returns the parsed header links of the response, if any."""
+        """
+        Extracts and returns parsed link headers from the response, enabling easy navigation of related resources in API responses.
+        
+        Returns:
+            A dictionary of parsed link headers, keyed by the 'rel' attribute or URL if 'rel' is missing, allowing developers to easily access and follow hypermedia links as defined in the HTTP Link header.
+        """
 
         header = self.headers.get("link")
 
@@ -997,7 +1270,9 @@ class Response:
         return resolved_links
 
     def raise_for_status(self):
-        """Raises :class:`HTTPError`, if one occurred."""
+        """
+        Raises an HTTPError if the response status indicates an error (4xx or 5xx), providing a clear, descriptive message that includes the status code, reason, and URL. This function exists to help users quickly identify and handle HTTP errors during API interactions, aligning with Requests' goal of simplifying web requests by automatically detecting and signaling issues that require attention.
+        """
 
         http_error_msg = ""
         if isinstance(self.reason, bytes):
@@ -1026,10 +1301,10 @@ class Response:
             raise HTTPError(http_error_msg, response=self)
 
     def close(self):
-        """Releases the connection back to the pool. Once this method has been
-        called the underlying ``raw`` object must not be accessed again.
-
-        *Note: Should not normally need to be called explicitly.*
+        """
+        Closes the underlying connection and returns it to the connection pool, ensuring resources are properly released.
+        
+        This method is crucial for efficient connection management in Requests, as it allows reuse of connections across multiple requests—improving performance by avoiding repeated TCP handshakes. While typically handled automatically by the library, explicit calling may be necessary in scenarios involving long-lived sessions or when managing resources manually.
         """
         if not self._content_consumed:
             self.raw.close()

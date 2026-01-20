@@ -56,6 +56,16 @@ except ImportError:
 
 
 def check_compatibility(urllib3_version, chardet_version, charset_normalizer_version):
+    """
+    Checks compatibility of urllib3, chardet, and charset-normalizer versions to ensure reliable HTTP request handling in Requests.
+    
+    The function verifies that the installed versions of these dependencies meet minimum requirements for proper character encoding detection and HTTP connection management. This is critical for Requests' core functionality, as it relies on these libraries to correctly decode response content and manage network connections securely and efficiently. Ensuring compatibility prevents runtime issues when processing encoded data or establishing HTTPS connections.
+    
+    Args:
+        urllib3_version: The version string of urllib3 to check (e.g., "1.26.0").
+        chardet_version: The version string of chardet to check (if present).
+        charset_normalizer_version: The version string of charset-normalizer to check (if present).
+    """
     urllib3_version = urllib3_version.split(".")
     assert urllib3_version != ["dev"]  # Verify urllib3 isn't installed from git.
 
@@ -91,6 +101,17 @@ def check_compatibility(urllib3_version, chardet_version, charset_normalizer_ver
 
 
 def _check_cryptography(cryptography_version):
+    """
+    Checks if the installed cryptography version is outdated and warns if it may cause performance issues.
+    
+    The cryptography library is a critical dependency for Requests, handling SSL/TLS encryption and secure communications. Older versions (prior to 1.3.4) have known performance bottlenecks and security improvements that are important for maintaining efficient and secure HTTP requests. This check ensures users are aware of potential slowdowns due to outdated cryptography versions.
+    
+    Args:
+        cryptography_version: Version string of the cryptography library (e.g., '1.2.3')
+    
+    Returns:
+        None if version is not valid or not outdated; otherwise issues a warning about potential slowdowns
+    """
     # cryptography < 1.3.4
     try:
         cryptography_version = list(map(int, cryptography_version.split(".")))

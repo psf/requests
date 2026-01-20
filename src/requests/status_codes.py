@@ -107,6 +107,12 @@ codes = LookupDict(name="status_codes")
 
 
 def _init():
+    """
+    Initializes module-level constants for HTTP status codes and enriches the module's documentation with a formatted reference list. This enables easy access to status codes by name and improves usability by providing clear, searchable documentation directly in the module's docstring.
+    
+    Returns:
+        None
+    """
     for code, titles in _codes.items():
         for title in titles:
             setattr(codes, title, code)

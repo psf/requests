@@ -5,6 +5,15 @@ from pygments.token import Keyword, Name, Comment, String, Error, \
 
 
 class FlaskyStyle(Style):
+    """
+    FlaskyStyle is a utility class designed to manage and apply consistent styling configurations for web applications built with Flask. It provides a structured way to define, retrieve, and apply CSS styles, ensuring visual consistency across different components and pages.
+    
+        Attributes:
+        - background_color
+        - default_style
+        - styles
+    """
+
     background_color = "#f8f8f8"
     default_style = ""
 

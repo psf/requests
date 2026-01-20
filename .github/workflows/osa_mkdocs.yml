@@ -1,0 +1,25 @@
+name: MkDocs workflow
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+jobs:
+  mkdocs_deployment:
+    name: "[OSA] Deploying MkDocs"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: "[OSA] Checking-out repository"
+        uses: actions/checkout@v4
+      - name: "[OSA] Installing Python"
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - name: "[OSA] Installing MkDocs dependencies"
+        run: pip install mkdocs mkdocs-material mkdocstrings[python]
+      - name: "[OSA] MkDocs documentation deploying"
+        run: mkdocs gh-deploy --force --config-file osa_mkdocs.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

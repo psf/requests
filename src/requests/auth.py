@@ -23,7 +23,18 @@ CONTENT_TYPE_MULTI_PART = "multipart/form-data"
 
 
 def _basic_auth_str(username, password):
-    """Returns a Basic Auth string."""
+    """
+    Generates a Basic Authentication string for HTTP requests, compatible with the HTTP Basic Auth standard.
+    
+    This function is used internally by Requests to construct the Authorization header required for Basic Authentication, ensuring compatibility with servers expecting credentials in the format "Basic base64(username:password)". The function maintains backward compatibility by accepting non-string inputs (like integers) and converting them to strings, though this behavior is deprecated and will be removed in Requests 3.0.0.
+    
+    Args:
+        username: The username for authentication, which may be any object but should be a string or bytes in future versions.
+        password: The password for authentication, which may be any object but should be a string or bytes in future versions.
+    
+    Returns:
+        A properly formatted Basic Auth string (e.g., "Basic dXNlcm5hbWU6cGFzc3dvcmQ=") suitable for inclusion in HTTP Authorization headers.
+    """
 
     # "I want us to put a big-ol' comment on top of it that
     # says that this behaviour is dumb but we need to preserve
@@ -67,20 +78,48 @@ def _basic_auth_str(username, password):
 
 
 class AuthBase:
-    """Base class that all auth implementations derive from"""
+    """
+    Base class that all auth implementations derive from
+    """
+
 
     def __call__(self, r):
+        """
+        Calls the authentication hook to modify the request before it's sent, enabling custom authentication logic.
+        
+        Args:
+            r: The request object to be processed by the authentication hook, allowing modifications such as adding headers or credentials.
+        """
         raise NotImplementedError("Auth hooks must be callable.")
 
 
 class HTTPBasicAuth(AuthBase):
-    """Attaches HTTP Basic Authentication to the given Request object."""
+    """
+    Attaches HTTP Basic Authentication to the given Request object.
+    """
+
 
     def __init__(self, username, password):
+        """
+        Initializes a new authentication instance with the provided credentials for use in HTTP requests.
+        
+        Args:
+            username: The username for authenticating with web services.
+            password: The password for authenticating with web services.
+        """
         self.username = username
         self.password = password
 
     def __eq__(self, other):
+        """
+        Compare this instance with another for equality based on username and password attributes, which is essential for consistent authentication state comparison across request sessions.
+        
+        Args:
+            other: The object to compare against. If it lacks username or password attributes, they are treated as None.
+        
+        Returns:
+            True if both username and password attributes are equal, False otherwise.
+        """
         return all(
             [
                 self.username == getattr(other, "username", None),
@@ -89,31 +128,74 @@ class HTTPBasicAuth(AuthBase):
         )
 
     def __ne__(self, other):
+        """
+        Compares this object with another to determine inequality, used for consistent object comparison in Requests' internal operations.
+        
+        Args:
+            other: The object to compare against for inequality
+        
+        Returns:
+            True if the objects are not equal, False otherwise; essential for reliable equality checks in request handling and session management
+        """
         return not self == other
 
     def __call__(self, r):
+        """
+        Adds HTTP Basic Authentication to outgoing requests using stored credentials, enabling secure access to protected resources.
+        
+        Args:
+            r: The request object to modify, expected to have a 'headers' attribute
+        
+        Returns:
+            The modified request object with an Authorization header containing the Basic authentication credentials
+        """
         r.headers["Authorization"] = _basic_auth_str(self.username, self.password)
         return r
 
 
 class HTTPProxyAuth(HTTPBasicAuth):
-    """Attaches HTTP Proxy Authentication to a given Request object."""
+    """
+    Attaches HTTP Proxy Authentication to a given Request object.
+    """
+
 
     def __call__(self, r):
+        """
+        Adds a Proxy-Authorization header with basic authentication to HTTP requests, enabling secure access to protected proxy servers. This supports the library's goal of simplifying authenticated HTTP interactions, particularly when routing requests through authenticated proxies.
+        
+        Args:
+            r: The request object to modify, expected to have a 'headers' attribute
+        
+        Returns:
+            The modified request object with the Proxy-Authorization header added
+        """
         r.headers["Proxy-Authorization"] = _basic_auth_str(self.username, self.password)
         return r
 
 
 class HTTPDigestAuth(AuthBase):
-    """Attaches HTTP Digest Authentication to the given Request object."""
+    """
+    Attaches HTTP Digest Authentication to the given Request object.
+    """
+
 
     def __init__(self, username, password):
+        """
+        Initializes a new authentication instance with the provided credentials, enabling secure HTTP requests through the Requests library.
+        
+        Args:
+            username: The username for authenticating with the target server.
+            password: The password for authenticating with the target server.
+        """
         self.username = username
         self.password = password
         # Keep state in per-thread local storage
         self._thread_local = threading.local()
 
     def init_per_thread_state(self):
+        """
+        Initializes thread-local state for HTTP authentication tracking, ensuring each thread maintains isolated and consistent state for handling challenges, nonces, and 401 retry counts. This is critical in multi-threaded environments where concurrent requests may require independent authentication state management, preventing race conditions and ensuring accurate tracking of authentication attempts across threads.
+        """
         # Ensure state is initialized just once per-thread
         if not hasattr(self._thread_local, "init"):
             self._thread_local.init = True
@@ -125,7 +207,11 @@ class HTTPDigestAuth(AuthBase):
 
     def build_digest_header(self, method, url):
         """
-        :rtype: str
+        Builds a Digest authentication header for HTTP requests, enabling secure authentication with servers that support the Digest scheme. This function is part of Requests' authentication framework, allowing users to authenticate against protected resources without transmitting passwords in plain text, aligning with the library's goal of simplifying secure HTTP interactions.
+        
+        Args:
+            method: The HTTP method (e.g., GET, POST) used in the request.
+            url: The URL being requested, used to construct the request URI for the digest calculation.
         """
 
         realm = self._thread_local.chal["realm"]
@@ -234,15 +320,29 @@ class HTTPDigestAuth(AuthBase):
         return f"Digest {base}"
 
     def handle_redirect(self, r, **kwargs):
-        """Reset num_401_calls counter on redirects."""
+        """
+        Reset the 401 retry counter when a redirect occurs to prevent unnecessary authentication retries.
+        
+        Redirects can indicate a change in the request path or server configuration, which may require fresh authentication. By resetting the counter, the library ensures that subsequent requests are not blocked due to outdated retry state, maintaining reliable authentication flow during redirect chains.
+        
+        Args:
+            r: The response object being processed, used to determine if it's a redirect.
+        """
         if r.is_redirect:
             self._thread_local.num_401_calls = 1
 
     def handle_401(self, r, **kwargs):
         """
-        Takes the given response and tries digest-auth, if needed.
-
-        :rtype: requests.Response
+        Handles HTTP 401 Unauthorized responses by attempting digest authentication when necessary.
+        
+        When a request receives a 401 response, this function checks if the server requires digest authentication. If so, it retries the request with the appropriate Authorization header, preserving the original request's state such as cookies and body position. This enables seamless authentication without requiring manual intervention, aligning with Requests' goal of simplifying HTTP interactions and supporting automatic authentication for web services.
+        
+        Args:
+            r: The original response object that triggered the 401 status
+            **kwargs: Additional arguments passed to the connection send method
+        
+        Returns:
+            The updated response from the retry attempt, or the original response if no authentication was needed or applicable
         """
 
         # If response is not 4xx, do not auth
@@ -283,6 +383,17 @@ class HTTPDigestAuth(AuthBase):
         return r
 
     def __call__(self, r):
+        """
+        Applies HTTP Digest Authentication to a request by adding authentication headers and registering response hooks to handle 401 challenges and redirects.
+        
+        This enables secure, stateful authentication with servers that require digest authentication, ensuring requests are automatically re-attempted with valid credentials when challenged. It's part of Requests' broader support for authentication mechanisms, allowing seamless integration with protected web services.
+        
+        Args:
+            r: The request object to which authentication and hooks will be applied.
+        
+        Returns:
+            The modified request object with authentication headers and response hooks registered.
+        """
         # Initialize per-thread state, if needed
         self.init_per_thread_state()
         # If we have a saved nonce, skip the 401
@@ -303,6 +414,17 @@ class HTTPDigestAuth(AuthBase):
         return r
 
     def __eq__(self, other):
+        """
+        Compares two authentication instances for equality by checking if their username and password attributes match.
+        
+        This comparison is used to determine if two authentication objects represent the same credentials, which is essential for consistent authentication handling across requests, especially when validating or caching credentials in session-based workflows.
+        
+        Args:
+            other: The other instance to compare against for equality
+        
+        Returns:
+            True if both instances have matching username and password values, False otherwise
+        """
         return all(
             [
                 self.username == getattr(other, "username", None),
@@ -311,4 +433,13 @@ class HTTPDigestAuth(AuthBase):
         )
 
     def __ne__(self, other):
+        """
+        Compares this object with another to determine inequality, used for consistent object comparison in Requests' HTTP-related classes.
+        
+        Args:
+            other: The object to compare against for inequality
+        
+        Returns:
+            Boolean indicating whether the objects are not equal, enabling reliable equality checks across Requests' request and response objects
+        """
         return not self == other

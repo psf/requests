@@ -1,0 +1,5 @@
+# Exceptions
+
+
+
+::: src.requests.exceptions

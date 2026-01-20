@@ -59,9 +59,16 @@ else:
 
 
 def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
-    """Determines appropriate setting for a given request, taking into account
-    the explicit setting on that request, and the setting in the session. If a
-    setting is a dictionary, they will be merged together using `dict_class`
+    """
+    Merges request-specific settings with session-level defaults, prioritizing explicit request settings while preserving session configurations. This ensures consistent and predictable behavior across requests by combining user-defined overrides with default session values, particularly useful for managing configuration like headers, cookies, or authentication settings in a structured way.
+    
+    Args:
+        request_setting: The setting explicitly defined for the current request, which may override session defaults.
+        session_setting: The default setting from the session, used as a baseline when no request-specific value is provided.
+        dict_class: The dictionary class used to construct the merged result (default: OrderedDict), ensuring order preservation if needed.
+    
+    Returns:
+        A merged dictionary of settings with request-level values taking precedence, where keys set to None are removed to avoid unintended side effects.
     """
 
     if session_setting is None:
@@ -89,10 +96,18 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
 
 
 def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
-    """Properly merges both requests and session hooks.
-
-    This is necessary because when request_hooks == {'response': []}, the
-    merge breaks Session hooks entirely.
+    """
+    Merges request-level hooks with session-level hooks while preserving session hooks when request hooks are empty.
+    
+    This ensures that session-level hooks (such as response processing) remain active even when request-level hooks are explicitly set to an empty list, preventing unintended loss of functionality. This is critical in Requests' session management model, where session hooks provide default behavior across multiple requests, and their integrity must be maintained.
+    
+    Args:
+        request_hooks: Hooks defined at the request level, which may be None or contain empty lists.
+        session_hooks: Hooks defined at the session level, which serve as defaults for multiple requests.
+        dict_class: Class used to construct the merged dictionary, preserving order if needed.
+    
+    Returns:
+        A merged dictionary of hooks, prioritizing request hooks while ensuring session hooks are not lost when request hooks are empty.
     """
     if session_hooks is None or session_hooks.get("response") == []:
         return request_hooks
@@ -104,8 +119,22 @@ def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
 
 
 class SessionRedirectMixin:
+    """
+    Mixin to handle redirection logic for HTTP sessions, including managing authentication, proxies, and request methods during redirects.
+    
+        This class provides methods to intelligently manage HTTP redirects by adjusting authentication headers, proxy configurations, and request methods based on redirect targets and environment settings.
+    
+        Class Methods:
+        - get_redirect_target:
+    """
+
     def get_redirect_target(self, resp):
-        """Receives a Response. Returns a redirect URI or ``None``"""
+        """
+        Extracts the redirect target from an HTTP response, handling encoding issues that may arise with UTF-8 encoded location headers.
+        
+        Args:
+            resp: The HTTP response object containing the redirect information, typically from a 3xx status code response.
+        """
         # Due to the nature of how requests processes redirects this method will
         # be called at least once upon the original response and at least twice
         # on each subsequent redirect response (if any).
@@ -125,7 +154,18 @@ class SessionRedirectMixin:
         return None
 
     def should_strip_auth(self, old_url, new_url):
-        """Decide whether Authorization header should be removed when redirecting"""
+        """
+        Determine whether the Authorization header should be stripped during HTTP redirects to prevent potential security leaks when moving between different hosts or schemes.
+        
+        This function enforces security best practices by removing authentication credentials in redirect scenarios where the target host or scheme changes, reducing the risk of exposing sensitive credentials. It maintains backward compatibility with older versions of Requests for common http->https redirects on standard ports, while still protecting against unintended credential leakage in other cases.
+        
+        Args:
+            old_url: The original URL before redirection
+            new_url: The destination URL after redirection
+        
+        Returns:
+            True if the Authorization header should be removed, False otherwise
+        """
         old_parsed = urlparse(old_url)
         new_parsed = urlparse(new_url)
         if old_parsed.hostname != new_parsed.hostname:
@@ -168,7 +208,20 @@ class SessionRedirectMixin:
         yield_requests=False,
         **adapter_kwargs,
     ):
-        """Receives a Response. Returns a generator of Responses or Requests."""
+        """
+        Follows HTTP redirects automatically, maintaining request state and cookies across redirects. This function enables seamless navigation through redirect chains while preserving session data, which is essential for reliable web scraping and API interactions in the Requests library.
+        
+        Args:
+            resp: The initial HTTP response containing a redirect (e.g., 301, 302) to follow.
+            req: The original request that led to the redirect, used as a template for subsequent requests.
+            stream: Whether to stream the response body, useful for large downloads.
+            timeout: Optional timeout for the request, preventing indefinite waits.
+            verify: Whether to verify SSL certificates, ensuring secure connections.
+            cert: Optional client certificate for authentication.
+            proxies: Optional dictionary of proxy settings for routing requests.
+            yield_requests: If True, yields the prepared requests instead of responses, enabling inspection or modification.
+            adapter_kwargs: Additional arguments passed to the adapter for sending requests.
+        """
 
         hist = []  # keep track of history
 
@@ -280,9 +333,12 @@ class SessionRedirectMixin:
                 yield resp
 
     def rebuild_auth(self, prepared_request, response):
-        """When being redirected we may want to strip authentication from the
-        request to avoid leaking credentials. This method intelligently removes
-        and reapplies authentication where possible to avoid credential loss.
+        """
+        When following redirects, this method ensures authentication credentials are handled securely by stripping them when moving to a different host to prevent leakage. It then reapplies appropriate authentication—such as from .netrc—on the new host to maintain access without exposing credentials.
+        
+        Args:
+            prepared_request: The request object being processed, which may contain authentication headers to be adjusted.
+            response: The response that triggered the redirect, used to determine if authentication should be stripped based on URL changes.
         """
         headers = prepared_request.headers
         url = prepared_request.url
@@ -300,16 +356,15 @@ class SessionRedirectMixin:
             prepared_request.prepare_auth(new_auth)
 
     def rebuild_proxies(self, prepared_request, proxies):
-        """This method re-evaluates the proxy configuration by considering the
-        environment variables. If we are redirected to a URL covered by
-        NO_PROXY, we strip the proxy configuration. Otherwise, we set missing
-        proxy keys for this URL (in case they were stripped by a previous
-        redirect).
-
-        This method also replaces the Proxy-Authorization header where
-        necessary.
-
-        :rtype: dict
+        """
+        Re-evaluates and updates proxy settings based on environment variables and the current request context, ensuring secure and correct proxy configuration during redirects. This is critical for maintaining compliance with NO_PROXY settings and preventing unauthorized proxy access, especially in HTTPS scenarios where Proxy-Authorization headers could be leaked.
+        
+        Args:
+            prepared_request: The request object containing URL and headers to evaluate
+            proxies: Current proxy configuration to potentially update
+        
+        Returns:
+            Updated proxy configuration dictionary reflecting environment rules and security best practices
         """
         headers = prepared_request.headers
         scheme = urlparse(prepared_request.url).scheme
@@ -331,8 +386,14 @@ class SessionRedirectMixin:
         return new_proxies
 
     def rebuild_method(self, prepared_request, response):
-        """When being redirected we may want to change the method of the request
-        based on certain specs or browser behavior.
+        """
+        Adjusts the HTTP method of a request during redirects to align with browser behavior and HTTP specifications.
+        
+        This ensures consistent and expected behavior when following redirects, particularly for POST requests that should be converted to GETs under certain conditions (e.g., 301, 302, or 303 responses). This mimics how web browsers handle redirects, improving compatibility with web servers and APIs that expect specific method changes during redirection.
+        
+        Args:
+            prepared_request: The request object being processed, whose method may be updated.
+            response: The response that triggered the redirect, containing status code and other metadata.
         """
         method = prepared_request.method
 
@@ -354,23 +415,25 @@ class SessionRedirectMixin:
 
 
 class Session(SessionRedirectMixin):
-    """A Requests session.
-
-    Provides cookie persistence, connection-pooling, and configuration.
-
-    Basic Usage::
-
-      >>> import requests
-      >>> s = requests.Session()
-      >>> s.get('https://httpbin.org/get')
-      <Response [200]>
-
-    Or as a context manager::
-
-      >>> with requests.Session() as s:
-      ...     s.get('https://httpbin.org/get')
-      <Response [200]>
     """
+    A persistent HTTP session that maintains settings, cookies, and authentication across multiple requests, enabling efficient and consistent interaction with web services.
+    
+        Provides cookie persistence, connection-pooling, and configuration.
+    
+        Basic Usage::
+    
+          >>> import requests
+          >>> s = requests.Session()
+          >>> s.get('https://httpbin.org/get')
+          <Response [200]>
+    
+        Or as a context manager::
+    
+          >>> with requests.Session() as s:
+          ...     s.get('https://httpbin.org/get')
+          <Response [200]>
+    """
+
 
     __attrs__ = [
         "headers",
@@ -388,6 +451,11 @@ class Session(SessionRedirectMixin):
     ]
 
     def __init__(self):
+        """
+        Initialize a new Session object to manage persistent HTTP settings and state across multiple requests, enabling efficient and consistent interaction with web services.
+        
+        Sessions in Requests are designed to maintain shared configuration—such as headers, authentication, proxies, cookies, and SSL settings—across repeated requests, reducing boilerplate and improving performance. This is particularly useful for interacting with APIs or websites requiring authentication, session tracking, or consistent request behavior. By default, the session enforces security best practices (e.g., SSL verification, reasonable redirect limits) while providing flexibility through configurable options, making it ideal for both development and production use cases.
+        """
         #: A case-insensitive dictionary of headers to be sent on each
         #: :class:`Request <Request>` sent from this
         #: :class:`Session <Session>`.
@@ -449,20 +517,34 @@ class Session(SessionRedirectMixin):
         self.mount("http://", HTTPAdapter())
 
     def __enter__(self):
+        """
+        Enter the runtime context to enable use of this object in `with` statements, allowing for automatic resource management.
+        
+        Returns:
+            The instance itself, enabling clean, context-aware usage in `with` blocks for consistent request handling and resource cleanup.
+        """
         return self
 
     def __exit__(self, *args):
+        """
+        Exit the context manager and close the underlying connection resource.
+        
+        Args:
+            args: Exception information passed by the context manager protocol, including exception type, value, and traceback. If an exception occurred within the with block, this allows the context manager to handle it appropriately; otherwise, it remains empty.
+        """
         self.close()
 
     def prepare_request(self, request):
-        """Constructs a :class:`PreparedRequest <PreparedRequest>` for
-        transmission and returns it. The :class:`PreparedRequest` has settings
-        merged from the :class:`Request <Request>` instance and those of the
-        :class:`Session`.
-
-        :param request: :class:`Request` instance to prepare with this
-            session's settings.
-        :rtype: requests.PreparedRequest
+        """
+        Constructs a prepared HTTP request by merging the provided request's settings with session-level configurations, enabling consistent and reusable HTTP interactions across multiple requests.
+        
+        This function is essential for maintaining session state—such as cookies, authentication, and default headers—while allowing individual requests to override or extend these settings. It ensures that all request components are properly merged and normalized before transmission, which is critical for reliable and predictable HTTP communication.
+        
+        Args:
+            request: The Request object to prepare, containing method, URL, headers, and other request-specific data.
+        
+        Returns:
+            A PreparedRequest instance ready for transmission, with all settings merged from both the request and session context.
         """
         cookies = request.cookies or {}
 
@@ -516,48 +598,29 @@ class Session(SessionRedirectMixin):
         cert=None,
         json=None,
     ):
-        """Constructs a :class:`Request <Request>`, prepares it and sends it.
-        Returns :class:`Response <Response>` object.
-
-        :param method: method for the new :class:`Request` object.
-        :param url: URL for the new :class:`Request` object.
-        :param params: (optional) Dictionary or bytes to be sent in the query
-            string for the :class:`Request`.
-        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
-            object to send in the body of the :class:`Request`.
-        :param json: (optional) json to send in the body of the
-            :class:`Request`.
-        :param headers: (optional) Dictionary of HTTP Headers to send with the
-            :class:`Request`.
-        :param cookies: (optional) Dict or CookieJar object to send with the
-            :class:`Request`.
-        :param files: (optional) Dictionary of ``'filename': file-like-objects``
-            for multipart encoding upload.
-        :param auth: (optional) Auth tuple or callable to enable
-            Basic/Digest/Custom HTTP Auth.
-        :param timeout: (optional) How long to wait for the server to send
-            data before giving up, as a float, or a :ref:`(connect timeout,
-            read timeout) <timeouts>` tuple.
-        :type timeout: float or tuple
-        :param allow_redirects: (optional) Set to True by default.
-        :type allow_redirects: bool
-        :param proxies: (optional) Dictionary mapping protocol or protocol and
-            hostname to the URL of the proxy.
-        :param hooks: (optional) Dictionary mapping hook name to one event or
-            list of events, event must be callable.
-        :param stream: (optional) whether to immediately download the response
-            content. Defaults to ``False``.
-        :param verify: (optional) Either a boolean, in which case it controls whether we verify
-            the server's TLS certificate, or a string, in which case it must be a path
-            to a CA bundle to use. Defaults to ``True``. When set to
-            ``False``, requests will accept any TLS certificate presented by
-            the server, and will ignore hostname mismatches and/or expired
-            certificates, which will make your application vulnerable to
-            man-in-the-middle (MitM) attacks. Setting verify to ``False``
-            may be useful during local development or testing.
-        :param cert: (optional) if String, path to ssl client cert file (.pem).
-            If Tuple, ('cert', 'key') pair.
-        :rtype: requests.Response
+        """
+        Sends an HTTP request using the specified method and parameters, handling request preparation, authentication, and response processing. This function is the core interface for making HTTP requests in the Requests library, abstracting away low-level details to provide a simple, intuitive API for interacting with web services.
+        
+        Args:
+            method: The HTTP method (e.g., GET, POST) to use for the request.
+            url: The URL to send the request to.
+            params: Optional dictionary or bytes to include in the URL query string.
+            data: Optional data to send in the request body, such as form data or raw bytes.
+            json: Optional JSON data to send in the request body (automatically serialized).
+            headers: Optional dictionary of HTTP headers to include in the request.
+            cookies: Optional dictionary or CookieJar object to send with the request.
+            files: Optional dictionary mapping filenames to file-like objects for multipart encoding.
+            auth: Optional authentication tuple or callable for HTTP authentication.
+            timeout: Optional timeout value for the request, either as a float or a (connect, read) tuple.
+            allow_redirects: Whether to automatically follow HTTP redirects (default is True).
+            proxies: Optional dictionary mapping protocols to proxy URLs.
+            hooks: Optional dictionary mapping event hooks to callable functions.
+            stream: Whether to immediately download the response content (default is False).
+            verify: Whether to verify SSL certificates (True by default); can also be a path to a CA bundle.
+            cert: Optional SSL client certificate, either a path to a file or a tuple of (cert, key) files.
+        
+        Returns:
+            A Response object containing the server's response, including status code, headers, and content.
         """
         # Create the Request.
         req = Request(
@@ -591,6 +654,16 @@ class Session(SessionRedirectMixin):
         return resp
 
     def get(self, url, **kwargs):
+        """
+        Sends an HTTP GET request to the specified URL, making it easy to retrieve data from web services or APIs. This function is central to Requests' purpose of providing a simple, intuitive interface for HTTP interactions, abstracting away low-level details so developers can focus on consuming web content efficiently.
+        
+        Args:
+            url: The URL to send the GET request to.
+            **kwargs: Additional arguments to pass to the underlying request method, such as headers, parameters, or authentication settings.
+        
+        Returns:
+            A Response object containing the server's response, including status code, headers, and response body, enabling easy access to the requested data.
+        """
         r"""Sends a GET request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -602,6 +675,16 @@ class Session(SessionRedirectMixin):
         return self.request("GET", url, **kwargs)
 
     def options(self, url, **kwargs):
+        """
+        Sends an HTTP OPTIONS request to discover the communication options available for a given URL, such as supported methods and headers. This is particularly useful for debugging APIs, testing CORS configurations, or dynamically determining how to interact with a web service.
+        
+        Args:
+            url: The URL to send the OPTIONS request to.
+            **kwargs: Additional arguments passed to the underlying request method, such as headers, authentication, or timeout settings.
+        
+        Returns:
+            A Response object containing the server's response, including status code, headers, and body, which can be used to inspect available HTTP methods and other server capabilities.
+        """
         r"""Sends a OPTIONS request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -613,6 +696,16 @@ class Session(SessionRedirectMixin):
         return self.request("OPTIONS", url, **kwargs)
 
     def head(self, url, **kwargs):
+        """
+        Sends an HTTP HEAD request to retrieve resource metadata without downloading the body, which is useful for checking resource availability, size, or modification time efficiently.
+        
+        Args:
+            url: The URL to send the HEAD request to.
+            **kwargs: Additional arguments passed to the underlying request method, such as headers, authentication, or timeout settings.
+        
+        Returns:
+            A Response object containing the server's response headers and status code, enabling inspection of resource metadata without transferring the full response body.
+        """
         r"""Sends a HEAD request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -624,6 +717,18 @@ class Session(SessionRedirectMixin):
         return self.request("HEAD", url, **kwargs)
 
     def post(self, url, data=None, json=None, **kwargs):
+        """
+        Sends an HTTP POST request to the specified URL, enabling easy interaction with web APIs and services. This function is central to Requests' purpose of simplifying HTTP communication by providing a clean, intuitive interface for sending data to servers, supporting various data formats like form data, JSON, and file uploads.
+        
+        Args:
+            url: The target URL for the POST request.
+            data: Optional data to send in the request body, such as form data or raw bytes.
+            json: Optional JSON data to send in the request body, automatically serialized.
+            **kwargs: Additional arguments passed to the underlying request method, such as headers, authentication, or timeouts.
+        
+        Returns:
+            A Response object containing the server's response, including status code, headers, and content.
+        """
         r"""Sends a POST request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -637,6 +742,17 @@ class Session(SessionRedirectMixin):
         return self.request("POST", url, data=data, json=json, **kwargs)
 
     def put(self, url, data=None, **kwargs):
+        """
+        Sends an HTTP PUT request to update or replace a resource on the server. This method is essential for API interactions where data needs to be sent to a specific endpoint to modify existing resources, aligning with Requests' goal of providing a simple, intuitive interface for HTTP operations.
+        
+        Args:
+            url: The URL of the resource to update.
+            data: Optional data to send in the request body, such as a dictionary, list of tuples, bytes, or file-like object.
+            **kwargs: Additional arguments passed to the underlying request method, such as headers, authentication, or timeout settings.
+        
+        Returns:
+            A Response object containing the server's response to the PUT request, including status code, headers, and response body.
+        """
         r"""Sends a PUT request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -649,6 +765,17 @@ class Session(SessionRedirectMixin):
         return self.request("PUT", url, data=data, **kwargs)
 
     def patch(self, url, data=None, **kwargs):
+        """
+        Sends an HTTP PATCH request to update resources on a server, enabling partial updates to existing data. This method is essential for RESTful API interactions where only specific fields need to be modified without replacing the entire resource.
+        
+        Args:
+            url: The URL of the resource to update.
+            data: Optional data to send in the request body, such as a dictionary, list of tuples, bytes, or file-like object.
+            **kwargs: Additional arguments passed to the underlying request method, such as headers, authentication, or timeout settings.
+        
+        Returns:
+            A Response object containing the server's response to the PATCH request, including status code, headers, and response body.
+        """
         r"""Sends a PATCH request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -661,6 +788,18 @@ class Session(SessionRedirectMixin):
         return self.request("PATCH", url, data=data, **kwargs)
 
     def delete(self, url, **kwargs):
+        """
+        Sends an HTTP DELETE request to the specified URL to remove a resource from the server.
+        
+        This method is part of Requests' high-level API, designed to simplify HTTP interactions by providing intuitive, readable syntax for common operations. It abstracts away low-level details like connection handling and header management, allowing developers to focus on interacting with web services and APIs efficiently.
+        
+        Args:
+            url: The URL of the resource to delete.
+            kwargs: Additional arguments passed to the underlying request method, such as headers, authentication, or timeout settings.
+        
+        Returns:
+            A Response object containing the server's response to the DELETE request, including status code, headers, and response body.
+        """
         r"""Sends a DELETE request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -671,9 +810,17 @@ class Session(SessionRedirectMixin):
         return self.request("DELETE", url, **kwargs)
 
     def send(self, request, **kwargs):
-        """Send a given PreparedRequest.
-
-        :rtype: requests.Response
+        """
+        Send a prepared HTTP request using the appropriate adapter and handle redirects, hooks, and cookies.
+        
+        This function is the core of Requests' request dispatching logic, responsible for executing an HTTP request with proper configuration, managing response processing, and ensuring consistent behavior across redirects and hooks. It leverages the session's settings (like stream, verify, cert, and proxies) and resolves any necessary redirects while preserving cookies and invoking response hooks.
+        
+        Args:
+            request: A PreparedRequest object to send.
+            **kwargs: Additional arguments to pass to the adapter, such as allow_redirects, stream, or hooks.
+        
+        Returns:
+            The response object containing the server's response, including content, status code, headers, and any redirect history if applicable.
         """
         # Set defaults that the hooks can utilize to ensure they always have
         # the correct parameters to reproduce the previous request.
@@ -749,9 +896,17 @@ class Session(SessionRedirectMixin):
 
     def merge_environment_settings(self, url, proxies, stream, verify, cert):
         """
-        Check the environment and merge it with some settings.
-
-        :rtype: dict
+        Merge environment variables and configuration settings into request parameters, ensuring consistent behavior across different environments.
+        
+        Args:
+            url: The URL to which the request is made, used to determine proxy settings.
+            proxies: Dictionary of proxy configurations, potentially overridden by environment variables.
+            stream: Flag indicating whether to stream the response, merged with global stream setting.
+            verify: SSL verification option, potentially derived from environment variables like REQUESTS_CA_BUNDLE or CURL_CA_BUNDLE.
+            cert: Client certificate configuration, merged with any global certificate settings.
+        
+        Returns:
+            A dictionary containing the final merged settings for proxies, streaming, SSL verification, and client certificates, enabling requests to respect both user preferences and system-wide environment configurations.
         """
         # Gather clues from the surrounding environment.
         if self.trust_env:
@@ -780,9 +935,15 @@ class Session(SessionRedirectMixin):
 
     def get_adapter(self, url):
         """
-        Returns the appropriate connection adapter for the given URL.
-
-        :rtype: requests.adapters.BaseAdapter
+        Returns the appropriate connection adapter for the given URL to handle HTTP requests efficiently.
+        
+        The function determines which adapter should manage the connection based on the URL's scheme or prefix, enabling Requests to support multiple protocols (like http, https, or custom schemes) through pluggable adapters. This design allows the library to be extensible and flexible when interacting with different types of web services.
+        
+        Args:
+            url: The URL for which to find a matching connection adapter.
+        
+        Returns:
+            The connection adapter that should handle the request for the given URL.
         """
         for prefix, adapter in self.adapters.items():
             if url.lower().startswith(prefix.lower()):
@@ -792,14 +953,23 @@ class Session(SessionRedirectMixin):
         raise InvalidSchema(f"No connection adapters were found for {url!r}")
 
     def close(self):
-        """Closes all adapters and as such the session"""
+        """
+        Closes all underlying adapters, terminating active connections and cleanly shutting down the session.
+        
+        This ensures proper cleanup of network resources after use, preventing connection leaks and maintaining the reliability of HTTP operations in long-running applications or when making multiple requests across different sessions.
+        """
         for v in self.adapters.values():
             v.close()
 
     def mount(self, prefix, adapter):
-        """Registers a connection adapter to a prefix.
-
-        Adapters are sorted in descending order by prefix length.
+        """
+        Registers a connection adapter for URLs matching a given prefix, enabling custom handling of specific URL patterns.
+        
+        This allows fine-grained control over how requests are made to different parts of a domain or API, such as using different connection settings, authentication methods, or mock responses for testing. Adapters are automatically sorted by prefix length in descending order to ensure more specific (longer) prefixes take precedence over general ones when matching URLs.
+        
+        Args:
+            prefix: The URL prefix (e.g., 'https://api.example.com/v1/') to which the adapter should be applied.
+            adapter: The connection adapter instance that will handle requests matching the given prefix.
         """
         self.adapters[prefix] = adapter
         keys_to_move = [k for k in self.adapters if len(k) < len(prefix)]
@@ -808,24 +978,35 @@ class Session(SessionRedirectMixin):
             self.adapters[key] = self.adapters.pop(key)
 
     def __getstate__(self):
+        """
+        Returns the object's state as a dictionary for serialization via pickle.
+        
+        This method ensures that all attributes defined in `self.__attrs__` are properly captured during pickling, with missing attributes defaulting to None. It is essential for preserving the object's state across serialization and deserialization, which is particularly important in distributed systems or when caching HTTP sessions in Requests. This enables consistent behavior when restoring objects, such as session state or request configurations, after being saved.
+        
+        Returns:
+            A dictionary mapping attribute names to their values, with missing attributes set to None
+        """
         state = {attr: getattr(self, attr, None) for attr in self.__attrs__}
         return state
 
     def __setstate__(self, state):
+        """
+        Restores the object's state from a serialized dictionary, enabling persistence and reconstruction of request sessions or custom objects.
+        
+        Args:
+            state: A dictionary containing attribute names as keys and their corresponding values to restore, used to reconstruct the object's internal state after deserialization.
+        """
         for attr, value in state.items():
             setattr(self, attr, value)
 
 
 def session():
     """
-    Returns a :class:`Session` for context-management.
-
-    .. deprecated:: 1.0.0
-
-        This method has been deprecated since version 1.0.0 and is only kept for
-        backwards compatibility. New code should use :class:`~requests.sessions.Session`
-        to create a session. This may be removed at a future date.
-
-    :rtype: Session
+    Returns a reusable :class:`Session` object for managing HTTP connections and state across multiple requests.
+    
+    This function provides a convenient way to create a session that maintains cookies, authentication, and connection pooling across requests, which improves performance and simplifies stateful interactions with web services. It is particularly useful for scenarios involving repeated requests to the same host, such as API usage or web scraping, where persistent settings and session state are beneficial.
+    
+    Returns:
+        A :class:`Session` object for context-management and stateful HTTP interactions.
     """
     return Session()

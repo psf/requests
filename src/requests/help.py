@@ -32,15 +32,13 @@ else:
 
 
 def _implementation():
-    """Return a dict with the Python implementation and version.
-
-    Provide both the name and the version of the Python implementation
-    currently running. For example, on CPython 3.10.3 it will return
-    {'name': 'CPython', 'version': '3.10.3'}.
-
-    This function works best on CPython and PyPy: in particular, it probably
-    doesn't work for Jython or IronPython. Future investigation should be done
-    to work out the correct shape of the code for those platforms.
+    """
+    Return the current Python implementation and version for compatibility and diagnostic purposes.
+    
+    This information is used internally by Requests to ensure proper behavior across different Python environments, particularly when handling platform-specific edge cases in HTTP request processing. Knowing the exact implementation (e.g., CPython, PyPy) and version helps Requests adapt its internal logic where necessary, such as in cookie handling or SSL behavior, ensuring consistent and reliable HTTP interactions regardless of the underlying Python runtime.
+    
+    Returns:
+        A dictionary with 'name' (the Python implementation, e.g., 'CPython') and 'version' (the full version string).
     """
     implementation = platform.python_implementation()
 
@@ -67,7 +65,14 @@ def _implementation():
 
 
 def info():
-    """Generate information for a bug report."""
+    """
+    Generate diagnostic information for bug reports to help identify and resolve issues in the Requests library.
+    
+    This function collects detailed system and library version information, including platform details, SSL configuration, and versions of dependent libraries like urllib3, pyOpenSSL, cryptography, and others. This data is crucial for debugging connectivity issues, SSL problems, or compatibility errors reported by users, enabling maintainers to reproduce and fix problems efficiently.
+    
+    Returns:
+        A dictionary containing comprehensive diagnostic information about the system, Python implementation, and installed dependencies relevant to Requests' functionality.
+    """
     try:
         platform_info = {
             "system": platform.system(),
@@ -126,7 +131,9 @@ def info():
 
 
 def main():
-    """Pretty-print the bug information as JSON."""
+    """
+    Pretty-print formatted bug information as JSON to provide a human-readable overview of bug details. This output supports debugging and inspection workflows by presenting structured data in a clear, organized format, aligning with Requests' goal of simplifying HTTP interactions and enhancing developer productivity.
+    """
     print(json.dumps(info(), sort_keys=True, indent=2))
 
 

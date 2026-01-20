@@ -28,7 +28,14 @@ except (TypeError, AttributeError):
 
 
 def _resolve_char_detection():
-    """Find supported character detection libraries."""
+    """
+    Determine the preferred character encoding detection library to use for decoding HTTP response content.
+    
+    Requests needs to reliably detect the encoding of incoming data to properly decode text. This function attempts to import either `chardet` or `charset_normalizer`, preferring the latter if available, to ensure robust and accurate encoding detection. The selected library is returned for use in subsequent decoding operations.
+    
+    Returns:
+        The first successfully imported character detection library (either `chardet` or `charset_normalizer`), or None if neither is available.
+    """
     chardet = None
     for lib in ("chardet", "charset_normalizer"):
         if chardet is None:
