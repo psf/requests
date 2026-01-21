@@ -164,6 +164,7 @@ class SessionRedirectMixin:
         timeout=None,
         verify=True,
         cert=None,
+        max_response_size=None,
         proxies=None,
         yield_requests=False,
         **adapter_kwargs,
@@ -268,6 +269,7 @@ class SessionRedirectMixin:
                     timeout=timeout,
                     verify=verify,
                     cert=cert,
+                    max_response_size=max_response_size,
                     proxies=proxies,
                     allow_redirects=False,
                     **adapter_kwargs,
@@ -515,6 +517,7 @@ class Session(SessionRedirectMixin):
         verify=None,
         cert=None,
         json=None,
+        max_response_size=None,
     ):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
@@ -557,6 +560,8 @@ class Session(SessionRedirectMixin):
             may be useful during local development or testing.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
+        :param max_response_size: (optional) Maximum response body size in bytes
+            before raising ``ContentTooLarge``.
         :rtype: requests.Response
         """
         # Create the Request.
@@ -582,6 +587,7 @@ class Session(SessionRedirectMixin):
 
         # Send the request.
         send_kwargs = {
+            "max_response_size": max_response_size,
             "timeout": timeout,
             "allow_redirects": allow_redirects,
         }
@@ -670,7 +676,7 @@ class Session(SessionRedirectMixin):
 
         return self.request("DELETE", url, **kwargs)
 
-    def send(self, request, **kwargs):
+    def send(self, request, max_response_size=None, **kwargs):
         """Send a given PreparedRequest.
 
         :rtype: requests.Response
@@ -702,6 +708,10 @@ class Session(SessionRedirectMixin):
         # Send the request
         r = adapter.send(request, **kwargs)
 
+        # Cap response-body reads if requested. Enforcement is done during consumption
+        # (iter_content / .content) based on bytes actually read.
+        r._max_response_size = max_response_size
+
         # Total elapsed time of the request (approximately)
         elapsed = preferred_clock() - start
         r.elapsed = timedelta(seconds=elapsed)
@@ -720,7 +730,12 @@ class Session(SessionRedirectMixin):
         # Resolve redirects if allowed.
         if allow_redirects:
             # Redirect resolving generator.
-            gen = self.resolve_redirects(r, request, **kwargs)
+            gen = self.resolve_redirects(
+                r,
+                request,
+                max_response_size=max_response_size,
+                **kwargs,
+            )
             history = [resp for resp in gen]
         else:
             history = []
@@ -737,7 +752,13 @@ class Session(SessionRedirectMixin):
         if not allow_redirects:
             try:
                 r._next = next(
-                    self.resolve_redirects(r, request, yield_requests=True, **kwargs)
+                    self.resolve_redirects(
+                        r,
+                        request,
+                        max_response_size=max_response_size,
+                        yield_requests=True,
+                        **kwargs,
+                    )
                 )
             except StopIteration:
                 pass

@@ -42,6 +42,7 @@ from .exceptions import (
     ChunkedEncodingError,
     ConnectionError,
     ContentDecodingError,
+    ContentTooLarge,
     HTTPError,
     InvalidJSONError,
     InvalidURL,
@@ -812,12 +813,43 @@ class Response:
         If decode_unicode is True, content will be decoded using the best
         available encoding based on the response.
         """
+        max_size = getattr(self, "_max_response_size", None)
+        bytes_read = 0
+
+        def check_size(chunk):
+            nonlocal bytes_read
+            if max_size is None:
+                return
+            bytes_read += len(chunk)
+            if bytes_read > max_size:
+                try:
+                    self.close()
+                finally:
+                    raise ContentTooLarge(
+                        "Response body exceeded max_response_size"
+                    )
 
         def generate():
             # Special case for urllib3.
             if hasattr(self.raw, "stream"):
+                if max_size is not None:
+                    fp = getattr(self.raw, "_fp", None)
+                    connection = self.headers.get("connection", "")
+                    if fp is not None and (
+                        getattr(fp, "version", None) == 10
+                        or connection.lower() == "close"
+                    ):
+                        try:
+                            self.raw.length_remaining = None
+                            self.raw.enforce_content_length = False
+                            if hasattr(fp, "length"):
+                                fp.length = None
+                        except Exception:
+                            pass
                 try:
-                    yield from self.raw.stream(chunk_size, decode_content=True)
+                    for chunk in self.raw.stream(chunk_size, decode_content=True):
+                        check_size(chunk)
+                        yield chunk
                 except ProtocolError as e:
                     raise ChunkedEncodingError(e)
                 except DecodeError as e:
@@ -832,6 +864,7 @@ class Response:
                     chunk = self.raw.read(chunk_size)
                     if not chunk:
                         break
+                    check_size(chunk)
                     yield chunk
 
             self._content_consumed = True

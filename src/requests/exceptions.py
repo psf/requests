@@ -24,6 +24,10 @@ class RequestException(IOError):
         super().__init__(*args, **kwargs)
 
 
+
+class ContentTooLarge(RequestException):
+    """The response body exceeded the configured maximum allowed size."""
+
 class InvalidJSONError(RequestException):
     """A JSON error occurred."""
 
