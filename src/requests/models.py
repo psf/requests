@@ -394,7 +394,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepares the given HTTP method."""
         self.method = method
         if self.method is not None:
-            self.method = to_native_string(self.method.upper())
+            self.method = to_native_string(self.method).upper()
 
     @staticmethod
     def _get_idna_encoded_host(host):
