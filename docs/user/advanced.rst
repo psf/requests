@@ -321,6 +321,17 @@ Alternatively, you can read the undecoded body from the underlying
 urllib3 :class:`urllib3.HTTPResponse <urllib3.response.HTTPResponse>` at
 :attr:`Response.raw <requests.Response.raw>`.
 
+.. note::
+
+    When using ``stream=True``, Requests does not automatically decompress
+    responses with ``Content-Encoding: gzip`` when accessing
+    :attr:`Response.raw <requests.Response.raw>`. This is intentional.
+
+    If you need decompression while streaming, enable it manually::
+
+        r = requests.get(url, stream=True)
+        r.raw.decode_content = True
+
 If you set ``stream`` to ``True`` when making a request, Requests cannot
 release the connection back to the pool unless you consume all the data or call
 :meth:`Response.close <requests.Response.close>`. This can lead to
