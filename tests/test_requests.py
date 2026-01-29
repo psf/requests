@@ -797,13 +797,19 @@ class TestRequests:
             r = s.get(url)
             assert r.status_code == 401
 
-    def test_DIGESTAUTH_QUOTES_QOP_VALUE(self, httpbin):
+    def test_DIGESTAUTH_NO_QUOTES_QOP_ALGORITHM_NC_VALUES(self, httpbin):
+        """RFC7616 states the following for the Authentication header:
+        "For historical reasons, a sender MUST NOT generate the quoted string
+        syntax for the following parameters: algorithm, qop, and nc."
+        """
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "pass")
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
 
             r = requests.get(url, auth=auth)
-            assert '"auth"' in r.request.headers["Authorization"]
+            assert ' qop=auth,' in r.request.headers["Authorization"]
+            assert f' algorithm={authtype},' in r.request.headers["Authorization"]
+            assert re.search(r' nc=[0-9]+,', r.request.headers["Authorization"])
 
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
         url = httpbin("post")
