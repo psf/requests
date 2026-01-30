@@ -3,7 +3,7 @@ Requests was lovingly created by Kenneth Reitz.
 Keepers of the Crystals
 ```````````````````````
 
-- Ian Cordasco <graffatcolmingov@gmail.com> `@sigmavirus24 <https://github.com/sigmavirus24>`_.
+- Ian Stapleton Cordasco <graffatcolmingov@gmail.com> `@sigmavirus24 <https://github.com/sigmavirus24>`_.
 - Nate Prewitt `@nateprewitt <https://github.com/nateprewitt>`_.
 
 Previous Keepers of Crystals
