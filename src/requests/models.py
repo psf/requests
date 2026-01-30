@@ -45,6 +45,7 @@ from .exceptions import (
     HTTPError,
     InvalidJSONError,
     InvalidURL,
+    ReadTimeout,
 )
 from .exceptions import JSONDecodeError as RequestsJSONDecodeError
 from .exceptions import MissingSchema
@@ -133,7 +134,7 @@ class RequestEncodingMixin:
         else:
             return data
 
-    @staticmethod
+    @staticmethod 
     def _encode_files(files, data):
         """Build the body for a multipart/form-data request.
 
@@ -394,7 +395,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepares the given HTTP method."""
         self.method = method
         if self.method is not None:
-            self.method = to_native_string(self.method.upper())
+            self.method = to_native_string(self.method).upper()
 
     @staticmethod
     def _get_idna_encoded_host(host):
@@ -823,7 +824,7 @@ class Response:
                 except DecodeError as e:
                     raise ContentDecodingError(e)
                 except ReadTimeoutError as e:
-                    raise ConnectionError(e)
+                    raise ReadTimeout(e)
                 except SSLError as e:
                     raise RequestsSSLError(e)
             else:
@@ -1037,3 +1038,4 @@ class Response:
         release_conn = getattr(self.raw, "release_conn", None)
         if release_conn is not None:
             release_conn()
+

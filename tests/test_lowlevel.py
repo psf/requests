@@ -1,10 +1,12 @@
 import threading
+import time
 
 import pytest
 from tests.testserver.server import Server, consume_socket_content
 
 import requests
 from requests.compat import JSONDecodeError
+from requests.exceptions import ReadTimeout
 
 from .utils import override_environ
 
@@ -58,6 +60,37 @@ def test_chunked_encoding_error():
         with pytest.raises(requests.exceptions.ChunkedEncodingError):
             requests.get(url)
         close_server.set()  # release server block
+
+
+def test_chunked_read_timeout_raises_read_timeout():
+    """Issue #2392: When chunked response times out during streaming, raise ReadTimeout not ConnectionError."""
+
+    def slow_chunked_response_handler(sock):
+        request_content = consume_socket_content(sock, timeout=0.5)
+        # Send chunked headers and first chunk
+        sock.send(
+            b"HTTP/1.1 200 OK\r\n"
+            b"Content-Type: text/plain\r\n"
+            b"Transfer-Encoding: chunked\r\n"
+            b"\r\n"
+            b"5\r\n"
+            b"hello\r\n"
+        )
+        # Wait longer than client read timeout so urllib3 raises ReadTimeoutError
+        time.sleep(1.5)
+        sock.send(b"0\r\n\r\n")
+        return request_content
+
+    close_server = threading.Event()
+    server = Server(slow_chunked_response_handler, wait_to_close_event=close_server)
+
+    with server as (host, port):
+        url = f"http://{host}:{port}/"
+        with pytest.raises(ReadTimeout):
+            r = requests.get(url, timeout=0.5)
+            # Accessing .content triggers iter_content(); timeout occurs while reading second chunk
+            _ = r.content
+        close_server.set()
 
 
 def test_chunked_upload_uses_only_specified_host_header():

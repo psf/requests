@@ -1495,7 +1495,7 @@ class TestRequests:
         (
             (urllib3.exceptions.ProtocolError, tuple(), ChunkedEncodingError),
             (urllib3.exceptions.DecodeError, tuple(), ContentDecodingError),
-            (urllib3.exceptions.ReadTimeoutError, (None, "", ""), ConnectionError),
+            (urllib3.exceptions.ReadTimeoutError, (None, "", ""), ReadTimeout),
             (urllib3.exceptions.SSLError, tuple(), RequestsSSLError),
         ),
     )
