@@ -39,9 +39,6 @@ from .compat import (
     getproxies_environment,
     integer_types,
     is_urllib3_1,
-)
-from .compat import parse_http_list as _parse_list_header
-from .compat import (
     proxy_bypass,
     proxy_bypass_environment,
     quote,
@@ -50,6 +47,7 @@ from .compat import (
     urlparse,
     urlunparse,
 )
+from .compat import parse_http_list as _parse_list_header
 from .cookies import cookiejar_from_dict
 from .exceptions import (
     FileModeWarning,

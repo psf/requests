@@ -12,7 +12,7 @@ select = [
     "UP",     # pyupgrade
     "T10",    # flake8-debugger (replaces debug-statements hook)
 ]
-ignore = ["E203", "E501"]
+ignore = ["E203", "E501", "UP038", "UP031"]
 per-file-ignores = {"src/requests/__init__.py" = ["E402", "F401"], "src/requests/compat.py" = ["E402", "F401"], "tests/compat.py" = ["F401"]}
 
 [tool.ruff.lint.isort]
