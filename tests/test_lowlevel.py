@@ -1,10 +1,10 @@
 import threading
 
 import pytest
-from tests.testserver.server import Server, consume_socket_content
 
 import requests
 from requests.compat import JSONDecodeError
+from tests.testserver.server import Server, consume_socket_content
 
 from .utils import override_environ
 

@@ -5,6 +5,7 @@ requests.sessions
 This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
 """
+
 import os
 import sys
 import time

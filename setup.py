@@ -20,9 +20,7 @@ consider upgrading to a supported Python version.
 
 If you can't upgrade your Python version, you'll need to
 pin to an older version of Requests (<2.32.0).
-""".format(
-            *(REQUIRED_PYTHON + CURRENT_PYTHON)
-        )
+""".format(*(REQUIRED_PYTHON + CURRENT_PYTHON))
     )
     sys.exit(1)
 

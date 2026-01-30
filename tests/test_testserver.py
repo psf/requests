@@ -3,9 +3,9 @@ import threading
 import time
 
 import pytest
-from tests.testserver.server import Server
 
 import requests
+from tests.testserver.server import Server
 
 
 class TestTestServer:
@@ -42,7 +42,7 @@ class TestTestServer:
     def test_text_response(self):
         """the text_response_server sends the given text"""
         server = Server.text_response_server(
-            "HTTP/1.1 200 OK\r\n" "Content-Length: 6\r\n" "\r\nroflol"
+            "HTTP/1.1 200 OK\r\nContent-Length: 6\r\n\r\nroflol"
         )
 
         with server as (host, port):

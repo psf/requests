@@ -44,9 +44,11 @@ from requests.exceptions import (
     ReadTimeout,
     RequestException,
     RetryError,
+    Timeout,
+    TooManyRedirects,
+    UnrewindableBodyError,
 )
 from requests.exceptions import SSLError as RequestsSSLError
-from requests.exceptions import Timeout, TooManyRedirects, UnrewindableBodyError
 from requests.hooks import default_hooks
 from requests.models import PreparedRequest, urlencode
 from requests.sessions import SessionRedirectMixin
@@ -960,20 +962,18 @@ class TestRequests:
         INVALID_PATH = "/garbage"
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), verify=INVALID_PATH)
-        assert str(
-            e.value
-        ) == "Could not find a suitable TLS CA certificate bundle, invalid path: {}".format(
-            INVALID_PATH
+        assert (
+            str(e.value)
+            == f"Could not find a suitable TLS CA certificate bundle, invalid path: {INVALID_PATH}"
         )
 
     def test_invalid_ssl_certificate_files(self, httpbin_secure):
         INVALID_PATH = "/garbage"
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), cert=INVALID_PATH)
-        assert str(
-            e.value
-        ) == "Could not find the TLS certificate file, invalid path: {}".format(
-            INVALID_PATH
+        assert (
+            str(e.value)
+            == f"Could not find the TLS certificate file, invalid path: {INVALID_PATH}"
         )
 
         with pytest.raises(IOError) as e:
@@ -2460,7 +2460,6 @@ class TestMorselToCookieExpires:
 
 
 class TestMorselToCookieMaxAge:
-
     """Tests for morsel_to_cookie when morsel contains max-age."""
 
     def test_max_age_valid_int(self):

@@ -1,7 +1,27 @@
-[tool.isort]
-profile = "black"
-src_paths = ["src/requests", "test"]
-honor_noqa = true
+[tool.ruff]
+target-version = "py310"
+src = ["src/requests", "tests"]
+exclude = ["docs/", "ext/"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "T10",    # flake8-debugger (replaces debug-statements hook)
+]
+ignore = ["E203", "E501", "UP038", "UP031"]
+per-file-ignores = {"src/requests/__init__.py" = ["E402", "F401"], "src/requests/compat.py" = ["E402", "F401"], "tests/compat.py" = ["F401"]}
+
+[tool.ruff.lint.isort]
+known-first-party = ["requests"]
+
+[tool.ruff.format]
+# Use black-compatible formatting
+quote-style = "double"
+indent-style = "space"
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"
