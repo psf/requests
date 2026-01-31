@@ -1,13 +1,13 @@
 Requests was lovingly created by Kenneth Reitz.
 
-Keepers of the Crystals
-```````````````````````
+Requests Maintainers
+````````````````````
 
 - Ian Stapleton Cordasco <graffatcolmingov@gmail.com> `@sigmavirus24 <https://github.com/sigmavirus24>`_.
 - Nate Prewitt `@nateprewitt <https://github.com/nateprewitt>`_.
 
-Previous Keepers of Crystals
-````````````````````````````
+Previous Maintainers
+````````````````````
 
 - Kenneth Reitz <me@kennethreitz.org> `@kennethreitz <https://github.com/kennethreitz>`_, reluctant Keeper of the Master Crystal.
 - Cory Benfield <cory@lukasa.co.uk> `@lukasa <https://github.com/lukasa>`_
