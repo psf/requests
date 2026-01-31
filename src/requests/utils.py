@@ -58,6 +58,28 @@ from .exceptions import (
 )
 from .structures import CaseInsensitiveDict
 
+# helper: mask IPv6 zone identifiers like %eth0 so quoting doesn't escape the %
+_IPV6_ZONE_PLACEHOLDER = "___PERCENT_ZONE___"
+
+def _mask_ipv6_zone(uri: str) -> str:
+    """
+    Replace occurrences like [fe80::1%eth0] with [fe80::1___PERCENT_ZONE___eth0]
+    so the '%' is not treated as a character to be percent-encoded by the
+    existing quoting logic. The placeholder uses only characters that are
+    safe from quote() encoding.
+    """
+    def _repl(m):
+        addr = m.group(1)
+        zone = m.group(2)
+        return f"[{addr}{_IPV6_ZONE_PLACEHOLDER}{zone}]"
+
+    # matches [address%zone] and captures address (group1) and zone (group2)
+    return re.sub(r"\[([0-9A-Fa-f:]+)%([^/\]]+)\]", _repl, uri)
+
+def _unmask_ipv6_zone(uri: str) -> str:
+    """Restore the placeholder back to a percent sign for zone identifiers."""
+    return uri.replace(_IPV6_ZONE_PLACEHOLDER, "%")
+
 NETRC_FILES = (".netrc", "_netrc")
 
 DEFAULT_CA_BUNDLE_PATH = certs.where()
@@ -665,18 +687,20 @@ def requote_uri(uri):
 
     :rtype: str
     """
+    # Mask IPv6 zone identifiers so '%' is preserved
+    uri = _mask_ipv6_zone(uri)
+
     safe_with_percent = "!#$%&'()*+,/:;=?@[]~"
     safe_without_percent = "!#$&'()*+,/:;=?@[]~"
+
     try:
-        # Unquote only the unreserved characters
-        # Then quote only illegal characters (do not quote reserved,
-        # unreserved, or '%')
-        return quote(unquote_unreserved(uri), safe=safe_with_percent)
+        uri = quote(unquote_unreserved(uri), safe=safe_with_percent)
     except InvalidURL:
-        # We couldn't unquote the given URI, so let's try quoting it, but
-        # there may be unquoted '%'s in the URI. We need to make sure they're
-        # properly quoted so they do not cause issues elsewhere.
-        return quote(uri, safe=safe_without_percent)
+        uri = quote(uri, safe=safe_without_percent)
+
+    # Restore IPv6 zone identifiers
+    return _unmask_ipv6_zone(uri)
+
 
 
 def address_in_network(ip, net):
