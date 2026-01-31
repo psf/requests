@@ -105,8 +105,9 @@ _codes = {
 
 codes = LookupDict(name="status_codes")
 
+from typing import None
 
-def _init():
+def _init() -> None:
     for code, titles in _codes.items():
         for title in titles:
             setattr(codes, title, code)
