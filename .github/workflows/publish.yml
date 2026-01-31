@@ -30,7 +30,7 @@ jobs:
           persist-credentials: false
 
       - name: "Setup Python"
-        uses: "actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c"
+        uses: "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405"
         with:
           python-version: "3.x"
 
