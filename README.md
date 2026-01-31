@@ -33,7 +33,7 @@ Requests is available on PyPI:
 $ python -m pip install requests
 ```
 
-Requests officially supports Python 3.8+.
+Requests officially supports Python 3.9+.
 
 ## Supported Features & Best–Practices
 
@@ -60,7 +60,7 @@ Requests is ready for the demands of building robust and reliable HTTP–speakin
 ## Cloning the repository
 
 When cloning the Requests repository, you may need to add the `-c
-fetch.fsck.badTimezone=ignore` flag to avoid an error about a bad commit (see
+fetch.fsck.badTimezone=ignore` flag to avoid an error about a bad commit timestamp (see
 [this issue](https://github.com/psf/requests/issues/2690) for more background):
 
 ```shell

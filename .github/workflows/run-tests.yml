@@ -12,25 +12,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "pypy-3.9", "pypy-3.10"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14-dev", "pypy-3.11"]
         os: [ubuntu-22.04, macOS-latest, windows-latest]
-        # Python 3.8 and 3.9 do not run on macOS-latest which
-        # is now using arm64 hardware.
-        # https://github.com/actions/setup-python/issues/696#issuecomment-1637587760
+        # Pypy-3.11 can't install openssl-sys with rust
+        # which prevents us from testing in GHA.
         exclude:
-        - { python-version: "3.8", os: "macos-latest" }
-        - { python-version: "3.9", os: "macos-latest" }
-        include:
-        - { python-version: "3.8", os: "macos-13" }
-        - { python-version: "3.9", os: "macos-13" }
+        - { python-version: "pypy-3.11", os: "windows-latest" }
 
     steps:
-    - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
+        allow-prereleases: true
     - name: Install dependencies
       run: |
         make
@@ -45,15 +41,35 @@ jobs:
       fail-fast: true
 
     steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
-      - name: 'Set up Python 3.8'
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: 'Set up Python 3.9'
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
-          python-version: '3.8'
+          python-version: '3.9'
       - name: Install dependencies
         run: |
           make
           python -m pip uninstall -y "charset_normalizer" "chardet"
+      - name: Run tests
+        run: |
+          make ci
+
+  urllib3:
+    name: 'urllib3 1.x'
+    runs-on: 'ubuntu-latest'
+    strategy:
+      fail-fast: true
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: 'Set up Python 3.9'
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          make
+          python  -m pip install "urllib3<2"
       - name: Run tests
         run: |
           make ci

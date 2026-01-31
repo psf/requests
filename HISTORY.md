@@ -6,6 +6,66 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.32.5 (2025-08-18)
+-------------------
+
+**Bugfixes**
+
+- The SSLContext caching feature originally introduced in 2.32.0 has created
+  a new class of issues in Requests that have had negative impact across a number
+  of use cases. The Requests team has decided to revert this feature as long term
+  maintenance of it is proving to be unsustainable in its current iteration.
+
+**Deprecations**
+- Added support for Python 3.14.
+- Dropped support for Python 3.8 following its end of support.
+
+2.32.4 (2025-06-10)
+-------------------
+
+**Security**
+- CVE-2024-47081 Fixed an issue where a maliciously crafted URL and trusted
+  environment will retrieve credentials for the wrong hostname/machine from a
+  netrc file.
+
+**Improvements**
+- Numerous documentation improvements
+
+**Deprecations**
+- Added support for pypy 3.11 for Linux and macOS.
+- Dropped support for pypy 3.9 following its end of support.
+
+
+2.32.3 (2024-05-29)
+-------------------
+
+**Bugfixes**
+- Fixed bug breaking the ability to specify custom SSLContexts in sub-classes of
+  HTTPAdapter. (#6716)
+- Fixed issue where Requests started failing to run on Python versions compiled
+  without the `ssl` module. (#6724)
+
+2.32.2 (2024-05-21)
+-------------------
+
+**Deprecations**
+- To provide a more stable migration for custom HTTPAdapters impacted
+  by the CVE changes in 2.32.0, we've renamed `_get_connection` to
+  a new public API, `get_connection_with_tls_context`. Existing custom
+  HTTPAdapters will need to migrate their code to use this new API.
+  `get_connection` is considered deprecated in all versions of Requests>=2.32.0.
+
+  A minimal (2-line) example has been provided in the linked PR to ease
+  migration, but we strongly urge users to evaluate if their custom adapter
+  is subject to the same issue described in CVE-2024-35195. (#6710)
+
+2.32.1 (2024-05-20)
+-------------------
+
+**Bugfixes**
+- Add missing test certs to the sdist distributed on PyPI.
+
+
 2.32.0 (2024-05-20)
 -------------------
 
