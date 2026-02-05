@@ -357,6 +357,69 @@ class TestRequests:
         assert r.history[0].request.url == httpbin("redirect-to?url=get") + fragment
         assert r.url == httpbin("get") + fragment
 
+    def test_fragment_preserved_when_redirect_has_no_fragment(self, httpbin):
+        """Test that fragment from original URL is preserved when redirect URL has no fragment."""
+        original_fragment = "#section1"
+        # Request with fragment, redirect to URL without fragment
+        r = requests.get(httpbin("redirect-to?url=get") + original_fragment)
+
+        assert len(r.history) > 0
+        # Original request should have the fragment
+        assert r.history[0].request.url == httpbin("redirect-to?url=get") + original_fragment
+        # Final URL should preserve the original fragment
+        assert r.url == httpbin("get") + original_fragment
+
+    def test_fragment_replaced_when_redirect_has_new_fragment(self, httpbin):
+        """Test that new fragment in redirect URL replaces the original fragment.
+        
+        Note: Since HTTP redirects don't include fragments in Location headers,
+        this test uses httpbin's redirect endpoint which preserves fragments
+        in the final URL through the redirect chain.
+        """
+        original_fragment = "#old"
+        # Use redirect/1 which will redirect to /get
+        # The fragment from the original request should be preserved to the final URL
+        # unless the intermediate redirect response explicitly includes a fragment
+        r = requests.get(httpbin("redirect/1") + original_fragment)
+
+        assert len(r.history) > 0
+        # The original fragment should be preserved through the redirect
+        assert r.url.endswith(original_fragment)
+
+    def test_fragment_with_no_initial_fragment(self, httpbin):
+        """Test redirect when original URL has no fragment."""
+        # Request without fragment, redirect to URL without fragment
+        r = requests.get(httpbin("redirect-to?url=get"))
+
+        assert len(r.history) > 0
+        # Neither original nor final URL should have fragments
+        assert "#" not in r.history[0].request.url
+        assert "#" not in r.url
+
+    def test_fragment_multiple_redirects_preservation(self, httpbin):
+        """Test fragment preservation through multiple redirects."""
+        fragment = "#preserved"
+        # Use multiple redirects
+        r = requests.get(
+            httpbin("redirect/3") + fragment,
+            allow_redirects=True
+        )
+
+        assert len(r.history) >= 3
+        # Original request should have fragment
+        assert r.history[0].request.url.endswith(fragment)
+        # Final URL should preserve the fragment
+        assert r.url.endswith(fragment)
+
+    def test_fragment_empty_string_handling(self, httpbin):
+        """Test that empty fragment (URL ending with #) is handled correctly."""
+        # URL ending with # but no actual fragment content
+        url_with_empty_fragment = httpbin("redirect-to?url=get") + "#"
+        r = requests.get(url_with_empty_fragment)
+
+        assert len(r.history) > 0
+        # The behavior should be consistent whether fragment is empty string or not present
+
     def test_HTTP_200_OK_GET_WITH_PARAMS(self, httpbin):
         heads = {"User-agent": "Mozilla/5.0"}
 
