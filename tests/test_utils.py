@@ -975,3 +975,31 @@ def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
     monkeypatch.setattr(winreg, "OpenKey", OpenKey)
     monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
     assert should_bypass_proxies("http://example.com/", None) is False
+
+
+
+@pytest.mark.parametrize(
+    "url, no_proxy_env, proxies, expected_proxy",
+    [
+        ("http://example.com", "example.com", {"http": "http://proxy.com"}, None),
+        ("http://example.com", "other.com", {"http": "http://proxy.com"}, "http://proxy.com"),
+        ("http://test.example.com", "example.com", {"http": "http://proxy.com"}, None),
+        ("http://example.com", "*", {"http": "http://proxy.com"}, None),
+        ("http://example.com", None, {"http": "http://proxy.com"}, "http://proxy.com"),
+        ("http://internal.com", "internal.com", {"all": "http://proxy.com"}, None),
+        ("https://internal.com", "internal.com", {"all": "http://proxy.com"}, None),
+    ],
+)
+def test_select_proxy_with_no_proxy(
+    url, no_proxy_env, proxies, expected_proxy, monkeypatch
+):
+    """Test that select_proxy honors NO_PROXY environment variable."""
+    if no_proxy_env:
+        monkeypatch.setenv("NO_PROXY", no_proxy_env)
+    else:
+        monkeypatch.delenv("NO_PROXY", raising=False)
+
+    assert select_proxy(url, proxies) == expected_proxy
+
+# EOF Marker
+
