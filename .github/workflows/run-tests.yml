@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15-dev", "pypy-3.11"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14", "3.15-dev", "pypy-3.11"]
         os: [ubuntu-22.04, macOS-latest, windows-latest]
         # Pypy-3.11 can't install openssl-sys with rust
         # which prevents us from testing in GHA.
@@ -45,10 +45,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - name: 'Set up Python 3.9'
+      - name: 'Set up Python 3.10'
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
-          python-version: '3.9'
+          python-version: '3.10'
       - name: Install dependencies
         run: |
           make
@@ -65,10 +65,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - name: 'Set up Python 3.9'
+      - name: 'Set up Python 3.10'
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
-          python-version: '3.9'
+          python-version: '3.10'
       - name: Install dependencies
         run: |
           make
