@@ -47,8 +47,25 @@ OPTIONS? These are all just as simple::
     >>> r = requests.head('https://httpbin.org/get')
     >>> r = requests.options('https://httpbin.org/get')
 
-That's all well and good, but it's also only the start of what Requests can
-do.
+You can also specify **custom headers** while making a request, for example:
+
+.. code-block:: python
+
+    import requests
+
+    url = "https://httpbin.org/get"
+    headers = {"User-Agent": "MyApp/1.0"}
+    response = requests.get(url, headers=headers)
+    print(response.status_code)
+    print(response.json())
+
+>>> import requests
+    >>> try:
+    ...     r = requests.get('https://httpbin.org/delay/3', timeout=2)
+    ... except requests.exceptions.Timeout:
+    ...     print("The request timed out")
+    ... else:
+    ...     print("Request completed successfully:", r.status_code)
 
 
 Passing Parameters In URLs
