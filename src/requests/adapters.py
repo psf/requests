@@ -6,6 +6,7 @@ This module contains the transport adapters that Requests uses to define
 and maintain connections.
 """
 
+import os
 import os.path
 import socket  # noqa: F401
 import typing
@@ -614,7 +615,14 @@ class HTTPAdapter(BaseAdapter):
             )
         except LocationValueError as e:
             raise InvalidURL(e, request=request)
-
+            
+        python_https_verify = '1'       
+        if 'PYTHONHTTPSVERIFY' in os.environ:
+            python_https_verify = os.environ['PYTHONHTTPSVERIFY']        
+            if ((python_https_verify is None) or (python_https_verify == '') or (python_https_verify != '0') or (python_https_verify != '1')):
+                python_https_verify = '0'
+        verify = True if python_https_verify == '1' else False
+        
         self.cert_verify(conn, request.url, verify, cert)
         url = self.request_url(request, proxies)
         self.add_headers(
