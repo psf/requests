@@ -471,6 +471,17 @@ class TestRequests:
         assert cookies["foo"] == "bar"
         assert cookies["cookie"] == "tasty"
 
+    def test_cookie_policy_preserved_on_prepare_request(self):
+        class MyCookiePolicy(cookielib.DefaultCookiePolicy):
+            pass
+
+        s = requests.Session()
+        s.cookies.set_policy(MyCookiePolicy())
+
+        req = requests.Request("GET", "https://example.com/")
+        prepared = s.prepare_request(req)
+        assert isinstance(prepared._cookies.get_policy(), MyCookiePolicy)
+
     def test_requests_in_history_are_not_overridden(self, httpbin):
         resp = requests.get(httpbin("redirect/3"))
         urls = [r.url for r in resp.history]
