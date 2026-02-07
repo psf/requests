@@ -250,6 +250,20 @@ man-in-the-middle (MitM) attacks. Setting verify to ``False`` may be useful
 during local development or testing.
 
 By default, ``verify`` is set to True. Option ``verify`` only applies to host certs.
+When using a ``Session`` object, the ``Session.verify`` attribute accepts the same
+values as the ``verify`` parameter passed to ``requests.get`` and other request
+methods. This means it may be:
+
+* ``True`` – verify the server’s TLS certificate using the system’s CA bundle (default),
+* ``False`` – disable TLS certificate verification entirely (INSECURE),
+* ``str`` – a filesystem path to a CA bundle file or directory to use instead of
+  the system defaults.
+
+For example::
+
+    s = requests.Session()
+    s.verify = "/path/to/cacert.pem"
+    s.get("https://example.com")
 
 Client Side Certificates
 ------------------------
