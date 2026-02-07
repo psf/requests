@@ -1,0 +1,152 @@
+<div class='mp'>
+<h1>httpbin(1): HTTP Request &amp; Response Service</h1>
+
+<h2 id="ENDPOINTS">ENDPOINTS</h2>
+
+<ul>
+<li><a href="{{ url_for('view_landing_page') }}" data-bare-link="true"><code>/</code></a> This page.</li>
+<li><a href="{{ url_for('view_origin') }}" data-bare-link="true"><code>/ip</code></a> Returns Origin IP.</li>
+<li><a href="{{ url_for('view_uuid') }}" data-bare-link="true"><code>/uuid</code></a> Returns UUID4.</li>
+<li><a href="{{ url_for('view_user_agent') }}" data-bare-link="true"><code>/user-agent</code></a> Returns user-agent.</li>
+<li><a href="{{ url_for('view_headers') }}" data-bare-link="true"><code>/headers</code></a> Returns header dict.</li>
+<li><a href="{{ url_for('view_get') }}" data-bare-link="true"><code>/get</code></a> Returns GET data.</li>
+<li><code>/post</code> Returns POST data.</li>
+<li><code>/patch</code> Returns PATCH data.</li>
+<li><code>/put</code> Returns PUT data.</li>
+<li><code>/delete</code> Returns DELETE data</li>
+<li><a href="{{ url_for('view_anything') }}" data-bare-link="true"><code>/anything</code></a> Returns request data, including method used.</li>
+<li><code>/anything/:anything</code> Returns request data, including the URL.</li>
+<li><a href="{{ url_for('decode_base64', value='aGVsbG8gd29ybGQNCg==') }}"><code>/base64/:value</code></a> Decodes base64url-encoded string.</li>
+<li><a href="{{ url_for('encoding') }}"><code>/encoding/utf8</code></a> Returns page containing UTF-8 data.</li>
+<li><a href="{{ url_for('view_gzip_encoded_content') }}" data-bare-link="true"><code>/gzip</code></a> Returns gzip-encoded data.</li>
+<li><a href="{{ url_for('view_deflate_encoded_content') }}" data-bare-link="true"><code>/deflate</code></a> Returns deflate-encoded data.</li>
+<li><a href="{{ url_for('view_brotli_encoded_content') }}" data-bare-link="true"><code>/brotli</code></a> Returns brotli-encoded data.</li>
+<li><a href="{{ url_for('view_status_code', codes='418') }}"><code>/status/:code</code></a> Returns given HTTP Status code.</li>
+<li><a href="{{ url_for('response_headers', **{'Content-Type': 'text/plain; charset=UTF-8', 'Server': 'httpbin'}) }}"><code>/response-headers?key=val</code></a> Returns given response headers.</li>
+<li><a href="{{ url_for('redirect_n_times', n=6) }}"><code>/redirect/:n</code></a> 302 Redirects <em>n</em> times.</li>
+<li><a href="{{ url_for('redirect_to', url='http://example.com/') }}"><code>/redirect-to?url=foo</code></a> 302 Redirects to the <em>foo</em> URL.</li>
+<li><a href="{{ url_for('redirect_to', url='http://example.com/', status_code=307) }}"><code>/redirect-to?url=foo&status_code=307</code></a> 307 Redirects to the <em>foo</em> URL.</li>
+<li><a href="{{ url_for('relative_redirect_n_times', n=6) }}"><code>/relative-redirect/:n</code></a> 302 Relative redirects <em>n</em> times.</li>
+<li><a href="{{ url_for('absolute_redirect_n_times', n=6) }}"><code>/absolute-redirect/:n</code></a> 302 Absolute redirects <em>n</em> times.</li>
+<li><a href="{{ url_for('view_cookies') }}" data-bare-link="true"><code>/cookies</code></a> Returns cookie data.</li>
+<li><a href="{{ url_for('set_cookies', k1='v1', k2='v2') }}"><code>/cookies/set?name=value</code></a> Sets one or more simple cookies.</li>
+<li><a href="{{ url_for('delete_cookies', k1='', k2='') }}"><code>/cookies/delete?name</code></a> Deletes one or more simple cookies.</li>
+<li><a href="{{ url_for('basic_auth', user='user', passwd='passwd') }}"><code>/basic-auth/:user/:passwd</code></a> Challenges HTTPBasic Auth.</li>
+<li><a href="{{ url_for('hidden_basic_auth', user='user', passwd='passwd') }}"><code>/hidden-basic-auth/:user/:passwd</code></a> 404'd BasicAuth.</li>
+<li><a href="{{ url_for('digest_auth', qop='auth', user='user', passwd='passwd', algorithm='MD5', stale_after='never') }}"><code>/digest-auth/:qop/:user/:passwd/:algorithm</code></a> Challenges HTTP Digest Auth.</li>
+<li><a href="{{ url_for('digest_auth', qop='auth', user='user', passwd='passwd', algorithm='MD5', stale_after='never') }}"><code>/digest-auth/:qop/:user/:passwd</code></a> Challenges HTTP Digest Auth.</li>
+<li><a href="{{ url_for('stream_n_messages', n=20) }}"><code>/stream/:n</code></a> Streams <em>min(n, 100)</em> lines.</li>
+<li><a href="{{ url_for('delay_response', delay=3) }}"><code>/delay/:n</code></a> Delays responding for <em>min(n, 10)</em> seconds.</li>
+<li><a href="{{ url_for('drip', numbytes=5, duration=5, code=200) }}"><code>/drip?numbytes=n&amp;duration=s&amp;delay=s&amp;code=code</code></a> Drips data over a duration after an optional initial delay, then (optionally) returns with the given status code.</li>
+<li><a href="{{ url_for('range_request', numbytes=1024) }}"><code>/range/1024?duration=s&amp;chunk_size=code</code></a> Streams <em>n</em> bytes, and allows specifying a <em>Range</em> header to select a subset of the data. Accepts a <em>chunk_size</em> and request <em>duration</em> parameter.</li>
+<li><a href="{{ url_for('view_html_page') }}" data-bare-link="true"><code>/html</code></a> Renders an HTML Page.</li>
+<li><a href="{{ url_for('view_robots_page') }}" data-bare-link="true"><code>/robots.txt</code></a> Returns some robots.txt rules.</li>
+<li><a href="{{ url_for('view_deny_page') }}" data-bare-link="true"><code>/deny</code></a> Denied by robots.txt file.</li>
+<li><a href="{{ url_for('cache') }}" data-bare-link="true"><code>/cache</code></a> Returns 200 unless an If-Modified-Since or If-None-Match header is provided, when it returns a 304.</li>
+<li><a href="{{ url_for('etag', etag='etag') }}"><code>/etag/:etag</code></a> Assumes the resource has the given etag and responds to If-None-Match header with a 200 or 304 and If-Match with a 200 or 412 as appropriate.</li>
+<li><a href="{{ url_for('cache_control', value=60) }}"><code>/cache/:n</code></a> Sets a Cache-Control header for <em>n</em> seconds.</li>
+<li><a href="{{ url_for('random_bytes', n=1024) }}"><code>/bytes/:n</code></a> Generates <em>n</em> random bytes of binary data, accepts optional <em>seed</em> integer parameter.</li>
+<li><a href="{{ url_for('stream_random_bytes', n=1024) }}"><code>/stream-bytes/:n</code></a> Streams <em>n</em> random bytes of binary data in chunked encoding, accepts optional <em>seed</em> and <em>chunk_size</em> integer parameters.</li>
+<li><a href="{{ url_for('links', n=10) }}"><code>/links/:n</code></a> Returns page containing <em>n</em> HTML links.</li>
+<li><a href="{{ url_for('image') }}"><code>/image</code></a> Returns page containing an image based on sent Accept header.</li>
+<li><a href="{{ url_for('image_png') }}"><code>/image/png</code></a> Returns a PNG image.</li>
+<li><a href="{{ url_for('image_jpeg') }}"><code>/image/jpeg</code></a> Returns a JPEG image.</li>
+<li><a href="{{ url_for('image_webp') }}"><code>/image/webp</code></a> Returns a WEBP image.</li>
+<li><a href="{{ url_for('image_svg') }}"><code>/image/svg</code></a> Returns a SVG image.</li>
+<li><a href="{{ url_for('view_forms_post') }}" data-bare-link="true"><code>/forms/post</code></a> HTML form that submits to <em>/post</em></li>
+<li><a href="{{ url_for('xml') }}" data-bare-link="true"><code>/xml</code></a> Returns some XML</li>
+</ul>
+
+<h2 id="DESCRIPTION">DESCRIPTION</h2>
+
+<p>Testing an HTTP Library can become difficult sometimes. <a href="http://requestb.in">RequestBin</a> is fantastic for testing POST requests, but doesn't let you control the response. This exists to cover all kinds of HTTP scenarios. Additional endpoints are being considered.</p>
+
+<p>All endpoint responses are JSON-encoded.</p>
+
+<h2 id="EXAMPLES">EXAMPLES</h2>
+
+<h3 id="-curl-http-httpbin-org-ip">$ curl http://httpbin.org/ip</h3>
+
+<pre><code>{"origin": "24.127.96.129"}
+</code></pre>
+
+<h3 id="-curl-http-httpbin-org-user-agent">$ curl http://httpbin.org/user-agent</h3>
+
+<pre><code>{"user-agent": "curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8l zlib/1.2.3"}
+</code></pre>
+
+<h3 id="-curl-http-httpbin-org-get">$ curl http://httpbin.org/get</h3>
+
+<pre><code>{
+   "args": {},
+   "headers": {
+      "Accept": "*/*",
+      "Connection": "close",
+      "Content-Length": "",
+      "Content-Type": "",
+      "Host": "httpbin.org",
+      "User-Agent": "curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8l zlib/1.2.3"
+   },
+   "origin": "24.127.96.129",
+   "url": "http://httpbin.org/get"
+}
+</code></pre>
+
+<h3 id="-curl-I-http-httpbin-org-status-418">$ curl -I http://httpbin.org/status/418</h3>
+
+<pre><code>HTTP/1.1 418 I'M A TEAPOT
+Server: nginx/0.7.67
+Date: Mon, 13 Jun 2011 04:25:38 GMT
+Connection: close
+x-more-info: http://tools.ietf.org/html/rfc2324
+Content-Length: 135
+</code></pre>
+
+<h3 id="-curl-https-httpbin-org-get-show_env-1">$ curl https://httpbin.org/get?show_env=1</h3>
+
+<pre><code>{
+  "headers": {
+    "Content-Length": "",
+    "Accept-Language": "en-US,en;q=0.8",
+    "Accept-Encoding": "gzip,deflate,sdch",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-For": "109.60.101.240",
+    "Host": "httpbin.org",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.83 Safari/535.11",
+    "X-Request-Start": "1350053933441",
+    "Accept-Charset": "ISO-8859-1,utf-8;q=0.7,*;q=0.3",
+    "Connection": "keep-alive",
+    "X-Forwarded-Proto": "https",
+    "Cookie": "_gauges_unique_day=1; _gauges_unique_month=1; _gauges_unique_year=1; _gauges_unique=1; _gauges_unique_hour=1",
+    "Content-Type": ""
+  },
+  "args": {
+    "show_env": "1"
+  },
+  "origin": "109.60.101.240",
+  "url": "http://httpbin.org/get?show_env=1"
+}
+</code></pre>
+
+<h2 id="Installing-and-running-from-PyPI">Installing and running from PyPI</h2>
+
+<p>You can install httpbin as a library from PyPI and run it as a WSGI app.  For example, using Gunicorn:</p>
+
+<pre><code class="bash">$ pip install httpbin
+$ gunicorn httpbin:app
+</code></pre>
+
+
+<h2 id="AUTHOR">AUTHOR</h2>
+
+<p>Currently maintained on GitHub as <a href="https://github.com/psf/httpbin/">psf/httpbin</a> project.</p>
+<p>A <a href="http://kennethreitz.com/">Kenneth Reitz</a> project.</p>
+
+<h2 id="SEE-ALSO">SEE ALSO</h2>
+
+<p><a href="https://www.hurl.it">Hurl.it</a> - Make HTTP requests.</p>
+<p><a href="http://requestb.in">RequestBin</a> - Inspect HTTP requests.</p>
+<p><a href="http://python-requests.org" data-bare-link="true">http://python-requests.org</a></p>
+
+</div>

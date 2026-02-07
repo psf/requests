@@ -1,0 +1,2 @@
+[pytest11]
+httpbin = pytest_httpbin.plugin
