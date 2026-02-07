@@ -11,7 +11,7 @@ This module implements the Requests API.
 from . import sessions
 
 
-def request(method, url, **kwargs):
+def request(method, url, max_response_size=None, **kwargs):
     """Constructs and sends a :class:`Request <Request>`.
 
     :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
@@ -41,6 +41,8 @@ def request(method, url, **kwargs):
             to a CA bundle to use. Defaults to ``True``.
     :param stream: (optional) if ``False``, the response content will be immediately downloaded.
     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+    :param max_response_size: (optional) Maximum response body size in bytes
+        before raising ``ContentTooLarge``.
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
 
@@ -56,7 +58,12 @@ def request(method, url, **kwargs):
     # avoid leaving sockets open which can trigger a ResourceWarning in some
     # cases, and look like a memory leak in others.
     with sessions.Session() as session:
-        return session.request(method=method, url=url, **kwargs)
+        return session.request(
+            method=method,
+            url=url,
+            max_response_size=max_response_size,
+            **kwargs,
+        )
 
 
 def get(url, params=None, **kwargs):
