@@ -140,6 +140,30 @@ def super_len(o):
         # of latin-1 (iso-8859-1) like http.client.
         o = o.encode("utf-8")
 
+    # Special case: io.StringIO bodies
+    # StringIO.tell() returns characters, not bytes; UTF-8 encoding may
+    # expand the payload. We calculate the true byte length without
+    # mutating the stream position. This mirrors the logic already
+    # applied to plain `str` bodies (see above) and maintains backwards
+    # compatibility for callers.
+    # Fixes: https://github.com/psf/requests/issues/6917
+    if isinstance(o, io.StringIO):
+        # Cache current cursor, read content, restore cursor
+        current_pos = o.tell()
+        try:
+            o.seek(0)
+            content = o.read()
+            total_length = len(content.encode("utf-8"))
+            # Calculate remaining bytes from current position
+            if current_pos > 0:
+                consumed_content = content[:current_pos]
+                consumed_bytes = len(consumed_content.encode("utf-8"))
+                return max(0, total_length - consumed_bytes)
+            else:
+                return total_length
+        finally:
+            o.seek(current_pos)
+
     if hasattr(o, "__len__"):
         total_length = len(o)
 
