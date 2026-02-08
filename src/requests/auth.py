@@ -14,7 +14,7 @@ import warnings
 from base64 import b64encode
 
 from ._internal_utils import to_native_string
-from .compat import basestring, str, urlparse
+from .compat import basestring, str, urlsplit
 from .cookies import extract_cookies_to_jar
 from .utils import parse_dict_header
 
@@ -180,7 +180,7 @@ class HTTPDigestAuth(AuthBase):
 
         # XXX not implemented yet
         entdig = None
-        p_parsed = urlparse(url)
+        p_parsed = urlsplit(url)
         #: path is request-uri defined in RFC 2616 which should not be empty
         path = p_parsed.path or "/"
         if p_parsed.query:
