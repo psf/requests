@@ -186,13 +186,30 @@ def super_len(o):
             if hasattr(o, "seek") and total_length is None:
                 # StringIO and BytesIO have seek but no usable fileno
                 try:
-                    # seek to end of file
-                    o.seek(0, 2)
-                    total_length = o.tell()
+                    if isinstance(o, io.StringIO):
+                        # StringIO.tell() returns the character
+                        # position, not the byte offset.  Read the
+                        # remaining text and encode it to measure the
+                        # true byte length for Content-Length.
+                        start = current_position or 0
+                        o.seek(start)
+                        total_length = len(o.read().encode("utf-8"))
 
-                    # seek back to current position to support
-                    # partially read file-like objects
-                    o.seek(current_position or 0)
+                        # Reset current_position so the returned value
+                        # is just total_length (the remaining bytes).
+                        current_position = 0
+
+                        # seek back to original position to support
+                        # partially read file-like objects
+                        o.seek(start)
+                    else:
+                        # seek to end of file
+                        o.seek(0, 2)
+                        total_length = o.tell()
+
+                        # seek back to current position to support
+                        # partially read file-like objects
+                        o.seek(current_position or 0)
                 except OSError:
                     total_length = 0
 
