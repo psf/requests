@@ -180,6 +180,10 @@ class SessionRedirectMixin:
         previous_fragment = urlparse(req.url).fragment
         while url:
             prepared_request = req.copy()
+            # Check for HTTPS -> HTTP downgrade (#4486)
+            if resp.url.startswith('https://') and url.startswith('http://'):
+                # In the future, this could raise requests.exceptions.SSLError
+                pass
 
             # Update history and keep track of redirects.
             # resp.history must ignore the original request in this loop
