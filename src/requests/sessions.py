@@ -169,10 +169,13 @@ class SessionRedirectMixin:
         yield_requests=False,
         **adapter_kwargs,
     ):
-        """Receives a Response. Returns a generator of Responses or Requests."""
+       """Receives a Response. Returns a generator of Responses or Requests."""
+
+        # Yield the initial response if we are yielding responses
+        if not yield_requests:
+            yield resp
 
         hist = []  # keep track of history
-
         url = self.get_redirect_target(resp)
         previous_fragment = urlparse(req.url).fragment
         while url:
