@@ -17,7 +17,7 @@ from .adapters import HTTPAdapter
 from .auth import _basic_auth_str
 from .compat import Mapping, cookielib, urljoin, urlparse
 from .cookies import (
-    RequestsCookieJar,
+    _copy_cookie_jar,
     cookiejar_from_dict,
     extract_cookies_to_jar,
     merge_cookies,
@@ -472,9 +472,8 @@ class Session(SessionRedirectMixin):
             cookies = cookiejar_from_dict(cookies)
 
         # Merge with session cookies
-        merged_cookies = merge_cookies(
-            merge_cookies(RequestsCookieJar(), self.cookies), cookies
-        )
+        session_cookies = _copy_cookie_jar(self.cookies)
+        merged_cookies = merge_cookies(session_cookies, cookies)
 
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
