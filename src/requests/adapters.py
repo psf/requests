@@ -11,17 +11,19 @@ import socket  # noqa: F401
 import typing
 import warnings
 
-from urllib3.exceptions import ClosedPoolError, ConnectTimeoutError
-from urllib3.exceptions import HTTPError as _HTTPError
-from urllib3.exceptions import InvalidHeader as _InvalidHeader
 from urllib3.exceptions import (
+    ClosedPoolError,
+    ConnectTimeoutError,
     LocationValueError,
     MaxRetryError,
     NewConnectionError,
     ProtocolError,
+    ReadTimeoutError,
+    ResponseError,
 )
+from urllib3.exceptions import HTTPError as _HTTPError
+from urllib3.exceptions import InvalidHeader as _InvalidHeader
 from urllib3.exceptions import ProxyError as _ProxyError
-from urllib3.exceptions import ReadTimeoutError, ResponseError
 from urllib3.exceptions import SSLError as _SSLError
 from urllib3.poolmanager import PoolManager, proxy_from_url
 from urllib3.util import Timeout as TimeoutSauce
@@ -76,9 +78,9 @@ DEFAULT_POOL_TIMEOUT = None
 def _urllib3_request_context(
     request: "PreparedRequest",
     verify: "bool | str | None",
-    client_cert: "typing.Tuple[str, str] | str | None",
+    client_cert: "tuple[str, str] | str | None",
     poolmanager: "PoolManager",
-) -> "(typing.Dict[str, typing.Any], typing.Dict[str, typing.Any])":
+) -> "(dict[str, typing.Any], dict[str, typing.Any])":
     host_params = {}
     pool_kwargs = {}
     parsed_request_url = urlparse(request.url)

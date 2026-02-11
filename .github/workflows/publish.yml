@@ -20,17 +20,17 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           egress-policy: audit
 
       - name: "Checkout repository"
-        uses: "actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8"
+        uses: "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd"
         with:
           persist-credentials: false
 
       - name: "Setup Python"
-        uses: "actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c"
+        uses: "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405"
         with:
           python-version: "3.x"
 
@@ -48,7 +48,7 @@ jobs:
           cd dist && echo "::set-output name=hashes::$(sha256sum * | base64 -w0)"
 
       - name: "Upload dists"
-        uses: "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+        uses: "actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f"
         id: upload-artifact
         with:
           name: "dist"
@@ -79,12 +79,12 @@ jobs:
 
     steps:
     - name: Harden the runner (Audit all outbound calls)
-      uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+      uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
       with:
         egress-policy: audit
 
     - name: "Download dists"
-      uses: "actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0" # v5.0.0
+      uses: "actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131" # v7.0.0
       with:
         artifact-ids: ${{ needs.build.outputs.artifact-id }}
         path: "dist/"

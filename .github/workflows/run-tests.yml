@@ -8,11 +8,12 @@ permissions:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.python-version == '3.15-dev' }}
     timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14-dev", "pypy-3.10", "pypy-3.11"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14", "3.15-dev", "pypy-3.11"]
         os: [ubuntu-22.04, macOS-latest, windows-latest]
         # Pypy-3.11 can't install openssl-sys with rust
         # which prevents us from testing in GHA.
@@ -20,14 +21,16 @@ jobs:
         - { python-version: "pypy-3.11", os: "windows-latest" }
 
     steps:
-    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
         allow-prereleases: true
     - name: Install dependencies
+      env:
+        PYO3_USE_ABI3_FORWARD_COMPATIBILITY: ${{ matrix.python-version == '3.15-dev' && '1' || '' }}
       run: |
         make
     - name: Run tests
@@ -41,11 +44,11 @@ jobs:
       fail-fast: true
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
-      - name: 'Set up Python 3.9'
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: 'Set up Python 3.10'
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
-          python-version: '3.9'
+          python-version: '3.10'
       - name: Install dependencies
         run: |
           make
@@ -61,11 +64,11 @@ jobs:
       fail-fast: true
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
-      - name: 'Set up Python 3.9'
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: 'Set up Python 3.10'
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
-          python-version: '3.9'
+          python-version: '3.10'
       - name: Install dependencies
         run: |
           make
