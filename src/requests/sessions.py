@@ -472,10 +472,20 @@ class Session(SessionRedirectMixin):
             cookies = cookiejar_from_dict(cookies)
 
         # Merge with session cookies
-        merged_cookies = merge_cookies(
-            merge_cookies(RequestsCookieJar(), self.cookies), cookies
-        )
-
+        # Preserve the cookie policy from the session's cookie jar
+        # Fixes issue where custom policies were lost during request preparation
+        if isinstance(self.cookies, RequestsCookieJar):
+            # Create a new jar with the same policy as the session's jar
+            jar = RequestsCookieJar()
+            jar.set_policy(self.cookies.get_policy())
+            merged_cookies = merge_cookies(
+                merge_cookies(jar, self.cookies), cookies
+            )
+        else:
+            # Fall back to original behavior for non-RequestsCookieJar instances
+            merged_cookies = merge_cookies(
+                merge_cookies(RequestsCookieJar(), self.cookies), cookies
+            )
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
         if self.trust_env and not auth and not self.auth:
@@ -497,7 +507,6 @@ class Session(SessionRedirectMixin):
             hooks=merge_hooks(request.hooks, self.hooks),
         )
         return p
-
     def request(
         self,
         method,

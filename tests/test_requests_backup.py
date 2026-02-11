@@ -44,11 +44,9 @@ from requests.exceptions import (
     ReadTimeout,
     RequestException,
     RetryError,
-    Timeout,
-    TooManyRedirects,
-    UnrewindableBodyError,
 )
 from requests.exceptions import SSLError as RequestsSSLError
+from requests.exceptions import Timeout, TooManyRedirects, UnrewindableBodyError
 from requests.hooks import default_hooks
 from requests.models import PreparedRequest, urlencode
 from requests.sessions import SessionRedirectMixin
@@ -962,18 +960,20 @@ class TestRequests:
         INVALID_PATH = "/garbage"
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), verify=INVALID_PATH)
-        assert (
-            str(e.value)
-            == f"Could not find a suitable TLS CA certificate bundle, invalid path: {INVALID_PATH}"
+        assert str(
+            e.value
+        ) == "Could not find a suitable TLS CA certificate bundle, invalid path: {}".format(
+            INVALID_PATH
         )
 
     def test_invalid_ssl_certificate_files(self, httpbin_secure):
         INVALID_PATH = "/garbage"
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), cert=INVALID_PATH)
-        assert (
-            str(e.value)
-            == f"Could not find the TLS certificate file, invalid path: {INVALID_PATH}"
+        assert str(
+            e.value
+        ) == "Could not find the TLS certificate file, invalid path: {}".format(
+            INVALID_PATH
         )
 
         with pytest.raises(IOError) as e:
@@ -1406,9 +1406,33 @@ class TestRequests:
         jar.set_policy(MyCookiePolicy())
         assert isinstance(jar.copy().get_policy(), MyCookiePolicy)
 
+    def test_cookie_policy_preserved_in_prepare_request(self):
+        """Test that custom cookie policies are preserved and consulted during prepare_request."""
+        class RejectingCookiePolicy(cookielib.DefaultCookiePolicy):
+            def return_ok(self, cookie, request):
+                # Reject all cookies to verify policy is consulted
+                return False
+
+        # Create session with custom cookie policy
+        s = requests.Session()
+        s.cookies = requests.cookies.RequestsCookieJar(policy=RejectingCookiePolicy())
+        
+        # Add a cookie to the session
+        s.cookies.set('test_cookie', 'test_value', domain='example.com')
+        
+        # Create and prepare a request
+        req = requests.Request('GET', 'https://example.com')
+        prep_req = s.prepare_request(req)
+        
+        # Verify that the cookie header is None because our policy rejected it
+        assert prep_req.headers.get('Cookie') is None
+        
+        # Verify that the session's cookie jar still has the cookie
+        assert len(s.cookies) == 1
+        assert s.cookies.get('test_cookie') == 'test_value'
+
     def test_time_elapsed_blank(self, httpbin):
-        r = requests.get(httpbin("get"))
-        td = r.elapsed
+        r = requests.get(httpbin("get"))        td = r.elapsed
         total_seconds = (
             td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6
         ) / 10**6
@@ -2460,6 +2484,7 @@ class TestMorselToCookieExpires:
 
 
 class TestMorselToCookieMaxAge:
+
     """Tests for morsel_to_cookie when morsel contains max-age."""
 
     def test_max_age_valid_int(self):
@@ -3037,4 +3062,3 @@ def test_json_decode_errors_are_serializable_deserializable():
     )
     deserialized_error = pickle.loads(pickle.dumps(json_decode_error))
     assert repr(json_decode_error) == repr(deserialized_error)
-
