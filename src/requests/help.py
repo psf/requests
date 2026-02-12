@@ -90,9 +90,11 @@ def info():
         "openssl_version": "",
     }
     if OpenSSL:
+        openssl_version = OpenSSL.SSL.SSLeay_version(OpenSSL.SSL.SSLEAY_VERSION)
         pyopenssl_info = {
             "version": OpenSSL.__version__,
             "openssl_version": f"{OpenSSL.SSL.OPENSSL_VERSION_NUMBER:x}",
+            "human_friendly_version": openssl_version.decode("utf-8"),
         }
     cryptography_info = {
         "version": getattr(cryptography, "__version__", ""),
@@ -102,7 +104,10 @@ def info():
     }
 
     system_ssl = ssl.OPENSSL_VERSION_NUMBER
-    system_ssl_info = {"version": f"{system_ssl:x}" if system_ssl is not None else ""}
+    system_ssl_info = {
+        "version": f"{system_ssl:x}" if system_ssl is not None else "",
+        "human_friendly_version": ssl.OPENSSL_VERSION,
+    }
 
     return {
         "platform": platform_info,
