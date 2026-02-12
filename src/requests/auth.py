@@ -88,9 +88,6 @@ class HTTPBasicAuth(AuthBase):
             ]
         )
 
-    def __ne__(self, other):
-        return not self == other
-
     def __call__(self, r):
         r.headers["Authorization"] = _basic_auth_str(self.username, self.password)
         return r
@@ -309,6 +306,3 @@ class HTTPDigestAuth(AuthBase):
                 self.password == getattr(other, "password", None),
             ]
         )
-
-    def __ne__(self, other):
-        return not self == other
