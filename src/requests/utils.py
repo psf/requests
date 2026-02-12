@@ -311,13 +311,13 @@ def from_key_val_list(value):
     ::
 
         >>> from_key_val_list([('key', 'val')])
-        OrderedDict([('key', 'val')])
+        OrderedDict({'key': 'val'})
         >>> from_key_val_list('string')
         Traceback (most recent call last):
         ...
         ValueError: cannot encode objects that are not 2-tuples
         >>> from_key_val_list({'key': 'val'})
-        OrderedDict([('key', 'val')])
+        OrderedDict({'key': 'val'})
 
     :rtype: OrderedDict
     """
