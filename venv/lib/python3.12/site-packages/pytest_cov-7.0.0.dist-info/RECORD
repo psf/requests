@@ -1,0 +1,14 @@
+pytest_cov-7.0.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+pytest_cov-7.0.0.dist-info/METADATA,sha256=XwG_4psf73MF1IuSOpbk3Bkfd_uHKY2yB8t2hejOXjs,31158
+pytest_cov-7.0.0.dist-info/RECORD,,
+pytest_cov-7.0.0.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+pytest_cov-7.0.0.dist-info/WHEEL,sha256=qtCwoSJWgHk21S1Kb4ihdzI2rlJ1ZKaIurTj_ngOhyQ,87
+pytest_cov-7.0.0.dist-info/entry_points.txt,sha256=1Wx3pjYCY2v4ATD5dhlQN6Ta-C4LKmBa1fXhiEX6C8A,42
+pytest_cov-7.0.0.dist-info/licenses/AUTHORS.rst,sha256=o1bLAu5ccigi9VR3NRNqGofxlLqHmVLqKBKxfiKY0YI,3032
+pytest_cov-7.0.0.dist-info/licenses/LICENSE,sha256=g1WGrhVnZqJOPBA_vFXZr2saFt9XypMsl0gqJzf9g9U,1071
+pytest_cov/__init__.py,sha256=-4_bNtyFDPe7lbiB7b4QUVyj92LbXcV4bJtMH6BLblE,908
+pytest_cov/__pycache__/__init__.cpython-312.pyc,,
+pytest_cov/__pycache__/engine.cpython-312.pyc,,
+pytest_cov/__pycache__/plugin.cpython-312.pyc,,
+pytest_cov/engine.py,sha256=lcYQQZygQtTnJOd8yjLGpmL2fmN7Mdpx7zKnhxiIW5g,17161
+pytest_cov/plugin.py,sha256=BoORWcw9ns3YTmMyDWT75GTnekYH21WK4vUC7nDocv4,17084
