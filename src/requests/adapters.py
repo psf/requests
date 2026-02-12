@@ -125,7 +125,7 @@ class BaseAdapter:
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
         :param stream: (optional) Whether to stream the request content.
-        :param timeout: (optional) How long to wait for the server to send
+        :param timeout: (optional) How many seconds to wait for the server to send
             data before giving up, as a float, or a :ref:`(connect timeout,
             read timeout) <timeouts>` tuple.
         :type timeout: float or tuple
@@ -596,7 +596,7 @@ class HTTPAdapter(BaseAdapter):
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
         :param stream: (optional) Whether to stream the request content.
-        :param timeout: (optional) How long to wait for the server to send
+        :param timeout: (optional) How many seconds to wait for the server to send
             data before giving up, as a float, or a :ref:`(connect timeout,
             read timeout) <timeouts>` tuple.
         :type timeout: float or tuple or urllib3 Timeout object
