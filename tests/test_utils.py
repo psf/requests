@@ -14,9 +14,11 @@ from requests._internal_utils import unicode_is_ascii
 from requests.cookies import RequestsCookieJar
 from requests.structures import CaseInsensitiveDict
 from requests.utils import (
+    _get_mask_bits,
     _parse_content_type_header,
     add_dict_to_cookiejar,
     address_in_network,
+    compare_ips,
     dotted_netmask,
     extract_zipped_paths,
     get_auth_from_url,
@@ -282,8 +284,15 @@ class TestIsIPv4Address:
 
 
 class TestIsValidCIDR:
-    def test_valid(self):
-        assert is_valid_cidr("192.168.1.0/24")
+    @pytest.mark.parametrize(
+        "value",
+        (
+            "192.168.1.0/24",
+            "1:2:3:4::/64",
+        ),
+    )
+    def test_valid(self, value):
+        assert is_valid_cidr(value)
 
     @pytest.mark.parametrize(
         "value",
@@ -293,6 +302,11 @@ class TestIsValidCIDR:
             "192.168.1.0/128",
             "192.168.1.0/-1",
             "192.168.1.999/24",
+            "1:2:3:4::1",
+            "1:2:3:4::/a",
+            "1:2:3:4::0/321",
+            "1:2:3:4::/-1",
+            "1:2:3:4::12211/64",
         ),
     )
     def test_invalid(self, value):
@@ -305,6 +319,12 @@ class TestAddressInNetwork:
 
     def test_invalid(self):
         assert not address_in_network("172.16.0.1", "192.168.1.0/24")
+
+    def test_valid_v6(self):
+        assert address_in_network("1:2:3:4::1111", "1:2:3:4::/64")
+
+    def test_invalid_v6(self):
+        assert not address_in_network("1:2:3:4:1111", "1:2:3:4::/124")
 
 
 class TestGuessFilename:
@@ -741,6 +761,11 @@ def test_urldefragauth(url, expected):
         ("http://172.16.1.12:5000/", False),
         ("http://google.com:5000/v1.0/", False),
         ("file:///some/path/on/disk", True),
+        ("http://[1:2:3:4:5:6:7:8]:5000/", True),
+        ("http://[1:2:3:4::1]/", True),
+        ("http://[1:2:3:9::1]/", True),
+        ("http://[1:2:3:9:0:0:0:1]/", True),
+        ("http://[1:2:3:9::2]/", False),
     ),
 )
 def test_should_bypass_proxies(url, expected, monkeypatch):
@@ -749,11 +774,11 @@ def test_should_bypass_proxies(url, expected, monkeypatch):
     """
     monkeypatch.setenv(
         "no_proxy",
-        "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1, google.com:6000",
+        "192.168.0.0/24,127.0.0.1,localhost.localdomain,1:2:3:4::/64,1:2:3:9::1,172.16.1.1, google.com:6000",
     )
     monkeypatch.setenv(
         "NO_PROXY",
-        "192.168.0.0/24,127.0.0.1,localhost.localdomain,172.16.1.1, google.com:6000",
+        "192.168.0.0/24,127.0.0.1,localhost.localdomain,1:2:3:4::/64,1:2:3:9::1,172.16.1.1, google.com:6000",
     )
     assert should_bypass_proxies(url, no_proxy=None) == expected
 
@@ -975,3 +1000,36 @@ def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
     monkeypatch.setattr(winreg, "OpenKey", OpenKey)
     monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
     assert should_bypass_proxies("http://example.com/", None) is False
+
+
+@pytest.mark.parametrize(
+    "mask, totalbits, maskbits",
+    (
+        (24, None, 0xFFFFFF00),
+        (31, None, 0xFFFFFFFE),
+        (0, None, 0x0),
+        (4, 4, 0xF),
+        (24, 128, 0xFFFFFF00000000000000000000000000),
+    ),
+)
+def test__get_mask_bits(mask, totalbits, maskbits):
+    args = {"mask": mask}
+    if totalbits:
+        args["totalbits"] = totalbits
+    assert _get_mask_bits(**args) == maskbits
+
+
+@pytest.mark.parametrize(
+    "a, b, expected",
+    (
+        ("1.2.3.4", "1.2.3.4", True),
+        ("1.2.3.4", "2.2.3.4", False),
+        ("1::4", "1.2.3.4", False),
+        ("1::4", "1::4", True),
+        ("1::4", "1:0:0:0:0:0:0:4", True),
+        ("1::4", "1:0:0:0:0:0::4", True),
+        ("1::4", "1:0:0:0:0:0:1:4", False),
+    ),
+)
+def test_compare_ips(a, b, expected):
+    assert compare_ips(a, b) == expected
