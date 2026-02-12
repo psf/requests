@@ -238,6 +238,9 @@ or persistent::
 This list of trusted CAs can also be specified through the ``REQUESTS_CA_BUNDLE`` environment variable.
 If ``REQUESTS_CA_BUNDLE`` is not set, ``CURL_CA_BUNDLE`` will be used as fallback.
 
+.. warning:: Changes to ``session.verify`` will be ignored if either 
+  ``REQUESTS_CA_BUNDLE`` or ``CURL_CA_BUNDLE`` is set.
+
 Requests can also ignore verifying the SSL certificate if you set ``verify`` to False::
 
     >>> requests.get('https://kennethreitz.org', verify=False)
