@@ -45,7 +45,6 @@ from .utils import (  # noqa: F401
     get_auth_from_url,
     get_environ_proxies,
     get_netrc_auth,
-    requote_uri,
     resolve_proxies,
     rewind_body,
     should_bypass_proxies,
@@ -211,13 +210,10 @@ class SessionRedirectMixin:
 
             # Facilitate relative 'location' headers, as allowed by RFC 7231.
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
-            # Compliant with RFC3986, we percent encode the url.
             if not parsed.netloc:
-                url = urljoin(resp.url, requote_uri(url))
-            else:
-                url = requote_uri(url)
+                url = urljoin(resp.url, url)
 
-            prepared_request.url = to_native_string(url)
+            prepared_request.prepare_url(url, None)
 
             self.rebuild_method(prepared_request, resp)
 
