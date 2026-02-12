@@ -121,6 +121,21 @@ class TestRequests:
         assert pr.url == req.url
         assert pr.body == "life=42"
 
+    def test_params_with_empty_list_are_included(self):
+        """
+        Regression test for #6557: Ensure empty lists in params 
+        result in the key being present in the URL (e.g. key=).
+        """
+        url = 'http://example.com'
+        params = {'key': []}
+        req = requests.Request('GET', url, params=params)
+        prep = req.prepare()
+        
+        # Check if the key is present with an empty value
+        assert 'key=' in prep.url
+        # Check that it didn't literally print the brackets
+        assert 'key=[]' not in prep.url
+         
     @pytest.mark.parametrize("method", ("GET", "HEAD"))
     def test_no_content_length(self, httpbin, method):
         req = requests.Request(method, httpbin(method.lower())).prepare()
