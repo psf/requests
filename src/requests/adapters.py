@@ -370,6 +370,10 @@ class HTTPAdapter(BaseAdapter):
         response.request = req
         response.connection = self
 
+        if "transfer-encoding" in response.headers and "chunked" in response.headers["transfer-encoding"]:
+            if "content-length" in response.headers:
+                response.headers.pop("content-length")
+
         return response
 
     def build_connection_pool_key_attributes(self, request, verify, cert=None):
