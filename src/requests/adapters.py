@@ -255,27 +255,32 @@ class HTTPAdapter(BaseAdapter):
         """
         if proxy in self.proxy_manager:
             manager = self.proxy_manager[proxy]
-        elif proxy.lower().startswith("socks"):
-            username, password = get_auth_from_url(proxy)
-            manager = self.proxy_manager[proxy] = SOCKSProxyManager(
-                proxy,
-                username=username,
-                password=password,
-                num_pools=self._pool_connections,
-                maxsize=self._pool_maxsize,
-                block=self._pool_block,
-                **proxy_kwargs,
-            )
         else:
-            proxy_headers = self.proxy_headers(proxy)
-            manager = self.proxy_manager[proxy] = proxy_from_url(
-                proxy,
-                proxy_headers=proxy_headers,
-                num_pools=self._pool_connections,
-                maxsize=self._pool_maxsize,
-                block=self._pool_block,
-                **proxy_kwargs,
-            )
+            if proxy.lower().startswith("socks"):
+                username, password = get_auth_from_url(proxy)
+                manager = self.proxy_manager[proxy] = SOCKSProxyManager(
+                    proxy,
+                    username=username,
+                    password=password,
+                    num_pools=self._pool_connections,
+                    maxsize=self._pool_maxsize,
+                    block=self._pool_block,
+                    **proxy_kwargs,
+                )
+            else:
+                proxy_headers = self.proxy_headers(proxy)
+                manager = self.proxy_manager[proxy] = proxy_from_url(
+                    proxy,
+                    proxy_headers=proxy_headers,
+                    num_pools=self._pool_connections,
+                    maxsize=self._pool_maxsize,
+                    block=self._pool_block,
+                    **proxy_kwargs,
+                )
+            # Copy the missing key-value pairs from the current pool manager for the `connection_pool_kw` field
+            for key, value in self.poolmanager.connection_pool_kw.items():
+                if key not in manager.connection_pool_kw:
+                    manager.connection_pool_kw[key] = value
 
         return manager
 
