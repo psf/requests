@@ -5,8 +5,7 @@ Quickstart
 
 .. module:: requests.models
 
-Eager to get started? This page gives a good introduction in how to get started
-with Requests.
+Eager to get started? This page gives a good introduction to getting started with Requests.
 
 First, make sure that:
 
