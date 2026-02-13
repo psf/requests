@@ -866,7 +866,15 @@ def resolve_proxies(request, proxies, trust_env=True):
     no_proxy = proxies.get("no_proxy")
     new_proxies = proxies.copy()
 
-    if trust_env and not should_bypass_proxies(url, no_proxy=no_proxy):
+    bypass = should_bypass_proxies(url, no_proxy=no_proxy)
+
+    if bypass:
+        # URL matches no_proxy - remove any proxy for this scheme.
+        # This ensures redirects to no_proxy hosts don't use proxies
+        # even if the original request had proxies configured.
+        new_proxies.pop(scheme, None)
+        new_proxies.pop("all", None)
+    elif trust_env:
         environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
 
         proxy = environ_proxies.get(scheme, environ_proxies.get("all"))
