@@ -83,7 +83,7 @@ def _urllib3_request_context(
 ) -> "(dict[str, typing.Any], dict[str, typing.Any])":
     host_params = {}
     pool_kwargs = {}
-    parsed_request_url = urlparse(request.url)
+    parsed_request_url = parse_url(request.url)
     scheme = parsed_request_url.scheme.lower()
     port = parsed_request_url.port
 
@@ -106,7 +106,7 @@ def _urllib3_request_context(
             pool_kwargs["cert_file"] = client_cert
     host_params = {
         "scheme": scheme,
-        "host": parsed_request_url.hostname,
+        "host": parsed_request_url.host,
         "port": port,
     }
     return host_params, pool_kwargs
