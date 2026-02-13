@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      test-pypi-only:
+        description: "Publish to Test PyPI only"
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -12,10 +18,7 @@ jobs:
   build:
     name: "Build dists"
     runs-on: "ubuntu-latest"
-    environment:
-      name: "publish"
     outputs:
-      hashes: ${{ steps.hash.outputs.hashes }}
       artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}
 
     steps:
@@ -25,27 +28,22 @@ jobs:
           egress-policy: audit
 
       - name: "Checkout repository"
-        uses: "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd"
+        uses: "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd" # v6.0.2
         with:
           persist-credentials: false
 
       - name: "Setup Python"
-        uses: "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405"
+        uses: "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405" # v6.2.0
         with:
           python-version: "3.x"
 
       - name: "Install dependencies"
-        run: python -m pip install build==0.8.0
+        run: python -m pip install build==1.4.0
 
       - name: "Build dists"
         run: |
           SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) \
           python -m build
-
-      - name: "Generate hashes"
-        id: hash
-        run: |
-          cd dist && echo "::set-output name=hashes::$(sha256sum * | base64 -w0)"
 
       - name: "Upload dists"
         uses: "actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f"
@@ -56,26 +54,15 @@ jobs:
           if-no-files-found: error
           retention-days: 5
 
-  provenance:
-    needs: [build]
-    permissions:
-      actions: read
-      contents: write
-      id-token: write # Needed to access the workflow's OIDC identity.
-    uses: "slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0"
-    with:
-      base64-subjects: "${{ needs.build.outputs.hashes }}"
-      upload-assets: true
-      compile-generator: true # Workaround for https://github.com/slsa-framework/slsa-github-generator/issues/1163
-
   publish:
     name: "Publish"
     if: startsWith(github.ref, 'refs/tags/')
-    needs: ["build", "provenance"]
+    needs: ["build"]
     permissions:
-      contents: write
       id-token: write
     runs-on: "ubuntu-latest"
+    environment:
+      name: "publish"
 
     steps:
     - name: Harden the runner (Audit all outbound calls)
@@ -90,4 +77,34 @@ jobs:
         path: "dist/"
 
     - name: "Publish dists to PyPI"
-      uses: "pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e"
+      uses: "pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e" # v1.13.0
+      with:
+        attestations: true
+
+  publish-test-pypi:
+    name: "Publish to Test PyPI"
+    if: github.event_name == 'workflow_dispatch'
+    needs: ["build"]
+    permissions:
+      id-token: write
+    runs-on: "ubuntu-latest"
+    environment:
+      name: "testpypi"
+
+    steps:
+    - name: Harden the runner (Audit all outbound calls)
+      uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+      with:
+        egress-policy: audit
+
+    - name: "Download dists"
+      uses: "actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131" # v7.0.0
+      with:
+        artifact-ids: ${{ needs.build.outputs.artifact-id }}
+        path: "dist/"
+
+    - name: "Publish dists to Test PyPI"
+      uses: "pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e" # v1.13.0
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        attestations: true
