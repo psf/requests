@@ -421,9 +421,9 @@ class Session(SessionRedirectMixin):
         #: presented by the server, and will ignore hostname mismatches and/or
         #: expired certificates, which will make your application vulnerable to
         #: man-in-the-middle (MitM) attacks.
+        #: Only set this to `False` for testing.
         #: If verify is set to a string, it must be the path to a CA bundle file
         #: that will be used to verify the TLS certificate.
-        #: Only set this to `False` for testing.
         self.verify = True
 
         #: SSL client certificate default, if String, path to ssl client
