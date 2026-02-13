@@ -170,6 +170,16 @@ class TestGetNetrcAuth:
         auth = get_netrc_auth("http://example.com:@evil.com/&apos;")
         assert auth is None
 
+    def test_empty_default_credentials_ignored(self, tmp_path, monkeypatch):
+        """Empty default credentials should not be returned."""
+        netrc_path = tmp_path / ".netrc"
+        monkeypatch.setenv("NETRC", str(netrc_path))
+        with open(netrc_path, "w") as f:
+            f.write("machine example.com login user password pass\ndefault\n")
+
+        auth = get_netrc_auth("http://httpbin.org/")
+        assert auth is None
+
 
 class TestToKeyValList:
     @pytest.mark.parametrize(
