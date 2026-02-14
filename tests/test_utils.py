@@ -142,6 +142,30 @@ class TestSuperLen:
         foo.read(2)
         assert super_len(foo) == 3
 
+    def test_super_len_stringio_multibyte(self):
+        """Ensure StringIO with multi-byte characters returns the UTF-8
+        byte length rather than the character count.  See #6917."""
+        # Single emoji: 1 character, 4 bytes in UTF-8
+        foo = StringIO.StringIO("\U0001F4A9")
+        assert super_len(foo) == 4
+
+        # Mixed ASCII and multi-byte
+        foo = StringIO.StringIO("hello \U0001F4A9 world")
+        assert super_len(foo) == len("hello \U0001F4A9 world".encode("utf-8"))
+
+        # Partially read StringIO with multi-byte characters
+        foo = StringIO.StringIO("hello \U0001F4A9 world")
+        foo.read(6)  # read "hello "
+        remaining_bytes = len("\U0001F4A9 world".encode("utf-8"))
+        assert super_len(foo) == remaining_bytes
+
+        # Position should be preserved after super_len call
+        foo = StringIO.StringIO("hello \U0001F4A9 world")
+        foo.read(3)
+        pos_before = foo.tell()
+        super_len(foo)
+        assert foo.tell() == pos_before
+
     def test_super_len_with_fileno(self):
         with open(__file__, "rb") as f:
             length = super_len(f)
