@@ -276,18 +276,18 @@ def extract_zipped_paths(path):
     if not zipfile.is_zipfile(archive):
         return path
 
-    zip_file = zipfile.ZipFile(archive)
-    if member not in zip_file.namelist():
-        return path
+    with zipfile.ZipFile(archive) as zip_file:
+        if member not in zip_file.namelist():
+            return path
 
-    # we have a valid zip archive and a valid member of that archive
-    tmp = tempfile.gettempdir()
-    extracted_path = os.path.join(tmp, member.split("/")[-1])
-    if not os.path.exists(extracted_path):
-        # use read + write to avoid the creating nested folders, we only want the file, avoids mkdir racing condition
-        with atomic_open(extracted_path) as file_handler:
-            file_handler.write(zip_file.read(member))
-    return extracted_path
+        # we have a valid zip archive and a valid member of that archive
+        tmp = tempfile.gettempdir()
+        extracted_path = os.path.join(tmp, member.split("/")[-1])
+        if not os.path.exists(extracted_path):
+            # use read + write to avoid the creating nested folders, we only want the file, avoids mkdir racing condition
+            with atomic_open(extracted_path) as file_handler:
+                file_handler.write(zip_file.read(member))
+        return extracted_path
 
 
 @contextlib.contextmanager
