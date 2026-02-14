@@ -1406,6 +1406,71 @@ class TestRequests:
         jar.set_policy(MyCookiePolicy())
         assert isinstance(jar.copy().get_policy(), MyCookiePolicy)
 
+    def test_multiple_domains_returns_false_for_empty_jar(self):
+        """Test that empty jar returns False."""
+        jar = requests.cookies.RequestsCookieJar()
+        assert jar.multiple_domains() is False
+
+    def test_multiple_domains_returns_false_for_single_domain(self):
+        """Test that jar with single domain returns False."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1", domain="example.com")
+        jar.set("cookie2", "value2", domain="example.com")
+        jar.set("cookie3", "value3", domain="example.com")
+        assert jar.multiple_domains() is False
+
+    def test_multiple_domains_returns_true_for_two_domains(self):
+        """Test that jar with two different domains returns True."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1", domain="example.com")
+        jar.set("cookie2", "value2", domain="test.com")
+        assert jar.multiple_domains() is True
+
+    def test_multiple_domains_with_duplicate_domains(self):
+        """Test that duplicates of same domain still count as single domain."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1", domain="example.com")
+        jar.set("cookie2", "value2", domain="example.com")
+        jar.set("cookie3", "value3", domain="example.com")
+        jar.set("cookie4", "value4", domain="example.com")
+        assert jar.multiple_domains() is False
+
+    def test_multiple_domains_mixed_duplicates_and_unique(self):
+        """Test with mix of duplicate and unique domains."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1", domain="example.com")
+        jar.set("cookie2", "value2", domain="example.com")
+        jar.set("cookie3", "value3", domain="test.com")
+        jar.set("cookie4", "value4", domain="test.com")
+        jar.set("cookie5", "value5", domain="example.com")
+        assert jar.multiple_domains() is True
+
+    def test_multiple_domains_with_three_or_more_domains(self):
+        """Test with three or more unique domains."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1", domain="example.com")
+        jar.set("cookie2", "value2", domain="test.com")
+        jar.set("cookie3", "value3", domain="another.com")
+        assert jar.multiple_domains() is True
+
+    def test_multiple_domains_with_empty_string_domain(self):
+        """Test that cookies with empty string domain are counted as a domain."""
+        jar = requests.cookies.RequestsCookieJar()
+        # Default domain is empty string, which counts as a domain
+        jar.set("cookie1", "value1")  # Default domain is ''
+        jar.set("cookie2", "value2", domain="example.com")
+        # This should return True as we have two domains: '' and 'example.com'
+        assert jar.multiple_domains() is True
+
+    def test_multiple_domains_with_only_empty_string_domain(self):
+        """Test that jar with only empty string domains returns False."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("cookie1", "value1")
+        jar.set("cookie2", "value2")
+        jar.set("cookie3", "value3")
+        # All cookies have default domain '', so only one domain
+        assert jar.multiple_domains() is False
+
     def test_time_elapsed_blank(self, httpbin):
         r = requests.get(httpbin("get"))
         td = r.elapsed
