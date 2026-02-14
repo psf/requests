@@ -2960,7 +2960,11 @@ class TestPreparingURLs:
             r1 = s.get(url, verify=False)
             assert r1.status_code == 200
 
-            r2 = s.get(url, verify="tests/certs/valid/ca/ca.crt")
+            # Use expired/ca/ca.crt directly for cross-platform compatibility.
+            # tests/certs/valid/ca is a symlink to ../expired/ca which doesn't
+            # work reliably on Windows without a specific Git configuration.
+            # The valid server cert is signed by the expired CA, so this path is correct.
+            r2 = s.get(url, verify="tests/certs/expired/ca/ca.crt")
             assert r2.status_code == 200
 
             close_server.set()
