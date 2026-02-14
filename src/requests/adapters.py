@@ -83,7 +83,7 @@ def _urllib3_request_context(
 ) -> "(dict[str, typing.Any], dict[str, typing.Any])":
     host_params = {}
     pool_kwargs = {}
-    parsed_request_url = urlparse(request.url)
+    parsed_request_url = urlparse(request.url or "")
     scheme = parsed_request_url.scheme.lower()
     port = parsed_request_url.port
 
@@ -536,8 +536,8 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs.
         :rtype: str
         """
-        proxy = select_proxy(request.url, proxies)
-        scheme = urlparse(request.url).scheme
+        proxy = select_proxy(request.url or "", proxies)
+        scheme = urlparse(request.url or "").scheme
 
         is_proxied_http_request = proxy and scheme != "https"
         using_socks_proxy = False
@@ -550,7 +550,7 @@ class HTTPAdapter(BaseAdapter):
             url = f"/{url.lstrip('/')}"
 
         if is_proxied_http_request and not using_socks_proxy:
-            url = urldefragauth(request.url)
+            url = urldefragauth(request.url or "")
 
         return url
 
@@ -626,7 +626,7 @@ class HTTPAdapter(BaseAdapter):
             proxies=proxies,
         )
 
-        chunked = not (request.body is None or "Content-Length" in request.headers)
+        chunked = not (request.body is None or "Content-Length" in (request.headers or {}))
 
         if isinstance(timeout, tuple):
             try:
