@@ -807,6 +807,45 @@ class TestRequests:
             r = requests.get(url, auth=auth)
             assert '"auth"' in r.request.headers["Authorization"]
 
+    def test_DIGESTAUTH_WITH_SEMICOLONS_IN_PATH(self):
+        """Test that digest auth correctly includes semicolons in the uri field.
+        
+        This tests issue #6990 where semicolons in URL paths were being
+        truncated in the digest auth uri field.
+        """
+        from unittest.mock import Mock, patch
+        
+        auth = HTTPDigestAuth("user", "pass")
+        
+        # Initialize the auth state
+        auth.init_per_thread_state()
+        auth._thread_local.chal = {
+            "realm": "test-realm",
+            "nonce": "test-nonce",
+            "qop": "auth",
+            "algorithm": "MD5"
+        }
+        auth._thread_local.last_nonce = ""
+        
+        # Test URL with semicolons in the path (MusicBrainz-style API)
+        test_url = "https://example.com/api/collection/id1/releases/uuid1;uuid2;uuid3?fmt=json&client=test"
+        
+        # Build the digest header
+        header = auth.build_digest_header("PUT", test_url)
+        
+        # Extract the uri field from the Authorization header
+        assert 'uri="/api/collection/id1/releases/uuid1;uuid2;uuid3?fmt=json&client=test"' in header
+        
+        # Test with semicolons but no query parameters
+        test_url2 = "https://example.com/path/id1;id2;id3"
+        header2 = auth.build_digest_header("GET", test_url2)
+        assert 'uri="/path/id1;id2;id3"' in header2
+        
+        # Test with just path (no semicolons or query)
+        test_url3 = "https://example.com/simple/path"
+        header3 = auth.build_digest_header("GET", test_url3)
+        assert 'uri="/simple/path"' in header3
+
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
         url = httpbin("post")
         requests.post(url).raise_for_status()

@@ -183,6 +183,8 @@ class HTTPDigestAuth(AuthBase):
         p_parsed = urlparse(url)
         #: path is request-uri defined in RFC 2616 which should not be empty
         path = p_parsed.path or "/"
+        if p_parsed.params:
+            path += f";{p_parsed.params}"
         if p_parsed.query:
             path += f"?{p_parsed.query}"
 
