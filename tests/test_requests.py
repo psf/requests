@@ -7,7 +7,10 @@ import json
 import os
 import pickle
 import re
+import tempfile
+import threading
 import warnings
+from unittest import mock
 
 import pytest
 import urllib3
@@ -23,6 +26,7 @@ from requests.compat import (
     builtin_str,
     cookielib,
     getproxies,
+    is_urllib3_1,
     urlparse,
 )
 from requests.cookies import cookiejar_from_dict, morsel_to_cookie
@@ -40,15 +44,19 @@ from requests.exceptions import (
     ReadTimeout,
     RequestException,
     RetryError,
+    Timeout,
+    TooManyRedirects,
+    UnrewindableBodyError,
 )
 from requests.exceptions import SSLError as RequestsSSLError
-from requests.exceptions import Timeout, TooManyRedirects, UnrewindableBodyError
 from requests.hooks import default_hooks
 from requests.models import PreparedRequest, urlencode
 from requests.sessions import SessionRedirectMixin
 from requests.structures import CaseInsensitiveDict
 
+from . import SNIMissingWarning
 from .compat import StringIO
+from .testserver.server import TLSServer, consume_socket_content
 from .utils import override_environ
 
 # Requests to this URL should always fail with a connection timeout (nothing
@@ -74,11 +82,9 @@ except AttributeError:
 
 
 class TestRequests:
-
     digest_auth_algo = ("MD5", "SHA-256", "SHA-512")
 
     def test_entry_points(self):
-
         requests.session
         requests.session().get
         requests.session().head
@@ -509,7 +515,6 @@ class TestRequests:
 
     @pytest.mark.parametrize("key", ("User-agent", "user-agent"))
     def test_user_agent_transfers(self, httpbin, key):
-
         heads = {key: "Mozilla/5.0 (github.com/psf/requests)"}
 
         r = requests.get(httpbin("user-agent"), headers=heads)
@@ -646,6 +651,27 @@ class TestRequests:
 
         assert sent_headers.get("Proxy-Authorization") == proxy_auth_value
 
+    @pytest.mark.parametrize(
+        "url,has_proxy_auth",
+        (
+            ("http://example.com", True),
+            ("https://example.com", False),
+        ),
+    )
+    def test_proxy_authorization_not_appended_to_https_request(
+        self, url, has_proxy_auth
+    ):
+        session = requests.Session()
+        proxies = {
+            "http": "http://test:pass@localhost:8080",
+            "https": "http://test:pass@localhost:8090",
+        }
+        req = requests.Request("GET", url)
+        prep = req.prepare()
+        session.rebuild_proxies(prep, proxies)
+
+        assert ("Proxy-Authorization" in prep.headers) is has_proxy_auth
+
     def test_basicauth_with_netrc(self, httpbin):
         auth = ("user", "pass")
         wrong_auth = ("wronguser", "wrongpass")
@@ -681,8 +707,37 @@ class TestRequests:
         finally:
             requests.sessions.get_netrc_auth = old_auth
 
-    def test_DIGEST_HTTP_200_OK_GET(self, httpbin):
+    def test_basicauth_with_netrc_leak(self, httpbin):
+        url1 = httpbin("basic-auth", "user", "pass")
+        url = url1[len("http://") :]
+        domain = url.split(":")[0]
+        url = f"http://example.com:@{url}"
 
+        netrc_file = ""
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as fp:
+            fp.write("machine example.com\n")
+            fp.write("login wronguser\n")
+            fp.write("password wrongpass\n")
+            fp.write(f"machine {domain}\n")
+            fp.write("login user\n")
+            fp.write("password pass\n")
+            fp.close()
+            netrc_file = fp.name
+
+        old_netrc = os.environ.get("NETRC", "")
+        os.environ["NETRC"] = netrc_file
+
+        try:
+            # Should use netrc
+            # Make sure that we don't use the example.com credentails
+            # for the request
+            r = requests.get(url)
+            assert r.status_code == 200
+        finally:
+            os.environ["NETRC"] = old_netrc
+            os.unlink(netrc_file)
+
+    def test_DIGEST_HTTP_200_OK_GET(self, httpbin):
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "pass")
             url = httpbin("digest-auth", "auth", "user", "pass", authtype, "never")
@@ -700,7 +755,6 @@ class TestRequests:
             assert r.status_code == 200
 
     def test_DIGEST_AUTH_RETURNS_COOKIE(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
             auth = HTTPDigestAuth("user", "pass")
@@ -711,7 +765,6 @@ class TestRequests:
             assert r.status_code == 200
 
     def test_DIGEST_AUTH_SETS_SESSION_COOKIES(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
             auth = HTTPDigestAuth("user", "pass")
@@ -720,7 +773,6 @@ class TestRequests:
             assert s.cookies["fake"] == "fake_value"
 
     def test_DIGEST_STREAM(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "pass")
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
@@ -732,7 +784,6 @@ class TestRequests:
             assert r.raw.read() == b""
 
     def test_DIGESTAUTH_WRONG_HTTP_401_GET(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "wrongpass")
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
@@ -749,7 +800,6 @@ class TestRequests:
             assert r.status_code == 401
 
     def test_DIGESTAUTH_QUOTES_QOP_VALUE(self, httpbin):
-
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "pass")
             url = httpbin("digest-auth", "auth", "user", "pass", authtype)
@@ -758,7 +808,6 @@ class TestRequests:
             assert '"auth"' in r.request.headers["Authorization"]
 
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
-
         url = httpbin("post")
         requests.post(url).raise_for_status()
 
@@ -776,7 +825,6 @@ class TestRequests:
             requests.post(url, files=["bad file data"])
 
     def test_invalid_files_input(self, httpbin):
-
         url = httpbin("post")
         post = requests.post(url, files={"random-file-1": None, "random-file-2": 1})
         assert b'name="random-file-1"' not in post.request.body
@@ -824,7 +872,6 @@ class TestRequests:
         assert post2.json()["data"] == "st"
 
     def test_POSTBIN_GET_POST_FILES_WITH_DATA(self, httpbin):
-
         url = httpbin("post")
         requests.post(url).raise_for_status()
 
@@ -915,20 +962,18 @@ class TestRequests:
         INVALID_PATH = "/garbage"
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), verify=INVALID_PATH)
-        assert str(
-            e.value
-        ) == "Could not find a suitable TLS CA certificate bundle, invalid path: {}".format(
-            INVALID_PATH
+        assert (
+            str(e.value)
+            == f"Could not find a suitable TLS CA certificate bundle, invalid path: {INVALID_PATH}"
         )
 
     def test_invalid_ssl_certificate_files(self, httpbin_secure):
         INVALID_PATH = "/garbage"
         with pytest.raises(IOError) as e:
             requests.get(httpbin_secure(), cert=INVALID_PATH)
-        assert str(
-            e.value
-        ) == "Could not find the TLS certificate file, invalid path: {}".format(
-            INVALID_PATH
+        assert (
+            str(e.value)
+            == f"Could not find the TLS certificate file, invalid path: {INVALID_PATH}"
         )
 
         with pytest.raises(IOError) as e:
@@ -962,18 +1007,22 @@ class TestRequests:
             ),
         ),
     )
-    def test_env_cert_bundles(self, httpbin, mocker, env, expected):
+    def test_env_cert_bundles(self, httpbin, env, expected):
         s = requests.Session()
-        mocker.patch("os.environ", env)
-        settings = s.merge_environment_settings(
-            url=httpbin("get"), proxies={}, stream=False, verify=True, cert=None
-        )
+        with mock.patch("os.environ", env):
+            settings = s.merge_environment_settings(
+                url=httpbin("get"), proxies={}, stream=False, verify=True, cert=None
+            )
         assert settings["verify"] == expected
 
     def test_http_with_certificate(self, httpbin):
         r = requests.get(httpbin(), cert=".")
         assert r.status_code == 200
 
+    @pytest.mark.skipif(
+        SNIMissingWarning is None,
+        reason="urllib3 2.0 removed that warning and errors out instead",
+    )
     def test_https_warnings(self, nosan_server):
         """warnings are emitted with requests.get"""
         host, port, ca_bundle = nosan_server
@@ -986,7 +1035,7 @@ class TestRequests:
                 "SubjectAltNameWarning",
             )
 
-        with pytest.warns(None) as warning_records:
+        with pytest.warns() as warning_records:
             warnings.simplefilter("always")
             requests.get(f"https://localhost:{port}/", verify=ca_bundle)
 
@@ -1009,7 +1058,6 @@ class TestRequests:
             requests.get(httpbin_secure("status", "200"))
 
     def test_urlencoded_get_query_multivalued_param(self, httpbin):
-
         r = requests.get(httpbin("get"), params={"test": ["foo", "baz"]})
         assert r.status_code == 200
         assert r.url == httpbin("get?test=foo&test=baz")
@@ -1451,11 +1499,9 @@ class TestRequests:
             (urllib3.exceptions.SSLError, tuple(), RequestsSSLError),
         ),
     )
-    def test_iter_content_wraps_exceptions(
-        self, httpbin, mocker, exception, args, expected
-    ):
+    def test_iter_content_wraps_exceptions(self, httpbin, exception, args, expected):
         r = requests.Response()
-        r.raw = mocker.Mock()
+        r.raw = mock.Mock()
         # ReadTimeoutError can't be initialized by mock
         # so we'll manually create the instance with args
         r.raw.stream.side_effect = exception(*args)
@@ -1648,6 +1694,32 @@ class TestRequests:
 
         assert s.get_adapter(url_matching_prefix_with_different_case) is my_adapter
 
+    def test_session_get_adapter_prefix_with_trailing_slash(self):
+        # from issue #6935
+        prefix = "https://example.com/"  # trailing slash
+        url_matching_prefix = "https://example.com/some/path"
+        url_not_matching_prefix = "https://example.com.other.com/some/path"
+
+        s = requests.Session()
+        adapter = HTTPAdapter()
+        s.mount(prefix, adapter)
+
+        assert s.get_adapter(url_matching_prefix) is adapter
+        assert s.get_adapter(url_not_matching_prefix) is not adapter
+
+    def test_session_get_adapter_prefix_without_trailing_slash(self):
+        # from issue #6935
+        prefix = "https://example.com"  # no trailing slash
+        url_matching_prefix = "https://example.com/some/path"
+        url_extended_hostname = "https://example.com.other.com/some/path"
+
+        s = requests.Session()
+        adapter = HTTPAdapter()
+        s.mount(prefix, adapter)
+
+        assert s.get_adapter(url_matching_prefix) is adapter
+        assert s.get_adapter(url_extended_hostname) is adapter
+
     def test_header_remove_is_case_insensitive(self, httpbin):
         # From issue #1321
         s = requests.Session()
@@ -1690,7 +1762,7 @@ class TestRequests:
         }
         r = requests.get(httpbin("get"), headers=valid_headers)
         for key in valid_headers.keys():
-            valid_headers[key] == r.request.headers[key]
+            assert valid_headers[key] == r.request.headers[key]
 
     @pytest.mark.parametrize(
         "invalid_header, key",
@@ -1746,6 +1818,31 @@ class TestRequests:
         """
         with pytest.raises(InvalidHeader):
             requests.get(httpbin("get"), headers=invalid_header)
+
+    def test_header_with_subclass_types(self, httpbin):
+        """If the subclasses does not behave *exactly* like
+        the base bytes/str classes, this is not supported.
+        This test is for backwards compatibility.
+        """
+
+        class MyString(str):
+            pass
+
+        class MyBytes(bytes):
+            pass
+
+        r_str = requests.get(httpbin("get"), headers={MyString("x-custom"): "myheader"})
+        assert r_str.request.headers["x-custom"] == "myheader"
+
+        r_bytes = requests.get(
+            httpbin("get"), headers={MyBytes(b"x-custom"): b"myheader"}
+        )
+        assert r_bytes.request.headers["x-custom"] == b"myheader"
+
+        r_mixed = requests.get(
+            httpbin("get"), headers={MyString("x-custom"): MyBytes(b"myheader")}
+        )
+        assert r_mixed.request.headers["x-custom"] == b"myheader"
 
     @pytest.mark.parametrize("files", ("foo", b"foo", bytearray(b"foo")))
     def test_can_send_objects_with_files(self, httpbin, files):
@@ -2055,16 +2152,16 @@ class TestRequests:
         next(r.iter_lines())
         assert len(list(r.iter_lines())) == 3
 
-    def test_session_close_proxy_clear(self, mocker):
+    def test_session_close_proxy_clear(self):
         proxies = {
-            "one": mocker.Mock(),
-            "two": mocker.Mock(),
+            "one": mock.Mock(),
+            "two": mock.Mock(),
         }
         session = requests.Session()
-        mocker.patch.dict(session.adapters["http://"].proxy_manager, proxies)
-        session.close()
-        proxies["one"].clear.assert_called_once_with()
-        proxies["two"].clear.assert_called_once_with()
+        with mock.patch.dict(session.adapters["http://"].proxy_manager, proxies):
+            session.close()
+            proxies["one"].clear.assert_called_once_with()
+            proxies["two"].clear.assert_called_once_with()
 
     def test_proxy_auth(self):
         adapter = HTTPAdapter()
@@ -2363,7 +2460,6 @@ class TestMorselToCookieExpires:
 
 
 class TestMorselToCookieMaxAge:
-
     """Tests for morsel_to_cookie when morsel contains max-age."""
 
     def test_max_age_valid_int(self):
@@ -2665,7 +2761,7 @@ class TestPreparingURLs:
         with pytest.raises(requests.exceptions.InvalidURL):
             r.prepare()
 
-    @pytest.mark.parametrize("url, exception", (("http://localhost:-1", InvalidURL),))
+    @pytest.mark.parametrize("url, exception", (("http://:1", InvalidURL),))
     def test_redirecting_to_bad_url(self, httpbin, url, exception):
         with pytest.raises(exception):
             requests.get(httpbin("redirect-to"), params={"url": url})
@@ -2758,3 +2854,186 @@ class TestPreparingURLs:
         with pytest.raises(requests.exceptions.JSONDecodeError) as excinfo:
             r.json()
         assert excinfo.value.doc == r.text
+
+    def test_status_code_425(self):
+        r1 = requests.codes.get("TOO_EARLY")
+        r2 = requests.codes.get("too_early")
+        r3 = requests.codes.get("UNORDERED")
+        r4 = requests.codes.get("unordered")
+        r5 = requests.codes.get("UNORDERED_COLLECTION")
+        r6 = requests.codes.get("unordered_collection")
+
+        assert r1 == 425
+        assert r2 == 425
+        assert r3 == 425
+        assert r4 == 425
+        assert r5 == 425
+        assert r6 == 425
+
+    def test_different_connection_pool_for_tls_settings_verify_True(self):
+        def response_handler(sock):
+            consume_socket_content(sock, timeout=0.5)
+            sock.send(
+                b"HTTP/1.1 200 OK\r\n"
+                b"Content-Length: 18\r\n\r\n"
+                b'\xff\xfe{\x00"\x00K0"\x00=\x00"\x00\xab0"\x00\r\n'
+            )
+
+        s = requests.Session()
+        close_server = threading.Event()
+        server = TLSServer(
+            handler=response_handler,
+            wait_to_close_event=close_server,
+            requests_to_handle=3,
+            cert_chain="tests/certs/expired/server/server.pem",
+            keyfile="tests/certs/expired/server/server.key",
+        )
+
+        with server as (host, port):
+            url = f"https://{host}:{port}"
+            r1 = s.get(url, verify=False)
+            assert r1.status_code == 200
+
+            # Cannot verify self-signed certificate
+            with pytest.raises(requests.exceptions.SSLError):
+                s.get(url)
+
+            close_server.set()
+        assert 2 == len(s.adapters["https://"].poolmanager.pools)
+
+    def test_different_connection_pool_for_tls_settings_verify_bundle_expired_cert(
+        self,
+    ):
+        def response_handler(sock):
+            consume_socket_content(sock, timeout=0.5)
+            sock.send(
+                b"HTTP/1.1 200 OK\r\n"
+                b"Content-Length: 18\r\n\r\n"
+                b'\xff\xfe{\x00"\x00K0"\x00=\x00"\x00\xab0"\x00\r\n'
+            )
+
+        s = requests.Session()
+        close_server = threading.Event()
+        server = TLSServer(
+            handler=response_handler,
+            wait_to_close_event=close_server,
+            requests_to_handle=3,
+            cert_chain="tests/certs/expired/server/server.pem",
+            keyfile="tests/certs/expired/server/server.key",
+        )
+
+        with server as (host, port):
+            url = f"https://{host}:{port}"
+            r1 = s.get(url, verify=False)
+            assert r1.status_code == 200
+
+            # Has right trust bundle, but certificate expired
+            with pytest.raises(requests.exceptions.SSLError):
+                s.get(url, verify="tests/certs/expired/ca/ca.crt")
+
+            close_server.set()
+        assert 2 == len(s.adapters["https://"].poolmanager.pools)
+
+    def test_different_connection_pool_for_tls_settings_verify_bundle_unexpired_cert(
+        self,
+    ):
+        def response_handler(sock):
+            consume_socket_content(sock, timeout=0.5)
+            sock.send(
+                b"HTTP/1.1 200 OK\r\n"
+                b"Content-Length: 18\r\n\r\n"
+                b'\xff\xfe{\x00"\x00K0"\x00=\x00"\x00\xab0"\x00\r\n'
+            )
+
+        s = requests.Session()
+        close_server = threading.Event()
+        server = TLSServer(
+            handler=response_handler,
+            wait_to_close_event=close_server,
+            requests_to_handle=3,
+            cert_chain="tests/certs/valid/server/server.pem",
+            keyfile="tests/certs/valid/server/server.key",
+        )
+
+        with server as (host, port):
+            url = f"https://{host}:{port}"
+            r1 = s.get(url, verify=False)
+            assert r1.status_code == 200
+
+            r2 = s.get(url, verify="tests/certs/valid/ca/ca.crt")
+            assert r2.status_code == 200
+
+            close_server.set()
+        assert 2 == len(s.adapters["https://"].poolmanager.pools)
+
+    def test_different_connection_pool_for_mtls_settings(self):
+        client_cert = None
+
+        def response_handler(sock):
+            nonlocal client_cert
+            client_cert = sock.getpeercert()
+            consume_socket_content(sock, timeout=0.5)
+            sock.send(
+                b"HTTP/1.1 200 OK\r\n"
+                b"Content-Length: 18\r\n\r\n"
+                b'\xff\xfe{\x00"\x00K0"\x00=\x00"\x00\xab0"\x00\r\n'
+            )
+
+        s = requests.Session()
+        close_server = threading.Event()
+        server = TLSServer(
+            handler=response_handler,
+            wait_to_close_event=close_server,
+            requests_to_handle=2,
+            cert_chain="tests/certs/expired/server/server.pem",
+            keyfile="tests/certs/expired/server/server.key",
+            mutual_tls=True,
+            cacert="tests/certs/expired/ca/ca.crt",
+        )
+
+        cert = (
+            "tests/certs/mtls/client/client.pem",
+            "tests/certs/mtls/client/client.key",
+        )
+        with server as (host, port):
+            url = f"https://{host}:{port}"
+            r1 = s.get(url, verify=False, cert=cert)
+            assert r1.status_code == 200
+            with pytest.raises(requests.exceptions.SSLError):
+                s.get(url, cert=cert)
+            close_server.set()
+
+        assert client_cert is not None
+
+
+def test_content_length_for_bytes_data(httpbin):
+    data = "This is a string containing multi-byte UTF-8 ☃️"
+    encoded_data = data.encode("utf-8")
+    length = str(len(encoded_data))
+    req = requests.Request("POST", httpbin("post"), data=encoded_data)
+    p = req.prepare()
+
+    assert p.headers["Content-Length"] == length
+
+
+@pytest.mark.skipif(
+    is_urllib3_1,
+    reason="urllib3 2.x encodes all strings to utf-8, urllib3 1.x uses latin-1",
+)
+def test_content_length_for_string_data_counts_bytes(httpbin):
+    data = "This is a string containing multi-byte UTF-8 ☃️"
+    length = str(len(data.encode("utf-8")))
+    req = requests.Request("POST", httpbin("post"), data=data)
+    p = req.prepare()
+
+    assert p.headers["Content-Length"] == length
+
+
+def test_json_decode_errors_are_serializable_deserializable():
+    json_decode_error = requests.exceptions.JSONDecodeError(
+        "Extra data",
+        '{"responseCode":["706"],"data":null}{"responseCode":["706"],"data":null}',
+        36,
+    )
+    deserialized_error = pickle.loads(pickle.dumps(json_decode_error))
+    assert repr(json_decode_error) == repr(deserialized_error)

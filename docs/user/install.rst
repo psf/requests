@@ -22,7 +22,7 @@ Requests is actively developed on GitHub, where the code is
 
 You can either clone the public repository::
 
-    $ git clone git://github.com/psf/requests.git
+    $ git clone https://github.com/psf/requests.git
 
 Or, download the `tarball <https://github.com/psf/requests/tarball/main>`_::
 

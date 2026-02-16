@@ -22,7 +22,7 @@ Custom User-Agents?
 -------------------
 
 Requests allows you to easily override User-Agent strings, along with
-any other HTTP Header. See `documentation about headers <https://requests.readthedocs.io/en/latest/user/quickstart/#custom-headers>`_.
+any other HTTP Header. See :ref:`documentation about headers <custom-headers>`.
 
 
 
@@ -55,7 +55,8 @@ Chris Adams gave an excellent summary on
 Python 3 Support?
 -----------------
 
-Yes! Requests officially supports Python 3.7+ and PyPy.
+Yes! Requests supports all `officially supported versions of Python <https://devguide.python.org/versions/>`_
+and recent releases of PyPy.
 
 Python 2 Support?
 -----------------
@@ -64,8 +65,8 @@ No! As of Requests 2.28.0, Requests no longer supports Python 2.7. Users who
 have been unable to migrate should pin to `requests<2.28`. Full information
 can be found in `psf/requests#6023 <https://github.com/psf/requests/issues/6023>`_.
 
-It is *highly* recommended users migrate to Python 3.8+ now since Python
-2.7 is no longer receiving bug fixes or security updates as of January 1, 2020.
+It is *highly* recommended users migrate to a supported Python 3.x version now since
+Python 2.7 is no longer receiving bug fixes or security updates as of January 1, 2020.
 
 What are "hostname doesn't match" errors?
 -----------------------------------------

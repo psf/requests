@@ -1,3 +1,5 @@
+from unittest import mock
+
 from requests.help import info
 
 
@@ -11,15 +13,15 @@ class VersionedPackage:
         self.__version__ = version
 
 
-def test_idna_without_version_attribute(mocker):
+def test_idna_without_version_attribute():
     """Older versions of IDNA don't provide a __version__ attribute, verify
     that if we have such a package, we don't blow up.
     """
-    mocker.patch("requests.help.idna", new=None)
-    assert info()["idna"] == {"version": ""}
+    with mock.patch("requests.help.idna", new=None):
+        assert info()["idna"] == {"version": ""}
 
 
-def test_idna_with_version_attribute(mocker):
+def test_idna_with_version_attribute():
     """Verify we're actually setting idna version when it should be available."""
-    mocker.patch("requests.help.idna", new=VersionedPackage("2.6"))
-    assert info()["idna"] == {"version": "2.6"}
+    with mock.patch("requests.help.idna", new=VersionedPackage("2.6")):
+        assert info()["idna"] == {"version": "2.6"}

@@ -31,11 +31,11 @@ Exceptions
 .. autoexception:: requests.RequestException
 .. autoexception:: requests.ConnectionError
 .. autoexception:: requests.HTTPError
-.. autoexception:: requests.URLRequired
 .. autoexception:: requests.TooManyRedirects
 .. autoexception:: requests.ConnectTimeout
 .. autoexception:: requests.ReadTimeout
 .. autoexception:: requests.Timeout
+.. autoexception:: requests.JSONDecodeError
 
 
 Request Sessions

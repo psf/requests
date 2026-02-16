@@ -1,6 +1,9 @@
 ---
 name: Request for Help
 about: Guidance on using Requests.
+labels:
+- "Question/Not a bug"
+- "actions/autoclose-qa"
 
 ---
 

@@ -1,16 +1,20 @@
 name: Lint code
 
-on:
-  push:
-  pull_request:
+on: [push, pull_request]
+
+permissions:
+  contents: read
 
 jobs:
   lint:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      with:
+        python-version: "3.x"
     - name: Run pre-commit
-      uses: pre-commit/action@v3.0.0
+      uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0

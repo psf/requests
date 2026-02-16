@@ -22,19 +22,17 @@ The guide is split into sections based on the type of contribution you're
 thinking of making, with a section that covers general guidelines for all
 contributors.
 
-Be Cordial
-----------
+Code of Conduct
+---------------
 
-    **Be cordial or be on your way**. *—Kenneth Reitz*
+The Python community is made up of members from around the globe with a diverse
+set of skills, personalities, and experiences. It is through these differences
+that our community experiences great successes and continued growth. When you're
+working with members of the community, follow the
+`Python Software Foundation Code of Conduct`_ to help steer your interactions
+and keep Python a positive, successful, and growing community.
 
-Requests has one very important rule governing all forms of contribution,
-including reporting bugs or requesting features. This golden rule is
-"`be cordial or be on your way`_".
-
-**All contributions are welcome**, as long as
-everyone involved is treated with respect.
-
-.. _be cordial or be on your way: https://kenreitz.org/essays/2013/01/27/be-cordial-or-be-on-your-way
+.. _Python Software Foundation Code of Conduct: https://policies.python.org/python.org/code-of-conduct/
 
 .. _early-feedback:
 

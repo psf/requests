@@ -177,7 +177,7 @@ server, you can access ``r.raw``. If you want to do this, make sure you set
     <urllib3.response.HTTPResponse object at 0x101194810>
 
     >>> r.raw.read(10)
-    '\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03'
+    b'\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x03'
 
 In general, however, you should use a pattern like this to save what is being
 streamed to a file::
@@ -201,6 +201,8 @@ may better fit your use cases.
    were returned, use ``Response.raw``.
 
 
+.. _custom-headers:
+
 Custom Headers
 --------------
 
@@ -220,6 +222,7 @@ Note: Custom headers are given less precedence than more specific sources of inf
   are specified in ``.netrc``, which in turn will be overridden by the  ``auth=``
   parameter. Requests will search for the netrc file at `~/.netrc`, `~/_netrc`,
   or at the path specified by the `NETRC` environment variable.
+  Check details in :ref:`netrc authentication <authentication>`.
 * Authorization headers will be removed if you get redirected off-host.
 * Proxy-Authorization headers will be overridden by proxy credentials provided in the URL.
 * Content-Length headers will be overridden when we can determine the length of the content.
@@ -237,7 +240,7 @@ dictionary of data will automatically be form-encoded when the request is made::
 
     >>> payload = {'key1': 'value1', 'key2': 'value2'}
 
-    >>> r = requests.post("https://httpbin.org/post", data=payload)
+    >>> r = requests.post('https://httpbin.org/post', data=payload)
     >>> print(r.text)
     {
       ...
@@ -566,6 +569,3 @@ All exceptions that Requests explicitly raises inherit from
 -----------------------
 
 Ready for more? Check out the :ref:`advanced <advanced>` section.
-
-
-If you're on the job market, consider taking `this programming quiz <https://triplebyte.com/a/b1i2FB8/requests-docs-1>`_. A substantial donation will be made to this project, if you find a job through this platform.

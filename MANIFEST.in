@@ -1,2 +1,3 @@
-include README.md LICENSE NOTICE HISTORY.md pytest.ini requirements-dev.txt
+include README.md LICENSE NOTICE HISTORY.md requirements-dev.txt
 recursive-include tests *.py
+recursive-include tests/certs *

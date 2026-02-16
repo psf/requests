@@ -1,25 +1,25 @@
 .PHONY: docs
 init:
-	pip install -r requirements-dev.txt
+	python -m pip install -r requirements-dev.txt
 test:
-	# This runs all of the tests, on both Python 2 and Python 3.
-	tox -p
+	python -m pytest tests
+
 ci:
-	pytest tests --junitxml=report.xml
+	python -m pytest tests --junitxml=report.xml
 
 test-readme:
 	python setup.py check --restructuredtext --strict && ([ $$? -eq 0 ] && echo "README.rst and HISTORY.rst ok") || echo "Invalid markup in README.rst or HISTORY.rst!"
 
-flake8:
-	flake8 --ignore=E501,F401,E128,E402,E731,F821 requests
-
 coverage:
-	pytest --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=requests tests
+	python -m pytest --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=src/requests tests
 
-publish:
-	pip install 'twine>=1.5.0'
-	python setup.py sdist bdist_wheel
-	twine upload dist/*
+.publishenv:
+	python -m venv .publishenv
+	.publishenv/bin/pip install 'twine>=1.5.0' build
+
+publish: .publishenv
+	.publishenv/bin/python -m build
+	.publishenv/bin/python -m twine upload --skip-existing dist/*
 	rm -fr build dist .egg requests.egg-info
 
 docs:

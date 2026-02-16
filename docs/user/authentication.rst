@@ -44,6 +44,16 @@ set with `headers=`.
 If credentials for the hostname are found, the request is sent with HTTP Basic
 Auth.
 
+Requests will search for the netrc file at `~/.netrc`, `~/_netrc`, or at the path
+specified by the `NETRC` environment variable. `~` denotes the user's home
+directory, which is `$HOME` on Unix based systems and `%USERPROFILE%` on Windows.
+
+Usage of netrc file can be disabled by setting `trust_env` to `False` in the
+Requests session::
+
+    >>> s = requests.Session()
+    >>> s.trust_env = False
+    >>> s.get('https://httpbin.org/basic-auth/user/pass')
 
 Digest Authentication
 ---------------------
