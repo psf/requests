@@ -3037,3 +3037,23 @@ def test_json_decode_errors_are_serializable_deserializable():
     )
     deserialized_error = pickle.loads(pickle.dumps(json_decode_error))
     assert repr(json_decode_error) == repr(deserialized_error)
+
+def test_fqdn_host_header_retained_on_redirect():
+    import requests
+    session = requests.Session()
+    # 1. Prepare the initial request with FQDN
+    req = requests.Request('GET', 'http://example.com.')
+    prep = session.prepare_request(req)
+    prep.headers['Host'] = 'example.com.'
+    # 2. Mock the redirect response
+    resp = requests.Response()
+    resp.url = 'http://example.com.'
+    resp.status_code = 301
+    resp.headers['Location'] = 'http://example.com./new-path'
+    resp.request = prep
+    # 3. Resolve redirects. 
+    # We pass 'prep' (not req) and use yield_requests=True to prevent real network calls.
+    redirect_generator = session.resolve_redirects(resp, prep, yield_requests=True)
+    next_prep = next(redirect_generator)
+    # 4. Assert the Host header survived the redirect
+    assert next_prep.headers.get('Host') == 'example.com.'

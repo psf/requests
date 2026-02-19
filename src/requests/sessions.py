@@ -234,6 +234,15 @@ class SessionRedirectMixin:
 
             headers = prepared_request.headers
             headers.pop("Cookie", None)
+            # Rebuild Host header for FQDNs. urllib3 natively strips the trailing dot
+            # when auto-generating the Host header. By explicitly setting it here,
+            # we prevent the infinite redirect loop (Issue #7209).
+            parsed_url = urlparse(prepared_request.url)
+            if parsed_url.hostname and parsed_url.hostname.endswith('.'):
+                headers['Host'] = parsed_url.netloc
+            else:
+                headers.pop("Host", None)
+
 
             # Extract any cookies sent on the response to the cookiejar
             # in the new request. Because we've mutated our copied prepared
