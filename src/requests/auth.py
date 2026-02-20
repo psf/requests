@@ -12,6 +12,7 @@ import threading
 import time
 import warnings
 from base64 import b64encode
+from urllib.parse import quote
 
 from ._internal_utils import to_native_string
 from .compat import basestring, str, urlparse
@@ -186,7 +187,18 @@ class HTTPDigestAuth(AuthBase):
         if p_parsed.query:
             path += f"?{p_parsed.query}"
 
-        A1 = f"{self.username}:{realm}:{self.password}"
+        # Normalize username and password to str. If bytes were passed
+        # (e.g. 'Ondřej'.encode('utf-8')), decode them so that f-string
+        # interpolation doesn't produce the repr of the bytes object
+        # (e.g. "b'Ond\\xc5\\x99ej'"). See GitHub issue #6102.
+        username = self.username
+        password = self.password
+        if isinstance(username, bytes):
+            username = username.decode("utf-8")
+        if isinstance(password, bytes):
+            password = password.decode("utf-8")
+
+        A1 = f"{username}:{realm}:{password}"
         A2 = f"{method}:{path}"
 
         HA1 = hash_utf8(A1)
@@ -218,8 +230,19 @@ class HTTPDigestAuth(AuthBase):
         self._thread_local.last_nonce = nonce
 
         # XXX should the partial digests be encoded too?
+        # Per RFC 7616 Section 3.4.3, if the username can't be encoded
+        # in ISO-8859-1 (latin-1), use the username* parameter with
+        # UTF-8 percent-encoding instead.
+        try:
+            username.encode("latin-1")
+            username_field = f'username="{username}"'
+        except UnicodeEncodeError:
+            # RFC 7616 / RFC 5987: username*=UTF-8''percent-encoded
+            encoded_username = quote(username, safe="")
+            username_field = f"username*=UTF-8''{encoded_username}"
+
         base = (
-            f'username="{self.username}", realm="{realm}", nonce="{nonce}", '
+            f'{username_field}, realm="{realm}", nonce="{nonce}", '
             f'uri="{path}", response="{respdig}"'
         )
         if opaque:

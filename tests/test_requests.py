@@ -807,6 +807,84 @@ class TestRequests:
             r = requests.get(url, auth=auth)
             assert '"auth"' in r.request.headers["Authorization"]
 
+    def test_DIGESTAUTH_NON_LATIN_USERNAME_STR(self):
+        """Non-latin str username uses RFC 7616 username* parameter."""
+        auth = HTTPDigestAuth("Ondřej", "heslíčko")
+        auth.init_per_thread_state()
+        auth._thread_local.chal = {
+            "realm": "testrealm",
+            "nonce": "testnonce",
+        }
+        header = auth.build_digest_header("GET", "https://example.com/")
+        assert header is not None
+        # Should use username* with UTF-8 percent-encoding, not username="..."
+        assert "username*=UTF-8''" in header
+        assert "Ond" in header  # percent-encoded form includes literal ASCII chars
+        # Must NOT contain bytes repr like b'...'
+        assert "b'" not in header
+
+    def test_DIGESTAUTH_NON_LATIN_USERNAME_BYTES(self):
+        """Non-latin bytes username is decoded and uses username* parameter."""
+        auth = HTTPDigestAuth("Ondřej".encode("utf-8"), "heslíčko".encode("utf-8"))
+        auth.init_per_thread_state()
+        auth._thread_local.chal = {
+            "realm": "testrealm",
+            "nonce": "testnonce",
+        }
+        header = auth.build_digest_header("GET", "https://example.com/")
+        assert header is not None
+        # Must NOT contain bytes repr like b'Ond\xc5\x99ej'
+        assert "b'" not in header
+        assert "\\x" not in header
+        # Should use username* with UTF-8 percent-encoding
+        assert "username*=UTF-8''" in header
+
+    def test_DIGESTAUTH_BYTES_AND_STR_PRODUCE_SAME_HASH(self):
+        """Bytes and str credentials produce the same digest response.
+
+        Uses a challenge without qop to avoid non-deterministic cnonce
+        values that would make the two responses differ.
+        """
+        chal = {
+            "realm": "testrealm",
+            "nonce": "testnonce",
+        }
+
+        auth_str = HTTPDigestAuth("Сергей", "пароль")
+        auth_str.init_per_thread_state()
+        auth_str._thread_local.chal = dict(chal)
+        header_str = auth_str.build_digest_header("GET", "https://example.com/")
+
+        auth_bytes = HTTPDigestAuth("Сергей".encode("utf-8"), "пароль".encode("utf-8"))
+        auth_bytes.init_per_thread_state()
+        auth_bytes._thread_local.chal = dict(chal)
+        header_bytes = auth_bytes.build_digest_header("GET", "https://example.com/")
+
+        assert header_str is not None
+        assert header_bytes is not None
+
+        # Extract the response= digest from both headers — they must match
+        import re as re_mod
+
+        resp_str = re_mod.search(r'response="([^"]+)"', header_str)
+        resp_bytes = re_mod.search(r'response="([^"]+)"', header_bytes)
+        assert resp_str and resp_bytes
+        assert resp_str.group(1) == resp_bytes.group(1)
+
+    def test_DIGESTAUTH_LATIN_USERNAME_USES_STANDARD_FIELD(self):
+        """Latin-1 compatible username uses standard username= parameter."""
+        auth = HTTPDigestAuth("user", "pass")
+        auth.init_per_thread_state()
+        auth._thread_local.chal = {
+            "realm": "testrealm",
+            "nonce": "testnonce",
+        }
+        header = auth.build_digest_header("GET", "https://example.com/")
+        assert header is not None
+        # Should use standard username="..." (not username*)
+        assert 'username="user"' in header
+        assert "username*" not in header
+
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
         url = httpbin("post")
         requests.post(url).raise_for_status()
