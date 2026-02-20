@@ -2229,6 +2229,24 @@ class TestRequests:
         assert "Transfer-Encoding" in prepared_request.headers
         assert "Content-Length" not in prepared_request.headers
 
+    def test_empty_body_from_none_values_sets_content_length_zero(self, httpbin):
+        """Ensure that a request body consisting only of None values sets
+        Content-Length: 0 instead of falling back to Transfer-Encoding: chunked.
+
+        When data={'foo': None}, the body encodes to an empty string.
+        Without Content-Length: 0, the adapter falls back to chunked encoding
+        and sends a terminating chunk ('0\\r\\n\\r\\n') that servers may
+        misinterpret as a second, malformed request.
+
+        See: https://github.com/psf/requests/issues/6122
+        """
+        url = httpbin("post")
+        r = requests.Request("POST", url, data={"foo": None})
+        prepared_request = r.prepare()
+        assert prepared_request.body == ""
+        assert prepared_request.headers["Content-Length"] == "0"
+        assert "Transfer-Encoding" not in prepared_request.headers
+
     def test_custom_redirect_mixin(self, httpbin):
         """Tests a custom mixin to overwrite ``get_redirect_target``.
 

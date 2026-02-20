@@ -575,9 +575,13 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         """Prepare Content-Length header based on request method and body"""
         if body is not None:
             length = super_len(body)
-            if length:
-                # If length exists, set it. Otherwise, we fallback
-                # to Transfer-Encoding: chunked.
+            if length is not None and "Transfer-Encoding" not in self.headers:
+                # Set Content-Length for any known length, including 0.
+                # A length of 0 is valid (e.g. data={'foo': None} encodes
+                # to an empty body) and must be sent to avoid falling back
+                # to Transfer-Encoding: chunked, which can cause servers
+                # to misinterpret the terminating chunk as a new request.
+                # Skip if Transfer-Encoding is already set (e.g. for streams).
                 self.headers["Content-Length"] = builtin_str(length)
         elif (
             self.method not in ("GET", "HEAD")
