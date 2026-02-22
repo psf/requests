@@ -51,7 +51,7 @@ Source = "https://github.com/psf/requests"
 [project.optional-dependencies]
 security = []
 socks = ["PySocks>=1.5.6, !=1.5.7"]
-use_chardet_on_py3 = ["chardet>=3.0.2,<6"]
+use_chardet_on_py3 = ["chardet>=3.0.2,<7"]
 test = [
     "pytest-httpbin==2.1.0",
     "pytest-cov",
