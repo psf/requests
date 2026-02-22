@@ -28,6 +28,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
         allow-prereleases: true
+    - name: Guard CTX artifacts
+      run: |
+        python tools/check_no_ctx_artifacts.py --mode tracked
     - name: Install dependencies
       env:
         PYO3_USE_ABI3_FORWARD_COMPATIBILITY: ${{ matrix.python-version == '3.15-dev' && '1' || '' }}
@@ -49,6 +52,9 @@ jobs:
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.10'
+      - name: Guard CTX artifacts
+        run: |
+          python tools/check_no_ctx_artifacts.py --mode tracked
       - name: Install dependencies
         run: |
           make
@@ -69,6 +75,9 @@ jobs:
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.10'
+      - name: Guard CTX artifacts
+        run: |
+          python tools/check_no_ctx_artifacts.py --mode tracked
       - name: Install dependencies
         run: |
           make

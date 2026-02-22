@@ -35,3 +35,9 @@ t2.py
 dist
 
 /.mypy_cache/
+
+# Local CTX artifacts and telemetry
+.ctx/
+*.ctx
+*ctx-mcp-telemetry*.jsonl
+ops-telemetry.jsonl
