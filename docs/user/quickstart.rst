@@ -271,7 +271,7 @@ use the same key::
       },
       ...
     }
-    >>> r1.text == r2.text
+    >>> r1.json()['form'] == r2.json()['form']
     True
 
 There are times that you may want to send data that is not form-encoded. If
