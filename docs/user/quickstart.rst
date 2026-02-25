@@ -271,8 +271,11 @@ use the same key::
       },
       ...
     }
-    >>> r1.text == r2.text
+    >>> r1.json()['form'] == r2.json()['form']
     True
+
+The complete response text may differ between requests (for example, due to
+headers added by ``httpbin``), but the form payload is equivalent.
 
 There are times that you may want to send data that is not form-encoded. If
 you pass in a ``string`` instead of a ``dict``, that data will be posted directly.
