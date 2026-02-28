@@ -1433,6 +1433,91 @@ class TestRequests:
         assert isinstance(result, list), "getheaders() should return a list"
         assert result == [], "getheaders() should return an empty list when no headers match"
 
+    def test_mock_response_info_returns_headers(self):
+        """Test that MockResponse.info() returns the HTTPMessage passed at construction."""
+        from http.client import HTTPMessage
+        from requests.cookies import MockResponse
+
+        msg = HTTPMessage()
+        msg["Content-Type"] = "application/json"
+        mock_response = MockResponse(msg)
+
+        assert mock_response.info() is msg
+
+    def test_mock_response_getheaders_single_value(self):
+        """Test that MockResponse.getheaders() returns a list even for a single header value."""
+        from http.client import HTTPMessage
+        from requests.cookies import MockResponse
+
+        msg = HTTPMessage()
+        msg["Set-Cookie"] = "session=abc123"
+        mock_response = MockResponse(msg)
+
+        result = mock_response.getheaders("Set-Cookie")
+        assert isinstance(result, list), "getheaders() should return a list, not a bare string"
+        assert result == ["session=abc123"]
+
+    def test_mock_response_getheaders_case_insensitive(self):
+        """Test that MockResponse.getheaders() performs case-insensitive header name lookup."""
+        from http.client import HTTPMessage
+        from requests.cookies import MockResponse
+
+        msg = HTTPMessage()
+        msg["Set-Cookie"] = "user=tboy1337"
+        mock_response = MockResponse(msg)
+
+        assert mock_response.getheaders("set-cookie") == ["user=tboy1337"]
+        assert mock_response.getheaders("SET-COOKIE") == ["user=tboy1337"]
+        assert mock_response.getheaders("Set-Cookie") == ["user=tboy1337"]
+
+    def test_extract_cookies_to_jar_stores_cookies(self):
+        """Integration: extract_cookies_to_jar populates the jar from Set-Cookie headers."""
+        import http.cookiejar
+        from http.client import HTTPMessage
+        from requests.cookies import extract_cookies_to_jar
+
+        msg = HTTPMessage()
+        msg["Set-Cookie"] = "session=abc; path=/"
+        msg["Set-Cookie"] = "theme=dark; path=/"
+
+        class _OriginalResponse:
+            def __init__(self, headers):
+                self.msg = headers
+
+        class _HTTPResponse:
+            def __init__(self, headers):
+                self._original_response = _OriginalResponse(headers)
+
+        prepared = requests.Request("GET", "http://example.com/").prepare()
+        jar = http.cookiejar.CookieJar()
+        extract_cookies_to_jar(jar, prepared, _HTTPResponse(msg))
+
+        cookie_dict = {c.name: c.value for c in jar}
+        assert "session" in cookie_dict, "session cookie should be extracted"
+        assert cookie_dict["session"] == "abc"
+        assert "theme" in cookie_dict, "theme cookie should be extracted"
+        assert cookie_dict["theme"] == "dark"
+
+    def test_extract_cookies_to_jar_skips_without_original_response(self):
+        """extract_cookies_to_jar returns early when _original_response is absent or falsy."""
+        import http.cookiejar
+        from requests.cookies import extract_cookies_to_jar
+
+        class _NoOriginal:
+            pass
+
+        class _NullOriginal:
+            _original_response = None
+
+        prepared = requests.Request("GET", "http://example.com/").prepare()
+
+        jar = http.cookiejar.CookieJar()
+        extract_cookies_to_jar(jar, prepared, _NoOriginal())
+        assert list(jar) == [], "jar should be empty when _original_response attribute is missing"
+
+        extract_cookies_to_jar(jar, prepared, _NullOriginal())
+        assert list(jar) == [], "jar should be empty when _original_response is None"
+
     def test_time_elapsed_blank(self, httpbin):
         r = requests.get(httpbin("get"))
         td = r.elapsed
