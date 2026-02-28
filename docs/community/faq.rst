@@ -48,8 +48,8 @@ Chris Adams gave an excellent summary on
     an annoying bug which affect many people, there was a fix available for
     months, which worked great when I applied it in a fork and pounded a couple
     TB of data through it, but it took over a year to make it into trunk and
-    even longer to make it onto PyPI where any other project which required "
-    httplib2" would get the working version.
+    even longer to make it onto PyPI, where any other project that required
+    ``httplib2`` would get the working version.
 
 
 Python 3 Support?
