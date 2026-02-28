@@ -1463,12 +1463,12 @@ class TestRequests:
         from requests.cookies import MockResponse
 
         msg = HTTPMessage()
-        msg["Set-Cookie"] = "user=tboy1337"
+        msg["Set-Cookie"] = "user=testuser"
         mock_response = MockResponse(msg)
 
-        assert mock_response.getheaders("set-cookie") == ["user=tboy1337"]
-        assert mock_response.getheaders("SET-COOKIE") == ["user=tboy1337"]
-        assert mock_response.getheaders("Set-Cookie") == ["user=tboy1337"]
+        assert mock_response.getheaders("set-cookie") == ["user=testuser"]
+        assert mock_response.getheaders("SET-COOKIE") == ["user=testuser"]
+        assert mock_response.getheaders("Set-Cookie") == ["user=testuser"]
 
     def test_extract_cookies_to_jar_stores_cookies(self):
         """Integration: extract_cookies_to_jar populates the jar from Set-Cookie headers."""
