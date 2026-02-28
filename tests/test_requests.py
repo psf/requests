@@ -1407,48 +1407,31 @@ class TestRequests:
         assert isinstance(jar.copy().get_policy(), MyCookiePolicy)
 
     def test_mock_response_getheaders_returns_headers_list(self):
-        """Test that MockResponse.getheaders() returns the list of headers."""
+        """Test that MockResponse.getheaders() returns the list of headers for a given name."""
         from http.client import HTTPMessage
         from requests.cookies import MockResponse
 
-        # Create a mock HTTPMessage with getheaders method
-        mock_headers = mock.Mock(spec=HTTPMessage)
-        mock_headers.getheaders = mock.Mock(
-            return_value=["cookie1=value1", "cookie2=value2"]
-        )
+        msg = HTTPMessage()
+        msg["Set-Cookie"] = "cookie1=value1"
+        msg["Set-Cookie"] = "cookie2=value2"
+        mock_response = MockResponse(msg)
 
-        # Create MockResponse
-        mock_response = MockResponse(mock_headers)
-
-        # Test that getheaders returns a result (not None)
         result = mock_response.getheaders("Set-Cookie")
-        assert result is not None, "getheaders() should return a value, not None"
         assert isinstance(result, list), "getheaders() should return a list"
         assert result == ["cookie1=value1", "cookie2=value2"]
-
-        # Verify that the underlying getheaders method was called with correct argument
-        mock_headers.getheaders.assert_called_once_with("Set-Cookie")
 
     def test_mock_response_getheaders_returns_empty_list(self):
         """Test that MockResponse.getheaders() returns an empty list when no headers match."""
         from http.client import HTTPMessage
         from requests.cookies import MockResponse
 
-        # Create a mock HTTPMessage with getheaders method returning empty list
-        mock_headers = mock.Mock(spec=HTTPMessage)
-        mock_headers.getheaders = mock.Mock(return_value=[])
+        msg = HTTPMessage()
+        msg["Content-Type"] = "application/json"
+        mock_response = MockResponse(msg)
 
-        # Create MockResponse
-        mock_response = MockResponse(mock_headers)
-
-        # Test that getheaders returns an empty list (not None)
         result = mock_response.getheaders("NonExistent-Header")
-        assert result is not None, "getheaders() should return a list, not None"
         assert isinstance(result, list), "getheaders() should return a list"
-        assert len(result) == 0, "getheaders() should return an empty list"
-
-        # Verify that the underlying getheaders method was called with correct argument
-        mock_headers.getheaders.assert_called_once_with("NonExistent-Header")
+        assert result == [], "getheaders() should return an empty list when no headers match"
 
     def test_time_elapsed_blank(self, httpbin):
         r = requests.get(httpbin("get"))
