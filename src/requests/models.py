@@ -646,6 +646,7 @@ class Response:
 
     __attrs__ = [
         "_content",
+        "_content_error",
         "status_code",
         "headers",
         "url",
@@ -659,6 +660,7 @@ class Response:
 
     def __init__(self):
         self._content = False
+        self._content_error = None
         self._content_consumed = False
         self._next = None
 
@@ -816,28 +818,35 @@ class Response:
         """
 
         def generate():
-            # Special case for urllib3.
-            if hasattr(self.raw, "stream"):
-                try:
-                    yield from self.raw.stream(chunk_size, decode_content=True)
-                except ProtocolError as e:
-                    raise ChunkedEncodingError(e)
-                except DecodeError as e:
-                    raise ContentDecodingError(e)
-                except ReadTimeoutError as e:
-                    raise ConnectionError(e)
-                except SSLError as e:
-                    raise RequestsSSLError(e)
-            else:
-                # Standard file-like object.
-                while True:
-                    chunk = self.raw.read(chunk_size)
-                    if not chunk:
-                        break
-                    yield chunk
+            try:
+                # Special case for urllib3.
+                if hasattr(self.raw, "stream"):
+                    try:
+                        yield from self.raw.stream(chunk_size, decode_content=True)
+                    except ProtocolError as e:
+                        raise ChunkedEncodingError(e)
+                    except DecodeError as e:
+                        raise ContentDecodingError(e)
+                    except ReadTimeoutError as e:
+                        raise ConnectionError(e)
+                    except SSLError as e:
+                        raise RequestsSSLError(e)
+                else:
+                    # Standard file-like object.
+                    while True:
+                        chunk = self.raw.read(chunk_size)
+                        if not chunk:
+                            break
+                        yield chunk
+            except Exception as e:
+                self._content_error = e
+                self._content_consumed = True
+                raise
 
             self._content_consumed = True
 
+        if self._content_error is not None:
+            raise self._content_error
         if self._content_consumed and isinstance(self._content, bool):
             raise StreamConsumedError()
         elif chunk_size is not None and not isinstance(chunk_size, int):
@@ -892,6 +901,9 @@ class Response:
     @property
     def content(self):
         """Content of the response, in bytes."""
+
+        if self._content_error is not None:
+            raise self._content_error
 
         if self._content is False:
             # Read the contents.

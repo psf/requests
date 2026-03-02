@@ -66,6 +66,21 @@ TARPIT = "http://10.255.255.1"
 # This is to avoid waiting the timeout of using TARPIT
 INVALID_PROXY = "http://localhost:1"
 
+
+def consume_response_read_api(response, read_api):
+    if read_api == "content":
+        return response.content
+    if read_api == "iter_content":
+        return b"".join(response.iter_content(128))
+    if read_api == "iter_lines":
+        return b"".join(response.iter_lines())
+    if read_api == "text":
+        return response.text
+    if read_api == "__iter__":
+        return b"".join(response)
+
+    raise ValueError(f"Unknown response read API: {read_api}")
+
 try:
     from ssl import SSLContext
 
@@ -1508,6 +1523,34 @@ class TestRequests:
 
         with pytest.raises(expected):
             next(r.iter_content(1024))
+
+    @pytest.mark.parametrize(
+        "read_api", ("content", "iter_content", "iter_lines", "text", "__iter__")
+    )
+    def test_response_read_error_is_replayed_to_content(self, read_api):
+        r = requests.Response()
+        r.raw = mock.Mock()
+        r.raw.stream.side_effect = [urllib3.exceptions.ProtocolError(), iter(())]
+
+        with pytest.raises(ChunkedEncodingError):
+            consume_response_read_api(r, read_api)
+
+        with pytest.raises(ChunkedEncodingError):
+            r.content
+
+    @pytest.mark.parametrize(
+        "read_api", ("content", "iter_content", "iter_lines", "text", "__iter__")
+    )
+    def test_response_content_read_error_is_replayed_to_all_read_apis(self, read_api):
+        r = requests.Response()
+        r.raw = mock.Mock()
+        r.raw.stream.side_effect = [urllib3.exceptions.ProtocolError(), iter(())]
+
+        with pytest.raises(ChunkedEncodingError):
+            r.content
+
+        with pytest.raises(ChunkedEncodingError):
+            consume_response_read_api(r, read_api)
 
     def test_request_and_response_are_pickleable(self, httpbin):
         r = requests.get(httpbin("get"))
