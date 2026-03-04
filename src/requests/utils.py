@@ -531,7 +531,7 @@ def get_encoding_from_headers(headers):
     :rtype: str
     """
 
-    content_type = headers.get("content-type")
+    content_type = headers.get("content-type") or headers.get("Content-Type")
 
     if not content_type:
         return None
