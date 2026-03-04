@@ -807,6 +807,20 @@ class TestRequests:
             r = requests.get(url, auth=auth)
             assert '"auth"' in r.request.headers["Authorization"]
 
+    def test_DIGESTAUTH_DECODES_UTF8_BYTES_USERNAME(self):
+        auth = HTTPDigestAuth("Ondřej".encode("utf-8"), "heslíčko")
+        auth.init_per_thread_state()
+        auth._thread_local.chal = {
+            "realm": "realm",
+            "nonce": "nonce",
+            "qop": "auth",
+            "algorithm": "MD5",
+        }
+
+        header = auth.build_digest_header("GET", "http://example.com/")
+        assert 'username="Ondřej"' in header
+        assert "b'" not in header
+
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
         url = httpbin("post")
         requests.post(url).raise_for_status()
