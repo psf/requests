@@ -2,6 +2,7 @@
 pytest>=2.8.0,<9
 pytest-cov
 pytest-httpbin==2.1.0
+pytest-benchmark
 httpbin~=0.10.0
 trustme
 wheel
