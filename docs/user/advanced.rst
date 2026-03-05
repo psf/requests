@@ -238,6 +238,15 @@ or persistent::
 This list of trusted CAs can also be specified through the ``REQUESTS_CA_BUNDLE`` environment variable.
 If ``REQUESTS_CA_BUNDLE`` is not set, ``CURL_CA_BUNDLE`` will be used as fallback.
 
+.. note::
+
+   ``requests.certs.where()`` and ``requests.utils.DEFAULT_CA_BUNDLE_PATH``
+   return the built-in certifi bundle path, not necessarily the bundle used
+   by a specific request.
+
+   The effective CA bundle can come from a per-request ``verify`` value,
+   ``Session.verify``, or ``REQUESTS_CA_BUNDLE`` / ``CURL_CA_BUNDLE``.
+
 Requests can also ignore verifying the SSL certificate if you set ``verify`` to False::
 
     >>> requests.get('https://kennethreitz.org', verify=False)
