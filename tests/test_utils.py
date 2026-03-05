@@ -820,6 +820,19 @@ def test_unicode_is_ascii(value, expected):
 
 
 @pytest.mark.parametrize(
+    "value",
+    (
+        b"bytes",
+        123,
+        None,
+    ),
+)
+def test_unicode_is_ascii_invalid_type(value):
+    with pytest.raises(TypeError):
+        unicode_is_ascii(value)
+
+
+@pytest.mark.parametrize(
     "url, expected",
     (
         ("http://192.168.0.1:5000/", True),
