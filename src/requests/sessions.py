@@ -203,7 +203,7 @@ class SessionRedirectMixin:
 
             # Normalize url case and attach previous fragment if needed (RFC 7231 7.1.2)
             parsed = urlparse(url)
-            if parsed.fragment == "" and previous_fragment:
+            if not parsed.fragment and previous_fragment:
                 parsed = parsed._replace(fragment=previous_fragment)
             elif parsed.fragment:
                 previous_fragment = parsed.fragment
