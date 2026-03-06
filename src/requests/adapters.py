@@ -42,6 +42,7 @@ from .exceptions import (
     InvalidURL,
     ProxyError,
     ReadTimeout,
+    RequestException,
     RetryError,
     SSLError,
 )
@@ -684,15 +685,15 @@ class HTTPAdapter(BaseAdapter):
         except _ProxyError as e:
             raise ProxyError(e)
 
-        except (_SSLError, _HTTPError) as e:
-            if isinstance(e, _SSLError):
+        except (_SSLError, _HTTPError) as err:
+            if isinstance(err, _SSLError):
                 # This branch is for urllib3 versions earlier than v1.22
-                raise SSLError(e, request=request)
-            elif isinstance(e, ReadTimeoutError):
-                raise ReadTimeout(e, request=request)
-            elif isinstance(e, _InvalidHeader):
-                raise InvalidHeader(e, request=request)
+                raise SSLError(err, request=request) from err
+            elif isinstance(err, ReadTimeoutError):
+                raise ReadTimeout(err, request=request) from err
+            elif isinstance(err, _InvalidHeader):
+                raise InvalidHeader(err, request=request) from err
             else:
-                raise
+                raise RequestException(err, request=request) from err
 
         return self.build_response(request, resp)
