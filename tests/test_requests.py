@@ -3037,3 +3037,21 @@ def test_json_decode_errors_are_serializable_deserializable():
     )
     deserialized_error = pickle.loads(pickle.dumps(json_decode_error))
     assert repr(json_decode_error) == repr(deserialized_error)
+
+
+def test_cookie_with_empty_value():
+    """Cookies with falsy values (e.g. empty string) should still be
+    retrievable from a RequestsCookieJar.
+
+    Regression test for https://github.com/psf/requests/issues/5950
+    """
+    from requests.cookies import RequestsCookieJar, create_cookie
+
+    jar = RequestsCookieJar()
+    jar.set_cookie(create_cookie("token", ""))
+
+    # __getitem__ should return the empty string, not raise KeyError
+    assert jar["token"] == ""
+
+    # .get() should return the empty string, not the default
+    assert jar.get("token", "default") == ""
