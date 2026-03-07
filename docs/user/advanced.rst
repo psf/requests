@@ -1030,6 +1030,39 @@ library to use SSLv3::
                 num_pools=connections, maxsize=maxsize,
                 block=block, ssl_version=ssl.PROTOCOL_SSLv3)
 
+Example: pre-intialized SSL Context
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Requests usually parse either default CA bundle or a user-provided one
+on every request. This can be slow, so pre-created ``ssl.SSLContext``
+may be specified using a custom Transport Adapter.
+
+Here is an example of such implementation:
+
+::
+
+    import ssl
+    import requests.adapters
+
+    ssl_context = ssl.create_default_context()
+
+    class SSLContextAdapter(requests.adapters.HTTPAdapter):
+        def init_poolmanager(self, *args, **kwargs):
+            kwargs["ssl_context"] = ssl_context
+            return super().init_poolmanager(*args, **kwargs)
+
+        def cert_verify(self, *_args, **_kwargs) -> None:
+            # Override HTTPAdapter cert_verify method, it tries to load certs from disk otherwise
+            pass
+
+    with requests.Session() as session:
+        # Disable environment configuration, it overrides the passed SSLContext
+        session.trust_env = False
+
+        session.mount("https://", SSLContextAdapter())
+
+        # HTTPS requests will now use the pre-created `ssl_context`
+
 Example: Automatic Retries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
