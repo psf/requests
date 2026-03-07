@@ -539,7 +539,9 @@ def get_encoding_from_headers(headers):
     content_type, params = _parse_content_type_header(content_type)
 
     if "charset" in params:
-        return params["charset"].strip("'\"")
+        charset = params["charset"]
+        if isinstance(charset, str) and charset:
+            return charset.strip("'\"")
 
     if "text" in content_type:
         return "ISO-8859-1"
