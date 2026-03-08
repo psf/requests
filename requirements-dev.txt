@@ -1,7 +1,7 @@
--e .[socks]
+-e .[socks]  # borealis: could not pin
 pytest>=2.8.0,<9
-pytest-cov
+pytest-cov==7.0.0
 pytest-httpbin==2.1.0
 httpbin~=0.10.0
-trustme
-wheel
+trustme==1.2.1
+wheel==0.46.3
