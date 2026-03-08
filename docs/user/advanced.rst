@@ -1094,7 +1094,8 @@ hang for minutes or more.
 
 The **connect** timeout is the number of seconds Requests will wait for your
 client to establish a connection to a remote machine (corresponding to the
-`connect()`_) call on the socket. It's a good practice to set connect timeouts
+`connect()`_) call on the socket. The connect timeout also includes the time
+to send the request body. It's a good practice to set connect timeouts
 to slightly larger than a multiple of 3, which is the default `TCP packet
 retransmission window <https://datatracker.ietf.org/doc/html/rfc2988>`_.
 
