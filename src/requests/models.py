@@ -565,8 +565,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
             self.prepare_content_length(body)
 
-            # Add content-type if it wasn't explicitly provided.
-            if content_type and ("content-type" not in self.headers):
+            # Add content-type if it wasn't explicitly provided, or it was explicitly unset
+            if content_type and self.headers.get("content-type") is None:
                 self.headers["Content-Type"] = content_type
 
         self.body = body
