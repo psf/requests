@@ -388,7 +388,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         p.headers = self.headers.copy() if self.headers is not None else None
         p._cookies = _copy_cookie_jar(self._cookies)
         p.body = self.body
-        p.hooks = self.hooks
+        p.hooks = {event: list(callbacks) for event, callbacks in self.hooks.items()}
         p._body_position = self._body_position
         return p
 
