@@ -12,7 +12,7 @@ import copy
 import time
 
 from ._internal_utils import to_native_string
-from .compat import Morsel, MutableMapping, cookielib, urlparse, urlunparse
+from .compat import Morsel, cookielib, urlparse, urlunparse
 
 try:
     import threading
@@ -173,7 +173,7 @@ class CookieConflictError(RuntimeError):
     """
 
 
-class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
+class RequestsCookieJar(cookielib.CookieJar):
     """Compatibility class; is a http.cookiejar.CookieJar, but exposes a dict
     interface.
 
@@ -320,9 +320,12 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
 
     def __contains__(self, name):
         try:
-            return super().__contains__(name)
+            self._find_no_duplicates(name)
         except CookieConflictError:
             return True
+        except KeyError:
+            return False
+        return True
 
     def __getitem__(self, name):
         """Dict-like __getitem__() for compatibility with client code. Throws
@@ -332,6 +335,11 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
         .. warning:: operation is O(n), not O(1).
         """
         return self._find_no_duplicates(name)
+
+    def __eq__(self, other):
+        if not hasattr(other, "items"):
+            return NotImplemented
+        return list(self.items()) == list(other.items())
 
     def __setitem__(self, name, value):
         """Dict-like __setitem__ for compatibility with client code. Throws
@@ -361,7 +369,8 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
             for cookie in other:
                 self.set_cookie(copy.copy(cookie))
         else:
-            super().update(other)
+            for name, value in other.items():
+                self.set(name, value)
 
     def _find(self, name, domain=None, path=None):
         """Requests uses this method internally to get cookie values.

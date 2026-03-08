@@ -1279,6 +1279,11 @@ class TestRequests:
         assert cookie.domain == domain
         assert cookie._rest["HttpOnly"] == rest["HttpOnly"]
 
+    def test_cookie_jar_is_not_a_mutable_mapping(self):
+        jar = requests.cookies.RequestsCookieJar()
+
+        assert not isinstance(jar, MutableMapping)
+
     def test_cookie_as_dict_keeps_len(self):
         key = "some_cookie"
         value = "some_value"
