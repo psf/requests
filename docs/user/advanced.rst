@@ -72,6 +72,59 @@ Sessions can also be used as context managers::
 This will make sure the session is closed as soon as the ``with`` block is
 exited, even if unhandled exceptions occurred.
 
+.. warning:: **Sessions and Multi-Process Environments**
+
+    Session objects are **not safe** to use in multi-process environments where
+    ``fork()`` is used. If a Session is created before forking (e.g., at module
+    level or in a parent process), the underlying connection pool will be shared
+    across both processes. This can lead to requests and responses being mixed up
+    between processes, causing dangerous and hard-to-debug issues.
+
+    **This commonly occurs when:**
+
+    - Using frameworks like Celery that fork worker processes
+    - Creating Session objects at module import time
+    - Using third-party clients that internally use Sessions
+
+    **Recommended Solutions:**
+
+    1. **Create Sessions after forking** - Initialize Session objects within
+       each worker/child process rather than before forking::
+
+        # Bad: Session created at module level
+        session = requests.Session()
+
+        def my_task():
+            session.get('https://httpbin.org/get')
+
+        # Good: Session created per-process
+        def my_task():
+            session = requests.Session()
+            session.get('https://httpbin.org/get')
+
+    2. **Reinitialize the adapter after forking** - If you must use a
+       pre-existing Session, remount the adapters after forking to create
+       new connection pools::
+
+        import os
+        import requests
+
+        session = requests.Session()
+
+        # After fork
+        if os.fork() == 0:  # child process
+            session.mount('http://', requests.adapters.HTTPAdapter())
+            session.mount('https://', requests.adapters.HTTPAdapter())
+            session.get('https://httpbin.org/get')
+
+    3. **Use application-level session management** - Wrap Sessions in
+       structures that understand your forking paradigm and create new
+       Session instances per process.
+
+    .. note::
+        This issue does not affect Windows, as Windows uses a different
+        process spawning mechanism that doesn't share memory via ``fork()``.
+
 
 .. admonition:: Remove a Value From a Dict Parameter
 
