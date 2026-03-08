@@ -13,6 +13,7 @@ from requests import compat
 from requests._internal_utils import unicode_is_ascii
 from requests.cookies import RequestsCookieJar
 from requests.structures import CaseInsensitiveDict
+from requests.models import PreparedRequest
 from requests.utils import (
     _parse_content_type_header,
     add_dict_to_cookiejar,
@@ -33,6 +34,7 @@ from requests.utils import (
     parse_header_links,
     prepend_scheme_if_needed,
     requote_uri,
+    resolve_proxies,
     select_proxy,
     set_environ,
     should_bypass_proxies,
@@ -985,3 +987,129 @@ def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
     monkeypatch.setattr(winreg, "OpenKey", OpenKey)
     monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
     assert should_bypass_proxies("http://example.com/", None) is False
+
+
+class TestResolveProxies:
+    """Tests for resolve_proxies function.
+
+    These tests verify the fix for issue #3296 where no_proxy was ignored
+    on 302 redirects because existing proxies were not being removed.
+    """
+
+    def test_resolve_proxies_strips_proxy_when_url_matches_no_proxy(self, monkeypatch):
+        """When URL matches no_proxy, existing proxies should be removed."""
+        # Set up environment
+        monkeypatch.setenv("no_proxy", "internal.example.com")
+        monkeypatch.setenv("http_proxy", "http://proxy.example.com:3128")
+
+        # Create a prepared request simulating a redirect to a no_proxy host
+        request = PreparedRequest()
+        request.prepare(method="GET", url="http://internal.example.com/api")
+
+        # Pass in proxies as if they came from the original request
+        existing_proxies = {"http": "http://proxy.example.com:3128"}
+
+        # resolve_proxies should strip the proxy since URL matches no_proxy
+        result = resolve_proxies(request, existing_proxies, trust_env=True)
+
+        # The http proxy should be removed
+        assert "http" not in result
+
+    def test_resolve_proxies_strips_all_proxy_when_url_matches_no_proxy(self, monkeypatch):
+        """When URL matches no_proxy, 'all' proxy should also be removed."""
+        monkeypatch.setenv("no_proxy", "internal.example.com")
+
+        request = PreparedRequest()
+        request.prepare(method="GET", url="http://internal.example.com/api")
+
+        existing_proxies = {"all": "socks5://proxy.example.com:1080"}
+
+        result = resolve_proxies(request, existing_proxies, trust_env=True)
+
+        assert "all" not in result
+
+    def test_resolve_proxies_keeps_proxy_when_url_not_in_no_proxy(self, monkeypatch):
+        """When URL doesn't match no_proxy, proxies should be kept/added."""
+        monkeypatch.setenv("no_proxy", "internal.example.com")
+        monkeypatch.setenv("http_proxy", "http://proxy.example.com:3128")
+
+        request = PreparedRequest()
+        request.prepare(method="GET", url="http://external.example.com/api")
+
+        existing_proxies = {"http": "http://proxy.example.com:3128"}
+
+        result = resolve_proxies(request, existing_proxies, trust_env=True)
+
+        assert result.get("http") == "http://proxy.example.com:3128"
+
+    def test_resolve_proxies_respects_no_proxy_in_proxies_dict(self, monkeypatch):
+        """The no_proxy key in proxies dict should take precedence."""
+        # Environment says nothing about no_proxy
+        monkeypatch.delenv("no_proxy", raising=False)
+        monkeypatch.delenv("NO_PROXY", raising=False)
+
+        request = PreparedRequest()
+        request.prepare(method="GET", url="http://internal.example.com/api")
+
+        # no_proxy specified in proxies dict
+        existing_proxies = {
+            "http": "http://proxy.example.com:3128",
+            "no_proxy": "internal.example.com"
+        }
+
+        result = resolve_proxies(request, existing_proxies, trust_env=True)
+
+        # http proxy should be stripped since URL matches no_proxy in dict
+        assert "http" not in result
+
+    def test_resolve_proxies_adds_env_proxy_when_not_bypassed(self, monkeypatch):
+        """When URL doesn't match no_proxy and trust_env is True, add env proxies."""
+        monkeypatch.setenv("no_proxy", "internal.example.com")
+        monkeypatch.setenv("http_proxy", "http://env-proxy.example.com:3128")
+
+        request = PreparedRequest()
+        request.prepare(method="GET", url="http://external.example.com/api")
+
+        # No existing proxies
+        result = resolve_proxies(request, {}, trust_env=True)
+
+        assert result.get("http") == "http://env-proxy.example.com:3128"
+
+    def test_resolve_proxies_no_env_when_trust_env_false(self, monkeypatch):
+        """When trust_env is False, don't add environment proxies."""
+        monkeypatch.setenv("http_proxy", "http://env-proxy.example.com:3128")
+
+        request = PreparedRequest()
+        request.prepare(method="GET", url="http://external.example.com/api")
+
+        result = resolve_proxies(request, {}, trust_env=False)
+
+        # No proxy should be added because trust_env=False
+        assert "http" not in result
+
+    def test_resolve_proxies_redirect_scenario(self, monkeypatch):
+        """Simulate redirect from proxied URL to no_proxy URL (Issue #3296).
+
+        This is the core test for the bug fix. When following a redirect
+        from an external URL (that uses proxy) to an internal URL (that
+        matches no_proxy), the proxy should be stripped for the internal URL.
+        """
+        monkeypatch.setenv("no_proxy", "internal.company.com")
+        monkeypatch.setenv("https_proxy", "http://proxy.company.com:3128")
+
+        # Step 1: First request to external URL would get proxy
+        first_request = PreparedRequest()
+        first_request.prepare(method="GET", url="https://external.example.com/api")
+
+        first_proxies = resolve_proxies(first_request, {}, trust_env=True)
+        assert first_proxies.get("https") == "http://proxy.company.com:3128"
+
+        # Step 2: 302 redirect to internal URL - simulate rebuild_proxies behavior
+        redirect_request = PreparedRequest()
+        redirect_request.prepare(method="GET", url="https://internal.company.com/auth")
+
+        # Pass the proxies from the first request (this is what rebuild_proxies does)
+        redirect_proxies = resolve_proxies(redirect_request, first_proxies, trust_env=True)
+
+        # The proxy should be STRIPPED because internal.company.com is in no_proxy
+        assert "https" not in redirect_proxies
