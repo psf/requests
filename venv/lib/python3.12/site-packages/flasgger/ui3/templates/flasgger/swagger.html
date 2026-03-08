@@ -1,0 +1,92 @@
+<script>
+window.onload = function() {
+
+    {% if config.JWT_AUTH_URL_RULE -%}
+    // JWT token holder
+    var jwt_token;
+    {%- endif %}
+
+    // Build a system
+    const ui = SwaggerUIBundle(
+    Object.assign(
+    {
+
+    {% if urls %}
+    urls: {{ urls | tojson }},
+    {% else %}
+    url: "{{ specs[0]['url'] }}",
+    {% endif %}
+    dom_id: '#swagger-ui',
+    validatorUrl: null,
+    displayOperationId: true,
+    deepLinking: true,
+    jsonEditor: true,
+    {% if flasgger_config.doc_expansion -%}
+        docExpansion: "{{flasgger_config.doc_expansion | safe }}",
+    {%- endif %}
+    apisSorter: "alpha",
+    presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIStandalonePreset
+    ],
+    plugins: [
+        SwaggerUIBundle.plugins.DownloadUrl
+    ],
+    {% if config.JWT_AUTH_URL_RULE -%}
+    requestInterceptor: function(request) {
+        if (jwt_token) {
+            {% if config.JWT_AUTH_HEADER_NAME -%}
+                var jwtAuthHeaderName = "{{ config.JWT_AUTH_HEADER_NAME }}";
+            {%- else %}
+                var jwtAuthHeaderName = "Authorization";
+            {%- endif %}
+            {% if config.JWT_AUTH_HEADER_TYPE -%}
+                var jwtAuthHeaderType = "{{ config.JWT_AUTH_HEADER_TYPE }}";
+            {%- else %}
+                var jwtAuthHeaderType = "Bearer";
+            {%- endif %}
+            request.headers[jwtAuthHeaderName] = jwtAuthHeaderType + " " + jwt_token;
+        }
+
+        return request;
+    },
+    responseInterceptor: function(response) {
+        {% if config.JWT_AUTH_HEADER_TOKEN -%}
+            var jwtAuthHeaderToken = "{{ config.JWT_AUTH_HEADER_TOKEN }}";
+        {%- else %}
+            var jwtAuthHeaderToken = "jwt-token";
+        {%- endif %}
+        var tokenField = jwtAuthHeaderToken;
+        var headers = response.headers;
+
+        if (headers.hasOwnProperty(tokenField)) {
+        jwt_token = headers[tokenField];
+        }
+
+        return response;
+    },
+    {%- endif %}
+    {% if not flasgger_config.hide_top_bar -%}
+    layout: "StandaloneLayout",
+    {%- endif %}
+    
+    },
+    {{ json.dumps(flasgger_config.get('ui_params', {})) | safe }}
+    {% if flasgger_config.ui_params_text -%}
+    , {{ flasgger_config.ui_params_text | safe }}
+    {%- endif %}
+    )
+    
+    )
+
+    let auth_config = {{ flasgger_config.get("auth") | safe }};
+
+    ui.initOAuth(auth_config);
+
+    window.ui = ui
+
+    {% if not flasgger_config.hide_top_bar -%}
+    $(".topbar-wrapper .link span").replaceWith("<span>{{title}}</span>");
+    {%- endif %}
+}
+</script>
