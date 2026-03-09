@@ -667,18 +667,46 @@ def requote_uri(uri):
         return quote(uri, safe=safe_without_percent)
 
 
+def _get_mask_bits(mask, totalbits=32):
+    """Converts a mask from /xx format to a int
+    to be used as a mask for IP's in int format
+
+    Example: if mask is 24 function returns 0xFFFFFF00
+             if mask is 24 and totalbits=128 function
+                returns 0xFFFFFF00000000000000000000000000
+
+    :rtype: int
+    """
+    bits = ((1 << mask) - 1) << (totalbits - mask)
+    return bits
+
+
 def address_in_network(ip, net):
     """This function allows you to check if an IP belongs to a network subnet
 
     Example: returns True if ip = 192.168.1.1 and net = 192.168.1.0/24
              returns False if ip = 192.168.1.1 and net = 192.168.100.0/24
+             returns True if ip = 1:2:3:4::1 and net = 1:2:3:4::/64
 
     :rtype: bool
     """
-    ipaddr = struct.unpack("=L", socket.inet_aton(ip))[0]
     netaddr, bits = net.split("/")
-    netmask = struct.unpack("=L", socket.inet_aton(dotted_netmask(int(bits))))[0]
-    network = struct.unpack("=L", socket.inet_aton(netaddr))[0] & netmask
+    if is_ipv4_address(ip) and is_ipv4_address(netaddr):
+        ipaddr = struct.unpack(">L", socket.inet_aton(ip))[0]
+        netmask = _get_mask_bits(int(bits))
+        network = struct.unpack(">L", socket.inet_aton(netaddr))[0]
+    elif is_ipv6_address(ip) and is_ipv6_address(netaddr):
+        ipaddr_msb, ipaddr_lsb = struct.unpack(
+            ">QQ", socket.inet_pton(socket.AF_INET6, ip)
+        )
+        ipaddr = (ipaddr_msb << 64) ^ ipaddr_lsb
+        netmask = _get_mask_bits(int(bits), 128)
+        network_msb, network_lsb = struct.unpack(
+            ">QQ", socket.inet_pton(socket.AF_INET6, netaddr)
+        )
+        network = (network_msb << 64) ^ network_lsb
+    else:
+        return False
     return (ipaddr & netmask) == (network & netmask)
 
 
@@ -698,10 +726,37 @@ def is_ipv4_address(string_ip):
     :rtype: bool
     """
     try:
-        socket.inet_aton(string_ip)
+        socket.inet_pton(socket.AF_INET, string_ip)
     except OSError:
         return False
     return True
+
+
+def is_ipv6_address(string_ip):
+    """
+    :rtype: bool
+    """
+    try:
+        socket.inet_pton(socket.AF_INET6, string_ip)
+    except OSError:
+        return False
+    return True
+
+
+def compare_ips(a, b):
+    """
+    Compare 2 IP's, uses socket.inet_pton to normalize IPv6 IPs
+
+    :rtype: bool
+    """
+    if a == b:
+        return True
+    try:
+        return socket.inet_pton(socket.AF_INET6, a) == socket.inet_pton(
+            socket.AF_INET6, b
+        )
+    except OSError:
+        return False
 
 
 def is_valid_cidr(string_network):
@@ -711,17 +766,19 @@ def is_valid_cidr(string_network):
     :rtype: bool
     """
     if string_network.count("/") == 1:
+        address, mask = string_network.split("/")
         try:
-            mask = int(string_network.split("/")[1])
+            mask = int(mask)
         except ValueError:
             return False
 
-        if mask < 1 or mask > 32:
-            return False
-
-        try:
-            socket.inet_aton(string_network.split("/")[0])
-        except OSError:
+        if is_ipv4_address(address):
+            if mask < 1 or mask > 32:
+                return False
+        elif is_ipv6_address(address):
+            if mask < 1 or mask > 128:
+                return False
+        else:
             return False
     else:
         return False
@@ -778,12 +835,12 @@ def should_bypass_proxies(url, no_proxy):
         # the end of the hostname, both with and without the port.
         no_proxy = (host for host in no_proxy.replace(" ", "").split(",") if host)
 
-        if is_ipv4_address(parsed.hostname):
+        if is_ipv4_address(parsed.hostname) or is_ipv6_address(parsed.hostname):
             for proxy_ip in no_proxy:
                 if is_valid_cidr(proxy_ip):
                     if address_in_network(parsed.hostname, proxy_ip):
                         return True
-                elif parsed.hostname == proxy_ip:
+                elif compare_ips(parsed.hostname, proxy_ip):
                     # If no_proxy ip was defined in plain IP notation instead of cidr notation &
                     # matches the IP of the index
                     return True
