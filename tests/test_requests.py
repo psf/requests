@@ -1997,7 +1997,71 @@ class TestRequests:
         requests.utils.rewind_body(prep)
         assert prep.body.read() == b"data"
 
+
     def test_rewind_body_no_seek(self):
+        pass
+
+    def test_no_proxy_in_proxies_dict(self, httpbin):
+        # Test case 1: 'no_proxy' in proxies dict
+        proxies = {"https": "https://b.r.o.k.e.n.com", "no_proxy": "google.com"}
+        with mock.patch('requests.adapters.HTTPAdapter.send') as mock_send:
+            mock_response = mock.Mock()
+            mock_response.url = "https://google.com"
+            mock_response.headers = {}
+            mock_response.status_code = 200
+            mock_response.is_redirect = False
+            mock_response.history = []
+            mock_send.return_value = mock_response
+            requests.get("https://google.com", proxies=proxies)
+            # Check if proxies were cleared before sending
+            args, kwargs = mock_send.call_args
+            assert not kwargs.get("proxies")
+
+        # Test case 2: 'no_proxy' in proxies dict with env var
+        proxies = {"https": "https://b.r.o.k.e.n.com"}
+        with override_environ(NO_PROXY="google.com"):
+            with mock.patch('requests.adapters.HTTPAdapter.send') as mock_send:
+                mock_response = mock.Mock()
+                mock_response.url = "https://google.com"
+                mock_response.headers = {}
+                mock_response.status_code = 200
+                mock_response.is_redirect = False
+                mock_response.history = []
+                mock_send.return_value = mock_response
+                requests.get("https://google.com", proxies=proxies)
+                # Check if proxies were cleared before sending
+                args, kwargs = mock_send.call_args
+                assert not kwargs.get("proxies")
+
+    def test_no_proxy_star_in_proxies_dict(self, httpbin):
+        proxies = {"https": "https://b.r.o.k.e.n.com", "no_proxy": "*"}
+        with mock.patch('requests.adapters.HTTPAdapter.send') as mock_send:
+            mock_response = mock.Mock()
+            mock_response.url = "https://google.com"
+            mock_response.headers = {}
+            mock_response.status_code = 200
+            mock_response.is_redirect = False
+            mock_response.history = []
+            mock_send.return_value = mock_response
+            requests.get("https://google.com", proxies=proxies)
+            # Check if proxies were cleared before sending
+            args, kwargs = mock_send.call_args
+            assert not kwargs.get("proxies")
+
+    def test_no_proxy_not_matching_in_proxies_dict(self, httpbin):
+        proxies = {"https": "https://b.r.o.k.e.n.com", "no_proxy": "example.com"}
+        with mock.patch('requests.adapters.HTTPAdapter.send') as mock_send:
+            mock_response = mock.Mock()
+            mock_response.url = "https://google.com"
+            mock_response.headers = {}
+            mock_response.status_code = 200
+            mock_response.is_redirect = False
+            mock_response.history = []
+            mock_send.return_value = mock_response
+            requests.get("https://google.com", proxies=proxies)
+            # Check if proxies were NOT cleared before sending
+            args, kwargs = mock_send.call_args
+            assert kwargs.get("proxies") == proxies
         class BadFileObj:
             def __init__(self, data):
                 self.data = data
