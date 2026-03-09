@@ -397,8 +397,23 @@ class TestRequests:
 
     def test_cookie_quote_wrapped(self, httpbin):
         s = requests.session()
-        s.get(httpbin('cookies/set?foo="bar:baz"'))
-        assert s.cookies["foo"] == '"bar:baz"'
+        r = s.get(httpbin('cookies/set?foo="bar:baz"'))
+        assert s.cookies["foo"] == '"\\"bar:baz\\""'
+        assert r.request.headers["Cookie"] == 'foo="\\"bar:baz\\""'
+        assert r.json()["cookies"]["foo"] == '"bar:baz"'
+
+    def test_cookie_with_json_value(self, httpbin):
+        s = requests.session()
+        r = s.get(httpbin('cookies/set?foo={"bar":"baz"}'))
+        assert s.cookies["foo"] == '"{\\"bar\\":\\"baz\\"}"'
+        assert r.request.headers["Cookie"] == 'foo="{\\"bar\\":\\"baz\\"}"'
+        assert r.json()["cookies"]["foo"] == '{"bar":"baz"}'
+
+    def test_param_cookies_with_json_value(self, httpbin):
+        s = requests.session()
+        r = s.get(httpbin("cookies"), cookies={"foo": '"{\\"bar\\":\\"baz\\"}"'})
+        assert r.request.headers["Cookie"] == 'foo="{\\"bar\\":\\"baz\\"}"'
+        assert r.json()["cookies"]["foo"] == '{"bar":"baz"}'
 
     def test_cookie_persists_via_api(self, httpbin):
         s = requests.session()
