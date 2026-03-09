@@ -18,6 +18,7 @@ env/
 .eggs/
 .tox/
 .pytest_cache/
+.hypothesis/
 .vscode/
 .eggs/
 
