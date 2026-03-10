@@ -565,6 +565,12 @@ raised.
 If a request exceeds the configured number of maximum redirections, a
 :exc:`~requests.exceptions.TooManyRedirects` exception is raised.
 
+Because :func:`requests.request()` is the underlying entry point for all
+helper methods, the exceptions described above (and any other
+:exc:`requests.exceptions.RequestException` subclasses) may be raised directly
+by :func:`requests.request()` as well. Wrap calls to the helper functions or
+:func:`requests.request()` itself if you need to handle those errors explicitly.
+
 All exceptions that Requests explicitly raises inherit from
 :exc:`requests.exceptions.RequestException`.
 
