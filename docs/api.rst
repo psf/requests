@@ -31,7 +31,6 @@ Exceptions
 .. autoexception:: requests.RequestException
 .. autoexception:: requests.ConnectionError
 .. autoexception:: requests.HTTPError
-.. autoexception:: requests.URLRequired
 .. autoexception:: requests.TooManyRedirects
 .. autoexception:: requests.ConnectTimeout
 .. autoexception:: requests.ReadTimeout
@@ -56,6 +55,7 @@ Lower-Level Classes
 
 .. autoclass:: Response
    :inherited-members:
+   :exclude-members: is_permanent_redirect
 
 
 Lower-Lower-Level Classes

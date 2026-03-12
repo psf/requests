@@ -5,6 +5,7 @@ import tarfile
 import zipfile
 from collections import deque
 from io import BytesIO
+from unittest import mock
 
 import pytest
 
@@ -22,6 +23,7 @@ from requests.utils import (
     get_encoding_from_headers,
     get_encodings_from_content,
     get_environ_proxies,
+    get_netrc_auth,
     guess_filename,
     guess_json_utf,
     is_ipv4_address,
@@ -149,6 +151,34 @@ class TestSuperLen:
     def test_super_len_with_no_matches(self):
         """Ensure that objects without any length methods default to 0"""
         assert super_len(object()) == 0
+
+
+class TestGetNetrcAuth:
+    def test_works(self, tmp_path, monkeypatch):
+        netrc_path = tmp_path / ".netrc"
+        monkeypatch.setenv("NETRC", str(netrc_path))
+        with open(netrc_path, "w") as f:
+            f.write("machine example.com login aaaa password bbbb\n")
+        auth = get_netrc_auth("http://example.com/thing")
+        assert auth == ("aaaa", "bbbb")
+
+    def test_not_vulnerable_to_bad_url_parsing(self, tmp_path, monkeypatch):
+        netrc_path = tmp_path / ".netrc"
+        monkeypatch.setenv("NETRC", str(netrc_path))
+        with open(netrc_path, "w") as f:
+            f.write("machine example.com login aaaa password bbbb\n")
+        auth = get_netrc_auth("http://example.com:@evil.com/&apos;")
+        assert auth is None
+
+    def test_empty_default_credentials_ignored(self, tmp_path, monkeypatch):
+        """Empty default credentials should not be returned."""
+        netrc_path = tmp_path / ".netrc"
+        monkeypatch.setenv("NETRC", str(netrc_path))
+        with open(netrc_path, "w") as f:
+            f.write("machine example.com login user password pass\ndefault\n")
+
+        auth = get_netrc_auth("http://httpbin.org/")
+        assert auth is None
 
 
 class TestToKeyValList:
@@ -751,13 +781,13 @@ def test_should_bypass_proxies(url, expected, monkeypatch):
         ("http://user:pass@hostname:5000", "hostname"),
     ),
 )
-def test_should_bypass_proxies_pass_only_hostname(url, expected, mocker):
+def test_should_bypass_proxies_pass_only_hostname(url, expected):
     """The proxy_bypass function should be called with a hostname or IP without
     a port number or auth credentials.
     """
-    proxy_bypass = mocker.patch("requests.utils.proxy_bypass")
-    should_bypass_proxies(url, no_proxy=None)
-    proxy_bypass.assert_called_once_with(expected)
+    with mock.patch("requests.utils.proxy_bypass") as proxy_bypass:
+        should_bypass_proxies(url, no_proxy=None)
+        proxy_bypass.assert_called_once_with(expected)
 
 
 @pytest.mark.parametrize(
@@ -923,3 +953,35 @@ def test_set_environ_raises_exception():
             raise Exception("Expected exception")
 
     assert "Expected exception" in str(exception.value)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Test only on Windows")
+def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
+    """Tests for function should_bypass_proxies to check if proxy
+    can be bypassed or not with Windows ProxyOverride registry value ending with a semicolon.
+    """
+    import winreg
+
+    class RegHandle:
+        def Close(self):
+            pass
+
+    ie_settings = RegHandle()
+
+    def OpenKey(key, subkey):
+        return ie_settings
+
+    def QueryValueEx(key, value_name):
+        if key is ie_settings:
+            if value_name == "ProxyEnable":
+                return [1]
+            elif value_name == "ProxyOverride":
+                return [
+                    "192.168.*;127.0.0.1;localhost.localdomain;172.16.1.1;<-loopback>;"
+                ]
+
+    monkeypatch.setenv("NO_PROXY", "")
+    monkeypatch.setenv("no_proxy", "")
+    monkeypatch.setattr(winreg, "OpenKey", OpenKey)
+    monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
+    assert should_bypass_proxies("http://example.com/", None) is False

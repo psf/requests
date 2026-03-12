@@ -5,6 +5,7 @@ requests.sessions
 This module provides a Session object to manage and persist settings across
 requests (cookies, auth, proxies).
 """
+
 import os
 import sys
 import time
@@ -262,7 +263,6 @@ class SessionRedirectMixin:
             if yield_requests:
                 yield req
             else:
-
                 resp = self.send(
                     req,
                     stream=stream,
@@ -389,7 +389,6 @@ class Session(SessionRedirectMixin):
     ]
 
     def __init__(self):
-
         #: A case-insensitive dictionary of headers to be sent on each
         #: :class:`Request <Request>` sent from this
         #: :class:`Session <Session>`.
@@ -423,6 +422,8 @@ class Session(SessionRedirectMixin):
         #: expired certificates, which will make your application vulnerable to
         #: man-in-the-middle (MitM) attacks.
         #: Only set this to `False` for testing.
+        #: If verify is set to a string, it must be the path to a CA bundle file
+        #: that will be used to verify the TLS certificate.
         self.verify = True
 
         #: SSL client certificate default, if String, path to ssl client
@@ -537,7 +538,7 @@ class Session(SessionRedirectMixin):
             for multipart encoding upload.
         :param auth: (optional) Auth tuple or callable to enable
             Basic/Digest/Custom HTTP Auth.
-        :param timeout: (optional) How long to wait for the server to send
+        :param timeout: (optional) How many seconds to wait for the server to send
             data before giving up, as a float, or a :ref:`(connect timeout,
             read timeout) <timeouts>` tuple.
         :type timeout: float or tuple
@@ -545,6 +546,8 @@ class Session(SessionRedirectMixin):
         :type allow_redirects: bool
         :param proxies: (optional) Dictionary mapping protocol or protocol and
             hostname to the URL of the proxy.
+        :param hooks: (optional) Dictionary mapping hook name to one event or
+            list of events, event must be callable.
         :param stream: (optional) whether to immediately download the response
             content. Defaults to ``False``.
         :param verify: (optional) Either a boolean, in which case it controls whether we verify
@@ -711,7 +714,6 @@ class Session(SessionRedirectMixin):
 
         # Persist cookies
         if r.history:
-
             # If the hooks create history then we want those cookies too
             for resp in r.history:
                 extract_cookies_to_jar(self.cookies, resp.request, resp.raw)
@@ -759,7 +761,7 @@ class Session(SessionRedirectMixin):
             # Set environment's proxies.
             no_proxy = proxies.get("no_proxy") if proxies is not None else None
             env_proxies = get_environ_proxies(url, no_proxy=no_proxy)
-            for (k, v) in env_proxies.items():
+            for k, v in env_proxies.items():
                 proxies.setdefault(k, v)
 
             # Look for requests environment configuration
@@ -785,8 +787,7 @@ class Session(SessionRedirectMixin):
 
         :rtype: requests.adapters.BaseAdapter
         """
-        for (prefix, adapter) in self.adapters.items():
-
+        for prefix, adapter in self.adapters.items():
             if url.lower().startswith(prefix.lower()):
                 return adapter
 

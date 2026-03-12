@@ -38,9 +38,7 @@ from .compat import (
     getproxies,
     getproxies_environment,
     integer_types,
-)
-from .compat import parse_http_list as _parse_list_header
-from .compat import (
+    is_urllib3_1,
     proxy_bypass,
     proxy_bypass_environment,
     quote,
@@ -49,6 +47,7 @@ from .compat import (
     urlparse,
     urlunparse,
 )
+from .compat import parse_http_list as _parse_list_header
 from .cookies import cookiejar_from_dict
 from .exceptions import (
     FileModeWarning,
@@ -97,6 +96,8 @@ if sys.platform == "win32":
         # '<local>' string by the localhost entry and the corresponding
         # canonical entry.
         proxyOverride = proxyOverride.split(";")
+        # filter out empty strings to avoid re.match return true in the following code.
+        proxyOverride = filter(None, proxyOverride)
         # now check if we match one of the registry values.
         for test in proxyOverride:
             if test == "<local>":
@@ -133,6 +134,11 @@ def dict_to_sequence(d):
 def super_len(o):
     total_length = None
     current_position = 0
+
+    if not is_urllib3_1 and isinstance(o, str):
+        # urllib3 2.x+ treats all strings as utf-8 instead
+        # of latin-1 (iso-8859-1) like http.client.
+        o = o.encode("utf-8")
 
     if hasattr(o, "__len__"):
         total_length = len(o)
@@ -211,14 +217,7 @@ def get_netrc_auth(url, raise_errors=False):
         netrc_path = None
 
         for f in netrc_locations:
-            try:
-                loc = os.path.expanduser(f)
-            except KeyError:
-                # os.path.expanduser can fail when $HOME is undefined and
-                # getpwuid fails. See https://bugs.python.org/issue20164 &
-                # https://github.com/psf/requests/issues/1846
-                return
-
+            loc = os.path.expanduser(f)
             if os.path.exists(loc):
                 netrc_path = loc
                 break
@@ -228,17 +227,11 @@ def get_netrc_auth(url, raise_errors=False):
             return
 
         ri = urlparse(url)
-
-        # Strip port numbers from netloc. This weird `if...encode`` dance is
-        # used for Python 3.2, which doesn't support unicode literals.
-        splitstr = b":"
-        if isinstance(url, str):
-            splitstr = splitstr.decode("ascii")
-        host = ri.netloc.split(splitstr)[0]
+        host = ri.hostname
 
         try:
             _netrc = netrc(netrc_path).authenticators(host)
-            if _netrc:
+            if _netrc and any(_netrc):
                 # Return with login / password
                 login_i = 0 if _netrc[0] else 1
                 return (_netrc[login_i], _netrc[2])
@@ -466,11 +459,7 @@ def dict_from_cookiejar(cj):
     :rtype: dict
     """
 
-    cookie_dict = {}
-
-    for cookie in cj:
-        cookie_dict[cookie.name] = cookie.value
-
+    cookie_dict = {cookie.name: cookie.value for cookie in cj}
     return cookie_dict
 
 
@@ -767,6 +756,7 @@ def should_bypass_proxies(url, no_proxy):
 
     :rtype: bool
     """
+
     # Prioritize lowercase environment variables over uppercase
     # to keep a consistent behaviour with other http projects (curl, wget).
     def get_proxy(key):
@@ -862,7 +852,7 @@ def select_proxy(url, proxies):
 def resolve_proxies(request, proxies, trust_env=True):
     """This method takes proxy information from a request and configuration
     input to resolve a mapping of target proxies. This will consider settings
-    such a NO_PROXY to strip proxy configurations.
+    such as NO_PROXY to strip proxy configurations.
 
     :param request: Request or PreparedRequest
     :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs
@@ -1054,7 +1044,7 @@ def _validate_header_part(header, header_part, header_validator_index):
     if not validator.match(header_part):
         header_kind = "name" if header_validator_index == 0 else "value"
         raise InvalidHeader(
-            f"Invalid leading whitespace, reserved character(s), or return"
+            f"Invalid leading whitespace, reserved character(s), or return "
             f"character(s) in header {header_kind}: {header_part!r}"
         )
 

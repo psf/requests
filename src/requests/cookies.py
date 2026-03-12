@@ -2,7 +2,7 @@
 requests.cookies
 ~~~~~~~~~~~~~~~~
 
-Compatibility code to be able to use `cookielib.CookieJar` with requests.
+Compatibility code to be able to use `http.cookiejar.CookieJar` with requests.
 
 requests.utils imports from here, so be careful with imports.
 """
@@ -23,7 +23,7 @@ except ImportError:
 class MockRequest:
     """Wraps a `requests.Request` to mimic a `urllib2.Request`.
 
-    The code in `cookielib.CookieJar` expects this interface in order to correctly
+    The code in `http.cookiejar.CookieJar` expects this interface in order to correctly
     manage cookie policies, i.e., determine whether a cookie can be set, given the
     domains of the request and the cookie.
 
@@ -76,7 +76,7 @@ class MockRequest:
         return self._r.headers.get(name, self._new_headers.get(name, default))
 
     def add_header(self, key, val):
-        """cookielib has no legitimate use for this method; add it back if you find one."""
+        """cookiejar has no legitimate use for this method; add it back if you find one."""
         raise NotImplementedError(
             "Cookie headers should be added with add_unredirected_header()"
         )
@@ -104,11 +104,11 @@ class MockResponse:
     """Wraps a `httplib.HTTPMessage` to mimic a `urllib.addinfourl`.
 
     ...what? Basically, expose the parsed HTTP headers from the server response
-    the way `cookielib` expects to see them.
+    the way `http.cookiejar` expects to see them.
     """
 
     def __init__(self, headers):
-        """Make a MockResponse for `cookielib` to read.
+        """Make a MockResponse for `cookiejar` to read.
 
         :param headers: a httplib.HTTPMessage or analogous carrying the headers
         """
@@ -124,7 +124,7 @@ class MockResponse:
 def extract_cookies_to_jar(jar, request, response):
     """Extract the cookies from the response into a CookieJar.
 
-    :param jar: cookielib.CookieJar (not necessarily a RequestsCookieJar)
+    :param jar: http.cookiejar.CookieJar (not necessarily a RequestsCookieJar)
     :param request: our own requests.Request object
     :param response: urllib3.HTTPResponse object
     """
@@ -174,7 +174,7 @@ class CookieConflictError(RuntimeError):
 
 
 class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
-    """Compatibility class; is a cookielib.CookieJar, but exposes a dict
+    """Compatibility class; is a http.cookiejar.CookieJar, but exposes a dict
     interface.
 
     This is the CookieJar we create by default for requests and sessions that
@@ -341,7 +341,7 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
         self.set(name, value)
 
     def __delitem__(self, name):
-        """Deletes a cookie given a name. Wraps ``cookielib.CookieJar``'s
+        """Deletes a cookie given a name. Wraps ``http.cookiejar.CookieJar``'s
         ``remove_cookie_by_name()``.
         """
         remove_cookie_by_name(self, name)

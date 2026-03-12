@@ -201,6 +201,8 @@ may better fit your use cases.
    were returned, use ``Response.raw``.
 
 
+.. _custom-headers:
+
 Custom Headers
 --------------
 
@@ -220,6 +222,7 @@ Note: Custom headers are given less precedence than more specific sources of inf
   are specified in ``.netrc``, which in turn will be overridden by the  ``auth=``
   parameter. Requests will search for the netrc file at `~/.netrc`, `~/_netrc`,
   or at the path specified by the `NETRC` environment variable.
+  Check details in :ref:`netrc authentication <authentication>`.
 * Authorization headers will be removed if you get redirected off-host.
 * Proxy-Authorization headers will be overridden by proxy credentials provided in the URL.
 * Content-Length headers will be overridden when we can determine the length of the content.
@@ -268,7 +271,9 @@ use the same key::
       },
       ...
     }
-    >>> r1.text == r2.text
+    >>> # httpbin may embed non-deterministic metadata,
+    >>> # so we only compare our submitted data here.
+    >>> r1.json()['form'] == r2.json()['form']
     True
 
 There are times that you may want to send data that is not form-encoded. If
@@ -566,6 +571,3 @@ All exceptions that Requests explicitly raises inherit from
 -----------------------
 
 Ready for more? Check out the :ref:`advanced <advanced>` section.
-
-
-If you're on the job market, consider taking `this programming quiz <https://triplebyte.com/a/b1i2FB8/requests-docs-1>`_. A substantial donation will be made to this project, if you find a job through this platform.

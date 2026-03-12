@@ -35,9 +35,9 @@ def _basic_auth_str(username, password):
     if not isinstance(username, basestring):
         warnings.warn(
             "Non-string usernames will no longer be supported in Requests "
-            "3.0.0. Please convert the object you've passed in ({!r}) to "
+            f"3.0.0. Please convert the object you've passed in ({username!r}) to "
             "a string or bytes object in the near future to avoid "
-            "problems.".format(username),
+            "problems.",
             category=DeprecationWarning,
         )
         username = str(username)
@@ -45,9 +45,9 @@ def _basic_auth_str(username, password):
     if not isinstance(password, basestring):
         warnings.warn(
             "Non-string passwords will no longer be supported in Requests "
-            "3.0.0. Please convert the object you've passed in ({!r}) to "
+            f"3.0.0. Please convert the object you've passed in ({type(password)!r}) to "
             "a string or bytes object in the near future to avoid "
-            "problems.".format(type(password)),
+            "problems.",
             category=DeprecationWarning,
         )
         password = str(password)
@@ -258,7 +258,6 @@ class HTTPDigestAuth(AuthBase):
         s_auth = r.headers.get("www-authenticate", "")
 
         if "digest" in s_auth.lower() and self._thread_local.num_401_calls < 2:
-
             self._thread_local.num_401_calls += 1
             pat = re.compile(r"digest ", flags=re.IGNORECASE)
             self._thread_local.chal = parse_dict_header(pat.sub("", s_auth, count=1))
