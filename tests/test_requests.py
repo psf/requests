@@ -571,6 +571,48 @@ class TestRequests:
 
         assert p.headers["Authorization"] == "Basic xa9zZXJuYW1lOnRlc3TGtg=="
 
+    def test_digestauth_encodes_byte_strings(self):
+        """
+        Verify that passing bytes for username or password in HTTPDigestAuth
+        works correctly and doesn't result in b'...' in the header.
+        Fixes https://github.com/psf/requests/issues/6102
+        """
+        username_str = "Сергей_Ласточкин"
+        username_bytes = username_str.encode("utf-8")
+
+        auth_str = HTTPDigestAuth(username_str, "1234")
+        auth_bytes = HTTPDigestAuth(username_bytes, "1234")
+
+        assert auth_str.username == username_str
+        assert auth_bytes.username == username_str
+        assert isinstance(auth_bytes.username, str)
+
+        auth_str.init_per_thread_state()
+        auth_bytes.init_per_thread_state()
+
+        chal = {
+            "realm": "Test Realm",
+            "nonce": "abcdef123456",
+            "qop": "auth",
+            "algorithm": "MD5",
+        }
+        auth_str._thread_local.chal = chal
+        auth_bytes._thread_local.chal = chal
+
+        from unittest.mock import patch
+
+        with patch("time.ctime", return_value="Fri Mar 13 18:32:32 2026"):
+            with patch("os.urandom", return_value=b"\x01\x02\x03\x04\x05\x06\x07\x08"):
+                header_str = auth_str.build_digest_header("GET", "http://example.com/")
+                header_bytes = auth_bytes.build_digest_header(
+                    "GET", "http://example.com/"
+                )
+
+        assert 'username="Сергей_Ласточкин"' in header_str
+        assert 'username="Сергей_Ласточкин"' in header_bytes
+        assert 'username="b\'' not in header_bytes
+        assert header_str == header_bytes
+
     @pytest.mark.parametrize(
         "url, exception",
         (

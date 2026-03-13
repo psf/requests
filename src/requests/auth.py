@@ -108,8 +108,8 @@ class HTTPDigestAuth(AuthBase):
     """Attaches HTTP Digest Authentication to the given Request object."""
 
     def __init__(self, username, password):
-        self.username = username
-        self.password = password
+        self.username = to_native_string(username, "utf-8")
+        self.password = to_native_string(password, "utf-8")
         # Keep state in per-thread local storage
         self._thread_local = threading.local()
 
