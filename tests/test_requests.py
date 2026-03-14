@@ -571,6 +571,52 @@ class TestRequests:
 
         assert p.headers["Authorization"] == "Basic xa9zZXJuYW1lOnRlc3TGtg=="
 
+    def test_digestauth_non_latin_credentials(self):
+        """Ensure HTTPDigestAuth works with non-latin (e.g. UTF-8) usernames
+        and passwords, and that bytes credentials are decoded properly rather
+        than being formatted as their repr (b'...').
+
+        See https://github.com/psf/requests/issues/6102
+        """
+        # Test with non-latin str credentials
+        auth = HTTPDigestAuth("Ondřej", "heslíčko")
+        auth.init_per_thread_state()
+        auth._thread_local.chal = {
+            "realm": "test@example.com",
+            "nonce": "abc123",
+            "qop": "auth",
+        }
+        header = auth.build_digest_header("GET", "http://example.com/")
+        assert header is not None
+        assert 'username="Ondřej"' in header
+        assert "b'" not in header
+
+        # Test with bytes credentials (pre-encoded UTF-8)
+        auth_bytes = HTTPDigestAuth("Ondřej".encode("utf-8"), "heslíčko".encode("utf-8"))
+        auth_bytes.init_per_thread_state()
+        auth_bytes._thread_local.chal = {
+            "realm": "test@example.com",
+            "nonce": "abc123",
+            "qop": "auth",
+        }
+        header_bytes = auth_bytes.build_digest_header("GET", "http://example.com/")
+        assert header_bytes is not None
+        assert 'username="Ondřej"' in header_bytes
+        assert "b'" not in header_bytes
+
+        # Test with Cyrillic credentials
+        auth_cyrillic = HTTPDigestAuth("Сергей", "пароль")
+        auth_cyrillic.init_per_thread_state()
+        auth_cyrillic._thread_local.chal = {
+            "realm": "test@example.com",
+            "nonce": "abc123",
+            "qop": "auth",
+        }
+        header_cyrillic = auth_cyrillic.build_digest_header("GET", "http://example.com/")
+        assert header_cyrillic is not None
+        assert 'username="Сергей"' in header_cyrillic
+        assert "b'" not in header_cyrillic
+
     @pytest.mark.parametrize(
         "url, exception",
         (
