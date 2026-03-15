@@ -408,7 +408,7 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
                         # we will eventually return this as long as no cookie conflict
                         toReturn = cookie.value
 
-        if toReturn:
+        if toReturn is not None:
             return toReturn
         raise KeyError(f"name={name!r}, domain={domain!r}, path={path!r}")
 
