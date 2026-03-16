@@ -271,9 +271,7 @@ use the same key::
       },
       ...
     }
-    >>> # httpbin may embed non-deterministic metadata,
-    >>> # so we only compare our submitted data here.
-    >>> r1.json()['form'] == r2.json()['form']
+    >>> r1.text == r2.text
     True
 
 There are times that you may want to send data that is not form-encoded. If
