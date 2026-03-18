@@ -81,8 +81,8 @@ def check_compatibility(
     if chardet_version:
         major, minor, patch = chardet_version.split(".")[:3]
         major, minor, patch = int(major), int(minor), int(patch)
-        # chardet_version >= 3.0.2, < 6.0.0
-        assert (3, 0, 2) <= (major, minor, patch) < (7, 0, 0)
+        # chardet_version >= 3.0.2, < 8.0.0
+        assert (3, 0, 2) <= (major, minor, patch) < (8, 0, 0)
     elif charset_normalizer_version:
         major, minor, patch = charset_normalizer_version.split(".")[:3]
         major, minor, patch = int(major), int(minor), int(patch)

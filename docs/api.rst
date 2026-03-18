@@ -55,6 +55,7 @@ Lower-Level Classes
 
 .. autoclass:: Response
    :inherited-members:
+   :exclude-members: is_permanent_redirect
 
 
 Lower-Lower-Level Classes
