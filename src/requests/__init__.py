@@ -74,12 +74,18 @@ def check_compatibility(urllib3_version, chardet_version, charset_normalizer_ver
     # Check charset_normalizer for compatibility.
     if chardet_version:
         major, minor, patch = chardet_version.split(".")[:3]
-        major, minor, patch = int(major), int(minor), int(patch)
+        # Strip non-numeric suffixes like "dev0" from version components
+        major = int("".join(c for c in major if c.isdigit()))
+        minor = int("".join(c for c in minor if c.isdigit()))
+        patch = int("".join(c for c in patch if c.isdigit()))
         # chardet_version >= 3.0.2, < 8.0.0
         assert (3, 0, 2) <= (major, minor, patch) < (8, 0, 0)
     elif charset_normalizer_version:
         major, minor, patch = charset_normalizer_version.split(".")[:3]
-        major, minor, patch = int(major), int(minor), int(patch)
+        # Strip non-numeric suffixes like "dev0" from version components
+        major = int("".join(c for c in major if c.isdigit()))
+        minor = int("".join(c for c in minor if c.isdigit()))
+        patch = int("".join(c for c in patch if c.isdigit()))
         # charset_normalizer >= 2.0.0 < 4.0.0
         assert (2, 0, 0) <= (major, minor, patch) < (4, 0, 0)
     else:
