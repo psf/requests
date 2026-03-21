@@ -54,10 +54,10 @@ def _basic_auth_str(username, password):
     # -- End Removal --
 
     if isinstance(username, str):
-        username = username.encode("latin1")
+        username = username.encode("utf-8")
 
     if isinstance(password, str):
-        password = password.encode("latin1")
+        password = password.encode("utf-8")
 
     authstr = "Basic " + to_native_string(
         b64encode(b":".join((username, password))).strip()
