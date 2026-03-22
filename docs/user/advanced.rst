@@ -723,14 +723,11 @@ When you install ``requests`` without specifying ``[use_chardet_on_py3]`` extra,
 and ``chardet`` is not already installed, ``requests`` uses ``charset-normalizer``
 (MIT-licensed) to guess the encoding.
 
-The only time Requests will not guess the encoding is if no explicit charset
-is present in the HTTP headers **and** the ``Content-Type``
-header contains ``text``. In this situation, `RFC 2616
-<https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7.1>`_ specifies
-that the default charset must be ``ISO-8859-1``. Requests follows the
-specification in this case. If you require a different encoding, you can
-manually set the :attr:`Response.encoding <requests.Response.encoding>`
-property, or use the raw :attr:`Response.content <requests.Response.content>`.
+If no explicit charset is present in the HTTP headers, Requests will rely on
+``charset_normalizer`` or ``chardet`` to guess the encoding. If you require a
+different encoding, you can manually set the
+:attr:`Response.encoding <requests.Response.encoding>` property, or use the raw
+:attr:`Response.content <requests.Response.content>`.
 
 .. _http-verbs:
 
