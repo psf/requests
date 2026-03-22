@@ -132,14 +132,15 @@ class HTTPDigestAuth(AuthBase):
         # If bytes are passed (e.g., pre-encoded UTF-8), decode them so that
         # f-string formatting produces the actual characters rather than
         # a bytes repr like b'Ond\\xc5\\x99ej'.
-        # Use errors='replace' to handle invalid UTF-8 sequences gracefully,
-        # as RFC 7616 requires UTF-8 encoding but we should not crash on invalid input.
+        # RFC 7616 requires UTF-8 encoding for Digest authentication credentials.
+        # We use strict decoding to fail fast on invalid UTF-8 sequences, which
+        # alerts users to malformed input rather than silently corrupting credentials.
         username = self.username
         password = self.password
         if isinstance(username, bytes):
-            username = username.decode("utf-8", errors="replace")
+            username = username.decode("utf-8")
         if isinstance(password, bytes):
-            password = password.decode("utf-8", errors="replace")
+            password = password.decode("utf-8")
 
         realm = self._thread_local.chal["realm"]
         nonce = self._thread_local.chal["nonce"]
