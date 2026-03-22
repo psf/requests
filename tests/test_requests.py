@@ -2634,6 +2634,18 @@ def test_proxy_env_vars_override_default(var, url, proxy):
         assert proxies[scheme] == proxy
 
 
+def test_proxy_env_vars_dont_override_session_proxies():
+    session = requests.Session()
+    session.proxies["http"] = "http://example.org"
+
+    with override_environ(http_proxy="socks5://proxy.com:9876"):
+        settings = session.merge_environment_settings(
+            url="http://example.com", proxies={}, stream=False, verify=True, cert=None
+        )
+
+    assert settings["proxies"]["http"] == "http://example.org"
+
+
 @pytest.mark.parametrize(
     "data",
     (
