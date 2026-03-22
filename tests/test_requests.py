@@ -2096,6 +2096,16 @@ class TestRequests:
         assert isinstance(s, builtin_str)
         assert s == auth_str
 
+    def test_digest_auth_header_handles_utf8_byte_credentials(self):
+        auth = HTTPDigestAuth("Ondřej".encode("utf-8"), "heslíčko".encode("utf-8"))
+        auth.init_per_thread_state()
+        auth._thread_local.chal = {"realm": "realm", "nonce": "nonce", "qop": "auth"}
+        header = auth.build_digest_header("GET", "https://example.org/")
+
+        assert isinstance(header, builtin_str)
+        assert 'username="Ondřej"' in header
+        assert 'username="b\'' not in header
+
     def test_requests_history_is_saved(self, httpbin):
         r = requests.get(httpbin("redirect/5"))
         total = r.history[-1].history
