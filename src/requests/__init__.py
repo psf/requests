@@ -72,12 +72,7 @@ def check_compatibility(urllib3_version, chardet_version, charset_normalizer_ver
         assert minor >= 21
 
     # Check charset_normalizer for compatibility.
-    if chardet_version:
-        major, minor, patch = chardet_version.split(".")[:3]
-        major, minor, patch = int(major), int(minor), int(patch)
-        # chardet_version >= 3.0.2, < 8.0.0
-        assert (3, 0, 2) <= (major, minor, patch) < (8, 0, 0)
-    elif charset_normalizer_version:
+    if charset_normalizer_version:
         major, minor, patch = charset_normalizer_version.split(".")[:3]
         major, minor, patch = int(major), int(minor), int(patch)
         # charset_normalizer >= 2.0.0 < 4.0.0
@@ -85,7 +80,7 @@ def check_compatibility(urllib3_version, chardet_version, charset_normalizer_ver
     else:
         warnings.warn(
             "Unable to find acceptable character detection dependency "
-            "(chardet or charset_normalizer).",
+            "(charset_normalizer).",
             RequestsDependencyWarning,
         )
 
@@ -111,9 +106,8 @@ try:
     )
 except (AssertionError, ValueError):
     warnings.warn(
-        f"urllib3 ({urllib3.__version__}) or chardet "
-        f"({chardet_version})/charset_normalizer ({charset_normalizer_version}) "
-        "doesn't match a supported version!",
+        f"urllib3 ({urllib3.__version__}) or charset_normalizer "
+        f"({charset_normalizer_version}) doesn't match a supported version!",
         RequestsDependencyWarning,
     )
 
