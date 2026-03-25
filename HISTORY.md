@@ -6,6 +6,35 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.33.0 (2026-03-25)
+--------------------
+
+**Announcements**
+- 📣 Requests is adding inline types. If you have a typed code base that
+uses Requests, please take a look at #7271. Give it a try, and report
+any gaps or feedback you may have in the issue. 📣
+
+**Security**
+- CVE-2026-25645 ``requests.utils.extract_zipped_paths`` now extracts
+  contents to a non-deterministic location to prevent malicious file
+  replacement. This does not affect default usage of Requests, only
+  applications calling the utility function directly.
+
+**Improvements**
+- Migrated to a PEP 517 build system using setuptools. (#7012)
+
+**Bugfixes**
+- Fixed an issue where an empty netrc entry could cause
+  malformed authentication to be applied to Requests on
+  Python 3.11+. (#7205)
+
+**Deprecations**
+- Dropped support for Python 3.9 following its end of support. (#7196)
+
+**Documentation**
+- Various typo fixes and doc improvements.
+
+
 2.32.5 (2025-08-18)
 -------------------
 
