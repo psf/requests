@@ -59,6 +59,7 @@ from .structures import CaseInsensitiveDict
 
 NETRC_FILES = (".netrc", "_netrc")
 
+# Certificate is extracted by certifi when needed.
 DEFAULT_CA_BUNDLE_PATH = certs.where()
 
 DEFAULT_PORTS = {"http": 80, "https": 443}
