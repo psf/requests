@@ -3037,3 +3037,87 @@ def test_json_decode_errors_are_serializable_deserializable():
     )
     deserialized_error = pickle.loads(pickle.dumps(json_decode_error))
     assert repr(json_decode_error) == repr(deserialized_error)
+
+
+class TestCheckCompatibility:
+    """Tests for check_compatibility warning messages."""
+
+    def test_chardet_unsupported_version_warns(self):
+        """chardet outside supported range should produce a specific warning."""
+        from requests import check_compatibility
+        from requests.exceptions import RequestsDependencyWarning
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            check_compatibility("2.0.0", "2.0.0", None)
+            chardet_warnings = [
+                x for x in w if issubclass(x.category, RequestsDependencyWarning)
+            ]
+            assert len(chardet_warnings) == 1
+            assert "chardet (2.0.0) is not a supported version" in str(
+                chardet_warnings[0].message
+            )
+            assert "chardet >= 3.0.2, < 8.0.0" in str(chardet_warnings[0].message)
+
+    def test_charset_normalizer_unsupported_version_warns(self):
+        """charset_normalizer outside supported range should produce a specific warning."""
+        from requests import check_compatibility
+        from requests.exceptions import RequestsDependencyWarning
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            check_compatibility("2.0.0", None, "1.0.0")
+            cn_warnings = [
+                x for x in w if issubclass(x.category, RequestsDependencyWarning)
+            ]
+            assert len(cn_warnings) == 1
+            assert "charset_normalizer (1.0.0) is not a supported version" in str(
+                cn_warnings[0].message
+            )
+            assert "charset_normalizer >= 2.0.0, < 4.0.0" in str(
+                cn_warnings[0].message
+            )
+
+    def test_urllib3_unsupported_version_warns(self):
+        """urllib3 below minimum should produce a specific warning."""
+        from requests import check_compatibility
+        from requests.exceptions import RequestsDependencyWarning
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            check_compatibility("1.20.0", None, "3.0.0")
+            u3_warnings = [
+                x for x in w if issubclass(x.category, RequestsDependencyWarning)
+            ]
+            assert len(u3_warnings) == 1
+            assert "urllib3" in str(u3_warnings[0].message)
+            assert "is not a supported version" in str(u3_warnings[0].message)
+
+    def test_compatible_versions_no_warning(self):
+        """Compatible versions should not produce any warnings."""
+        from requests import check_compatibility
+        from requests.exceptions import RequestsDependencyWarning
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            check_compatibility("2.0.0", "5.0.0", None)
+            dep_warnings = [
+                x for x in w if issubclass(x.category, RequestsDependencyWarning)
+            ]
+            assert len(dep_warnings) == 0
+
+    def test_no_chardet_or_charset_normalizer_warns(self):
+        """Missing both chardet and charset_normalizer should warn."""
+        from requests import check_compatibility
+        from requests.exceptions import RequestsDependencyWarning
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            check_compatibility("2.0.0", None, None)
+            dep_warnings = [
+                x for x in w if issubclass(x.category, RequestsDependencyWarning)
+            ]
+            assert len(dep_warnings) == 1
+            assert "Unable to find acceptable character detection" in str(
+                dep_warnings[0].message
+            )

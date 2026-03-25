@@ -67,21 +67,52 @@ def check_compatibility(urllib3_version, chardet_version, charset_normalizer_ver
     major, minor, patch = urllib3_version  # noqa: F811
     major, minor, patch = int(major), int(minor), int(patch)
     # urllib3 >= 1.21.1
-    assert major >= 1
-    if major == 1:
-        assert minor >= 21
+    if major < 1 or (major == 1 and minor < 21):
+        warnings.warn(
+            f"urllib3 ({'.'.join(str(v) for v in [major, minor, patch])}) "
+            "is not a supported version. Requests supports urllib3 >= 1.21.1.",
+            RequestsDependencyWarning,
+        )
 
     # Check charset_normalizer for compatibility.
     if chardet_version:
-        major, minor, patch = chardet_version.split(".")[:3]
-        major, minor, patch = int(major), int(minor), int(patch)
+        try:
+            major, minor, patch = chardet_version.split(".")[:3]
+            major, minor, patch = int(major), int(minor), int(patch)
+        except ValueError:
+            warnings.warn(
+                f"Unable to parse chardet version ({chardet_version}).",
+                RequestsDependencyWarning,
+            )
+            return
         # chardet_version >= 3.0.2, < 8.0.0
-        assert (3, 0, 2) <= (major, minor, patch) < (8, 0, 0)
+        if not ((3, 0, 2) <= (major, minor, patch) < (8, 0, 0)):
+            warnings.warn(
+                f"chardet ({chardet_version}) is not a supported version. "
+                "Requests supports chardet >= 3.0.2, < 8.0.0. "
+                "If chardet was not installed explicitly, another package in "
+                "your environment may depend on it.",
+                RequestsDependencyWarning,
+            )
     elif charset_normalizer_version:
-        major, minor, patch = charset_normalizer_version.split(".")[:3]
-        major, minor, patch = int(major), int(minor), int(patch)
+        try:
+            major, minor, patch = charset_normalizer_version.split(".")[:3]
+            major, minor, patch = int(major), int(minor), int(patch)
+        except ValueError:
+            warnings.warn(
+                f"Unable to parse charset_normalizer version "
+                f"({charset_normalizer_version}).",
+                RequestsDependencyWarning,
+            )
+            return
         # charset_normalizer >= 2.0.0 < 4.0.0
-        assert (2, 0, 0) <= (major, minor, patch) < (4, 0, 0)
+        if not ((2, 0, 0) <= (major, minor, patch) < (4, 0, 0)):
+            warnings.warn(
+                f"charset_normalizer ({charset_normalizer_version}) is not a "
+                "supported version. Requests supports "
+                "charset_normalizer >= 2.0.0, < 4.0.0.",
+                RequestsDependencyWarning,
+            )
     else:
         warnings.warn(
             "Unable to find acceptable character detection dependency "
@@ -109,11 +140,11 @@ try:
     check_compatibility(
         urllib3.__version__, chardet_version, charset_normalizer_version
     )
-except (AssertionError, ValueError):
+except (ValueError, TypeError):
     warnings.warn(
-        f"urllib3 ({urllib3.__version__}) or chardet "
-        f"({chardet_version})/charset_normalizer ({charset_normalizer_version}) "
-        "doesn't match a supported version!",
+        f"Unable to check dependency compatibility "
+        f"(urllib3={urllib3.__version__}, chardet={chardet_version}, "
+        f"charset_normalizer={charset_normalizer_version}).",
         RequestsDependencyWarning,
     )
 
