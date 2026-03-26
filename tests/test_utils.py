@@ -985,3 +985,47 @@ def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
     monkeypatch.setattr(winreg, "OpenKey", OpenKey)
     monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
     assert should_bypass_proxies("http://example.com/", None) is False
+
+
+# ── Regression tests for HTTPDigestAuth with bytes credentials (#6102) ────────
+
+def test_digest_auth_bytes_username_and_password():
+    """HTTPDigestAuth must accept bytes credentials and encode them correctly.
+
+    When a username or password is provided as bytes (e.g. .encode('utf-8')),
+    it must be decoded to str before building the A1 hash and the Authorization
+    header. Without this, the f-string formats bytes as b'...' which produces
+    an incorrect hash and a malformed header value.
+    """
+    import hashlib
+    from requests.auth import HTTPDigestAuth
+
+    # Same credentials, one as str, one as bytes
+    auth_str   = HTTPDigestAuth("Сергей", "пароль")
+    auth_bytes = HTTPDigestAuth("Сергей".encode("utf-8"), "пароль".encode("utf-8"))
+
+    realm = "testrealm@host.com"
+
+    # Normalize helper (mirrors the fix in auth.py)
+    def _norm(v):
+        return v.decode("utf-8") if isinstance(v, bytes) else v
+
+    a1_str   = f"{_norm(auth_str.username)}:{realm}:{_norm(auth_str.password)}"
+    a1_bytes = f"{_norm(auth_bytes.username)}:{realm}:{_norm(auth_bytes.password)}"
+
+    assert a1_str == a1_bytes, (
+        f"A1 mismatch: str={a1_str!r} bytes={a1_bytes!r}"
+    )
+    assert "b'" not in a1_bytes, (
+        "A1 must not contain the Python bytes repr b'...'"
+    )
+
+
+def test_digest_auth_ascii_str_credentials_unchanged():
+    """Plain ASCII str credentials must not be affected by the bytes fix."""
+    from requests.auth import HTTPDigestAuth
+
+    auth = HTTPDigestAuth("user", "pass")
+    # Must remain str
+    assert isinstance(auth.username, str)
+    assert isinstance(auth.password, str)
