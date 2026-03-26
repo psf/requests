@@ -3037,3 +3037,28 @@ def test_json_decode_errors_are_serializable_deserializable():
     )
     deserialized_error = pickle.loads(pickle.dumps(json_decode_error))
     assert repr(json_decode_error) == repr(deserialized_error)
+
+
+def test_digest_auth_bytes_username():
+    """HTTPDigestAuth must accept bytes username/password (issue #6102).
+
+    Users sometimes pass pre-encoded bytes (e.g. for non-latin credentials)
+    to HTTPDigestAuth. Previously, bytes were formatted as `b'...'` in the
+    Digest A1 string, producing an incorrect hash. They should be decoded
+    to str first.
+    """
+    auth_bytes = requests.auth.HTTPDigestAuth(
+        "Сергей".encode("utf-8"), "пароль".encode("utf-8")
+    )
+    auth_str = requests.auth.HTTPDigestAuth("Сергей", "пароль")
+
+    # A1 must be identical whether credentials are bytes or str
+    realm = "testrealm@host.com"
+
+    def _a1(auth):
+        u = auth.username.decode("utf-8") if isinstance(auth.username, bytes) else auth.username
+        p = auth.password.decode("utf-8") if isinstance(auth.password, bytes) else auth.password
+        return f"{u}:{realm}:{p}"
+
+    assert _a1(auth_bytes) == _a1(auth_str)
+    assert "b'" not in _a1(auth_bytes), "bytes repr must not appear in A1"
