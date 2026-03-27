@@ -660,6 +660,7 @@ class Response:
     def __init__(self):
         self._content = False
         self._content_consumed = False
+        self._content_error = None
         self._next = None
 
         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
@@ -893,6 +894,9 @@ class Response:
     def content(self):
         """Content of the response, in bytes."""
 
+        if self._content_error is not None:
+            raise self._content_error
+
         if self._content is False:
             # Read the contents.
             if self._content_consumed:
@@ -901,12 +905,22 @@ class Response:
             if self.status_code == 0 or self.raw is None:
                 self._content = None
             else:
-                self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+                try:
+                    self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+                except Exception as exc:
+                    self._content_error = exc
+                    self._content_consumed = True
+                    raise
 
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3
         # since we exhausted the data.
         return self._content
+
+    @content.setter
+    def content(self, value):
+        """Set content (used internally)."""
+        self._content = value
 
     @property
     def text(self):
