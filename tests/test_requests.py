@@ -121,6 +121,34 @@ class TestRequests:
         assert pr.url == req.url
         assert pr.body == "life=42"
 
+    def test_digest_auth_utf8_bytes_credentials_match_str(self, monkeypatch):
+        monkeypatch.setattr(requests.auth.os, "urandom", lambda _: b"01234567")
+        monkeypatch.setattr(requests.auth.time, "ctime", lambda: "Thu Jan 1 00:00:00 1970")
+
+        challenge = {
+            "realm": "test@example.com",
+            "nonce": "abc123",
+            "qop": "auth",
+            "algorithm": "MD5",
+        }
+
+        auth_bytes = HTTPDigestAuth("Ondřej".encode("utf-8"), "heslíčko".encode("utf-8"))
+        auth_bytes._thread_local.chal = challenge.copy()
+        auth_bytes._thread_local.last_nonce = ""
+        auth_bytes._thread_local.nonce_count = 0
+
+        auth_str = HTTPDigestAuth("Ondřej", "heslíčko")
+        auth_str._thread_local.chal = challenge.copy()
+        auth_str._thread_local.last_nonce = ""
+        auth_str._thread_local.nonce_count = 0
+
+        header_bytes = auth_bytes.build_digest_header("GET", "http://example.com/path")
+        header_str = auth_str.build_digest_header("GET", "http://example.com/path")
+
+        assert header_bytes == header_str
+        assert 'username="Ondřej"' in header_bytes
+        assert "b'" not in header_bytes
+
     @pytest.mark.parametrize("method", ("GET", "HEAD"))
     def test_no_content_length(self, httpbin, method):
         req = requests.Request(method, httpbin(method.lower())).prepare()
