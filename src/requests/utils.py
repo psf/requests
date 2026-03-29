@@ -173,7 +173,20 @@ def super_len(o):
                     FileModeWarning,
                 )
 
-    if hasattr(o, "tell"):
+    if isinstance(o, io.StringIO) and total_length is None:
+        # StringIO.tell() returns character count, not byte count.
+        # For multi-byte UTF-8 characters, we must encode to get the
+        # correct Content-Length in bytes.
+        encoding = "utf-8" if not is_urllib3_1 else "latin-1"
+        char_pos = o.tell()
+        o.seek(0)
+        full_text = o.read()
+        o.seek(char_pos)  # restore original position
+        encoded = full_text.encode(encoding)
+        total_length = len(encoded)
+        current_position = len(full_text[:char_pos].encode(encoding))
+
+    elif hasattr(o, "tell"):
         try:
             current_position = o.tell()
         except OSError:
@@ -185,7 +198,7 @@ def super_len(o):
                 current_position = total_length
         else:
             if hasattr(o, "seek") and total_length is None:
-                # StringIO and BytesIO have seek but no usable fileno
+                # BytesIO and other binary file-likes have seek but no usable fileno
                 try:
                     # seek to end of file
                     o.seek(0, 2)

@@ -142,6 +142,36 @@ class TestSuperLen:
         foo.read(2)
         assert super_len(foo) == 3
 
+    def test_super_len_stringio_ascii(self):
+        """StringIO with ASCII content returns correct byte length."""
+        s = StringIO.StringIO("hello")
+        assert super_len(s) == 5
+
+    def test_super_len_stringio_multibyte(self):
+        """StringIO with multi-byte UTF-8 content returns correct byte length.
+
+        Regression test for issue #6917: super_len() used seek/tell on
+        StringIO which returns character count, not byte count.
+        """
+        # Chinese characters: each is 3 bytes in UTF-8
+        text = "\u4f60\u597d\u4e16\u754c"  # 4 chars, 12 bytes in UTF-8
+        s = StringIO.StringIO(text)
+        assert super_len(s) == 12
+
+    def test_super_len_stringio_multibyte_partially_read(self):
+        """StringIO with multi-byte content partially read returns correct remaining byte length."""
+        # 2 chars (6 bytes) + 3 ASCII chars (3 bytes) = 9 bytes total
+        text = "\u4f60\u597dABC"
+        s = StringIO.StringIO(text)
+        s.read(2)  # read 2 characters (6 bytes worth)
+        assert super_len(s) == 3  # only "ABC" remains = 3 bytes
+
+    def test_super_len_stringio_emoji(self):
+        """StringIO with emoji (4-byte UTF-8) returns correct byte length."""
+        text = "\U0001f600\U0001f601"  # 2 emoji, each 4 bytes = 8 bytes
+        s = StringIO.StringIO(text)
+        assert super_len(s) == 8
+
     def test_super_len_with_fileno(self):
         with open(__file__, "rb") as f:
             length = super_len(f)
