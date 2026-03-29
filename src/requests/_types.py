@@ -23,7 +23,7 @@ _T_co = TypeVar("_T_co", covariant=True)
 
 @runtime_checkable
 class SupportsRead(Protocol[_T_co]):
-    def read(self, length: int = ...) -> _T_co: ...
+    def read(self, length: int = ..., /) -> _T_co: ...
 
 
 @runtime_checkable
