@@ -14,7 +14,7 @@ import threading
 import time
 import warnings
 from base64 import b64encode
-from typing import TYPE_CHECKING, Any, cast, overload
+from typing import TYPE_CHECKING, Any, Final, cast, overload
 
 from ._internal_utils import to_native_string
 from .compat import basestring, str, urlparse
@@ -27,8 +27,8 @@ if TYPE_CHECKING:
     from .adapters import HTTPAdapter
     from .models import PreparedRequest, Response
 
-CONTENT_TYPE_FORM_URLENCODED: str = "application/x-www-form-urlencoded"
-CONTENT_TYPE_MULTI_PART: str = "multipart/form-data"
+CONTENT_TYPE_FORM_URLENCODED: Final = "application/x-www-form-urlencoded"
+CONTENT_TYPE_MULTI_PART: Final = "multipart/form-data"
 
 
 def _basic_auth_str(username: bytes | str, password: bytes | str) -> str:

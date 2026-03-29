@@ -18,6 +18,7 @@ from io import UnsupportedOperation
 from typing import (
     TYPE_CHECKING,
     Any,
+    Final,
     Literal,
     cast,
     overload,
@@ -101,7 +102,7 @@ if TYPE_CHECKING:
 
 #: The set of HTTP status codes that indicate an automatically
 #: processable redirect.
-REDIRECT_STATI: tuple[int, ...] = (  # type: ignore[assignment]
+REDIRECT_STATI: Final[tuple[int, ...]] = (  # type: ignore[assignment]
     codes.moved,  # 301
     codes.found,  # 302
     codes.other,  # 303

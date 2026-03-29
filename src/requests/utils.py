@@ -25,6 +25,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     AnyStr,
+    Final,
     TypeVar,
     cast,
     overload,
@@ -76,17 +77,17 @@ if TYPE_CHECKING:
     from ._types import SupportsItems, UriType
     from .models import PreparedRequest, Request, Response
 
-NETRC_FILES: tuple[str, str] = (".netrc", "_netrc")
+NETRC_FILES: Final = (".netrc", "_netrc")
 
 DEFAULT_CA_BUNDLE_PATH: str = certs.where()
 
-DEFAULT_PORTS: dict[str, int] = {"http": 80, "https": 443}
+DEFAULT_PORTS: Final = {"http": 80, "https": 443}
 
 _KT = TypeVar("_KT")
 _VT = TypeVar("_VT")
 
 # Ensure that ', ' is used to preserve previous delimiter behavior.
-DEFAULT_ACCEPT_ENCODING: str = ", ".join(
+DEFAULT_ACCEPT_ENCODING: Final = ", ".join(
     re.split(r",\s*", make_headers(accept_encoding=True)["accept-encoding"])
 )
 
@@ -662,7 +663,7 @@ def get_unicode_from_response(r: Response) -> str | bytes | None:
 
 
 # The unreserved URI characters (RFC 3986)
-UNRESERVED_SET: frozenset[str] = frozenset(
+UNRESERVED_SET: Final = frozenset(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~"
 )
 
