@@ -42,6 +42,7 @@ from .structures import CaseInsensitiveDict
 from .utils import (  # noqa: F401
     DEFAULT_PORTS,
     default_headers,
+    extract_zipped_paths,
     get_auth_from_url,
     get_environ_proxies,
     get_netrc_auth,
@@ -772,6 +773,8 @@ class Session(SessionRedirectMixin):
                     or os.environ.get("CURL_CA_BUNDLE")
                     or verify
                 )
+                if verify and verify is not True:
+                    verify = extract_zipped_paths(verify)
 
         # Merge all the kwargs.
         proxies = merge_setting(proxies, self.proxies)
