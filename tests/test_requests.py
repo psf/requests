@@ -1398,6 +1398,31 @@ class TestRequests:
         with pytest.raises(requests.cookies.CookieConflictError):
             jar.get(key)
 
+    def test_cookie_falsy_values(self):
+        """Issue #7003: RequestsCookieJar should handle falsy cookie values."""
+        jar = requests.cookies.RequestsCookieJar()
+
+        # Empty string value should be returned, not treated as missing
+        jar.set("empty", "")
+        assert jar.get("empty") == ""
+        assert jar["empty"] == ""
+        assert jar.get("empty", "default") == ""
+
+        # Integer 0 (stored as string "0" in cookies) should be returned
+        jar.set("zero", "0")
+        assert jar.get("zero") == "0"
+        assert jar["zero"] == "0"
+        assert jar.get("zero", "default") == "0"
+
+        # Normal values still work
+        jar.set("normal", "hello")
+        assert jar.get("normal") == "hello"
+        assert jar["normal"] == "hello"
+
+        # Missing cookie should return default
+        assert jar.get("missing") is None
+        assert jar.get("missing", "default") == "default"
+
     def test_cookie_policy_copy(self):
         class MyCookiePolicy(cookielib.DefaultCookiePolicy):
             pass
