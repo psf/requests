@@ -45,7 +45,8 @@ def is_prepared(request: PreparedRequest) -> TypeIs[_ValidatedRequest]:
 
 
 if TYPE_CHECKING:
-    from typing import TypeAlias
+    from http.cookiejar import CookieJar
+    from typing import TypeAlias, TypedDict
 
     from typing_extensions import TypeIs  # move to typing when Python >= 3.13
 
@@ -131,3 +132,38 @@ if TYPE_CHECKING:
     JsonType: TypeAlias = (
         None | bool | int | float | str | list["JsonType"] | dict[str, "JsonType"]
     )
+
+    # TypedDicts for Unpack kwargs (PEP 692)
+
+    class BaseRequestKwargs(TypedDict, total=False):
+        headers: Mapping[str, str | bytes] | None
+        cookies: RequestsCookieJar | CookieJar | dict[str, str] | None
+        files: FilesType
+        auth: AuthType
+        timeout: TimeoutType
+        allow_redirects: bool
+        proxies: dict[str, str] | None
+        hooks: HooksType
+        stream: bool | None
+        verify: VerifyType | None
+        cert: CertType
+
+    class RequestKwargs(BaseRequestKwargs, total=False):
+        """kwargs for request(), options(), head(), delete()."""
+
+        params: ParamsType
+        data: DataType
+        json: JsonType
+
+    class GetKwargs(BaseRequestKwargs, total=False):
+        data: DataType
+        json: JsonType
+
+    class PostKwargs(BaseRequestKwargs, total=False):
+        params: ParamsType
+
+    class DataKwargs(BaseRequestKwargs, total=False):
+        """kwargs for put(), patch()."""
+
+        params: ParamsType
+        json: JsonType

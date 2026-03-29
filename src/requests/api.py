@@ -16,12 +16,20 @@ from . import sessions
 from .models import Response
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing_extensions import Unpack  # move to typing when Python >= 3.12
 
-    from ._types import DataType, JsonType, ParamsType
+    from ._types import (
+        DataKwargs,
+        DataType,
+        GetKwargs,
+        JsonType,
+        ParamsType,
+        PostKwargs,
+        RequestKwargs,
+    )
 
 
-def request(method: str, url: str, **kwargs: Any) -> Response:
+def request(method: str, url: str, **kwargs: Unpack[RequestKwargs]) -> Response:
     """Constructs and sends a :class:`Request <Request>`.
 
     :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
@@ -69,7 +77,7 @@ def request(method: str, url: str, **kwargs: Any) -> Response:
         return session.request(method=method, url=url, **kwargs)
 
 
-def get(url: str, params: ParamsType = None, **kwargs: Any) -> Response:
+def get(url: str, params: ParamsType = None, **kwargs: Unpack[GetKwargs]) -> Response:
     r"""Sends a GET request.
 
     :param url: URL for the new :class:`Request` object.
@@ -83,7 +91,7 @@ def get(url: str, params: ParamsType = None, **kwargs: Any) -> Response:
     return request("get", url, params=params, **kwargs)
 
 
-def options(url: str, **kwargs: Any) -> Response:
+def options(url: str, **kwargs: Unpack[RequestKwargs]) -> Response:
     r"""Sends an OPTIONS request.
 
     :param url: URL for the new :class:`Request` object.
@@ -95,7 +103,7 @@ def options(url: str, **kwargs: Any) -> Response:
     return request("options", url, **kwargs)
 
 
-def head(url: str, **kwargs: Any) -> Response:
+def head(url: str, **kwargs: Unpack[RequestKwargs]) -> Response:
     r"""Sends a HEAD request.
 
     :param url: URL for the new :class:`Request` object.
@@ -111,7 +119,7 @@ def head(url: str, **kwargs: Any) -> Response:
 
 
 def post(
-    url: str, data: DataType = None, json: JsonType = None, **kwargs: Any
+    url: str, data: DataType = None, json: JsonType = None, **kwargs: Unpack[PostKwargs]
 ) -> Response:
     r"""Sends a POST request.
 
@@ -127,7 +135,7 @@ def post(
     return request("post", url, data=data, json=json, **kwargs)
 
 
-def put(url: str, data: DataType = None, **kwargs: Any) -> Response:
+def put(url: str, data: DataType = None, **kwargs: Unpack[DataKwargs]) -> Response:
     r"""Sends a PUT request.
 
     :param url: URL for the new :class:`Request` object.
@@ -142,7 +150,7 @@ def put(url: str, data: DataType = None, **kwargs: Any) -> Response:
     return request("put", url, data=data, **kwargs)
 
 
-def patch(url: str, data: DataType = None, **kwargs: Any) -> Response:
+def patch(url: str, data: DataType = None, **kwargs: Unpack[DataKwargs]) -> Response:
     r"""Sends a PATCH request.
 
     :param url: URL for the new :class:`Request` object.
@@ -157,7 +165,7 @@ def patch(url: str, data: DataType = None, **kwargs: Any) -> Response:
     return request("patch", url, data=data, **kwargs)
 
 
-def delete(url: str, **kwargs: Any) -> Response:
+def delete(url: str, **kwargs: Unpack[RequestKwargs]) -> Response:
     r"""Sends a DELETE request.
 
     :param url: URL for the new :class:`Request` object.
