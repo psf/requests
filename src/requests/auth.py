@@ -279,11 +279,11 @@ class HTTPDigestAuth(AuthBase):
 
         # If response is not 4xx, do not auth
         # See https://github.com/psf/requests/issues/3772
-        if r.status_code is None or not 400 <= r.status_code < 500:
+        if not 400 <= r.status_code < 500:
             self._thread_local.num_401_calls = 1
             return r
 
-        r.request = cast("PreparedRequest", r.request)
+        r.request
 
         if self._thread_local.pos is not None:
             # Rewind the file position indicator of the body to where

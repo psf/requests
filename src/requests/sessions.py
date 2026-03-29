@@ -246,7 +246,7 @@ class SessionRedirectMixin:
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
             # Compliant with RFC3986, we percent encode the url.
             if not parsed.netloc:
-                resp_url = cast(str, resp.url)
+                resp_url = resp.url
                 url = urljoin(resp_url, requote_uri(url))
             else:
                 url = requote_uri(url)
@@ -322,10 +322,13 @@ class SessionRedirectMixin:
         request to avoid leaking credentials. This method intelligently removes
         and reapplies authentication where possible to avoid credential loss.
         """
+        original_request = response.request
+        assert is_prepared(original_request)
+        assert is_prepared(prepared_request)
+
         headers = prepared_request.headers
-        original_request = cast(PreparedRequest, response.request)
-        original_url = cast(str, original_request.url)
-        url = cast(str, prepared_request.url)
+        original_url = original_request.url
+        url = prepared_request.url
 
         if "Authorization" in headers and self.should_strip_auth(original_url, url):
             # If we get redirected to a new host, we should strip out any
@@ -781,7 +784,7 @@ class Session(SessionRedirectMixin):
         if r.history:
             # If the hooks create history then we want those cookies too
             for resp in r.history:
-                resp_request = cast(PreparedRequest, resp.request)
+                resp_request = resp.request
                 extract_cookies_to_jar(self.cookies, resp_request, resp.raw)
 
         extract_cookies_to_jar(self.cookies, request, r.raw)

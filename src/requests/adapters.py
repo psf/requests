@@ -373,10 +373,11 @@ class HTTPAdapter(BaseAdapter):
         :param resp: The urllib3 response object.
         :rtype: requests.Response
         """
+        assert is_prepared(req)
         response = Response()
 
         # Fallback to None if there's no status_code, for whatever reason.
-        response.status_code = getattr(resp, "status", None)
+        response.status_code = getattr(resp, "status", None)  # type: ignore[assignment]
 
         # Make headers case-insensitive.
         response.headers = CaseInsensitiveDict(getattr(resp, "headers", {}))

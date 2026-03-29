@@ -721,16 +721,16 @@ class Response:
     _content: bytes | Literal[False] | None
     _content_consumed: bool
     _next: PreparedRequest | None
-    status_code: int | None
+    status_code: int
     headers: CaseInsensitiveDict[str]
     raw: Any
-    url: str | None
+    url: str
     encoding: str | None
     history: list[Response]
     reason: str | None
     cookies: RequestsCookieJar
     elapsed: datetime.timedelta
-    request: PreparedRequest | None
+    request: PreparedRequest
     connection: HTTPAdapter | None
 
     __attrs__: list[str] = [
@@ -752,7 +752,7 @@ class Response:
         self._next = None
 
         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
-        self.status_code = None
+        self.status_code = None  # type: ignore[assignment]
 
         #: Case-insensitive Dictionary of Response Headers.
         #: For example, ``headers['content-encoding']`` will return the
@@ -765,7 +765,7 @@ class Response:
         self.raw = None
 
         #: Final URL location of Response.
-        self.url = None
+        self.url = None  # type: ignore[assignment]
 
         #: Encoding to decode with when accessing r.text.
         self.encoding = None
@@ -791,7 +791,7 @@ class Response:
 
         #: The :class:`PreparedRequest <PreparedRequest>` object to which this
         #: is a response.
-        self.request = None
+        self.request = None  # type: ignore[assignment]
 
     def __enter__(self) -> Response:
         return self
@@ -1120,9 +1120,6 @@ class Response:
 
     def raise_for_status(self) -> None:
         """Raises :class:`HTTPError`, if one occurred."""
-
-        if self.status_code is None:
-            return
 
         http_error_msg = ""
         if isinstance(self.reason, bytes):
