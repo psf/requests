@@ -3037,3 +3037,41 @@ def test_json_decode_errors_are_serializable_deserializable():
     )
     deserialized_error = pickle.loads(pickle.dumps(json_decode_error))
     assert repr(json_decode_error) == repr(deserialized_error)
+
+
+class TestCookieEscapedQuotes:
+    """Regression tests for GitHub issue #6890.
+
+    Cookie values containing escaped quotes (e.g. JSON fragments) must not
+    be silently corrupted by the cookie jar.
+    """
+
+    def test_escaped_quotes_in_cookie_value_preserved(self):
+        """Escaped quotes inside a quoted cookie value must survive
+        round-tripping through RequestsCookieJar."""
+        jar = requests.cookies.RequestsCookieJar()
+        # Simulate a Set-Cookie value that http.cookiejar would hand us:
+        # the value is quote-wrapped and contains escaped inner quotes.
+        jar.set("token", '"value_with_\\"escaped\\"_quotes"')
+        assert jar["token"] == '"value_with_\\"escaped\\"_quotes"'
+
+    def test_plain_quoted_cookie_value_preserved(self):
+        """A simple quote-wrapped cookie value (no escaped quotes) must
+        also be preserved."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("foo", '"bar:baz"')
+        assert jar["foo"] == '"bar:baz"'
+
+    def test_cookie_value_without_quotes_unchanged(self):
+        """Cookie values that are not quote-wrapped must pass through
+        untouched."""
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("plain", "hello_world")
+        assert jar["plain"] == "hello_world"
+
+    def test_json_fragment_cookie_value(self):
+        """A realistic JSON-fragment cookie value must not be mangled."""
+        json_val = '"{\\"user\\":\\"alice\\",\\"role\\":\\"admin\\"}"'
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("session", json_val)
+        assert jar["session"] == json_val
