@@ -283,8 +283,6 @@ class HTTPDigestAuth(AuthBase):
             self._thread_local.num_401_calls = 1
             return r
 
-        r.request
-
         if self._thread_local.pos is not None:
             # Rewind the file position indicator of the body to where
             # it was to resend the request.

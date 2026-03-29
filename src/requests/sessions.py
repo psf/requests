@@ -246,8 +246,7 @@ class SessionRedirectMixin:
             # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
             # Compliant with RFC3986, we percent encode the url.
             if not parsed.netloc:
-                resp_url = resp.url
-                url = urljoin(resp_url, requote_uri(url))
+                url = urljoin(resp.url, requote_uri(url))
             else:
                 url = requote_uri(url)
 
@@ -784,8 +783,7 @@ class Session(SessionRedirectMixin):
         if r.history:
             # If the hooks create history then we want those cookies too
             for resp in r.history:
-                resp_request = resp.request
-                extract_cookies_to_jar(self.cookies, resp_request, resp.raw)
+                extract_cookies_to_jar(self.cookies, resp.request, resp.raw)
 
         extract_cookies_to_jar(self.cookies, request, r.raw)
 
