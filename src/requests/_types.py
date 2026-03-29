@@ -14,6 +14,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Protocol,
+    TypeAlias,
     TypeVar,
     runtime_checkable,
 )
@@ -32,8 +33,8 @@ class SupportsItems(Protocol):
 
 
 # These are needed at runtime for default_hooks() return type
-HookType = Callable[["Response"], Any]
-HooksInputType = Mapping[str, "Iterable[HookType] | HookType"]
+HookType: TypeAlias = Callable[["Response"], Any]
+HooksInputType: TypeAlias = Mapping[str, Iterable[HookType] | HookType]
 
 
 def is_prepared(request: PreparedRequest) -> TypeIs[_ValidatedRequest]:
@@ -126,7 +127,7 @@ if TYPE_CHECKING:
 
     TimeoutType: TypeAlias = float | tuple[float | None, float | None] | None
     ProxiesType: TypeAlias = MutableMapping[str, str]
-    HooksType: TypeAlias = dict[str, list["HookType"]] | None
+    HooksType: TypeAlias = dict[str, list[HookType]] | None
     VerifyType: TypeAlias = bool | str
     CertType: TypeAlias = str | tuple[str, str] | None
     JsonType: TypeAlias = (
