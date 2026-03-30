@@ -1134,3 +1134,38 @@ coffee.
 
 .. _`wall clock`: https://wiki.php.net/rfc/max_execution_wall_time
 .. _`connect()`: https://linux.die.net/man/2/connect
+.. _url-parsing-behavior:
+
+URL Parsing Behavior
+--------------------
+
+Requests uses `urllib3`_ for URL parsing. The URL parsing behavior is based on
+`RFC 3986`_, with some pragmatic adaptations for real-world HTTP handling.
+
+The WHATWG URL Standard
+~~~~~~~~~~~~~~~~~~~~~~~
+
+While Requests primarily follows RFC-based specifications, there are some
+differences between Requests' behavior and the strict RFC 3986 standard:
+
+* **Backslash handling**: Requests (via urllib3) treats ``\`` (backslash) as a
+delimiter equivalent to ``/`` for authority/path separation. This behavior is
+consistent with the `WHATWG URL Standard`_ and is necessary for handling legacy
+URLs commonly found on the internet.
+
+* **Host parsing**: Hostnames containing ``\`` are parsed by treating the
+backslash as an authority terminator, allowing the path component to begin
+after the hostname.
+
+RFC References
+~~~~~~~~~~~~~~
+
+* `RFC 3986`_ — Uniform Resource Identifier (URI): Generic Syntax (primary
+reference for URL parsing)
+* `RFC 7230`_ — Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and
+Routing (HTTP semantics)
+
+.. _urllib3: https://urllib3.readthedocs.io/
+.. _RFC 3986: https://tools.ietf.org/html/rfc3986
+.. _RFC 7230: https://tools.ietf.org/html/rfc7230
+.. _WHATWG URL Standard: https://url.spec.whatwg.org/
