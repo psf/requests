@@ -1791,6 +1791,11 @@ class TestRequests:
             {"fo\r\no": "bar"},
             {"fo\n\ro": "bar"},
             {"fo\no": "bar"},
+            {"foo": "bar\n"},
+            {"foo\n": "bar"},
+            {"foo": "bar\r\n"},
+            {"foo": "\n"},
+            {"foo": "\r\n"},
         ),
     )
     def test_header_no_return_chars(self, httpbin, invalid_header):
