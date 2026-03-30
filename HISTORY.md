@@ -6,8 +6,17 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.33.1 (2026-03-30)
+-------------------
+
+**Bugfixes**
+- Fixed test cleanup for CVE-2026-25645 to avoid leaving unnecessary
+  files in the tmp directory. (#7305)
+- Fixed Content-Type header parsing for malformed values. (#7309)
+- Improved error consistency for malformed header values. (#7308)
+
 2.33.0 (2026-03-25)
---------------------
+-------------------
 
 **Announcements**
 - 📣 Requests is adding inline types. If you have a typed code base that
