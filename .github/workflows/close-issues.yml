@@ -5,11 +5,12 @@ on:
     types:
       - labeled
 
-permissions:
-  issues: write
+permissions: {}
 
 jobs:
   close_qa:
+    permissions:
+      issues: write
     if: github.event.label.name == 'actions/autoclose-qa'
     runs-on: ubuntu-latest
     steps:
@@ -22,6 +23,8 @@ jobs:
             --reason completed
           gh issue lock $ISSUE_URL --reason off_topic
   close_feature_request:
+    permissions:
+      issues: write
     if: github.event.label.name == 'actions/autoclose-feat'
     runs-on: ubuntu-latest
     steps:
