@@ -2148,14 +2148,34 @@ class TestRequests:
         assert response._content_consumed is False
         assert response.raw.closed
 
-    @pytest.mark.xfail
     def test_response_iter_lines_reentrant(self, httpbin):
-        """Response.iter_lines() is not reentrant safe"""
         r = requests.get(httpbin("stream/4"), stream=True)
         assert r.status_code == 200
 
-        next(r.iter_lines())
-        assert len(list(r.iter_lines())) == 3
+        first_line = next(r.iter_lines())
+        assert first_line is not None
+
+        remaining_lines = list(r.iter_lines())
+        assert len(remaining_lines) == 3
+
+    def test_response_iter_lines_single_iterator(self, httpbin):
+        r = requests.get(httpbin("stream/4"), stream=True)
+        assert r.status_code == 200
+
+        it = r.iter_lines()
+        lines = [next(it)] + list(it)
+
+        assert len(lines) == 4
+
+    def test_response_iter_lines_reentrant_with_decode_unicode(self, httpbin):
+        r = requests.get(httpbin("stream/4"), stream=True)
+        assert r.status_code == 200
+
+        next(r.iter_lines(decode_unicode=True))
+        remaining_lines = list(r.iter_lines(decode_unicode=True))
+
+        assert len(remaining_lines) == 3
+
 
     def test_session_close_proxy_clear(self):
         proxies = {

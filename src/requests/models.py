@@ -661,7 +661,13 @@ class Response:
         self._content = False
         self._content_consumed = False
         self._next = None
+        self._iter_lines_state = {
+            "pending": None,
+            "decode_unicode": None,
+            "delimiter": None,
+        }
 
+        
         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
         self.status_code = None
 
@@ -859,14 +865,21 @@ class Response:
     def iter_lines(
         self, chunk_size=ITER_CHUNK_SIZE, decode_unicode=False, delimiter=None
     ):
-        """Iterates over the response data, one line at a time.  When
+        """Iterates over the response data, one line at a time. When
         stream=True is set on the request, this avoids reading the
         content at once into memory for large responses.
-
-        .. note:: This method is not reentrant safe.
         """
 
-        pending = None
+        state = self._iter_lines_state
+        if (
+            state["decode_unicode"] != decode_unicode
+            or state["delimiter"] != delimiter
+        ):
+            state["pending"] = None
+            state["decode_unicode"] = decode_unicode
+            state["delimiter"] = delimiter
+
+        pending = state["pending"]
 
         for chunk in self.iter_content(
             chunk_size=chunk_size, decode_unicode=decode_unicode
@@ -884,10 +897,16 @@ class Response:
             else:
                 pending = None
 
+            state["pending"] = pending
+
             yield from lines
 
         if pending is not None:
+            state["pending"] = None
             yield pending
+        else:
+            state["pending"] = None
+
 
     @property
     def content(self):
