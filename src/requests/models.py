@@ -142,8 +142,8 @@ class RequestEncodingMixin:
         Will successfully encode files when passed as a dict or a list of
         tuples. Order is retained if data is a list of tuples but arbitrary
         if parameters are supplied as a dict.
-        The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, contentype)
-        or 4-tuples (filename, fileobj, contentype, custom_headers).
+        The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, content_type)
+        or 4-tuples (filename, fileobj, content_type, custom_headers).
         """
         if not files:
             raise ValueError("Files must be provided.")
