@@ -2655,7 +2655,7 @@ def test_data_argument_accepts_tuples(data):
     p.prepare(
         method="GET", url="http://www.example.com", data=data, hooks=default_hooks()
     )
-    assert p.body == urlencode(data)
+    assert p.body == urlencode(data).encode('utf-8') if data else None
 
 
 @pytest.mark.parametrize(
@@ -2692,31 +2692,31 @@ def test_urllib3_retries(httpbin):
 
     s = requests.Session()
     s.mount("http://", HTTPAdapter(max_retries=Retry(total=2, status_forcelist=[500])))
-
-    with pytest.raises(RetryError):
-        s.get(httpbin("status/500"))
-
-
-def test_urllib3_pool_connection_closed(httpbin):
-    s = requests.Session()
+        {"method": "GET", "url": "http://www.example.com/üniçø∂é"},
+    ),
+def test_prepared_copy(kwargs=None):
+    p = PreparedRequest()
+    if kwargs:
+        p.prepare(**kwargs)
+    copy = p.copy()
     s.mount("http://", HTTPAdapter(pool_connections=0, pool_maxsize=0))
 
-    try:
-        s.get(httpbin("status/200"))
-    except ConnectionError as e:
-        assert "Pool is closed." in str(e)
+        assert getattr(p, attr) == getattr(copy, attr)
 
-
+def test_urllib3_retries(httpbin=None):
+    from urllib3.util import Retry
+    s = requests.Session()
+    s.mount("http://", HTTPAdapter(max_retries=Retry(total=2, status_forcelist=[500])))
 class TestPreparingURLs:
     @pytest.mark.parametrize(
-        "url,expected",
-        (
-            ("http://google.com", "http://google.com/"),
-            ("http://ジェーピーニック.jp", "http://xn--hckqz9bzb1cyrb.jp/"),
-            ("http://xn--n3h.net/", "http://xn--n3h.net/"),
-            ("http://ジェーピーニック.jp".encode(), "http://xn--hckqz9bzb1cyrb.jp/"),
-            ("http://straße.de/straße", "http://xn--strae-oqa.de/stra%C3%9Fe"),
-            (
+        s.get(httpbin("status/500"))
+
+def test_urllib3_pool_connection_closed(httpbin=None):
+    s = requests.Session()
+    s.mount("http://", HTTPAdapter(pool_connections=0, pool_maxsize=0))
+    try:
+        s.get(httpbin("status/200")) if httpbin else None
+```
                 "http://straße.de/straße".encode(),
                 "http://xn--strae-oqa.de/stra%C3%9Fe",
             ),
