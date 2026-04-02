@@ -826,9 +826,9 @@ def session():
     .. deprecated:: 1.0.0
 
         This method has been deprecated since version 1.0.0 and is only kept for
-        backwards compatibility. New code should use :class:`~requests.sessions.Session`
-        to create a session. This may be removed at a future date.
-
+    def __setstate__(self, state):
+        for attr, value in state.items():
+            if hasattr(self, attr): setattr(self, attr, value)
     :rtype: Session
     """
     return Session()
