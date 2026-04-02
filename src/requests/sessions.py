@@ -519,14 +519,14 @@ class Session(SessionRedirectMixin):
         cert=None,
         json=None,
     ):
-        """Constructs a :class:`Request <Request>`, prepares it and sends it.
-        Returns :class:`Response <Response>` object.
+        params=merge_setting(request.params, self.params),
+        auth=merge_setting(auth, self.auth),
+        cookies=merged_cookies,
+        hooks=merge_hooks(request.hooks, self.hooks) if request.hooks else self.hooks,
+    )
+    return p
 
-        :param method: method for the new :class:`Request` object.
-        :param url: URL for the new :class:`Request` object.
-        :param params: (optional) Dictionary or bytes to be sent in the query
-            string for the :class:`Request`.
-        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+
             object to send in the body of the :class:`Request`.
         :param json: (optional) json to send in the body of the
             :class:`Request`.
