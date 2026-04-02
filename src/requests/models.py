@@ -120,13 +120,13 @@ class RequestEncodingMixin:
             return data
         elif hasattr(data, "__iter__"):
             result = []
-            for k, vs in to_key_val_list(data):
-                if isinstance(vs, basestring) or not hasattr(vs, "__iter__"):
-                    vs = [vs]
-                for v in vs:
-                    if v is not None:
-                        result.append(
-                            (
+        result = []
+        for k, vs in to_key_val_list(data):
+            if isinstance(vs, basestring) or not hasattr(vs, "__iter__"):
+                vs = [vs] if vs is not None else []
+            for v in vs:
+                if v is not None:
+                    result.append(
                                 k.encode("utf-8") if isinstance(k, str) else k,
                                 v.encode("utf-8") if isinstance(v, str) else v,
                             )
@@ -140,13 +140,13 @@ class RequestEncodingMixin:
         """Build the body for a multipart/form-data request.
 
         Will successfully encode files when passed as a dict or a list of
-        tuples. Order is retained if data is a list of tuples but arbitrary
-        if parameters are supplied as a dict.
-        The tuples may be 2-tuples (filename, fileobj), 3-tuples (filename, fileobj, contentype)
-        or 4-tuples (filename, fileobj, contentype, custom_headers).
+    @staticmethod
+    def _encode_files(files, data):
+        """Build the body for a multipart/form-data request.
         """
         if not files:
             raise ValueError("Files must be provided.")
+        elif isinstance(data, basestring):
         elif isinstance(data, basestring):
             raise ValueError("Data must not be a string.")
 
