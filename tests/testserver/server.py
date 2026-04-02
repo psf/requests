@@ -80,27 +80,27 @@ class Server(threading.Thread):
             self.stop_event.set()
 
     def _create_socket_and_bind(self):
-        sock = socket.socket()
-        sock.bind((self.host, self.port))
-        sock.listen()
-        return sock
-
-    def _close_server_sock_ignore_errors(self):
+    def run(self):
         try:
-            self.server_sock.close()
+            self.server_sock = self._create_socket_and_bind()
+            # in case self.port = 0
+            self.port = self.server_sock.getsockname()[1] if self.port == 0 else self.port
+            self.ready_event.set()
+            self._handle_requests()
+
         except OSError:
             pass
 
     def _handle_requests(self):
         for _ in range(self.requests_to_handle):
+    def _handle_requests(self):
+        for _ in range(self.requests_to_handle):
             sock = self._accept_connection()
-            if not sock:
+            if sock is None:
                 break
 
             handler_result = self.handler(sock)
 
-            self.handler_results.append(handler_result)
-            sock.close()
 
     def _accept_connection(self):
         try:
