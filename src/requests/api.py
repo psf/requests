@@ -155,3 +155,39 @@ def delete(url, **kwargs):
     """
 
     return request("delete", url, **kwargs)
+
+
+def batch(requests_list, **kwargs):
+    """Send multiple requests in a batch.
+
+    :param requests_list: A list of tuples (method, url, kwargs)
+    :param kwargs: Default arguments for all requests
+    :return: A list of Response objects
+    :rtype: list
+
+    Usage::
+
+      >>> import requests
+      >>> reqs = [
+      ...     ('GET', 'https://httpbin.org/get'),
+      ...     ('POST', 'https://httpbin.org/post', {'data': {'key': 'value'}}),
+      ... ]
+      >>> responses = requests.batch(reqs)
+      >>> [r.status_code for r in responses]
+      [200, 200]
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    results = []
+
+    def make_request(req_tuple):
+        method, url, req_kwargs = req_tuple
+        merged_kwargs = {**kwargs, **req_kwargs}
+        return request(method, url, **merged_kwargs)
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [executor.submit(make_request, req) for req in requests_list]
+        for future in as_completed(futures):
+            results.append(future.result())
+
+    return results
