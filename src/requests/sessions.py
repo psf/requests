@@ -473,10 +473,9 @@ class Session(SessionRedirectMixin):
         if not isinstance(cookies, cookielib.CookieJar):
             cookies = cookiejar_from_dict(cookies)
 
-        # Merge with session cookies
-        merged_cookies = merge_cookies(
-            merge_cookies(RequestsCookieJar(), self.cookies), cookies
-        )
+        # Merge with session cookies (preserve cookie policy)
+        session_cookies = _copy_cookie_jar(self.cookies)
+        merged_cookies = merge_cookies(session_cookies, cookies)
 
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
