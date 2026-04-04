@@ -42,6 +42,8 @@ import warnings
 
 import urllib3
 
+from importlib.metadata import requires, PackageNotFoundError
+
 from .exceptions import RequestsDependencyWarning
 
 try:
@@ -49,11 +51,29 @@ try:
 except ImportError:
     charset_normalizer_version = None
 
-try:
-    from chardet import __version__ as chardet_version
-except ImportError:
-    chardet_version = None
+"""
+Only use chardet if the user explicitly installed the
+[use-chardet-on-py3] extra. Checking importlib.metadata avoids
+false-positive activation when chardet is a transitive dep
+of another package (e.g. tox) but was not requested by requests.
+"""
 
+chardet_version = None
+
+try:
+    _reqs = requires("requests") or []
+    
+    _chardet_extra = any(
+        'use-chardet-on-py3' in (r.split(";")[-1] if ";" in r else "")
+         for r in _reqs
+         if r.lower().startswith("chardet")
+    )
+    
+    if _chardet_extra:
+        from chardet import __version__ as chardet_version
+        
+except (ImportError, PackageNotFoundError):
+    pass
 
 def check_compatibility(urllib3_version, chardet_version, charset_normalizer_version):
     urllib3_version = urllib3_version.split(".")

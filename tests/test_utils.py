@@ -3,6 +3,9 @@ import filecmp
 import os
 import tarfile
 import zipfile
+import sys
+import types
+import warnings
 from collections import deque
 from io import BytesIO
 from unittest import mock
@@ -988,3 +991,173 @@ def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
     monkeypatch.setattr(winreg, "OpenKey", OpenKey)
     monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
     assert should_bypass_proxies("http://example.com/", None) is False
+
+class TestChardetExtraGating:
+    """
+    Issue #7223 — chardet should only activate when requests was installed
+    with the [use-chardet-on-py3] extra, not merely because chardet happens
+    to be importable (e.g. installed by a transitive dependency like tox).
+    """
+
+    def _reload_requests_with_mocked_metadata(self, monkeypatch, requires_output):
+        """
+        Helper: reload requests.__init__ after patching importlib.metadata.requires
+        so we can test the chardet-gating logic in isolation.
+        """
+        import importlib.metadata as im
+
+        monkeypatch.setattr(im, "requires", lambda _pkg: requires_output)
+
+        # Force reload so the module-level chardet detection reruns
+        if "requests" in sys.modules:
+            monkeypatch.delitem(sys.modules, "requests")
+
+        import requests  # noqa: reimport after patch
+        return requests
+
+    # ------------------------------------------------------------------
+    # Case 1: chardet is importable BUT extra was NOT requested
+    #         → chardet_version must remain None
+    # ------------------------------------------------------------------
+    def test_chardet_not_used_when_extra_absent(self, monkeypatch):
+        """
+        Even if chardet is installed by a transitive dep (e.g. tox),
+        requests must not activate it unless [use-chardet-on-py3] is present.
+        """
+        # Simulate: chardet importable but extra NOT in the requirements
+        fake_requires = [
+            "urllib3>=1.21.1",
+            "charset-normalizer>=2,<4",
+            "certifi>=2017.4.17",
+            "idna>=2.5,<4",
+            # chardet line has no extra marker here
+            "chardet>=3.0.2,<8 ; extra == 'use_chardet_on_py3'",
+        ]
+
+        # Mock importlib.metadata so the extra marker is NOT satisfied
+        # (i.e. simulate that the user did NOT install requests[use-chardet-on-py3])
+        import importlib.metadata as im
+
+        def mock_requires(pkg):
+            return fake_requires
+
+        monkeypatch.setattr(im, "requires", mock_requires)
+
+        # Ensure chardet IS importable (simulate transitive install)
+        if "chardet" not in sys.modules:
+            fake_chardet = types.ModuleType("chardet")
+            fake_chardet.__version__ = "6.0.0"
+            monkeypatch.setitem(sys.modules, "chardet", fake_chardet)
+
+        # Reimport requests with our patches active
+        monkeypatch.delitem(sys.modules, "requests", raising=False)
+        import requests
+
+        # The fix: chardet_version must be None because the extra wasn't requested
+        assert requests.chardet_version is None, (
+            "chardet_version should be None when [use-chardet-on-py3] extra "
+            "is not in the installed requirements, even if chardet is importable."
+        )
+
+    # ------------------------------------------------------------------
+    # Case 2: user DID install requests[use-chardet-on-py3]
+    #         → chardet_version must be populated
+    # ------------------------------------------------------------------
+    def test_chardet_used_when_extra_present(self, monkeypatch):
+        """
+        When requests is installed with [use-chardet-on-py3],
+        chardet_version should be detected and set correctly.
+        """
+        # Simulate: extra IS present in metadata
+        fake_requires = [
+            "urllib3>=1.21.1",
+            "charset-normalizer>=2,<4",
+            "certifi>=2017.4.17",
+            "idna>=2.5,<4",
+            'chardet>=3.0.2,<8 ; extra == "use-chardet-on-py3"',
+        ]
+
+        import importlib.metadata as im
+
+        def mock_requires(pkg):
+            return fake_requires
+
+        monkeypatch.setattr(im, "requires", mock_requires)
+
+        # Inject a fake chardet with a supported version
+        fake_chardet = types.ModuleType("chardet")
+        fake_chardet.__version__ = "5.2.0"
+        monkeypatch.setitem(sys.modules, "chardet", fake_chardet)
+
+        monkeypatch.delitem(sys.modules, "requests", raising=False)
+        import requests
+
+        assert requests.chardet_version == "5.2.0", (
+            "chardet_version should reflect the installed chardet version "
+            "when requests[use-chardet-on-py3] extra is present."
+        )
+
+    # ------------------------------------------------------------------
+    # Case 3: importlib.metadata itself is unavailable (e.g. zip import,
+    #         editable install edge case) → should not crash, chardet_version = None
+    # ------------------------------------------------------------------
+    def test_graceful_fallback_when_metadata_unavailable(self, monkeypatch):
+        """
+        If importlib.metadata.requires raises PackageNotFoundError,
+        requests must not crash and chardet_version stays None.
+        """
+        from importlib.metadata import PackageNotFoundError
+        import importlib.metadata as im
+
+        def raises_not_found(pkg):
+            raise PackageNotFoundError(pkg)
+
+        monkeypatch.setattr(im, "requires", raises_not_found)
+
+        monkeypatch.delitem(sys.modules, "requests", raising=False)
+
+        # Must not raise
+        import requests
+
+        assert requests.chardet_version is None
+
+    # ------------------------------------------------------------------
+    # Case 4: no warning emitted when chardet present but extra absent
+    # ------------------------------------------------------------------
+    def test_no_spurious_warning_when_extra_absent(self, monkeypatch):
+        """
+        Regression for #7223 — the specific user-reported symptom:
+        RequestsDependencyWarning must NOT fire when chardet is a
+        transitive dep but [use-chardet-on-py3] was not requested.
+        """
+        import importlib.metadata as im
+
+        def mock_requires(pkg):
+            # No use-chardet-on-py3 extra
+            return ["urllib3>=1.21.1", "charset-normalizer>=2,<4"]
+
+        monkeypatch.setattr(im, "requires", mock_requires)
+
+        # Inject an "unsupported" chardet version — this is what triggered
+        # the warning in the original bug report (chardet 6.0.0.post1 with tox)
+        fake_chardet = types.ModuleType("chardet")
+        fake_chardet.__version__ = "6.0.0.post1"
+        monkeypatch.setitem(sys.modules, "chardet", fake_chardet)
+
+        monkeypatch.delitem(sys.modules, "requests", raising=False)
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            import requests  # noqa
+
+        from requests.exceptions import RequestsDependencyWarning
+
+        spurious = [
+            w for w in caught
+            if issubclass(w.category, RequestsDependencyWarning)
+            and "chardet" in str(w.message).lower()
+        ]
+        assert len(spurious) == 0, (
+            f"Got unexpected RequestsDependencyWarning(s): {spurious}. "
+            "chardet should be ignored when the extra is not installed."
+        )
