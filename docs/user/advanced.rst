@@ -1066,11 +1066,12 @@ response at a time. However, these calls will still block.
 
 If you are concerned about the use of blocking IO, there are lots of projects
 out there that combine Requests with one of Python's asynchronicity frameworks.
-Some excellent examples are `requests-threads`_, `grequests`_, `requests-futures`_, and `httpx`_.
+Some excellent examples are `grequests`_, `requests-futures`_,
+`gevent-requests`_, and `httpx`_.
 
-.. _`requests-threads`: https://github.com/requests/requests-threads
 .. _`grequests`: https://github.com/spyoungtech/grequests
 .. _`requests-futures`: https://github.com/ross/requests-futures
+.. _`gevent-requests`: https://github.com/gwik/gevent-requests
 .. _`httpx`: https://github.com/encode/httpx
 
 Header Ordering

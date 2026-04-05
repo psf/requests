@@ -35,12 +35,24 @@ requested by users within the community.
 .. _Requests-Toolbelt: https://toolbelt.readthedocs.io/en/latest/index.html
 
 
-Requests-Threads
-----------------
+Async and Concurrency
+---------------------
 
-`Requests-Threads`_ is a Requests session that returns the amazing Twisted's awaitable Deferreds instead of Response objects. This allows the use of ``async``/``await`` keyword usage on Python 3, or Twisted's style of programming, if desired.
+Requests itself is blocking, but there are several actively maintained
+projects that pair well with it depending on the concurrency model you want.
 
-.. _Requests-Threads: https://github.com/requests/requests-threads
+`requests-futures`_ keeps the Requests API and runs requests in background
+threads, which is often the smallest change for existing code.
+
+`gevent-requests`_ provides gevent-based concurrency for applications that
+already use greenlets.
+
+If you need a similar API with native ``async``/``await`` support, `HTTPX`_
+is a good option.
+
+.. _requests-futures: https://github.com/ross/requests-futures
+.. _gevent-requests: https://github.com/gwik/gevent-requests
+.. _HTTPX: https://www.python-httpx.org/
 
 Requests-OAuthlib
 -----------------
