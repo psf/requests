@@ -217,6 +217,14 @@ class TestRequests:
         assert r.history[0].status_code == 302
         assert r.history[0].is_redirect
 
+    def test_redirect_history_no_self_reference(self, httpbin):
+        r = requests.get(httpbin("redirect", "3"))
+        assert r.status_code == 200
+        assert len(r.history) == 3
+        for i, resp in enumerate(r.history):
+            assert resp not in resp.history
+            assert resp.history == r.history[:i]
+
     def test_HTTP_307_ALLOW_REDIRECT_POST(self, httpbin):
         r = requests.post(
             httpbin("redirect-to"),
