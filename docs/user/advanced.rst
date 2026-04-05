@@ -1021,12 +1021,23 @@ library to use SSLv3::
 
 
     class Ssl3HttpAdapter(HTTPAdapter):
-        """"Transport adapter" that allows us to use SSLv3."""
+        __attrs__ = HTTPAdapter.__attrs__ + ["ssl_version"]
+
+        """Transport adapter that allows us to use SSLv3."""
+
+        def __init__(self, ssl_version=None, **kwargs):
+            self.ssl_version = ssl_version
+            super().__init__(**kwargs)
 
         def init_poolmanager(self, connections, maxsize, block=False):
             self.poolmanager = PoolManager(
                 num_pools=connections, maxsize=maxsize,
-                block=block, ssl_version=ssl.PROTOCOL_SSLv3)
+                block=block, ssl_version=self.ssl_version or ssl.PROTOCOL_SSLv3)
+
+If your custom adapter stores additional instance attributes, add them to
+``__attrs__`` as shown above. Requests uses ``__attrs__`` when copying or
+pickling adapters, so keeping that list in sync ensures custom adapters retain
+their state in those scenarios.
 
 Example: Automatic Retries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
