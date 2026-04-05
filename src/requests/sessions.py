@@ -9,7 +9,6 @@ requests (cookies, auth, proxies).
 import os
 import sys
 import time
-from collections import OrderedDict
 from datetime import timedelta
 
 from ._internal_utils import to_native_string
@@ -59,7 +58,7 @@ else:
     preferred_clock = time.time
 
 
-def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
+def merge_setting(request_setting, session_setting, dict_class=dict):
     """Determines appropriate setting for a given request, taking into account
     the explicit setting on that request, and the setting in the session. If a
     setting is a dictionary, they will be merged together using `dict_class`
@@ -89,7 +88,7 @@ def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
     return merged_setting
 
 
-def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
+def merge_hooks(request_hooks, session_hooks, dict_class=dict):
     """Properly merges both requests and session hooks.
 
     This is necessary because when request_hooks == {'response': []}, the
