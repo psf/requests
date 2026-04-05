@@ -807,6 +807,29 @@ class TestRequests:
             r = requests.get(url, auth=auth)
             assert '"auth"' in r.request.headers["Authorization"]
 
+    def test_DIGESTAUTH_PRESERVES_SEMICOLONS_IN_URI_PATH(self):
+        auth = HTTPDigestAuth("user", "pass")
+        auth.init_per_thread_state()
+        auth._thread_local.chal = {
+            "realm": "realm",
+            "nonce": "nonce",
+            "qop": "auth",
+        }
+
+        header = auth.build_digest_header(
+            "PUT",
+            (
+                "https://example.com/ws/2/collection/test/releases/"
+                "7dc2cfbd;38347564?fmt=json&client=manual-python-requests-test"
+            ),
+        )
+
+        assert (
+            'uri="/ws/2/collection/test/releases/'
+            '7dc2cfbd;38347564?fmt=json&client=manual-python-requests-test"'
+            in header
+        )
+
     def test_POSTBIN_GET_POST_FILES(self, httpbin):
         url = httpbin("post")
         requests.post(url).raise_for_status()
