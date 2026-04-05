@@ -454,8 +454,14 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 host = self._get_idna_encoded_host(host)
             except UnicodeError:
                 raise InvalidURL("URL has an invalid label.")
-        elif host.startswith(("*", ".")):
+        elif host.startswith("."):
             raise InvalidURL("URL has an invalid label.")
+
+        # Normalize FQDN trailing dot (RFC 1035). Browsers and curl strip the
+        # trailing dot from fully qualified domain names to prevent redirect loops
+        # when servers redirect from the FQDN form to the bare domain.
+        if host.endswith("."):
+            host = host[:-1]
 
         # Carefully reconstruct the network location
         netloc = auth or ""
