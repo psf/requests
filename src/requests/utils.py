@@ -616,7 +616,7 @@ def get_unicode_from_response(r):
 
 # The unreserved URI characters (RFC 3986)
 UNRESERVED_SET = frozenset(
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
 )
 
 
@@ -834,9 +834,9 @@ def select_proxy(url, proxies):
         return proxies.get(urlparts.scheme, proxies.get("all"))
 
     proxy_keys = [
-        urlparts.scheme + "://" + urlparts.hostname,
+        f"{urlparts.scheme}://{urlparts.hostname}",
         urlparts.scheme,
-        "all://" + urlparts.hostname,
+        f"all://{urlparts.hostname}",
         "all",
     ]
     proxy = None
