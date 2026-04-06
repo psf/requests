@@ -426,3 +426,35 @@ def test_json_decode_compatibility_for_alt_utf_encodings():
     assert isinstance(excinfo.value, requests.exceptions.RequestException)
     assert isinstance(excinfo.value, JSONDecodeError)
     assert r.text not in str(excinfo.value)
+
+
+def test_cookie_none_value_removes_session_cookie():
+    """Setting a cookie value to None in the method-level parameter
+    should remove that cookie from the merged jar, not create a
+    cookie with value=None which corrupts the Cookie header.
+
+    Regression test for #2716.
+    """
+    from requests.cookies import cookiejar_from_dict, merge_cookies, RequestsCookieJar
+
+    # Simulate session cookies
+    session_jar = cookiejar_from_dict({"from-my": "browser", "keep": "this"})
+
+    # Method-level cookies: None means "remove from-my"
+    method_cookies = {"another": "cookie", "from-my": None}
+    method_jar = cookiejar_from_dict(method_cookies)
+
+    # Merge: session first, then method-level
+    merged = merge_cookies(
+        merge_cookies(RequestsCookieJar(), session_jar),
+        method_cookies,
+    )
+
+    # "from-my" should be gone (removed by None)
+    merged_dict = dict(merged)
+    assert "from-my" not in merged_dict, (
+        f"from-my should have been removed but got: {merged_dict}"
+    )
+    # "another" and "keep" should both be present
+    assert merged_dict["another"] == "cookie"
+    assert merged_dict["keep"] == "this"
