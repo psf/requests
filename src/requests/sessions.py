@@ -129,7 +129,7 @@ class SessionRedirectMixin:
         """Decide whether Authorization header should be removed when redirecting"""
         old_parsed = urlparse(old_url)
         new_parsed = urlparse(new_url)
-        if old_parsed.hostname != new_parsed.hostname:
+        if (old_parsed.hostname or "").rstrip(".") != (new_parsed.hostname or "").rstrip("."):
             return True
         # Special case: allow http -> https redirect when using the standard
         # ports. This isn't specified by RFC 7235, but is kept to avoid
