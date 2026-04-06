@@ -901,7 +901,15 @@ class Response:
             if self.status_code == 0 or self.raw is None:
                 self._content = None
             else:
-                self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+                try:
+                    self._content = (
+                        b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+                    )
+                except Exception:
+                    # Mark as consumed so a second access doesn't silently
+                    # return an empty body from the exhausted/broken stream.
+                    self._content_consumed = True
+                    raise
 
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3

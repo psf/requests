@@ -426,3 +426,41 @@ def test_json_decode_compatibility_for_alt_utf_encodings():
     assert isinstance(excinfo.value, requests.exceptions.RequestException)
     assert isinstance(excinfo.value, JSONDecodeError)
     assert r.text not in str(excinfo.value)
+
+
+def test_content_property_propagates_stream_error():
+    """Accessing .content on a response whose stream errors mid-read
+    should propagate the exception AND mark the content as consumed
+    so a second access does not silently return empty bytes.
+
+    Regression test for #4965.
+    """
+
+    def interrupted_stream_handler(sock):
+        consume_socket_content(sock, timeout=0.5)
+        # Send headers claiming 1000 bytes, then disconnect after 10.
+        sock.send(
+            b"HTTP/1.1 200 OK\r\n"
+            b"Content-Length: 1000\r\n\r\n"
+            b"0123456789"
+        )
+        # Close immediately — stream will break mid-read.
+        sock.close()
+
+    close_server = threading.Event()
+    server = Server(interrupted_stream_handler, wait_to_close_event=close_server)
+
+    with server as (host, port):
+        url = f"http://{host}:{port}/"
+        r = requests.get(url, stream=True)
+
+        # First access to .content should raise (stream broke).
+        with pytest.raises(Exception):
+            r.content
+
+        # Second access must NOT silently return b"" — it must raise
+        # RuntimeError because the content was consumed/broken.
+        with pytest.raises(RuntimeError, match="content for this response was already consumed"):
+            r.content
+
+    close_server.set()
