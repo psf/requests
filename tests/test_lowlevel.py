@@ -426,3 +426,61 @@ def test_json_decode_compatibility_for_alt_utf_encodings():
     assert isinstance(excinfo.value, requests.exceptions.RequestException)
     assert isinstance(excinfo.value, JSONDecodeError)
     assert r.text not in str(excinfo.value)
+
+
+def test_digestauth_non_latin_username():
+    """HTTPDigestAuth must handle non-ASCII usernames correctly.
+
+    - String usernames with non-ASCII chars should use username* (RFC 7616/5987).
+    - Bytes usernames (common workaround) must be decoded, not repr'd as b'...'.
+
+    Regression test for #6102.
+    """
+    text_401 = (
+        b"HTTP/1.1 401 UNAUTHORIZED\r\n"
+        b"Content-Length: 0\r\n"
+        b'WWW-Authenticate: Digest nonce="testnonce123"'
+        b', realm="testrealm", qop=auth\r\n\r\n'
+    )
+    text_200 = b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n"
+
+    # --- Case 1: str username with non-ASCII chars ---
+    auth_str = requests.auth.HTTPDigestAuth("Ondřej", "heslíčko")
+
+    def handler_str(sock):
+        consume_socket_content(sock, timeout=0.5)
+        sock.send(text_401)
+        request_content = consume_socket_content(sock, timeout=0.5)
+        # Must NOT contain b"username" value with raw repr like b'...'
+        assert b"b'" not in request_content
+        # Should use username* for non-ASCII per RFC 7616
+        assert b"username*=UTF-8''" in request_content
+        sock.send(text_200)
+        return request_content
+
+    close_server = threading.Event()
+    server = Server(handler_str, wait_to_close_event=close_server)
+    with server as (host, port):
+        r = requests.get(f"http://{host}:{port}/", auth=auth_str)
+        assert r.status_code == 200
+        close_server.set()
+
+    # --- Case 2: bytes username (old workaround) must not produce b'...' ---
+    auth_bytes = requests.auth.HTTPDigestAuth("Ondřej".encode("utf-8"), "heslíčko")
+
+    def handler_bytes(sock):
+        consume_socket_content(sock, timeout=0.5)
+        sock.send(text_401)
+        request_content = consume_socket_content(sock, timeout=0.5)
+        # Must NOT contain the repr of bytes
+        assert b"b'" not in request_content
+        assert b"\\xc5" not in request_content
+        sock.send(text_200)
+        return request_content
+
+    close_server2 = threading.Event()
+    server2 = Server(handler_bytes, wait_to_close_event=close_server2)
+    with server2 as (host, port):
+        r = requests.get(f"http://{host}:{port}/", auth=auth_bytes)
+        assert r.status_code == 200
+        close_server2.set()
