@@ -1326,6 +1326,13 @@ class TestRequests:
         assert d2["some_cookie"] == "some_value"
         assert d3["some_cookie1"] == "some_value1"
 
+    def test_cookie_get_and_getitem_preserve_empty_value(self):
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("empty_cookie", "")
+
+        assert jar.get("empty_cookie", "fallback") == ""
+        assert jar["empty_cookie"] == ""
+
     def test_cookie_as_dict_keys(self):
         key = "some_cookie"
         value = "some_value"
