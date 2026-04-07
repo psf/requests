@@ -124,6 +124,35 @@ def test_conflicting_content_lengths():
         close_server.set()
 
 
+@pytest.mark.parametrize(
+    ("header_part", "value"),
+    (
+        ("X-Test", "val\x00ue"),
+        ("X-Test", "val\x01ue"),
+        ("X-Test", "value\x7f"),
+        ("X-Te\x00st", "value"),
+        (b"X-Test", b"val\x00ue"),
+        (b"X-Test", b"val\x01ue"),
+        (b"X-Test", b"value\x7f"),
+        (b"X-Te\x00st", b"value"),
+    ),
+)
+def test_header_control_characters_rejected(header_part, value):
+    with pytest.raises(requests.exceptions.InvalidHeader):
+        requests.utils.check_header_validity((header_part, value))
+
+
+@pytest.mark.parametrize(
+    ("header_part", "value"),
+    (
+        ("X-Test", "value\tcontinued"),
+        (b"X-Test", b"value\tcontinued"),
+    ),
+)
+def test_header_tab_still_allowed_in_value(header_part, value):
+    requests.utils.check_header_validity((header_part, value))
+
+
 def test_digestauth_401_count_reset_on_redirect():
     """Ensure we correctly reset num_401_calls after a successful digest auth,
     followed by a 302 redirect to another digest auth prompt.

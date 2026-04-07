@@ -10,10 +10,14 @@ import re
 
 from .compat import builtin_str
 
-_VALID_HEADER_NAME_RE_BYTE = re.compile(rb"^[^:\s][^:\r\n]*\Z")
-_VALID_HEADER_NAME_RE_STR = re.compile(r"^[^:\s][^:\r\n]*\Z")
-_VALID_HEADER_VALUE_RE_BYTE = re.compile(rb"^\S[^\r\n]*\Z|^\Z")
-_VALID_HEADER_VALUE_RE_STR = re.compile(r"^\S[^\r\n]*\Z|^\Z")
+_VALID_HEADER_NAME_RE_BYTE = re.compile(rb"^[^:\s\x00-\x1f\x7f][^:\r\n\x00-\x1f\x7f]*\Z")
+_VALID_HEADER_NAME_RE_STR = re.compile(r"^[^:\s\x00-\x1f\x7f][^:\r\n\x00-\x1f\x7f]*\Z")
+_VALID_HEADER_VALUE_RE_BYTE = re.compile(
+    rb"^[^\s\x00-\x1f\x7f][^\r\n\x00-\x08\x0a-\x1f\x7f]*\Z|^\Z"
+)
+_VALID_HEADER_VALUE_RE_STR = re.compile(
+    r"^[^\s\x00-\x1f\x7f][^\r\n\x00-\x08\x0a-\x1f\x7f]*\Z|^\Z"
+)
 
 _HEADER_VALIDATORS_STR = (_VALID_HEADER_NAME_RE_STR, _VALID_HEADER_VALUE_RE_STR)
 _HEADER_VALIDATORS_BYTE = (_VALID_HEADER_NAME_RE_BYTE, _VALID_HEADER_VALUE_RE_BYTE)
