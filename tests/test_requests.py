@@ -1439,7 +1439,7 @@ class TestRequests:
         assert next(iter(r))
         io.close()
 
-    def test_response_decode_unicode(self):
+    def test_response_decode_unicode_known(self):
         """When called with decode_unicode, Response.iter_content should always
         return unicode.
         """
@@ -1457,6 +1457,25 @@ class TestRequests:
         r.encoding = "ascii"
         chunks = r.iter_content(decode_unicode=True)
         assert all(isinstance(chunk, str) for chunk in chunks)
+
+    def test_response_decode_unicode_infer(self):
+        """Response.iter_content should infer encoding from content if we are
+        not streaming.
+        """
+        r = requests.Response()
+        r._content_consumed = True
+        r._content = b"the content"
+        r.encoding = None
+
+        chunks = r.iter_content(decode_unicode=True)
+        assert all(isinstance(chunk, str) for chunk in chunks)
+
+        # not for streaming
+        r = requests.Response()
+        r.raw = io.BytesIO(b"the content")
+        r.encoding = None
+        chunks = r.iter_content(decode_unicode=True)
+        assert all(isinstance(chunk, bytes) for chunk in chunks)
 
     def test_response_reason_unicode(self):
         # check for unicode HTTP status

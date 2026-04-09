@@ -812,10 +812,10 @@ class Response:
         a single chunk.
 
         If decode_unicode is True, content will be decoded using the best
-        available encoding based on the response headers. Note that unlike
-        `.text`, this does not infer encoding from the content itself, as we
-        may be mid-stream. If `.encoding` is None, then decode_unicode will be
-        a no-op.
+        available encoding based on the response. Note that if stream=True, we
+        only have the headers to determine the encoding, not the content
+        itself. If stream=True and `.encoding` is None, then decode_unicode
+        will be a no-op.
         """
 
         def generate():
@@ -847,15 +847,17 @@ class Response:
             raise TypeError(
                 f"chunk_size must be an int, it is instead a {type(chunk_size)}."
             )
-        # simulate reading small chunks of the content
-        reused_chunks = iter_slices(self._content, chunk_size)
 
-        stream_chunks = generate()
-
-        chunks = reused_chunks if self._content_consumed else stream_chunks
+        if self._content_consumed:
+            # simulate reading small chunks of the content
+            chunks = iter_slices(self._content, chunk_size)
+            encoding_hint = self.apparent_encoding
+        else:
+            chunks = generate()
+            encoding_hint = None
 
         if decode_unicode:
-            chunks = stream_decode_response_unicode(chunks, self)
+            chunks = stream_decode_response_unicode(chunks, self, encoding_hint)
 
         return chunks
 

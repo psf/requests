@@ -548,14 +548,16 @@ def get_encoding_from_headers(headers):
         return "utf-8"
 
 
-def stream_decode_response_unicode(iterator, r):
+def stream_decode_response_unicode(iterator, r, encoding_hint=None):
     """Stream decodes an iterator."""
 
-    if r.encoding is None:
+    encoding = r.encoding or encoding_hint
+
+    if encoding is None:
         yield from iterator
         return
 
-    decoder = codecs.getincrementaldecoder(r.encoding)(errors="replace")
+    decoder = codecs.getincrementaldecoder(encoding)(errors="replace")
     for chunk in iterator:
         rv = decoder.decode(chunk)
         if rv:
