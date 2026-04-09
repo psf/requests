@@ -812,7 +812,10 @@ class Response:
         a single chunk.
 
         If decode_unicode is True, content will be decoded using the best
-        available encoding based on the response.
+        available encoding based on the response headers. Note that unlike
+        `.text`, this does not infer encoding from the content itself, as we
+        may be mid-stream. If `.encoding` is None, then decode_unicode will be
+        a no-op.
         """
 
         def generate():
@@ -862,6 +865,9 @@ class Response:
         """Iterates over the response data, one line at a time.  When
         stream=True is set on the request, this avoids reading the
         content at once into memory for large responses.
+
+        The decode_unicode param works the same as in `iter_content`, with the
+        same caveats.
 
         .. note:: This method is not reentrant safe.
         """
