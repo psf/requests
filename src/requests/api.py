@@ -29,9 +29,13 @@ def request(method, url, **kwargs):
         defining the content type of the given file and ``custom_headers`` a dict-like object containing additional headers
         to add for the file.
     :param auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.
-    :param timeout: (optional) How many seconds to wait for the server to send data
-        before giving up, as a float, or a :ref:`(connect timeout, read
-        timeout) <timeouts>` tuple.
+    :param timeout: (optional) How many seconds to wait for the server to
+        send data before giving up, as a float, or a :ref:`(connect timeout,
+        read timeout) <timeouts>` tuple. When a single float is provided, it
+        is used as both the connect and the read timeout. This is **not** a
+        total time limit on the entire response download; it applies
+        separately to the connection phase and to each ``recv()`` call while
+        waiting for data from the server.
     :type timeout: float or tuple
     :param allow_redirects: (optional) Boolean. Enable/disable GET/OPTIONS/POST/PUT/PATCH/DELETE/HEAD redirection. Defaults to ``True``.
     :type allow_redirects: bool
