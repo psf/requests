@@ -4,13 +4,18 @@ repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
   hooks:
+  - id: check-case-conflict
+  - id: check-merge-conflict
+  - id: check-toml
   - id: check-yaml
   - id: end-of-file-fixer
+  - id: mixed-line-ending
+    args: [--fix=auto]
   - id: trailing-whitespace
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.15.9
   hooks:
-    - id: ruff
+    - id: ruff-check
       args: [--fix]
     - id: ruff-format
       exclude: tests/test_lowlevel.py
