@@ -490,6 +490,7 @@ class HTTPAdapter(BaseAdapter):
                 "https://github.com/psf/requests/pull/6710 for more details."
             ),
             DeprecationWarning,
+            stacklevel=2,
         )
         proxy = select_proxy(url, proxies)
 

@@ -87,6 +87,7 @@ def check_compatibility(urllib3_version, chardet_version, charset_normalizer_ver
             "Unable to find acceptable character detection dependency "
             "(chardet or charset_normalizer).",
             RequestsDependencyWarning,
+            stacklevel=2,
         )
 
 
@@ -101,7 +102,7 @@ def _check_cryptography(cryptography_version):
         warning = (
             f"Old version of cryptography ({cryptography_version}) may cause slowdown."
         )
-        warnings.warn(warning, RequestsDependencyWarning)
+        warnings.warn(warning, RequestsDependencyWarning, stacklevel=2)
 
 
 # Check imported dependencies for compatibility.
@@ -115,6 +116,7 @@ except (AssertionError, ValueError):
         f"({chardet_version})/charset_normalizer ({charset_normalizer_version}) "
         "doesn't match a supported version!",
         RequestsDependencyWarning,
+        stacklevel=2,
     )
 
 # Attempt to enable urllib3's fallback for SNI support

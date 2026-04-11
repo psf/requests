@@ -39,6 +39,7 @@ def _basic_auth_str(username, password):
             "a string or bytes object in the near future to avoid "
             "problems.",
             category=DeprecationWarning,
+            stacklevel=2,
         )
         username = str(username)
 
@@ -49,6 +50,7 @@ def _basic_auth_str(username, password):
             "a string or bytes object in the near future to avoid "
             "problems.",
             category=DeprecationWarning,
+            stacklevel=2,
         )
         password = str(password)
     # -- End Removal --

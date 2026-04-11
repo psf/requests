@@ -171,6 +171,7 @@ def super_len(o):
                         "for files in text mode."
                     ),
                     FileModeWarning,
+                    stacklevel=2,
                 )
 
     if hasattr(o, "tell"):
@@ -488,6 +489,7 @@ def get_encodings_from_content(content):
             " warning should only appear once.)"
         ),
         DeprecationWarning,
+        stacklevel=2,
     )
 
     charset_re = re.compile(r'<meta.*?charset=["\']*(.+?)["\'>]', flags=re.I)
@@ -594,6 +596,7 @@ def get_unicode_from_response(r):
             " warning should only appear once.)"
         ),
         DeprecationWarning,
+        stacklevel=2,
     )
 
     tried_encodings = []
