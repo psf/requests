@@ -43,6 +43,15 @@ def request(method, url, **kwargs):
     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
+    :raises requests.exceptions.ConnectionError: A network problem occurred (e.g. DNS failure, refused connection).
+    :raises requests.exceptions.Timeout: The request timed out. Catching this catches both
+        :exc:`~requests.exceptions.ConnectTimeout` and :exc:`~requests.exceptions.ReadTimeout`.
+    :raises requests.exceptions.TooManyRedirects: Too many redirects; the request exceeded the configured number.
+    :raises requests.exceptions.URLRequired: A valid URL is required.
+    :raises requests.exceptions.MissingSchema: The URL scheme (e.g. http or https) is missing.
+    :raises requests.exceptions.InvalidSchema: The URL scheme is invalid or unsupported.
+    :raises requests.exceptions.InvalidURL: The URL is somehow invalid.
+    :raises requests.exceptions.InvalidHeader: A provided header value is invalid.
 
     Usage::
 
