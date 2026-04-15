@@ -35,7 +35,7 @@ class JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):
     def __init__(self, *args, **kwargs):
         """
         Construct the JSONDecodeError instance first with all
-        args. Then use it's args to construct the IOError so that
+        args. Then use its args to construct the IOError so that
         the json specific args aren't used as IOError specific args
         and the error message from JSONDecodeError is preserved.
         """
