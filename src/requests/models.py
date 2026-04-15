@@ -496,7 +496,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_body(self, data, files, json=None):
         """Prepares the given HTTP body data."""
 
-        # Check if file, fo, generator, iterator.
+        # Check if data is a file, file-like object, generator, or iterator.
         # If not, run through normal process.
 
         # Nottin' on you.
