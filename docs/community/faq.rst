@@ -9,7 +9,7 @@ Encoded Data?
 -------------
 
 Requests automatically decompresses gzip-encoded responses, and does
-its best to decode response content to unicode when possible.
+it's best to decode response content to unicode when possible.
 
 When either the `brotli <https://pypi.org/project/Brotli/>`_ or `brotlicffi <https://pypi.org/project/brotlicffi/>`_
 package is installed, requests also decodes Brotli-encoded responses.
