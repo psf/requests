@@ -186,7 +186,16 @@ class HTTPDigestAuth(AuthBase):
         if p_parsed.query:
             path += f"?{p_parsed.query}"
 
-        A1 = f"{self.username}:{realm}:{self.password}"
+        # Normalize username/password: decode bytes to str so non-ASCII
+        # credentials are handled correctly in both the hash and the header.
+        username = self.username
+        password = self.password
+        if isinstance(username, bytes):
+            username = username.decode("utf-8")
+        if isinstance(password, bytes):
+            password = password.decode("utf-8")
+
+        A1 = f"{username}:{realm}:{password}"
         A2 = f"{method}:{path}"
 
         HA1 = hash_utf8(A1)
@@ -218,8 +227,18 @@ class HTTPDigestAuth(AuthBase):
         self._thread_local.last_nonce = nonce
 
         # XXX should the partial digests be encoded too?
+        # Build username header field: use RFC 7616 / RFC 5987 encoding for
+        # non-ASCII usernames so that the header stays valid HTTP.
+        try:
+            username.encode("ascii")
+            username_field = f'username="{username}"'
+        except UnicodeEncodeError:
+            from urllib.parse import quote as urlquote
+
+            username_field = f"username*=UTF-8''{urlquote(username, safe='')}"
+
         base = (
-            f'username="{self.username}", realm="{realm}", nonce="{nonce}", '
+            f'{username_field}, realm="{realm}", nonce="{nonce}", '
             f'uri="{path}", response="{respdig}"'
         )
         if opaque:
