@@ -1010,12 +1010,13 @@ class Response:
         if isinstance(self.reason, bytes):
             # We attempt to decode utf-8 first because some servers
             # choose to localize their reason strings. If the string
-            # isn't utf-8, we fall back to iso-8859-1 for all other
-            # encodings. (See PR #3538)
+            # RFC 7231 removed the ISO-8859-1 default charset for text/*.
+            # We now use UTF-8 with error replacement for any non-UTF-8 bytes.
+            # (See issue #2086)
             try:
                 reason = self.reason.decode("utf-8")
             except UnicodeDecodeError:
-                reason = self.reason.decode("iso-8859-1")
+                reason = self.reason.decode("utf-8", errors="replace")
         else:
             reason = self.reason
 
