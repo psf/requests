@@ -1,0 +1,53 @@
+--- 
+C:\Users\ASUS\AppData\Local\Temp\fixora_repos\psf_requests\tests\test_requests.py
+@@ -1036,7 +1036,7 @@
+             {"stuff": "ëlïxr"},\n
+             {"stuff": "ëlïxr".encode()},\n
+             {"stuff": "elixr"},\n
+-            {"stuff": b"elixr"},\n
++            {"stuff": "elixr"},\n
+         ),\n
+     )\n
+     def test_unicode_multipart_post(self, httpbin, data):\n
+@@ -1046,7 +1046,7 @@
+         r = requests.post(\n
+             httpbin("post"),\n
+             data=data,\n
+-            files={"file": ("test_requests.py", open(__file__, "rb"))},\n
++            files={"file": ("test_requests.py", open(__file__, "rb").read())},\n
+         )\n
+         assert r.status_code == 200\n
+ \n
+@@ -1056,7 +1056,7 @@
+         filename = os.path.splitext(__file__)[0] + ".py"\n
+         r = requests.Request(\n
+             method="POST",\n
+-            url=httpbin("post"),\n
++            url=httpbin("post").encode(),\n
+             data={b"stuff": "elixr"},\n
+             files={"file": ("test_requests.py", open(filename, "rb"))},\n
+         )\n
+@@ -1066,7 +1066,7 @@
+         prep = r.prepare()\n
+         assert b'name="stuff"' in prep.body\n
+         assert b"name=\"b'stuff'\"" not in prep.body\n
+-
+@@ -1076,7 +1076,7 @@
+         files = {"file": open(__file__, "rb")}\n
+         r = requests.request(method="POST", url=httpbin("post"), files=files)\n
+         assert r.status_code == 200\n
+-
+@@ -1086,7 +1086,7 @@
+         files = {"file": open(__file__, "rb")}\n
+         s = requests.Session()\n
+         req = requests.Request("POST", httpbin("post"), files=files)\n
+-        prep = s.prepare_request(req)\n
++        prep = s.prepare_request(req).prepare()\n
+         assert isinstance(prep.method, str)\n
+         assert prep.method == "POST"\n
+ \n
+@@ -1094,7 +1094,7 @@
+         resp = s.send(prep)\n
+         assert resp.status_code == 200\n
+ \n
+---
