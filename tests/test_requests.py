@@ -557,7 +557,6 @@ class TestRequests:
             ("user", "pass"),
             ("имя".encode(), "пароль".encode()),
             (42, 42),
-            (None, None),
         ),
     )
     def test_set_basicauth(self, httpbin, username, password):
@@ -568,6 +567,21 @@ class TestRequests:
         p = r.prepare()
 
         assert p.headers["Authorization"] == _basic_auth_str(username, password)
+
+    @pytest.mark.parametrize(
+        "username, password",
+        (
+            (None, None),
+            ("user", None),
+            (None, "pass"),
+        ),
+    )
+    def test_set_basicauth_none_rejected(self, username, password):
+        """Auth tuples with None values should raise InvalidHeader."""
+        auth = (username, password)
+        r = requests.Request("GET", "http://localhost", auth=auth)
+        with pytest.raises(InvalidHeader):
+            r.prepare()
 
     def test_basicauth_encodes_byte_strings(self):
         """Ensure b'test' formats as the byte string "test" rather

@@ -45,6 +45,7 @@ from .exceptions import (
     ConnectionError,
     ContentDecodingError,
     HTTPError,
+    InvalidHeader,
     InvalidJSONError,
     InvalidURL,
     MissingSchema,
@@ -598,6 +599,12 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if auth:
             if isinstance(auth, tuple) and len(auth) == 2:
                 # special-case basic HTTP auth
+                if auth[0] is None or auth[1] is None:
+                    raise InvalidHeader(
+                        f"Invalid auth tuple: "
+                        f"username and password must be strings, got "
+                        f"{type(auth[0]).__name__} and {type(auth[1]).__name__}"
+                    )
                 auth = HTTPBasicAuth(*auth)
 
             # Allow auth to make its changes.
