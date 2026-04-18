@@ -737,7 +737,7 @@ class TestRequests:
 
         try:
             # Should use netrc
-            # Make sure that we don't use the example.com credentails
+            # Make sure that we don't use the example.com credentials
             # for the request
             r = requests.get(url)
             assert r.status_code == 200
