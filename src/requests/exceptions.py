@@ -118,7 +118,12 @@ class InvalidProxyURL(InvalidURL):
 
 
 class ChunkedEncodingError(RequestException):
-    """The server declared chunked encoding but sent an invalid chunk."""
+    """The server declared chunked encoding but sent an invalid chunk.
+
+    This may also be raised when the connection is interrupted mid-stream,
+    resulting in an incomplete chunked response. Retrying the request may
+    succeed in cases where the error is caused by a transient network issue.
+    """
 
 
 class ContentDecodingError(RequestException, BaseHTTPError):
