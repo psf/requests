@@ -532,7 +532,13 @@ Timeouts
 You can tell Requests to stop waiting for a response after a given number of
 seconds with the ``timeout`` parameter. Nearly all production code should use
 this parameter in nearly all requests. Failure to do so can cause your program
-to hang indefinitely::
+to hang indefinitely.
+
+For example, this request uses a 10-second timeout::
+
+    >>> requests.get('https://github.com/', timeout=10)
+
+If the server takes too long to respond, Requests raises ``Timeout``::
 
     >>> requests.get('https://github.com/', timeout=0.001)
     Traceback (most recent call last):
