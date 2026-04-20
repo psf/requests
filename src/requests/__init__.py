@@ -56,7 +56,7 @@ except ImportError:
 
 
 def check_compatibility(urllib3_version, chardet_version, charset_normalizer_version):
-    urllib3_version = urllib3_version.split(".")
+    urllib3_version = urllib3_version.split(".")[:3]
     assert urllib3_version != ["dev"]  # Verify urllib3 isn't installed from git.
 
     # Sometimes, urllib3 only reports its version as 16.1.
