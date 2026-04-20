@@ -86,7 +86,9 @@ if TYPE_CHECKING:
 
     KVDataType: TypeAlias = Iterable[tuple[Any, Any]] | Mapping[Any, Any]
 
-    EncodableDataType: TypeAlias = KVDataType | str | bytes | SupportsRead[str | bytes]
+    RawDataType: TypeAlias = KVDataType | str | bytes
+    StreamDataType: TypeAlias = SupportsRead[str | bytes]
+    EncodableDataType: TypeAlias = RawDataType | StreamDataType
 
     DataType: TypeAlias = (
         KVDataType

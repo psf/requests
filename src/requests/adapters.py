@@ -700,7 +700,7 @@ class HTTPAdapter(BaseAdapter):
                 method=request.method,
                 url=url,
                 body=request.body,  # type: ignore[arg-type]  # urllib3 stubs don't accept Iterable[bytes | str]
-                headers=request.headers,
+                headers=request.headers,  # type: ignore[arg-type]  # urllib3#3072
                 redirect=False,
                 assert_same_host=False,
                 preload_content=False,

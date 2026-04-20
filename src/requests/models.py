@@ -96,6 +96,7 @@ if TYPE_CHECKING:
         JsonType,
         KVDataType,
         ParamsType,
+        RawDataType,
         UriType,
     )
     from .adapters import HTTPAdapter
@@ -140,6 +141,22 @@ class RequestEncodingMixin:
 
         return "".join(url)
 
+    @overload
+    @staticmethod
+    def _encode_params(data: str) -> str: ...
+
+    @overload
+    @staticmethod
+    def _encode_params(data: bytes) -> bytes: ...
+
+    @overload
+    @staticmethod
+    def _encode_params(data: SupportsRead[str | bytes]) -> SupportsRead[str | bytes]: ...
+
+    @overload
+    @staticmethod
+    def _encode_params(data: KVDataType) -> str: ...
+
     @staticmethod
     def _encode_params(
         data: EncodableDataType,
@@ -174,7 +191,7 @@ class RequestEncodingMixin:
 
     @staticmethod
     def _encode_files(
-        files: FilesType, data: KVDataType | str | bytes | None
+        files: FilesType, data: RawDataType | None
     ) -> tuple[bytes, str]:
         """Build the body for a multipart/form-data request.
 
@@ -235,7 +252,7 @@ class RequestEncodingMixin:
             else:
                 fdata = fp
 
-            rf = RequestField(name=k, data=fdata, filename=fn, headers=fh)  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+            rf = RequestField(name=k, data=fdata, filename=fn, headers=fh)
             rf.make_multipart(content_type=ft)
             new_fields.append(rf)
 
@@ -386,7 +403,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     method: str | None
     url: str | None
-    headers: CaseInsensitiveDict[str]
+    headers: CaseInsensitiveDict[str | bytes]
     _cookies: RequestsCookieJar | CookieJar | None
     body: BodyType
     hooks: dict[str, list[HookType]]
@@ -398,7 +415,6 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         #: HTTP URL to send the request to.
         self.url = None
         #: dictionary of HTTP headers.
-        # TODO: Revisit pattern of None-init for attributes that are always set before use
         self.headers = None  # type: ignore[assignment]
         # The `CookieJar` used to create the Cookie header will be stored here
         # after prepare_cookies is called
@@ -548,7 +564,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 query = enc_params
 
-        url = requote_uri(urlunparse([scheme, netloc, path, None, query, fragment]))  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+        url = requote_uri(
+            urlunparse((scheme, netloc, path, "", query, fragment))
+        )
         self.url = url
 
     def prepare_headers(self, headers: Mapping[str, str | bytes] | None) -> None:
@@ -560,7 +578,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 # Raise exception on invalid header value.
                 check_header_validity(header)
                 name, value = header
-                self.headers[to_native_string(name)] = value  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+                self.headers[to_native_string(name)] = value
 
     def prepare_body(
         self, data: DataType, files: FilesType, json: JsonType = None
@@ -618,12 +636,15 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 self.headers["Transfer-Encoding"] = "chunked"
         else:
+            # After is_stream filtering, remaining data is raw (not streamed)
+            raw_data = cast("RawDataType | None", data)
+
             # Multi-part file uploads.
             if files:
-                (body, content_type) = self._encode_files(files, data)  # type: ignore[arg-type]  # is_stream filters non-encodable iterables
+                (body, content_type) = self._encode_files(files, raw_data)
             else:
-                if data:
-                    body = self._encode_params(data)  # type: ignore[arg-type]  # is_stream filters non-encodable iterables
+                if raw_data:
+                    body = self._encode_params(raw_data)
                     if isinstance(data, basestring) or isinstance(data, SupportsRead):
                         content_type = None
                     else:

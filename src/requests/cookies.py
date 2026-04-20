@@ -14,9 +14,10 @@ import copy
 import time
 from collections.abc import Iterator, MutableMapping
 from http.cookiejar import Cookie, CookieJar, CookiePolicy
-from typing import TYPE_CHECKING, Any, TypeVar, cast, overload
+from typing import TYPE_CHECKING, Any, TypeVar, overload
 
 from ._internal_utils import to_native_string
+from ._types import is_prepared
 from .compat import Morsel, cookielib, urlparse, urlunparse
 
 if TYPE_CHECKING:
@@ -28,7 +29,7 @@ import threading
 
 
 class MockRequest:
-    """Wraps a `requests.Request` to mimic a `urllib2.Request`.
+    """Wraps a `requests.PreparedRequest` to mimic a `urllib2.Request`.
 
     The code in `http.cookiejar.CookieJar` expects this interface in order to correctly
     manage cookie policies, i.e., determine whether a cookie can be set, given the
@@ -42,15 +43,16 @@ class MockRequest:
     type: str
 
     def __init__(self, request: PreparedRequest) -> None:
+        assert is_prepared(request)
         self._r = request
         self._new_headers: dict[str, str] = {}
-        self.type = urlparse(self._r.url).scheme  # type: ignore[assignment]  # TODO(typing): str|bytes URL handling
+        self.type = urlparse(self._r.url).scheme
 
     def get_type(self) -> str:
         return self.type
 
     def get_host(self) -> str:
-        return urlparse(self._r.url).netloc  # type: ignore[return-value]  # TODO(typing): str|bytes URL handling
+        return urlparse(self._r.url).netloc
 
     def get_origin_req_host(self) -> str:
         return self.get_host()
@@ -59,13 +61,13 @@ class MockRequest:
         # Only return the response's URL if the user hadn't set the Host
         # header
         if not self._r.headers.get("Host"):
-            return cast(str, self._r.url)
+            return self._r.url
         # If they did set it, retrieve it and reconstruct the expected domain
         host = to_native_string(self._r.headers["Host"], encoding="utf-8")
         parsed = urlparse(self._r.url)
         # Reconstruct the URL as we expect it
         return urlunparse(
-            [  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+            [
                 parsed.scheme,
                 host,
                 parsed.path,
@@ -82,7 +84,7 @@ class MockRequest:
         return name in self._r.headers or name in self._new_headers
 
     def get_header(self, name: str, default: str | None = None) -> str | None:
-        return self._r.headers.get(name, self._new_headers.get(name, default))
+        return self._r.headers.get(name, self._new_headers.get(name, default))  # type: ignore[return-value]
 
     def add_header(self, key: str, val: str) -> None:
         """cookiejar has no legitimate use for this method; add it back if you find one."""

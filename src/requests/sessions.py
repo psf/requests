@@ -356,6 +356,7 @@ class SessionRedirectMixin:
 
         :rtype: dict
         """
+        assert is_prepared(prepared_request)
         headers = prepared_request.headers
         scheme = urlparse(prepared_request.url).scheme
         new_proxies = resolve_proxies(prepared_request, proxies, self.trust_env)
@@ -364,13 +365,13 @@ class SessionRedirectMixin:
             del headers["Proxy-Authorization"]
 
         try:
-            username, password = get_auth_from_url(new_proxies[scheme])  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+            username, password = get_auth_from_url(new_proxies[scheme])
         except KeyError:
             username, password = None, None
 
         # urllib3 handles proxy authorization for us in the standard adapter.
         # Avoid appending this to TLS tunneled requests where it may be leaked.
-        if not scheme.startswith("https") and username and password:  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+        if not scheme.startswith("https") and username and password:
             headers["Proxy-Authorization"] = _basic_auth_str(username, password)
 
         return new_proxies

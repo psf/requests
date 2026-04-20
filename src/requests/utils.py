@@ -45,7 +45,6 @@ from ._internal_utils import (  # noqa: F401
 from ._types import SupportsItems
 from .compat import (
     Mapping,
-    basestring,
     bytes,
     getproxies,
     getproxies_environment,
@@ -276,8 +275,8 @@ def get_netrc_auth(url: str, raise_errors: bool = False) -> tuple[str, str] | No
 def guess_filename(obj: Any) -> str | None:
     """Tries to guess the filename of the given object."""
     name = getattr(obj, "name", None)
-    if name and isinstance(name, basestring) and name[0] != "<" and name[-1] != ">":
-        return os.path.basename(name)  # type: ignore[return-value]  # TODO(typing): str|bytes URL handling
+    if name and isinstance(name, str) and name[0] != "<" and name[-1] != ">":
+        return os.path.basename(name)
 
 
 def extract_zipped_paths(path: str) -> str:
@@ -645,6 +644,8 @@ def get_unicode_from_response(r: Response) -> str | bytes | None:
         ),
         DeprecationWarning,
     )
+    if r.content is None:
+        return None
 
     tried_encodings: list[str] = []
 
@@ -653,13 +654,13 @@ def get_unicode_from_response(r: Response) -> str | bytes | None:
 
     if encoding:
         try:
-            return str(r.content, encoding)  # type: ignore[arg-type]
+            return str(r.content, encoding)
         except UnicodeError:
             tried_encodings.append(encoding)
 
     # Fall back:
     try:
-        return str(r.content, encoding or "utf-8", errors="replace")  # type: ignore[arg-type]
+        return str(r.content, encoding or "utf-8", errors="replace")
     except TypeError:
         return r.content
 
