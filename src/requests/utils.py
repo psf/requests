@@ -24,7 +24,6 @@ from collections.abc import Generator, Iterable, Iterator
 from typing import (
     TYPE_CHECKING,
     Any,
-    AnyStr,
     Final,
     TypeVar,
     cast,
@@ -74,7 +73,7 @@ if TYPE_CHECKING:
     from http.cookiejar import CookieJar
     from io import BufferedWriter
 
-    from ._types import SupportsItems, UriType
+    from ._types import SupportsItems
     from .models import PreparedRequest, Request, Response
 
 NETRC_FILES: Final = (".netrc", "_netrc")
@@ -227,7 +226,7 @@ def super_len(o: Any) -> int:
     return max(0, total_length - current_position)
 
 
-def get_netrc_auth(url: UriType, raise_errors: bool = False) -> tuple[str, str] | None:
+def get_netrc_auth(url: str, raise_errors: bool = False) -> tuple[str, str] | None:
     """Returns the Requests tuple auth for a given url from netrc."""
 
     netrc_file = os.environ.get("NETRC")
@@ -254,8 +253,11 @@ def get_netrc_auth(url: UriType, raise_errors: bool = False) -> tuple[str, str] 
         ri = urlparse(url)
         host = ri.hostname
 
+        if host is None:
+            return
+
         try:
-            _netrc = netrc(netrc_path).authenticators(host)  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+            _netrc = netrc(netrc_path).authenticators(host)
             if _netrc and any(_netrc):
                 # Return with login / password
                 login_i = 0 if _netrc[0] else 1
@@ -798,7 +800,7 @@ def set_environ(env_name: str, value: str | None) -> Iterator[None]:
                 os.environ[env_name] = old_value
 
 
-def should_bypass_proxies(url: UriType, no_proxy: str | None) -> bool:
+def should_bypass_proxies(url: str, no_proxy: str | None) -> bool:
     """
     Returns whether we should bypass proxies or not.
 
@@ -816,8 +818,9 @@ def should_bypass_proxies(url: UriType, no_proxy: str | None) -> bool:
     if no_proxy is None:
         no_proxy = get_proxy("no_proxy")
     parsed = urlparse(url)
+    hostname = parsed.hostname
 
-    if parsed.hostname is None:
+    if hostname is None:
         # URLs don't always have hostnames, e.g. file:/// urls.
         return True
 
@@ -826,30 +829,29 @@ def should_bypass_proxies(url: UriType, no_proxy: str | None) -> bool:
         # the end of the hostname, both with and without the port.
         no_proxy_hosts = (host for host in no_proxy.replace(" ", "").split(",") if host)
 
-        if is_ipv4_address(parsed.hostname):  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+        if is_ipv4_address(hostname):
             for proxy_ip in no_proxy_hosts:
                 if is_valid_cidr(proxy_ip):
-                    if address_in_network(parsed.hostname, proxy_ip):  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+                    if address_in_network(hostname, proxy_ip):
                         return True
-                elif parsed.hostname == proxy_ip:
+                elif hostname == proxy_ip:
                     # If no_proxy ip was defined in plain IP notation instead of cidr notation &
                     # matches the IP of the index
                     return True
         else:
-            host_with_port = parsed.hostname
+            host_with_port = hostname
             if parsed.port:
-                host_with_port += f":{parsed.port}"  # type: ignore[operator]  # TODO(typing): str|bytes URL handling
+                host_with_port += f":{parsed.port}"
 
             for host in no_proxy_hosts:
-                if parsed.hostname.endswith(host) or host_with_port.endswith(host):  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+                if hostname.endswith(host) or host_with_port.endswith(host):
                     # The URL does match something in no_proxy, so we don't want
                     # to apply the proxies on this URL.
                     return True
 
     with set_environ("no_proxy", no_proxy_arg):
-        # parsed.hostname can be `None` in cases such as a file URI.
         try:
-            bypass = proxy_bypass(parsed.hostname)  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+            bypass = proxy_bypass(hostname)
         except (TypeError, socket.gaierror):
             bypass = False
 
@@ -859,7 +861,7 @@ def should_bypass_proxies(url: UriType, no_proxy: str | None) -> bool:
     return False
 
 
-def get_environ_proxies(url: UriType, no_proxy: str | None = None) -> dict[str, str]:
+def get_environ_proxies(url: str, no_proxy: str | None = None) -> dict[str, str]:
     """
     Return a dict of environment proxies.
 
@@ -921,10 +923,10 @@ def resolve_proxies(
     if trust_env and not should_bypass_proxies(url, no_proxy=no_proxy):
         environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
 
-        proxy = environ_proxies.get(scheme, environ_proxies.get("all"))  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+        proxy = environ_proxies.get(scheme, environ_proxies.get("all"))
 
         if proxy:
-            new_proxies.setdefault(scheme, proxy)  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+            new_proxies.setdefault(scheme, proxy)
     return new_proxies
 
 
@@ -1056,7 +1058,7 @@ def prepend_scheme_if_needed(url: str, new_scheme: str) -> str:
     return urlunparse((scheme, netloc, path, "", query, fragment))
 
 
-def get_auth_from_url(url: UriType) -> tuple[str, str]:
+def get_auth_from_url(url: str) -> tuple[str, str]:
     """Given a url with authentication components, extract them into a tuple of
     username,password.
 
@@ -1065,14 +1067,15 @@ def get_auth_from_url(url: UriType) -> tuple[str, str]:
     parsed = urlparse(url)
 
     try:
-        auth = (unquote(parsed.username), unquote(parsed.password))  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+        # except handles parsed.username/password being None
+        auth = (unquote(parsed.username), unquote(parsed.password))  # type: ignore[arg-type]
     except (AttributeError, TypeError):
         auth = ("", "")
 
     return auth
 
 
-def check_header_validity(header: tuple[AnyStr, AnyStr]) -> None:
+def check_header_validity(header: tuple[str | bytes, str | bytes]) -> None:
     """Verifies that header parts don't contain leading whitespace
     reserved characters, or return characters.
 
@@ -1084,11 +1087,14 @@ def check_header_validity(header: tuple[AnyStr, AnyStr]) -> None:
 
 
 def _validate_header_part(
-    header: tuple[AnyStr, AnyStr], header_part: AnyStr, header_validator_index: int
+    header: tuple[str | bytes, str | bytes],
+    header_part: str | bytes,
+    header_validator_index: int,
 ) -> None:
     if isinstance(header_part, str):
         validator = _HEADER_VALIDATORS_STR[header_validator_index]
-    elif isinstance(header_part, bytes):  # type: ignore[reportUnnecessaryIsInstance]  # runtime guard for non-str/bytes
+    elif isinstance(header_part, bytes):  # type: ignore[reportUnnecessaryIsInstance]
+        # runtime guard for non-str/bytes input
         validator = _HEADER_VALIDATORS_BYTE[header_validator_index]
     else:
         raise InvalidHeader(
@@ -1104,7 +1110,7 @@ def _validate_header_part(
         )
 
 
-def urldefragauth(url: UriType) -> str:
+def urldefragauth(url: str) -> str:
     """
     Given a url remove the fragment and the authentication part.
 
@@ -1116,9 +1122,9 @@ def urldefragauth(url: UriType) -> str:
     if not netloc:
         netloc, path = path, netloc
 
-    netloc = netloc.rsplit("@", 1)[-1]  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+    netloc = netloc.rsplit("@", 1)[-1]
 
-    return urlunparse((scheme, netloc, path, params, query, ""))  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+    return urlunparse((scheme, netloc, path, params, query, ""))
 
 
 def rewind_body(prepared_request: PreparedRequest) -> None:

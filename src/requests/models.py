@@ -96,6 +96,7 @@ if TYPE_CHECKING:
         JsonType,
         KVDataType,
         ParamsType,
+        UriType,
     )
     from .adapters import HTTPAdapter
     from .cookies import RequestsCookieJar
@@ -310,7 +311,7 @@ class Request(RequestHooksMixin):
     def __init__(
         self,
         method: str | None = None,
-        url: str | None = None,
+        url: UriType | None = None,
         headers: Mapping[str, str | bytes] | None = None,
         files: FilesType = None,
         data: DataType = None,
@@ -332,7 +333,7 @@ class Request(RequestHooksMixin):
             self.register_hook(event=k, hook=v)
 
         self.method = method
-        self.url = url
+        self.url = url.decode("utf-8") if isinstance(url, bytes) else url
         self.headers = headers
         self.files = files
         self.data = data
@@ -412,7 +413,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare(
         self,
         method: str | None = None,
-        url: str | None = None,
+        url: UriType | None = None,
         headers: Mapping[str, str | bytes] | None = None,
         files: FilesType = None,
         data: DataType = None,
@@ -470,7 +471,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_url(
         self,
-        url: str,
+        url: UriType,
         params: ParamsType,
     ) -> None:
         """Prepares the given HTTP URL."""
@@ -557,7 +558,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if headers:
             for header in headers.items():
                 # Raise exception on invalid header value.
-                check_header_validity(header)  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
+                check_header_validity(header)
                 name, value = header
                 self.headers[to_native_string(name)] = value  # type: ignore[arg-type]  # TODO(typing): str|bytes URL handling
 

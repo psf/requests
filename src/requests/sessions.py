@@ -71,6 +71,7 @@ if TYPE_CHECKING:
         JsonType,
         ParamsType,
         TimeoutType,
+        UriType,
         VerifyType,
     )
     from .adapters import BaseAdapter
@@ -564,7 +565,7 @@ class Session(SessionRedirectMixin):
     def request(
         self,
         method: str,
-        url: str,
+        url: UriType,
         params: ParamsType = None,
         data: DataType = None,
         headers: Mapping[str, str | bytes] | None = None,
@@ -623,6 +624,9 @@ class Session(SessionRedirectMixin):
             If Tuple, ('cert', 'key') pair.
         :rtype: requests.Response
         """
+        if isinstance(url, bytes):
+            url = url.decode("utf-8")
+
         # Create the Request.
         req = Request(
             method=method.upper(),
@@ -656,7 +660,7 @@ class Session(SessionRedirectMixin):
 
         return resp
 
-    def get(self, url: str, **kwargs: Any) -> Response:
+    def get(self, url: UriType, **kwargs: Any) -> Response:
         r"""Sends a GET request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -667,7 +671,7 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault("allow_redirects", True)
         return self.request("GET", url, **kwargs)
 
-    def options(self, url: str, **kwargs: Any) -> Response:
+    def options(self, url: UriType, **kwargs: Any) -> Response:
         r"""Sends a OPTIONS request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -678,7 +682,7 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault("allow_redirects", True)
         return self.request("OPTIONS", url, **kwargs)
 
-    def head(self, url: str, **kwargs: Any) -> Response:
+    def head(self, url: UriType, **kwargs: Any) -> Response:
         r"""Sends a HEAD request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -690,7 +694,7 @@ class Session(SessionRedirectMixin):
         return self.request("HEAD", url, **kwargs)
 
     def post(
-        self, url: str, data: DataType = None, json: JsonType = None, **kwargs: Any
+        self, url: UriType, data: DataType = None, json: JsonType = None, **kwargs: Any
     ) -> Response:
         r"""Sends a POST request. Returns :class:`Response` object.
 
@@ -704,7 +708,7 @@ class Session(SessionRedirectMixin):
 
         return self.request("POST", url, data=data, json=json, **kwargs)
 
-    def put(self, url: str, data: DataType = None, **kwargs: Any) -> Response:
+    def put(self, url: UriType, data: DataType = None, **kwargs: Any) -> Response:
         r"""Sends a PUT request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -716,7 +720,7 @@ class Session(SessionRedirectMixin):
 
         return self.request("PUT", url, data=data, **kwargs)
 
-    def patch(self, url: str, data: DataType = None, **kwargs: Any) -> Response:
+    def patch(self, url: UriType, data: DataType = None, **kwargs: Any) -> Response:
         r"""Sends a PATCH request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -728,7 +732,7 @@ class Session(SessionRedirectMixin):
 
         return self.request("PATCH", url, data=data, **kwargs)
 
-    def delete(self, url: str, **kwargs: Any) -> Response:
+    def delete(self, url: UriType, **kwargs: Any) -> Response:
         r"""Sends a DELETE request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
