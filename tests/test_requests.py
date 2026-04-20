@@ -1065,6 +1065,20 @@ class TestRequests:
             # fail if we use our default trust bundle.
             requests.get(httpbin_secure("status", "200"))
 
+    def test_verify_false_with_cert_emits_security_warning(self):
+        """Ensure a SecurityWarning is raised when verify=False is combined
+        with a specified client certificate. This combination disables server identity
+        verification while still sending client credentials, which may be
+        insecure in production environments.
+        """
+        with pytest.warns(requests.exceptions.SecurityWarning, match="verify=False"):
+            # We pass cert="." as a dummy value -> the warning must be emitted
+            try:
+                requests.get("https://httpbin.org/get", verify=False, cert=".")
+            except Exception:
+                # Network or cert errors are irrelevant
+                pass
+
     def test_urlencoded_get_query_multivalued_param(self, httpbin):
         r = requests.get(httpbin("get"), params={"test": ["foo", "baz"]})
         assert r.status_code == 200
