@@ -44,6 +44,7 @@ from .exceptions import (
     ReadTimeout,
     RetryError,
     SSLError,
+    SecurityWarning,
 )
 from .models import Response
 from .structures import CaseInsensitiveDict
@@ -606,6 +607,15 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: (optional) The proxies dictionary to apply to the request.
         :rtype: requests.Response
         """
+
+        if verify is False and cert is not None:
+            warnings.warn(
+                "You are using verify=False (disable certificate verification)"
+                "together with a specified client certificate (cert)."
+                "This combination may be insecure in production environments.",
+                SecurityWarning,
+                stacklevel=2,
+            )
 
         try:
             conn = self.get_connection_with_tls_context(

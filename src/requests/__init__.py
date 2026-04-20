@@ -172,6 +172,7 @@ from .exceptions import (
     Timeout,
     TooManyRedirects,
     URLRequired,
+    SecurityWarning,
 )
 from .models import PreparedRequest, Request, Response
 from .sessions import Session, session

@@ -150,3 +150,7 @@ class FileModeWarning(RequestsWarning, DeprecationWarning):
 
 class RequestsDependencyWarning(RequestsWarning):
     """An imported dependency doesn't match the expected version range."""
+
+
+class SecurityWarning(RequestsWarning, UserWarning):
+    """A security-related warning for potentially insecure configurations."""
