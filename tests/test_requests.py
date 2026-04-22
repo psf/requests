@@ -1023,6 +1023,23 @@ class TestRequests:
             )
         assert settings["verify"] == expected
 
+    def test_session_verify_false_not_overridden_by_env(self):
+        """session.verify=False must not be overridden by REQUESTS_CA_BUNDLE / CURL_CA_BUNDLE."""
+        s = requests.Session()
+        s.verify = False
+        for env in (
+            {"REQUESTS_CA_BUNDLE": "/some/path"},
+            {"CURL_CA_BUNDLE": "/curl/path"},
+            {"REQUESTS_CA_BUNDLE": "/some/path", "CURL_CA_BUNDLE": "/curl/path"},
+        ):
+            with mock.patch("os.environ", env):
+                settings = s.merge_environment_settings(
+                    url="https://example.com/", proxies={}, stream=False, verify=None, cert=None
+                )
+            assert settings["verify"] is False, (
+                f"Expected verify=False with session.verify=False, env={env}, got {settings['verify']!r}"
+            )
+
     def test_http_with_certificate(self, httpbin):
         r = requests.get(httpbin(), cert=".")
         assert r.status_code == 200

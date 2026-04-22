@@ -765,12 +765,16 @@ class Session(SessionRedirectMixin):
 
             # Look for requests environment configuration
             # and be compatible with cURL.
+            # Only consult env vars when the session-level verify has not been
+            # explicitly set to False; otherwise REQUESTS_CA_BUNDLE / CURL_CA_BUNDLE
+            # would silently override an intentional session.verify = False.
             if verify is True or verify is None:
-                verify = (
-                    os.environ.get("REQUESTS_CA_BUNDLE")
-                    or os.environ.get("CURL_CA_BUNDLE")
-                    or verify
-                )
+                if self.verify is not False:
+                    verify = (
+                        os.environ.get("REQUESTS_CA_BUNDLE")
+                        or os.environ.get("CURL_CA_BUNDLE")
+                        or verify
+                    )
 
         # Merge all the kwargs.
         proxies = merge_setting(proxies, self.proxies)
