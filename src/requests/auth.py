@@ -133,6 +133,14 @@ class HTTPDigestAuth(AuthBase):
         qop = self._thread_local.chal.get("qop")
         algorithm = self._thread_local.chal.get("algorithm")
         opaque = self._thread_local.chal.get("opaque")
+
+        # Ensure username and password are strings for header formatting
+        # and consistent hash computation
+        if isinstance(self.username, bytes):
+            self.username = self.username.decode("utf-8")
+        if isinstance(self.password, bytes):
+            self.password = self.password.decode("utf-8")
+
         hash_utf8 = None
 
         if algorithm is None:
