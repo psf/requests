@@ -548,6 +548,21 @@ to hang indefinitely::
     received on the underlying socket for ``timeout`` seconds). If no timeout is specified explicitly, requests do
     not time out.
 
+**Timeout values:**
+
+- A single float value applies to both the **connect** and **read** timeouts::
+
+    >>> requests.get('https://github.com/', timeout=5)
+
+- A tuple can be used to specify separate connect and read timeouts::
+
+    >>> requests.get('https://github.com/', timeout=(3.05, 27))
+
+The first value is the connect timeout (time to establish a connection),
+and the second is the read timeout (time to wait for a response).
+
+See :ref:`timeouts` in the advanced section for more details.
+
 
 Errors and Exceptions
 ---------------------
