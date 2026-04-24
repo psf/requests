@@ -395,22 +395,22 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
             that match name and optionally domain and path
         :return: cookie.value
         """
-        toReturn = None
+        foundCookie = None
         for cookie in iter(self):
             if cookie.name == name:
                 if domain is None or cookie.domain == domain:
                     if path is None or cookie.path == path:
-                        if toReturn is not None:
+                        if foundCookie is not None:
                             # if there are multiple cookies that meet passed in criteria
                             raise CookieConflictError(
                                 f"There are multiple cookies with name, {name!r}"
                             )
                         # we will eventually return this as long as no cookie conflict
-                        toReturn = cookie.value
+                        foundCookie = cookie
 
-        if toReturn:
-            return toReturn
-        raise KeyError(f"name={name!r}, domain={domain!r}, path={path!r}")
+        if foundCookie is None:
+            raise KeyError(f"name={name!r}, domain={domain!r}, path={path!r}")
+        return foundCookie.value
 
     def __getstate__(self):
         """Unlike a normal CookieJar, this class is pickleable."""
