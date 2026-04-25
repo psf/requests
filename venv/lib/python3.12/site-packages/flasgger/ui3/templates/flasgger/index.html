@@ -1,0 +1,36 @@
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include 'flasgger/head.html' %}
+    <!-- To add custom code here override the template templates/flasgger/custom_head.html -->
+    {% include 'flasgger/custom_head.html' %}
+  </head>
+
+  <body>
+      {% include 'flasgger/top.html' %}
+
+      <div id="swagger-ui">
+          <div data-reactroot="" class="swagger-ui">
+              <div>
+              <div class="information-container wrapper">
+                  <section class="block col-12">
+                      <!-- ADDS THE LOADER SPINNER -->
+                      <div class="loading-container"><div class="loading"></div></div>
+                  </section>
+              </div>
+          </div>
+          </div>
+      </div>
+
+    <div id="swagger-ui"></div>
+
+    {% include 'flasgger/body_scripts.html' %}
+
+  <!-- To customize the script that loads swagger, override templates/flasgger/swagger.html -->
+  {% include 'flasgger/swagger.html' %}
+
+  <!-- To customize the footer and include custom script on templates/flasgger/footer.html -->
+  {% include 'flasgger/footer.html' %}
+  </body>
+</html>
