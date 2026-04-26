@@ -1,12 +1,13 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "requests"
 description = "Python HTTP for Humans."
 readme = "README.md"
-license = {text = "Apache-2.0"}
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 authors = [
     { name = "Kenneth Reitz", email = "me@kennethreitz.org" },
 ]
@@ -27,7 +28,6 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Web Environment",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
@@ -64,9 +64,6 @@ test = [
     "pytest>=3",
     "trustme",
 ]
-
-[tool.setuptools]
-license-files = ["LICENSE", "NOTICE"]
 
 [tool.setuptools.dynamic]
 version = {attr = "requests.__version__.__version__"}
