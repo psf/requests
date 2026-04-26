@@ -2112,10 +2112,8 @@ class TestRequests:
     def test_requests_history_is_saved(self, httpbin):
         r = requests.get(httpbin("redirect/5"))
         total = r.history[-1].history
-        i = 0
-        for item in r.history:
+        for i, item in enumerate(r.history):
             assert item.history == total[0:i]
-            i += 1
 
     def test_json_param_post_content_type_works(self, httpbin):
         r = requests.post(httpbin("post"), json={"life": 42})
