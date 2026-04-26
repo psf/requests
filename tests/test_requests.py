@@ -1282,7 +1282,7 @@ class TestRequests:
         assert len(jar) == 1
         assert "some_cookie" in jar
 
-        cookie = list(jar)[0]
+        cookie = next(iter(jar))
         assert cookie.secure == secure
         assert cookie.domain == domain
         assert cookie._rest["HttpOnly"] == rest["HttpOnly"]
