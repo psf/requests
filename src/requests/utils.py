@@ -111,7 +111,7 @@ if sys.platform == "win32":
                 return True
         return False
 
-    def proxy_bypass(host):  # noqa
+    def proxy_bypass(host):
         """Return True, if the host should be bypassed.
 
         Checks proxy settings gathered from the environment, if specified,
