@@ -644,7 +644,7 @@ class Response:
     server's response to an HTTP request.
     """
 
-    __attrs__ = [
+    __attrs__ = (
         "_content",
         "status_code",
         "headers",
@@ -655,7 +655,7 @@ class Response:
         "cookies",
         "elapsed",
         "request",
-    ]
+    )
 
     def __init__(self):
         self._content = False

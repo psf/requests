@@ -168,13 +168,13 @@ class HTTPAdapter(BaseAdapter):
       >>> s.mount('http://', a)
     """
 
-    __attrs__ = [
+    __attrs__ = (
         "max_retries",
         "config",
         "_pool_connections",
         "_pool_maxsize",
         "_pool_block",
-    ]
+    )
 
     def __init__(
         self,

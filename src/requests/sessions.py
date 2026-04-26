@@ -372,7 +372,7 @@ class Session(SessionRedirectMixin):
       <Response [200]>
     """
 
-    __attrs__ = [
+    __attrs__ = (
         "headers",
         "cookies",
         "auth",
@@ -385,7 +385,7 @@ class Session(SessionRedirectMixin):
         "stream",
         "trust_env",
         "max_redirects",
-    ]
+    )
 
     def __init__(self):
         #: A case-insensitive dictionary of headers to be sent on each
