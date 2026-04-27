@@ -428,6 +428,23 @@ class TestRequests:
         # Sending a request with cookies should not add cookies to the session
         assert not s.cookies
 
+    def test_none_request_cookie_removes_session_cookie(self):
+        s = requests.session()
+        s.cookies = cookiejar_from_dict({"from-my": "browser"})
+
+        req = requests.Request(
+            "GET",
+            "https://example.com",
+            cookies={"another": "cookie", "from-my": None},
+        )
+        prep = s.prepare_request(req)
+
+        assert prep.headers["Cookie"] == "another=cookie"
+        assert [(cookie.name, cookie.value) for cookie in prep._cookies] == [
+            ("another", "cookie")
+        ]
+        assert s.cookies["from-my"] == "browser"
+
     def test_generic_cookiejar_works(self, httpbin):
         cj = cookielib.CookieJar()
         cookiejar_from_dict({"foo": "bar"}, cj)
@@ -500,6 +517,13 @@ class TestRequests:
         req = requests.Request("GET", httpbin("get"))
         prep = ses.prepare_request(req)
         assert "Accept-Encoding" not in prep.headers
+
+    def test_cookiejar_from_dict_omits_none_values(self):
+        jar = cookiejar_from_dict({"keep": "value"})
+
+        cookiejar_from_dict({"keep": None, "empty": ""}, jar)
+
+        assert [(cookie.name, cookie.value) for cookie in jar] == [("empty", "")]
 
     def test_headers_preserve_order(self, httpbin):
         """Preserve order when headers provided as OrderedDict."""

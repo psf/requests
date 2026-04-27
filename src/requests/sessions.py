@@ -21,6 +21,7 @@ from .cookies import (
     cookiejar_from_dict,
     extract_cookies_to_jar,
     merge_cookies,
+    remove_cookie_by_name,
 )
 from .exceptions import (
     ChunkedEncodingError,
@@ -467,15 +468,21 @@ class Session(SessionRedirectMixin):
         :rtype: requests.PreparedRequest
         """
         cookies = request.cookies or {}
+        cookies_to_remove = []
 
         # Bootstrap CookieJar.
         if not isinstance(cookies, cookielib.CookieJar):
+            cookies_to_remove = [
+                name for name, value in cookies.items() if value is None
+            ]
             cookies = cookiejar_from_dict(cookies)
 
         # Merge with session cookies
         merged_cookies = merge_cookies(
             merge_cookies(RequestsCookieJar(), self.cookies), cookies
         )
+        for name in cookies_to_remove:
+            remove_cookie_by_name(merged_cookies, name)
 
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
