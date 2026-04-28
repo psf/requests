@@ -225,11 +225,11 @@ class HTTPDigestAuth(AuthBase):
         if opaque:
             base += f', opaque="{opaque}"'
         if algorithm:
-            base += f', algorithm="{algorithm}"'
+            base += f', algorithm={algorithm}'
         if entdig:
             base += f', digest="{entdig}"'
         if qop:
-            base += f', qop="auth", nc={ncvalue}, cnonce="{cnonce}"'
+            base += f', qop=auth, nc={ncvalue}, cnonce="{cnonce}"'
 
         return f"Digest {base}"
 
