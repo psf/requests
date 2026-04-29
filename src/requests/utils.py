@@ -20,7 +20,7 @@ import tempfile
 import warnings
 import zipfile
 from collections import OrderedDict
-from collections.abc import Generator, Iterable, Iterator
+from collections.abc import Generator, Iterable
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -275,8 +275,8 @@ def get_netrc_auth(url: str, raise_errors: bool = False) -> tuple[str, str] | No
 def guess_filename(obj: Any) -> str | None:
     """Tries to guess the filename of the given object."""
     name = getattr(obj, "name", None)
-    if name and isinstance(name, str) and name[0] != "<" and name[-1] != ">":
-        return os.path.basename(name)
+    if name and isinstance(name, (str, bytes)) and name[0] != "<" and name[-1] != ">":
+        return os.path.basename(name)  # type: ignore[return-value]  # urllib3 accepts bytes but types str only
 
 
 def extract_zipped_paths(path: str) -> str:
@@ -317,7 +317,7 @@ def extract_zipped_paths(path: str) -> str:
 
 
 @contextlib.contextmanager
-def atomic_open(filename: str) -> Iterator[BufferedWriter]:
+def atomic_open(filename: str) -> Generator[BufferedWriter, None, None]:
     """Write a file to the disk in an atomic fashion"""
     tmp_descriptor, tmp_name = tempfile.mkstemp(dir=os.path.dirname(filename))
     try:
@@ -779,7 +779,7 @@ def is_valid_cidr(string_network: str) -> bool:
 
 
 @contextlib.contextmanager
-def set_environ(env_name: str, value: str | None) -> Iterator[None]:
+def set_environ(env_name: str, value: str | None) -> Generator[None, None, None]:
     """Set the environment variable 'env_name' to 'value'
 
     Save previous value, yield, and then restore the previous value stored in
