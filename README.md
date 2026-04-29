@@ -1,5 +1,11 @@
 # Requests
 
+[![Version](https://img.shields.io/pypi/v/requests.svg?maxAge=86400)](https://pypi.org/project/requests/)
+[![Supported Versions](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests)
+[![Downloads](https://static.pepy.tech/badge/requests/month)](https://pepy.tech/project/requests)
+[![Contributors](https://img.shields.io/github/contributors/psf/requests.svg)](https://github.com/psf/requests/graphs/contributors)
+[![Documentation](https://readthedocs.org/projects/requests/badge/?version=latest)](https://requests.readthedocs.io)
+
 **Requests** is a simple, yet elegant, HTTP library.
 
 ```python
@@ -19,11 +25,7 @@
 
 Requests allows you to send HTTP/1.1 requests extremely easily. There’s no need to manually add query strings to your URLs, or to form-encode your `PUT` & `POST` data — but nowadays, just use the `json` method!
 
-Requests is one of the most downloaded Python packages today, pulling in around `30M downloads / week`— according to GitHub, Requests is currently [depended upon](https://github.com/psf/requests/network/dependents?package_id=UGFja2FnZS01NzA4OTExNg%3D%3D) by `1,000,000+` repositories. You may certainly put your trust in this code.
-
-[![Downloads](https://static.pepy.tech/badge/requests/month)](https://pepy.tech/project/requests)
-[![Supported Versions](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests)
-[![Contributors](https://img.shields.io/github/contributors/psf/requests.svg)](https://github.com/psf/requests/graphs/contributors)
+Requests is one of the most downloaded Python packages today, pulling in around `300M downloads / week` — according to GitHub, Requests is currently [depended upon](https://github.com/psf/requests/network/dependents?package_id=UGFja2FnZS01NzA4OTExNg%3D%3D) by `4,000,000+` repositories.
 
 ## Installing Requests and Supported Versions
 
@@ -52,10 +54,6 @@ Requests is ready for the demands of building robust and reliable HTTP–speakin
 - Streaming Downloads
 - Automatic honoring of `.netrc`
 - Chunked HTTP Requests
-
-## API Reference and User Guide available on [Read the Docs](https://requests.readthedocs.io)
-
-[![Read the Docs](https://raw.githubusercontent.com/psf/requests/main/ext/ss.png)](https://requests.readthedocs.io)
 
 ## Cloning the repository
 

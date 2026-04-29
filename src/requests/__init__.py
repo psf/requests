@@ -62,7 +62,7 @@ def check_compatibility(
     chardet_version: str | None,
     charset_normalizer_version: str | None,
 ) -> None:
-    urllib3_version_list = urllib3_version.split(".")
+    urllib3_version_list = urllib3_version.split(".")[:3]
     assert urllib3_version_list != ["dev"]  # Verify urllib3 isn't installed from git.
 
     # Sometimes, urllib3 only reports its version as 16.1.

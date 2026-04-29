@@ -52,7 +52,6 @@ from .models import Response
 from .structures import CaseInsensitiveDict
 from .utils import (
     DEFAULT_CA_BUNDLE_PATH,
-    extract_zipped_paths,
     get_auth_from_url,
     get_encoding_from_headers,
     prepend_scheme_if_needed,
@@ -327,7 +326,7 @@ class HTTPAdapter(BaseAdapter):
                 cert_loc = verify
 
             if not cert_loc:
-                cert_loc = extract_zipped_paths(DEFAULT_CA_BUNDLE_PATH)
+                cert_loc = DEFAULT_CA_BUNDLE_PATH
 
             if not cert_loc or not os.path.exists(cert_loc):
                 raise OSError(

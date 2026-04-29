@@ -45,7 +45,7 @@ Chris Adams gave an excellent summary on
     for, oh, about 0.0001% of the awesomeness.
 
     1. http://code.google.com/p/httplib2/issues/detail?id=96 is a good example:
-    an annoying bug which affect many people, there was a fix available for
+    an annoying bug that affected many people, there was a fix available for
     months, which worked great when I applied it in a fork and pounded a couple
     TB of data through it, but it took over a year to make it into trunk and
     even longer to make it onto PyPI where any other project which required "

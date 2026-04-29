@@ -218,9 +218,8 @@ class SessionRedirectMixin:
             prepared_request = req.copy()
 
             # Update history and keep track of redirects.
-            # resp.history must ignore the original request in this loop
+            resp.history = hist[:]
             hist.append(resp)
-            resp.history = hist[1:]
 
             try:
                 resp.content  # Consume socket so it can be released

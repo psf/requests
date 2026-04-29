@@ -361,9 +361,12 @@ class TestExtractZippedPaths:
         zipped_path = os.path.join(zipped_py.strpath, name.lstrip(r"\/"))
         extracted_path = extract_zipped_paths(zipped_path)
 
-        assert extracted_path != zipped_path
-        assert os.path.exists(extracted_path)
-        assert filecmp.cmp(extracted_path, __file__)
+        try:
+            assert extracted_path != zipped_path
+            assert os.path.exists(extracted_path)
+            assert filecmp.cmp(extracted_path, __file__)
+        finally:
+            os.remove(extracted_path)
 
     def test_invalid_unc_path(self):
         path = r"\\localhost\invalid\location"
@@ -593,7 +596,6 @@ def test_parse_dict_header(value, expected):
                 {
                     "boundary": "something",
                     "boundary2": "something_else",
-                    "no_equals": True,
                 },
             ),
         ),
@@ -604,7 +606,6 @@ def test_parse_dict_header(value, expected):
                 {
                     "boundary": "something",
                     "boundary2": "something_else",
-                    "no_equals": True,
                 },
             ),
         ),
@@ -615,7 +616,6 @@ def test_parse_dict_header(value, expected):
                 {
                     "boundary": "something",
                     "boundary2": "something_else",
-                    "no_equals": True,
                 },
             ),
         ),
@@ -626,7 +626,6 @@ def test_parse_dict_header(value, expected):
                 {
                     "boundary": "something",
                     "boundary2": "something_else",
-                    "no_equals": True,
                 },
             ),
         ),
@@ -646,6 +645,10 @@ def test__parse_content_type_header(value, expected):
             "utf-8",
         ),
         (CaseInsensitiveDict({"content-type": "text/plain"}), "ISO-8859-1"),
+        (
+            CaseInsensitiveDict({"content-type": "text/html; charset"}),
+            "ISO-8859-1",
+        ),
     ),
 )
 def test_get_encoding_from_headers(value, expected):

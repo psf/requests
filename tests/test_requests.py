@@ -217,6 +217,14 @@ class TestRequests:
         assert r.history[0].status_code == 302
         assert r.history[0].is_redirect
 
+    def test_redirect_history_no_self_reference(self, httpbin):
+        r = requests.get(httpbin("redirect", "3"))
+        assert r.status_code == 200
+        assert len(r.history) == 3
+        for i, resp in enumerate(r.history):
+            assert resp not in resp.history
+            assert resp.history == r.history[:i]
+
     def test_HTTP_307_ALLOW_REDIRECT_POST(self, httpbin):
         r = requests.post(
             httpbin("redirect-to"),
@@ -729,7 +737,7 @@ class TestRequests:
 
         try:
             # Should use netrc
-            # Make sure that we don't use the example.com credentails
+            # Make sure that we don't use the example.com credentials
             # for the request
             r = requests.get(url)
             assert r.status_code == 200
@@ -1791,6 +1799,11 @@ class TestRequests:
             {"fo\r\no": "bar"},
             {"fo\n\ro": "bar"},
             {"fo\no": "bar"},
+            {"foo": "bar\n"},
+            {"foo\n": "bar"},
+            {"foo": "bar\r\n"},
+            {"foo": "\n"},
+            {"foo": "\r\n"},
         ),
     )
     def test_header_no_return_chars(self, httpbin, invalid_header):

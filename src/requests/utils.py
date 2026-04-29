@@ -77,7 +77,10 @@ if TYPE_CHECKING:
 
 NETRC_FILES: Final = (".netrc", "_netrc")
 
+
+# Certificate is extracted by certifi when needed.
 DEFAULT_CA_BUNDLE_PATH: str = certs.where()
+
 
 DEFAULT_PORTS: Final = {"http": 80, "https": 443}
 
@@ -307,12 +310,13 @@ def extract_zipped_paths(path: str) -> str:
         return path
 
     # we have a valid zip archive and a valid member of that archive
-    tmp = tempfile.gettempdir()
-    extracted_path = os.path.join(tmp, member.split("/")[-1])
-    if not os.path.exists(extracted_path):
-        # use read + write to avoid the creating nested folders, we only want the file, avoids mkdir racing condition
-        with atomic_open(extracted_path) as file_handler:
-            file_handler.write(zip_file.read(member))
+    suffix = os.path.splitext(member.split("/")[-1])[-1]
+    fd, extracted_path = tempfile.mkstemp(suffix=suffix)
+    try:
+        os.write(fd, zip_file.read(member))
+    finally:
+        os.close(fd)
+
     return extracted_path
 
 
@@ -536,26 +540,24 @@ def get_encodings_from_content(content: str) -> list[str]:
 
 
 def _parse_content_type_header(header: str) -> tuple[str, dict[str, Any]]:
-    """Returns content type and parameters from given header
+    """Returns content type and parameters from given header.
+
 
     :param header: string
     :return: tuple containing content type and dictionary of
-         parameters
+         parameters.
     """
 
     tokens = header.split(";")
     content_type, params = tokens[0].strip(), tokens[1:]
     params_dict: dict[str, str | bool] = {}
-    items_to_strip = "\"' "
+    strip_chars = "\"' "
 
     for param in params:
         param = param.strip()
-        if param:
-            key, value = param, True
-            index_of_equals = param.find("=")
-            if index_of_equals != -1:
-                key = param[:index_of_equals].strip(items_to_strip)
-                value = param[index_of_equals + 1 :].strip(items_to_strip)
+        if param and (idx := param.find("=")) != -1:
+            key = param[:idx].strip(strip_chars)
+            value = param[idx + 1 :].strip(strip_chars)
             params_dict[key.lower()] = value
     return content_type, params_dict
 

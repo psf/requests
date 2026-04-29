@@ -51,16 +51,18 @@ Source = "https://github.com/psf/requests"
 [project.optional-dependencies]
 security = []
 socks = ["PySocks>=1.5.6, !=1.5.7"]
-use_chardet_on_py3 = ["chardet>=3.0.2,<7"]
+use_chardet_on_py3 = ["chardet>=3.0.2,<8"]
 
 [dependency-groups]
 test = [
+    "requests[socks]",
     "pytest-httpbin==2.1.0",
+    "httpbin~=0.10.0",
     "pytest-cov",
     "pytest-mock",
     "pytest-xdist",
-    "PySocks>=1.5.6, !=1.5.7",
     "pytest>=3",
+    "trustme",
 ]
 typecheck = [
     "pyright",
@@ -90,7 +92,7 @@ select = [
     "UP",     # pyupgrade
     "T10",    # flake8-debugger (replaces debug-statements hook)
 ]
-ignore = ["E203", "E501", "UP038", "UP031"]
+ignore = ["E203", "E501", "UP031"]
 per-file-ignores = {"src/requests/__init__.py" = ["E402", "F401"], "src/requests/compat.py" = ["E402", "F401"], "tests/compat.py" = ["F401"]}
 
 [tool.ruff.lint.isort]
