@@ -2176,6 +2176,33 @@ class TestRequests:
             proxies["one"].clear.assert_called_once_with()
             proxies["two"].clear.assert_called_once_with()
 
+    def test_session_request_uses_session_verify_default(self):
+        session = requests.Session()
+        session.verify = False
+        response = requests.Response()
+        response.status_code = 200
+
+        with mock.patch.object(
+            requests.Session, "send", autospec=True, return_value=response
+        ) as send:
+            session.request("GET", "https://example.com")
+
+        assert send.call_args.kwargs["verify"] is False
+
+    def test_session_request_verify_overrides_session_default(self):
+        session = requests.Session()
+        session.verify = False
+        response = requests.Response()
+        response.status_code = 200
+        ca_bundle = "/tmp/custom-ca.pem"
+
+        with mock.patch.object(
+            requests.Session, "send", autospec=True, return_value=response
+        ) as send:
+            session.request("GET", "https://example.com", verify=ca_bundle)
+
+        assert send.call_args.kwargs["verify"] == ca_bundle
+
     def test_proxy_auth(self):
         adapter = HTTPAdapter()
         headers = adapter.proxy_headers("http://user:pass@httpbin.org")
