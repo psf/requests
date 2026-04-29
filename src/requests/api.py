@@ -16,8 +16,6 @@ from . import sessions
 from .models import Response
 
 if TYPE_CHECKING:
-    from typing_extensions import Unpack  # move to typing when Python >= 3.12
-
     from ._types import (
         DataKwargs,
         DataType,
@@ -26,6 +24,7 @@ if TYPE_CHECKING:
         ParamsType,
         PostKwargs,
         RequestKwargs,
+        Unpack,
         UriType,
     )
 
@@ -78,7 +77,9 @@ def request(method: str, url: UriType, **kwargs: Unpack[RequestKwargs]) -> Respo
         return session.request(method=method, url=url, **kwargs)
 
 
-def get(url: UriType, params: ParamsType = None, **kwargs: Unpack[GetKwargs]) -> Response:
+def get(
+    url: UriType, params: ParamsType = None, **kwargs: Unpack[GetKwargs]
+) -> Response:
     r"""Sends a GET request.
 
     :param url: URL for the new :class:`Request` object.
@@ -120,7 +121,10 @@ def head(url: UriType, **kwargs: Unpack[RequestKwargs]) -> Response:
 
 
 def post(
-    url: UriType, data: DataType = None, json: JsonType = None, **kwargs: Unpack[PostKwargs]
+    url: UriType,
+    data: DataType = None,
+    json: JsonType = None,
+    **kwargs: Unpack[PostKwargs],
 ) -> Response:
     r"""Sends a POST request.
 
@@ -151,7 +155,9 @@ def put(url: UriType, data: DataType = None, **kwargs: Unpack[DataKwargs]) -> Re
     return request("put", url, data=data, **kwargs)
 
 
-def patch(url: UriType, data: DataType = None, **kwargs: Unpack[DataKwargs]) -> Response:
+def patch(
+    url: UriType, data: DataType = None, **kwargs: Unpack[DataKwargs]
+) -> Response:
     r"""Sends a PATCH request.
 
     :param url: URL for the new :class:`Request` object.

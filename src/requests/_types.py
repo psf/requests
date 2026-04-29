@@ -49,7 +49,10 @@ if TYPE_CHECKING:
     from http.cookiejar import CookieJar
     from typing import TypeAlias, TypedDict
 
-    from typing_extensions import TypeIs  # move to typing when Python >= 3.13
+    from typing_extensions import TypeIs  # TODO: move to typing when Python >= 3.13
+    from typing_extensions import (
+        Unpack as Unpack,  # TODO: move to typing when Python >= 3.12
+    )
 
     from .auth import AuthBase
     from .cookies import RequestsCookieJar

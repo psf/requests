@@ -151,7 +151,9 @@ class RequestEncodingMixin:
 
     @overload
     @staticmethod
-    def _encode_params(data: SupportsRead[str | bytes]) -> SupportsRead[str | bytes]: ...
+    def _encode_params(
+        data: SupportsRead[str | bytes],
+    ) -> SupportsRead[str | bytes]: ...
 
     @overload
     @staticmethod
@@ -190,9 +192,7 @@ class RequestEncodingMixin:
             return data  # type: ignore[return-value]  # unreachable for valid DataType
 
     @staticmethod
-    def _encode_files(
-        files: FilesType, data: RawDataType | None
-    ) -> tuple[bytes, str]:
+    def _encode_files(files: FilesType, data: RawDataType | None) -> tuple[bytes, str]:
         """Build the body for a multipart/form-data request.
 
         Will successfully encode files when passed as a dict or a list of
@@ -564,9 +564,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 query = enc_params
 
-        url = requote_uri(
-            urlunparse((scheme, netloc, path, "", query, fragment))
-        )
+        url = requote_uri(urlunparse((scheme, netloc, path, "", query, fragment)))
         self.url = url
 
     def prepare_headers(self, headers: Mapping[str, str | bytes] | None) -> None:

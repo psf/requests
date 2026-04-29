@@ -61,8 +61,6 @@ from .utils import (  # noqa: F401
 if TYPE_CHECKING:
     from http.cookiejar import CookieJar
 
-    from typing_extensions import Unpack
-
     from ._types import (
         AuthType,
         CertType,
@@ -77,6 +75,7 @@ if TYPE_CHECKING:
         PostKwargs,
         RequestKwargs,
         TimeoutType,
+        Unpack,
         UriType,
         VerifyType,
     )
@@ -701,7 +700,11 @@ class Session(SessionRedirectMixin):
         return self.request("HEAD", url, **kwargs)
 
     def post(
-        self, url: UriType, data: DataType = None, json: JsonType = None, **kwargs: Unpack[PostKwargs]
+        self,
+        url: UriType,
+        data: DataType = None,
+        json: JsonType = None,
+        **kwargs: Unpack[PostKwargs],
     ) -> Response:
         r"""Sends a POST request. Returns :class:`Response` object.
 
@@ -715,7 +718,9 @@ class Session(SessionRedirectMixin):
 
         return self.request("POST", url, data=data, json=json, **kwargs)
 
-    def put(self, url: UriType, data: DataType = None, **kwargs: Unpack[DataKwargs]) -> Response:
+    def put(
+        self, url: UriType, data: DataType = None, **kwargs: Unpack[DataKwargs]
+    ) -> Response:
         r"""Sends a PUT request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -727,7 +732,9 @@ class Session(SessionRedirectMixin):
 
         return self.request("PUT", url, data=data, **kwargs)
 
-    def patch(self, url: UriType, data: DataType = None, **kwargs: Unpack[DataKwargs]) -> Response:
+    def patch(
+        self, url: UriType, data: DataType = None, **kwargs: Unpack[DataKwargs]
+    ) -> Response:
         r"""Sends a PATCH request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
