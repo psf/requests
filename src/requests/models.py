@@ -480,6 +480,16 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 query = enc_params
 
         url = requote_uri(urlunparse([scheme, netloc, path, None, query, fragment]))
+
+        # Preserve the IPv6 zone identifier separator ('%') inside a bracketed
+        # host. ``requote_uri`` percent-encodes a literal '%' to '%25', but
+        # ``urllib3`` forwards the (already-parsed) host to ``getaddrinfo()``
+        # verbatim, so an encoded zone identifier like ``%25eth0`` cannot be
+        # resolved by the OS. See https://github.com/psf/requests/issues/6735.
+        if host and "%" in host:
+            encoded_host = host.replace("%", "%25", 1)
+            url = url.replace(encoded_host, host, 1)
+
         self.url = url
 
     def prepare_headers(self, headers):

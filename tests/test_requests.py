@@ -151,6 +151,39 @@ class TestRequests:
         "url, expected",
         (
             (
+                # Literal '%' zone-id separator must be preserved, otherwise
+                # urllib3 will forward '%25ens192' to getaddrinfo() which the
+                # OS cannot resolve. Regression test for #6735.
+                "https://[fe80::1%ens192]/redfish/v1",
+                "https://[fe80::1%ens192]/redfish/v1",
+            ),
+            (
+                # RFC 6874 form ('%25') must be normalized back to the literal
+                # form expected by getaddrinfo() / urllib3.
+                "https://[fe80::1%25ens192]/redfish/v1",
+                "https://[fe80::1%ens192]/redfish/v1",
+            ),
+            (
+                # Zone-id preserved alongside port/query/fragment.
+                "https://[fe80::5eed:8cff:fe00:0da4%ens192]:8443/api?x=1#f",
+                "https://[fe80::5eed:8cff:fe00:0da4%ens192]:8443/api?x=1#f",
+            ),
+            (
+                # Plain IPv6 (no zone id) must be unaffected.
+                "https://[::1]/",
+                "https://[::1]/",
+            ),
+        ),
+    )
+    def test_ipv6_zone_id_is_preserved(self, url, expected):
+        """See: https://github.com/psf/requests/issues/6735"""
+        request = requests.Request("GET", url).prepare()
+        assert request.url == expected
+
+    @pytest.mark.parametrize(
+        "url, expected",
+        (
+            (
                 "http://example.com/path#fragment",
                 "http://example.com/path?a=b#fragment",
             ),
