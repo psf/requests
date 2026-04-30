@@ -131,6 +131,10 @@ class SessionRedirectMixin:
         new_parsed = urlparse(new_url)
         if old_parsed.hostname != new_parsed.hostname:
             return True
+        # Always strip auth on HTTPS -> HTTP downgrade to prevent credential leakage
+        # over an unencrypted connection (RFC 9110).
+        if old_parsed.scheme == "https" and new_parsed.scheme == "http":
+            return True
         # Special case: allow http -> https redirect when using the standard
         # ports. This isn't specified by RFC 7235, but is kept to avoid
         # breaking backwards compatibility with older versions of requests
