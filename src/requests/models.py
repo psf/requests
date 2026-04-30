@@ -316,7 +316,7 @@ class Request(RequestHooksMixin):
     """
 
     method: str | None
-    url: str | None
+    url: UriType | None
     headers: CaseInsensitiveDict[str] | Mapping[str, str | bytes] | None
     files: FilesType
     data: DataType
@@ -350,7 +350,7 @@ class Request(RequestHooksMixin):
             self.register_hook(event=k, hook=v)
 
         self.method = method
-        self.url = url.decode("utf-8") if isinstance(url, bytes) else url
+        self.url = url
         self.headers = headers
         self.files = files
         self.data = data
@@ -441,7 +441,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     ) -> None:
         """Prepares the entire request with the given parameters."""
 
-        url = cast(str, url)
+        url = cast("UriType", url)
         self.prepare_method(method)
         self.prepare_url(url, params)
         self.prepare_headers(headers)
@@ -675,7 +675,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare_auth(
         self,
         auth: AuthType,
-        url: str = "",
+        url: UriType = "",
     ) -> None:
         """Prepares the given HTTP auth data."""
 

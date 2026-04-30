@@ -72,7 +72,7 @@ if TYPE_CHECKING:
     from http.cookiejar import CookieJar
     from io import BufferedWriter
 
-    from ._types import SupportsItems
+    from ._types import SupportsItems, UriType
     from .models import PreparedRequest, Request, Response
 
 NETRC_FILES: Final = (".netrc", "_netrc")
@@ -228,8 +228,11 @@ def super_len(o: Any) -> int:
     return max(0, total_length - current_position)
 
 
-def get_netrc_auth(url: str, raise_errors: bool = False) -> tuple[str, str] | None:
+def get_netrc_auth(url: UriType, raise_errors: bool = False) -> tuple[str, str] | None:
     """Returns the Requests tuple auth for a given url from netrc."""
+
+    if isinstance(url, bytes):
+        url = url.decode("utf-8")
 
     netrc_file = os.environ.get("NETRC")
     if netrc_file is not None:

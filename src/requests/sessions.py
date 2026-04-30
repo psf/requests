@@ -531,7 +531,7 @@ class Session(SessionRedirectMixin):
             session's settings.
         :rtype: requests.PreparedRequest
         """
-        url = cast(str, request.url)
+        url = cast("UriType", request.url)
         method = cast(str, request.method)
 
         cookies = request.cookies or {}
