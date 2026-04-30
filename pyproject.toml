@@ -64,6 +64,10 @@ test = [
     "pytest>=3",
     "trustme",
 ]
+typecheck = [
+    "pyright",
+    "typing_extensions",
+]
 
 [tool.setuptools]
 license-files = ["LICENSE", "NOTICE"]
@@ -104,3 +108,8 @@ addopts = "--doctest-modules"
 doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
 minversion = "6.2"
 testpaths = ["tests"]
+
+
+[tool.pyright]
+include = ["src/requests"]
+typeCheckingMode = "strict"

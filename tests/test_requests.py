@@ -2579,6 +2579,7 @@ class RedirectSession(SessionRedirectMixin):
     def build_response(self):
         request = self.calls[-1].args[0]
         r = requests.Response()
+        r.url = request.url
 
         try:
             r.status_code = int(self.redirects.pop(0))

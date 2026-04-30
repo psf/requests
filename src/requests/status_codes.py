@@ -103,7 +103,7 @@ _codes = {
     511: ("network_authentication_required", "network_auth", "network_authentication"),
 }
 
-codes = LookupDict(name="status_codes")
+codes: LookupDict[int] = LookupDict(name="status_codes")
 
 
 def _init():
@@ -113,7 +113,7 @@ def _init():
             if not title.startswith(("\\", "/")):
                 setattr(codes, title.upper(), code)
 
-    def doc(code):
+    def doc(code: int) -> str:
         names = ", ".join(f"``{n}``" for n in _codes[code])
         return "* %d: %s" % (code, names)
 

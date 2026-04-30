@@ -23,7 +23,7 @@ HEADER_VALIDATORS = {
 }
 
 
-def to_native_string(string, encoding="ascii"):
+def to_native_string(string: str | bytes, encoding: str = "ascii") -> str:
     """Given a string object, regardless of type, returns a representation of
     that string in the native string type, encoding and decoding where
     necessary. This assumes ASCII unless told otherwise.
@@ -36,7 +36,7 @@ def to_native_string(string, encoding="ascii"):
     return out
 
 
-def unicode_is_ascii(u_string):
+def unicode_is_ascii(u_string: str) -> bool:
     """Determine if unicode string only contains ASCII characters.
 
     :param str u_string: unicode string to check. Must be unicode
