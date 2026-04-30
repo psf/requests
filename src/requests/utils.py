@@ -545,7 +545,6 @@ def get_encodings_from_content(content: str) -> list[str]:
 def _parse_content_type_header(header: str) -> tuple[str, dict[str, Any]]:
     """Returns content type and parameters from given header.
 
-
     :param header: string
     :return: tuple containing content type and dictionary of
          parameters.
