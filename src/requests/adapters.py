@@ -401,7 +401,7 @@ class HTTPAdapter(BaseAdapter):
         alter the other keys to ensure the desired behaviour.
 
         :param request:
-            The PreparedReqest being sent over the connection.
+            The PreparedRequest being sent over the connection.
         :type request:
             :class:`~requests.models.PreparedRequest`
         :param verify:

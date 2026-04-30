@@ -586,7 +586,7 @@ class TestRequests:
             ("http://doesnotexist.google.com", ConnectionError),
             # Connecting to an invalid port should raise a ConnectionError
             ("http://localhost:1", ConnectionError),
-            # Inputing a URL that cannot be parsed should raise an InvalidURL error
+            # Inputting a URL that cannot be parsed should raise an InvalidURL error
             ("http://fe80::5054:ff:fe5a:fc0", InvalidURL),
         ),
     )
