@@ -551,7 +551,8 @@ class Session(SessionRedirectMixin):
             content. Defaults to ``False``.
         :param verify: (optional) Either a boolean, in which case it controls whether we verify
             the server's TLS certificate, or a string, in which case it must be a path
-            to a CA bundle to use. Defaults to ``True``. When set to
+            to a CA bundle to use. Defaults to the Session's ``verify`` value,
+            which itself defaults to ``True``. When set to
             ``False``, requests will accept any TLS certificate presented by
             the server, and will ignore hostname mismatches and/or expired
             certificates, which will make your application vulnerable to
