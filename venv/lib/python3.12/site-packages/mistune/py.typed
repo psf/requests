@@ -1,0 +1,2 @@
+# when type checking dependents, tell type checkers, e.g. mypy, to use this package's types
+# without this file, mypy will write a warning and ignore type annotations from mistune.

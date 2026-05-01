@@ -352,7 +352,9 @@ class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
             and cookie.value.startswith('"')
             and cookie.value.endswith('"')
         ):
-            cookie.value = cookie.value.replace('\\"', "")
+            unwrapped = cookie.value[1:-1]
+            unescaped = unwrapped.replace('\\"', '"')
+            cookie.value = unescaped
         return super().set_cookie(cookie, *args, **kwargs)
 
     def update(self, other):

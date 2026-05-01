@@ -1,0 +1,1 @@
+!function(i){i.fn.slideto=function(o){return o=i.extend({slide_duration:"slow",highlight_duration:3e3,highlight:!0,highlight_color:"#FFFF99"},o),this.each(function(){obj=i(this),i("body").animate({scrollTop:obj.offset().top},o.slide_duration,function(){o.highlight&&i.ui.version&&obj.effect("highlight",{color:o.highlight_color},o.highlight_duration)})})}}(jQuery);
