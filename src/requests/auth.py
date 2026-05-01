@@ -24,7 +24,6 @@ from .utils import parse_dict_header
 if TYPE_CHECKING:
     from http.cookiejar import CookieJar
 
-    from .adapters import HTTPAdapter
     from .models import PreparedRequest, Response
 
 CONTENT_TYPE_FORM_URLENCODED: Final = "application/x-www-form-urlencoded"
@@ -309,8 +308,7 @@ class HTTPDigestAuth(AuthBase):
             )
             if _digest_auth:
                 prep.headers["Authorization"] = _digest_auth
-            conn = cast("HTTPAdapter", r.connection)
-            _r = conn.send(prep, **kwargs)
+            _r = r.connection.send(prep, **kwargs)
             _r.history.append(r)
             _r.request = prep
 

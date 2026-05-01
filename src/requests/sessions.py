@@ -74,6 +74,7 @@ if TYPE_CHECKING:
         ParamsType,
         PostKwargs,
         RequestKwargs,
+        Self,
         TimeoutType,
         Unpack,
         UriType,
@@ -515,7 +516,7 @@ class Session(SessionRedirectMixin):
         self.mount("https://", HTTPAdapter())
         self.mount("http://", HTTPAdapter())
 
-    def __enter__(self) -> Session:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *args: Any) -> None:

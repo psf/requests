@@ -97,6 +97,7 @@ if TYPE_CHECKING:
         KVDataType,
         ParamsType,
         RawDataType,
+        Self,
         UriType,
     )
     from .adapters import HTTPAdapter
@@ -752,7 +753,7 @@ class Response:
     cookies: RequestsCookieJar
     elapsed: datetime.timedelta
     request: PreparedRequest
-    connection: HTTPAdapter | None
+    connection: HTTPAdapter
 
     __attrs__: list[str] = [
         "_content",
@@ -814,7 +815,7 @@ class Response:
         #: is a response.
         self.request = None  # type: ignore[assignment]
 
-    def __enter__(self) -> Response:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *args: Any) -> None:
@@ -1035,7 +1036,7 @@ class Response:
             yield pending
 
     @property
-    def content(self) -> bytes | None:
+    def content(self) -> bytes:
         """Content of the response, in bytes."""
 
         if self._content is False:
@@ -1051,7 +1052,7 @@ class Response:
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3
         # since we exhausted the data.
-        return self._content
+        return self._content  # type: ignore[return-value]
 
     @property
     def text(self) -> str:

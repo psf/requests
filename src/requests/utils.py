@@ -648,7 +648,7 @@ def get_unicode_from_response(r: Response) -> str | bytes | None:
         ),
         DeprecationWarning,
     )
-    if r.content is None:
+    if r.content is None:  # type: ignore[reportUnnecessaryComparison]
         return None
 
     tried_encodings: list[str] = []
