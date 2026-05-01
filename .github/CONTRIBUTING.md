@@ -1,54 +1,111 @@
-# Contribution Guidelines
+# HTTP Core
 
-Before opening any issues or proposing any pull requests, please read
-our [Contributor's Guide](https://requests.readthedocs.io/en/latest/dev/contributing/).
+[![Test Suite](https://github.com/encode/httpcore/workflows/Test%20Suite/badge.svg)](https://github.com/encode/httpcore/actions)
+[![Package version](https://badge.fury.io/py/httpcore.svg)](https://pypi.org/project/httpcore/)
 
-To get the greatest chance of helpful responses, please also observe the
-following additional notes.
+> *Do one thing, and do it well.*
 
-## Questions
+The HTTP Core package provides a minimal low-level HTTP client, which does
+one thing only. Sending HTTP requests.
 
-The GitHub issue tracker is for *bug reports* and *feature requests*. Please do
-not use it to ask questions about how to use Requests. These questions should
-instead be directed to [Stack Overflow](https://stackoverflow.com/). Make sure
-that your question is tagged with the `python-requests` tag when asking it on
-Stack Overflow, to ensure that it is answered promptly and accurately.
+It does not provide any high level model abstractions over the API,
+does not handle redirects, multipart uploads, building authentication headers,
+transparent HTTP caching, URL parsing, session cookie handling,
+content or charset decoding, handling JSON, environment based configuration
+defaults, or any of that Jazz.
 
-## Good Bug Reports
+Some things HTTP Core does do:
 
-Please be aware of the following things when filing bug reports:
+* Sending HTTP requests.
+* Thread-safe / task-safe connection pooling.
+* HTTP(S) proxy & SOCKS proxy support.
+* Supports HTTP/1.1 and HTTP/2.
+* Provides both sync and async interfaces.
+* Async backend support for `asyncio` and `trio`.
 
-1. Avoid raising duplicate issues. *Please* use the GitHub issue search feature
-   to check whether your bug report or feature request has been mentioned in
-   the past. Duplicate bug reports and feature requests are a huge maintenance
-   burden on the limited resources of the project. If it is clear from your
-   report that you would have struggled to find the original, that's ok, but
-   if searching for a selection of words in your issue title would have found
-   the duplicate then the issue will likely be closed extremely abruptly.
-2. When filing bug reports about exceptions or tracebacks, please include the
-   *complete* traceback. Partial tracebacks, or just the exception text, are
-   not helpful. Issues that do not contain complete tracebacks may be closed
-   without warning.
-3. Make sure you provide a suitable amount of information to work with. This
-   means you should provide:
+## Requirements
 
-   - Guidance on **how to reproduce the issue**. Ideally, this should be a
-     *small* code sample that can be run immediately by the maintainers.
-     Failing that, let us know what you're doing, how often it happens, what
-     environment you're using, etc. Be thorough: it prevents us needing to ask
-     further questions.
-   - Tell us **what you expected to happen**. When we run your example code,
-     what are we expecting to happen? What does "success" look like for your
-     code?
-   - Tell us **what actually happens**. It's not helpful for you to say "it
-     doesn't work" or "it fails". Tell us *how* it fails: do you get an
-     exception? A hang? A non-200 status code? How was the actual result
-     different from your expected result?
-   - Tell us **what version of Requests you're using**, and
-     **how you installed it**. Different versions of Requests behave
-     differently and have different bugs, and some distributors of Requests
-     ship patches on top of the code we supply.
+Python 3.8+
 
-   If you do not provide all of these things, it will take us much longer to
-   fix your problem. If we ask you to clarify these and you never respond, we
-   will close your issue without fixing it.
+## Installation
+
+For HTTP/1.1 only support, install with:
+
+```shell
+$ pip install httpcore
+```
+
+There are also a number of optional extras available...
+
+```shell
+$ pip install httpcore['asyncio,trio,http2,socks']
+```
+
+## Sending requests
+
+Send an HTTP request:
+
+```python
+import httpcore
+
+response = httpcore.request("GET", "https://www.example.com/")
+
+print(response)
+# <Response [200]>
+print(response.status)
+# 200
+print(response.headers)
+# [(b'Accept-Ranges', b'bytes'), (b'Age', b'557328'), (b'Cache-Control', b'max-age=604800'), ...]
+print(response.content)
+# b'<!doctype html>\n<html>\n<head>\n<title>Example Domain</title>\n\n<meta charset="utf-8"/>\n ...'
+```
+
+The top-level `httpcore.request()` function is provided for convenience. In practice whenever you're working with `httpcore` you'll want to use the connection pooling functionality that it provides.
+
+```python
+import httpcore
+
+http = httpcore.ConnectionPool()
+response = http.request("GET", "https://www.example.com/")
+```
+
+Once you're ready to get going, [head over to the documentation](https://www.encode.io/httpcore/).
+
+## Motivation
+
+You *probably* don't want to be using HTTP Core directly. It might make sense if
+you're writing something like a proxy service in Python, and you just want
+something at the lowest possible level, but more typically you'll want to use
+a higher level client library, such as `httpx`.
+
+The motivation for `httpcore` is:
+
+* To provide a reusable low-level client library, that other packages can then build on top of.
+* To provide a *really clear interface split* between the networking code and client logic,
+  so that each is easier to understand and reason about in isolation.
+
+## Dependencies
+
+The `httpcore` package has the following dependencies...
+
+* `h11`
+* `certifi`
+
+And the following optional extras...
+
+* `anyio` - Required by `pip install httpcore['asyncio']`.
+* `trio` - Required by `pip install httpcore['trio']`.
+* `h2` - Required by `pip install httpcore['http2']`.
+* `socksio` - Required by `pip install httpcore['socks']`.
+
+## Versioning
+
+We use [SEMVER for our versioning policy](https://semver.org/).
+
+For changes between package versions please see our [project changelog](CHANGELOG.md).
+
+We recommend pinning your requirements either the most current major version, or a more specific version range:
+
+```python
+pip install 'httpcore==1.*'
+```
