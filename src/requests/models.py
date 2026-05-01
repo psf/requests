@@ -11,6 +11,7 @@ import datetime
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
 # such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
 import encodings.idna  # noqa: F401
+import re
 from io import UnsupportedOperation
 
 from urllib3.exceptions import (
@@ -81,6 +82,14 @@ REDIRECT_STATI = (
 DEFAULT_REDIRECT_LIMIT = 30
 CONTENT_CHUNK_SIZE = 10 * 1024
 ITER_CHUNK_SIZE = 512
+
+# Regex patterns for IPv6 zone ID handling in prepare_url.
+# Extracts the bracket content from the authority section of the URL.
+_AUTHORITY_BRACKET_RE = re.compile(r"://[^/?#]*\[([^\]]*)\]")
+# Matches an RFC 6874 zone ID delimiter (%25) followed by zone ID characters.
+_RFC6874_ZONE_ID_RE = re.compile(r"%25(?:[a-zA-Z0-9_.\-~]|%[0-9A-Fa-f]{2})+")
+# Matches a raw % zone ID delimiter (not a valid percent-encoded byte).
+_RAW_ZONE_ID_RE = re.compile(r"%(?![0-9A-Fa-f]{2})[0-9A-Za-z][A-Za-z0-9_.\-]*")
 
 
 class RequestEncodingMixin:
@@ -435,6 +444,41 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             scheme, auth, host, port, path, query, fragment = parse_url(url)
         except LocationParseError as e:
             raise InvalidURL(*e.args)
+
+        # Mitigation for RFC 6874: parse_url incorrectly decodes zone ID delimiter (%25 -> %)
+        # We reconstruct the host with the correct, fully-encoded delimiter to prevent
+        # downstream errors (like ipaddress validation or incorrect connection arguments).
+        #
+        # Matching on the parse_url-decoded host is ambiguous because parse_url decodes
+        # %25 -> % and then the resulting %XX may look like a valid percent-encoding
+        # (e.g. %2550 becomes %50 which resembles percent-encoded 'P'). Instead we
+        # extract the bracket content from the ORIGINAL url (before any decoding) and
+        # match there. Two input forms are handled:
+        #
+        #   1. RFC 6874 encoded form (%25 delimiter): the original bracket contains %25
+        #      followed by one or more ZoneID unreserved chars ([A-Za-z0-9_.\-~]) or
+        #      pct-encoded octets (%XX). Examples: [fe80::1%25eth0], [fe80::1%255],
+        #      [fe80::1%25_foo]. The matched segment is placed verbatim into host.
+        #
+        #   2. Raw % delimiter (legacy/non-standard): a literal % that is NOT a valid
+        #      %XX percent-encoding, followed by a letter then more identifier chars.
+        #      Examples: [fe80::1%eth0], [fe80::1%wlan0]. Re-encoded as %25<zone_name>.
+        #
+        # This avoids false-positive re-encoding of legitimate %XX sequences (e.g. %20,
+        # %AB) that should never be treated as zone ID delimiters.
+        if host and host.startswith("[") and host.endswith("]"):
+            original_bracket = _AUTHORITY_BRACKET_RE.search(url)
+            if original_bracket:
+                original_inner = original_bracket.group(1)
+                rfc_match = _RFC6874_ZONE_ID_RE.search(original_inner)
+                if rfc_match:
+                    ip_part = original_inner[: rfc_match.start()]
+                    host = f"[{ip_part}{rfc_match.group()}]"
+                else:
+                    raw_match = _RAW_ZONE_ID_RE.search(original_inner)
+                    if raw_match:
+                        pos = raw_match.start()
+                        host = f"[{original_inner[:pos]}%25{original_inner[pos + 1 :]}]"
 
         if not scheme:
             raise MissingSchema(
