@@ -1,0 +1,4947 @@
+{
+  "schema_version": "atomadic-forge.cherry/v1",
+  "source_repo": "/home/runner/work/atomadic-forge/atomadic-forge/target/repo",
+  "items": [
+    {
+      "qualname": "TestCaseInsensitiveDict",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.setup",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_list",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_getitem",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_delitem",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_lower_items",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_repr",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_copy",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_instance_equality",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestLookupDict",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestLookupDict.setup",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestLookupDict.test_repr",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestLookupDict.test_getitem",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestLookupDict.test_get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestLookupDict.test_hasattr",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestLookupDict.test_getattr",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestLookupDict.test_getattr_default",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "override_environ",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestSuperLen",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestSuperLen.test_io_streams",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestSuperLen.test_super_len_correctly_calculates_len_of_partially_read_file",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "standard tier-classification fit"
+      ]
+    },
+    {
+      "qualname": "TestSuperLen.test_super_len_handles_files_raising_weird_errors_in_tell",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestSuperLen.test_super_len_tell_ioerror",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestSuperLen.test_string",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestSuperLen.test_file",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "standard tier-classification fit"
+      ]
+    },
+    {
+      "qualname": "TestSuperLen.test_tarfile_member",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "standard tier-classification fit"
+      ]
+    },
+    {
+      "qualname": "TestSuperLen.test_super_len_with__len__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestSuperLen.test_super_len_with_no__len__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestSuperLen.test_super_len_with_tell",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestSuperLen.test_super_len_with_fileno",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestSuperLen.test_super_len_with_no_matches",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGetNetrcAuth",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGetNetrcAuth.test_works",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestGetNetrcAuth.test_not_vulnerable_to_bad_url_parsing",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestGetNetrcAuth.test_empty_default_credentials_ignored",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestToKeyValList",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestToKeyValList.test_valid",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestToKeyValList.test_invalid",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestUnquoteHeaderValue",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestUnquoteHeaderValue.test_valid",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestUnquoteHeaderValue.test_is_filename",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGetEnvironProxies",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGetEnvironProxies.no_proxy",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGetEnvironProxies.test_bypass",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGetEnvironProxies.test_not_bypass",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGetEnvironProxies.test_bypass_no_proxy_keyword",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGetEnvironProxies.test_not_bypass_no_proxy_keyword",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestIsIPv4Address",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestIsIPv4Address.test_valid",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestIsIPv4Address.test_invalid",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestIsValidCIDR",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestIsValidCIDR.test_valid",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestIsValidCIDR.test_invalid",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestAddressInNetwork",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestAddressInNetwork.test_valid",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestAddressInNetwork.test_invalid",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGuessFilename",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGuessFilename.test_guess_filename_invalid",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGuessFilename.test_guess_filename_valid",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestExtractZippedPaths",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestExtractZippedPaths.test_unzipped_paths_unchanged",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestExtractZippedPaths.test_zipped_paths_extracted",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestExtractZippedPaths.test_invalid_unc_path",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestContentEncodingDetection",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestContentEncodingDetection.test_none",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestContentEncodingDetection.test_pragmas",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestContentEncodingDetection.test_precedence",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGuessJSONUTF",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGuessJSONUTF.test_encoded",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGuessJSONUTF.test_bad_utf_like_encoding",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestGuessJSONUTF.test_guess_by_bom",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_get_auth_from_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_requote_uri_with_unquoted_percents",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_unquote_unreserved",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_dotted_netmask",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_select_proxies",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_parse_dict_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test__parse_content_type_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_get_encoding_from_headers",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_iter_slices",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_parse_header_links",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_prepend_scheme_if_needed",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_to_native_string",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_urldefragauth",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_should_bypass_proxies",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_should_bypass_proxies_pass_only_hostname",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_add_dict_to_cookiejar",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_unicode_is_ascii",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_should_bypass_proxies_no_proxy",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_should_bypass_proxies_win_registry",
+      "target_tier": "a3_og_features",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_should_bypass_proxies_win_registry_bad_values",
+      "target_tier": "a3_og_features",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_set_environ",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_set_environ_raises_exception",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_should_bypass_proxies_win_registry_ProxyOverride_value",
+      "target_tier": "a3_og_features",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "hook",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_hooks",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_default_hooks",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_request_url_trims_leading_path_separators",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "prepare_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "httpbin",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "httpbin_secure",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "nosan_server",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestTestServer",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestTestServer.test_basic",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTestServer.test_server_closes",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTestServer.test_text_response",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTestServer.test_basic_response",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTestServer.test_basic_waiting_server",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTestServer.test_multiple_requests",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTestServer.test_request_recovery",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTestServer.test_requests_after_timeout_are_not_received",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTestServer.test_request_recovery_with_bigger_timeout",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTestServer.test_server_finishes_on_error",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestTestServer.test_server_finishes_when_no_connections",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_can_access_urllib3_attribute",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_can_access_idna_attribute",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_can_access_chardet_attribute",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestRequests",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_entry_points",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_invalid_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_basic_building",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_no_content_length",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_no_body_content_length",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_empty_content_length",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_override_content_length",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_path_is_not_double_encoded",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_params_are_added_before_fragment",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_params_original_order_is_preserved_by_default",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_params_bytes_are_encoded",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_binary_put",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_whitespaces_are_removed_from_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_mixed_case_scheme_acceptable",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_HTTP_200_OK_GET_ALTERNATIVE",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_HTTP_302_ALLOW_REDIRECT_GET",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_redirect_history_no_self_reference",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_HTTP_307_ALLOW_REDIRECT_POST",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_HTTP_307_ALLOW_REDIRECT_POST_WITH_SEEKABLE",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_HTTP_302_TOO_MANY_REDIRECTS",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_HTTP_302_TOO_MANY_REDIRECTS_WITH_PARAMS",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_http_301_changes_post_to_get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_http_301_doesnt_change_head_to_get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_http_302_changes_post_to_get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_http_302_doesnt_change_head_to_get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_http_303_changes_post_to_get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_http_303_doesnt_change_head_to_get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_header_and_body_removal_on_redirect",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_transfer_enc_removal_on_redirect",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_fragment_maintained_on_redirect",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_HTTP_200_OK_GET_WITH_PARAMS",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_HTTP_200_OK_GET_WITH_MIXED_PARAMS",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_set_cookie_on_301",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookie_sent_on_redirect",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookie_removed_on_expire",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookie_quote_wrapped",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookie_persists_via_api",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_request_cookie_overrides_session_cookie",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_request_cookies_not_persisted",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_generic_cookiejar_works",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_param_cookiejar_works",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookielib_cookiejar_on_redirect",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_requests_in_history_are_not_overridden",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_history_is_always_a_list",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_headers_on_session_with_None_are_not_sent",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_headers_preserve_order",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_user_agent_transfers",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_HTTP_200_OK_HEAD",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_HTTP_200_OK_PUT",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_BASICAUTH_TUPLE_HTTP_200_OK_GET",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_set_basicauth",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_basicauth_encodes_byte_strings",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_errors",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_proxy_error",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_proxy_error_on_bad_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_respect_proxy_env_on_send_self_prepared_request",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_respect_proxy_env_on_send_session_prepared_request",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_respect_proxy_env_on_send_with_redirects",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_respect_proxy_env_on_get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_respect_proxy_env_on_request",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_proxy_authorization_preserved_on_request",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_proxy_authorization_not_appended_to_https_request",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_basicauth_with_netrc",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_basicauth_with_netrc_leak",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_DIGEST_HTTP_200_OK_GET",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_DIGEST_AUTH_RETURNS_COOKIE",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_DIGEST_AUTH_SETS_SESSION_COOKIES",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_DIGEST_STREAM",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_DIGESTAUTH_WRONG_HTTP_401_GET",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_DIGESTAUTH_QUOTES_QOP_VALUE",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_POSTBIN_GET_POST_FILES",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_invalid_files_input",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_POSTBIN_SEEKED_OBJECT_WITH_NO_ITER",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_POSTBIN_GET_POST_FILES_WITH_DATA",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_post_with_custom_mapping",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_conflicting_post_params",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_request_ok_set",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_status_raising",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_decompress_gzip",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_unicode_get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_unicode_header_name",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_pyopenssl_redirect",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_invalid_ca_certificate_path",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_invalid_ssl_certificate_files",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_env_cert_bundles",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_http_with_certificate",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_https_warnings",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_certificate_failure",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_urlencoded_get_query_multivalued_param",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_form_encoded_post_query_multivalued_element",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_different_encodings_dont_break_post",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_unicode_multipart_post",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_unicode_multipart_post_fieldnames",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_unicode_method_name",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_unicode_method_name_with_request_object",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_non_prepared_request_error",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_custom_content_type",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_hook_receives_request_arguments",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_session_hooks_are_used_with_no_request_hooks",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_session_hooks_are_overridden_by_request_hooks",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_prepared_request_hook",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_prepared_from_session",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_prepare_request_with_bytestring_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_request_with_bytestring_host",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_links",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookie_parameters",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookie_as_dict_keeps_len",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookie_as_dict_keeps_items",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookie_as_dict_keys",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookie_as_dict_values",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookie_as_dict_items",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookie_duplicate_names_different_domains",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookie_duplicate_names_raises_cookie_conflict_error",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cookie_policy_copy",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_time_elapsed_blank",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_empty_response_has_content_none",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_response_is_iterable",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_response_decode_unicode",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_response_reason_unicode",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_response_reason_unicode_fallback",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_response_chunk_size_type",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_iter_content_wraps_exceptions",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_request_and_response_are_pickleable",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_prepared_request_is_pickleable",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_prepared_request_with_file_is_pickleable",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_prepared_request_with_hook_is_pickleable",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_cannot_send_unprepared_requests",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_http_error",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_session_pickling",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_fixes_1329",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_uppercase_scheme_redirect",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_transport_adapter_ordering",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_session_get_adapter_prefix_matching",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_session_get_adapter_prefix_matching_mixed_case",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_session_get_adapter_prefix_matching_is_case_insensitive",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_session_get_adapter_prefix_with_trailing_slash",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_session_get_adapter_prefix_without_trailing_slash",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_header_remove_is_case_insensitive",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_params_are_merged_case_sensitive",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_long_authinfo_in_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_header_keys_are_native",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_header_validation",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_header_value_not_str",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_header_no_return_chars",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_header_no_leading_space",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_header_with_subclass_types",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_can_send_objects_with_files",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_can_send_file_object_with_non_string_filename",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_autoset_header_values_are_native",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_nonhttp_schemes_dont_check_URLs",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_auth_is_stripped_on_http_downgrade",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_auth_is_retained_for_redirect_on_host",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_should_strip_auth_host_change",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_should_strip_auth_http_downgrade",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_should_strip_auth_https_upgrade",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_should_strip_auth_port_change",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_should_strip_auth_default_port",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_manual_redirect_with_partial_body_read",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_prepare_body_position_non_stream",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_rewind_body",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_rewind_partially_read_body",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_rewind_body_no_seek",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_rewind_body_failed_seek",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_rewind_body_failed_tell",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_redirect_with_wrong_gzipped_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_basic_auth_str_is_always_native",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_requests_history_is_saved",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_json_param_post_content_type_works",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_json_param_post_should_not_override_data_param",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_response_iter_lines",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_response_context_manager",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_unconsumed_session_response_closes_connection",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_response_iter_lines_reentrant",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_session_close_proxy_clear",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_proxy_auth",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_proxy_auth_empty_pass",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_response_json_when_content_is_None",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_response_without_release_conn",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_empty_stream_with_auth_does_not_set_content_length_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_stream_with_auth_does_not_set_transfer_encoding_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_chunked_upload_does_not_set_content_length_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestRequests.test_custom_redirect_mixin",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_init",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_docstring_example",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_len",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_getitem",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_fixes_649",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_delitem",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_contains",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_update",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_update_retains_unchanged",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_iter",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_equality",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_setdefault",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_lower_items",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_preserve_key_case",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_preserve_last_key_case",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestCaseInsensitiveDict.test_copy",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestMorselToCookieExpires",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestMorselToCookieExpires.test_expires_valid_str",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestMorselToCookieExpires.test_expires_invalid_int",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestMorselToCookieExpires.test_expires_none",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestMorselToCookieMaxAge",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestMorselToCookieMaxAge.test_max_age_valid_int",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestMorselToCookieMaxAge.test_max_age_invalid_str",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestTimeout",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestTimeout.test_stream_timeout",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTimeout.test_invalid_timeout",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTimeout.test_none_timeout",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTimeout.test_read_timeout",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTimeout.test_connect_timeout",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTimeout.test_total_timeout_connect",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestTimeout.test_encoded_methods",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "RedirectSession",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RedirectSession.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RedirectSession.send",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RedirectSession.build_response",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_json_encodes_as_bytes",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_requests_are_updated_each_time",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_proxy_env_vars_override_default",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_data_argument_accepts_tuples",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_prepared_copy",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_urllib3_retries",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_urllib3_pool_connection_closed",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs.test_preparing_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs.test_preparing_bad_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs.test_redirecting_to_bad_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs.test_url_mutation",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs.test_parameters_for_nonstandard_schemes",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs.test_post_json_nan",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs.test_json_decode_compatibility",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs.test_json_decode_persists_doc_attr",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs.test_status_code_425",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs.test_different_connection_pool_for_tls_settings_verify_True",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs.test_different_connection_pool_for_tls_settings_verify_bundle_expired_cert",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs.test_different_connection_pool_for_tls_settings_verify_bundle_unexpired_cert",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "TestPreparingURLs.test_different_connection_pool_for_mtls_settings",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_content_length_for_bytes_data",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_content_length_for_string_data_counts_bytes",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_json_decode_errors_are_serializable_deserializable",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_system_ssl",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "VersionedPackage",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.85,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "VersionedPackage.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_idna_without_version_attribute",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "test_idna_with_version_attribute",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "echo_response_handler",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "standard tier-classification fit"
+      ]
+    },
+    {
+      "qualname": "test_chunked_upload",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_chunked_encoding_error",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_chunked_upload_uses_only_specified_host_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_chunked_upload_doesnt_skip_host_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_conflicting_content_lengths",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_digestauth_401_count_reset_on_redirect",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_digestauth_401_only_sent_once",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_digestauth_only_on_4xx",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_use_proxy_from_environment",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_redirect_rfc1808_to_non_ascii_location",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_fragment_not_sent_with_request",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_fragment_update_on_redirect",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "test_json_decode_compatibility_for_alt_utf_encodings",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "u",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "_basic_auth_str",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "AuthBase",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPBasicAuth",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPBasicAuth.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPProxyAuth",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPDigestAuth",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPDigestAuth.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPDigestAuth.init_per_thread_state",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPDigestAuth.build_digest_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "HTTPDigestAuth.handle_redirect",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPDigestAuth.handle_401",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "standard tier-classification fit"
+      ]
+    },
+    {
+      "qualname": "dict_to_sequence",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "super_len",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "get_netrc_auth",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "guess_filename",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "extract_zipped_paths",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "atomic_open",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "from_key_val_list",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "to_key_val_list",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "parse_list_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "parse_dict_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "unquote_header_value",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "dict_from_cookiejar",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "add_dict_to_cookiejar",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "get_encodings_from_content",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "_parse_content_type_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "get_encoding_from_headers",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "stream_decode_response_unicode",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "iter_slices",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "get_unicode_from_response",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "unquote_unreserved",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "requote_uri",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "address_in_network",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "dotted_netmask",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "is_ipv4_address",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "is_valid_cidr",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "set_environ",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "should_bypass_proxies",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "get_environ_proxies",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "select_proxy",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "resolve_proxies",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "default_user_agent",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "default_headers",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "parse_header_links",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "guess_json_utf",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "prepend_scheme_if_needed",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "get_auth_from_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "check_header_validity",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "_validate_header_part",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "urldefragauth",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "rewind_body",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.get_type",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.get_host",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.get_origin_req_host",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.get_full_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.is_unverifiable",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.has_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.get_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.add_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.add_unredirected_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.get_new_headers",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.unverifiable",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.origin_req_host",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockRequest.host",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockResponse",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockResponse.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockResponse.info",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MockResponse.getheaders",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "extract_cookies_to_jar",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "get_cookie_header",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "remove_cookie_by_name",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "CookieConflictError",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.set",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.iterkeys",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.keys",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.itervalues",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.values",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.iteritems",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.items",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.list_domains",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.list_paths",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.multiple_domains",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.get_dict",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.set_cookie",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.update",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.copy",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsCookieJar.get_policy",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "_copy_cookie_jar",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "create_cookie",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "morsel_to_cookie",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "cookiejar_from_dict",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "merge_cookies",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "_urllib3_request_context",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "BaseAdapter",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "BaseAdapter.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "BaseAdapter.send",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "BaseAdapter.close",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter.init_poolmanager",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter.proxy_manager_for",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter.cert_verify",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter.build_response",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter.build_connection_pool_key_attributes",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter.get_connection_with_tls_context",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter.get_connection",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter.close",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter.request_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter.add_headers",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter.proxy_headers",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPAdapter.send",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestEncodingMixin",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestEncodingMixin.path_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestHooksMixin",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestHooksMixin.register_hook",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestHooksMixin.deregister_hook",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Request",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Request.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Request.prepare",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "PreparedRequest",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "PreparedRequest.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "PreparedRequest.prepare",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "PreparedRequest.copy",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "PreparedRequest.prepare_method",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "PreparedRequest.prepare_url",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "PreparedRequest.prepare_headers",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "PreparedRequest.prepare_body",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "PreparedRequest.prepare_content_length",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "PreparedRequest.prepare_auth",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "PreparedRequest.prepare_cookies",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "PreparedRequest.prepare_hooks",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.ok",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.is_redirect",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.is_permanent_redirect",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.next",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.apparent_encoding",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.iter_content",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.iter_lines",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.content",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.text",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.json",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.links",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.raise_for_status",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Response.close",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "CaseInsensitiveDict",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "CaseInsensitiveDict.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "CaseInsensitiveDict.lower_items",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "CaseInsensitiveDict.copy",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "LookupDict",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "LookupDict.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "LookupDict.get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "_implementation",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "info",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "main",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.7,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "merge_setting",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "merge_hooks",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "SessionRedirectMixin",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "SessionRedirectMixin.get_redirect_target",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "SessionRedirectMixin.should_strip_auth",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "SessionRedirectMixin.resolve_redirects",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "standard tier-classification fit"
+      ]
+    },
+    {
+      "qualname": "SessionRedirectMixin.rebuild_auth",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "SessionRedirectMixin.rebuild_proxies",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "SessionRedirectMixin.rebuild_method",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Session",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Session.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Session.prepare_request",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Session.request",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "standard tier-classification fit"
+      ]
+    },
+    {
+      "qualname": "Session.get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Session.options",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Session.head",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Session.post",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Session.put",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Session.patch",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Session.delete",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Session.send",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "standard tier-classification fit"
+      ]
+    },
+    {
+      "qualname": "Session.merge_environment_settings",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "I/O-heavy \u2014 needs sandboxing on absorb"
+      ]
+    },
+    {
+      "qualname": "Session.get_adapter",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Session.close",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Session.mount",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "session",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "_init",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.6,
+      "reasons": [
+        "standard tier-classification fit"
+      ]
+    },
+    {
+      "qualname": "request",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "get",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "options",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "head",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "post",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "put",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "patch",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "delete",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "default_hooks",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "dispatch_hook",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "_resolve_char_detection",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestException",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestException.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "InvalidJSONError",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "JSONDecodeError",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "JSONDecodeError.__init__",
+      "target_tier": "a1_at_functions",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "HTTPError",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "ConnectionError",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "ProxyError",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "SSLError",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Timeout",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "ConnectTimeout",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "ReadTimeout",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "URLRequired",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TooManyRedirects",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "MissingSchema",
+      "target_tier": "a0_qk_constants",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "InvalidSchema",
+      "target_tier": "a0_qk_constants",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "InvalidURL",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "InvalidHeader",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "InvalidProxyURL",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "ChunkedEncodingError",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "ContentDecodingError",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "StreamConsumedError",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RetryError",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "UnrewindableBodyError",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsWarning",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "FileModeWarning",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "RequestsDependencyWarning",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "consume_socket_content",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Server",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Server.__init__",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Server.text_response_server",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.6,
+      "reasons": [
+        "standard tier-classification fit"
+      ]
+    },
+    {
+      "qualname": "Server.basic_response_server",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.75,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "Server.run",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TLSServer",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.75,
+      "reasons": [
+        "class with mutable instance state \u21d2 a2 promotion",
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "TLSServer.__init__",
+      "target_tier": "a4_sy_orchestration",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    },
+    {
+      "qualname": "FlaskyStyle",
+      "target_tier": "a2_mo_composites",
+      "confidence": 0.65,
+      "reasons": [
+        "no detected I/O or state \u2014 clean composition target"
+      ]
+    }
+  ]
+}
