@@ -36,7 +36,7 @@ from urllib3.filepost import encode_multipart_formdata
 from urllib3.util import parse_url
 
 from ._internal_utils import to_native_string, unicode_is_ascii
-from ._types import SupportsRead
+from ._types import SupportsRead as _SupportsRead
 from .auth import HTTPBasicAuth
 from .compat import (
     JSONDecodeError,
@@ -85,21 +85,9 @@ from .utils import (
 if TYPE_CHECKING:
     from http.cookiejar import CookieJar
 
-    from ._types import (
-        AuthType,
-        BodyType,
-        DataType,
-        EncodableDataType,
-        FilesType,
-        HooksInputType,
-        HookType,
-        JsonType,
-        KVDataType,
-        ParamsType,
-        RawDataType,
-        Self,
-        UriType,
-    )
+    from typing_extensions import Self
+
+    from . import _types as _t
     from .adapters import HTTPAdapter
     from .cookies import RequestsCookieJar
 
@@ -153,17 +141,17 @@ class RequestEncodingMixin:
     @overload
     @staticmethod
     def _encode_params(
-        data: SupportsRead[str | bytes],
-    ) -> SupportsRead[str | bytes]: ...
+        data: _t.SupportsRead[str | bytes],
+    ) -> _t.SupportsRead[str | bytes]: ...
 
     @overload
     @staticmethod
-    def _encode_params(data: KVDataType) -> str: ...
+    def _encode_params(data: _t.KVDataType) -> str: ...
 
     @staticmethod
     def _encode_params(
-        data: EncodableDataType,
-    ) -> str | bytes | SupportsRead[str | bytes]:
+        data: _t.EncodableDataType,
+    ) -> str | bytes | _t.SupportsRead[str | bytes]:
         """Encode parameters in a piece of data.
 
         Will successfully encode parameters when passed as a dict or a list of
@@ -173,7 +161,7 @@ class RequestEncodingMixin:
 
         if isinstance(data, (str, bytes)):
             return data
-        elif isinstance(data, SupportsRead):
+        elif isinstance(data, _SupportsRead):
             return data
         elif hasattr(data, "__iter__"):
             result: list[tuple[bytes, bytes]] = []
@@ -190,10 +178,12 @@ class RequestEncodingMixin:
                         )
             return urlencode(result, doseq=True)
         else:
-            return data  # type: ignore[return-value]  # unreachable for valid DataType
+            return data  # type: ignore[return-value]  # unreachable for valid _t.DataType
 
     @staticmethod
-    def _encode_files(files: FilesType, data: RawDataType | None) -> tuple[bytes, str]:
+    def _encode_files(
+        files: _t.FilesType, data: _t.RawDataType | None
+    ) -> tuple[bytes, str]:
         """Build the body for a multipart/form-data request.
 
         Will successfully encode files when passed as a dict or a list of
@@ -246,7 +236,7 @@ class RequestEncodingMixin:
 
             if isinstance(fp, (str, bytes, bytearray)):
                 fdata = fp
-            elif isinstance(fp, SupportsRead):  # type: ignore[reportUnnecessaryIsInstance]  # defensive check for untyped callers
+            elif isinstance(fp, _SupportsRead):  # type: ignore[reportUnnecessaryIsInstance]  # defensive check for untyped callers
                 fdata = fp.read()
             elif fp is None:  # type: ignore[reportUnnecessaryComparison]  # defensive check for untyped callers
                 continue
@@ -263,9 +253,11 @@ class RequestEncodingMixin:
 
 
 class RequestHooksMixin:
-    hooks: dict[str, list[HookType]]
+    hooks: dict[str, list[_t.HookType]]
 
-    def register_hook(self, event: str, hook: Iterable[HookType] | HookType) -> None:
+    def register_hook(
+        self, event: str, hook: Iterable[_t.HookType] | _t.HookType
+    ) -> None:
         """Properly register a hook."""
 
         if event not in self.hooks:
@@ -276,7 +268,7 @@ class RequestHooksMixin:
         elif hasattr(hook, "__iter__"):
             self.hooks[event].extend(h for h in hook if isinstance(h, Callable))  # type: ignore[reportUnnecessaryIsInstance]  # defensive runtime filter
 
-    def deregister_hook(self, event: str, hook: HookType) -> bool:
+    def deregister_hook(self, event: str, hook: _t.HookType) -> bool:
         """Deregister a previously registered hook.
         Returns True if the hook existed, False if not.
         """
@@ -317,27 +309,27 @@ class Request(RequestHooksMixin):
     """
 
     method: str | None
-    url: UriType | None
+    url: _t.UriType | None
     headers: CaseInsensitiveDict[str] | Mapping[str, str | bytes] | None
-    files: FilesType
-    data: DataType
-    json: JsonType
-    params: ParamsType
-    auth: AuthType
+    files: _t.FilesType
+    data: _t.DataType
+    json: _t.JsonType
+    params: _t.ParamsType
+    auth: _t.AuthType
     cookies: RequestsCookieJar | CookieJar | dict[str, str] | None
 
     def __init__(
         self,
         method: str | None = None,
-        url: UriType | None = None,
+        url: _t.UriType | None = None,
         headers: Mapping[str, str | bytes] | None = None,
-        files: FilesType = None,
-        data: DataType = None,
-        params: ParamsType = None,
-        auth: AuthType = None,
+        files: _t.FilesType = None,
+        data: _t.DataType = None,
+        params: _t.ParamsType = None,
+        auth: _t.AuthType = None,
         cookies: RequestsCookieJar | CookieJar | dict[str, str] | None = None,
-        hooks: HooksInputType | None = None,
-        json: JsonType = None,
+        hooks: _t.HooksInputType | None = None,
+        json: _t.JsonType = None,
     ) -> None:
         # Default empty dicts for dict params.
         data = [] if data is None else data
@@ -406,8 +398,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     url: str | None
     headers: CaseInsensitiveDict[str | bytes]
     _cookies: RequestsCookieJar | CookieJar | None
-    body: BodyType
-    hooks: dict[str, list[HookType]]
+    body: _t.BodyType
+    hooks: dict[str, list[_t.HookType]]
     _body_position: int | object | None
 
     def __init__(self) -> None:
@@ -430,19 +422,19 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
     def prepare(
         self,
         method: str | None = None,
-        url: UriType | None = None,
+        url: _t.UriType | None = None,
         headers: Mapping[str, str | bytes] | None = None,
-        files: FilesType = None,
-        data: DataType = None,
-        params: ParamsType = None,
-        auth: AuthType = None,
+        files: _t.FilesType = None,
+        data: _t.DataType = None,
+        params: _t.ParamsType = None,
+        auth: _t.AuthType = None,
         cookies: RequestsCookieJar | CookieJar | dict[str, str] | None = None,
-        hooks: HooksInputType | None = None,
-        json: JsonType = None,
+        hooks: _t.HooksInputType | None = None,
+        json: _t.JsonType = None,
     ) -> None:
         """Prepares the entire request with the given parameters."""
 
-        url = cast("UriType", url)
+        url = cast("_t.UriType", url)
         self.prepare_method(method)
         self.prepare_url(url, params)
         self.prepare_headers(headers)
@@ -488,8 +480,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_url(
         self,
-        url: UriType,
-        params: ParamsType,
+        url: _t.UriType,
+        params: _t.ParamsType,
     ) -> None:
         """Prepares the given HTTP URL."""
         #: Accept objects that have string representations.
@@ -580,7 +572,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 self.headers[to_native_string(name)] = value
 
     def prepare_body(
-        self, data: DataType, files: FilesType, json: JsonType = None
+        self, data: _t.DataType, files: _t.FilesType, json: _t.JsonType = None
     ) -> None:
         """Prepares the given HTTP body data."""
 
@@ -636,7 +628,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                 self.headers["Transfer-Encoding"] = "chunked"
         else:
             # After is_stream filtering, remaining data is raw (not streamed)
-            raw_data = cast("RawDataType | None", data)
+            raw_data = cast("_t.RawDataType | None", data)
 
             # Multi-part file uploads.
             if files:
@@ -644,7 +636,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 if raw_data:
                     body = self._encode_params(raw_data)
-                    if isinstance(data, basestring) or isinstance(data, SupportsRead):
+                    if isinstance(data, basestring) or isinstance(data, _SupportsRead):
                         content_type = None
                     else:
                         content_type = "application/x-www-form-urlencoded"
@@ -657,7 +649,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
         self.body = body  # type: ignore[assignment]  # body transforms from DataType to BodyType
 
-    def prepare_content_length(self, body: BodyType) -> None:
+    def prepare_content_length(self, body: _t.BodyType) -> None:
         """Prepare Content-Length header based on request method and body"""
         if body is not None:
             length = super_len(body)
@@ -675,8 +667,8 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
 
     def prepare_auth(
         self,
-        auth: AuthType,
-        url: UriType = "",
+        auth: _t.AuthType,
+        url: _t.UriType = "",
     ) -> None:
         """Prepares the given HTTP auth data."""
 
@@ -725,7 +717,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if cookie_header is not None:
             self.headers["Cookie"] = cookie_header
 
-    def prepare_hooks(self, hooks: HooksInputType | None) -> None:
+    def prepare_hooks(self, hooks: _t.HooksInputType | None) -> None:
         """Prepares the given hooks."""
         # hooks can be passed as None to the prepare method and to this
         # method. To prevent iterating over None, simply use an empty list

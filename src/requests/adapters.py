@@ -71,10 +71,10 @@ if typing.TYPE_CHECKING:
     from urllib3.connectionpool import HTTPConnectionPool
     from urllib3.poolmanager import PoolManager as _PoolManager
 
-    from ._types import CertType, TimeoutType, VerifyType
+    from . import _types as _t
     from .models import PreparedRequest
 
-from ._types import is_prepared
+from ._types import is_prepared as _is_prepared
 
 DEFAULT_POOLBLOCK = False
 DEFAULT_POOLSIZE = 10
@@ -129,9 +129,9 @@ class BaseAdapter:
         self,
         request: PreparedRequest,
         stream: bool = False,
-        timeout: TimeoutType = None,
-        verify: VerifyType = True,
-        cert: CertType = None,
+        timeout: _t.TimeoutType = None,
+        verify: _t.VerifyType = True,
+        cert: _t.CertType = None,
         proxies: dict[str, str] | None = None,
     ) -> Response:
         """Sends PreparedRequest object. Returns Response object.
@@ -305,7 +305,7 @@ class HTTPAdapter(BaseAdapter):
         return manager
 
     def cert_verify(
-        self, conn: Any, url: str, verify: VerifyType, cert: CertType
+        self, conn: Any, url: str, verify: _t.VerifyType, cert: _t.CertType
     ) -> None:
         """Verify a SSL certificate. This method should not be called from user
         code, and is only exposed for use when subclassing the
@@ -372,7 +372,7 @@ class HTTPAdapter(BaseAdapter):
         :param resp: The urllib3 response object.
         :rtype: requests.Response
         """
-        assert is_prepared(req)
+        assert _is_prepared(req)
         response = Response()
 
         # Fallback to None if there's no status_code, for whatever reason.
@@ -401,7 +401,7 @@ class HTTPAdapter(BaseAdapter):
         return response
 
     def build_connection_pool_key_attributes(
-        self, request: PreparedRequest, verify: VerifyType, cert: CertType = None
+        self, request: PreparedRequest, verify: _t.VerifyType, cert: _t.CertType = None
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         """Build the PoolKey attributes used by urllib3 to return a connection.
 
@@ -455,9 +455,9 @@ class HTTPAdapter(BaseAdapter):
     def get_connection_with_tls_context(
         self,
         request: PreparedRequest,
-        verify: VerifyType,
+        verify: _t.VerifyType,
         proxies: dict[str, str] | None = None,
-        cert: CertType = None,
+        cert: _t.CertType = None,
     ) -> HTTPConnectionPool:
         """Returns a urllib3 connection for the given request and TLS settings.
         This should not be called from user code, and is only exposed for use
@@ -478,7 +478,7 @@ class HTTPAdapter(BaseAdapter):
         :rtype:
             urllib3.HTTPConnectionPool
         """
-        assert is_prepared(request)
+        assert _is_prepared(request)
 
         proxy = select_proxy(request.url, proxies)
         try:
@@ -578,7 +578,7 @@ class HTTPAdapter(BaseAdapter):
         :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs.
         :rtype: str
         """
-        assert is_prepared(request)
+        assert _is_prepared(request)
 
         proxy = select_proxy(request.url, proxies)
         scheme = urlparse(request.url).scheme
@@ -637,9 +637,9 @@ class HTTPAdapter(BaseAdapter):
         self,
         request: PreparedRequest,
         stream: bool = False,
-        timeout: TimeoutType = None,
-        verify: VerifyType = True,
-        cert: CertType = None,
+        timeout: _t.TimeoutType = None,
+        verify: _t.VerifyType = True,
+        cert: _t.CertType = None,
         proxies: dict[str, str] | None = None,
     ) -> Response:
         """Sends PreparedRequest object. Returns Response object.
@@ -658,7 +658,7 @@ class HTTPAdapter(BaseAdapter):
         :rtype: requests.Response
         """
 
-        assert is_prepared(request)
+        assert _is_prepared(request)
 
         try:
             conn = self.get_connection_with_tls_context(

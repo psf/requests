@@ -50,14 +50,8 @@ if TYPE_CHECKING:
     from typing import TypeAlias, TypedDict
 
     from typing_extensions import (
-        Buffer as Buffer,  # TODO: move to collections.abc when Python >= 3.12
-    )
-    from typing_extensions import (
-        Self as Self,  # TODO: move to typing when Python >= 3.11
-    )
-    from typing_extensions import TypeIs  # TODO: move to typing when Python >= 3.13
-    from typing_extensions import (
-        Unpack as Unpack,  # TODO: move to typing when Python >= 3.12
+        Buffer,  # TODO: move to collections.abc when Python >= 3.12
+        TypeIs,  # TODO: move to typing when Python >= 3.13
     )
 
     from .auth import AuthBase

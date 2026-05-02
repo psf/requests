@@ -17,7 +17,7 @@ from http.cookiejar import Cookie, CookieJar, CookiePolicy
 from typing import TYPE_CHECKING, Any, TypeVar, overload
 
 from ._internal_utils import to_native_string
-from ._types import is_prepared
+from ._types import is_prepared as _is_prepared
 from .compat import Morsel, cookielib, urlparse, urlunparse
 
 if TYPE_CHECKING:
@@ -43,7 +43,7 @@ class MockRequest:
     type: str
 
     def __init__(self, request: PreparedRequest) -> None:
-        assert is_prepared(request)
+        assert _is_prepared(request)
         self._r = request
         self._new_headers: dict[str, str] = {}
         self.type = urlparse(self._r.url).scheme

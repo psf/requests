@@ -42,7 +42,7 @@ from ._internal_utils import (  # noqa: F401
     HEADER_VALIDATORS,  # type: ignore[reportUnusedImport]
     to_native_string,  # type: ignore[reportUnusedImport]
 )
-from ._types import SupportsItems
+from ._types import SupportsItems as _SupportsItems
 from .compat import (
     Mapping,
     bytes,
@@ -72,7 +72,7 @@ if TYPE_CHECKING:
     from http.cookiejar import CookieJar
     from io import BufferedWriter
 
-    from ._types import SupportsItems, UriType
+    from . import _types as _t
     from .models import PreparedRequest, Request, Response
 
 NETRC_FILES: Final = (".netrc", "_netrc")
@@ -147,11 +147,11 @@ if sys.platform == "win32":
 
 
 def dict_to_sequence(
-    d: SupportsItems | Iterable[tuple[Any, Any]],
+    d: _t.SupportsItems | Iterable[tuple[Any, Any]],
 ) -> Iterable[tuple[Any, Any]]:
     """Returns an internal sequence dictionary update."""
 
-    if isinstance(d, SupportsItems):
+    if isinstance(d, _SupportsItems):
         return d.items()
 
     return d
@@ -228,7 +228,9 @@ def super_len(o: Any) -> int:
     return max(0, total_length - current_position)
 
 
-def get_netrc_auth(url: UriType, raise_errors: bool = False) -> tuple[str, str] | None:
+def get_netrc_auth(
+    url: _t.UriType, raise_errors: bool = False
+) -> tuple[str, str] | None:
     """Returns the Requests tuple auth for a given url from netrc."""
 
     if isinstance(url, bytes):
@@ -396,7 +398,7 @@ def to_key_val_list(
     if isinstance(value, (str, bytes, bool, int)):
         raise ValueError("cannot encode objects that are not 2-tuples")
 
-    if isinstance(value, SupportsItems):
+    if isinstance(value, _SupportsItems):
         return list(value.items())
 
     return list(value)

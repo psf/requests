@@ -17,7 +17,7 @@ from datetime import timedelta
 from typing import TYPE_CHECKING, Any, cast
 
 from ._internal_utils import to_native_string
-from ._types import is_prepared
+from ._types import is_prepared as _is_prepared
 from .adapters import HTTPAdapter
 from .auth import _basic_auth_str  # type: ignore[reportPrivateUsage]
 from .compat import cookielib, urljoin, urlparse
@@ -61,25 +61,9 @@ from .utils import (  # noqa: F401
 if TYPE_CHECKING:
     from http.cookiejar import CookieJar
 
-    from ._types import (
-        AuthType,
-        CertType,
-        DataKwargs,
-        DataType,
-        FilesType,
-        GetKwargs,
-        HooksType,
-        HookType,
-        JsonType,
-        ParamsType,
-        PostKwargs,
-        RequestKwargs,
-        Self,
-        TimeoutType,
-        Unpack,
-        UriType,
-        VerifyType,
-    )
+    from typing_extensions import Self, Unpack
+
+    from . import _types as _t
     from .adapters import BaseAdapter
 
 # Preferred clock, based on which one is more accurate on a given system.
@@ -122,8 +106,10 @@ def merge_setting(
 
 
 def merge_hooks(
-    request_hooks: HooksType, session_hooks: HooksType, dict_class: type = OrderedDict
-) -> HooksType:
+    request_hooks: _t.HooksType,
+    session_hooks: _t.HooksType,
+    dict_class: type = OrderedDict,
+) -> _t.HooksType:
     """Properly merges both requests and session hooks.
 
     This is necessary because when request_hooks == {'response': []}, the
@@ -202,9 +188,9 @@ class SessionRedirectMixin:
         resp: Response,
         req: PreparedRequest,
         stream: bool = False,
-        timeout: TimeoutType = None,
-        verify: VerifyType = True,
-        cert: CertType = None,
+        timeout: _t.TimeoutType = None,
+        verify: _t.VerifyType = True,
+        cert: _t.CertType = None,
         proxies: dict[str, str] | None = None,
         yield_requests: bool = False,
         **adapter_kwargs: Any,
@@ -328,8 +314,8 @@ class SessionRedirectMixin:
         and reapplies authentication where possible to avoid credential loss.
         """
         original_request = response.request
-        assert is_prepared(original_request)
-        assert is_prepared(prepared_request)
+        assert _is_prepared(original_request)
+        assert _is_prepared(prepared_request)
 
         headers = prepared_request.headers
         original_url = original_request.url
@@ -361,7 +347,7 @@ class SessionRedirectMixin:
 
         :rtype: dict
         """
-        assert is_prepared(prepared_request)
+        assert _is_prepared(prepared_request)
         headers = prepared_request.headers
         scheme = urlparse(prepared_request.url).scheme
         new_proxies = resolve_proxies(prepared_request, proxies, self.trust_env)
@@ -426,13 +412,13 @@ class Session(SessionRedirectMixin):
     """
 
     headers: CaseInsensitiveDict[str]
-    auth: AuthType
+    auth: _t.AuthType
     proxies: dict[str, str]
-    hooks: dict[str, list[HookType]]
+    hooks: dict[str, list[_t.HookType]]
     params: MutableMapping[str, Any]
     stream: bool
-    verify: VerifyType
-    cert: CertType
+    verify: _t.VerifyType
+    cert: _t.CertType
     max_redirects: int
     trust_env: bool
     cookies: RequestsCookieJar
@@ -532,7 +518,7 @@ class Session(SessionRedirectMixin):
             session's settings.
         :rtype: requests.PreparedRequest
         """
-        url = cast("UriType", request.url)
+        url = cast("_t.UriType", request.url)
         method = cast(str, request.method)
 
         cookies = request.cookies or {}
@@ -571,21 +557,21 @@ class Session(SessionRedirectMixin):
     def request(
         self,
         method: str,
-        url: UriType,
-        params: ParamsType = None,
-        data: DataType = None,
+        url: _t.UriType,
+        params: _t.ParamsType = None,
+        data: _t.DataType = None,
         headers: Mapping[str, str | bytes] | None = None,
         cookies: RequestsCookieJar | CookieJar | dict[str, str] | None = None,
-        files: FilesType = None,
-        auth: AuthType = None,
-        timeout: TimeoutType = None,
+        files: _t.FilesType = None,
+        auth: _t.AuthType = None,
+        timeout: _t.TimeoutType = None,
         allow_redirects: bool = True,
         proxies: dict[str, str] | None = None,
-        hooks: HooksType = None,
+        hooks: _t.HooksType = None,
         stream: bool | None = None,
-        verify: VerifyType | None = None,
-        cert: CertType = None,
-        json: JsonType = None,
+        verify: _t.VerifyType | None = None,
+        cert: _t.CertType = None,
+        json: _t.JsonType = None,
     ) -> Response:
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
@@ -648,7 +634,7 @@ class Session(SessionRedirectMixin):
         )
         prep = self.prepare_request(req)
 
-        assert is_prepared(prep)
+        assert _is_prepared(prep)
 
         proxies = proxies or {}
 
@@ -666,7 +652,7 @@ class Session(SessionRedirectMixin):
 
         return resp
 
-    def get(self, url: UriType, **kwargs: Unpack[GetKwargs]) -> Response:
+    def get(self, url: _t.UriType, **kwargs: Unpack[_t.GetKwargs]) -> Response:
         r"""Sends a GET request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -677,7 +663,7 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault("allow_redirects", True)
         return self.request("GET", url, **kwargs)
 
-    def options(self, url: UriType, **kwargs: Unpack[RequestKwargs]) -> Response:
+    def options(self, url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]) -> Response:
         r"""Sends a OPTIONS request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -688,7 +674,7 @@ class Session(SessionRedirectMixin):
         kwargs.setdefault("allow_redirects", True)
         return self.request("OPTIONS", url, **kwargs)
 
-    def head(self, url: UriType, **kwargs: Unpack[RequestKwargs]) -> Response:
+    def head(self, url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]) -> Response:
         r"""Sends a HEAD request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -701,10 +687,10 @@ class Session(SessionRedirectMixin):
 
     def post(
         self,
-        url: UriType,
-        data: DataType = None,
-        json: JsonType = None,
-        **kwargs: Unpack[PostKwargs],
+        url: _t.UriType,
+        data: _t.DataType = None,
+        json: _t.JsonType = None,
+        **kwargs: Unpack[_t.PostKwargs],
     ) -> Response:
         r"""Sends a POST request. Returns :class:`Response` object.
 
@@ -719,7 +705,7 @@ class Session(SessionRedirectMixin):
         return self.request("POST", url, data=data, json=json, **kwargs)
 
     def put(
-        self, url: UriType, data: DataType = None, **kwargs: Unpack[DataKwargs]
+        self, url: _t.UriType, data: _t.DataType = None, **kwargs: Unpack[_t.DataKwargs]
     ) -> Response:
         r"""Sends a PUT request. Returns :class:`Response` object.
 
@@ -733,7 +719,7 @@ class Session(SessionRedirectMixin):
         return self.request("PUT", url, data=data, **kwargs)
 
     def patch(
-        self, url: UriType, data: DataType = None, **kwargs: Unpack[DataKwargs]
+        self, url: _t.UriType, data: _t.DataType = None, **kwargs: Unpack[_t.DataKwargs]
     ) -> Response:
         r"""Sends a PATCH request. Returns :class:`Response` object.
 
@@ -746,7 +732,7 @@ class Session(SessionRedirectMixin):
 
         return self.request("PATCH", url, data=data, **kwargs)
 
-    def delete(self, url: UriType, **kwargs: Unpack[RequestKwargs]) -> Response:
+    def delete(self, url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]) -> Response:
         r"""Sends a DELETE request. Returns :class:`Response` object.
 
         :param url: URL for the new :class:`Request` object.
@@ -774,7 +760,7 @@ class Session(SessionRedirectMixin):
         if isinstance(request, Request):
             raise ValueError("You can only send PreparedRequests.")
 
-        assert is_prepared(request)
+        assert _is_prepared(request)
 
         # Set up variables needed for resolve_redirects and dispatching of hooks
         allow_redirects = kwargs.pop("allow_redirects", True)
@@ -840,8 +826,8 @@ class Session(SessionRedirectMixin):
         url: str,
         proxies: dict[str, str] | None,
         stream: bool | None,
-        verify: VerifyType | None,
-        cert: CertType,
+        verify: _t.VerifyType | None,
+        cert: _t.CertType,
     ) -> dict[str, Any]:
         """
         Check the environment and merge it with some settings.
