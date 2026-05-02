@@ -23,6 +23,7 @@ from .utils import parse_dict_header
 
 if TYPE_CHECKING:
     from http.cookiejar import CookieJar
+    from typing import Any
 
     from .models import PreparedRequest, Response
 
@@ -104,7 +105,7 @@ class HTTPBasicAuth(AuthBase):
             ]
         )
 
-    def __ne__(self, other: object) -> bool:
+    def __ne__(self, other: Any) -> bool:
         return not self == other
 
     def __call__(self, r: PreparedRequest) -> PreparedRequest:
@@ -349,5 +350,5 @@ class HTTPDigestAuth(AuthBase):
             ]
         )
 
-    def __ne__(self, other: object) -> bool:
+    def __ne__(self, other: Any) -> bool:
         return not self == other
