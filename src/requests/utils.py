@@ -166,7 +166,11 @@ def super_len(o: Any) -> int:
         # of latin-1 (iso-8859-1) like http.client.
         o = o.encode("utf-8")
 
-    if hasattr(o, "__len__"):
+    if isinstance(o, io.StringIO):
+        value = o.getvalue()
+        total_length = len(value.encode("utf-8"))
+
+    elif hasattr(o, "__len__"):
         total_length = len(o)
 
     elif hasattr(o, "len"):
@@ -209,7 +213,9 @@ def super_len(o: Any) -> int:
             if total_length is not None:
                 current_position = total_length
         else:
-            if hasattr(o, "seek") and total_length is None:
+            if isinstance(o, io.StringIO):
+                current_position = len(o.getvalue()[:current_position].encode("utf-8"))
+            elif hasattr(o, "seek") and total_length is None:
                 # StringIO and BytesIO have seek but no usable fileno
                 try:
                     # seek to end of file

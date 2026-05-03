@@ -3043,6 +3043,15 @@ def test_content_length_for_string_data_counts_bytes(httpbin):
     assert p.headers["Content-Length"] == length
 
 
+def test_content_length_for_stringio_data_counts_bytes(httpbin):
+    data = StringIO.StringIO("This is a string containing multi-byte UTF-8 ☃️")
+    length = str(len(data.getvalue().encode("utf-8")))
+    req = requests.Request("POST", httpbin("post"), data=data)
+    p = req.prepare()
+
+    assert p.headers["Content-Length"] == length
+
+
 def test_json_decode_errors_are_serializable_deserializable():
     json_decode_error = requests.exceptions.JSONDecodeError(
         "Extra data",
