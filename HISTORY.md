@@ -6,6 +6,21 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.34.0 (2026-05-??)
+-------------------
+
+**Improvements**
+* Requests 2.34.0 introduces inline types, replacing those provided by
+  typeshed. Public API types should be fully compatible with mypy, pyright,
+  and ty. (#7272)
+* Digest Auth hashing algorithms have added `usedforsecurity=False` to clarify
+  security considerations. (#7310)
+
+**Bugfixes**
+* ``Response.history`` no longer contains a reference to itself, preventing
+  accidental looping when traversing the history list. (#7328)
+
+
 2.33.1 (2026-03-30)
 -------------------
 
