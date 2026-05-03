@@ -12,6 +12,7 @@ import threading
 import time
 import warnings
 from base64 import b64encode
+from urllib.parse import quote
 
 from ._internal_utils import to_native_string
 from .compat import basestring, str, urlparse
@@ -123,6 +124,36 @@ class HTTPDigestAuth(AuthBase):
             self._thread_local.pos = None
             self._thread_local.num_401_calls = None
 
+    @staticmethod
+    def _is_latin1_encodable(s):
+        """Check whether string can be encoded as Latin-1 (ISO-8859-1).
+
+        Per RFC 7616 Section 3.4.4, if the username cannot be encoded
+        as Latin-1, the ``username*`` parameter with RFC 5987 encoding
+        must be used instead of the ``username`` parameter.
+        """
+        try:
+            s.encode("latin-1")
+            return True
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            return False
+
+    @staticmethod
+    def _encode_rfc5987(value):
+        """Encode a string per RFC 5987 for use in the username* parameter.
+
+        Format: ``UTF-8''percent-encoded-value``
+
+        Per RFC 5987 Section 3.2.1, attr-char is defined as::
+
+            attr-char = ALPHA / DIGIT
+                      / "!" / "#" / "$" / "&" / "+" / "-" / "."
+                      / "^" / "_" / "`" / "|" / "~"
+
+        All other characters are percent-encoded as UTF-8 octets.
+        """
+        return "UTF-8''" + quote(value, safe="!#$&+-.^_`|~")
+
     def build_digest_header(self, method, url):
         """
         :rtype: str
@@ -134,6 +165,11 @@ class HTTPDigestAuth(AuthBase):
         algorithm = self._thread_local.chal.get("algorithm")
         opaque = self._thread_local.chal.get("opaque")
         hash_utf8 = None
+
+        # RFC 7616 Section 3.4.4: userhash support
+        userhash = self._thread_local.chal.get("userhash", "false").lower() == "true"
+        # RFC 7616 Section 3.3: charset support
+        charset = self._thread_local.chal.get("charset", "").upper()
 
         if algorithm is None:
             _algorithm = "MD5"
@@ -217,11 +253,36 @@ class HTTPDigestAuth(AuthBase):
 
         self._thread_local.last_nonce = nonce
 
-        # XXX should the partial digests be encoded too?
-        base = (
-            f'username="{self.username}", realm="{realm}", nonce="{nonce}", '
-            f'uri="{path}", response="{respdig}"'
-        )
+        # RFC 7616 Section 3.4: Determine username representation.
+        #
+        # If userhash is true, hash the username per RFC 7616 Section 3.4.4:
+        #   userhash = hash(username ":" realm)
+        # and use the hashed value as the username parameter.
+        #
+        # If the username contains characters outside Latin-1, use the
+        # username* parameter with RFC 5987 encoding per RFC 7616 Section 3.4.
+        #
+        # Otherwise, use the standard username parameter.
+        if userhash:
+            # RFC 7616 Section 3.4.4: username is hashed
+            username_value = hash_utf8(f"{self.username}:{realm}")
+            base = (
+                f'username="{username_value}", realm="{realm}", '
+                f'nonce="{nonce}", uri="{path}", response="{respdig}", '
+                f"userhash=true"
+            )
+        elif not self._is_latin1_encodable(self.username):
+            # RFC 7616 Section 3.4: use username* with RFC 5987 encoding
+            username_star = self._encode_rfc5987(self.username)
+            base = (
+                f"username*={username_star}, realm=\"{realm}\", "
+                f'nonce="{nonce}", uri="{path}", response="{respdig}"'
+            )
+        else:
+            base = (
+                f'username="{self.username}", realm="{realm}", nonce="{nonce}", '
+                f'uri="{path}", response="{respdig}"'
+            )
         if opaque:
             base += f', opaque="{opaque}"'
         if algorithm:
@@ -230,6 +291,9 @@ class HTTPDigestAuth(AuthBase):
             base += f', digest="{entdig}"'
         if qop:
             base += f', qop="auth", nc={ncvalue}, cnonce="{cnonce}"'
+        # RFC 7616 Section 3.3: include charset when server advertised it
+        if charset == "UTF-8":
+            base += ', charset="UTF-8"'
 
         return f"Digest {base}"
 
