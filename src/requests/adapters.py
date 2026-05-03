@@ -315,7 +315,8 @@ class HTTPAdapter(BaseAdapter):
         :param url: The requested URL.
         :param verify: Either a boolean, in which case it controls whether we verify
             the server's TLS certificate, or a string, in which case it must be a path
-            to a CA bundle to use
+            to a CA bundle to use. This is the final value used after session-level
+            defaults have been merged.
         :param cert: The SSL certificate to verify.
         """
         if url.lower().startswith("https") and verify:

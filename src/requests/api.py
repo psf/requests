@@ -49,8 +49,10 @@ def request(
     :type allow_redirects: bool
     :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
     :param verify: (optional) Either a boolean, in which case it controls whether we verify
-            the server's TLS certificate, or a string, in which case it must be a path
-            to a CA bundle to use. Defaults to ``True``.
+        the server's TLS certificate, or a string, in which case it must be a path
+        to a CA bundle to use. When omitted, the session's ``verify`` setting is used.
+        Passing ``True`` forces Requests to use the default CA bundle lookup behavior,
+        even if the session is configured with a different verification setting.
     :param stream: (optional) if ``False``, the response content will be immediately downloaded.
     :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
     :return: :class:`Response <Response>` object
