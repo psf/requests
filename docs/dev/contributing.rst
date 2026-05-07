@@ -14,7 +14,7 @@ getting a feel for how contributing to this project works. If you have any
 questions, feel free to reach out to either `Nate Prewitt`_, `Ian Cordasco`_,
 or `Seth Michael Larson`_, the primary maintainers.
 
-.. _Ian Cordasco: http://www.coglib.com/~icordasc/
+.. _Ian Cordasco: https://www.coglib.com/~icordasc/
 .. _Nate Prewitt: https://www.nateprewitt.com/
 .. _Seth Michael Larson: https://sethmlarson.dev/
 
@@ -132,7 +132,7 @@ files and a semi-formal, yet friendly and approachable, prose style.
 When presenting Python code, use single-quoted strings (``'hello'`` instead of
 ``"hello"``).
 
-.. _reStructuredText: http://docutils.sourceforge.net/rst.html
+.. _reStructuredText: https://docutils.sourceforge.net/rst.html
 .. _Sphinx: https://www.sphinx-doc.org/en/master/
 
 
