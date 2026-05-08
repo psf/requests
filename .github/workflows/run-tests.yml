@@ -8,7 +8,6 @@ permissions:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.python-version == '3.15-dev' }}
     timeout-minutes: 10
     strategy:
       fail-fast: false
