@@ -732,21 +732,6 @@ class Response:
     server's response to an HTTP request.
     """
 
-    _content: bytes | Literal[False] | None
-    _content_consumed: bool
-    _next: PreparedRequest | None
-    status_code: int
-    headers: CaseInsensitiveDict[str]
-    raw: Any
-    url: str
-    encoding: str | None
-    history: list[Response]
-    reason: str | None
-    cookies: RequestsCookieJar
-    elapsed: datetime.timedelta
-    request: PreparedRequest
-    connection: HTTPAdapter
-
     __attrs__: list[str] = [
         "_content",
         "status_code",
@@ -761,39 +746,39 @@ class Response:
     ]
 
     def __init__(self) -> None:
-        self._content = False
-        self._content_consumed = False
-        self._next = None
+        self._content: bytes | Literal[False] | None = False
+        self._content_consumed: bool = False
+        self._next: PreparedRequest | None = None
 
         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
-        self.status_code = None  # type: ignore[assignment]
+        self.status_code: int = None  # type: ignore[assignment]
 
         #: Case-insensitive Dictionary of Response Headers.
         #: For example, ``headers['content-encoding']`` will return the
         #: value of a ``'Content-Encoding'`` response header.
-        self.headers = CaseInsensitiveDict()
+        self.headers: CaseInsensitiveDict[str] = CaseInsensitiveDict()
 
         #: File-like object representation of response (for advanced usage).
         #: Use of ``raw`` requires that ``stream=True`` be set on the request.
         #: This requirement does not apply for use internally to Requests.
-        self.raw = None
+        self.raw: Any = None
 
         #: Final URL location of Response.
-        self.url = None  # type: ignore[assignment]
+        self.url: str = None  # type: ignore[assignment]
 
         #: Encoding to decode with when accessing r.text.
-        self.encoding = None
+        self.encoding: str | None = None
 
         #: A list of :class:`Response <Response>` objects from
         #: the history of the Request. Any redirect responses will end
         #: up here. The list is sorted from the oldest to the most recent request.
-        self.history = []
+        self.history: list[Response] = []
 
         #: Textual reason of responded HTTP Status, e.g. "Not Found" or "OK".
-        self.reason = None
+        self.reason: str | None = None
 
         #: A CookieJar of Cookies the server sent back.
-        self.cookies = cookiejar_from_dict({})
+        self.cookies: RequestsCookieJar = cookiejar_from_dict({})
 
         #: The amount of time elapsed between sending the request
         #: and the arrival of the response (as a timedelta).
@@ -801,11 +786,13 @@ class Response:
         #: the first byte of the request and finishing parsing the headers. It
         #: is therefore unaffected by consuming the response content or the
         #: value of the ``stream`` keyword argument.
-        self.elapsed = datetime.timedelta(0)
+        self.elapsed: datetime.timedelta = datetime.timedelta(0)
 
         #: The :class:`PreparedRequest <PreparedRequest>` object to which this
         #: is a response.
-        self.request = None  # type: ignore[assignment]
+        self.request: PreparedRequest = None  # type: ignore[assignment]
+
+        self.connection: HTTPAdapter
 
     def __enter__(self) -> Self:
         return self
