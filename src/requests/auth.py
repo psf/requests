@@ -14,6 +14,7 @@ import threading
 import time
 import warnings
 from base64 import b64encode
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Final, cast, overload
 
 from ._internal_utils import to_native_string
@@ -154,6 +155,33 @@ class HTTPDigestAuth(AuthBase):
             self._thread_local.pos = None
             self._thread_local.num_401_calls = None
 
+    def _get_hash_function(self, algorithm: str) -> Callable[[str | bytes], str] | None:
+        if algorithm in ("MD5", "MD5-SESS"):
+            def md5_utf8(x: str | bytes) -> str:
+                if isinstance(x, str):
+                    x = x.encode("utf-8")
+                return hashlib.md5(x, usedforsecurity=False).hexdigest()
+            return md5_utf8
+        elif algorithm == "SHA":
+            def sha_utf8(x: str | bytes) -> str:
+                if isinstance(x, str):
+                    x = x.encode("utf-8")
+                return hashlib.sha1(x, usedforsecurity=False).hexdigest()
+            return sha_utf8
+        elif algorithm == "SHA-256":
+            def sha256_utf8(x: str | bytes) -> str:
+                if isinstance(x, str):
+                    x = x.encode("utf-8")
+                return hashlib.sha256(x, usedforsecurity=False).hexdigest()
+            return sha256_utf8
+        elif algorithm == "SHA-512":
+            def sha512_utf8(x: str | bytes) -> str:
+                if isinstance(x, str):
+                    x = x.encode("utf-8")
+                return hashlib.sha512(x, usedforsecurity=False).hexdigest()
+            return sha512_utf8
+        return None
+
     def build_digest_header(self, method: str, url: str) -> str | None:
         """
         :rtype: str
@@ -164,45 +192,13 @@ class HTTPDigestAuth(AuthBase):
         qop = self._thread_local.chal.get("qop")
         algorithm = self._thread_local.chal.get("algorithm")
         opaque = self._thread_local.chal.get("opaque")
-        hash_utf8 = None
 
         if algorithm is None:
             _algorithm = "MD5"
         else:
             _algorithm = algorithm.upper()
-        # lambdas assume digest modules are imported at the top level
-        if _algorithm == "MD5" or _algorithm == "MD5-SESS":
 
-            def md5_utf8(x: str | bytes) -> str:
-                if isinstance(x, str):
-                    x = x.encode("utf-8")
-                return hashlib.md5(x, usedforsecurity=False).hexdigest()
-
-            hash_utf8 = md5_utf8
-        elif _algorithm == "SHA":
-
-            def sha_utf8(x: str | bytes) -> str:
-                if isinstance(x, str):
-                    x = x.encode("utf-8")
-                return hashlib.sha1(x, usedforsecurity=False).hexdigest()
-
-            hash_utf8 = sha_utf8
-        elif _algorithm == "SHA-256":
-
-            def sha256_utf8(x: str | bytes) -> str:
-                if isinstance(x, str):
-                    x = x.encode("utf-8")
-                return hashlib.sha256(x, usedforsecurity=False).hexdigest()
-
-            hash_utf8 = sha256_utf8
-        elif _algorithm == "SHA-512":
-
-            def sha512_utf8(x: str | bytes) -> str:
-                if isinstance(x, str):
-                    x = x.encode("utf-8")
-                return hashlib.sha512(x, usedforsecurity=False).hexdigest()
-
-            hash_utf8 = sha512_utf8
+        hash_utf8 = self._get_hash_function(_algorithm)
 
         if hash_utf8 is None:
             return None
@@ -270,6 +266,38 @@ class HTTPDigestAuth(AuthBase):
         if r.is_redirect:
             self._thread_local.num_401_calls = 1
 
+    def _rewind_request_body(self, r: Response) -> None:
+        if self._thread_local.pos is not None:
+            # Rewind the file position indicator of the body to where
+            # it was to resend the request.
+            if (seek := getattr(r.request.body, "seek", None)) is not None:
+                seek(self._thread_local.pos)
+
+    def _handle_digest_auth(self, s_auth: str, r: Response, **kwargs: Any) -> Response:
+        self._thread_local.num_401_calls += 1
+        pat = re.compile(r"digest ", flags=re.IGNORECASE)
+        self._thread_local.chal = parse_dict_header(pat.sub("", s_auth, count=1))
+
+        # Consume content and release the original connection
+        # to allow our new request to reuse the same one.
+        r.content
+        r.close()
+        prep = r.request.copy()
+        cookie_jar = cast("CookieJar", prep._cookies)  # type: ignore[reportPrivateUsage]
+        extract_cookies_to_jar(cookie_jar, r.request, r.raw)
+        prep.prepare_cookies(cookie_jar)
+
+        _digest_auth = self.build_digest_header(
+            cast(str, prep.method), cast(str, prep.url)
+        )
+        if _digest_auth:
+            prep.headers["Authorization"] = _digest_auth
+        _r = r.connection.send(prep, **kwargs)
+        _r.history.append(r)
+        _r.request = prep
+
+        return _r
+
     def handle_401(self, r: Response, **kwargs: Any) -> Response:
         """
         Takes the given response and tries digest-auth, if needed.
@@ -283,37 +311,11 @@ class HTTPDigestAuth(AuthBase):
             self._thread_local.num_401_calls = 1
             return r
 
-        if self._thread_local.pos is not None:
-            # Rewind the file position indicator of the body to where
-            # it was to resend the request.
-            if (seek := getattr(r.request.body, "seek", None)) is not None:
-                seek(self._thread_local.pos)
+        self._rewind_request_body(r)
         s_auth = r.headers.get("www-authenticate", "")
 
         if "digest" in s_auth.lower() and self._thread_local.num_401_calls < 2:
-            self._thread_local.num_401_calls += 1
-            pat = re.compile(r"digest ", flags=re.IGNORECASE)
-            self._thread_local.chal = parse_dict_header(pat.sub("", s_auth, count=1))
-
-            # Consume content and release the original connection
-            # to allow our new request to reuse the same one.
-            r.content
-            r.close()
-            prep = r.request.copy()
-            cookie_jar = cast("CookieJar", prep._cookies)  # type: ignore[reportPrivateUsage]
-            extract_cookies_to_jar(cookie_jar, r.request, r.raw)
-            prep.prepare_cookies(cookie_jar)
-
-            _digest_auth = self.build_digest_header(
-                cast(str, prep.method), cast(str, prep.url)
-            )
-            if _digest_auth:
-                prep.headers["Authorization"] = _digest_auth
-            _r = r.connection.send(prep, **kwargs)
-            _r.history.append(r)
-            _r.request = prep
-
-            return _r
+            return self._handle_digest_auth(s_auth, r, **kwargs)
 
         self._thread_local.num_401_calls = 1
         return r
