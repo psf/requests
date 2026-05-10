@@ -851,9 +851,11 @@ def should_bypass_proxies(url: str, no_proxy: str | None) -> bool:
                 host_with_port += f":{parsed.port}"
 
             for host in no_proxy_hosts:
+                host = host.lstrip(".")
+                if hostname == host or host_with_port == host:
+                    return True
+                host = "." + host
                 if hostname.endswith(host) or host_with_port.endswith(host):
-                    # The URL does match something in no_proxy, so we don't want
-                    # to apply the proxies on this URL.
                     return True
 
     with set_environ("no_proxy", no_proxy_arg):
