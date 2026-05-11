@@ -1135,3 +1135,4 @@ coffee.
 
 .. _`wall clock`: https://wiki.php.net/rfc/max_execution_wall_time
 .. _`connect()`: https://linux.die.net/man/2/connect
+`n.. note:: When using a tuple for timeouts, it is structured as (connect_timeout, read_timeout).
