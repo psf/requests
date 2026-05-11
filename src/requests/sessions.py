@@ -567,7 +567,7 @@ class Session(SessionRedirectMixin):
         timeout: _t.TimeoutType = None,
         allow_redirects: bool = True,
         proxies: dict[str, str] | None = None,
-        hooks: _t.HooksType = None,
+        hooks: _t.HooksInputType | None = None,
         stream: bool | None = None,
         verify: _t.VerifyType | None = None,
         cert: _t.CertType = None,

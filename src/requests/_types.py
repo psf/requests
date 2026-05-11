@@ -150,7 +150,7 @@ if TYPE_CHECKING:
         timeout: TimeoutType
         allow_redirects: bool
         proxies: dict[str, str] | None
-        hooks: HooksType
+        hooks: HooksInputType | None
         stream: bool | None
         verify: VerifyType | None
         cert: CertType
