@@ -147,7 +147,7 @@ if sys.platform == "win32":
 
 
 def dict_to_sequence(
-    d: _t.SupportsItems | Iterable[tuple[Any, Any]],
+    d: _t.SupportsItems[Any, Any] | Iterable[tuple[Any, Any]],
 ) -> Iterable[tuple[Any, Any]]:
     """Returns an internal sequence dictionary update."""
 
@@ -371,10 +371,10 @@ def from_key_val_list(
 def to_key_val_list(value: None) -> None: ...
 @overload
 def to_key_val_list(
-    value: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]],
+    value: _t.SupportsItems[_KT, _VT] | Iterable[tuple[_KT, _VT]],
 ) -> list[tuple[_KT, _VT]]: ...
 def to_key_val_list(
-    value: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | None,
+    value: _t.SupportsItems[_KT, _VT] | Iterable[tuple[_KT, _VT]] | None,
 ) -> list[tuple[_KT, _VT]] | None:
     """Take an object and test to see if it can be represented as a
     dictionary. If it can be, return a list of tuples, e.g.,
