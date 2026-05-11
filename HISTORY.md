@@ -13,7 +13,10 @@ dev
 - Requests 2.34.0 introduces inline types, replacing those provided by
   typeshed. Public API types should be fully compatible with mypy, pyright,
   and ty. We believe types are comprehensive but if you find issues, please
-  report them to the pinned tracking issue. (#7272)
+  report them to the pinned tracking issue.
+
+  Special thanks to @bastimeyer, @cthoyt, @edgarrmondragon, and @srittau for
+  helping review and test the types ahead of the release. (#7272)
 
 **Improvements**
 - Digest Auth hashing algorithms have added `usedforsecurity=False` to clarify
