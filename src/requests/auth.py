@@ -218,7 +218,7 @@ class HTTPDigestAuth(AuthBase):
         if p_parsed.query:
             path += f"?{p_parsed.query}"
 
-        A1 = f"{self.username}:{realm}:{self.password}"
+        A1 = f"{to_native_string(self.username, "utf-8")}:{realm}:{to_native_string(self.password, "utf-8")}"
         A2 = f"{method}:{path}"
 
         HA1 = hash_utf8(A1)
