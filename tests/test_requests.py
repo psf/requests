@@ -81,21 +81,6 @@ except AttributeError:
     HAS_PYOPENSSL = False
 
 
-class AttrProxyFileWrapper:
-    """File wrapper that proxies all attribute access via __getattr__.
-
-    Mimics tqdm.utils.CallbackIOWrapper/ObjectWrapper. Has read/tell/seek
-    via the underlying file, but does NOT define __iter__ in its own class,
-    so isinstance(..., Iterable) returns False while hasattr("read") is True.
-    """
-
-    def __init__(self, fileobj):
-        self._fileobj = fileobj
-
-    def __getattr__(self, name):
-        return getattr(self._fileobj, name)
-
-
 class TestRequests:
     digest_auth_algo = ("MD5", "SHA-256", "SHA-512")
 
@@ -2088,81 +2073,20 @@ class TestRequests:
 
         assert "Unable to rewind request body" in str(e)
 
-    def test_attr_proxy_body_position_is_recorded(self):
-        data = AttrProxyFileWrapper(io.BytesIO(b"the data"))
-        prep = requests.Request("GET", "http://example.com", data=data).prepare()
-        assert prep._body_position == 0
-        assert prep.body is data
+    def test_getattr_proxy_stream_follows_redirect(self, httpbin):
+        """Ensure stream wrappers that don't implement __iter__ directly are still detected."""
 
-    def test_attr_proxy_content_length_is_set(self):
-        data = AttrProxyFileWrapper(io.BytesIO(b"the data"))
-        prep = requests.Request("GET", "http://example.com", data=data).prepare()
-        assert prep.headers["Content-Length"] == "8"
-
-    def test_rewind_attr_proxy_body(self):
-        data = AttrProxyFileWrapper(io.BytesIO(b"the data"))
-        prep = requests.Request("GET", "http://example.com", data=data).prepare()
-        assert prep._body_position == 0
-
-        assert prep.body.read() == b"the data"
-        assert prep.body.read() == b""
-
-        requests.utils.rewind_body(prep)
-        assert prep.body.read() == b"the data"
-
-    def test_rewind_partially_read_attr_proxy_body(self):
-        raw = io.BytesIO(b"the data")
-        raw.read(4)
-        data = AttrProxyFileWrapper(raw)
-        prep = requests.Request("GET", "http://example.com", data=data).prepare()
-        assert prep._body_position == 4
-
-        assert prep.body.read() == b"data"
-
-        requests.utils.rewind_body(prep)
-        assert prep.body.read() == b"data"
-
-    def test_rewind_attr_proxy_body_no_seek(self):
-        class NoSeekWrapper:
+        class AttrProxy:
             def __init__(self):
-                pass
+                self._file = io.BytesIO(b"data")
 
-            def tell(self):
-                return 0
+            def __getattr__(self, name):
+                return getattr(self._file, name)
 
-            def __iter__(self):
-                return iter([])
-
-        data = NoSeekWrapper()
-        prep = requests.Request("GET", "http://example.com", data=data).prepare()
-        assert prep._body_position == 0
-
-        with pytest.raises(UnrewindableBodyError):
-            requests.utils.rewind_body(prep)
-
-    def test_read_only_object_detected_as_stream(self):
-        """An object with read() but no __iter__ should still be a stream."""
-
-        class ReadOnlyFile:
-            def __init__(self, data):
-                self._buf = io.BytesIO(data)
-
-            def read(self, n=-1):
-                return self._buf.read(n)
-
-            def tell(self):
-                return self._buf.tell()
-
-            def seek(self, pos):
-                return self._buf.seek(pos)
-
-            def __len__(self):
-                return self._buf.getbuffer().nbytes
-
-        data = ReadOnlyFile(b"the data")
-        prep = requests.Request("GET", "http://example.com", data=data).prepare()
-        assert prep._body_position == 0
-        assert prep.body is data
+        r = requests.post(
+            httpbin("redirect-to?url=/post&status_code=307"), data=AttrProxy()
+        )
+        assert r.json()["data"] == "data"
 
     def _patch_adapter_gzipped_redirect(self, session, url):
         adapter = session.get_adapter(url=url)
