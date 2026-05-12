@@ -596,7 +596,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if not isinstance(body, bytes):
                 body = body.encode("utf-8")
 
-        if isinstance(data, Iterable) and not isinstance(
+        # Also check hasattr("read") for wrappers that proxy file
+        # methods via __getattr__ (e.g. tqdm.wrapattr)
+        if (isinstance(data, Iterable) or hasattr(data, "read")) and not isinstance(
             data, (str, bytes, list, tuple, Mapping)
         ):
             try:
