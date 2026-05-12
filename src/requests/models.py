@@ -741,7 +741,7 @@ class Response:
     url: str
     encoding: str | None
     history: list[Response]
-    reason: str | None
+    reason: str
     cookies: RequestsCookieJar
     elapsed: datetime.timedelta
     request: PreparedRequest
@@ -790,7 +790,7 @@ class Response:
         self.history = []
 
         #: Textual reason of responded HTTP Status, e.g. "Not Found" or "OK".
-        self.reason = None
+        self.reason = None  # type: ignore[assignment]
 
         #: A CookieJar of Cookies the server sent back.
         self.cookies = cookiejar_from_dict({})
