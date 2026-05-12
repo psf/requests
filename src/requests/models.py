@@ -596,9 +596,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             if not isinstance(body, bytes):
                 body = body.encode("utf-8")
 
-        if (isinstance(data, Iterable) or hasattr(data, "__iter__")) and not isinstance(
-            data, (str, bytes, list, tuple, Mapping)
-        ):
+        # data that proxies attributes to underlying objects needs hasattr
+        is_iterable = isinstance(data, Iterable) or hasattr(data, "__iter__")
+        if is_iterable and not isinstance(data, (str, bytes, list, tuple, Mapping)):
             try:
                 length = super_len(data)
             except (TypeError, AttributeError, UnsupportedOperation):
