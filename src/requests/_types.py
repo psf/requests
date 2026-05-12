@@ -139,7 +139,7 @@ if TYPE_CHECKING:
     VerifyType: TypeAlias = bool | str
     CertType: TypeAlias = str | tuple[str, str] | None
     JsonType: TypeAlias = (
-        None | bool | int | float | str | list["JsonType"] | dict[str, "JsonType"]
+        None | bool | int | float | str | list["JsonType"] | Mapping[str, "JsonType"]
     )
 
     # TypedDicts for Unpack kwargs (PEP 692)
