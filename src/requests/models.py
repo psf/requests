@@ -313,7 +313,7 @@ class Request(RequestHooksMixin):
     headers: CaseInsensitiveDict[str] | Mapping[str, str | bytes] | None
     files: _t.FilesType
     data: _t.DataType
-    json: _t.JsonType
+    json: _t.JsonType | None
     params: _t.ParamsType
     auth: _t.AuthType
     cookies: RequestsCookieJar | CookieJar | dict[str, str] | None
