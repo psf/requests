@@ -109,7 +109,7 @@ if TYPE_CHECKING:
         bytes | str | Iterable[bytes | str] | SupportsRead[bytes | str] | None
     )
 
-    HeadersType: TypeAlias = MutableMapping[str, str | bytes] | None
+    HeadersType: TypeAlias = Mapping[str, str | bytes] | None
 
     CookiesType: TypeAlias = RequestsCookieJar | Mapping[str, str]
 
