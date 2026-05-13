@@ -6,6 +6,20 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+2.34.1 (2026-05-13)
+-------------------
+
+**Bugfixes**
+- Widened `json` input type from `dict` and `list` to `Mapping`
+  and `Sequence`. (#7436)
+- Changed `headers` input type to MutableMapping and removed `None` from
+  `Request.headers` typing to improve handling for users. (#7431)
+- `Response.reason` moved from `str | None` to `str` to improve handling
+  for users. (#7437)
+- Fixed a bug where some bodies with custom `__getattr__` implementations
+  weren't being properly detected as Iterables. (#7433)
+
+
 2.34.0 (2026-05-11)
 -------------------
 
