@@ -6,6 +6,14 @@ dev
 
 - \[Short description of non-trivial change.\]
 
+
+2.34.2 (2026-05-14)
+-------------------
+- Moved `headers` input type back to `Mapping` to avoid invariance issues
+  with `MutableMapping` and inferred dict types. Users calling
+  `Request.headers.update()` may need to narrow typing in their code. (#7441)
+
+
 2.34.1 (2026-05-13)
 -------------------
 
