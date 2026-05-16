@@ -157,9 +157,10 @@ def dict_to_sequence(
     return d
 
 
-def super_len(o: Any) -> int:
+def _super_len(o: Any) -> tuple[int, bool]:
     total_length = None
     current_position = 0
+    is_known_length = False
 
     if not is_urllib3_1 and isinstance(o, str):
         # urllib3 2.x+ treats all strings as utf-8 instead
@@ -182,6 +183,7 @@ def super_len(o: Any) -> int:
             pass
         else:
             total_length = os.fstat(fileno).st_size
+            is_known_length = True
 
             # Having used fstat to determine the file length, we need to
             # confirm that this file was opened up in binary mode.
@@ -208,6 +210,7 @@ def super_len(o: Any) -> int:
             # let requests chunk it instead.
             if total_length is not None:
                 current_position = total_length
+                is_known_length = False
         else:
             if hasattr(o, "seek") and total_length is None:
                 # StringIO and BytesIO have seek but no usable fileno
@@ -219,13 +222,18 @@ def super_len(o: Any) -> int:
                     # seek back to current position to support
                     # partially read file-like objects
                     o.seek(current_position or 0)
+                    is_known_length = True
                 except OSError:
-                    total_length = 0
+                    pass
 
     if total_length is None:
         total_length = 0
 
-    return max(0, total_length - current_position)
+    return max(0, total_length - current_position), is_known_length
+
+
+def super_len(o: Any) -> int:
+    return _super_len(o)[0]
 
 
 def get_netrc_auth(
