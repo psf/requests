@@ -2222,17 +2222,39 @@ class TestRequests:
         resp.close()
         assert resp.raw.closed
 
-    def test_empty_stream_with_auth_does_not_set_content_length_header(self, httpbin):
-        """Ensure that a byte stream with size 0 will not set both a Content-Length
-        and Transfer-Encoding header.
-        """
+    def test_empty_stream_with_auth_sets_zero_content_length_header(self, httpbin):
+        """Ensure that a byte stream with size 0 sends Content-Length: 0."""
         auth = ("user", "pass")
         url = httpbin("post")
         file_obj = io.BytesIO(b"")
         r = requests.Request("POST", url, auth=auth, data=file_obj)
         prepared_request = r.prepare()
-        assert "Transfer-Encoding" in prepared_request.headers
-        assert "Content-Length" not in prepared_request.headers
+        assert prepared_request.headers["Content-Length"] == "0"
+        assert "Transfer-Encoding" not in prepared_request.headers
+
+    def test_empty_file_stream_sets_zero_content_length_header(self, tmp_path, httpbin):
+        """Ensure that empty file uploads send Content-Length: 0."""
+        url = httpbin("put")
+        empty_file = tmp_path / "empty.txt"
+        empty_file.write_bytes(b"")
+
+        with empty_file.open("rb") as file_obj:
+            r = requests.Request("PUT", url, data=file_obj)
+            prepared_request = r.prepare()
+
+        assert prepared_request.headers["Content-Length"] == "0"
+        assert "Transfer-Encoding" not in prepared_request.headers
+
+    def test_explicit_zero_content_length_stream_does_not_set_chunked_header(
+        self, httpbin
+    ):
+        """Ensure explicit Content-Length: 0 is not combined with chunked."""
+        url = httpbin("put")
+        file_obj = io.BytesIO(b"")
+        r = requests.Request("PUT", url, data=file_obj, headers={"Content-Length": "0"})
+        prepared_request = r.prepare()
+        assert prepared_request.headers["Content-Length"] == "0"
+        assert "Transfer-Encoding" not in prepared_request.headers
 
     def test_stream_with_auth_does_not_set_transfer_encoding_header(self, httpbin):
         """Ensure that a byte stream with size > 0 will not set both a Content-Length
@@ -2254,6 +2276,21 @@ class TestRequests:
         url = httpbin("post")
         r = requests.Request("POST", url, data=data)
         prepared_request = r.prepare()
+        assert "Transfer-Encoding" in prepared_request.headers
+        assert "Content-Length" not in prepared_request.headers
+
+    def test_unknown_length_file_stream_sets_transfer_encoding_header(self, httpbin):
+        """Ensure that file streams with unknown size use chunked uploads."""
+        read_fd, write_fd = os.pipe()
+        url = httpbin("put")
+
+        try:
+            with os.fdopen(read_fd, "rb") as file_obj:
+                r = requests.Request("PUT", url, data=file_obj)
+                prepared_request = r.prepare()
+        finally:
+            os.close(write_fd)
+
         assert "Transfer-Encoding" in prepared_request.headers
         assert "Content-Length" not in prepared_request.headers
 

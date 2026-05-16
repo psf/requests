@@ -70,6 +70,7 @@ from .hooks import default_hooks
 from .status_codes import codes
 from .structures import CaseInsensitiveDict
 from .utils import (
+    _super_len,  # type: ignore[reportPrivateUsage]
     check_header_validity,
     get_auth_from_url,
     guess_filename,
@@ -600,9 +601,10 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         is_iterable = isinstance(data, Iterable) or hasattr(data, "__iter__")
         if is_iterable and not isinstance(data, (str, bytes, list, tuple, Mapping)):
             try:
-                length = super_len(data)
+                length, is_known_length = _super_len(data)
             except (TypeError, AttributeError, UnsupportedOperation):
                 length = None
+                is_known_length = False
 
             body = data
 
@@ -622,9 +624,9 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
                     "Streamed bodies and files are mutually exclusive."
                 )
 
-            if length:
+            if length or is_known_length:
                 self.headers["Content-Length"] = builtin_str(length)
-            else:
+            elif "Content-Length" not in self.headers:
                 self.headers["Transfer-Encoding"] = "chunked"
         else:
             # After is_stream filtering, remaining data is raw (not streamed)
