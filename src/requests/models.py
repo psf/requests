@@ -746,6 +746,7 @@ class Response:
     elapsed: datetime.timedelta
     request: PreparedRequest
     connection: HTTPAdapter
+    _content_error: BaseException | None
 
     __attrs__: list[str] = [
         "_content",
@@ -763,6 +764,7 @@ class Response:
     def __init__(self) -> None:
         self._content = False
         self._content_consumed = False
+        self._content_error = None
         self._next = None
 
         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
@@ -827,6 +829,7 @@ class Response:
 
         # pickled objects do not have .raw
         setattr(self, "_content_consumed", True)
+        setattr(self, "_content_error", None)
         setattr(self, "raw", None)
 
     def __repr__(self) -> str:
@@ -855,6 +858,10 @@ class Response:
     def __iter__(self) -> Iterator[bytes]:
         """Allows you to use a response as an iterator."""
         return self.iter_content(128)
+
+    def _raise_content_error(self) -> None:
+        if self._content_error is not None:
+            raise self._content_error
 
     @property
     def ok(self) -> bool:
@@ -936,13 +943,17 @@ class Response:
                 try:
                     yield from self.raw.stream(chunk_size, decode_content=True)
                 except ProtocolError as e:
-                    raise ChunkedEncodingError(e)
+                    self._content_error = ChunkedEncodingError(e)
+                    raise self._content_error
                 except DecodeError as e:
-                    raise ContentDecodingError(e)
+                    self._content_error = ContentDecodingError(e)
+                    raise self._content_error
                 except ReadTimeoutError as e:
-                    raise ConnectionError(e)
+                    self._content_error = ConnectionError(e)
+                    raise self._content_error
                 except SSLError as e:
-                    raise RequestsSSLError(e)
+                    self._content_error = RequestsSSLError(e)
+                    raise self._content_error
             else:
                 # Standard file-like object.
                 while True:
@@ -952,6 +963,8 @@ class Response:
                     yield chunk
 
             self._content_consumed = True
+
+        self._raise_content_error()
 
         if self._content_consumed and isinstance(self._content, bool):
             raise StreamConsumedError()
@@ -1032,6 +1045,8 @@ class Response:
         """Content of the response, in bytes."""
 
         if self._content is False:
+            self._raise_content_error()
+
             # Read the contents.
             if self._content_consumed:
                 raise RuntimeError("The content for this response was already consumed")

@@ -1517,6 +1517,42 @@ class TestRequests:
         with pytest.raises(expected):
             next(r.iter_content(1024))
 
+    @pytest.mark.parametrize(
+        "consumer",
+        (
+            pytest.param(lambda r: r.content, id="content"),
+            pytest.param(lambda r: r.text, id="text"),
+            pytest.param(lambda r: next(r.iter_content(1024)), id="iter_content"),
+            pytest.param(lambda r: next(r.iter_lines()), id="iter_lines"),
+            pytest.param(lambda r: next(iter(r)), id="iter"),
+        ),
+    )
+    def test_content_read_error_is_replayed_after_content_failure(self, consumer):
+        r = requests.Response()
+        r.raw = mock.Mock()
+        r.raw.stream.side_effect = urllib3.exceptions.ProtocolError()
+
+        with pytest.raises(ChunkedEncodingError) as first_error:
+            r.content
+
+        with pytest.raises(ChunkedEncodingError) as replayed_error:
+            consumer(r)
+
+        assert replayed_error.value is first_error.value
+
+    def test_content_read_error_is_replayed_after_iter_content_failure(self):
+        r = requests.Response()
+        r.raw = mock.Mock()
+        r.raw.stream.side_effect = urllib3.exceptions.ProtocolError()
+
+        with pytest.raises(ChunkedEncodingError) as first_error:
+            next(r.iter_content(1024))
+
+        with pytest.raises(ChunkedEncodingError) as replayed_error:
+            r.content
+
+        assert replayed_error.value is first_error.value
+
     def test_request_and_response_are_pickleable(self, httpbin):
         r = requests.get(httpbin("get"))
 
