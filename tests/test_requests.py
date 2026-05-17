@@ -9,6 +9,7 @@ import pickle
 import re
 import tempfile
 import threading
+import typing
 import warnings
 from unittest import mock
 
@@ -79,6 +80,21 @@ try:
     HAS_PYOPENSSL = True
 except AttributeError:
     HAS_PYOPENSSL = False
+
+
+@pytest.mark.parametrize(
+    ("model_cls", "expected_hint"),
+    (
+        (requests.Request, "cookies"),
+        (requests.PreparedRequest, "_cookies"),
+        (requests.Response, "cookies"),
+    ),
+)
+def test_model_class_type_hints_resolve(
+    model_cls: type[object], expected_hint: str
+) -> None:
+    hints = typing.get_type_hints(model_cls)
+    assert expected_hint in hints
 
 
 class TestRequests:

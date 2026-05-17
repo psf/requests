@@ -14,6 +14,7 @@ import datetime
 # such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
 import encodings.idna  # noqa: F401  # type: ignore[reportUnusedImport]
 from collections.abc import Callable, Generator, Iterable, Iterator, Mapping
+from http.cookiejar import CookieJar
 from io import UnsupportedOperation
 from typing import (
     TYPE_CHECKING,
@@ -35,6 +36,7 @@ from urllib3.fields import RequestField
 from urllib3.filepost import encode_multipart_formdata
 from urllib3.util import parse_url
 
+from . import _types as _t
 from ._internal_utils import to_native_string, unicode_is_ascii
 from ._types import SupportsRead as _SupportsRead
 from .auth import HTTPBasicAuth
@@ -50,6 +52,7 @@ from .compat import (
 )
 from .compat import json as complexjson
 from .cookies import (
+    RequestsCookieJar,
     _copy_cookie_jar,  # type: ignore[reportPrivateUsage]
     cookiejar_from_dict,
     get_cookie_header,
@@ -83,13 +86,11 @@ from .utils import (
 )
 
 if TYPE_CHECKING:
-    from http.cookiejar import CookieJar
-
     from typing_extensions import Self
 
-    from . import _types as _t
     from .adapters import HTTPAdapter
-    from .cookies import RequestsCookieJar
+else:
+    HTTPAdapter = Any
 
 #: The set of HTTP status codes that indicate an automatically
 #: processable redirect.

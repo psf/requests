@@ -181,3 +181,22 @@ if TYPE_CHECKING:
 
         params: ParamsType
         json: JsonType
+else:
+    UriType: TypeAlias = str | bytes
+    ParamsType: TypeAlias = Any
+    KVDataType: TypeAlias = Any
+    RawDataType: TypeAlias = Any
+    StreamDataType: TypeAlias = SupportsRead[str | bytes]
+    EncodableDataType: TypeAlias = Any
+    DataType: TypeAlias = Any
+    BodyType: TypeAlias = Any
+    HeadersType: TypeAlias = Mapping[str, str | bytes] | None
+    CookiesType: TypeAlias = Any
+    FilesType: TypeAlias = Any
+    AuthType: TypeAlias = Any
+    TimeoutType: TypeAlias = float | tuple[float | None, float | None] | None
+    ProxiesType: TypeAlias = MutableMapping[str, str]
+    HooksType: TypeAlias = dict[str, list[HookType]] | None
+    VerifyType: TypeAlias = bool | str
+    CertType: TypeAlias = str | tuple[str, str] | None
+    JsonType: TypeAlias = Any
