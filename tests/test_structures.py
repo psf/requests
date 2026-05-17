@@ -45,6 +45,7 @@ class TestCaseInsensitiveDict:
             ({"AccePT": "application/json"}, True),
             ({}, False),
             (None, False),
+            ({1: "application/json"}, False),
         ),
     )
     def test_instance_equality(self, other, result):

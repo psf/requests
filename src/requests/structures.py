@@ -79,7 +79,10 @@ class CaseInsensitiveDict(MutableMapping[str, _VT], Generic[_VT]):
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Mapping):
-            other_dict: CaseInsensitiveDict[Any] = CaseInsensitiveDict(other)  # type: ignore[reportUnknownArgumentType]
+            try:
+                other_dict: CaseInsensitiveDict[Any] = CaseInsensitiveDict(other)  # type: ignore[reportUnknownArgumentType]
+            except (AttributeError, TypeError):
+                return False
         else:
             return NotImplemented
         # Compare insensitively
