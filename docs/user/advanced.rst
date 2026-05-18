@@ -993,6 +993,18 @@ The mount call registers a specific instance of a Transport Adapter to a
 prefix. Once mounted, any HTTP request made using that session whose URL starts
 with the given prefix will use the given Transport Adapter.
 
+If a custom adapter stores additional instance attributes that must survive
+pickling, extend the inherited ``__attrs__`` list with their names. Requests
+uses this list when serializing :class:`HTTPAdapter
+<requests.adapters.HTTPAdapter>` instances, so subclass-only state omitted
+from it will not be restored after unpickling::
+
+    class MyAdapter(HTTPAdapter):
+        __attrs__ = HTTPAdapter.__attrs__ + ['my_option']
+
+Use the same pattern for custom :class:`Session <requests.Session>`
+subclasses that add pickle-relevant state.
+
 .. note:: The adapter will be chosen based on a longest prefix match. Be mindful
    prefixes such as ``http://localhost`` will also match ``http://localhost.other.com``
    or ``http://localhost@other.com``. It's recommended to terminate full hostnames with a ``/``.
