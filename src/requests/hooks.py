@@ -26,7 +26,7 @@ def default_hooks() -> dict[str, list[_t.HookType]]:
     return {event: [] for event in HOOKS}
 
 
-# TODO: response is the only one
+# TODO: currently response is the only default hook event, but more events may be added in future versions
 
 
 def dispatch_hook(
