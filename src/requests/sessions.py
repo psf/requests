@@ -852,7 +852,10 @@ class Session(SessionRedirectMixin):
 
             # Look for requests environment configuration
             # and be compatible with cURL.
-            if verify is True or verify is None:
+            # Do not override an explicit session-level verify=False — the
+            # user has intentionally disabled SSL verification and the env
+            # CA bundle must not silently re-enable it (#3829).
+            if (verify is True or verify is None) and self.verify is not False:
                 verify = (
                     os.environ.get("REQUESTS_CA_BUNDLE")
                     or os.environ.get("CURL_CA_BUNDLE")
