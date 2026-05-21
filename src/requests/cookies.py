@@ -12,7 +12,7 @@ from __future__ import annotations
 import calendar
 import copy
 import time
-from collections.abc import Iterator, MutableMapping
+from collections.abc import Iterator, Mapping, MutableMapping
 from http.cookiejar import Cookie, CookieJar, CookiePolicy
 from typing import TYPE_CHECKING, Any, TypeVar, overload
 
@@ -562,7 +562,7 @@ _CookieJarT = TypeVar("_CookieJarT", bound=CookieJar)
 
 @overload
 def cookiejar_from_dict(
-    cookie_dict: dict[str, str] | None,
+    cookie_dict: Mapping[str, str | None] | None,
     cookiejar: None = None,
     overwrite: bool = True,
 ) -> RequestsCookieJar: ...
@@ -570,14 +570,14 @@ def cookiejar_from_dict(
 
 @overload
 def cookiejar_from_dict(
-    cookie_dict: dict[str, str] | None,
+    cookie_dict: Mapping[str, str | None] | None,
     cookiejar: _CookieJarT,
     overwrite: bool = True,
 ) -> _CookieJarT: ...
 
 
 def cookiejar_from_dict(
-    cookie_dict: dict[str, str] | None,
+    cookie_dict: Mapping[str, str | None] | None,
     cookiejar: CookieJar | None = None,
     overwrite: bool = True,
 ) -> CookieJar:
@@ -594,15 +594,17 @@ def cookiejar_from_dict(
 
     if cookie_dict is not None:
         names_from_jar = [cookie.name for cookie in cookiejar]
-        for name in cookie_dict:
-            if overwrite or (name not in names_from_jar):
-                cookiejar.set_cookie(create_cookie(name, cookie_dict[name]))
+        for name, value in cookie_dict.items():
+            if value is None:
+                remove_cookie_by_name(cookiejar, name)
+            elif overwrite or (name not in names_from_jar):
+                cookiejar.set_cookie(create_cookie(name, value))
 
     return cookiejar
 
 
 def merge_cookies(
-    cookiejar: CookieJar, cookies: dict[str, str] | CookieJar | None
+    cookiejar: CookieJar, cookies: Mapping[str, str | None] | CookieJar | None
 ) -> CookieJar:
     """Add cookies to cookiejar and returns a merged CookieJar.
 

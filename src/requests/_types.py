@@ -111,7 +111,7 @@ if TYPE_CHECKING:
 
     HeadersType: TypeAlias = Mapping[str, str | bytes] | None
 
-    CookiesType: TypeAlias = RequestsCookieJar | Mapping[str, str]
+    CookiesType: TypeAlias = RequestsCookieJar | Mapping[str, str | None]
 
     # Building blocks for FilesType
     _FileName: TypeAlias = str | None

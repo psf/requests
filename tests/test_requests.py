@@ -422,6 +422,18 @@ class TestRequests:
         # Session cookie should not be modified
         assert s.cookies["foo"] == "bar"
 
+    def test_request_cookie_none_removes_session_cookie(self):
+        s = requests.session()
+        s.cookies["foo"] = "bar"
+        req = requests.Request(
+            "GET", "http://example.com/", cookies={"foo": None, "baz": "qux"}
+        )
+
+        prepared = s.prepare_request(req)
+
+        assert prepared.headers["Cookie"] == "baz=qux"
+        assert s.cookies["foo"] == "bar"
+
     def test_request_cookies_not_persisted(self, httpbin):
         s = requests.session()
         s.get(httpbin("cookies"), cookies={"foo": "baz"})

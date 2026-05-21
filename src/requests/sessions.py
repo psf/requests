@@ -523,14 +523,14 @@ class Session(SessionRedirectMixin):
 
         cookies = request.cookies or {}
 
-        # Bootstrap CookieJar.
-        if not isinstance(cookies, cookielib.CookieJar):
-            cookies = cookiejar_from_dict(cookies)
-
         # Merge with session cookies
-        merged_cookies = merge_cookies(
-            merge_cookies(RequestsCookieJar(), self.cookies), cookies
-        )
+        merged_cookies = merge_cookies(RequestsCookieJar(), self.cookies)
+        if isinstance(cookies, cookielib.CookieJar):
+            merged_cookies = merge_cookies(merged_cookies, cookies)
+        else:
+            merged_cookies = cookiejar_from_dict(
+                cookies, cookiejar=merged_cookies, overwrite=True
+            )
 
         # Set environment's basic authentication if not explicitly set.
         auth = request.auth
