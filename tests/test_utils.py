@@ -17,6 +17,8 @@ from requests.utils import (
     _parse_content_type_header,
     add_dict_to_cookiejar,
     address_in_network,
+    default_headers,
+    default_user_agent,
     dotted_netmask,
     extract_zipped_paths,
     get_auth_from_url,
@@ -1011,3 +1013,26 @@ def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
     monkeypatch.setattr(winreg, "OpenKey", OpenKey)
     monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
     assert should_bypass_proxies("http://example.com/", None) is False
+
+
+class TestDefaultHeaders:
+    def test_default_headers_returns_case_insensitive_dict(self):
+        """Test that default_headers returns a CaseInsensitiveDict."""
+        from requests.structures import CaseInsensitiveDict
+        result = default_headers()
+        assert isinstance(result, CaseInsensitiveDict)
+
+    def test_default_headers_contains_user_agent(self):
+        """Test that default_headers contains User-Agent header."""
+        result = default_headers()
+        assert "User-Agent" in result
+
+    def test_default_headers_contains_accept_encoding(self):
+        """Test that default_headers contains Accept-Encoding header."""
+        result = default_headers()
+        assert "Accept-Encoding" in result
+
+    def test_default_headers_contains_accept(self):
+        """Test that default_headers contains Accept header."""
+        result = default_headers()
+        assert "Accept" in result
