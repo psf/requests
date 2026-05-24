@@ -14,6 +14,7 @@ from requests._internal_utils import unicode_is_ascii
 from requests.cookies import RequestsCookieJar
 from requests.structures import CaseInsensitiveDict
 from requests.utils import (
+    dict_from_cookiejar,
     _parse_content_type_header,
     add_dict_to_cookiejar,
     address_in_network,
@@ -1011,3 +1012,29 @@ def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
     monkeypatch.setattr(winreg, "OpenKey", OpenKey)
     monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
     assert should_bypass_proxies("http://example.com/", None) is False
+
+
+class TestDictFromCookieJar:
+    def test_dict_from_cookiejar_returns_dict(self):
+        """Test that dict_from_cookiejar returns a dict."""
+        from requests.cookies import RequestsCookieJar
+        cj = RequestsCookieJar()
+        cj.set("test", "value")
+        result = dict_from_cookiejar(cj)
+        assert isinstance(result, dict)
+
+    def test_dict_from_cookiejar_empty_jar(self):
+        """Test dict_from_cookiejar with empty cookie jar."""
+        from requests.cookies import RequestsCookieJar
+        cj = RequestsCookieJar()
+        result = dict_from_cookiejar(cj)
+        assert result == {}
+
+    def test_dict_from_cookiejar_multiple_cookies(self):
+        """Test dict_from_cookiejar with multiple cookies."""
+        from requests.cookies import RequestsCookieJar
+        cj = RequestsCookieJar()
+        cj.set("cookie1", "value1")
+        cj.set("cookie2", "value2")
+        result = dict_from_cookiejar(cj)
+        assert result == {"cookie1": "value1", "cookie2": "value2"}
