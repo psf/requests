@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 """Module containing bug report helper(s)."""
 
 # pyright: reportUnknownMemberType=false
@@ -127,7 +129,7 @@ def info() -> dict[str, Any]:
 
 def main():
     """Pretty-print the bug information as JSON."""
-    print(json.dumps(info(), sort_keys=True, indent=2))
+    logger.info(json.dumps(info(), sort_keys=True, indent=2))
 
 
 if __name__ == "__main__":
