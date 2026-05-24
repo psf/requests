@@ -1011,3 +1011,25 @@ def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
     monkeypatch.setattr(winreg, "OpenKey", OpenKey)
     monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
     assert should_bypass_proxies("http://example.com/", None) is False
+
+
+class TestRewindBody:
+    def test_rewind_body_with_seekable(self):
+        """Test rewind_body with seekable file-like object."""
+        from io import BytesIO
+        from requests.models import PreparedRequest
+        from requests.utils import rewind_body
+        
+        req = PreparedRequest()
+        req.body = BytesIO(b"test data")
+        rewind_body(req)
+        assert True  # No exception raised
+
+    def test_rewind_body_with_none_body(self):
+        """Test rewind_body with None body."""
+        from requests.models import PreparedRequest
+        from requests.utils import rewind_body
+        
+        req = PreparedRequest()
+        rewind_body(req)  # Should not raise
+        assert True
