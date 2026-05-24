@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 """Tests for Requests."""
 
 import collections
@@ -283,7 +285,7 @@ class TestRequests:
 
     def test_http_301_doesnt_change_head_to_get(self, httpbin):
         r = requests.head(httpbin("status", "301"), allow_redirects=True)
-        print(r.content)
+        logger.info(r.content)
         assert r.status_code == 200
         assert r.request.method == "HEAD"
         assert r.history[0].status_code == 301
@@ -634,7 +636,7 @@ class TestRequests:
             with pytest.raises(ProxyError):
                 session = requests.Session()
                 url = httpbin("redirect/1")
-                print(url)
+                logger.info(url)
                 request = requests.Request("GET", url)
                 session.send(request.prepare())
 
@@ -755,7 +757,7 @@ class TestRequests:
 
             r = requests.get(url)
             assert r.status_code == 401
-            print(r.headers["WWW-Authenticate"])
+            logger.info(r.headers["WWW-Authenticate"])
 
             s = requests.session()
             s.auth = HTTPDigestAuth("user", "pass")
