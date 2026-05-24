@@ -127,28 +127,36 @@ from an API call or a Session call, the ``request`` attribute is actually the
 work to the body or headers (or anything else really) before sending a
 request. The simple recipe for this is the following::
 
-    from requests import Request, Session
+  from requests import Request, Session
 
-    s = Session()
+# Eksik değişkenleri ekleyerek kodu kopyala-yapıştır yapılabilir hale getiriyoruz
+url = 'https://httpbin.org/post'
+data = {'key': 'value'}
+headers = {'Content-Type': 'application/json'}
+stream = False
+verify = True
+proxies = None
+cert = None
+timeout = None
 
-    req = Request('POST', url, data=data, headers=headers)
-    prepped = req.prepare()
+s = Session()
+req = Request('POST', url, data=data, headers=headers)
+prepped = req.prepare()
 
-    # do something with prepped.body
-    prepped.body = 'No, I want exactly this as the body.'
+# do something with prepped.body
+prepped.body = 'No, I want exactly this as the body.'
 
-    # do something with prepped.headers
-    del prepped.headers['Content-Type']
+# do something with prepped.headers
+del prepped.headers['Content-Type']
 
-    resp = s.send(prepped,
-        stream=stream,
-        verify=verify,
-        proxies=proxies,
-        cert=cert,
-        timeout=timeout
-    )
+resp = s.send(prepped,
+    stream=stream,
+    verify=verify,
+    proxies=proxies,
+    cert=cert,
+    timeout=timeout)
+print(resp.status_code)
 
-    print(resp.status_code)
 
 Since you are not doing anything special with the ``Request`` object, you
 prepare it immediately and modify the ``PreparedRequest`` object. You then
