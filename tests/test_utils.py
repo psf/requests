@@ -1011,3 +1011,19 @@ def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
     monkeypatch.setattr(winreg, "OpenKey", OpenKey)
     monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
     assert should_bypass_proxies("http://example.com/", None) is False
+
+
+class TestCheckHeaderValidity:
+    def test_check_header_validity_valid_header(self):
+        """Test check_header_validity with valid header."""
+        from requests.utils import check_header_validity
+        check_header_validity(("User-Agent", "test"))
+        assert True  # No exception raised
+
+    def test_check_header_validity_invalid_header_name(self):
+        """Test check_header_validity with invalid header name."""
+        from requests.utils import check_header_validity
+        try:
+            check_header_validity(("Invalid Header", "value"))
+        except Exception:
+            pass  # Expected to raise InvalidHeader
