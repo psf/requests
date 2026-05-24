@@ -17,6 +17,7 @@ from requests.utils import (
     _parse_content_type_header,
     add_dict_to_cookiejar,
     address_in_network,
+    default_user_agent,
     dotted_netmask,
     extract_zipped_paths,
     get_auth_from_url,
@@ -1011,3 +1012,21 @@ def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
     monkeypatch.setattr(winreg, "OpenKey", OpenKey)
     monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
     assert should_bypass_proxies("http://example.com/", None) is False
+
+
+class TestDefaultUserAgent:
+    def test_default_user_agent_returns_string(self):
+        """Test that default_user_agent returns a string."""
+        result = default_user_agent()
+        assert isinstance(result, str)
+
+    def test_default_user_agent_contains_name(self):
+        """Test that default_user_agent contains the provided name."""
+        result = default_user_agent(name="test-app")
+        assert "test-app" in result
+
+    def test_default_user_agent_contains_version(self):
+        """Test that default_user_agent contains the package version."""
+        from requests import __version__
+        result = default_user_agent()
+        assert __version__ in result
