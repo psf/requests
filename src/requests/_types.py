@@ -137,15 +137,7 @@ if TYPE_CHECKING:
     HooksType: TypeAlias = dict[str, list[HookType]] | None
     VerifyType: TypeAlias = bool | str
     CertType: TypeAlias = str | tuple[str, str] | None
-    JsonType: TypeAlias = (
-        None
-        | bool
-        | int
-        | float
-        | str
-        | Sequence["JsonType"]
-        | Mapping[str, "JsonType"]
-    )
+    JsonType: TypeAlias = Any
 
     # TypedDicts for Unpack kwargs (PEP 692)
 
