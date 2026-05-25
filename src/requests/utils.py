@@ -927,9 +927,14 @@ def resolve_proxies(
     url = cast(str, request.url)
     scheme = urlparse(url).scheme
     no_proxy = proxies.get("no_proxy")
+    
+    # If we should bypass proxies (URL matches no_proxy), return empty dict
+    if trust_env and should_bypass_proxies(url, no_proxy=no_proxy):
+        return {}
+    
     new_proxies = proxies.copy()
 
-    if trust_env and not should_bypass_proxies(url, no_proxy=no_proxy):
+    if trust_env:
         environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
 
         proxy = environ_proxies.get(scheme, environ_proxies.get("all"))
