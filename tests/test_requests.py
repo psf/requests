@@ -1406,6 +1406,17 @@ class TestRequests:
         with pytest.raises(requests.cookies.CookieConflictError):
             jar.get(key)
 
+    def test_cookie_escaped_quotes_preserved(self):
+        """Regression test for GitHub issue #6890.
+
+        Escaped quotes inside a quoted cookie value must not be stripped.
+        For example, the value ``"159\\"687"`` should remain intact rather
+        than being mangled into ``"159687"``.
+        """
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("foo", '"159\\"687"')
+        assert jar["foo"] == '"159\\"687"'
+
     def test_cookie_policy_copy(self):
         class MyCookiePolicy(cookielib.DefaultCookiePolicy):
             pass
@@ -2760,6 +2771,19 @@ class TestPreparingURLs:
             (
                 "http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/",
                 "http://[1200:0000:ab00:1234:0000:2552:7777:1313]:12345/",
+            ),
+            # IPv6 link-local with zone ID (RFC 6874): %25 encodes the '%' delimiter
+            # Zone ID using only plain chars (e.g. interface name)
+            (
+                "http://[fe80::1%25eth0]/",
+                "http://[fe80::1%25eth0]/",
+            ),
+            # Zone ID that itself contains percent-encoded chars: %2553 means zone='53'.
+            # Previously this raised ValueError because parse_url decoded %25->%,
+            # then requote_uri decoded %53->'S', corrupting the zone ID. (GH-6808)
+            (
+                "http://[fe80::be0f:a7ff:fe00:2929%2553]",
+                "http://[fe80::be0f:a7ff:fe00:2929%2553]/",
             ),
         ),
     )

@@ -519,6 +519,17 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
         if not host:
             raise InvalidURL(f"Invalid URL {url!r}: No host supplied")
 
+        # RFC 6874: IPv6 zone IDs in URIs use %25 to encode the literal '%' zone
+        # delimiter. urllib3's parse_url decodes %25 -> % in the host, so a URL like
+        # http://[fe80::1%2553] (zone ID "53") yields host "[fe80::1%53]". If the
+        # zone ID happens to contain characters that form a valid percent-escape
+        # sequence (e.g. %53 == 'S'), requote_uri will decode them and corrupt the
+        # zone ID. Re-encode the bare '%' zone delimiter back to '%25' so that
+        # requote_uri sees a correctly encoded URI and leaves it intact.
+        if host.startswith("[") and host.endswith("]") and "%" in host:
+            pct_pos = host.find("%")
+            host = host[:pct_pos] + "%25" + host[pct_pos + 1 :]
+
         # In general, we want to try IDNA encoding the hostname if the string contains
         # non-ASCII characters. This allows users to automatically get the correct IDNA
         # behaviour. For strings containing only ASCII characters, we need to also verify
