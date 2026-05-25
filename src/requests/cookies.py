@@ -380,12 +380,6 @@ class RequestsCookieJar(CookieJar, MutableMapping[str, str | None]):  # type: ig
         remove_cookie_by_name(self, name)
 
     def set_cookie(self, cookie: Cookie, *args: Any, **kwargs: Any) -> None:
-        if (
-            (value := cookie.value) is not None
-            and value.startswith('"')
-            and value.endswith('"')
-        ):
-            cookie.value = value.replace('\\"', "")
         return super().set_cookie(cookie, *args, **kwargs)
 
     def update(  # type: ignore[override]
