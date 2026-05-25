@@ -166,6 +166,15 @@ def super_len(o: Any) -> int:
         # of latin-1 (iso-8859-1) like http.client.
         o = o.encode("utf-8")
 
+    if not is_urllib3_1 and isinstance(o, io.StringIO):
+        # StringIO seek/tell counts characters, not bytes.  Since urllib3 2.x
+        # encodes StringIO content as UTF-8 when sending, Content-Length must
+        # reflect the UTF-8 byte count, not the character count.
+        current_position = o.tell()
+        remaining = o.read()
+        o.seek(current_position)
+        return len(remaining.encode("utf-8"))
+
     if hasattr(o, "__len__"):
         total_length = len(o)
 
