@@ -9,7 +9,7 @@ by external code.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -137,14 +137,21 @@ if TYPE_CHECKING:
     HooksType: TypeAlias = dict[str, list[HookType]] | None
     VerifyType: TypeAlias = bool | str
     CertType: TypeAlias = str | tuple[str, str] | None
+    # JsonType uses Any for container values to avoid mypy false positives when
+    # users assign a dict/list to a variable before passing it as json=.
+    # Mypy cannot properly narrow recursive type aliases for intermediate
+    # variables (e.g. dict[str, str] is not accepted as Mapping[str, JsonType]
+    # even though it is structurally valid). Using Any in the value position
+    # preserves useful top-level type information while staying compatible with
+    # all major type checkers (mypy, pyright, ty). See issue #7443.
     JsonType: TypeAlias = (
         None
         | bool
         | int
         | float
         | str
-        | Sequence["JsonType"]
-        | Mapping[str, "JsonType"]
+        | list[Any]
+        | dict[str, Any]
     )
 
     # TypedDicts for Unpack kwargs (PEP 692)
