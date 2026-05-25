@@ -17,7 +17,7 @@ from base64 import b64encode
 from typing import TYPE_CHECKING, Any, Final, cast, overload
 
 from ._internal_utils import to_native_string
-from .compat import basestring, str, urlparse
+from .compat import basestring, str, urlparse, urlsplit
 from .cookies import extract_cookies_to_jar
 from .utils import parse_dict_header
 
@@ -212,8 +212,11 @@ class HTTPDigestAuth(AuthBase):
 
         # XXX not implemented yet
         entdig = None
-        p_parsed = urlparse(url)
+        p_parsed = urlsplit(url)
         #: path is request-uri defined in RFC 2616 which should not be empty
+        #: urlsplit is used instead of urlparse so that semicolons in the path
+        #: are not incorrectly treated as path-parameter delimiters (RFC 1808),
+        #: which would strip them into .params and corrupt the digest uri field.
         path = p_parsed.path or "/"
         if p_parsed.query:
             path += f"?{p_parsed.query}"
