@@ -166,6 +166,8 @@ class RequestEncodingMixin:
         elif hasattr(data, "__iter__"):
             result: list[tuple[bytes, bytes]] = []
             for k, vs in to_key_val_list(data):
+                if not isinstance(vs, basestring) and not vs:
+                    vs = ''
                 if isinstance(vs, basestring) or not hasattr(vs, "__iter__"):
                     vs = [vs]
                 for v in vs:
