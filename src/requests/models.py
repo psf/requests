@@ -1039,7 +1039,17 @@ class Response:
             if self.status_code == 0 or self.raw is None:
                 self._content = None
             else:
-                self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+                try:
+                    self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+                except Exception as err:
+                    # Issue #4965: propagate stream read error to subsequent .content
+                    # accesses instead of silently discarding the state so a second
+                    # call re-reads the now-empty raw stream.
+                    self._content = err
+                    self._content_consumed = True
+                    if self.raw is not None:
+                        self.raw.close()
+                    raise
 
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3
