@@ -144,7 +144,7 @@ if TYPE_CHECKING:
         | float
         | str
         | Sequence["JsonType"]
-        | Mapping[str, "JsonType"]
+        | Mapping[str, Any]
     )
 
     # TypedDicts for Unpack kwargs (PEP 692)
