@@ -799,9 +799,16 @@ class TestRequests:
                 "algorithm": authtype,
                 "opaque": "test-opaque",
             }
-            url_with_semicolon = "http://httpbin.org/digest-auth/auth/user/pass/" + authtype + "/path;param1;param2?query=1"
+            url_with_semicolon = (
+                "http://httpbin.org/digest-auth/auth/user/pass/"
+                + authtype
+                + "/path;param1;param2?query=1"
+            )
             header = auth.build_digest_header("GET", url_with_semicolon)
-            assert 'uri="/path;param1;param2?query=1"' in header, (
+            expected_uri = (
+                f"/digest-auth/auth/user/pass/{authtype}/path;param1;param2?query=1"
+            )
+            assert f'uri="{expected_uri}"' in header, (
                 f"uri field should include full path with semicolons, got: {header}"
             )
 
