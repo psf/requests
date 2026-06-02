@@ -780,6 +780,31 @@ class TestRequests:
             s.get(url, auth=auth)
             assert s.cookies["fake"] == "fake_value"
 
+    def test_DIGEST_AUTH_URI_WITH_SEMICOLONS_IN_PATH(self):
+        """Verify uri directive in digest auth header includes full path with semicolons.
+
+        Regression test for https://github.com/psf/requests/issues/6990
+        urlparse() discards semicolon-delimited path params; the uri field
+        must contain the full path per RFC 7616 §3.4.
+        """
+        for authtype in self.digest_auth_algo:
+            auth = HTTPDigestAuth("user", "pass")
+            # Set up thread-local challenge state to call build_digest_header directly
+            auth.init_per_thread_state()
+            auth._thread_local.last_nonce = ""  # ensure nonce_count increments
+            auth._thread_local.chal = {
+                "realm": "test",
+                "qop": "auth",
+                "nonce": "test-nonce",
+                "algorithm": authtype,
+                "opaque": "test-opaque",
+            }
+            url_with_semicolon = "http://httpbin.org/digest-auth/auth/user/pass/" + authtype + "/path;param1;param2?query=1"
+            header = auth.build_digest_header("GET", url_with_semicolon)
+            assert 'uri="/path;param1;param2?query=1"' in header, (
+                f"uri field should include full path with semicolons, got: {header}"
+            )
+
     def test_DIGEST_STREAM(self, httpbin):
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "pass")
