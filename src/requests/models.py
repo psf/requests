@@ -308,6 +308,7 @@ class Request(RequestHooksMixin):
       <PreparedRequest [GET]>
     """
 
+    hooks: dict[str, list[_t.HookType]]
     method: str | None
     url: _t.UriType | None
     headers: Mapping[str, str | bytes]
