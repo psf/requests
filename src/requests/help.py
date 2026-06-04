@@ -1,7 +1,5 @@
 """Module containing bug report helper(s)."""
 
-# pyright: reportUnknownMemberType=false
-
 import json
 import platform
 import ssl
@@ -19,7 +17,7 @@ except ImportError:
     charset_normalizer = None
 
 try:
-    import chardet  # type: ignore[import-not-found]
+    import chardet
 except ImportError:
     chardet = None
 
@@ -30,8 +28,8 @@ except ImportError:
     OpenSSL = None
     cryptography = None
 else:
-    import cryptography  # type: ignore[import-not-found]
-    import OpenSSL  # type: ignore[import-not-found]
+    import cryptography
+    import OpenSSL
 
 
 def _implementation():
@@ -51,7 +49,7 @@ def _implementation():
         implementation_version = platform.python_version()
     elif implementation == "PyPy":
         pypy = sys.pypy_version_info  # type: ignore[attr-defined]
-        implementation_version = f"{pypy.major}.{pypy.minor}.{pypy.micro}"
+        implementation_version = f"{pypy.major}.{pypy.minor}.{pypy.micro}"  # pyright: ignore[reportUnknownMemberType]
         if sys.pypy_version_info.releaselevel != "final":  # type: ignore[attr-defined]
             implementation_version = "".join(
                 [implementation_version, sys.pypy_version_info.releaselevel]  # type: ignore[attr-defined]
