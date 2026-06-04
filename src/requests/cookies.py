@@ -610,7 +610,7 @@ def merge_cookies(
     :param cookies: Dictionary or CookieJar object to be added.
     :rtype: CookieJar
     """
-    if not isinstance(cookiejar, cookielib.CookieJar):  # type: ignore[reportUnnecessaryIsInstance]  # runtime guard
+    if not isinstance(cookiejar, cookielib.CookieJar):  # runtime guard
         raise ValueError("You can only merge into CookieJar")
 
     if isinstance(cookies, dict):
