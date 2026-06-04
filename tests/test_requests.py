@@ -1374,6 +1374,13 @@ class TestRequests:
         # make sure one can use items multiple times
         assert list(items) == list(items)
 
+    def test_cookie_popitem_removes_and_returns_cookie_pair(self):
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("some_cookie", "some_value", domain="test.com", path="/")
+
+        assert jar.popitem() == ("some_cookie", "some_value")
+        assert not jar
+
     def test_cookie_duplicate_names_different_domains(self):
         key = "some_cookie"
         value = "some_value"

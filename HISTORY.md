@@ -4,7 +4,8 @@ Release History
 dev
 ---
 
-- \[Short description of non-trivial change.\]
+- Fixed `RequestsCookieJar.popitem()` so it removes and returns a cookie pair
+  instead of always raising `KeyError`. (#6190)
 
 
 2.34.2 (2026-05-14)
