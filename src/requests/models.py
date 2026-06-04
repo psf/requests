@@ -50,7 +50,7 @@ from .compat import (
 )
 from .compat import json as complexjson
 from .cookies import (
-    _copy_cookie_jar,  # type: ignore[reportPrivateUsage]
+    _copy_cookie_jar,
     cookiejar_from_dict,
     get_cookie_header,
 )

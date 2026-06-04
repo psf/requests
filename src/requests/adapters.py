@@ -33,7 +33,7 @@ from urllib3.util import Timeout as TimeoutSauce
 from urllib3.util import parse_url
 from urllib3.util.retry import Retry
 
-from .auth import _basic_auth_str  # type: ignore[reportPrivateUsage]
+from .auth import _basic_auth_str
 from .compat import basestring, urlparse
 from .cookies import extract_cookies_to_jar
 from .exceptions import (

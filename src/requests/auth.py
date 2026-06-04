@@ -300,7 +300,7 @@ class HTTPDigestAuth(AuthBase):
             r.content
             r.close()
             prep = r.request.copy()
-            cookie_jar = cast("CookieJar", prep._cookies)  # type: ignore[reportPrivateUsage]
+            cookie_jar = cast("CookieJar", prep._cookies)
             extract_cookies_to_jar(cookie_jar, r.request, r.raw)
             prep.prepare_cookies(cookie_jar)
 
