@@ -118,3 +118,6 @@ testpaths = ["tests"]
 [tool.pyright]
 include = ["src/requests"]
 typeCheckingMode = "strict"
+
+reportPrivateUsage = false
+reportPrivateImportUsage = false
