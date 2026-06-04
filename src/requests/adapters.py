@@ -9,7 +9,7 @@ and maintain connections.
 from __future__ import annotations
 
 import os.path
-import socket  # noqa: F401  # type: ignore[reportUnusedImport]
+import socket  # noqa: F401
 import typing
 import warnings
 from typing import Any

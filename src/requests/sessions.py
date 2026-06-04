@@ -38,7 +38,7 @@ from .hooks import default_hooks, dispatch_hook
 # formerly defined here, reexposed here for backward compatibility
 from .models import (  # noqa: F401
     DEFAULT_REDIRECT_LIMIT,
-    REDIRECT_STATI,  # type: ignore[reportUnusedImport]
+    REDIRECT_STATI,
     PreparedRequest,
     Request,
     Response,
@@ -54,7 +54,7 @@ from .utils import (  # noqa: F401
     requote_uri,
     resolve_proxies,
     rewind_body,
-    should_bypass_proxies,  # type: ignore[reportUnusedImport]  # re-export for external consumers
+    should_bypass_proxies,  # re-export for external consumers
     to_key_val_list,
 )
 

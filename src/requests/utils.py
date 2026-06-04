@@ -39,8 +39,8 @@ from .__version__ import __version__
 from ._internal_utils import (  # noqa: F401
     _HEADER_VALIDATORS_BYTE,
     _HEADER_VALIDATORS_STR,
-    HEADER_VALIDATORS,  # type: ignore[reportUnusedImport]
-    to_native_string,  # type: ignore[reportUnusedImport]
+    HEADER_VALIDATORS,
+    to_native_string,
 )
 from ._types import SupportsItems as _SupportsItems
 from .compat import (
