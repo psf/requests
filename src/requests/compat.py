@@ -14,6 +14,7 @@ from __future__ import annotations
 import importlib
 import sys
 from types import ModuleType
+from typing import TYPE_CHECKING
 
 # -------
 # urllib3
@@ -46,7 +47,10 @@ def _resolve_char_detection() -> ModuleType | None:
     return chardet
 
 
-chardet = _resolve_char_detection()
+if TYPE_CHECKING:
+    import chardet
+else:
+    chardet = _resolve_char_detection()
 
 # -------
 # Pythons

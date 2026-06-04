@@ -238,7 +238,7 @@ class RequestEncodingMixin:
                 fdata = fp
             elif isinstance(fp, _SupportsRead):  # type: ignore[reportUnnecessaryIsInstance]  # defensive check for untyped callers
                 fdata = fp.read()
-            elif fp is None:  # type: ignore[reportUnnecessaryComparison]  # defensive check for untyped callers
+            elif fp is None:  # defensive check for untyped callers
                 continue
             else:
                 fdata = fp
@@ -1010,7 +1010,7 @@ class Response:
         ):
             if pending is not None:
                 # TODO: remove cast after iter_lines rewrite
-                chunk = cast("str | bytes", pending + chunk)  # type: ignore[operator]
+                chunk = cast("str | bytes", pending + chunk)
 
             if delimiter:
                 lines = chunk.split(delimiter)  # type: ignore[arg-type]
