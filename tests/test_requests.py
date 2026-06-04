@@ -1023,6 +1023,17 @@ class TestRequests:
             )
         assert settings["verify"] == expected
 
+    def test_verify_false_precedence_over_env_certs(self, httpbin):
+        """verify=False should take precedence over REQUESTS_CA_BUNDLE."""
+        s = requests.Session()
+        with mock.patch(
+            "os.environ", {"REQUESTS_CA_BUNDLE": "/some/path"}
+        ):
+            settings = s.merge_environment_settings(
+                url=httpbin("get"), proxies={}, stream=False, verify=False, cert=None
+            )
+        assert settings["verify"] is False
+
     def test_http_with_certificate(self, httpbin):
         r = requests.get(httpbin(), cert=".")
         assert r.status_code == 200
