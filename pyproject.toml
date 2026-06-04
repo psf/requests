@@ -69,6 +69,9 @@ test = [
 typecheck = [
     "pyright",
     "typing_extensions",
+    "chardet",
+    "cryptography",
+    "PyOpenSSL",
 ]
 
 [tool.setuptools]
