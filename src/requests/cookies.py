@@ -129,7 +129,7 @@ class MockResponse:
         return self._headers
 
     def getheaders(self, name: str) -> Any:
-        self._headers.getheaders(name)
+        return self._headers.getheaders(name)
 
 
 def extract_cookies_to_jar(
