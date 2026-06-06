@@ -1002,6 +1002,22 @@ this documentation, but take a look at the next example for a simple SSL use-
 case. For more than that, you might look at subclassing the
 :class:`BaseAdapter <requests.adapters.BaseAdapter>`.
 
+When subclassing :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`, remember
+that adapter instances may be pickled when their parent
+:class:`Session <requests.Session>` is pickled or copied. If your subclass adds
+instance attributes that should survive that process, extend the ``__attrs__``
+class variable with their names::
+
+    class TimeoutHTTPAdapter(HTTPAdapter):
+        __attrs__ = HTTPAdapter.__attrs__ + ["timeout"]
+
+        def __init__(self, timeout, *args, **kwargs):
+            self.timeout = timeout
+            super().__init__(*args, **kwargs)
+
+The same pattern applies when adding state to
+:class:`Session <requests.Session>` subclasses.
+
 Example: Specific SSL Version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
