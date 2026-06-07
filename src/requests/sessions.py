@@ -258,7 +258,8 @@ class SessionRedirectMixin:
                 prepared_request.body = None
 
             headers = prepared_request.headers
-            headers.pop("Cookie", None)
+            if "Cookie" in headers and self.should_strip_auth(resp.request.url, url):
+                headers.pop("Cookie", None)
 
             # Extract any cookies sent on the response to the cookiejar
             # in the new request. Because we've mutated our copied prepared

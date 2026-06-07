@@ -414,6 +414,25 @@ class TestRequests:
         assert "foo" in r.request.headers["Cookie"]
         assert "foo" in r.history[0].request.headers["Cookie"]
 
+    def test_cookie_header_is_retained_on_same_host_redirect(self, httpbin):
+        r = requests.get(httpbin("redirect/1"), headers={"Cookie": "foo=bar"})
+
+        assert r.history[0].request.headers["Cookie"] == "foo=bar"
+        assert r.request.headers["Cookie"] == "foo=bar"
+
+    def test_cookie_header_is_stripped_on_cross_origin_redirect(
+        self, httpbin, httpbin_secure, httpbin_ca_bundle
+    ):
+        r = requests.get(
+            httpbin("redirect-to"),
+            params={"url": httpbin_secure("get")},
+            headers={"Cookie": "foo=bar"},
+            verify=httpbin_ca_bundle,
+        )
+
+        assert r.history[0].request.headers["Cookie"] == "foo=bar"
+        assert "Cookie" not in r.request.headers
+
     def test_request_cookie_overrides_session_cookie(self, httpbin):
         s = requests.session()
         s.cookies["foo"] = "bar"
