@@ -1087,6 +1087,17 @@ class TestRequests:
             )
         assert r.status_code == 200
 
+    def test_post_named_tempfile(self, httpbin):
+        with tempfile.NamedTemporaryFile(mode="w+") as f:
+            f.write("named temp file contents\n")
+            f.seek(0)
+            r = requests.post(
+                httpbin("post"),
+                files={"file": f},
+            )
+        assert r.status_code == 200
+        assert r.json()["files"]["file"] == "named temp file contents\n"
+
     @pytest.mark.parametrize(
         "data",
         (
