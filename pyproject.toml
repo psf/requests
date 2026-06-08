@@ -118,3 +118,8 @@ testpaths = ["tests"]
 [tool.pyright]
 include = ["src/requests"]
 typeCheckingMode = "strict"
+# linting rules unrelated to type checking
+reportPrivateUsage = false
+reportPrivateImportUsage = false
+reportUnnecessaryIsInstance = false
+reportUnusedImport = false  # duplicate of Ruff's F401 rule

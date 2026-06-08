@@ -12,7 +12,7 @@ import datetime
 # Import encoding now, to avoid implicit import later.
 # Implicit import within threads may cause LookupError when standard library is in a ZIP,
 # such as in Embedded Python. See https://github.com/psf/requests/issues/3578.
-import encodings.idna  # noqa: F401  # type: ignore[reportUnusedImport]
+import encodings.idna  # noqa: F401
 from collections.abc import Callable, Generator, Iterable, Iterator, Mapping
 from io import UnsupportedOperation
 from typing import (
@@ -50,7 +50,7 @@ from .compat import (
 )
 from .compat import json as complexjson
 from .cookies import (
-    _copy_cookie_jar,  # type: ignore[reportPrivateUsage]
+    _copy_cookie_jar,
     cookiejar_from_dict,
     get_cookie_header,
 )
@@ -236,7 +236,7 @@ class RequestEncodingMixin:
 
             if isinstance(fp, (str, bytes, bytearray)):
                 fdata = fp
-            elif isinstance(fp, _SupportsRead):  # type: ignore[reportUnnecessaryIsInstance]  # defensive check for untyped callers
+            elif isinstance(fp, _SupportsRead):  # defensive check for untyped callers
                 fdata = fp.read()
             elif fp is None:  # defensive check for untyped callers
                 continue
@@ -266,7 +266,9 @@ class RequestHooksMixin:
         if isinstance(hook, Callable):
             self.hooks[event].append(hook)
         elif hasattr(hook, "__iter__"):
-            self.hooks[event].extend(h for h in hook if isinstance(h, Callable))  # type: ignore[reportUnnecessaryIsInstance]  # defensive runtime filter
+            self.hooks[event].extend(
+                h for h in hook if isinstance(h, Callable)
+            )  # defensive runtime filter
 
     def deregister_hook(self, event: str, hook: _t.HookType) -> bool:
         """Deregister a previously registered hook.
@@ -956,7 +958,9 @@ class Response:
 
         if self._content_consumed and isinstance(self._content, bool):
             raise StreamConsumedError()
-        elif chunk_size is not None and not isinstance(chunk_size, int):  # type: ignore[reportUnnecessaryIsInstance]  # runtime guard for untyped callers
+        elif chunk_size is not None and not isinstance(
+            chunk_size, int
+        ):  # runtime guard for untyped callers
             raise TypeError(
                 f"chunk_size must be an int, it is instead a {type(chunk_size)}."
             )

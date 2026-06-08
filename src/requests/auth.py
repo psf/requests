@@ -41,7 +41,7 @@ def _basic_auth_str(username: bytes | str, password: bytes | str) -> str:
     #
     # These are here solely to maintain backwards compatibility
     # for things like ints. This will be removed in 3.0.0.
-    if not isinstance(username, basestring):  # type: ignore[reportUnnecessaryIsInstance]  # runtime guard for non-str/bytes
+    if not isinstance(username, basestring):  # runtime guard for non-str/bytes
         warnings.warn(
             "Non-string usernames will no longer be supported in Requests "
             f"3.0.0. Please convert the object you've passed in ({username!r}) to "
@@ -51,7 +51,7 @@ def _basic_auth_str(username: bytes | str, password: bytes | str) -> str:
         )
         username = str(username)
 
-    if not isinstance(password, basestring):  # type: ignore[reportUnnecessaryIsInstance]  # runtime guard for non-str/bytes
+    if not isinstance(password, basestring):  # runtime guard for non-str/bytes
         warnings.warn(
             "Non-string passwords will no longer be supported in Requests "
             f"3.0.0. Please convert the object you've passed in ({type(password)!r}) to "
@@ -300,7 +300,7 @@ class HTTPDigestAuth(AuthBase):
             r.content
             r.close()
             prep = r.request.copy()
-            cookie_jar = cast("CookieJar", prep._cookies)  # type: ignore[reportPrivateUsage]
+            cookie_jar = cast("CookieJar", prep._cookies)
             extract_cookies_to_jar(cookie_jar, r.request, r.raw)
             prep.prepare_cookies(cookie_jar)
 

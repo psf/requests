@@ -111,13 +111,13 @@ def _check_cryptography(cryptography_version: str) -> None:
 # Check imported dependencies for compatibility.
 try:
     check_compatibility(
-        urllib3.__version__,  # type: ignore[reportPrivateImportUsage]
+        urllib3.__version__,
         chardet_version,
         charset_normalizer_version,
     )
 except (AssertionError, ValueError):
     warnings.warn(
-        f"urllib3 ({urllib3.__version__}) or chardet "  # type: ignore[reportPrivateImportUsage]
+        f"urllib3 ({urllib3.__version__}) or chardet "
         f"({chardet_version})/charset_normalizer ({charset_normalizer_version}) "
         "doesn't match a supported version!",
         RequestsDependencyWarning,

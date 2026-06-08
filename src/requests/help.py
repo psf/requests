@@ -78,7 +78,7 @@ def info() -> dict[str, Any]:
         }
 
     implementation_info = _implementation()
-    urllib3_info = {"version": urllib3.__version__}  # type: ignore[reportPrivateImportUsage]
+    urllib3_info = {"version": urllib3.__version__}
     charset_normalizer_info = {"version": None}
     chardet_info: dict[str, str | None] = {"version": None}
     if charset_normalizer:

@@ -19,9 +19,7 @@ from typing import TYPE_CHECKING
 # -------
 # urllib3
 # -------
-from urllib3 import (
-    __version__ as urllib3_version,  # type: ignore[reportPrivateImportUsage]
-)
+from urllib3 import __version__ as urllib3_version
 
 # Detect which major version of urllib3 is being used.
 try:

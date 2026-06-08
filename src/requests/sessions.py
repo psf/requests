@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Any, cast
 from ._internal_utils import to_native_string
 from ._types import is_prepared as _is_prepared
 from .adapters import HTTPAdapter
-from .auth import _basic_auth_str  # type: ignore[reportPrivateUsage]
+from .auth import _basic_auth_str
 from .compat import cookielib, urljoin, urlparse
 from .cookies import (
     RequestsCookieJar,
@@ -38,7 +38,7 @@ from .hooks import default_hooks, dispatch_hook
 # formerly defined here, reexposed here for backward compatibility
 from .models import (  # noqa: F401
     DEFAULT_REDIRECT_LIMIT,
-    REDIRECT_STATI,  # type: ignore[reportUnusedImport]
+    REDIRECT_STATI,
     PreparedRequest,
     Request,
     Response,
@@ -54,7 +54,7 @@ from .utils import (  # noqa: F401
     requote_uri,
     resolve_proxies,
     rewind_body,
-    should_bypass_proxies,  # type: ignore[reportUnusedImport]  # re-export for external consumers
+    should_bypass_proxies,  # re-export for external consumers
     to_key_val_list,
 )
 
@@ -263,7 +263,7 @@ class SessionRedirectMixin:
             # Extract any cookies sent on the response to the cookiejar
             # in the new request. Because we've mutated our copied prepared
             # request, use the old one that we haven't yet touched.
-            cookie_jar = cast("CookieJar", prepared_request._cookies)  # type: ignore[reportPrivateUsage]
+            cookie_jar = cast("CookieJar", prepared_request._cookies)
             extract_cookies_to_jar(cookie_jar, req, resp.raw)
             merge_cookies(cookie_jar, self.cookies)
             prepared_request.prepare_cookies(cookie_jar)
@@ -275,7 +275,7 @@ class SessionRedirectMixin:
             # A failed tell() sets `_body_position` to `object()`. This non-None
             # value ensures `rewindable` will be True, allowing us to raise an
             # UnrewindableBodyError, instead of hanging the connection.
-            rewindable = prepared_request._body_position is not None and (  # type: ignore[reportPrivateUsage]
+            rewindable = prepared_request._body_position is not None and (
                 "Content-Length" in headers or "Transfer-Encoding" in headers
             )
 

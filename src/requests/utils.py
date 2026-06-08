@@ -37,10 +37,10 @@ from .__version__ import __version__
 
 # to_native_string is unused here, but imported here for backwards compatibility
 from ._internal_utils import (  # noqa: F401
-    _HEADER_VALIDATORS_BYTE,  # type: ignore[reportPrivateUsage]
-    _HEADER_VALIDATORS_STR,  # type: ignore[reportPrivateUsage]
-    HEADER_VALIDATORS,  # type: ignore[reportUnusedImport]
-    to_native_string,  # type: ignore[reportUnusedImport]
+    _HEADER_VALIDATORS_BYTE,
+    _HEADER_VALIDATORS_STR,
+    HEADER_VALIDATORS,
+    to_native_string,
 )
 from ._types import SupportsItems as _SupportsItems
 from .compat import (
@@ -1102,7 +1102,7 @@ def _validate_header_part(
 ) -> None:
     if isinstance(header_part, str):
         validator = _HEADER_VALIDATORS_STR[header_validator_index]
-    elif isinstance(header_part, bytes):  # type: ignore[reportUnnecessaryIsInstance]
+    elif isinstance(header_part, bytes):
         # runtime guard for non-str/bytes input
         validator = _HEADER_VALIDATORS_BYTE[header_validator_index]
     else:
@@ -1142,11 +1142,11 @@ def rewind_body(prepared_request: PreparedRequest) -> None:
     """
     body_seek = getattr(prepared_request.body, "seek", None)
     if body_seek is not None and isinstance(
-        prepared_request._body_position,  # type: ignore[reportPrivateUsage]
+        prepared_request._body_position,
         integer_types,
     ):
         try:
-            body_seek(prepared_request._body_position)  # type: ignore[reportPrivateUsage]
+            body_seek(prepared_request._body_position)
         except OSError:
             raise UnrewindableBodyError(
                 "An error occurred when rewinding request body for redirect."
