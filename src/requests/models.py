@@ -236,7 +236,9 @@ class RequestEncodingMixin:
 
             if isinstance(fp, (str, bytes, bytearray)):
                 fdata = fp
-            elif isinstance(fp, _SupportsRead):  # defensive check for untyped callers
+            # data that proxies attributes to underlying objects needs hasattr
+            # defensive check for untyped callers
+            elif isinstance(fp, _SupportsRead) or hasattr(fp, "read"):
                 fdata = fp.read()
             elif fp is None:  # defensive check for untyped callers
                 continue
