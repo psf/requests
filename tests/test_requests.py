@@ -1098,6 +1098,21 @@ class TestRequests:
         assert r.status_code == 200
         assert r.json()["files"]["file"] == "named temp file contents\n"
 
+    def test_post_getattr_proxy_read_only(self, httpbin):
+
+        class ReadProxy:
+            def __init__(self):
+                self._file = io.BytesIO(b"streamed body")
+
+            def __getattr__(self, name):
+                if name == "__iter__":
+                    raise AttributeError(name)
+                return getattr(self._file, name)
+
+        r = requests.post(httpbin("post"), data=ReadProxy())
+        assert r.status_code == 200
+        assert r.json()["data"] == "streamed body"
+
     @pytest.mark.parametrize(
         "data",
         (
