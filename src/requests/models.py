@@ -35,8 +35,8 @@ from urllib3.fields import RequestField
 from urllib3.filepost import encode_multipart_formdata
 from urllib3.util import parse_url
 
+from . import _types as _t
 from ._internal_utils import to_native_string, unicode_is_ascii
-from ._types import SupportsRead as _SupportsRead
 from .auth import HTTPBasicAuth
 from .compat import (
     JSONDecodeError,
@@ -87,7 +87,6 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from . import _types as _t
     from .adapters import HTTPAdapter
     from .cookies import RequestsCookieJar
 
@@ -161,7 +160,7 @@ class RequestEncodingMixin:
 
         if isinstance(data, (str, bytes)):
             return data
-        elif isinstance(data, _SupportsRead):
+        elif _t.has_read(data):
             return data
         elif hasattr(data, "__iter__"):
             result: list[tuple[bytes, bytes]] = []
@@ -236,9 +235,7 @@ class RequestEncodingMixin:
 
             if isinstance(fp, (str, bytes, bytearray)):
                 fdata = fp
-            # data that proxies attributes to underlying objects needs hasattr
-            # defensive check for untyped callers
-            elif isinstance(fp, _SupportsRead) or hasattr(fp, "read"):
+            elif _t.has_read(fp):
                 fdata = fp.read()
             elif fp is None:  # defensive check for untyped callers
                 continue
@@ -641,7 +638,7 @@ class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
             else:
                 if raw_data:
                     body = self._encode_params(raw_data)
-                    if isinstance(data, basestring) or isinstance(data, _SupportsRead):
+                    if isinstance(data, basestring) or _t.has_read(data):
                         content_type = None
                     else:
                         content_type = "application/x-www-form-urlencoded"

@@ -29,6 +29,11 @@ class SupportsRead(Protocol[_T_co]):
     def read(self, length: int = ..., /) -> _T_co: ...
 
 
+def has_read(obj: Any) -> TypeIs[SupportsRead[str | bytes]]:
+    """Check if obj supports read, including __getattr__ based proxies."""
+    return isinstance(obj, SupportsRead) or hasattr(obj, "read")
+
+
 @runtime_checkable
 class SupportsItems(Protocol[_KT_co, _VT_co]):
     def items(self) -> Iterable[tuple[_KT_co, _VT_co]]: ...
