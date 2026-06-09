@@ -568,6 +568,28 @@ If a request exceeds the configured number of maximum redirections, a
 All exceptions that Requests explicitly raises inherit from
 :exc:`requests.exceptions.RequestException`.
 
+Complete Example with Error Handling
+-----------------------------------
+
+Here is a complete example that demonstrates making a request and handling errors properly:
+
+.. code-block:: python
+
+    import requests
+    from requests.exceptions import HTTPError
+
+    url = "https://api.github.com"
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raises HTTPError for bad responses (4xx, 5xx)
+    except HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except Exception as err:
+        print(f"Other error occurred: {err}")
+    else:
+        print("Success!")
+        print(response.text)
 -----------------------
 
 Ready for more? Check out the :ref:`advanced <advanced>` section.
