@@ -5,12 +5,19 @@ requests.structures
 Data structures that power Requests.
 """
 
+from __future__ import annotations
+
 from collections import OrderedDict
+from collections.abc import Iterable, Iterator, Mapping
+from typing import Any, Generic, TypeVar, overload
 
-from .compat import Mapping, MutableMapping
+from .compat import MutableMapping
+
+_VT = TypeVar("_VT")
+_D = TypeVar("_D")
 
 
-class CaseInsensitiveDict(MutableMapping):
+class CaseInsensitiveDict(MutableMapping[str, _VT], Generic[_VT]):
     """A case-insensitive ``dict``-like object.
 
     Implements all methods and operations of
@@ -37,63 +44,87 @@ class CaseInsensitiveDict(MutableMapping):
     behavior is undefined.
     """
 
-    def __init__(self, data=None, **kwargs):
+    _store: OrderedDict[str, tuple[str, _VT]]
+
+    def __init__(
+        self,
+        data: Mapping[str, _VT] | Iterable[tuple[str, _VT]] | None = None,
+        **kwargs: _VT,
+    ) -> None:
         self._store = OrderedDict()
         if data is None:
             data = {}
         self.update(data, **kwargs)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: _VT) -> None:
         # Use the lowercased key for lookups, but store the actual
         # key alongside the value.
         self._store[key.lower()] = (key, value)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> _VT:
         return self._store[key.lower()][1]
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str) -> None:
         del self._store[key.lower()]
 
-    def __iter__(self):
-        return (casedkey for casedkey, mappedvalue in self._store.values())
+    def __iter__(self) -> Iterator[str]:
+        return (casedkey for casedkey, _ in self._store.values())
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._store)
 
-    def lower_items(self):
+    def lower_items(self) -> Iterator[tuple[str, _VT]]:
         """Like iteritems(), but with all lowercase keys."""
         return ((lowerkey, keyval[1]) for (lowerkey, keyval) in self._store.items())
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Mapping):
-            other = CaseInsensitiveDict(other)
+            other_dict: CaseInsensitiveDict[Any] = CaseInsensitiveDict(other)  # type: ignore[reportUnknownArgumentType]
         else:
             return NotImplemented
         # Compare insensitively
-        return dict(self.lower_items()) == dict(other.lower_items())
+        return dict(self.lower_items()) == dict(other_dict.lower_items())
 
     # Copy is required
-    def copy(self):
+    def copy(self) -> CaseInsensitiveDict[_VT]:
         return CaseInsensitiveDict(self._store.values())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(dict(self.items()))
 
 
-class LookupDict(dict):
+class LookupDict(dict[str, _VT]):
     """Dictionary lookup object."""
 
-    def __init__(self, name=None):
+    name: Any
+
+    def __init__(self, name: Any = None) -> None:
         self.name = name
         super().__init__()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<lookup '{self.name}'>"
 
-    def __getitem__(self, key):
+    def __getattr__(self, key: str) -> _VT | None:
+        # We need this for type checkers to infer typing
+        # on attribute access with status_codes.py
+        if key in self.__dict__:
+            return self.__dict__[key]
+        else:
+            raise AttributeError(
+                f"'{type(self).__name__}' object has no attribute '{key}'"
+            )
+
+    def __getitem__(self, key: str) -> _VT | None:  # type: ignore[override]
         # We allow fall-through here, so values default to None
 
         return self.__dict__.get(key, None)
 
-    def get(self, key, default=None):
+    @overload
+    def get(self, key: str, default: None = None) -> _VT | None: ...
+
+    @overload
+    def get(self, key: str, default: _D | _VT) -> _D | _VT: ...
+
+    def get(self, key: str, default: _D | None = None) -> _VT | _D | None:
         return self.__dict__.get(key, default)

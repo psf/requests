@@ -76,3 +76,16 @@ class TestLookupDict:
     @get_item_parameters
     def test_get(self, key, value):
         assert self.lookup_dict.get(key) == value
+
+    def test_hasattr(self):
+        assert hasattr(self.lookup_dict, "bad_gateway") is True
+        assert hasattr(self.lookup_dict, "not_a_key") is False
+
+    def test_getattr(self):
+        assert getattr(self.lookup_dict, "bad_gateway") == 502
+        with pytest.raises(AttributeError):
+            getattr(self.lookup_dict, "not_a_key")
+
+    @get_item_parameters
+    def test_getattr_default(self, key, value):
+        assert getattr(self.lookup_dict, key, None) == value

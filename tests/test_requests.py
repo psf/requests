@@ -217,6 +217,14 @@ class TestRequests:
         assert r.history[0].status_code == 302
         assert r.history[0].is_redirect
 
+    def test_redirect_history_no_self_reference(self, httpbin):
+        r = requests.get(httpbin("redirect", "3"))
+        assert r.status_code == 200
+        assert len(r.history) == 3
+        for i, resp in enumerate(r.history):
+            assert resp not in resp.history
+            assert resp.history == r.history[:i]
+
     def test_HTTP_307_ALLOW_REDIRECT_POST(self, httpbin):
         r = requests.post(
             httpbin("redirect-to"),
@@ -578,7 +586,7 @@ class TestRequests:
             ("http://doesnotexist.google.com", ConnectionError),
             # Connecting to an invalid port should raise a ConnectionError
             ("http://localhost:1", ConnectionError),
-            # Inputing a URL that cannot be parsed should raise an InvalidURL error
+            # Inputting a URL that cannot be parsed should raise an InvalidURL error
             ("http://fe80::5054:ff:fe5a:fc0", InvalidURL),
         ),
     )
@@ -729,7 +737,7 @@ class TestRequests:
 
         try:
             # Should use netrc
-            # Make sure that we don't use the example.com credentails
+            # Make sure that we don't use the example.com credentials
             # for the request
             r = requests.get(url)
             assert r.status_code == 200
@@ -1078,6 +1086,32 @@ class TestRequests:
                 files={"file": ("test_requests.py", f)},
             )
         assert r.status_code == 200
+
+    def test_post_named_tempfile(self, httpbin):
+        with tempfile.NamedTemporaryFile(mode="w+") as f:
+            f.write("named temp file contents\n")
+            f.seek(0)
+            r = requests.post(
+                httpbin("post"),
+                files={"file": f},
+            )
+        assert r.status_code == 200
+        assert r.json()["files"]["file"] == "named temp file contents\n"
+
+    def test_post_getattr_proxy_read_only(self, httpbin):
+
+        class ReadProxy:
+            def __init__(self):
+                self._file = io.BytesIO(b"streamed body")
+
+            def __getattr__(self, name):
+                if name == "__iter__":
+                    raise AttributeError(name)
+                return getattr(self._file, name)
+
+        r = requests.post(httpbin("post"), data=ReadProxy())
+        assert r.status_code == 200
+        assert r.json()["data"] == "streamed body"
 
     @pytest.mark.parametrize(
         "data",
@@ -2065,6 +2099,21 @@ class TestRequests:
 
         assert "Unable to rewind request body" in str(e)
 
+    def test_getattr_proxy_stream_follows_redirect(self, httpbin):
+        """Ensure stream wrappers that don't implement __iter__ directly are still detected."""
+
+        class AttrProxy:
+            def __init__(self):
+                self._file = io.BytesIO(b"data")
+
+            def __getattr__(self, name):
+                return getattr(self._file, name)
+
+        r = requests.post(
+            httpbin("redirect-to?url=/post&status_code=307"), data=AttrProxy()
+        )
+        assert r.json()["data"] == "data"
+
     def _patch_adapter_gzipped_redirect(self, session, url):
         adapter = session.get_adapter(url=url)
         org_build_response = adapter.build_response
@@ -2571,6 +2620,7 @@ class RedirectSession(SessionRedirectMixin):
     def build_response(self):
         request = self.calls[-1].args[0]
         r = requests.Response()
+        r.url = request.url
 
         try:
             r.status_code = int(self.redirects.pop(0))

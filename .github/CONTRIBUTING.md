@@ -1,7 +1,8 @@
 # Contribution Guidelines
 
 Before opening any issues or proposing any pull requests, please read
-our [Contributor's Guide](https://requests.readthedocs.io/en/latest/dev/contributing/).
+our [Contributor's Guide](https://requests.readthedocs.io/en/latest/dev/contributing/)
+as well as our [AI Policy](./AI_POLICY.md).
 
 To get the greatest chance of helpful responses, please also observe the
 following additional notes.
@@ -52,3 +53,14 @@ Please be aware of the following things when filing bug reports:
    If you do not provide all of these things, it will take us much longer to
    fix your problem. If we ask you to clarify these and you never respond, we
    will close your issue without fixing it.
+
+## Good Pull Requests
+
+1. Avoid raising duplicate pull requests. *Please* use the GitHub pull request
+   search feature to check whether someone else has already filed a pull
+   request.
+2. When filing a pull request, always include tests that fail without your
+   changes thus preventing the fix from regressing.
+3. Always run the test suite locally
+4. Write commit messages that explain _why_ a change was made beyond "Fixes
+   #NNNN". Why is this the right fix? What other options were ruled out? etc.

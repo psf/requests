@@ -9,21 +9,25 @@ Requests: HTTP for Humans™
 Release v\ |version|. (:ref:`Installation <install>`)
 
 
-.. image:: https://static.pepy.tech/badge/requests/month
-    :target: https://pepy.tech/project/requests
-    :alt: Requests Downloads Per Month Badge
-    
-.. image:: https://img.shields.io/pypi/l/requests.svg
+.. image:: https://img.shields.io/pypi/v/requests.svg?maxAge=86400
     :target: https://pypi.org/project/requests/
-    :alt: License Badge
-
-.. image:: https://img.shields.io/pypi/wheel/requests.svg
-    :target: https://pypi.org/project/requests/
-    :alt: Wheel Support Badge
+    :alt: PyPI Version Badge
 
 .. image:: https://img.shields.io/pypi/pyversions/requests.svg
     :target: https://pypi.org/project/requests/
-    :alt: Python Version Support Badge
+    :alt: Supported Versions Badge
+
+.. image:: https://static.pepy.tech/badge/requests/month
+    :target: https://pepy.tech/project/requests
+    :alt: Downloads Per Month Badge
+
+.. image:: https://img.shields.io/github/contributors/psf/requests.svg
+    :target: https://github.com/psf/requests/graphs/contributors
+    :alt: Contributors Badge
+
+.. image:: https://readthedocs.org/projects/requests/badge/?version=latest
+    :target: https://requests.readthedocs.io
+    :alt: Documentation Badge
 
 **Requests** is an elegant and simple HTTP library for Python, built for human beings.
 
@@ -72,7 +76,7 @@ Requests is ready for today's web.
 - Chunked Requests
 - ``.netrc`` Support
 
-Requests officially supports Python 3.9+, and runs great on PyPy.
+Requests officially supports Python 3.10+, and runs great on PyPy.
 
 
 The User Guide

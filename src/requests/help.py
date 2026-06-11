@@ -4,6 +4,7 @@ import json
 import platform
 import ssl
 import sys
+from typing import Any
 
 import idna
 import urllib3
@@ -47,11 +48,11 @@ def _implementation():
     if implementation == "CPython":
         implementation_version = platform.python_version()
     elif implementation == "PyPy":
-        pypy = sys.pypy_version_info
-        implementation_version = f"{pypy.major}.{pypy.minor}.{pypy.micro}"
-        if sys.pypy_version_info.releaselevel != "final":
+        pypy = sys.pypy_version_info  # type: ignore[attr-defined]
+        implementation_version = f"{pypy.major}.{pypy.minor}.{pypy.micro}"  # pyright: ignore[reportUnknownMemberType]
+        if sys.pypy_version_info.releaselevel != "final":  # type: ignore[attr-defined]
             implementation_version = "".join(
-                [implementation_version, sys.pypy_version_info.releaselevel]
+                [implementation_version, sys.pypy_version_info.releaselevel]  # type: ignore[attr-defined]
             )
     elif implementation == "Jython":
         implementation_version = platform.python_version()  # Complete Guess
@@ -63,7 +64,7 @@ def _implementation():
     return {"name": implementation, "version": implementation_version}
 
 
-def info():
+def info() -> dict[str, Any]:
     """Generate information for a bug report."""
     try:
         platform_info = {
@@ -79,13 +80,13 @@ def info():
     implementation_info = _implementation()
     urllib3_info = {"version": urllib3.__version__}
     charset_normalizer_info = {"version": None}
-    chardet_info = {"version": None}
+    chardet_info: dict[str, str | None] = {"version": None}
     if charset_normalizer:
         charset_normalizer_info = {"version": charset_normalizer.__version__}
     if chardet:
         chardet_info = {"version": chardet.__version__}
 
-    pyopenssl_info = {
+    pyopenssl_info: dict[str, str | None] = {
         "version": None,
         "openssl_version": "",
     }
@@ -102,7 +103,7 @@ def info():
     }
 
     system_ssl = ssl.OPENSSL_VERSION_NUMBER
-    system_ssl_info = {"version": f"{system_ssl:x}" if system_ssl is not None else ""}
+    system_ssl_info = {"version": f"{system_ssl:x}" if system_ssl is not None else ""}  # type: ignore[reportUnnecessaryComparison]
 
     return {
         "platform": platform_info,

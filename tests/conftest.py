@@ -22,6 +22,15 @@ def prepare_url(value):
     return inner
 
 
+@pytest.fixture(autouse=True)
+def clean_proxy_environ(monkeypatch):
+    """Remove proxy related environment variables for every test."""
+    proxy_vars = ("http_proxy", "https_proxy", "no_proxy", "ftp_proxy", "all_proxy")
+    for var in proxy_vars:
+        monkeypatch.delenv(var, raising=False)
+        monkeypatch.delenv(var.upper(), raising=False)
+
+
 @pytest.fixture
 def httpbin(httpbin):
     return prepare_url(httpbin)

@@ -30,7 +30,7 @@ Why not Httplib2?
 -----------------
 
 Chris Adams gave an excellent summary on
-`Hacker News <http://news.ycombinator.com/item?id=2884406>`_:
+`Hacker News <https://news.ycombinator.com/item?id=2884406>`_:
 
     httplib2 is part of why you should use requests: it's far more respectable
     as a client but not as well documented and it still takes way too much code
@@ -44,7 +44,7 @@ Chris Adams gave an excellent summary on
     Disclosure: I'm listed in the requests AUTHORS file but can claim credit
     for, oh, about 0.0001% of the awesomeness.
 
-    1. http://code.google.com/p/httplib2/issues/detail?id=96 is a good example:
+    1. https://code.google.com/p/httplib2/issues/detail?id=96 is a good example:
     an annoying bug that affected many people, there was a fix available for
     months, which worked great when I applied it in a fork and pounded a couple
     TB of data through it, but it took over a year to make it into trunk and

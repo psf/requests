@@ -467,6 +467,7 @@ Let's print some request method arguments at runtime::
 You can add multiple hooks to a single request.  Let's call two hooks at once::
 
     >>> r = requests.get('https://httpbin.org/', hooks={'response': [print_url, record_hook]})
+    https://httpbin.org/
     >>> r.hook_called
     True
 

@@ -37,9 +37,11 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
+    "Programming Language :: Python :: Free Threading :: 2 - Beta",
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Software Development :: Libraries"
 ]
@@ -63,6 +65,13 @@ test = [
     "pytest-xdist",
     "pytest>=3",
     "trustme",
+]
+typecheck = [
+    "pyright",
+    "typing_extensions",
+    "chardet",
+    "cryptography",
+    "PyOpenSSL",
 ]
 
 [tool.setuptools]
@@ -88,7 +97,7 @@ select = [
     "UP",     # pyupgrade
     "T10",    # flake8-debugger (replaces debug-statements hook)
 ]
-ignore = ["E203", "E501", "UP038", "UP031"]
+ignore = ["E203", "E501", "UP031"]
 per-file-ignores = {"src/requests/__init__.py" = ["E402", "F401"], "src/requests/compat.py" = ["E402", "F401"], "tests/compat.py" = ["F401"]}
 
 [tool.ruff.lint.isort]
@@ -104,3 +113,13 @@ addopts = "--doctest-modules"
 doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
 minversion = "6.2"
 testpaths = ["tests"]
+
+
+[tool.pyright]
+include = ["src/requests"]
+typeCheckingMode = "strict"
+# linting rules unrelated to type checking
+reportPrivateUsage = false
+reportPrivateImportUsage = false
+reportUnnecessaryIsInstance = false
+reportUnusedImport = false  # duplicate of Ruff's F401 rule
