@@ -315,7 +315,7 @@ def extract_zipped_paths(path: str) -> str:
         return path
 
     # we have a valid zip archive and a valid member of that archive
-    suffix = os.path.splitext(member.split("/")[-1])[-1]
+    suffix = os.path.splitext(member.rpartition("/")[2])[-1]
     fd, extracted_path = tempfile.mkstemp(suffix=suffix)
     try:
         os.write(fd, zip_file.read(member))
@@ -464,7 +464,7 @@ def parse_dict_header(value: str) -> dict[str, str | None]:
         if "=" not in item:
             result[item] = None
             continue
-        name, value = item.split("=", 1)
+        name, _, value = item.partition("=")
         if value[:1] == value[-1:] == '"':
             value = unquote_header_value(value[1:-1])
         result[name] = value
@@ -768,7 +768,7 @@ def is_valid_cidr(string_network: str) -> bool:
     """
     if string_network.count("/") == 1:
         try:
-            mask = int(string_network.split("/")[1])
+            mask = int(string_network.partition("/")[2])
         except ValueError:
             return False
 
@@ -776,7 +776,7 @@ def is_valid_cidr(string_network: str) -> bool:
             return False
 
         try:
-            socket.inet_aton(string_network.split("/")[0])
+            socket.inet_aton(string_network.partition("/")[0])
         except OSError:
             return False
     else:
@@ -979,17 +979,13 @@ def parse_header_links(value: str) -> list[dict[str, str]]:
         return links
 
     for val in re.split(", *<", value):
-        try:
-            url, params = val.split(";", 1)
-        except ValueError:
-            url, params = val, ""
+        url, _, params = val.partition(";")
 
         link: dict[str, str] = {"url": url.strip("<> '\"")}
 
         for param in params.split(";"):
-            try:
-                key, value = param.split("=")
-            except ValueError:
+            key, sep, value = param.partition("=")
+            if not sep:
                 break
 
             link[key.strip(replace_chars)] = value.strip(replace_chars)
@@ -1131,7 +1127,7 @@ def urldefragauth(url: str) -> str:
     if not netloc:
         netloc, path = path, netloc
 
-    netloc = netloc.rsplit("@", 1)[-1]
+    netloc = netloc.rpartition("@")[2]
 
     return urlunparse((scheme, netloc, path, params, query, ""))
 
