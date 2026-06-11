@@ -9,6 +9,7 @@ and maintain connections.
 from __future__ import annotations
 
 import os.path
+import re
 import socket  # noqa: F401
 import typing
 import warnings
@@ -81,6 +82,45 @@ DEFAULT_POOLSIZE = 10
 DEFAULT_RETRIES = 0
 DEFAULT_POOL_TIMEOUT = None
 
+# Anchored to the authority section of the URL (between "://" and the first
+# "/", "?", or "#") so that brackets in the path or query string cannot
+# produce false positives.
+#
+# Inside the brackets two forms are detected:
+#   - RFC 6874 encoded %25: the delimiter is %25 followed by one or more
+#     ZoneID characters. Per RFC 6874 the ZoneID unreserved chars are
+#     [A-Za-z0-9_.\-~] plus percent-encoded octets (%[0-9A-Fa-f]{2}), so
+#     names like "Ethernet%203" (space encoded as %20) or names containing
+#     tildes are matched correctly.
+#   - Literal %: a negative lookahead (?![0-9A-Fa-f]{2}) rejects valid
+#     percent-encoded bytes whose first hex digit happens to be a letter
+#     (e.g. %AB, %aF, %CD). After that guard, one alphanumeric character
+#     is required (covering both named interfaces like eth0 and numeric
+#     zone indices like 1 or 3), followed by zero or more identifier chars.
+_IPV6_ZONE_ID_RE = re.compile(
+    r"://[^/?#]*\[[^\]]*"
+    r"(?:%25(?:[a-zA-Z0-9_.\-~]|%[0-9A-Fa-f]{2})+"
+    r"|%(?![0-9A-Fa-f]{2})[0-9A-Za-z][A-Za-z0-9_.\-]*)\]"
+)
+
+
+def _has_ipv6_zone_id(url: str) -> bool:
+    """
+    Detect if URL contains IPv6 zone identifier (scope ID).
+
+    IPv6 zone IDs use % character within brackets, e.g.:
+    http://[fe80::1%eth0]:8080/
+
+    This is used to determine whether to use urllib3's parse_url()
+    (which handles zone IDs correctly) or urlparse() for backward
+    compatibility.
+
+    :param url: URL string to check
+    :return: True if URL contains IPv6 zone ID
+    :rtype: bool
+    """
+    return bool(_IPV6_ZONE_ID_RE.search(url))
+
 
 def _urllib3_request_context(
     request: PreparedRequest,
@@ -90,9 +130,21 @@ def _urllib3_request_context(
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     host_params: dict[str, Any] = {}
     pool_kwargs: dict[str, Any] = {}
-    parsed_request_url = urlparse(request.url)
-    scheme = parsed_request_url.scheme.lower()
-    port = parsed_request_url.port
+
+    # Use urllib3's parse_url for IPv6 zone IDs, urlparse otherwise
+    if _has_ipv6_zone_id(request.url):
+        parsed_request_url = parse_url(request.url)
+        scheme = parsed_request_url.scheme.lower()
+        port = parsed_request_url.port
+        # parse_url uses .host and includes brackets for IPv6, strip them
+        hostname = parsed_request_url.host
+        if hostname and hostname.startswith("[") and hostname.endswith("]"):
+            hostname = hostname[1:-1]
+    else:
+        parsed_request_url = urlparse(request.url)
+        scheme = parsed_request_url.scheme.lower()
+        port = parsed_request_url.port
+        hostname = parsed_request_url.hostname  # urlparse uses .hostname
 
     cert_reqs = "CERT_REQUIRED"
     if verify is False:
@@ -113,7 +165,7 @@ def _urllib3_request_context(
             pool_kwargs["cert_file"] = client_cert
     host_params = {
         "scheme": scheme,
-        "host": parsed_request_url.hostname,
+        "host": hostname,
         "port": port,
     }
     return host_params, pool_kwargs
@@ -581,7 +633,10 @@ class HTTPAdapter(BaseAdapter):
         assert _is_prepared(request)
 
         proxy = select_proxy(request.url, proxies)
-        scheme = urlparse(request.url).scheme
+        if _has_ipv6_zone_id(request.url):
+            scheme = parse_url(request.url).scheme
+        else:
+            scheme = urlparse(request.url).scheme
 
         is_proxied_http_request = proxy and scheme != "https"
         using_socks_proxy = False
