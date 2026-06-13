@@ -1313,6 +1313,24 @@ class TestRequests:
         assert cookie.domain == domain
         assert cookie._rest["HttpOnly"] == rest["HttpOnly"]
 
+    def test_cookie_popitem(self):
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("some_cookie", "some_value")
+        jar.set("some_cookie1", "some_value1")
+
+        items = dict(jar.items())
+
+        name, value = jar.popitem()
+        assert (name, value) in items.items()
+        assert name not in jar
+        assert len(jar) == 1
+
+        jar.popitem()
+        assert len(jar) == 0
+
+        with pytest.raises(KeyError):
+            jar.popitem()
+
     def test_cookie_as_dict_keeps_len(self):
         key = "some_cookie"
         value = "some_value"
