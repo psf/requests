@@ -426,3 +426,26 @@ def test_json_decode_compatibility_for_alt_utf_encodings():
     assert isinstance(excinfo.value, requests.exceptions.RequestException)
     assert isinstance(excinfo.value, JSONDecodeError)
     assert r.text not in str(excinfo.value)
+
+
+def test_text_plain_without_charset_has_no_encoding():
+    """text/* without a charset parameter should not default to ISO-8859-1."""
+
+    def text_plain_response_handler(sock):
+        consume_socket_content(sock, timeout=0.5)
+        sock.send(
+            b"HTTP/1.1 200 OK\r\n"
+            b"Content-Type: text/plain\r\n"
+            b"Content-Length: 5\r\n\r\n"
+            b"hello"
+        )
+
+    close_server = threading.Event()
+    server = Server(text_plain_response_handler, wait_to_close_event=close_server)
+
+    with server as (host, port):
+        url = f"http://{host}:{port}/"
+        r = requests.get(url)
+    close_server.set()
+
+    assert r.encoding is None
