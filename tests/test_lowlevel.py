@@ -1,4 +1,5 @@
 import threading
+import time
 
 import pytest
 
@@ -57,6 +58,29 @@ def test_chunked_encoding_error():
         url = f"http://{host}:{port}/"
         with pytest.raises(requests.exceptions.ChunkedEncodingError):
             requests.get(url)
+        close_server.set()  # release server block
+
+
+def test_chunked_read_timeout():
+    """ReadTimeout is raised when a chunked response stalls."""
+
+    def slow_chunked_response_handler(sock):
+        consume_socket_content(sock, timeout=0.5)
+        sock.send(
+            b"HTTP/1.1 200 OK\r\n"
+            b"Content-Type: text/plain\r\n"
+            b"Transfer-Encoding: chunked\r\n"
+            b"\r\n"
+        )
+        time.sleep(5)
+
+    close_server = threading.Event()
+    server = Server(slow_chunked_response_handler)
+
+    with server as (host, port):
+        url = f"http://{host}:{port}/"
+        with pytest.raises(requests.exceptions.ReadTimeout):
+            requests.get(url, timeout=0.5)
         close_server.set()  # release server block
 
 
