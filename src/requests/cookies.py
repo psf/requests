@@ -307,11 +307,14 @@ class RequestsCookieJar(CookieJar, MutableMapping[str, str | None]):  # type: ig
         ``__iter__`` yields ``Cookie`` objects rather than names.
         """
         try:
-            name, value = next(self.iteritems())
+            cookie = next(iter(self))
         except StopIteration:
             raise KeyError("popitem(): cookie jar is empty") from None
-        del self[name]
-        return name, value
+        # Remove the exact cookie the iterator selected. Deleting by name alone
+        # (``del self[name]``) would drop every cookie sharing that name across
+        # other domains/paths, not just the one returned here.
+        self.clear(cookie.domain, cookie.path, cookie.name)
+        return cookie.name, cookie.value
 
     def list_domains(self) -> list[str]:
         """Utility method to list all the domains in the jar."""

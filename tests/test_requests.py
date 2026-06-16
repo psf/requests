@@ -1331,6 +1331,22 @@ class TestRequests:
         with pytest.raises(KeyError):
             jar.popitem()
 
+    def test_cookie_popitem_removes_only_the_selected_cookie(self):
+        # Two cookies share a name but live on different domains. popitem() must
+        # remove exactly the one it returns, not every cookie with that name.
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("dup", "value-a", domain="a.example.com", path="/")
+        jar.set("dup", "value-b", domain="b.example.com", path="/")
+        assert len(jar) == 2
+
+        name, value = jar.popitem()
+        assert name == "dup"
+        assert len(jar) == 1
+
+        remaining = next(iter(jar))
+        assert remaining.name == "dup"
+        assert {value, remaining.value} == {"value-a", "value-b"}
+
     def test_cookie_as_dict_keeps_len(self):
         key = "some_cookie"
         value = "some_value"
