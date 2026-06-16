@@ -988,7 +988,7 @@ def parse_header_links(value: str) -> list[dict[str, str]]:
 
         for param in params.split(";"):
             try:
-                key, value = param.split("=")
+                key, value = param.split("=", 1)
             except ValueError:
                 break
 

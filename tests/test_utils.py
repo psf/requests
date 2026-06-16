@@ -690,6 +690,12 @@ def test_iter_slices(value, length):
                 {"url": "http://.../back.jpeg"},
             ],
         ),
+        (
+            # A quoted parameter value may itself contain "=" (RFC 8288);
+            # it must be kept and must not drop the parameters after it.
+            '<http:/.../front.jpeg>; title="a=b"; rel="next"',
+            [{"url": "http:/.../front.jpeg", "title": "a=b", "rel": "next"}],
+        ),
         ("", []),
     ),
 )
