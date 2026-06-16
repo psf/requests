@@ -29,7 +29,7 @@ from requests.compat import (
     is_urllib3_1,
     urlparse,
 )
-from requests.cookies import cookiejar_from_dict, morsel_to_cookie
+from requests.cookies import cookiejar_from_dict, merge_cookies, morsel_to_cookie
 from requests.exceptions import (
     ChunkedEncodingError,
     ConnectionError,
@@ -421,6 +421,21 @@ class TestRequests:
         assert r.json()["cookies"]["foo"] == "baz"
         # Session cookie should not be modified
         assert s.cookies["foo"] == "bar"
+
+    def test_request_cookie_none_unsets_session_cookie(self):
+        s = requests.session()
+        s.cookies.update({"from-my": "browser"})
+        merged = merge_cookies(
+            merge_cookies(requests.cookies.RequestsCookieJar(), s.cookies),
+            {"another": "cookie", "from-my": None},
+        )
+        prep = PreparedRequest()
+        prep.prepare(
+            method="GET",
+            url="http://httpbin.org/cookies",
+            cookies=merged,
+        )
+        assert prep.headers["Cookie"] == "another=cookie"
 
     def test_request_cookies_not_persisted(self, httpbin):
         s = requests.session()
