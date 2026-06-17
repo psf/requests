@@ -139,6 +139,11 @@ class HTTPDigestAuth(AuthBase):
     def __init__(self, username: bytes, password: bytes) -> None: ...
 
     def __init__(self, username: bytes | str, password: bytes | str) -> None:
+        # Decode bytes to str for proper header formatting
+        if isinstance(username, bytes):
+            username = username.decode("utf-8")
+        if isinstance(password, bytes):
+            password = password.decode("utf-8")
         self.username = username
         self.password = password
         # Keep state in per-thread local storage
