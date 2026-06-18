@@ -78,6 +78,12 @@ def _basic_auth_str(username: bytes | str, password: bytes | str) -> str:
 class AuthBase:
     """Base class that all auth implementations derive from"""
 
+    def _encode_utf8(self, value):
+        """Encode a value to UTF-8 bytes if it's a string."""
+        if isinstance(value, str):
+            return value.encode("utf-8")
+        return value
+
     def __call__(self, r: PreparedRequest) -> PreparedRequest:
         raise NotImplementedError("Auth hooks must be callable.")
 
@@ -108,13 +114,28 @@ class HTTPBasicAuth(AuthBase):
     def __ne__(self, other: Any) -> bool:
         return not self == other
 
+    def _encode_utf8(self, value):
+        """Encode a value to UTF-8 bytes if it's a string."""
+        if isinstance(value, str):
+            return value.encode("utf-8")
+        return value
+
     def __call__(self, r: PreparedRequest) -> PreparedRequest:
-        r.headers["Authorization"] = _basic_auth_str(self.username, self.password)
+        r.headers["Authorization"] = _basic_auth_str(
+            self._encode_utf8(self.username),
+            self._encode_utf8(self.password)
+        )
         return r
 
 
 class HTTPProxyAuth(HTTPBasicAuth):
     """Attaches HTTP Proxy Authentication to a given Request object."""
+
+    def _encode_utf8(self, value):
+        """Encode a value to UTF-8 bytes if it's a string."""
+        if isinstance(value, str):
+            return value.encode("utf-8")
+        return value
 
     def __call__(self, r: PreparedRequest) -> PreparedRequest:
         r.headers["Proxy-Authorization"] = _basic_auth_str(self.username, self.password)
@@ -317,6 +338,12 @@ class HTTPDigestAuth(AuthBase):
 
         self._thread_local.num_401_calls = 1
         return r
+
+    def _encode_utf8(self, value):
+        """Encode a value to UTF-8 bytes if it's a string."""
+        if isinstance(value, str):
+            return value.encode("utf-8")
+        return value
 
     def __call__(self, r: PreparedRequest) -> PreparedRequest:
         # Initialize per-thread state, if needed
