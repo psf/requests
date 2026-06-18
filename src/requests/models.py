@@ -175,6 +175,8 @@ class RequestEncodingMixin:
                                 v.encode("utf-8") if isinstance(v, str) else v,
                             )
                         )
+            if not result:
+                return None
             return urlencode(result, doseq=True)
         else:
             return data  # type: ignore[return-value]  # unreachable for valid _t.DataType
