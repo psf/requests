@@ -736,6 +736,7 @@ class Response:
 
     _content: bytes | Literal[False] | None
     _content_consumed: bool
+    _content_error: BaseException | None
     _next: PreparedRequest | None
     status_code: int
     headers: CaseInsensitiveDict[str]
@@ -765,6 +766,7 @@ class Response:
     def __init__(self) -> None:
         self._content = False
         self._content_consumed = False
+        self._content_error = None
         self._next = None
 
         #: Integer Code of responded HTTP Status, e.g. 404 or 200.
@@ -1035,6 +1037,12 @@ class Response:
     def content(self) -> bytes:
         """Content of the response, in bytes."""
 
+        # If a previous read attempt failed, re-raise the same exception.
+        # This ensures consistent behaviour when accessing .content multiple
+        # times after a stream read error (e.g. in a debugger).
+        if self._content_error is not None:
+            raise self._content_error
+
         if self._content is False:
             # Read the contents.
             if self._content_consumed:
@@ -1043,7 +1051,11 @@ class Response:
             if self.status_code == 0 or self.raw is None:
                 self._content = None
             else:
-                self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+                try:
+                    self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+                except Exception as e:
+                    self._content_error = e
+                    raise
 
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3

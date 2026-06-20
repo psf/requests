@@ -426,3 +426,51 @@ def test_json_decode_compatibility_for_alt_utf_encodings():
     assert isinstance(excinfo.value, requests.exceptions.RequestException)
     assert isinstance(excinfo.value, JSONDecodeError)
     assert r.text not in str(excinfo.value)
+
+
+def test_response_content_retains_error():
+    """Accessing response.content after a stream read error should re-raise
+    the same exception, not return empty bytes or raise RuntimeError.
+
+    Regression test for https://github.com/psf/requests/issues/4965
+    """
+    from unittest.mock import MagicMock
+
+    r = requests.models.Response()
+    r.status_code = 200
+    r.raw = MagicMock()
+    r.raw.stream = MagicMock(side_effect=requests.exceptions.ConnectionError("connection reset"))
+
+    # First access should raise ConnectionError
+    with pytest.raises(requests.exceptions.ConnectionError):
+        _ = r.content
+
+    # Second access should raise the same ConnectionError, not b"" or RuntimeError
+    with pytest.raises(requests.exceptions.ConnectionError):
+        _ = r.content
+
+
+def test_response_content_retains_error_after_partial_read():
+    """If iter_content fails mid-stream, the error should still be retained."""
+    from unittest.mock import MagicMock
+
+    def failing_stream(chunk_size, decode_content=True):
+        yield b"partial data"
+        raise requests.exceptions.ChunkedEncodingError("Connection broken")
+
+    r = requests.models.Response()
+    r.status_code = 200
+    r.raw = MagicMock()
+    r.raw.stream = failing_stream
+
+    first_error = None
+    try:
+        _ = r.content
+    except Exception as e:
+        first_error = e
+        assert isinstance(e, requests.exceptions.ChunkedEncodingError)
+
+    # Second access should raise the same error type
+    assert first_error is not None
+    with pytest.raises(requests.exceptions.ChunkedEncodingError):
+        _ = r.content
