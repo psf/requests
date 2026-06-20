@@ -987,10 +987,14 @@ def parse_header_links(value: str) -> list[dict[str, str]]:
         link: dict[str, str] = {"url": url.strip("<> '\"")}
 
         for param in params.split(";"):
-            try:
-                key, value = param.split("=")
-            except ValueError:
-                break
+            if "=" not in param:
+                # Skip malformed params (e.g. trailing ';') but keep parsing
+                # the rest of the link parameters. The previous implementation
+                # used `break` here, which silently dropped every parameter
+                # that came after a malformed one — a server that emits a
+                # stray `;` between valid params would lose all of them.
+                continue
+            key, value = param.split("=", 1)
 
             link[key.strip(replace_chars)] = value.strip(replace_chars)
 

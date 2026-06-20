@@ -697,6 +697,19 @@ def test_parse_header_links(value, expected):
     assert parse_header_links(value) == expected
 
 
+def test_parse_header_links_param_without_equals_does_not_drop_later_params():
+    """A param without '=' should only skip itself, not drop later params.
+
+    Regression test: parse_header_links used to `break` on a malformed
+    parameter, which silently dropped every valid parameter that came
+    after it. Servers sometimes emit a stray ';' or attribute name without
+    a value (e.g. '<url>; rel=next; flag; title=hi'), and the caller
+    still wants `title` to come through.
+    """
+    result = parse_header_links('</page1>; rel="next"; flag; title=hi')
+    assert result == [{"url": "/page1", "rel": "next", "title": "hi"}]
+
+
 @pytest.mark.parametrize(
     "value, expected",
     (
