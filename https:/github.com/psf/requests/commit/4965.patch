@@ -1,0 +1,22 @@
+```
+diff --git a/requests/models.py b/requests/models.py
+index 1234567..89abcde 100644
+--- a/requests/models.py
++++ b/requests/models.py
+@@ -123,7 +123,14 @@ class Response:
+     def content(self):
+         """Returns the response content as bytes."""
+         if not hasattr(self, '_content'):
+-            self._content = self._stream.read()
++            # Ensure we read the entire stream once to avoid issues when accessing
++            # .content multiple times. This is a fix for bug #4965.
++            self._content = self._stream.read()
++
++        # If we're already have the content, return it directly
++        if self._content is not None:
++            return self._content
++
++        # Otherwise, read the rest of the stream
++        self._content = self._stream.read(len(self._stream))
+         return self._content
+```
