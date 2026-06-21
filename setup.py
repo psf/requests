@@ -6,4 +6,8 @@ if sys.version_info < (3, 10):  # noqa: UP036
 
 from setuptools import setup
 
-setup()
+setup(
+    install_requires=[
+        'requests>=2.28.1'
+    ]
+)
