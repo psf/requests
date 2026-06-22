@@ -683,10 +683,39 @@ def unquote_unreserved(uri: str) -> str:
 
     :rtype: str
     """
+    # Preserve percent-encoded sequences inside IPv6 address brackets.
+    # Per RFC 6874, the "%" in a zone ID (e.g. [fe80::1%25eth0]) is a
+    # delimiter, not a percent-encoding prefix.  After urllib3 decodes %25
+    # to "%", we must not interpret the resulting "%XX" as a percent-escape.
+    ipv6_regions: list[tuple[int, int]] = []
+    depth = 0
+    start = -1
+    for idx, ch in enumerate(uri):
+        if ch == "[":
+            if depth == 0:
+                start = idx
+            depth += 1
+        elif ch == "]" and depth > 0:
+            depth -= 1
+            if depth == 0 and start >= 0:
+                ipv6_regions.append((start, idx))
+                start = -1
+
+    def _in_ipv6(pos: int) -> bool:
+        return any(s <= pos <= e for s, e in ipv6_regions)
+
     parts = uri.split("%")
+    # Pre-compute the original position of each "%" separator using the
+    # *original* part lengths, before we mutate any elements.
+    percent_positions: list[int] = []
+    pos = len(parts[0])
+    for i in range(1, len(parts)):
+        percent_positions.append(pos)
+        pos += 1 + len(parts[i])
+
     for i in range(1, len(parts)):
         h = parts[i][0:2]
-        if len(h) == 2 and h.isalnum():
+        if len(h) == 2 and h.isalnum() and not _in_ipv6(percent_positions[i - 1]):
             try:
                 c = chr(int(h, 16))
             except ValueError:

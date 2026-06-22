@@ -506,10 +506,76 @@ def test_requote_uri_with_unquoted_percents(uri, expected):
             "http://example.com/?a=%300",
             "http://example.com/?a=00",
         ),
-    ),
+        ),
 )
 def test_unquote_unreserved(uri, expected):
     assert unquote_unreserved(uri) == expected
+
+
+@pytest.mark.parametrize(
+    "uri, expected",
+    (
+        (
+            # Double-digit zone ID (issue #6808)
+            "http://[fe80::be0f:a7ff:fe00:2929%53]/",
+            "http://[fe80::be0f:a7ff:fe00:2929%53]/",
+        ),
+        (
+            # Single-digit zone ID
+            "http://[fe80::1%9]/",
+            "http://[fe80::1%9]/",
+        ),
+        (
+            # Triple-digit zone ID
+            "http://[fe80::1%100]/",
+            "http://[fe80::1%100]/",
+        ),
+        (
+            # Zone ID with mixed hex (uppercase)
+            "http://[fe80::1%AB]/",
+            "http://[fe80::1%AB]/",
+        ),
+        (
+            # Unreserved chars outside brackets are still decoded
+            # %41 = 'A'
+            "http://example.com/%41lice",
+            "http://example.com/Alice",
+        ),
+    ),
+)
+def test_unquote_unreserved_ipv6_zone_id(uri, expected):
+    """Percent-encoded sequences inside IPv6 address brackets must be
+    preserved, because per RFC 6874 the '%' is a zone-ID delimiter, not a
+    percent-encoding prefix.
+
+    See: https://github.com/psf/requests/issues/6808
+    """
+    assert unquote_unreserved(uri) == expected
+
+
+@pytest.mark.parametrize(
+    "uri, expected",
+    (
+        (
+            # Double-digit zone ID (issue #6808) – full requote cycle
+            "http://[fe80::be0f:a7ff:fe00:2929%53]/",
+            "http://[fe80::be0f:a7ff:fe00:2929%53]/",
+        ),
+        (
+            # Zone ID with numeric value that happens to decode to an
+                       # unreserved character (%53 = 'S')
+            "http://[fe80::1%53]/",
+            "http://[fe80::1%53]/",
+        ),
+    ),
+)
+def test_requote_uri_ipv6_zone_id(uri, expected):
+    """requote_uri must not decode percent-encoded zone IDs inside IPv6
+    address brackets (RFC 6874).
+
+    See: https://github.com/psf/requests/issues/6808
+    """
+    assert requote_uri(uri) == expected
 
 
 @pytest.mark.parametrize(
