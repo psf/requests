@@ -31,6 +31,7 @@ from requests.utils import (
     iter_slices,
     parse_dict_header,
     parse_header_links,
+    parse_list_header,
     prepend_scheme_if_needed,
     requote_uri,
     select_proxy,
@@ -574,6 +575,21 @@ def test_select_proxies(url, expected, proxies):
 )
 def test_parse_dict_header(value, expected):
     assert parse_dict_header(value) == expected
+
+
+def test_parse_dict_header_bare_quote_value_not_unquoted():
+    # A single trailing quote is not a balanced quoted-string, so the value
+    # should be kept as-is (a bare quote).
+    assert parse_dict_header('foo="bar') == {"foo": '"bar'}
+
+
+def test_parse_list_header_bare_quote_item_not_unquoted():
+    # A single token that starts with one quote should be kept as a quoted item
+    # (the unquote step requires len(item) >= 2 with matching leading/trailing
+    # quotes; a single bare quote is not a balanced quoted-string).
+    assert parse_list_header('"') == ['"']
+    # And the same for a non-empty single-quote-prefixed token.
+    assert parse_list_header('"bar') == ['"bar']
 
 
 @pytest.mark.parametrize(
