@@ -9,7 +9,6 @@ requests.utils imports from here, so be careful with imports.
 
 from __future__ import annotations
 
-import calendar
 import copy
 import time
 from collections.abc import Iterator, MutableMapping
@@ -538,8 +537,9 @@ def morsel_to_cookie(morsel: Morsel[Any]) -> Cookie:
         except ValueError:
             raise TypeError(f"max-age: {morsel['max-age']} must be integer")
     elif morsel["expires"]:
-        time_template = "%a, %d-%b-%Y %H:%M:%S GMT"
-        expires = calendar.timegm(time.strptime(morsel["expires"], time_template))
+        expires = cookielib.http2time(morsel["expires"])
+        if expires is None:
+            raise ValueError(f"expires: {morsel['expires']} must be a valid HTTP date")
     return create_cookie(
         comment=morsel["comment"],
         comment_url=bool(morsel["comment"]),

@@ -10,6 +10,7 @@ import re
 import tempfile
 import threading
 import warnings
+from http.cookies import SimpleCookie
 from unittest import mock
 
 import pytest
@@ -2489,6 +2490,31 @@ class TestMorselToCookieExpires:
         morsel["expires"] = "Thu, 01-Jan-1970 00:00:01 GMT"
         cookie = morsel_to_cookie(morsel)
         assert cookie.expires == 1
+
+    def test_expires_valid_http_date(self):
+        """Test case where expires uses the common HTTP-date format."""
+
+        morsel = Morsel()
+        morsel["expires"] = "Wed, 21 Oct 2015 07:28:00 GMT"
+        cookie = morsel_to_cookie(morsel)
+        assert cookie.expires == 1445412480
+
+    def test_cookie_jar_update_accepts_http_date(self):
+        """Test RequestsCookieJar.update accepts HTTP-date Morsel expires."""
+
+        cookies = SimpleCookie()
+        cookies.load(
+            "auth_session=null; path=/; "
+            "expires=Thu, 01 Jan 1970 00:00:00 GMT; "
+            "httponly; samesite=strict"
+        )
+
+        jar = requests.cookies.RequestsCookieJar()
+        jar.update(cookies)
+
+        cookie = next(iter(jar))
+        assert cookie.name == "auth_session"
+        assert cookie.expires == 0
 
     @pytest.mark.parametrize(
         "value, exception",
