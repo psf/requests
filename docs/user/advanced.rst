@@ -1065,11 +1065,12 @@ you require more granularity, the streaming features of the library (see
 :ref:`streaming-requests`) allow you to retrieve smaller quantities of the
 response at a time. However, these calls will still block.
 
-If you are concerned about the use of blocking IO, there are lots of projects
-out there that combine Requests with one of Python's asynchronicity frameworks.
-Some excellent examples are `requests-threads`_, `grequests`_, `requests-futures`_, and `httpx`_.
+If you are concerned about the use of blocking IO, there are third-party
+projects that combine Requests with concurrency frameworks, and projects that
+provide async HTTP client APIs. Some examples are `gevent-requests`_,
+`grequests`_, `requests-futures`_, and `httpx`_.
 
-.. _`requests-threads`: https://github.com/requests/requests-threads
+.. _`gevent-requests`: https://pypi.org/project/gevent-requests/
 .. _`grequests`: https://github.com/spyoungtech/grequests
 .. _`requests-futures`: https://github.com/ross/requests-futures
 .. _`httpx`: https://github.com/encode/httpx
