@@ -19,4 +19,6 @@ jobs:
       with:
         python-version: "3.x"
     - name: Run pre-commit
-      uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0
+      run: |
+        python -m pip install pre-commit==4.6.0
+        pre-commit run --show-diff-on-failure --color=always --all-files
