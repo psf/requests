@@ -1075,13 +1075,10 @@ def get_auth_from_url(url: str) -> tuple[str, str]:
     """
     parsed = urlparse(url)
 
-    try:
-        # except handles parsed.username/password being None
-        auth = (unquote(parsed.username), unquote(parsed.password))  # type: ignore[arg-type]
-    except (AttributeError, TypeError):
-        auth = ("", "")
+    username = parsed.username or ""
+    password = parsed.password or ""
 
-    return auth
+    return (unquote(username), unquote(password))
 
 
 def check_header_validity(header: tuple[str | bytes, str | bytes]) -> None:

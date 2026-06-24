@@ -463,6 +463,14 @@ ENCODED_PASSWORD = compat.quote(PASSWORD, "")
             ("user%user", "pass"),
         ),
         (
+            "http://user@complex.url.com/path?query=yes",
+            ("user", ""),
+        ),
+        (
+            "http://user%25user@complex.url.com/path?query=yes",
+            ("user%user", ""),
+        ),
+        (
             "http://user:pass%23pass@complex.url.com/path?query=yes",
             ("user", "pass#pass"),
         ),
