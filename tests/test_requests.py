@@ -1347,6 +1347,13 @@ class TestRequests:
         assert remaining.name == "dup"
         assert {value, remaining.value} == {"value-a", "value-b"}
 
+    def test_cookie_popitem_on_empty_jar_raises_keyerror(self):
+        # popitem() on an empty jar must raise KeyError, matching dict.popitem()
+        # so downstream code that relies on that exception keeps working.
+        jar = requests.cookies.RequestsCookieJar()
+        with pytest.raises(KeyError):
+            jar.popitem()
+
     def test_cookie_as_dict_keeps_len(self):
         key = "some_cookie"
         value = "some_value"
