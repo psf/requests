@@ -3,7 +3,7 @@
 Recommended Packages and Extensions
 ===================================
 
-Requests has a great variety of powerful and useful third-party extensions.
+Requests has a wide variety of powerful and useful third-party extensions.
 This page provides an overview of some of the best of them.
 
 Certifi CA Bundle
@@ -38,7 +38,7 @@ requested by users within the community.
 Requests-Threads
 ----------------
 
-`Requests-Threads`_ is a Requests session that returns the amazing Twisted's awaitable Deferreds instead of Response objects. This allows the use of ``async``/``await`` keyword usage on Python 3, or Twisted's style of programming, if desired.
+`Requests-Threads`_ is a Requests session that returns the amazing Twisted's awaitable Deferreds instead of Response objects. This allows the use of ``async`` and ``await`` keyword usage on Python 3, or Twisted's style of programming, if desired.
 
 .. _Requests-Threads: https://github.com/requests/requests-threads
 
