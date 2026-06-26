@@ -18,33 +18,38 @@ _D = TypeVar("_D")
 
 
 class CaseInsensitiveDict(MutableMapping[str, _VT], Generic[_VT]):
-    """A case-insensitive ``dict``-like object.
+    """
+    A case-insensitive dict-like object.
 
-    Implements all methods and operations of
-    ``MutableMapping`` as well as dict's ``copy``. Also
-    provides ``lower_items``.
-
-    All keys are expected to be strings. The structure remembers the
-    case of the last key to be set, and ``iter(instance)``,
-    ``keys()``, ``items()``, ``iterkeys()``, and ``iteritems()``
-    will contain case-sensitive keys. However, querying and contains
-    testing is case insensitive::
-
-        cid = CaseInsensitiveDict()
-        cid['Accept'] = 'application/json'
-        cid['aCCEPT'] == 'application/json'  # True
-        list(cid) == ['Accept']  # True
-
-    For example, ``headers['content-encoding']`` will return the
-    value of a ``'Content-Encoding'`` response header, regardless
-    of how the header name was originally stored.
-
-    If the constructor, ``.update``, or equality comparison
-    operations are given keys that have equal ``.lower()``s, the
-    behavior is undefined.
+    The contract is that keys must be strings (or bytes that can be
+    decoded as utf-8 to a string). The dict-style methods
+    ``__setitem__``, ``__contains__``, ``__delitem__``, and ``__iter__``
+    used to call ``key.lower()`` without a type check, so passing a
+    non-string key produced a misleading ``AttributeError: 'int'
+    object has no attribute 'lower'`` rather than a clear ``TypeError``.
+    The new ``_validate_key`` helper is invoked at the boundary, so
+    callers now get ``TypeError: CaseInsensitiveDict keys must be
+    str (or bytes decodable as utf-8), not int`` at the call site.
     """
 
     _store: OrderedDict[str, tuple[str, _VT]]
+
+    @staticmethod
+    def _validate_key(key: Any) -> str:
+        if isinstance(key, str):
+            return key
+        if isinstance(key, bytes):
+            try:
+                return key.decode("utf-8")
+            except UnicodeDecodeError as exc:
+                raise TypeError(
+                    "CaseInsensitiveDict bytes keys must be decodable as utf-8, "
+                    f"got {key!r}"
+                ) from exc
+        raise TypeError(
+            "CaseInsensitiveDict keys must be str (or bytes decodable as utf-8),"
+            f" not {type(key).__name__}: {key!r}"
+        )
 
     def __init__(
         self,
@@ -59,13 +64,25 @@ class CaseInsensitiveDict(MutableMapping[str, _VT], Generic[_VT]):
     def __setitem__(self, key: str, value: _VT) -> None:
         # Use the lowercased key for lookups, but store the actual
         # key alongside the value.
+        key = self._validate_key(key)
         self._store[key.lower()] = (key, value)
 
     def __getitem__(self, key: str) -> _VT:
+        key = self._validate_key(key)
         return self._store[key.lower()][1]
 
     def __delitem__(self, key: str) -> None:
+        key = self._validate_key(key)
         del self._store[key.lower()]
+
+    def __contains__(self, key: object) -> bool:  # type: ignore[override]
+        if not isinstance(key, (str, bytes)):
+            return False
+        try:
+            key = self._validate_key(key)
+        except TypeError:
+            return False
+        return key.lower() in self._store
 
     def __iter__(self) -> Iterator[str]:
         return (casedkey for casedkey, _ in self._store.values())
@@ -79,11 +96,20 @@ class CaseInsensitiveDict(MutableMapping[str, _VT], Generic[_VT]):
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Mapping):
-            other_dict: CaseInsensitiveDict[Any] = CaseInsensitiveDict(other)  # type: ignore[reportUnknownArgumentType]
-        else:
-            return NotImplemented
-        # Compare insensitively
-        return dict(self.lower_items()) == dict(other_dict.lower_items())
+            try:
+                other_dict: CaseInsensitiveDict[Any] = CaseInsensitiveDict(other)  # type: ignore[reportUnknownArgumentType]
+            except TypeError:
+                # `other` is a Mapping whose keys are not strings (e.g.
+                # ``{1: 'one'}``). CaseInsensitiveDict rejects non-string
+                # keys with a TypeError, but the __eq__ contract requires
+                # us to return NotImplemented for any value we cannot
+                # compare against so Python can fall back to the
+                # right-hand operand and ultimately produce False rather
+                # than propagating an exception.
+                return NotImplemented
+            # Compare insensitively
+            return dict(self.lower_items()) == dict(other_dict.lower_items())
+        return NotImplemented
 
     # Copy is required
     def copy(self) -> CaseInsensitiveDict[_VT]:
