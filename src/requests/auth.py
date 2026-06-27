@@ -159,6 +159,9 @@ class HTTPDigestAuth(AuthBase):
         :rtype: str
         """
 
+        username = self.username.decode("utf-8") if isinstance(self.username, bytes) else self.username
+        password = self.password.decode("utf-8") if isinstance(self.password, bytes) else self.password
+
         realm = self._thread_local.chal["realm"]
         nonce = self._thread_local.chal["nonce"]
         qop = self._thread_local.chal.get("qop")
@@ -218,7 +221,7 @@ class HTTPDigestAuth(AuthBase):
         if p_parsed.query:
             path += f"?{p_parsed.query}"
 
-        A1 = f"{self.username}:{realm}:{self.password}"
+        A1 = f"{username}:{realm}:{password}"
         A2 = f"{method}:{path}"
 
         HA1 = hash_utf8(A1)
@@ -251,7 +254,7 @@ class HTTPDigestAuth(AuthBase):
 
         # XXX should the partial digests be encoded too?
         base = (
-            f'username="{self.username}", realm="{realm}", nonce="{nonce}", '
+            f'username="{username}", realm="{realm}", nonce="{nonce}", '
             f'uri="{path}", response="{respdig}"'
         )
         if opaque:
