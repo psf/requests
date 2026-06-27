@@ -426,3 +426,24 @@ def test_json_decode_compatibility_for_alt_utf_encodings():
     assert isinstance(excinfo.value, requests.exceptions.RequestException)
     assert isinstance(excinfo.value, JSONDecodeError)
     assert r.text not in str(excinfo.value)
+
+
+def test_response_content_retains_error():
+    """Accessing response.content twice should re-raise the same error
+    instead of returning empty bytes. Regression test for #4965."""
+
+    class FaultyRaw:
+        def stream(self, chunk_size, decode_content=True):
+            yield b"some data"
+            raise requests.exceptions.ChunkedEncodingError("incomplete chunked read")
+
+    response = requests.Response()
+    response.status_code = 200
+    response.raw = FaultyRaw()
+
+    with pytest.raises(requests.exceptions.ChunkedEncodingError):
+        response.content
+
+    # Second access must re-raise, not return empty bytes
+    with pytest.raises(requests.exceptions.ChunkedEncodingError):
+        response.content
