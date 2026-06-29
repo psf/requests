@@ -549,6 +549,21 @@ to hang indefinitely::
     not time out.
 
 
+
+If no timeout is specified explicitly, requests do not time out.
+
+.. note::
+
+   A timeout can also be specified as a tuple ``(connect_timeout, read_timeout)``
+   to set separate limits for establishing the connection and waiting for the
+   server to send data.
+
+   For example::
+
+      >>> requests.get('https://github.com/', timeout=(3.05, 27))
+
+
+
 Errors and Exceptions
 ---------------------
 
