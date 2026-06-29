@@ -408,6 +408,25 @@ class TestRequests:
         s.get(httpbin('cookies/set?foo="bar:baz"'))
         assert s.cookies["foo"] == '"bar:baz"'
 
+    def test_cookie_quote_escaped(self):
+        """RFC 6265: DQUOTE wrapping stripped, backslash-escaped quotes unescaped."""
+        from http.cookiejar import Cookie
+        from requests.cookies import RequestsCookieJar
+
+        jar = RequestsCookieJar()
+        # Wire value:  Set-Cookie: foo="bar\"baz"
+        # cookielib parses this as Cookie(name='foo', value='"bar\\"baz"')
+        cookie = Cookie(
+            version=0, name="foo", value='"bar\\"baz"',
+            port=None, domain="", path="/", secure=False,
+            expires=None, discard=True, comment=None, comment_url=None,
+            rest={"HttpOnly": None}, rfc2109=False,
+            port_specified=False, domain_specified=False,
+            domain_initial_dot=False, path_specified=True,
+        )
+        jar.set_cookie(cookie)
+        assert jar["foo"] == 'bar"baz'
+
     def test_cookie_persists_via_api(self, httpbin):
         s = requests.session()
         r = s.get(httpbin("redirect/1"), cookies={"foo": "bar"})
