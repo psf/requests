@@ -2544,7 +2544,9 @@ class TestTimeout:
         "timeout, error_text",
         (
             ((3, 4, 5), "(connect, read)"),
-            ("foo", "must be an int, float or None"),
+            ("foo", "Pass a (connect, read) timeout tuple"),
+            (True, "Pass a (connect, read) timeout tuple"),
+            (False, "Pass a (connect, read) timeout tuple"),
         ),
     )
     def test_invalid_timeout(self, httpbin, timeout, error_text):
