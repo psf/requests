@@ -17,7 +17,7 @@ from base64 import b64encode
 from typing import TYPE_CHECKING, Any, Final, cast, overload
 
 from ._internal_utils import to_native_string
-from .compat import basestring, str, urlparse
+from .compat import basestring, str, urlparse, urlsplit
 from .cookies import extract_cookies_to_jar
 from .utils import parse_dict_header
 
@@ -212,7 +212,17 @@ class HTTPDigestAuth(AuthBase):
 
         # XXX not implemented yet
         entdig = None
-        p_parsed = urlparse(url)
+        # Use urlsplit() rather than urlparse(): urlsplit() does not split
+        # on ``;`` inside the path, so the path returned for a URL like
+        # ``https://api.example.org/c/release1;release2`` is the whole
+        # ``/c/release1;release2`` string instead of the truncated
+        # ``/c/release1`` that urlparse() returns. The ``;`` characters are
+        # legitimate path characters in RFC 3986 (a sub-delim) and have
+        # never had the special "parameter" meaning that html forms
+        # attached to ``;`` in the path; including them in the path is
+        # what RFC 7616 says the Effective Request URI for Digest auth
+        # should contain. See psf/requests#6990.
+        p_parsed = urlsplit(url)
         #: path is request-uri defined in RFC 2616 which should not be empty
         path = p_parsed.path or "/"
         if p_parsed.query:

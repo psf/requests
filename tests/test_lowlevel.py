@@ -426,3 +426,67 @@ def test_json_decode_compatibility_for_alt_utf_encodings():
     assert isinstance(excinfo.value, requests.exceptions.RequestException)
     assert isinstance(excinfo.value, JSONDecodeError)
     assert r.text not in str(excinfo.value)
+
+
+def test_digestauth_uri_includes_semicolon_path():
+    """Regression test for psf/requests#6990.
+
+    A semicolon in the request path (e.g. a MusicBrainz multi-resource URL
+    like ``/releases/a;b?fmt=json``) was stripped by ``urlparse`` when
+    computing the digest ``uri`` field, because ``urlparse`` treats
+    ``;path`` as the start of a path parameter. The correct Effective
+    Request URI per RFC 7616 must include the semicolon and the rest of
+    the path up to the query.
+    """
+    text_401 = (b'HTTP/1.1 401 UNAUTHORIZED\r\n'
+                b'Content-Length: 0\r\n'
+                b'WWW-Authenticate: Digest nonce="6bf5d6e4da1ce66918800195d6b9130d"'
+                b', opaque="372825293d1c26955496c80ed6426e9e", '
+                b'realm="me@kennethreitz.com", qop=auth\r\n\r\n')
+    text_200 = b'HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n'
+
+    auth = requests.auth.HTTPDigestAuth('user', 'pass')
+    path = '/ws/2/collection/abc/releases/p1;p2?fmt=json'
+    expected_uri = path  # the URI in the Authorization header
+
+    captured = []
+
+    def handler(sock):
+        # First request: respond with 401 challenge.
+        consume_socket_content(sock, timeout=0.5)
+        sock.send(text_401)
+        # Second request (the authed one): capture and assert, then 200.
+        authed = consume_socket_content(sock, timeout=0.5)
+        captured.append(authed)
+        sock.send(text_200)
+
+    close_server = threading.Event()
+    server = Server(handler, wait_to_close_event=close_server)
+
+    with server as (host, port):
+        url = f'http://{host}:{port}{path}'
+        r = requests.put(url, auth=auth)
+        assert r.status_code == 200
+        close_server.set()
+
+    assert captured, "server did not capture the authenticated request"
+    auth_header = b'uri="' + expected_uri.encode('ascii') + b'"'
+    assert auth_header in captured[0], (
+        f"expected Authorization header to include uri={expected_uri!r}, "
+        f"got: {captured[0]!r}"
+    )
+
+
+def test_digestauth_uri_strips_path_parameters_when_called_via_urlparse():
+    """Sanity test for the urlsplit() choice in HTTPDigestAuth.
+
+    Using urlparse (the prior implementation) drops everything from the
+    first ';' in the path; urlsplit preserves it. This test guards the
+    choice so a future refactor doesn't regress to urlparse.
+    """
+    from requests.compat import urlparse, urlsplit
+    path_with_params = '/ws/2/collection/abc/releases/p1;p2?fmt=json'
+    # urlparse loses the ';p2' portion
+    assert urlparse(path_with_params).path == '/ws/2/collection/abc/releases/p1'
+    # urlsplit keeps it
+    assert urlsplit(path_with_params).path == '/ws/2/collection/abc/releases/p1;p2'
