@@ -251,6 +251,97 @@ during local development or testing.
 
 By default, ``verify`` is set to True. Option ``verify`` only applies to host certs.
 
+Security Implications of Disabling SSL Verification (``verify=False``)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Man-in-the-middle (MitM) attacks are a form of active eavesdropping in which the attacker
+  intercepts or impersonates the server, especially on public networks.
+
+- Data exposure, where all data transmitted over the network can be intercepted and read by the
+  attacker. This includes sensitive information such as login credentials, personal data and
+  financial information.
+
+- Regulatory and compliance issues with regulations like SOC 2 and GDPR regarding data security
+  and privacy. Disabling SSL verification can lead to non-compliance with these regulations,
+  resulting in legal consequences and reputational damage.
+
+When ``verify=False`` may be useful
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Local development on localhost with a self-signed certificate. Never use ``verify=False`` in
+  production or with sensitive data.
+
+- Testing against a server with a self-signed certificate.
+
+- Internal or isolated networks where you control both the server and the client.
+
+- Short-term debugging of an issue with an endpoint, to isolate the problem without worrying
+  about SSL verification.
+
+Even in these cases, it's recommended to pass the path to the certificate for validation instead
+of disabling SSL verification. ``verify='/path/to/certfile'`` is better because it allows you to
+validate the server's certificate against a known trusted certificate, providing a higher level of
+security than disabling verification entirely.
+
+Troubleshooting SSL Verification Errors
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Common causes:
+
+1. Outdated or missing CA certificates on the client machine.
+
+2. Self-signed or untrusted server certificate.
+
+3. Incorrect system time or date on the client machine.
+
+4. Firewall or proxy intercepting SSL traffic and presenting its own certificate.
+
+5. Old Python version or OpenSSL library that does not support modern TLS protocols.
+
+Debugging steps:
+
+1. Read the full error message. ``SSLError`` usually names the underlying cause, such as
+   ``self signed certificate``, ``CERTIFICATE_VERIFY_FAILED``, ``certificate has expired``
+   or ``hostname ... doesn't match``.
+
+2. Use OpenSSL to inspect the certificate the server presents::
+
+    $ openssl s_client -connect example.com:443 -servername example.com
+
+   Look at the returned certificate chain and the ``Verify return code`` line at the end.
+   ``Verify return code: 0 (ok)`` means the chain is trusted. A non-zero code identifies
+   the problem, for example::
+
+    Verify return code: 18 (self signed certificate)
+
+3. Ensure the system time and date are correct on the client machine. Expired-certificate
+   errors are often caused by an incorrect clock.
+
+4. Confirm your CA certificates are current and update them on the client machine::
+
+    $ python -m pip install --upgrade certifi
+
+   Once updated, you can use the path to the updated CA bundle in your requests::
+
+    >>> import requests
+    >>> import certifi
+    >>> response = requests.get('https://kennethreitz.org', verify=certifi.where())
+    >>> print(response.status_code)
+    200
+
+5. If the server uses a self-signed or privately signed certificate, download it and save it
+   locally (usually in ``.crt`` or ``.pem`` format) then pass the path to ``verify``::
+
+    >>> import requests
+    >>> requests.get('https://kennethreitz.org', verify='/path/to/server.crt')
+
+6. Upgrade your Python version and OpenSSL library to support modern TLS protocols.
+
+7. If you are behind a corporate firewall or proxy, check with your IT department to see if they
+   are intercepting SSL traffic and presenting their own certificate. You may need to install the
+   proxy's certificate on your client machine or configure your requests to trust the proxy's
+   certificate by passing its path to ``verify``.
+
 Client Side Certificates
 ------------------------
 
