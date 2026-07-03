@@ -128,13 +128,17 @@ def _urllib3_request_context(
     client_cert: tuple[str, str] | str | None,
     poolmanager: PoolManager,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
+    assert _is_prepared(request)
+
     host_params: dict[str, Any] = {}
     pool_kwargs: dict[str, Any] = {}
 
     # Use urllib3's parse_url for IPv6 zone IDs, urlparse otherwise
     if _has_ipv6_zone_id(request.url):
         parsed_request_url = parse_url(request.url)
-        scheme = parsed_request_url.scheme.lower()
+        # The zone ID regex only matches URLs containing "://", so a scheme
+        # is always present at runtime; the fallback is for the type checker.
+        scheme = (parsed_request_url.scheme or "").lower()
         port = parsed_request_url.port
         # parse_url uses .host and includes brackets for IPv6, strip them
         hostname = parsed_request_url.host
