@@ -254,51 +254,78 @@ By default, ``verify`` is set to True. Option ``verify`` only applies to host ce
 Security Implications of Disabling SSL Verification (``verify=False``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Man-in-the-middle (MitM) attacks are a form of active eavesdropping in which the attacker
-  intercepts or impersonates the server, especially on public networks.
+- Man-in-the-middle (MitM) attacks are a form of active eavesdropping
+  in which the attacker intercepts or impersonates the server, especially
+  on public networks.
 
-- Data exposure, where all data transmitted over the network can be intercepted and read by the
-  attacker. This includes sensitive information such as login credentials, personal data and
-  financial information.
+- Data exposure, where all data transmitted over the network can be
+  intercepted and read by the attacker. This includes sensitive information
+  such as login credentials, personal data and financial information.
 
-- Regulatory and compliance issues with regulations like SOC 2 and GDPR regarding data security
-  and privacy. Disabling SSL verification can lead to non-compliance with these regulations,
-  resulting in legal consequences and reputational damage.
+- Regulatory and compliance issues with regulations like SOC 2 and
+  GDPR regarding data security and privacy. Disabling SSL verification
+  can lead to non-compliance with these regulations, resulting in legal
+  consequences and reputational damage.
 
 When ``verify=False`` may be useful
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Local development on localhost with a self-signed certificate. Never use ``verify=False`` in
-  production or with sensitive data.
+- Local development on localhost with a self-signed certificate. Never use
+  ``verify=False`` in production or with sensitive data.
 
 - Testing against a server with a self-signed certificate.
 
-- Internal or isolated networks where you control both the server and the client.
+- Internal or isolated networks where you control both the server
+  and the client.
 
-- Short-term debugging of an issue with an endpoint, to isolate the problem without worrying
-  about SSL verification.
+- Short-term debugging of an issue with an endpoint, to isolate the problem
+  without worrying about SSL verification.
 
-Even in these cases, it's recommended to pass the path to the certificate for validation instead
-of disabling SSL verification. ``verify='/path/to/certfile'`` is better because it allows you to
-validate the server's certificate against a known trusted certificate, providing a higher level of
-security than disabling verification entirely.
+  Even in these cases, it's recommended to pass the path to the certificate
+  for validation instead of disabling SSL verification.
+  ``verify='/path/to/certfile'`` is better because it allows you to
+  validate the server's certificate against a known trusted certificate,
+  providing a higher level of security than disabling verification entirely.
 
 Troubleshooting SSL Verification Errors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Common causes:
 
-1. Outdated or missing CA certificates on the client machine.
+- Outdated or missing CA certificates on the client machine.
+  Requests trust the CAs shipped by the ``certifi`` package, which
+  may be old or may not include the CA that signed the server's certificate.
 
-2. Self-signed or untrusted server certificate.
+- Self-signed certificate where Python will fail to verify unless manually
+  configured in development or staging environment. This should be avoided in
+  production environments, and a CA-signed certificate should be used instead.
 
-3. Incorrect system time or date on the client machine.
+- Time synchronization issues. Incorrect system time or date on the client
+  machine or server may cause verification failures.
 
-4. Firewall or proxy intercepting SSL traffic and presenting its own certificate.
+- Firewall or proxy intercepting SSL traffic and presenting its own certificate
+  will trigger verification errors unless the proxy's certificate is installed on
+  the client machine or configured to be trusted.
 
-5. Old Python version or OpenSSL library that does not support modern TLS protocols.
+- Incomplete certificate chain where the server does not provide the full chain of
+  trust, causing verification failures. The server should be configured to provide the
+  full certificate chain.
 
-Debugging steps:
+- Old Python version or OpenSSL library that does not support modern TLS protocols.
+
+- An expired certificate on the server. The server's certificate may have expired,
+  causing verification failures.
+
+- Hostname mismatch where the server's certificate does not match the hostname being
+  accessed. This can happen if the server is misconfigured or if a different hostname is
+  used to access the server.This may look like this::
+
+    requests.exceptions.SSLError: hostname 'kennethreitz.org' doesn't match either of 'kennethreitz.com', 'kennethreitz.net'.
+
+
+
+Diagnosing the problem can be done by following these steps:
+
 
 1. Read the full error message. ``SSLError`` usually names the underlying cause, such as
    ``self signed certificate``, ``CERTIFICATE_VERIFY_FAILED``, ``certificate has expired``
@@ -306,7 +333,7 @@ Debugging steps:
 
 2. Use OpenSSL to inspect the certificate the server presents::
 
-    $ openssl s_client -connect example.com:443 -servername example.com
+    $ openssl s_client -connect kennethreitz.org:443 -servername kennethreitz.org
 
    Look at the returned certificate chain and the ``Verify return code`` line at the end.
    ``Verify return code: 0 (ok)`` means the chain is trusted. A non-zero code identifies
@@ -314,14 +341,21 @@ Debugging steps:
 
     Verify return code: 18 (self signed certificate)
 
-3. Ensure the system time and date are correct on the client machine. Expired-certificate
-   errors are often caused by an incorrect clock.
+3. Ensure the system time and date are correct on the client machine and server. A certificate is usually valid for a specific time period, and
+   time synchronization issues can cause verification failures. Error messages may be ``SSL Certificate is not yet valid``,
+   ``SSL Certificate has expired``, ``NET::ERR_CERT_DATE_INVALID``, and ``SEC_ERROR_EXPIRED_CERTIFICATE``.
+   These error messages indicate that the certificate is not valid due to the validity period. If the clocks are okay then the certificate may
+   have expired and needs to be renewed.
 
-4. Confirm your CA certificates are current and update them on the client machine::
 
-    $ python -m pip install --upgrade certifi
+Once you know an error has occurred, it can be resolved by following these steps:
 
-   Once updated, you can use the path to the updated CA bundle in your requests::
+
+1. Update your CA bundle since this is a common issue::
+
+        $ python -m pip install --upgrade certifi
+
+   ::
 
     >>> import requests
     >>> import certifi
@@ -329,18 +363,39 @@ Debugging steps:
     >>> print(response.status_code)
     200
 
-5. If the server uses a self-signed or privately signed certificate, download it and save it
-   locally (usually in ``.crt`` or ``.pem`` format) then pass the path to ``verify``::
+2. If the server uses a self-signed or privately signed certificate, download it and save it
+   locally (usually in ``.crt`` or ``.pem`` format) then pass the path to ``verify`` instead of
+   disabling verification::
 
-    >>> import requests
-    >>> requests.get('https://kennethreitz.org', verify='/path/to/server.crt')
+        >>> import requests
+        >>> requests.get('https://kennethreitz.org', verify='/path/to/server.crt')
 
-6. Upgrade your Python version and OpenSSL library to support modern TLS protocols.
+   You can also trust this certificate by adding it to your system's trusted CA store, or by using
+   the ``REQUESTS_CA_BUNDLE`` environment variable to point to a custom CA bundle that includes the server's certificate.
 
-7. If you are behind a corporate firewall or proxy, check with your IT department to see if they
+
+3. Upgrade your Python version and OpenSSL library to support modern TLS protocols producing handshake failures that resemble certification verification errors.
+   For example, TLSv1.0 and TLSv1.1 are deprecated and may not be supported by the server, causing handshake failures.
+
+4. Correct the system clock if diagnosis pointed to time synchronization issues and the certificate is not actually expired.
+   The best fix is to sync the machine's time automatically instead of setting it by hand::
+
+            #Linux
+            $ sudo apt install ntp
+            $ sudo timedatectl set-ntp true
+
+            #macOS
+            $ sudo sntp -sS time.apple.com
+
+            #Windows (requires admin privileges and automatic time sync enabled)
+            >w32tm /resync
+
+   You can retry the request after correcting the system clock to see if the SSL verification error is resolved.
+
+5. If you are behind a corporate firewall or proxy, check with your IT department to see if they
    are intercepting SSL traffic and presenting their own certificate. You may need to install the
    proxy's certificate on your client machine or configure your requests to trust the proxy's
-   certificate by passing its path to ``verify``.
+   certificate by passing its path to ``verify``. This has been demonstrated in step 2. Look at :ref:`proxies`.
 
 Client Side Certificates
 ------------------------
