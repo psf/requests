@@ -731,11 +731,43 @@ def address_in_network(ip: str, net: str) -> bool:
 
     :rtype: bool
     """
-    ipaddr = struct.unpack("=L", socket.inet_aton(ip))[0]
-    netaddr, bits = net.split("/")
-    netmask = struct.unpack("=L", socket.inet_aton(dotted_netmask(int(bits))))[0]
-    network = struct.unpack("=L", socket.inet_aton(netaddr))[0] & netmask
-    return (ipaddr & netmask) == (network & netmask)
+    # Validate the CIDR is well-formed before unpacking; a missing '/' made
+    # `net.split("/")` raise ValueError("not enough values to unpack")
+    # and a negative or >32 prefix made the dotted_netmask call below
+    # raise a confusing ValueError about a "negative shift count". Both
+    # cases surfaced to the user as a stack trace from inside the helper
+    # instead of an explicit error mentioning the bad CIDR.
+    if "/" not in net:
+        raise ValueError(
+            f"network {net!r} is not a valid CIDR: expected '<addr>/<bits>'"
+        )
+    try:
+        netaddr, bits = net.split("/")
+        prefix = int(bits)
+    except ValueError as exc:
+        raise ValueError(
+            f"network {net!r} is not a valid CIDR: bits component is not an integer"
+        ) from exc
+    if not 0 <= prefix <= 32:
+        raise ValueError(
+            f"network {net!r} has invalid prefix length /{prefix}: "
+            "must be between 0 and 32"
+        )
+    try:
+        ipaddr = struct.unpack("=L", socket.inet_aton(ip))[0]
+        netmask_int = struct.unpack(
+            "=L", socket.inet_aton(dotted_netmask(prefix))
+        )[0]
+        network_int = struct.unpack("=L", socket.inet_aton(netaddr))[0] & netmask_int
+    except OSError as exc:
+        # inet_aton raises OSError("illegal IP address string passed to
+        # inet_aton") for non-IPv4 input. Re-raise with the offending
+        # value so the caller's stack trace points at the bad input
+        # rather than a bare C-level error.
+        raise ValueError(
+            f"network {net!r} or ip {ip!r} is not a valid IPv4 address: {exc}"
+        ) from exc
+    return (ipaddr & netmask_int) == (network_int & netmask_int)
 
 
 def dotted_netmask(mask: int) -> str:
@@ -745,6 +777,20 @@ def dotted_netmask(mask: int) -> str:
 
     :rtype: str
     """
+    # The previous implementation raised `ValueError: negative shift
+    # count` for mask > 32 (because `1 << 32 - mask` underflows once
+    # the shift count goes negative) and `struct.error: 'I' format
+    # requires 0 <= number <= 4294967295` for mask < 0. Both are leaky
+    # C-level errors. Validate the range up front so the failure mode
+    # is an explicit ValueError naming the bad input.
+    if not isinstance(mask, int) or isinstance(mask, bool):
+        raise TypeError(
+            f"mask must be an int between 0 and 32, got {type(mask).__name__}: {mask!r}"
+        )
+    if not 0 <= mask <= 32:
+        raise ValueError(
+            f"mask {mask} is out of range: must be between 0 and 32"
+        )
     bits = 0xFFFFFFFF ^ (1 << 32 - mask) - 1
     return socket.inet_ntoa(struct.pack(">I", bits))
 

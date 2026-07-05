@@ -316,6 +316,47 @@ class TestAddressInNetwork:
     def test_invalid(self):
         assert not address_in_network("172.16.0.1", "192.168.1.0/24")
 
+    def test_missing_slash_in_cidr(self):
+        with pytest.raises(ValueError, match="CIDR"):
+            address_in_network("192.168.1.1", "192.168.1.0")
+
+    def test_non_integer_prefix(self):
+        with pytest.raises(ValueError, match="not an integer"):
+            address_in_network("192.168.1.1", "192.168.1.0/abc")
+
+    def test_prefix_above_32(self):
+        with pytest.raises(ValueError, match="/33"):
+            address_in_network("192.168.1.1", "192.168.1.0/33")
+
+    def test_negative_prefix(self):
+        with pytest.raises(ValueError, match="prefix length"):
+            address_in_network("192.168.1.1", "192.168.1.0/-1")
+
+    def test_invalid_ip(self):
+        with pytest.raises(ValueError, match="not.a.valid"):
+            address_in_network("not.an.ip", "192.168.1.0/24")
+
+    def test_invalid_net_address(self):
+        with pytest.raises(ValueError, match="not.a.valid"):
+            address_in_network("192.168.1.1", "not.a.net/24")
+
+
+class TestDottedNetmask:
+    def test_in_range(self):
+        assert dotted_netmask(24) == "255.255.255.0"
+
+    def test_above_32_raises_value_error(self):
+        with pytest.raises(ValueError, match="out of range"):
+            dotted_netmask(33)
+
+    def test_negative_raises_value_error(self):
+        with pytest.raises(ValueError, match="out of range"):
+            dotted_netmask(-1)
+
+    def test_non_int_raises_type_error(self):
+        with pytest.raises(TypeError):
+            dotted_netmask("24")
+
 
 class TestGuessFilename:
     @pytest.mark.parametrize(
