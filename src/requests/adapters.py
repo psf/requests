@@ -8,6 +8,7 @@ and maintain connections.
 
 from __future__ import annotations
 
+import errno
 import os.path
 import socket  # noqa: F401
 import typing
@@ -353,13 +354,16 @@ class HTTPAdapter(BaseAdapter):
                 conn.cert_file = cert
                 conn.key_file = None
             if conn.cert_file and not os.path.exists(conn.cert_file):
-                raise OSError(
-                    f"Could not find the TLS certificate file, "
-                    f"invalid path: {conn.cert_file}"
+                raise FileNotFoundError(
+                    os.strerror(errno.ENOENT),
+                    "Could not find the TLS certificate file, invalid path",
+                    conn.cert_file,
                 )
             if conn.key_file and not os.path.exists(conn.key_file):
-                raise OSError(
-                    f"Could not find the TLS key file, invalid path: {conn.key_file}"
+                raise FileNotFoundError(
+                    os.strerror(errno.ENOENT),
+                    "Could not find the TLS key file, invalid path",
+                    conn.key_file,
                 )
 
     def build_response(self, req: PreparedRequest, resp: Any) -> Response:
