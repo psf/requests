@@ -166,6 +166,19 @@ class HTTPDigestAuth(AuthBase):
         opaque = self._thread_local.chal.get("opaque")
         hash_utf8 = None
 
+        # Ensure username and password are strings for digest calculation.
+        # If bytes, decode using UTF-8.
+        username = (
+            self.username
+            if isinstance(self.username, str)
+            else self.username.decode("utf-8")
+        )
+        password = (
+            self.password
+            if isinstance(self.password, str)
+            else self.password.decode("utf-8")
+        )
+
         if algorithm is None:
             _algorithm = "MD5"
         else:
@@ -218,7 +231,7 @@ class HTTPDigestAuth(AuthBase):
         if p_parsed.query:
             path += f"?{p_parsed.query}"
 
-        A1 = f"{self.username}:{realm}:{self.password}"
+        A1 = f"{username}:{realm}:{password}"
         A2 = f"{method}:{path}"
 
         HA1 = hash_utf8(A1)
@@ -251,7 +264,7 @@ class HTTPDigestAuth(AuthBase):
 
         # XXX should the partial digests be encoded too?
         base = (
-            f'username="{self.username}", realm="{realm}", nonce="{nonce}", '
+            f'username="{username}", realm="{realm}", nonce="{nonce}", '
             f'uri="{path}", response="{respdig}"'
         )
         if opaque:
