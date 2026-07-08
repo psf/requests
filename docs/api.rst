@@ -131,6 +131,22 @@ API Changes
       r = requests.get('https://api.github.com/events')
       r.json()   # This *call* raises an exception if JSON decoding fails
 
+  Requests also supports the newer ``QUERY`` method for safe requests with a
+  body when you need to send more complex search parameters than fit well in a
+  URL.
+
+  ::
+
+     payload = {
+        "keywords": ["http", "query", "method"],
+        "filters": {
+           "dateFrom": "2024-01-01",
+           "dateTo": "2024-12-31",
+        },
+     }
+     r = requests.query('https://api.example.com/search', json=payload)
+     r.json()
+
 * The ``Session`` API has changed. Sessions objects no longer take parameters.
   ``Session`` is also now capitalized, but it can still be
   instantiated with a lowercase ``session`` for backwards compatibility.

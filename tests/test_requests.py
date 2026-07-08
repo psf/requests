@@ -87,14 +87,50 @@ class TestRequests:
     def test_entry_points(self):
         requests.session
         requests.session().get
+        requests.session().query
         requests.session().head
         requests.get
+        requests.query
         requests.head
         requests.put
         requests.patch
         requests.post
         # Not really an entry point, but people rely on it.
         from requests.packages.urllib3.poolmanager import PoolManager  # noqa:F401
+
+    def test_query_method_dispatch(self):
+        with mock.patch("requests.api.request", return_value=mock.Mock()) as request_mock:
+            requests.query(
+                "https://example.com/search",
+                params={"q": "requests"},
+                data={"filter": "recent"},
+            )
+
+        request_mock.assert_called_once_with(
+            "query",
+            "https://example.com/search",
+            params={"q": "requests"},
+            data={"filter": "recent"},
+            json=None,
+        )
+
+    def test_session_query_method_dispatch(self):
+        session = requests.Session()
+        with mock.patch.object(session, "request", return_value=mock.Mock()) as request_mock:
+            session.query(
+                "https://example.com/search",
+                params={"q": "requests"},
+                data={"filter": "recent"},
+            )
+
+        request_mock.assert_called_once_with(
+            "QUERY",
+            "https://example.com/search",
+            params={"q": "requests"},
+            data={"filter": "recent"},
+            json=None,
+            allow_redirects=True,
+        )
 
     @pytest.mark.parametrize(
         "exception, url",
