@@ -111,7 +111,6 @@ class TestRequests:
             "https://example.com/search",
             params={"q": "requests"},
             data={"filter": "recent"},
-            json=None,
         )
 
     def test_session_query_method_dispatch(self):
@@ -128,7 +127,6 @@ class TestRequests:
             "https://example.com/search",
             params={"q": "requests"},
             data={"filter": "recent"},
-            json=None,
             allow_redirects=True,
         )
 

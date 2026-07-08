@@ -673,25 +673,16 @@ class Session(SessionRedirectMixin):
     def query(
         self,
         url: _t.UriType,
-        params: _t.ParamsType = None,
-        data: _t.DataType = None,
-        json: _t.JsonType = None,
         **kwargs: Unpack[_t.RequestKwargs],
     ) -> Response:
         r"""Sends a QUERY request. Returns :class:`Response` object.
 
-        :param url: URL for the new :class:`Request` object.
-        :param params: (optional) Dictionary, list of tuples or bytes to send
-            in the query string for the :class:`Request`.
-        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
-            object to send in the body of the :class:`Request`.
-        :param json: (optional) json to send in the body of the :class:`Request`.
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
 
         kwargs.setdefault("allow_redirects", True)
-        return self.request("QUERY", url, params=params, data=data, json=json, **kwargs)
+        return self.request("QUERY", url, **kwargs)
 
     def options(self, url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]) -> Response:
         r"""Sends a OPTIONS request. Returns :class:`Response` object.
