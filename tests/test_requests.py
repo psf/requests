@@ -1440,6 +1440,30 @@ class TestRequests:
         jar.set_policy(MyCookiePolicy())
         assert isinstance(jar.copy().get_policy(), MyCookiePolicy)
 
+    def test_prepare_request_preserves_session_cookie_policy(self):
+        # https://github.com/psf/requests/issues/7122
+        # A custom CookiePolicy set on the session jar must survive the
+        # merge performed in Session.prepare_request, otherwise callers who
+        # override the default policy (e.g. to allow secure cookies on
+        # localhost) silently fall back to DefaultCookiePolicy.
+
+        class MyCookiePolicy(cookielib.DefaultCookiePolicy):
+            pass
+
+        session = requests.Session()
+        session.cookies.set_policy(MyCookiePolicy())
+        assert isinstance(session.cookies.get_policy(), MyCookiePolicy)
+
+        # prepare_request should not reset the policy on the session jar,
+        # and the per-request cookie jar it builds must carry the same
+        # policy forward so the resulting request honours it.
+        req = requests.Request("GET", "http://example.com/")
+        prepared = session.prepare_request(req)
+        assert isinstance(prepared._cookies, cookielib.CookieJar)
+        assert isinstance(prepared._cookies.get_policy(), MyCookiePolicy)
+        # And the session jar itself is unchanged after the merge.
+        assert isinstance(session.cookies.get_policy(), MyCookiePolicy)
+
     def test_time_elapsed_blank(self, httpbin):
         r = requests.get(httpbin("get"))
         td = r.elapsed
