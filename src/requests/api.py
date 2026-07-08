@@ -92,7 +92,7 @@ def query(
     params: _t.ParamsType = None,
     data: _t.DataType = None,
     json: _t.JsonType = None,
-    **kwargs: Unpack[_t.QueryKwargs],
+    **kwargs: Unpack[_t.RequestKwargs],
 ) -> Response:
     r"""Sends a QUERY request.
 

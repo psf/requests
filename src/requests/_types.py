@@ -174,13 +174,6 @@ if TYPE_CHECKING:
         data: DataType
         json: JsonType
 
-    class QueryKwargs(BaseRequestKwargs, total=False):
-        """kwargs for query()."""
-
-        params: ParamsType
-        data: DataType
-        json: JsonType
-
     class GetKwargs(BaseRequestKwargs, total=False):
         data: DataType
         json: JsonType
