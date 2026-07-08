@@ -51,10 +51,10 @@ def _basic_auth_str(username: bytes | str, password: bytes | str) -> str:
         )
         username = str(username)
 
-    if not isinstance(password, basestring):  # runtime guard for non-str/bytes
+    if not isinstance(password, basestring):  # type: ignore[reportUnnecessaryIsInstance]  # runtime guard for non-str/bytes
         warnings.warn(
             "Non-string passwords will no longer be supported in Requests "
-            f"3.0.0. Please convert the object you've passed in ({type(password)!r}) to "
+            f"3.0.0. Please convert the object you've passed in ({password!r}) to "
             "a string or bytes object in the near future to avoid "
             "problems.",
             category=DeprecationWarning,

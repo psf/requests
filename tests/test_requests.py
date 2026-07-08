@@ -2150,6 +2150,25 @@ class TestRequests:
         assert isinstance(s, builtin_str)
         assert s == auth_str
 
+    def test_basic_auth_str_deprecation_warning_surfaces_offending_value(self):
+        """Ensure the non-string deprecation warning surfaces the actual offending
+        value (not its type) for both username and password. Pin the regression so
+        future refactors don't accidentally fall back to `type(x)`.
+        """
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            _basic_auth_str(42, 99)
+            # Two warnings fire: one for the int username, one for the int
+            # password. Both must embed the actual offending value (not its
+            # type), so the user can tell at a glance which one to fix.
+            assert len(w) == 2
+            for record in w:
+                assert issubclass(record.category, DeprecationWarning)
+            messages = [str(record.message) for record in w]
+            assert any("42" in m for m in messages)
+            assert any("99" in m for m in messages)
+            assert not any("<class 'int'>" in m for m in messages)
+
     def test_requests_history_is_saved(self, httpbin):
         r = requests.get(httpbin("redirect/5"))
         total = r.history[-1].history
