@@ -5,6 +5,9 @@ dev
 ---
 
 - \[Short description of non-trivial change.\]
+- `HTTPDigestAuth` now accepts `bytes` credentials, decoding them as UTF-8,
+  so non-latin usernames and passwords produce a correct `Authorization`
+  header instead of the bytes repr. (#6102)
 
 
 2.34.2 (2026-05-14)

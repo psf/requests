@@ -745,6 +745,28 @@ class TestRequests:
             os.environ["NETRC"] = old_netrc
             os.unlink(netrc_file)
 
+    def test_DIGEST_AUTH_ACCEPTS_BYTES_CREDENTIALS(self):
+        """Bytes credentials are decoded as UTF-8 for the digest header.
+
+        Regression test for #6102: passing bytes (as older advice suggested
+        for non-latin credentials) rendered the bytes repr into the header,
+        e.g. ``username="b'Ond\\xc5\\x99ej'"``.
+        """
+        challenge = {"realm": "test", "nonce": "abc123", "qop": "auth"}
+
+        str_auth = HTTPDigestAuth("Ondřej", "heslíčko")
+        str_auth.init_per_thread_state()
+        str_auth._thread_local.chal = dict(challenge)
+        str_header = str_auth.build_digest_header("GET", "http://example.org/")
+
+        bytes_auth = HTTPDigestAuth("Ondřej".encode(), "heslíčko".encode())
+        bytes_auth.init_per_thread_state()
+        bytes_auth._thread_local.chal = dict(challenge)
+        bytes_header = bytes_auth.build_digest_header("GET", "http://example.org/")
+
+        assert 'username="Ondřej"' in str_header
+        assert 'username="Ondřej"' in bytes_header
+
     def test_DIGEST_HTTP_200_OK_GET(self, httpbin):
         for authtype in self.digest_auth_algo:
             auth = HTTPDigestAuth("user", "pass")

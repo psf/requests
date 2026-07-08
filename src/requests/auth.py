@@ -166,6 +166,16 @@ class HTTPDigestAuth(AuthBase):
         opaque = self._thread_local.chal.get("opaque")
         hash_utf8 = None
 
+        # Accept bytes credentials by decoding them as UTF-8. Embedding bytes
+        # directly in the header via an f-string would render their repr
+        # (e.g. ``username="b'Ond\xc5\x99ej'"``) and hash the wrong value.
+        username = self.username
+        password = self.password
+        if isinstance(username, bytes):
+            username = username.decode("utf-8")
+        if isinstance(password, bytes):
+            password = password.decode("utf-8")
+
         if algorithm is None:
             _algorithm = "MD5"
         else:
@@ -218,7 +228,7 @@ class HTTPDigestAuth(AuthBase):
         if p_parsed.query:
             path += f"?{p_parsed.query}"
 
-        A1 = f"{self.username}:{realm}:{self.password}"
+        A1 = f"{username}:{realm}:{password}"
         A2 = f"{method}:{path}"
 
         HA1 = hash_utf8(A1)
@@ -251,7 +261,7 @@ class HTTPDigestAuth(AuthBase):
 
         # XXX should the partial digests be encoded too?
         base = (
-            f'username="{self.username}", realm="{realm}", nonce="{nonce}", '
+            f'username="{username}", realm="{realm}", nonce="{nonce}", '
             f'uri="{path}", response="{respdig}"'
         )
         if opaque:
