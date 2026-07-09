@@ -168,7 +168,7 @@ from .__version__ import (
     __url__,
     __version__,
 )
-from .api import delete, get, head, options, patch, post, put, request
+from .api import delete, get, head, options, patch, post, put, query, request
 from .exceptions import (
     ConnectionError,
     ConnectTimeout,
@@ -211,6 +211,7 @@ __all__ = (
     "request",
     "session",
     "utils",
+    "query"
 )
 
 logging.getLogger(__name__).addHandler(NullHandler())

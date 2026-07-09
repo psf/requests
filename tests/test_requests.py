@@ -88,11 +88,13 @@ class TestRequests:
         requests.session
         requests.session().get
         requests.session().head
+        requests.session().query
         requests.get
         requests.head
         requests.put
         requests.patch
         requests.post
+        requests.query
         # Not really an entry point, but people rely on it.
         from requests.packages.urllib3.poolmanager import PoolManager  # noqa:F401
 
@@ -126,17 +128,18 @@ class TestRequests:
         req = requests.Request(method, httpbin(method.lower())).prepare()
         assert "Content-Length" not in req.headers
 
-    @pytest.mark.parametrize("method", ("POST", "PUT", "PATCH", "OPTIONS"))
+    @pytest.mark.parametrize("method", ("POST", "PUT", "PATCH", "OPTIONS", "QUERY"))
     def test_no_body_content_length(self, httpbin, method):
         req = requests.Request(method, httpbin(method.lower())).prepare()
         assert req.headers["Content-Length"] == "0"
 
-    @pytest.mark.parametrize("method", ("POST", "PUT", "PATCH", "OPTIONS"))
+    @pytest.mark.parametrize("method", ("POST", "PUT", "PATCH", "OPTIONS", "QUERY"))
     def test_empty_content_length(self, httpbin, method):
         req = requests.Request(method, httpbin(method.lower()), data="").prepare()
         assert req.headers["Content-Length"] == "0"
 
-    def test_override_content_length(self, httpbin):
+    @pytest.mark.parametrize("method", ("POST", "PUT", "PATCH", "OPTIONS", "QUERY"))
+    def test_override_content_length(self, httpbin, method):
         headers = {"Content-Length": "not zero"}
         r = requests.Request("POST", httpbin("post"), headers=headers).prepare()
         assert "Content-Length" in r.headers
@@ -184,6 +187,12 @@ class TestRequests:
     def test_binary_put(self):
         request = requests.Request(
             "PUT", "http://example.com", data="ööö".encode()
+        ).prepare()
+        assert isinstance(request.body, bytes)
+
+    def test_binary_query(self):
+        request = requests.Request(
+            "QUERY", "http://example.com", data="ööö".encode()
         ).prepare()
         assert isinstance(request.body, bytes)
 
@@ -319,20 +328,10 @@ class TestRequests:
 
     def test_header_and_body_removal_on_redirect(self, httpbin):
         purged_headers = ("Content-Length", "Content-Type")
-        ses = requests.Session()
-        req = requests.Request("POST", httpbin("post"), data={"test": "data"})
-        prep = ses.prepare_request(req)
-        resp = ses.send(prep)
-
-        # Mimic a redirect response
-        resp.status_code = 302
-        resp.headers["location"] = "get"
-
-        # Run request through resolve_redirects
-        next_resp = next(ses.resolve_redirects(resp, prep))
-        assert next_resp.request.body is None
+        resp = requests.post(httpbin("redirect-to?url=post&status_code=302"), data={"test": "data"})
+        assert resp.request.body is None
         for header in purged_headers:
-            assert header not in next_resp.request.headers
+            assert header not in resp.request.headers
 
     def test_transfer_enc_removal_on_redirect(self, httpbin):
         purged_headers = ("Transfer-Encoding", "Content-Type")
@@ -2326,6 +2325,59 @@ class TestRequests:
         assert r.history[1].status_code == 200
         assert not r.history[1].is_redirect
         assert r.url == urls_test[2]
+
+    def test_http_307_allow_redirect_query(self, httpbin):
+        r = requests.query(
+            httpbin("redirect-to"),
+            data="test",
+            params={"url": "anything", "status_code": 307}
+        )
+        assert r.status_code == 200
+        assert r.request.method == "QUERY"
+        assert r.history[0].status_code == 307
+        assert r.history[0].is_redirect
+        assert r.json()["data"] == "test"
+
+    def test_http_308_allow_redirect_query(self, httpbin):
+        r = requests.query(
+            httpbin("redirect-to"),
+            data="test",
+            params={"url": "anything", "status_code": 307}
+        )
+        assert r.status_code == 200
+        assert r.request.method == "QUERY"
+        assert r.history[0].status_code == 307
+        assert r.history[0].is_redirect
+        assert r.json()["data"] == "test"
+    
+
+    @pytest.mark.parametrize("status_code", [301, 302, 307, 308])
+    def test_header_and_body_not_removed_on_redirect_query(self, httpbin, status_code):
+        """
+        As per RFC-10008 Section 2.5 Redirection, redirects keep headers and body (except 303).
+        See: https://datatracker.ietf.org/doc/html/rfc10008#name-redirection
+        """
+        required_headers = ("Content-Length", "Content-Type")
+        r = requests.query(httpbin(f"redirect-to?url=anything/&status_code={status_code}"), data={"test": "data"})
+
+        assert r.request.body == "test=data"
+        assert r.request.method == "QUERY"
+        for header in required_headers:
+            assert header in r.request.headers
+
+    def test_header_and_body_removed_on_303_query(self, httpbin):
+        """
+        As per RFC-10008 Section 2.5 Redirection, 303 redirects turns into GET requests. 
+        See: https://datatracker.ietf.org/doc/html/rfc10008#name-redirection
+        """
+        purged_headers = ("Content-Length", "Content-Type")
+        r = requests.query(httpbin(f"redirect-to?url=anything&status_code={303}"), data={"test": "data"})
+
+        assert r.request.body is None
+        assert r.request.method == "GET"
+        assert r.request.url == httpbin("anything")
+        for header in purged_headers:
+            assert header not in r.request.headers
 
 
 class TestCaseInsensitiveDict:

@@ -10,6 +10,12 @@ import threading
 import pytest
 
 from requests.compat import urljoin
+from tests.monkeypatch_httpbin import allow_query_method
+
+
+def pytest_configure(config):
+    from httpbin import app
+    allow_query_method(app)
 
 
 def prepare_url(value):

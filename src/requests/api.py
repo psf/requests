@@ -26,7 +26,7 @@ def request(
 ) -> Response:
     """Constructs and sends a :class:`Request <Request>`.
 
-    :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
+    :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, ``DELETE`` or ``QUERY``.
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary, list of tuples or bytes to send
         in the query string for the :class:`Request`.
@@ -178,3 +178,18 @@ def delete(url: _t.UriType, **kwargs: Unpack[_t.RequestKwargs]) -> Response:
     """
 
     return request("delete", url, **kwargs)
+
+
+def query(url: _t.UriType, data: _t.DataType = None, json: _t.JsonType = None, **kwargs: Unpack[_t.QueryKwargs]) -> Response:
+    r"""Sends a QUERY request.
+
+    :param url: URL for the new :class:`Request` object.
+    :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+        object to send in the body of the :class:`Request`.
+    :param json: (optional) A JSON serializable Python object to send in the body of the :class:`Request`.
+    :param \*\*kwargs: Optional arguments that ``request`` takes.
+    :return: :class:`Response <Response>` object
+    :rtype: requests.Response
+    """
+
+    return request("query", url, data=data, json=json, **kwargs)

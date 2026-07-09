@@ -250,7 +250,7 @@ class SessionRedirectMixin:
             if resp.status_code not in (
                 codes.temporary_redirect,
                 codes.permanent_redirect,
-            ):
+            ) and prepared_request.method != "QUERY": #
                 # https://github.com/psf/requests/issues/3490
                 purged_headers = ("Content-Length", "Content-Type", "Transfer-Encoding")
                 for header in purged_headers:
@@ -375,13 +375,16 @@ class SessionRedirectMixin:
         """
         method = prepared_request.method
 
-        # https://tools.ietf.org/html/rfc7231#section-6.4.4
+        # see https://tools.ietf.org/html/rfc7231#section-6.4.4
+        # also see: https://datatracker.ietf.org/doc/html/rfc10008#name-redirection
+
+        # "303: See Other" should always be turned into GET:
         if response.status_code == codes.see_other and method != "HEAD":
             method = "GET"
 
         # Do what the browsers do, despite standards...
-        # First, turn 302s into GETs.
-        if response.status_code == codes.found and method != "HEAD":
+        # First, turn 302s into GETs (Except HEAD and QUERY).
+        if response.status_code == codes.found and method not in ["HEAD", "QUERY"]:
             method = "GET"
 
         # Second, if a POST is responded to with a 301, turn it into a GET.
@@ -748,6 +751,25 @@ class Session(SessionRedirectMixin):
         """
 
         return self.request("DELETE", url, **kwargs)
+
+    def query(
+        self,
+        url: _t.UriType,
+        data: _t.DataType = None,
+        json: _t.JsonType = None,
+        **kwargs: Unpack[_t.QueryKwargs],
+    ) -> Response:
+        r"""Sends a QUERY request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+            object to send in the body of the :class:`Request`.
+        :param json: (optional) json to send in the body of the :class:`Request`.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
+        """
+
+        return self.request("QUERY", url, data=data, json=json, **kwargs)
 
     def send(self, request: PreparedRequest, **kwargs: Any) -> Response:
         """Send a given PreparedRequest.

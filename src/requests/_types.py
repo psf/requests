@@ -186,3 +186,6 @@ if TYPE_CHECKING:
 
         params: ParamsType
         json: JsonType
+
+    class QueryKwargs(BaseRequestKwargs, total=False):
+        params: ParamsType
