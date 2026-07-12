@@ -644,6 +644,7 @@ def test__parse_content_type_header(value, expected):
             CaseInsensitiveDict({"content-type": "application/json; charset=utf-8"}),
             "utf-8",
         ),
+        (CaseInsensitiveDict({"content-type": "Application/JSON"}), "utf-8"),
         (CaseInsensitiveDict({"content-type": "text/plain"}), "ISO-8859-1"),
         (
             CaseInsensitiveDict({"content-type": "text/html; charset"}),
