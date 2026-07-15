@@ -802,7 +802,7 @@ class Session(SessionRedirectMixin):
         if allow_redirects:
             # Redirect resolving generator.
             gen = self.resolve_redirects(r, request, **kwargs)
-            history = [resp for resp in gen]
+            history = list(gen)
         else:
             history = []
 
