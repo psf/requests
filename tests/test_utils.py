@@ -696,6 +696,12 @@ def test_iter_slices(value, length):
             '<http:/.../front.jpeg>; title="a=b"; rel="next"',
             [{"url": "http:/.../front.jpeg", "title": "a=b", "rel": "next"}],
         ),
+        (
+            # Quoted parameter values may contain both "=" and ";"; separators
+            # inside the quoted string must not create another parameter.
+            '<http:/.../front.jpeg>; title="a=b;c"; rel="next"',
+            [{"url": "http:/.../front.jpeg", "title": "a=b;c", "rel": "next"}],
+        ),
         ("", []),
     ),
 )
