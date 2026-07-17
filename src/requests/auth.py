@@ -14,7 +14,7 @@ import threading
 import time
 import warnings
 from base64 import b64encode
-from typing import TYPE_CHECKING, Any, Final, cast, overload
+from typing import TYPE_CHECKING, Any, Callable, Final, cast, overload
 
 from ._internal_utils import to_native_string
 from .compat import basestring, str, urlparse
@@ -29,6 +29,9 @@ if TYPE_CHECKING:
 
 CONTENT_TYPE_FORM_URLENCODED: Final = "application/x-www-form-urlencoded"
 CONTENT_TYPE_MULTI_PART: Final = "multipart/form-data"
+
+# Compiled once at import time instead of on every handle_401() call.
+_DIGEST_SCHEME_RE: Final = re.compile(r"digest ", flags=re.IGNORECASE)
 
 
 def _basic_auth_str(username: bytes | str, password: bytes | str) -> str:
@@ -121,6 +124,53 @@ class HTTPProxyAuth(HTTPBasicAuth):
         return r
 
 
+# Digest-auth hash helpers.
+#
+# These used to be defined as nested closures *inside*
+# HTTPDigestAuth.build_digest_header(), which meant four new function
+# objects were allocated on every single call (i.e. on every digest-auth
+# request/retry). They are pure functions of their input, so they are
+# hoisted to module scope and built exactly once at import time, then
+# looked up from a dict instead of re-created and re-branched into with
+# a chain of if/elif every call.
+
+
+
+def _md5_utf8(x: str | bytes) -> str:
+    if isinstance(x, str):
+        x = x.encode("utf-8")
+    return hashlib.md5(x, usedforsecurity=False).hexdigest()
+
+
+def _sha_utf8(x: str | bytes) -> str:
+    if isinstance(x, str):
+        x = x.encode("utf-8")
+    return hashlib.sha1(x, usedforsecurity=False).hexdigest()
+
+
+def _sha256_utf8(x: str | bytes) -> str:
+    if isinstance(x, str):
+        x = x.encode("utf-8")
+    return hashlib.sha256(x, usedforsecurity=False).hexdigest()
+
+
+def _sha512_utf8(x: str | bytes) -> str:
+    if isinstance(x, str):
+        x = x.encode("utf-8")
+    return hashlib.sha512(x, usedforsecurity=False).hexdigest()
+
+
+# Same algorithm-name -> hash-function mapping the original if/elif chain
+# encoded, just precomputed once.
+_DIGEST_HASH_FUNCS: Final[dict[str, Callable[[str | bytes], str]]] = {
+    "MD5": _md5_utf8,
+    "MD5-SESS": _md5_utf8,
+    "SHA": _sha_utf8,
+    "SHA-256": _sha256_utf8,
+    "SHA-512": _sha512_utf8,
+}
+
+
 class HTTPDigestAuth(AuthBase):
     """Attaches HTTP Digest Authentication to the given Request object."""
 
@@ -164,45 +214,15 @@ class HTTPDigestAuth(AuthBase):
         qop = self._thread_local.chal.get("qop")
         algorithm = self._thread_local.chal.get("algorithm")
         opaque = self._thread_local.chal.get("opaque")
-        hash_utf8 = None
 
         if algorithm is None:
             _algorithm = "MD5"
         else:
             _algorithm = algorithm.upper()
-        # lambdas assume digest modules are imported at the top level
-        if _algorithm == "MD5" or _algorithm == "MD5-SESS":
 
-            def md5_utf8(x: str | bytes) -> str:
-                if isinstance(x, str):
-                    x = x.encode("utf-8")
-                return hashlib.md5(x, usedforsecurity=False).hexdigest()
-
-            hash_utf8 = md5_utf8
-        elif _algorithm == "SHA":
-
-            def sha_utf8(x: str | bytes) -> str:
-                if isinstance(x, str):
-                    x = x.encode("utf-8")
-                return hashlib.sha1(x, usedforsecurity=False).hexdigest()
-
-            hash_utf8 = sha_utf8
-        elif _algorithm == "SHA-256":
-
-            def sha256_utf8(x: str | bytes) -> str:
-                if isinstance(x, str):
-                    x = x.encode("utf-8")
-                return hashlib.sha256(x, usedforsecurity=False).hexdigest()
-
-            hash_utf8 = sha256_utf8
-        elif _algorithm == "SHA-512":
-
-            def sha512_utf8(x: str | bytes) -> str:
-                if isinstance(x, str):
-                    x = x.encode("utf-8")
-                return hashlib.sha512(x, usedforsecurity=False).hexdigest()
-
-            hash_utf8 = sha512_utf8
+        # Single dict lookup instead of allocating four closures and
+        # branching through an if/elif chain on every call.
+        hash_utf8 = _DIGEST_HASH_FUNCS.get(_algorithm)
 
         if hash_utf8 is None:
             return None
@@ -229,10 +249,18 @@ class HTTPDigestAuth(AuthBase):
         else:
             self._thread_local.nonce_count = 1
         ncvalue = f"{self._thread_local.nonce_count:08x}"
-        s = str(self._thread_local.nonce_count).encode("utf-8")
-        s += nonce.encode("utf-8")
-        s += time.ctime().encode("utf-8")
-        s += os.urandom(8)
+
+        # Build the cnonce seed with a single join instead of four
+        # successive += concatenations (each of which previously
+        # allocated a new bytes object).
+        s = b"".join(
+            (
+                str(self._thread_local.nonce_count).encode("utf-8"),
+                nonce.encode("utf-8"),
+                time.ctime().encode("utf-8"),
+                os.urandom(8),
+            )
+        )
 
         cnonce = hashlib.sha1(s, usedforsecurity=False).hexdigest()[:16]
         if _algorithm == "MD5-SESS":
@@ -292,8 +320,11 @@ class HTTPDigestAuth(AuthBase):
 
         if "digest" in s_auth.lower() and self._thread_local.num_401_calls < 2:
             self._thread_local.num_401_calls += 1
-            pat = re.compile(r"digest ", flags=re.IGNORECASE)
-            self._thread_local.chal = parse_dict_header(pat.sub("", s_auth, count=1))
+            # Regex is now a module-level constant (_DIGEST_SCHEME_RE)
+            # instead of being recompiled on every 401 handled.
+            self._thread_local.chal = parse_dict_header(
+                _DIGEST_SCHEME_RE.sub("", s_auth, count=1)
+            )
 
             # Consume content and release the original connection
             # to allow our new request to reuse the same one.
