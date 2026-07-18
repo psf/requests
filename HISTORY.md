@@ -4,7 +4,9 @@ Release History
 dev
 ---
 
-- \[Short description of non-trivial change.\]
+- Accessing `Response.content` again after it raised an error (e.g.
+  `ChunkedEncodingError` from an incomplete chunked read) now re-raises
+  that error instead of silently returning empty content. (#4965)
 
 
 2.34.2 (2026-05-14)

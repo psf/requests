@@ -2248,6 +2248,47 @@ class TestRequests:
         resp.close()
         assert resp.raw.closed
 
+    def test_response_content_retains_error(self):
+        """Accessing .content a second time after a streaming error must
+        re-raise, not silently return empty content.
+
+        Regression test for
+        https://github.com/psf/requests/issues/4965
+        """
+        from urllib3.exceptions import ProtocolError
+
+        class FakeRaw:
+            """Simulates urllib3's HTTPResponse.stream() failing partway
+            through, e.g. due to an incomplete chunked response. A
+            second call to .stream() simulates the now-dead connection
+            simply yielding no further data, without raising again --
+            this is what happens with a real urllib3 connection, and is
+            what caused .content to silently return b'' previously."""
+
+            def __init__(self):
+                self._called = False
+
+            def stream(self, chunk_size, decode_content=True):
+                if not self._called:
+                    self._called = True
+                    yield b"partial data"
+                    raise ProtocolError(
+                        "Connection broken: incomplete chunked read"
+                    )
+                return
+                yield  # pragma: no cover - makes this a generator function
+
+        r = requests.Response()
+        r.status_code = 200
+        r.raw = FakeRaw()
+
+        with pytest.raises(requests.exceptions.ChunkedEncodingError):
+            r.content
+
+        # Previously, this silently returned b"" instead of raising.
+        with pytest.raises(requests.exceptions.ChunkedEncodingError):
+            r.content
+
     def test_empty_stream_with_auth_does_not_set_content_length_header(self, httpbin):
         """Ensure that a byte stream with size 0 will not set both a Content-Length
         and Transfer-Encoding header.
