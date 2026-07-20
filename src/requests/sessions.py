@@ -67,10 +67,7 @@ if TYPE_CHECKING:
     from .adapters import BaseAdapter
 
 # Preferred clock, based on which one is more accurate on a given system.
-if sys.platform == "win32":
-    preferred_clock = time.perf_counter
-else:
-    preferred_clock = time.time
+preferred_clock = time.perf_counter
 
 
 def merge_setting(

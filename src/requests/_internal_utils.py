@@ -44,8 +44,4 @@ def unicode_is_ascii(u_string: str) -> bool:
     :rtype: bool
     """
     assert isinstance(u_string, str)
-    try:
-        u_string.encode("ascii")
-        return True
-    except UnicodeEncodeError:
-        return False
+    return u_string.isascii()

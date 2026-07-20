@@ -593,7 +593,7 @@ def cookiejar_from_dict(
         cookiejar = RequestsCookieJar()
 
     if cookie_dict is not None:
-        names_from_jar = [cookie.name for cookie in cookiejar]
+        names_from_jar = {cookie.name for cookie in cookiejar}
         for name in cookie_dict:
             if overwrite or (name not in names_from_jar):
                 cookiejar.set_cookie(create_cookie(name, cookie_dict[name]))

@@ -930,7 +930,7 @@ def resolve_proxies(
     new_proxies = proxies.copy()
 
     if trust_env and not should_bypass_proxies(url, no_proxy=no_proxy):
-        environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
+        environ_proxies = getproxies()
 
         proxy = environ_proxies.get(scheme, environ_proxies.get("all"))
 
