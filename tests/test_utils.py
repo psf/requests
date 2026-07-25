@@ -702,6 +702,22 @@ def test_iter_slices(value, length):
             '<http:/.../front.jpeg>; title="a=b;c"; rel="next"',
             [{"url": "http:/.../front.jpeg", "title": "a=b;c", "rel": "next"}],
         ),
+        (
+            # A quoted parameter value may contain "," immediately followed by
+            # "<" (RFC 8288 quoted-strings may contain commas); this must not
+            # be mistaken for the separator between two link entries.
+            '<http:/.../front.jpeg>; title="a,<b"; rel="next"',
+            [{"url": "http:/.../front.jpeg", "title": "a,<b", "rel": "next"}],
+        ),
+        (
+            # The same comma-before-"<" case, but with a second, real link
+            # entry following it, to prove the split still finds it.
+            '<http:/.../front.jpeg>; title="a,<b",<http://.../back.jpeg>;',
+            [
+                {"url": "http:/.../front.jpeg", "title": "a,<b"},
+                {"url": "http://.../back.jpeg"},
+            ],
+        ),
         ("", []),
     ),
 )

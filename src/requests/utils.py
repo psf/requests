@@ -984,6 +984,39 @@ def _parse_header_links_params(value: str) -> list[str]:
     return params
 
 
+def _split_link_header_entries(value: str) -> list[str]:
+    """Split a Link header value into individual "<url>; params" entries
+    without splitting on a ", *<" that occurs inside a quoted parameter
+    value (RFC 8288 quoted-strings may contain commas)."""
+    entries: list[str] = []
+    start = 0
+    in_quotes = False
+    escaped = False
+    length = len(value)
+    index = 0
+
+    while index < length:
+        char = value[index]
+        if escaped:
+            escaped = False
+        elif char == "\\" and in_quotes:
+            escaped = True
+        elif char == '"':
+            in_quotes = not in_quotes
+        elif char == "," and not in_quotes:
+            lookahead = index + 1
+            while lookahead < length and value[lookahead] == " ":
+                lookahead += 1
+            if lookahead < length and value[lookahead] == "<":
+                entries.append(value[start:index])
+                start = lookahead + 1
+                index = lookahead
+        index += 1
+
+    entries.append(value[start:])
+    return entries
+
+
 def parse_header_links(value: str) -> list[dict[str, str]]:
     """Return a list of parsed link headers proxies.
 
@@ -1000,7 +1033,7 @@ def parse_header_links(value: str) -> list[dict[str, str]]:
     if not value:
         return links
 
-    for val in re.split(", *<", value):
+    for val in _split_link_header_entries(value):
         try:
             url, params = val.split(";", 1)
         except ValueError:
