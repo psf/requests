@@ -142,6 +142,18 @@ class TestSuperLen:
         foo.read(2)
         assert super_len(foo) == 3
 
+    def test_super_len_stringio_multibyte(self):
+        # UTF-8: "👍" is 4 bytes
+        data = "👍"
+        s = StringIO.StringIO(data)
+        assert super_len(s) == 4
+        
+        # Test partial read
+        data_mixed = "abc👍"
+        s = StringIO.StringIO(data_mixed)
+        s.read(3)
+        assert super_len(s) == 4
+
     def test_super_len_with_fileno(self):
         with open(__file__, "rb") as f:
             length = super_len(f)
