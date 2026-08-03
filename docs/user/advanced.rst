@@ -399,10 +399,11 @@ upload image files to an HTML form with a multiple file field 'images'::
 To do that, just set files to a list of tuples of ``(form_field_name, file_info)``::
 
     >>> url = 'https://httpbin.org/post'
-    >>> multiple_files = [
-    ...     ('images', ('foo.png', open('foo.png', 'rb'), 'image/png')),
-    ...     ('images', ('bar.png', open('bar.png', 'rb'), 'image/png'))]
-    >>> r = requests.post(url, files=multiple_files)
+    >>> with open('foo.png', 'rb') as fd1, open('bar.png', 'rb') as fd2:
+    ...     multiple_files = [
+    ...         ('images', ('foo.png', fd1, 'image/png')),
+    ...         ('images', ('bar.png', fd2, 'image/png'))]
+    ...     r = requests.post(url, files=multiple_files)
     >>> r.text
     {
       ...
