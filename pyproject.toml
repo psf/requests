@@ -47,8 +47,11 @@ classifiers = [
 ]
 
 [project.urls]
+Changelog = "https://requests.readthedocs.io/en/latest/community/updates/#release-history"
 Documentation = "https://requests.readthedocs.io"
+Issues = "https://github.com/psf/requests/issues"
 Source = "https://github.com/psf/requests"
+Sponsor = "https://www.python.org/psf/sponsorship/"
 
 [project.optional-dependencies]
 security = []
