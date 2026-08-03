@@ -1024,10 +1024,22 @@ library to use SSLv3::
     class Ssl3HttpAdapter(HTTPAdapter):
         """"Transport adapter" that allows us to use SSLv3."""
 
+        __attrs__ = HTTPAdapter.__attrs__ + ["ssl_version"]
+
+        def __init__(self, ssl_version=ssl.PROTOCOL_SSLv3, **kwargs):
+            self.ssl_version = ssl_version
+            super().__init__(**kwargs)
+
         def init_poolmanager(self, connections, maxsize, block=False):
             self.poolmanager = PoolManager(
                 num_pools=connections, maxsize=maxsize,
-                block=block, ssl_version=ssl.PROTOCOL_SSLv3)
+                block=block, ssl_version=self.ssl_version)
+
+If a custom Transport Adapter stores extra instance attributes, extend
+``HTTPAdapter.__attrs__`` with those attribute names. Requests uses this list
+when pickling adapters, which can happen when a :class:`Session
+<requests.Session>` is copied or serialized. Without listing custom state in
+``__attrs__``, unpickling the adapter may lose that state.
 
 Example: Automatic Retries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
