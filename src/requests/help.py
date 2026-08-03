@@ -4,32 +4,39 @@ import json
 import platform
 import ssl
 import sys
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import idna
 import urllib3
 
 from . import __version__ as requests_version
 
-try:
-    import charset_normalizer
-except ImportError:
-    charset_normalizer = None
-
-try:
+if TYPE_CHECKING:
     import chardet
-except ImportError:
-    chardet = None
-
-try:
-    from urllib3.contrib import pyopenssl
-except ImportError:
-    pyopenssl = None
-    OpenSSL = None
-    cryptography = None
-else:
+    import charset_normalizer
     import cryptography
     import OpenSSL
+    from urllib3.contrib import pyopenssl
+else:
+    try:
+        import charset_normalizer
+    except ImportError:
+        charset_normalizer = None
+
+    try:
+        import chardet
+    except ImportError:
+        chardet = None
+
+    try:
+        from urllib3.contrib import pyopenssl
+    except ImportError:
+        pyopenssl = None
+        OpenSSL = None
+        cryptography = None
+    else:
+        import cryptography
+        import OpenSSL
 
 
 def _implementation():
@@ -79,7 +86,7 @@ def info() -> dict[str, Any]:
 
     implementation_info = _implementation()
     urllib3_info = {"version": urllib3.__version__}
-    charset_normalizer_info = {"version": None}
+    charset_normalizer_info: dict[str, str | None] = {"version": None}
     chardet_info: dict[str, str | None] = {"version": None}
     if charset_normalizer:
         charset_normalizer_info = {"version": charset_normalizer.__version__}
@@ -123,7 +130,7 @@ def info() -> dict[str, Any]:
     }
 
 
-def main():
+def main() -> None:
     """Pretty-print the bug information as JSON."""
     print(json.dumps(info(), sort_keys=True, indent=2))
 
