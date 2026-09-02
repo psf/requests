@@ -426,3 +426,36 @@ def test_json_decode_compatibility_for_alt_utf_encodings():
     assert isinstance(excinfo.value, requests.exceptions.RequestException)
     assert isinstance(excinfo.value, JSONDecodeError)
     assert r.text not in str(excinfo.value)
+
+def test_digestauth_uri_includes_path_parameters():
+    """Ensure the uri field in Digest auth header includes path parameters
+    (semicolon-delimited) as per RFC 7616.
+
+    Python's urlparse splits "path;params" into .path and .params.
+    The digest auth uri field must reconstruct the full path including params.
+
+    See https://github.com/psf/requests/issues/6990.
+    """
+    auth = requests.auth.HTTPDigestAuth("user", "pass")
+    auth.init_per_thread_state()
+    auth._thread_local.chal = {
+        "nonce": "abc123",
+        "realm": "test",
+        "qop": "auth",
+    }
+
+    # URL with semicolon path parameter (e.g. MusicBrainz API)
+    header = auth.build_digest_header("GET", "http://example.com/ws/2/artist;name=test")
+    assert header is not None
+    # The uri field must include the full path with params
+    assert 'uri="/ws/2/artist;name=test"' in header
+
+    # URL with both params and query
+    header2 = auth.build_digest_header("GET", "http://example.com/path;foo=bar?q=1")
+    assert header2 is not None
+    assert 'uri="/path;foo=bar?q=1"' in header2
+
+    # URL without semicolons should work as before
+    header3 = auth.build_digest_header("GET", "http://example.com/normal/path?q=1")
+    assert header3 is not None
+    assert 'uri="/normal/path?q=1"' in header3
