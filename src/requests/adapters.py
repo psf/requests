@@ -742,6 +742,17 @@ class HTTPAdapter(BaseAdapter):
                 raise ReadTimeout(e, request=request)
             elif isinstance(e, _InvalidHeader):
                 raise InvalidHeader(e, request=request)
+            elif isinstance(e, LocationValueError):
+                # urllib3 may raise LocationParseError (subclass of
+                # LocationValueError) from inside `create_connection` when the
+                # hostname has labels that fail validation (e.g. a label longer
+                # than 63 characters). prepare_url catches this at parse time,
+                # but the same exception can also be raised later from the
+                # socket layer where it would otherwise bubble up to the caller
+                # as a urllib3 exception. Wrap it in InvalidURL so users see a
+                # requests-native exception, matching the behaviour of
+                # get_connection_with_tls_context above. See GH #5744.
+                raise InvalidURL(e, request=request)
             else:
                 raise
 
