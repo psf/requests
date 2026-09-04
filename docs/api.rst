@@ -46,6 +46,12 @@ Request Sessions
 .. autoclass:: Session
    :inherited-members:
 
+.. warning::
+   Session objects should not be shared across processes when using ``fork()``.
+   Create Session objects after forking to avoid connection pool conflicts
+   and response mixups. See :ref:`session-objects` for details on safe
+   multi-process usage.
+
 
 Lower-Level Classes
 -------------------
