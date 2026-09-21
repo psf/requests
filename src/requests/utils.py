@@ -888,10 +888,17 @@ def select_proxy(url: str, proxies: dict[str, str] | None) -> str | None:
     :param url: The url being for the request
     :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs
     """
-    proxies = proxies or {}
+    proxies = proxies or {
+        # Respect the precedence of urllib.request.getproxies
+        'no': os.environ.get('no_proxy') or os.environ.get('NO_PROXY')
+    }
     urlparts = urlparse(url)
     if urlparts.hostname is None:
-        return proxies.get(urlparts.scheme, proxies.get("all"))
+        return proxies.get(urlparts.scheme, proxies.get('all'))
+
+    # Check bypass rules first
+    if should_bypass_proxies(url, no_proxy=proxies.get('no')):
+        return None
 
     proxy_keys = [
         urlparts.scheme + "://" + urlparts.hostname,
@@ -926,7 +933,7 @@ def resolve_proxies(
     proxies = proxies if proxies is not None else {}
     url = cast(str, request.url)
     scheme = urlparse(url).scheme
-    no_proxy = proxies.get("no_proxy")
+    no_proxy = proxies.get('no_proxy') or proxies.get('no')
     new_proxies = proxies.copy()
 
     if trust_env and not should_bypass_proxies(url, no_proxy=no_proxy):
