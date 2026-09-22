@@ -837,11 +837,15 @@ def should_bypass_proxies(url: str, no_proxy: str | None) -> bool:
         no_proxy_hosts = (host for host in no_proxy.replace(" ", "").split(",") if host)
 
         if is_ipv4_address(hostname):
+            host_with_port = hostname
+            if parsed.port:
+                host_with_port += f":{parsed.port}"
+
             for proxy_ip in no_proxy_hosts:
                 if is_valid_cidr(proxy_ip):
                     if address_in_network(hostname, proxy_ip):
                         return True
-                elif hostname == proxy_ip:
+                elif hostname == proxy_ip or host_with_port == proxy_ip:
                     # If no_proxy ip was defined in plain IP notation instead of cidr notation &
                     # matches the IP of the index
                     return True

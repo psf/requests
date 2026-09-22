@@ -845,6 +845,17 @@ def test_should_bypass_proxies_no_proxy(url, expected, monkeypatch):
 
 
 @pytest.mark.parametrize(
+    "url, no_proxy, expected",
+    (
+        ("http://192.168.0.1:5000/", "192.168.0.1:5000", True),
+        ("http://192.168.0.1:5001/", "192.168.0.1:5000", False),
+    ),
+)
+def test_should_bypass_proxies_ipv4_port(url, no_proxy, expected):
+    assert should_bypass_proxies(url, no_proxy=no_proxy) == expected
+
+
+@pytest.mark.parametrize(
     "url, expected",
     (
         ("http://localhost/", True),
