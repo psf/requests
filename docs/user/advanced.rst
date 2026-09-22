@@ -72,6 +72,18 @@ Sessions can also be used as context managers::
 This will make sure the session is closed as soon as the ``with`` block is
 exited, even if unhandled exceptions occurred.
 
+.. warning:: Using Sessions with ``fork()`` / multiprocessing
+
+    If you create a :class:`~requests.Session` in a parent process and then
+    ``fork()`` (for example via the :mod:`multiprocessing` module, Celery, or a
+    pre-fork server model), the underlying connection pool may be shared across
+    processes. This can lead to surprising or unsafe behavior.
+
+    If you use Requests in a multi-process environment, prefer creating a
+    separate :class:`~requests.Session` per process *after* the fork, or avoid
+    sharing Session objects between processes.
+
+
 
 .. admonition:: Remove a Value From a Dict Parameter
 
