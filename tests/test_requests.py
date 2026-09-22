@@ -1313,6 +1313,47 @@ class TestRequests:
         assert cookie.domain == domain
         assert cookie._rest["HttpOnly"] == rest["HttpOnly"]
 
+    def test_cookie_popitem(self):
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("some_cookie", "some_value")
+        jar.set("some_cookie1", "some_value1")
+
+        items = dict(jar.items())
+
+        name, value = jar.popitem()
+        assert (name, value) in items.items()
+        assert name not in jar
+        assert len(jar) == 1
+
+        jar.popitem()
+        assert len(jar) == 0
+
+        with pytest.raises(KeyError):
+            jar.popitem()
+
+    def test_cookie_popitem_removes_only_the_selected_cookie(self):
+        # Two cookies share a name but live on different domains. popitem() must
+        # remove exactly the one it returns, not every cookie with that name.
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("dup", "value-a", domain="a.example.com", path="/")
+        jar.set("dup", "value-b", domain="b.example.com", path="/")
+        assert len(jar) == 2
+
+        name, value = jar.popitem()
+        assert name == "dup"
+        assert len(jar) == 1
+
+        remaining = next(iter(jar))
+        assert remaining.name == "dup"
+        assert {value, remaining.value} == {"value-a", "value-b"}
+
+    def test_cookie_popitem_on_empty_jar_raises_keyerror(self):
+        # popitem() on an empty jar must raise KeyError, matching dict.popitem()
+        # so downstream code that relies on that exception keeps working.
+        jar = requests.cookies.RequestsCookieJar()
+        with pytest.raises(KeyError):
+            jar.popitem()
+
     def test_cookie_as_dict_keeps_len(self):
         key = "some_cookie"
         value = "some_value"
