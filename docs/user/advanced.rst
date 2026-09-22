@@ -17,6 +17,16 @@ you're making several requests to the same host, the underlying TCP
 connection will be reused, which can result in a significant performance
 increase (see `HTTP persistent connection`_).
 
+.. warning::
+
+   ``requests.Session`` objects are **not safe to share across multiple processes**.
+   In a multi-process environment (for example, when using ``multiprocessing`` or
+   task queues like Celery), create a **separate Session in each process**.
+
+   Sharing a Session across processes may lead to unexpected behavior due to
+   connection pooling being inherited after a process fork.
+
+
 A Session object has all the methods of the main Requests API.
 
 Let's persist some cookies across requests::
