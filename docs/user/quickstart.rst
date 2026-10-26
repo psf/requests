@@ -568,6 +568,16 @@ If a request exceeds the configured number of maximum redirections, a
 All exceptions that Requests explicitly raises inherit from
 :exc:`requests.exceptions.RequestException`.
 
------------------------
+You can handle these exceptions using a ``try``/``except`` block::
 
-Ready for more? Check out the :ref:`advanced <advanced>` section.
+    >>> try:
+    ...     r = requests.get('https://api.github.com/events', timeout=5)
+    ...     r.raise_for_status()
+    ... except requests.exceptions.Timeout:
+    ...     print("The request timed out.")
+    ... except requests.exceptions.ConnectionError:
+    ...     print("A network problem occurred.")
+    ... except requests.exceptions.HTTPError as e:
+    ...     print(f"HTTP error: {e}")
+    ... except requests.exceptions.RequestException as e:
+    ...     print(f"Something went wrong: {e}")
