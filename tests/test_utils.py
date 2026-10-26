@@ -690,6 +690,34 @@ def test_iter_slices(value, length):
                 {"url": "http://.../back.jpeg"},
             ],
         ),
+        (
+            # A quoted parameter value may itself contain "=" (RFC 8288);
+            # it must be kept and must not drop the parameters after it.
+            '<http:/.../front.jpeg>; title="a=b"; rel="next"',
+            [{"url": "http:/.../front.jpeg", "title": "a=b", "rel": "next"}],
+        ),
+        (
+            # Quoted parameter values may contain both "=" and ";"; separators
+            # inside the quoted string must not create another parameter.
+            '<http:/.../front.jpeg>; title="a=b;c"; rel="next"',
+            [{"url": "http:/.../front.jpeg", "title": "a=b;c", "rel": "next"}],
+        ),
+        (
+            # A quoted parameter value may contain "," immediately followed by
+            # "<" (RFC 8288 quoted-strings may contain commas); this must not
+            # be mistaken for the separator between two link entries.
+            '<http:/.../front.jpeg>; title="a,<b"; rel="next"',
+            [{"url": "http:/.../front.jpeg", "title": "a,<b", "rel": "next"}],
+        ),
+        (
+            # The same comma-before-"<" case, but with a second, real link
+            # entry following it, to prove the split still finds it.
+            '<http:/.../front.jpeg>; title="a,<b",<http://.../back.jpeg>;',
+            [
+                {"url": "http:/.../front.jpeg", "title": "a,<b"},
+                {"url": "http://.../back.jpeg"},
+            ],
+        ),
         ("", []),
     ),
 )
