@@ -47,7 +47,7 @@ def request(
     :type timeout: float or tuple
     :param allow_redirects: (optional) Boolean. Enable/disable GET/OPTIONS/POST/PUT/PATCH/DELETE/HEAD redirection. Defaults to ``True``.
     :type allow_redirects: bool
-    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+    :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy. Can also include a ``'no'`` or ``'no_proxy'`` key to specify URLs that should bypass proxy settings.
     :param verify: (optional) Either a boolean, in which case it controls whether we verify
             the server's TLS certificate, or a string, in which case it must be a path
             to a CA bundle to use. Defaults to ``True``.
