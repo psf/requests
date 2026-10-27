@@ -251,6 +251,35 @@ during local development or testing.
 
 By default, ``verify`` is set to True. Option ``verify`` only applies to host certs.
 
+SSL Troubleshooting
+~~~~~~~~~~~~~~~~~~~
+
+If you encounter a ``requests.exceptions.SSLError``, common causes include:
+
+* **Self-signed or privately issued certificate** — the server uses a certificate
+  that is not in the default CA bundle. Pass your own CA bundle via
+  ``verify='/path/to/ca-bundle.pem'``.
+* **Incomplete certificate chain** — the server does not send all intermediate
+  certificates. This is a server-side issue, but you can work around it by
+  providing a custom CA bundle that includes the missing intermediate.
+* **Hostname mismatch** — the certificate's ``CN`` or ``SAN`` fields do not
+  match the URL hostname.
+* **Outdated CA bundle** — the local ``certifi`` package is too old. Update it
+  with ``pip install --upgrade certifi`` and retry.
+* **Custom CA infrastructure** — your environment uses a private or corporate
+  certificate authority. Point Requests at that CA bundle explicitly::
+
+      >>> requests.get('https://internal.example', verify='/path/to/ca-bundle.pem')
+
+Basic checks:
+
+1. Confirm the target hostname matches the certificate's ``CN`` or ``SAN``.
+2. Update ``certifi`` and retry.
+3. If you use a custom CA, pass it via ``verify=/path/to/ca-bundle.pem``.
+4. For local-only testing, use ``verify=False`` **only** if you understand the
+   security trade-off — it disables all certificate verification and makes your
+   application vulnerable to man-in-the-middle attacks.
+
 Client Side Certificates
 ------------------------
 
