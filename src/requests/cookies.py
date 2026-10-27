@@ -299,6 +299,23 @@ class RequestsCookieJar(CookieJar, MutableMapping[str, str | None]):  # type: ig
         """
         return list(self.iteritems())
 
+    def popitem(self) -> tuple[str, str | None]:
+        """Dict-like popitem() that removes and returns a (name, value) pair,
+        or raises KeyError if the jar is empty.
+
+        The inherited ``MutableMapping.popitem`` does not work here because
+        ``__iter__`` yields ``Cookie`` objects rather than names.
+        """
+        try:
+            cookie = next(iter(self))
+        except StopIteration:
+            raise KeyError("popitem(): cookie jar is empty") from None
+        # Remove the exact cookie the iterator selected. Deleting by name alone
+        # (``del self[name]``) would drop every cookie sharing that name across
+        # other domains/paths, not just the one returned here.
+        self.clear(cookie.domain, cookie.path, cookie.name)
+        return cookie.name, cookie.value
+
     def list_domains(self) -> list[str]:
         """Utility method to list all the domains in the jar."""
         domains: list[str] = []
