@@ -1043,7 +1043,14 @@ class Response:
             if self.status_code == 0 or self.raw is None:
                 self._content = None
             else:
-                self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+                try:
+                    self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+                except Exception as exc:
+                    self._content_error = exc
+                    raise
+
+        if hasattr(self, "_content_error"):
+            raise self._content_error
 
         self._content_consumed = True
         # don't need to release the connection; that's been handled by urllib3
