@@ -588,6 +588,13 @@ class TestRequests:
             ("http://localhost:1", ConnectionError),
             # Inputting a URL that cannot be parsed should raise an InvalidURL error
             ("http://fe80::5054:ff:fe5a:fc0", InvalidURL),
+            # A DNS label longer than 63 chars survives prepare_url but is
+            # rejected by urllib3 inside create_connection. Should surface as
+            # InvalidURL, not as a raw urllib3.LocationParseError. GH #5744.
+            (
+                "http://" + ("a" * 64) + ".example.com",
+                InvalidURL,
+            ),
         ),
     )
     def test_errors(self, url, exception):
