@@ -870,28 +870,60 @@ def should_bypass_proxies(url: str, no_proxy: str | None) -> bool:
     return False
 
 
+def _extract_no_proxy(proxies: Mapping[str, str | None] | None) -> str | None:
+    """Extract an explicit proxy bypass rule ('no_proxy' or 'no') from proxies."""
+    if proxies is None:
+        return None
+    no_proxy = proxies.get("no_proxy")
+    if no_proxy is not None:
+        return no_proxy
+    return proxies.get("no")
+
+
+def _should_bypass_proxies_with_trust_env(
+    url: str,
+    proxies: Mapping[str, str | None] | None,
+    trust_env: bool,
+) -> bool:
+    """Evaluate proxy bypass rules respecting explicit keys and trust_env."""
+    no_proxy = _extract_no_proxy(proxies)
+    if no_proxy is not None:
+        return bool(no_proxy) and should_bypass_proxies(url, no_proxy=no_proxy)
+    if trust_env:
+        return should_bypass_proxies(url, no_proxy=None)
+    return False
+
+
 def get_environ_proxies(url: str, no_proxy: str | None = None) -> dict[str, str]:
     """
     Return a dict of environment proxies.
 
     :rtype: dict
     """
-    if should_bypass_proxies(url, no_proxy=no_proxy):
+    if no_proxy != "" and should_bypass_proxies(url, no_proxy=no_proxy):
         return {}
     else:
         return getproxies()
 
 
-def select_proxy(url: str, proxies: dict[str, str] | None) -> str | None:
+def select_proxy(
+    url: str,
+    proxies: dict[str, str] | None,
+    trust_env: bool = True,
+) -> str | None:
     """Select a proxy for the url, if applicable.
 
     :param url: The url being for the request
     :param proxies: A dictionary of schemes or schemes and hosts to proxy URLs
+    :param trust_env: Boolean declaring whether to trust environment configs
     """
     proxies = proxies or {}
     urlparts = urlparse(url)
     if urlparts.hostname is None:
         return proxies.get(urlparts.scheme, proxies.get("all"))
+
+    if _should_bypass_proxies_with_trust_env(url, proxies, trust_env):
+        return None
 
     proxy_keys = [
         urlparts.scheme + "://" + urlparts.hostname,
@@ -926,10 +958,10 @@ def resolve_proxies(
     proxies = proxies if proxies is not None else {}
     url = cast(str, request.url)
     scheme = urlparse(url).scheme
-    no_proxy = proxies.get("no_proxy")
+    no_proxy = _extract_no_proxy(proxies)
     new_proxies = proxies.copy()
 
-    if trust_env and not should_bypass_proxies(url, no_proxy=no_proxy):
+    if trust_env and not _should_bypass_proxies_with_trust_env(url, proxies, trust_env):
         environ_proxies = get_environ_proxies(url, no_proxy=no_proxy)
 
         proxy = environ_proxies.get(scheme, environ_proxies.get("all"))
