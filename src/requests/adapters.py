@@ -480,7 +480,7 @@ class HTTPAdapter(BaseAdapter):
         """
         assert _is_prepared(request)
 
-        proxy = select_proxy(request.url, proxies)
+        proxy = select_proxy(request.url, proxies, trust_env=False)
         try:
             host_params, pool_kwargs = self.build_connection_pool_key_attributes(
                 request,
@@ -532,7 +532,7 @@ class HTTPAdapter(BaseAdapter):
             ),
             DeprecationWarning,
         )
-        proxy = select_proxy(url, proxies)
+        proxy = select_proxy(url, proxies, trust_env=False)
 
         if proxy:
             proxy = prepend_scheme_if_needed(proxy, "http")
@@ -580,7 +580,7 @@ class HTTPAdapter(BaseAdapter):
         """
         assert _is_prepared(request)
 
-        proxy = select_proxy(request.url, proxies)
+        proxy = select_proxy(request.url, proxies, trust_env=False)
         scheme = urlparse(request.url).scheme
 
         is_proxied_http_request = proxy and scheme != "https"

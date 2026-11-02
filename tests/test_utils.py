@@ -1011,3 +1011,87 @@ def test_should_bypass_proxies_win_registry_ProxyOverride_value(monkeypatch):
     monkeypatch.setattr(winreg, "OpenKey", OpenKey)
     monkeypatch.setattr(winreg, "QueryValueEx", QueryValueEx)
     assert should_bypass_proxies("http://example.com/", None) is False
+
+
+@pytest.mark.parametrize(
+    "url, no_proxy_env, proxies, expected_proxy",
+    [
+        ("http://example.com", "example.com", {"http": "http://proxy.com"}, None),
+        (
+            "http://example.com",
+            "other.com",
+            {"http": "http://proxy.com"},
+            "http://proxy.com",
+        ),
+        ("http://test.example.com", "example.com", {"http": "http://proxy.com"}, None),
+        ("http://example.com", "*", {"http": "http://proxy.com"}, None),
+        (
+            "http://example.com",
+            None,
+            {"http": "http://proxy.com"},
+            "http://proxy.com",
+        ),
+        ("http://internal.com", "internal.com", {"all": "http://proxy.com"}, None),
+        ("https://internal.com", "internal.com", {"all": "http://proxy.com"}, None),
+    ],
+)
+def test_select_proxy_with_no_proxy(
+    url, no_proxy_env, proxies, expected_proxy, monkeypatch
+):
+    """Test that select_proxy honors NO_PROXY environment variable by default."""
+    monkeypatch.delenv("no_proxy", raising=False)
+    if no_proxy_env:
+        monkeypatch.setenv("NO_PROXY", no_proxy_env)
+    else:
+        monkeypatch.delenv("NO_PROXY", raising=False)
+
+    assert select_proxy(url, proxies) == expected_proxy
+
+
+@pytest.mark.parametrize(
+    "url, no_proxy_env, proxies, trust_env, expected_proxy",
+    [
+        (
+            "http://example.com",
+            "example.com",
+            {"http": "http://proxy.com"},
+            False,
+            "http://proxy.com",
+        ),
+        (
+            "http://example.com",
+            "other.com",
+            {"http": "http://proxy.com", "no_proxy": "example.com"},
+            False,
+            None,
+        ),
+        (
+            "http://example.com",
+            "other.com",
+            {"http": "http://proxy.com", "no": "example.com"},
+            False,
+            None,
+        ),
+        (
+            "http://example.com",
+            "example.com",
+            {"http": "http://proxy.com", "no_proxy": ""},
+            True,
+            "http://proxy.com",
+        ),
+        (
+            "http://example.com",
+            "example.com",
+            {"http": "http://proxy.com", "no": ""},
+            True,
+            "http://proxy.com",
+        ),
+    ],
+)
+def test_select_proxy_trust_env_and_explicit_bypass(
+    url, no_proxy_env, proxies, trust_env, expected_proxy, monkeypatch
+):
+    """Test select_proxy trust_env handling and explicit no_proxy/no keys."""
+    monkeypatch.delenv("no_proxy", raising=False)
+    monkeypatch.setenv("NO_PROXY", no_proxy_env)
+    assert select_proxy(url, proxies, trust_env=trust_env) == expected_proxy

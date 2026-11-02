@@ -2056,6 +2056,93 @@ class TestRequests:
 
         assert "Unable to rewind request body" in str(e)
 
+    @pytest.mark.parametrize("bypass_key", ("no_proxy", "no"))
+    def test_no_proxy_in_proxies_dict(self, httpbin_secure, bypass_key):
+        url = httpbin_secure("get")
+        host = urlparse(url).hostname
+
+        proxies = {"https": INVALID_PROXY, bypass_key: host}
+        with override_environ(NO_PROXY="", no_proxy=""):
+            r = requests.get(url, proxies=proxies, verify=False)
+            assert r.status_code == 200
+
+        proxies = {"https": INVALID_PROXY}
+        with override_environ(NO_PROXY=host, no_proxy=""):
+            r = requests.get(url, proxies=proxies, verify=False)
+            assert r.status_code == 200
+
+    @pytest.mark.parametrize("bypass_key", ("no_proxy", "no"))
+    def test_no_proxy_star_in_proxies_dict(self, httpbin_secure, bypass_key):
+        url = httpbin_secure("get")
+        proxies = {"https": INVALID_PROXY, bypass_key: "*"}
+        with override_environ(NO_PROXY="", no_proxy=""):
+            r = requests.get(url, proxies=proxies, verify=False)
+            assert r.status_code == 200
+
+    @pytest.mark.parametrize("bypass_key", ("no_proxy", "no"))
+    def test_no_proxy_not_matching_in_proxies_dict(self, httpbin_secure, bypass_key):
+        url = httpbin_secure("get")
+        proxies = {"https": INVALID_PROXY, bypass_key: "example.com"}
+        with override_environ(NO_PROXY="", no_proxy=""):
+            with pytest.raises(ProxyError):
+                requests.get(url, proxies=proxies, verify=False)
+
+    def test_trust_env_false_ignores_no_proxy_env(self, httpbin_secure):
+        url = httpbin_secure("get")
+        host = urlparse(url).hostname
+        session = requests.Session()
+        session.trust_env = False
+        session.proxies = {"https": INVALID_PROXY}
+
+        with override_environ(NO_PROXY=host, no_proxy=host):
+            with pytest.raises(ProxyError):
+                session.get(url, verify=False)
+
+    @pytest.mark.parametrize("bypass_key", ("no_proxy", "no"))
+    def test_trust_env_false_honors_explicit_no_proxy(self, httpbin_secure, bypass_key):
+        url = httpbin_secure("get")
+        host = urlparse(url).hostname
+        session = requests.Session()
+        session.trust_env = False
+        session.proxies = {"https": INVALID_PROXY, bypass_key: host}
+
+        with override_environ(NO_PROXY="other.example", no_proxy="other.example"):
+            r = session.get(url, verify=False)
+            assert r.status_code == 200
+
+        session.proxies = {"https": INVALID_PROXY, bypass_key: "other.example"}
+        with override_environ(NO_PROXY=host, no_proxy=host):
+            with pytest.raises(ProxyError):
+                session.get(url, verify=False)
+
+    @pytest.mark.parametrize("bypass_key", ("no_proxy", "no"))
+    def test_empty_no_proxy_in_proxies_overrides_env(self, httpbin_secure, bypass_key):
+        url = httpbin_secure("get")
+        host = urlparse(url).hostname
+
+        with override_environ(NO_PROXY=host, no_proxy=host):
+            with pytest.raises(ProxyError):
+                requests.get(
+                    url,
+                    proxies={"https": INVALID_PROXY, bypass_key: ""},
+                    verify=False,
+                )
+
+    def test_no_proxy_redirect_preserves_explicit_proxies(self, httpbin):
+        first_url = httpbin("redirect-to")
+        parsed = urlparse(first_url)
+        assert parsed.hostname == "127.0.0.1"
+        redirect_target = f"{parsed.scheme}://localhost:{parsed.port}/get"
+        proxies = {"http": INVALID_PROXY, "no_proxy": "127.0.0.1"}
+
+        with override_environ(NO_PROXY="", no_proxy=""):
+            with pytest.raises(ProxyError):
+                requests.get(
+                    first_url,
+                    params={"url": redirect_target},
+                    proxies=proxies,
+                )
+
     def test_rewind_body_failed_seek(self):
         class BadFileObj:
             def __init__(self, data):
